@@ -359,14 +359,14 @@ fn value_completion(arg: &Arg) -> Option<String> {
     if let Some(values) = &arg.get_possible_values() {
         if values
             .iter()
-            .any(|value| !value.is_hidden() && value.get_help().is_some())
+            .any(|value| !value.is_hide_set() && value.get_help().is_some())
         {
             Some(format!(
                 "(({}))",
                 values
                     .iter()
                     .filter_map(|value| {
-                        if value.is_hidden() {
+                        if value.is_hide_set() {
                             None
                         } else {
                             Some(format!(
@@ -447,7 +447,7 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
         let help = o.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o, p_global);
 
-        let multiple = if o.is_set(ArgSettings::MultipleOccurrences) {
+        let multiple = if o.is_multiple_occurrences_set() {
             "*"
         } else {
             ""
@@ -550,7 +550,7 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
         let help = f.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, &f, p_global);
 
-        let multiple = if f.is_set(ArgSettings::MultipleOccurrences) {
+        let multiple = if f.is_multiple_occurrences_set() {
             "*"
         } else {
             ""
@@ -628,11 +628,9 @@ fn write_positionals_of(p: &App) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_name());
 
-        let cardinality = if arg.is_set(ArgSettings::MultipleValues)
-            || arg.is_set(ArgSettings::MultipleOccurrences)
-        {
+        let cardinality = if arg.is_multiple_values_set() || arg.is_multiple_occurrences_set() {
             "*:"
-        } else if !arg.is_set(ArgSettings::Required) {
+        } else if !arg.is_required_set() {
             ":"
         } else {
             ""

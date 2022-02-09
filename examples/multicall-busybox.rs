@@ -24,7 +24,7 @@ fn main() {
                         .exclusive(true)
                         .takes_value(true)
                         .default_missing_value("/usr/local/bin")
-                        .use_delimiter(false),
+                        .use_value_delimiter(false),
                 )
                 .subcommands(applet_commands()),
         )

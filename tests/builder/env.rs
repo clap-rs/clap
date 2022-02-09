@@ -191,7 +191,7 @@ fn multiple_one() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MO")
                 .takes_value(true)
-                .use_delimiter(true)
+                .use_value_delimiter(true)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec![""]);
@@ -212,7 +212,7 @@ fn multiple_three() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MULTI1")
                 .takes_value(true)
-                .use_delimiter(true)
+                .use_value_delimiter(true)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec![""]);

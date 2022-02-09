@@ -3,7 +3,7 @@ use indexmap::IndexSet;
 // Internal
 use crate::{
     build::AppSettings as AS,
-    build::{App, Arg, ArgPredicate, ArgSettings},
+    build::{App, Arg, ArgPredicate},
     parse::ArgMatcher,
     util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG,
@@ -69,30 +69,22 @@ impl<'help, 'app> Usage<'help, 'app> {
             usage.push_str(&req_string);
         }
 
-        let has_last = self
-            .app
-            .get_positionals()
-            .any(|p| p.is_set(ArgSettings::Last));
+        let has_last = self.app.get_positionals().any(|p| p.is_last_set());
         // places a '--' in the usage string if there are args and options
         // supporting multiple values
         if self
             .app
             .get_non_positionals()
-            .any(|o| o.is_set(ArgSettings::MultipleValues))
-            && self
-                .app
-                .get_positionals()
-                .any(|p| !p.is_set(ArgSettings::Required))
+            .any(|o| o.is_multiple_values_set())
+            && self.app.get_positionals().any(|p| !p.is_required_set())
             && !(self.app.has_visible_subcommands()
                 || self.app.is_set(AS::AllowExternalSubcommands))
             && !has_last
         {
             usage.push_str(" [--]");
         }
-        let not_req_or_hidden = |p: &Arg| {
-            (!p.is_set(ArgSettings::Required) || p.is_set(ArgSettings::Last))
-                && !p.is_set(ArgSettings::Hidden)
-        };
+        let not_req_or_hidden =
+            |p: &Arg| (!p.is_required_set() || p.is_last_set()) && !p.is_hide_set();
         if self.app.get_positionals().any(not_req_or_hidden) {
             if let Some(args_tag) = self.get_args_tag(incl_reqs) {
                 usage.push_str(&*args_tag);
@@ -103,16 +95,11 @@ impl<'help, 'app> Usage<'help, 'app> {
                 let pos = self
                     .app
                     .get_positionals()
-                    .find(|p| p.is_set(ArgSettings::Last))
+                    .find(|p| p.is_last_set())
                     .expect(INTERNAL_ERROR_MSG);
                 debug!("Usage::create_help_usage: '{}' has .last(true)", pos.name);
-                let req = pos.is_set(ArgSettings::Required);
-                if req
-                    && self
-                        .app
-                        .get_positionals()
-                        .any(|p| !p.is_set(ArgSettings::Required))
-                {
+                let req = pos.is_required_set();
+                if req && self.app.get_positionals().any(|p| !p.is_required_set()) {
                     usage.push_str(" -- <");
                 } else if req {
                     usage.push_str(" [--] <");
@@ -202,9 +189,9 @@ impl<'help, 'app> Usage<'help, 'app> {
         for pos in self
             .app
             .get_positionals()
-            .filter(|pos| !pos.is_set(ArgSettings::Required))
-            .filter(|pos| !pos.is_set(ArgSettings::Hidden))
-            .filter(|pos| !pos.is_set(ArgSettings::Last))
+            .filter(|pos| !pos.is_required_set())
+            .filter(|pos| !pos.is_hide_set())
+            .filter(|pos| !pos.is_last_set())
         {
             debug!("Usage::get_args_tag:iter:{}", pos.name);
             let required = self.app.groups_for_arg(&pos.id).any(|grp_s| {
@@ -234,9 +221,9 @@ impl<'help, 'app> Usage<'help, 'app> {
                 .app
                 .get_positionals()
                 .find(|pos| {
-                    !pos.is_set(ArgSettings::Required)
-                        && !pos.is_set(ArgSettings::Hidden)
-                        && !pos.is_set(ArgSettings::Last)
+                    !pos.is_required_set()
+                        && !pos.is_hide_set()
+                        && !pos.is_last_set()
                         && !self.app.groups_for_arg(&pos.id).any(|grp_s| {
                             debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                             // if it's part of a required group we don't want to count it
@@ -266,9 +253,9 @@ impl<'help, 'app> Usage<'help, 'app> {
             Some(
                 self.app
                     .get_positionals()
-                    .filter(|pos| !pos.is_set(ArgSettings::Required))
-                    .filter(|pos| !pos.is_set(ArgSettings::Hidden))
-                    .filter(|pos| !pos.is_set(ArgSettings::Last))
+                    .filter(|pos| !pos.is_required_set())
+                    .filter(|pos| !pos.is_hide_set())
+                    .filter(|pos| !pos.is_last_set())
                     .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
                     .collect::<Vec<_>>()
                     .join(""),
@@ -279,7 +266,7 @@ impl<'help, 'app> Usage<'help, 'app> {
                 .app
                 .get_positionals()
                 .filter_map(|pos| {
-                    if pos.is_set(ArgSettings::Required) && !pos.is_set(ArgSettings::Last) {
+                    if pos.is_required_set() && !pos.is_last_set() {
                         Some(pos.index)
                     } else {
                         None
@@ -291,9 +278,9 @@ impl<'help, 'app> Usage<'help, 'app> {
                 self.app
                     .get_positionals()
                     .filter(|pos| pos.index <= highest_req_pos)
-                    .filter(|pos| !pos.is_set(ArgSettings::Required))
-                    .filter(|pos| !pos.is_set(ArgSettings::Hidden))
-                    .filter(|pos| !pos.is_set(ArgSettings::Last))
+                    .filter(|pos| !pos.is_required_set())
+                    .filter(|pos| !pos.is_hide_set())
+                    .filter(|pos| !pos.is_last_set())
                     .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
                     .collect::<Vec<_>>()
                     .join(""),
@@ -315,11 +302,11 @@ impl<'help, 'app> Usage<'help, 'app> {
                 continue;
             }
 
-            if f.is_set(ArgSettings::Hidden) {
+            if f.is_hide_set() {
                 debug!("Usage::needs_options_tag:iter Option is hidden");
                 continue;
             }
-            if f.is_set(ArgSettings::Required) {
+            if f.is_required_set() {
                 debug!("Usage::needs_options_tag:iter Option is required");
                 continue;
             }
@@ -439,7 +426,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             .filter(|a| self.app.get_positionals().any(|p| &&p.id == a))
             .filter(|&pos| matcher.map_or(true, |m| !m.contains(pos)))
             .filter_map(|pos| self.app.find(pos))
-            .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
+            .filter(|&pos| incl_last || !pos.is_last_set())
             .filter(|pos| !args_in_groups.contains(&pos.id))
             .map(|pos| (pos.index.unwrap(), pos))
             .collect::<Vec<(usize, &Arg)>>();

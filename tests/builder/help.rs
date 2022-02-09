@@ -1757,8 +1757,8 @@ fn issue_1052_require_delim_help() {
                 .required(true)
                 .value_names(&["some", "val"])
                 .takes_value(true)
-                .use_delimiter(true)
-                .require_delimiter(true)
+                .use_value_delimiter(true)
+                .require_value_delimiter(true)
                 .value_delimiter(':'),
         );
 
@@ -1781,8 +1781,8 @@ fn custom_headers_headers() {
                 .required(true)
                 .value_names(&["some", "val"])
                 .takes_value(true)
-                .use_delimiter(true)
-                .require_delimiter(true)
+                .use_value_delimiter(true)
+                .require_value_delimiter(true)
                 .value_delimiter(':'),
         )
         .next_help_heading(Some("NETWORKING"))
@@ -1838,8 +1838,8 @@ fn multiple_custom_help_headers() {
                 .required(true)
                 .value_names(&["some", "val"])
                 .takes_value(true)
-                .use_delimiter(true)
-                .require_delimiter(true)
+                .use_value_delimiter(true)
+                .require_value_delimiter(true)
                 .value_delimiter(':'),
         )
         .next_help_heading(Some("NETWORKING"))

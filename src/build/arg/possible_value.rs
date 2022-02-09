@@ -150,7 +150,14 @@ impl<'help> PossibleValue<'help> {
 
     /// Should the value be hidden from help messages and completion
     #[inline]
+    // TODO: Deprecate
     pub fn is_hidden(&self) -> bool {
+        self.is_hide_set()
+    }
+
+    /// Report if [`PossibleValue::hide`] is set
+    #[inline]
+    pub fn is_hide_set(&self) -> bool {
         self.hide
     }
 

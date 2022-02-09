@@ -159,7 +159,7 @@ fn indices_mult_opt_value_delim_eq() {
             Arg::new("option")
                 .short('o')
                 .takes_value(true)
-                .use_delimiter(true)
+                .use_value_delimiter(true)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec!["myapp", "-o=val1,val2,val3"])

@@ -2,7 +2,7 @@ use crate::{
     build::arg::{debug_asserts::assert_arg, ArgProvider},
     mkeymap::KeyType,
     util::Id,
-    App, AppSettings, Arg, ArgSettings, ValueHint,
+    App, AppSettings, Arg, ValueHint,
 };
 use std::cmp::Ordering;
 
@@ -177,7 +177,7 @@ pub(crate) fn assert_app(app: &App) {
             );
         }
 
-        if arg.is_set(ArgSettings::Last) {
+        if arg.is_last_set() {
             assert!(
                 arg.long.is_none(),
                 "App {}: Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
@@ -193,7 +193,7 @@ pub(crate) fn assert_app(app: &App) {
         }
 
         assert!(
-            !(arg.is_set(ArgSettings::Required) && arg.get_global()),
+            !(arg.is_required_set() && arg.is_global_set()),
             "App {}: Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
                     app.get_name(),
             arg.name
@@ -463,9 +463,9 @@ fn _verify_positionals(app: &App) -> bool {
 
         // Either the final positional is required
         // Or the second to last has a terminator or .last(true) set
-        let ok = last.is_set(ArgSettings::Required)
-            || (second_to_last.terminator.is_some() || second_to_last.is_set(ArgSettings::Last))
-            || last.is_set(ArgSettings::Last);
+        let ok = last.is_required_set()
+            || (second_to_last.terminator.is_some() || second_to_last.is_last_set())
+            || last.is_last_set();
         assert!(
             ok,
             "When using a positional argument with .multiple_values(true) that is *not the \
@@ -474,7 +474,7 @@ fn _verify_positionals(app: &App) -> bool {
         );
 
         // We make sure if the second to last is Multiple the last is ArgSettings::Last
-        let ok = second_to_last.is_multiple() || last.is_set(ArgSettings::Last);
+        let ok = second_to_last.is_multiple() || last.is_last_set();
         assert!(
             ok,
             "Only the last positional argument, or second to last positional \
@@ -485,12 +485,12 @@ fn _verify_positionals(app: &App) -> bool {
         let count = app
             .get_positionals()
             .filter(|p| {
-                p.settings.is_set(ArgSettings::MultipleOccurrences)
-                    || (p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none())
+                p.is_multiple_occurrences_set()
+                    || (p.is_multiple_values_set() && p.num_vals.is_none())
             })
             .count();
         let ok = count <= 1
-            || (last.is_set(ArgSettings::Last)
+            || (last.is_last_set()
                 && last.is_multiple()
                 && second_to_last.is_multiple()
                 && count == 2);
@@ -509,16 +509,16 @@ fn _verify_positionals(app: &App) -> bool {
         let mut foundx2 = false;
 
         for p in app.get_positionals() {
-            if foundx2 && !p.is_set(ArgSettings::Required) {
+            if foundx2 && !p.is_required_set() {
                 assert!(
-                    p.is_set(ArgSettings::Required),
+                    p.is_required_set(),
                     "Found non-required positional argument with a lower \
                          index than a required positional argument by two or more: {:?} \
                          index {:?}",
                     p.name,
                     p.index
                 );
-            } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
+            } else if p.is_required_set() && !p.is_last_set() {
                 // Args that .last(true) don't count since they can be required and have
                 // positionals with a lower index that aren't required
                 // Imagine: prog <req1> [opt1] -- <req2>
@@ -541,13 +541,13 @@ fn _verify_positionals(app: &App) -> bool {
         for p in (1..=num_p).rev().filter_map(|n| app.args.get(&n)) {
             if found {
                 assert!(
-                    p.is_set(ArgSettings::Required),
+                    p.is_required_set(),
                     "Found non-required positional argument with a lower \
                          index than a required positional argument: {:?} index {:?}",
                     p.name,
                     p.index
                 );
-            } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
+            } else if p.is_required_set() && !p.is_last_set() {
                 // Args that .last(true) don't count since they can be required and have
                 // positionals with a lower index that aren't required
                 // Imagine: prog <req1> [opt1] -- <req2>
@@ -560,15 +560,12 @@ fn _verify_positionals(app: &App) -> bool {
         }
     }
     assert!(
-        app.get_positionals()
-            .filter(|p| p.is_set(ArgSettings::Last))
-            .count()
-            < 2,
+        app.get_positionals().filter(|p| p.is_last_set()).count() < 2,
         "Only one positional argument may have last(true) set. Found two."
     );
     if app
         .get_positionals()
-        .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
+        .any(|p| p.is_last_set() && p.is_required_set())
         && app.has_subcommands()
         && !app.is_set(AppSettings::SubcommandsNegateReqs)
     {

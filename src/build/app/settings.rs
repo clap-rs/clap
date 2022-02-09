@@ -256,7 +256,7 @@ pub enum AppSettings {
     /// was used.
     ///
     /// **NOTE:** The same thing can be done manually by setting the final positional argument to
-    /// [`Arg::use_delimiter(false)`]. Using this setting is safer, because it's easier to locate
+    /// [`Arg::use_value_delimiter(false)`]. Using this setting is safer, because it's easier to locate
     /// when making changes.
     ///
     /// # Examples
@@ -268,7 +268,7 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ///
-    /// [`Arg::use_delimiter(false)`]: crate::Arg::use_delimiter()
+    /// [`Arg::use_value_delimiter(false)`]: crate::Arg::use_value_delimiter()
     DontDelimitTrailingValues,
 
     /// Allow partial matches of long arguments or their [aliases].

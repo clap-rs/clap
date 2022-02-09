@@ -171,7 +171,7 @@ impl<'help> UsageParser<'help> {
             if dot_counter == 3 {
                 debug!("UsageParser::multiple: setting multiple");
                 arg.settings.set(ArgSettings::MultipleOccurrences);
-                if arg.is_set(ArgSettings::TakesValue) {
+                if arg.is_takes_value_set() {
                     arg.settings.set(ArgSettings::MultipleValues);
                     arg.settings.set(ArgSettings::UseValueDelimiter);
                     arg.val_delim.get_or_insert(',');
@@ -253,7 +253,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("[flag] --flag 'some help info'");
@@ -261,7 +261,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "flag");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("--flag 'some help info'");
@@ -269,7 +269,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "flag");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("[flag] -f --flag 'some help info'");
@@ -277,7 +277,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'f');
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("[flag] -f... 'some help info'");
@@ -285,7 +285,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("[flag] -f --flag... 'some help info'");
@@ -293,7 +293,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("-f --flag... 'some help info'");
@@ -301,7 +301,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("--flags");
@@ -312,7 +312,7 @@ mod test {
         let a = Arg::from_usage("--flags...");
         assert_eq!(a.name, "flags");
         assert_eq!(a.long.unwrap(), "flags");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("[flags] -f");
@@ -323,7 +323,7 @@ mod test {
         let a = Arg::from_usage("[flags] -f...");
         assert_eq!(a.name, "flags");
         assert_eq!(a.short.unwrap(), 'f');
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("-f 'some help info'");
@@ -331,7 +331,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
 
         let a = Arg::from_usage("-f");
@@ -342,7 +342,7 @@ mod test {
         let a = Arg::from_usage("-f...");
         assert_eq!(a.name, "f");
         assert_eq!(a.short.unwrap(), 'f');
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_multiple_occurrences_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -354,10 +354,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -368,10 +368,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -382,10 +382,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -396,10 +396,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -410,10 +410,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -424,10 +424,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -438,10 +438,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -452,10 +452,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -466,10 +466,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -480,10 +480,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -494,10 +494,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -508,10 +508,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -522,10 +522,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -536,10 +536,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -550,10 +550,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -564,10 +564,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -578,10 +578,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -592,10 +592,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -606,10 +606,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -620,10 +620,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -634,10 +634,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -648,10 +648,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -662,10 +662,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -676,10 +676,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -690,10 +690,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -704,10 +704,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -718,10 +718,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -732,10 +732,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -746,10 +746,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -760,10 +760,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -774,10 +774,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -788,10 +788,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -802,10 +802,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -816,10 +816,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -830,10 +830,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -844,10 +844,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -858,10 +858,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -872,10 +872,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -886,10 +886,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -900,10 +900,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -914,10 +914,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -928,10 +928,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -942,10 +942,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -956,10 +956,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -970,10 +970,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
@@ -984,10 +984,10 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"option"]);
     }
 
@@ -998,10 +998,10 @@ mod test {
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"file", &"mode"]);
     }
 
@@ -1012,10 +1012,10 @@ mod test {
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"file", &"mode"]);
     }
 
@@ -1026,10 +1026,10 @@ mod test {
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"file", &"mode"]);
     }
 
@@ -1040,10 +1040,10 @@ mod test {
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"file", &"mode"]);
     }
 
@@ -1054,10 +1054,10 @@ mod test {
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
     }
 
     #[test]
@@ -1065,9 +1065,9 @@ mod test {
         let a = Arg::from_usage("[pos] 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1076,9 +1076,9 @@ mod test {
         let a = Arg::from_usage("<pos> 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1087,9 +1087,9 @@ mod test {
         let a = Arg::from_usage("[pos]... 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1098,9 +1098,9 @@ mod test {
         let a = Arg::from_usage("[pos]... 'some help\' info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help' info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1109,9 +1109,9 @@ mod test {
         let a = Arg::from_usage("[pos]... 'some \'help\' info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some 'help' info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1123,9 +1123,9 @@ mod test {
         );
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help{n}info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1137,9 +1137,9 @@ mod test {
         );
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help' stuff{n}info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1148,9 +1148,9 @@ mod test {
         let a = Arg::from_usage("<pos>... 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1158,9 +1158,9 @@ mod test {
     fn pos_req() {
         let a = Arg::from_usage("<pos>");
         assert_eq!(a.name, "pos");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1168,9 +1168,9 @@ mod test {
     fn pos_mult() {
         let a = Arg::from_usage("[pos]...");
         assert_eq!(a.name, "pos");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(!a.is_required_set());
         assert!(a.val_names.is_empty());
     }
 
@@ -1179,9 +1179,9 @@ mod test {
         let a = Arg::from_usage("<pos>... @a 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_required_set());
         assert!(a.val_names.is_empty());
         assert_eq!(a.default_vals, vec![std::ffi::OsStr::new("a")]);
     }
@@ -1193,10 +1193,10 @@ mod test {
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"file", &"mode"]);
         assert_eq!(a.default_vals, vec![std::ffi::OsStr::new("a")]);
     }
@@ -1208,10 +1208,10 @@ mod test {
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(!a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(!a.is_multiple_occurrences_set());
+        assert!(!a.is_multiple_values_set());
+        assert!(a.is_takes_value_set());
+        assert!(!a.is_required_set());
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"file", &"mode"]);
         assert_eq!(a.default_vals, vec![std::ffi::OsStr::new("a")]);
     }
