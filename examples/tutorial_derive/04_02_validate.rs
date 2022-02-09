@@ -18,11 +18,11 @@ fn main() {
     println!("PORT = {}", cli.port);
 }
 
-fn port_in_range(v: &str) -> Result<(), String> {
-    usize::from_str(v)
-        .map(|d| PORT_RANGE.contains(&d))
+fn port_in_range(s: &str) -> Result<(), String> {
+    usize::from_str(s)
+        .map(|port| PORT_RANGE.contains(&port))
         .map_err(|e| e.to_string())
-        .and_then(|d| match d {
+        .and_then(|result| match result {
             true => Ok(()),
             false => Err(format!(
                 "Port not in range {}-{}",
