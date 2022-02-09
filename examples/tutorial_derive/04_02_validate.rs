@@ -8,7 +8,7 @@ const PORT_RANGE: RangeInclusive<usize> = 1..=65535;
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// Network port to use
-    #[clap(parse(try_from_str), validator = port_in_range)]
+    #[clap(validator = port_in_range)]
     port: usize,
 }
 
