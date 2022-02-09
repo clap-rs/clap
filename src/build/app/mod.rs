@@ -2917,7 +2917,7 @@ impl<'help> App<'help> {
 
     #[allow(clippy::blocks_in_if_conditions)]
     pub(crate) fn _check_help_and_version(&mut self) {
-        debug!("App::_check_help_and_version");
+        debug!("App::_check_help_and_version: {}", self.name);
 
         if self.is_set(AppSettings::DisableHelpFlag)
             || self.args.args().any(|x| {
@@ -2940,18 +2940,39 @@ impl<'help> App<'help> {
                 self.args.remove(index);
             }
         } else {
-            let other_arg_has_short = self.args.args().any(|x| x.short == Some('h'));
             let help = self
                 .args
-                .args_mut()
+                .args()
                 .find(|x| x.id == Id::help_hash())
                 .expect(INTERNAL_ERROR_MSG);
+            assert_ne!(help.provider, ArgProvider::User);
 
-            if !(help.short.is_some()
-                || other_arg_has_short
+            if help.short.is_some() {
+                if help.short == Some('h') {
+                    if let Some(other_arg) = self
+                        .args
+                        .args()
+                        .find(|x| x.id != Id::help_hash() && x.short == Some('h'))
+                    {
+                        panic!(
+                            "`help`s `-h` conflicts with `{}`.
+
+To change `help`s short, call `app.arg(Arg::new(\"help\")...)`.",
+                            other_arg.name
+                        );
+                    }
+                }
+            } else if !(self.args.args().any(|x| x.short == Some('h'))
                 || self.subcommands.iter().any(|sc| sc.short_flag == Some('h')))
             {
+                let help = self
+                    .args
+                    .args_mut()
+                    .find(|x| x.id == Id::help_hash())
+                    .expect(INTERNAL_ERROR_MSG);
                 help.short = Some('h');
+            } else {
+                debug!("App::_check_help_and_version: Removing `-h` from help");
             }
         }
 

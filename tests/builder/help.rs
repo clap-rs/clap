@@ -1557,7 +1557,7 @@ fn arg_short_conflict_with_help() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Short option names must be unique for each argument, but '-h' is in use by both 'home' and 'help'"]
+#[should_panic = "`help`s `-h` conflicts with `home`."]
 fn arg_short_conflict_with_help_mut_arg() {
     let _ = App::new("conflict")
         .arg(Arg::new("home").short('h'))
@@ -2760,4 +2760,21 @@ ARGS:
     ));
 
     app.debug_assert();
+}
+
+#[test]
+fn help_without_short() {
+    let mut app = clap::App::new("test")
+        .arg(arg!(-h --hex <NUM>))
+        .arg(arg!(--help));
+
+    app._build_all();
+    let help = app
+        .get_arguments()
+        .find(|a| a.get_name() == "help")
+        .unwrap();
+    assert_eq!(help.get_short(), None);
+
+    let m = app.try_get_matches_from(["test", "-h", "0x100"]).unwrap();
+    assert_eq!(m.value_of("hex"), Some("0x100"));
 }
