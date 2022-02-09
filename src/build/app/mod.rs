@@ -2704,20 +2704,16 @@ impl<'help> App<'help> {
 
 // Internally used only
 impl<'help> App<'help> {
-    fn get_used_global_args(&self, matcher: &ArgMatcher, global_arg_vec: &mut Vec<Id>) {
+    fn get_used_global_args(&self, matches: &ArgMatches, global_arg_vec: &mut Vec<Id>) {
         global_arg_vec.extend(
             self.args
                 .args()
                 .filter(|a| a.get_global())
                 .map(|ga| ga.id.clone()),
         );
-        if let Some(used_subcommand) = matcher.subcommand.as_ref() {
-            if let Some(used_subcommand) = self
-                .subcommands
-                .iter()
-                .find(|subcommand| subcommand.id == used_subcommand.id)
-            {
-                return used_subcommand.get_used_global_args(matcher, global_arg_vec);
+        if let Some((id, matches)) = matches.subcommand() {
+            if let Some(used_sub) = self.find_subcommand(id) {
+                used_sub.get_used_global_args(matches, global_arg_vec);
             }
         }
     }
