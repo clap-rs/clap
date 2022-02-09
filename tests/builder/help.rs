@@ -2761,3 +2761,20 @@ ARGS:
 
     app.debug_assert();
 }
+
+#[test]
+fn help_without_short() {
+    let mut app = clap::App::new("test")
+        .arg(arg!(-h --hex <NUM>))
+        .arg(arg!(--help));
+
+    app._build_all();
+    let help = app
+        .get_arguments()
+        .find(|a| a.get_name() == "help")
+        .unwrap();
+    assert_eq!(help.get_short(), None);
+
+    let m = app.try_get_matches_from(["test", "-h", "0x100"]).unwrap();
+    assert_eq!(m.value_of("hex"), Some("0x100"));
+}
