@@ -241,6 +241,11 @@ path = "examples/tutorial_builder/04_01_enum.rs"
 required-features = ["cargo", "derive"]
 
 [[example]]
+name = "04_02_parse"
+path = "examples/tutorial_builder/04_02_parse.rs"
+required-features = ["cargo"]
+
+[[example]]
 name = "04_02_validate"
 path = "examples/tutorial_builder/04_02_validate.rs"
 required-features = ["cargo"]
@@ -314,6 +319,11 @@ required-features = ["derive"]
 [[example]]
 name = "04_01_enum_derive"
 path = "examples/tutorial_derive/04_01_enum.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_02_parse_derive"
+path = "examples/tutorial_derive/04_02_parse.rs"
 required-features = ["derive"]
 
 [[example]]
