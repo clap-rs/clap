@@ -88,3 +88,23 @@ fn global_arg_available_in_subcommand() {
     assert!(m.is_present("global"));
     assert!(m.subcommand_matches("ping").unwrap().is_present("global"));
 }
+
+#[test]
+fn deeply_nested_discovery() {
+    let app = App::new("a").arg(arg!(--"long-a").global(true)).subcommand(
+        App::new("b").arg(arg!(--"long-b").global(true)).subcommand(
+            App::new("c")
+                .arg(arg!(--"long-c").global(true))
+                .subcommand(App::new("d")),
+        ),
+    );
+
+    let m = app
+        .try_get_matches_from(["a", "b", "c", "d", "--long-a", "--long-b", "--long-c"])
+        .unwrap();
+    assert!(m.is_present("long-a"));
+    let m = m.subcommand_matches("b").unwrap();
+    assert!(m.is_present("long-b"));
+    let m = m.subcommand_matches("c").unwrap();
+    assert!(m.is_present("long-c"));
+}

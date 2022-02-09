@@ -2704,23 +2704,18 @@ impl<'help> App<'help> {
 
 // Internally used only
 impl<'help> App<'help> {
-    fn get_used_global_args(&self, matcher: &ArgMatcher) -> Vec<Id> {
-        let global_args: Vec<_> = self
-            .args
-            .args()
-            .filter(|a| a.get_global())
-            .map(|ga| ga.id.clone())
-            .collect();
-        if let Some(used_subcommand) = matcher.subcommand.as_ref() {
-            if let Some(used_subcommand) = self
-                .subcommands
-                .iter()
-                .find(|subcommand| subcommand.id == used_subcommand.id)
-            {
-                return [global_args, used_subcommand.get_used_global_args(matcher)].concat();
+    fn get_used_global_args(&self, matches: &ArgMatches, global_arg_vec: &mut Vec<Id>) {
+        global_arg_vec.extend(
+            self.args
+                .args()
+                .filter(|a| a.get_global())
+                .map(|ga| ga.id.clone()),
+        );
+        if let Some((id, matches)) = matches.subcommand() {
+            if let Some(used_sub) = self.find_subcommand(id) {
+                used_sub.get_used_global_args(matches, global_arg_vec);
             }
         }
-        global_args
     }
 
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
@@ -2742,7 +2737,8 @@ impl<'help> App<'help> {
             }
         }
 
-        let global_arg_vec: Vec<Id> = self.get_used_global_args(&matcher);
+        let mut global_arg_vec = Default::default();
+        self.get_used_global_args(&matcher, &mut global_arg_vec);
 
         matcher.propagate_globals(&global_arg_vec);
 
