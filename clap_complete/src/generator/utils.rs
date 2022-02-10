@@ -1,6 +1,6 @@
 //! Helpers for writing generators
 
-use clap::{App, Arg, ArgSettings};
+use clap::{App, Arg};
 
 /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.
 ///
@@ -121,7 +121,7 @@ pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
 pub fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
     debug!("flags: name={}", p.get_name());
     p.get_arguments()
-        .filter(|a| !a.is_set(ArgSettings::TakesValue) && !a.is_positional())
+        .filter(|a| !a.is_takes_value_set() && !a.is_positional())
         .cloned()
         .collect()
 }

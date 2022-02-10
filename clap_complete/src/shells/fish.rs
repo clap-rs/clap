@@ -143,7 +143,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
 }
 
 fn value_completion(option: &Arg) -> String {
-    if !option.is_set(ArgSettings::TakesValue) {
+    if !option.is_takes_value_set() {
         return "".to_string();
     }
 

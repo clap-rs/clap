@@ -10,7 +10,7 @@ use os_str_bytes::RawOsStr;
 
 // Internal
 use crate::build::AppSettings as AS;
-use crate::build::{App, Arg, ArgSettings};
+use crate::build::{App, Arg};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
@@ -38,11 +38,7 @@ pub(crate) struct Parser<'help, 'app> {
 impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn new(app: &'app mut App<'help>) -> Self {
         let mut reqs = ChildGraph::with_capacity(5);
-        for a in app
-            .args
-            .args()
-            .filter(|a| a.settings.is_set(ArgSettings::Required))
-        {
+        for a in app.args.args().filter(|a| a.is_required_set()) {
             reqs.insert(a.id.clone());
         }
         for group in &app.groups {
@@ -101,7 +97,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // Count of positional args
         let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
         // If any arg sets .last(true)
-        let contains_last = self.app.args.args().any(|x| x.is_set(ArgSettings::Last));
+        let contains_last = self.app.args.args().any(|x| x.is_last_set());
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
@@ -141,7 +137,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         .app
                         .get_positionals()
                         .last()
-                        .map_or(false, |p_name| !p_name.is_set(ArgSettings::Last));
+                        .map_or(false, |p_name| !p_name.is_last_set());
 
                 let missing_pos = self.is_set(AS::AllowMissingPositional)
                     && is_second_to_last
@@ -391,7 +387,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
 
             if let Some(p) = self.app.args.get(&pos_counter) {
-                if p.is_set(ArgSettings::Last) && !trailing_values {
+                if p.is_last_set() && !trailing_values {
                     return Err(ClapError::unknown_argument(
                         self.app,
                         arg_os.to_str_lossy().into_owned(),
@@ -673,7 +669,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         if self.is_set(AS::AllowHyphenValues)
-            || self.app[&current_positional.id].is_set(ArgSettings::AllowHyphenValues)
+            || self.app[&current_positional.id].is_allow_hyphen_values_set()
             || (self.is_set(AS::AllowNegativeNumbers) && next.to_str_lossy().parse::<f64>().is_ok())
         {
             // If allow hyphen, this isn't a new arg.
@@ -858,12 +854,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::use_long_help");
         // In this case, both must be checked. This allows the retention of
         // original formatting, but also ensures that the actual -h or --help
-        // specified by the user is sent through. If HiddenShortHelp is not included,
+        // specified by the user is sent through. If hide_short_help is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some()
-                || v.is_set(ArgSettings::HiddenLongHelp)
-                || v.is_set(ArgSettings::HiddenShortHelp)
+            v.long_help.is_some() || v.is_hide_long_help_set() || v.is_hide_short_help_set()
         };
 
         // Subcommands aren't checked because we prefer short help for them, deferring to
@@ -886,7 +880,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::parse_long_arg");
 
         if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
-            self.app[opt].is_set(ArgSettings::AllowHyphenValues))
+            self.app[opt].is_allow_hyphen_values_set())
         {
             return ParseResult::MaybeHyphenValue;
         }
@@ -929,7 +923,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if let Some(opt) = opt {
             *valid_arg_found = true;
             self.seen.push(opt.id.clone());
-            if opt.is_set(ArgSettings::TakesValue) {
+            if opt.is_takes_value_set() {
                 debug!(
                     "Parser::parse_long_arg: Found an opt with value '{:?}'",
                     &val
@@ -941,7 +935,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     .arg_names()
                     .filter(|&n| {
                         self.app.find(n).map_or(true, |a| {
-                            !(a.is_set(ArgSettings::Hidden) || self.required.contains(&a.id))
+                            !(a.is_hide_set() || self.required.contains(&a.id))
                         })
                     })
                     .cloned()
@@ -992,12 +986,12 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("Parser::parse_short_args: contains non-short flag");
             return ParseResult::MaybeHyphenValue;
         } else if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
-                if self.app[opt].is_set(ArgSettings::AllowHyphenValues))
+                if self.app[opt].is_allow_hyphen_values_set())
         {
             debug!("Parser::parse_short_args: prior arg accepts hyphenated values",);
             return ParseResult::MaybeHyphenValue;
         } else if self.app.args.get(&pos_counter).map_or(false, |arg| {
-            arg.is_set(ArgSettings::AllowHyphenValues) && !arg.is_set(ArgSettings::Last)
+            arg.is_allow_hyphen_values_set() && !arg.is_last_set()
         }) {
             debug!(
                 "Parser::parse_short_args: positional at {} allows hyphens",
@@ -1032,7 +1026,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 );
                 *valid_arg_found = true;
                 self.seen.push(opt.id.clone());
-                if !opt.is_set(ArgSettings::TakesValue) {
+                if !opt.is_takes_value_set() {
                     if let Some(parse_result) = self.check_for_help_and_version_char(c) {
                         return parse_result;
                     }
@@ -1053,7 +1047,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // If attached value is not consumed, we may have more short
                 // flags to parse, continue.
                 //
-                // e.g. `-xvf`, when RequireEquals && x.min_vals == 0, we don't
+                // e.g. `-xvf`, when require_equals && x.min_vals == 0, we don't
                 // consume the `vf`, even if it's provided as value.
                 match self.parse_opt(val, opt, matcher, trailing_values) {
                     ParseResult::AttachedValueNotConsumed => continue,
@@ -1104,8 +1098,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         let has_eq = matches!(attached_value, Some(fv) if fv.starts_with("="));
 
         debug!("Parser::parse_opt; Checking for val...");
-        // RequireEquals is set, but no '=' is provided, try throwing error.
-        if opt.is_set(ArgSettings::RequireEquals) && !has_eq {
+        // require_equals is set, but no '=' is provided, try throwing error.
+        if opt.is_require_equals_set() && !has_eq {
             if opt.min_vals == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
                 self.inc_occurrence_of_arg(matcher, opt);
@@ -1187,7 +1181,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // separate the values or no more vals is needed, we're not
                 // looking for more values.
                 return if val.contains(delim)
-                    || arg.is_set(ArgSettings::RequireDelimiter)
+                    || arg.is_require_value_delimiter_set()
                     || !matcher.needs_more_vals(arg)
                 {
                     ParseResult::ValuesDone
@@ -1448,7 +1442,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some((_, Some(ref val))) = a.env {
                 let val = RawOsStr::new(val);
 
-                if a.is_set(ArgSettings::TakesValue) {
+                if a.is_takes_value_set() {
                     debug!(
                         "Parser::add_env: Found an opt with value={:?}, trailing={:?}",
                         val, trailing_values
@@ -1541,7 +1535,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             .arg_names()
             .filter(|n| {
                 self.app.find(n).map_or(true, |a| {
-                    !(self.required.contains(&a.id) || a.is_set(ArgSettings::Hidden))
+                    !(self.required.contains(&a.id) || a.is_hide_set())
                 })
             })
             .cloned()

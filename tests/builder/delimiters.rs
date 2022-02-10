@@ -97,7 +97,7 @@ fn opt_eq_mult_def_delim() {
                 .long("opt")
                 .takes_value(true)
                 .multiple_values(true)
-                .use_delimiter(true),
+                .use_value_delimiter(true),
         )
         .try_get_matches_from(vec!["", "--opt=val1,val2,val3"]);
 

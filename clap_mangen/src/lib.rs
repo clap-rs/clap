@@ -259,8 +259,7 @@ fn app_has_version(app: &clap::App) -> bool {
 
 // Does the application have any command line arguments?
 fn app_has_arguments(app: &clap::App) -> bool {
-    app.get_arguments()
-        .any(|i| !i.is_set(clap::ArgSettings::Hidden))
+    app.get_arguments().any(|i| !i.is_hide_set())
 }
 
 // Does the application have any subcommands?

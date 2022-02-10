@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgPredicate, ArgSettings};
+use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgPredicate};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -82,7 +82,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     ) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in ma.vals_flatten() {
-            if !arg.is_set(ArgSettings::AllowInvalidUtf8) && val.to_str().is_none() {
+            if !arg.is_allow_invalid_utf8_set() && val.to_str().is_none() {
                 debug!(
                     "Validator::validate_arg_values: invalid UTF-8 found in val {:?}",
                     val
@@ -101,14 +101,14 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 let ok = arg
                     .possible_vals
                     .iter()
-                    .any(|pv| pv.matches(&val_str, arg.is_set(ArgSettings::IgnoreCase)));
+                    .any(|pv| pv.matches(&val_str, arg.is_ignore_case_set()));
                 if !ok {
                     let used: Vec<Id> = matcher
                         .arg_names()
                         .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                         .filter(|&n| {
                             self.p.app.find(n).map_or(true, |a| {
-                                !(a.is_set(ArgSettings::Hidden) || self.p.required.contains(&a.id))
+                                !(a.is_hide_set() || self.p.required.contains(&a.id))
                             })
                         })
                         .cloned()
@@ -125,10 +125,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     ));
                 }
             }
-            if arg.is_set(ArgSettings::ForbidEmptyValues)
-                && val.is_empty()
-                && matcher.contains(&arg.id)
-            {
+            if arg.is_forbid_empty_values_set() && val.is_empty() && matcher.contains(&arg.id) {
                 debug!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
                     self.p.app,
@@ -206,7 +203,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     .app
                     .find(name)
                     // Find `arg`s which are exclusive but also appear with other args.
-                    .filter(|&arg| arg.is_set(ArgSettings::Exclusive) && args_count > 1)
+                    .filter(|&arg| arg.is_exclusive_set() && args_count > 1)
             })
             // Throw an error for the first conflict found.
             .try_for_each(|arg| {
@@ -323,10 +320,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         );
         // Occurrence of positional argument equals to number of values rather
         // than number of grouped values.
-        if ma.get_occurrences() > 1
-            && !a.is_set(ArgSettings::MultipleOccurrences)
-            && !a.is_positional()
-        {
+        if ma.get_occurrences() > 1 && !a.is_multiple_occurrences_set() && !a.is_positional() {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
                 self.p.app,
@@ -359,7 +353,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         if let Some(num) = a.num_vals {
             let total_num = ma.num_vals();
             debug!("Validator::validate_arg_num_vals: num_vals set...{}", num);
-            let should_err = if a.is_set(ArgSettings::MultipleOccurrences) {
+            let should_err = if a.is_multiple_occurrences_set() {
                 total_num % num != 0
             } else {
                 num != total_num
@@ -370,7 +364,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     self.p.app,
                     a,
                     num,
-                    if a.is_set(ArgSettings::MultipleOccurrences) {
+                    if a.is_multiple_occurrences_set() {
                         total_num % num
                     } else {
                         total_num
@@ -414,7 +408,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         };
         // Issue 665 (https://github.com/clap-rs/clap/issues/665)
         // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
-        if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.all_val_groups_empty() {
+        if a.is_takes_value_set() && !min_vals_zero && ma.all_val_groups_empty() {
             return Err(Error::empty_value(
                 self.p.app,
                 &a.possible_vals
@@ -549,7 +543,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .filter(|n| {
                 // Filter out the args we don't want to specify.
                 self.p.app.find(n).map_or(true, |a| {
-                    !a.is_set(ArgSettings::Hidden) && !self.p.required.contains(&a.id)
+                    !a.is_hide_set() && !self.p.required.contains(&a.id)
                 })
             })
             .cloned()

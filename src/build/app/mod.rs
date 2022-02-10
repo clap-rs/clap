@@ -23,7 +23,7 @@ use os_str_bytes::RawOsStr;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
+use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
@@ -2373,7 +2373,7 @@ impl<'help> App<'help> {
     /// Iterate through the *options*.
     pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
-            .filter(|a| a.is_set(ArgSettings::TakesValue) && !a.is_positional())
+            .filter(|a| a.is_takes_value_set() && !a.is_positional())
     }
 
     /// Get a list of all arguments the given argument conflicts with.
@@ -2387,7 +2387,7 @@ impl<'help> App<'help> {
     /// this `App`.
     pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
-        if arg.get_global() {
+        if arg.is_global_set() {
             self.get_global_arg_conflicts_with(arg)
         } else {
             arg.blacklist
@@ -2708,7 +2708,7 @@ impl<'help> App<'help> {
         global_arg_vec.extend(
             self.args
                 .args()
-                .filter(|a| a.get_global())
+                .filter(|a| a.is_global_set())
                 .map(|ga| ga.id.clone()),
         );
         if let Some((id, matches)) = matches.subcommand() {
@@ -2783,7 +2783,7 @@ impl<'help> App<'help> {
                 }
 
                 // Figure out implied settings
-                if a.is_set(ArgSettings::Last) {
+                if a.is_last_set() {
                     // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
                     // in the usage string don't get confused or left out.
                     self.settings.set(AppSettings::DontCollapseArgsInUsage);
@@ -2852,7 +2852,7 @@ impl<'help> App<'help> {
         debug!("App::_propagate_global_args:{}", self.name);
 
         for sc in &mut self.subcommands {
-            for a in self.args.args().filter(|a| a.get_global()) {
+            for a in self.args.args().filter(|a| a.is_global_set()) {
                 let mut propagate = false;
                 let is_generated = matches!(
                     a.provider,

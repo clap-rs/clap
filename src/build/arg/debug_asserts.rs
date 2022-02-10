@@ -1,4 +1,4 @@
-use crate::{Arg, ArgSettings, ValueHint};
+use crate::{Arg, ValueHint};
 
 pub(crate) fn assert_arg(arg: &Arg) {
     debug!("Arg::_debug_asserts:{}", arg.name);
@@ -13,14 +13,14 @@ pub(crate) fn assert_arg(arg: &Arg) {
 
     if arg.value_hint != ValueHint::Unknown {
         assert!(
-            arg.is_set(ArgSettings::TakesValue),
+            arg.is_takes_value_set(),
             "Argument '{}' has value hint but takes no value",
             arg.name
         );
 
         if arg.value_hint == ValueHint::CommandWithArguments {
             assert!(
-                arg.is_set(ArgSettings::MultipleValues),
+                arg.is_multiple_values_set(),
                 "Argument '{}' uses hint CommandWithArguments and must accept multiple values",
                 arg.name
             )
@@ -35,7 +35,7 @@ pub(crate) fn assert_arg(arg: &Arg) {
         );
     }
 
-    if arg.is_set(ArgSettings::Required) {
+    if arg.is_required_set() {
         assert!(
             arg.default_vals.is_empty(),
             "Argument '{}' is required and can't have a default value",
@@ -61,16 +61,14 @@ pub(crate) fn assert_arg(arg: &Arg) {
 }
 
 fn assert_arg_flags(arg: &Arg) {
-    use ArgSettings::*;
-
     macro_rules! checker {
         ($a:ident requires $($b:ident)|+) => {
-            if arg.is_set($a) {
+            if arg.$a() {
                 let mut s = String::new();
 
                 $(
-                    if !arg.is_set($b) {
-                        s.push_str(&format!("  ArgSettings::{} is required when ArgSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
+                    if !arg.$b() {
+                        s.push_str(&format!("  Arg::{} is required when Arg::{} is set.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
 
@@ -81,16 +79,17 @@ fn assert_arg_flags(arg: &Arg) {
         }
     }
 
-    checker!(ForbidEmptyValues requires TakesValue);
-    checker!(RequireDelimiter requires TakesValue | UseValueDelimiter);
-    checker!(HidePossibleValues requires TakesValue);
-    checker!(AllowHyphenValues requires TakesValue);
-    checker!(RequireEquals requires TakesValue);
-    checker!(Last requires TakesValue);
-    checker!(HideDefaultValue requires TakesValue);
-    checker!(MultipleValues requires TakesValue);
-    checker!(IgnoreCase requires TakesValue);
-    checker!(AllowInvalidUtf8 requires TakesValue);
+    checker!(is_forbid_empty_values_set requires is_takes_value_set);
+    checker!(is_require_value_delimiter_set requires is_takes_value_set);
+    checker!(is_require_value_delimiter_set requires is_use_value_delimiter_set);
+    checker!(is_hide_possible_values_set requires is_takes_value_set);
+    checker!(is_allow_hyphen_values_set requires is_takes_value_set);
+    checker!(is_require_equals_set requires is_takes_value_set);
+    checker!(is_last_set requires is_takes_value_set);
+    checker!(is_hide_default_value_set requires is_takes_value_set);
+    checker!(is_multiple_values_set requires is_takes_value_set);
+    checker!(is_ignore_case_set requires is_takes_value_set);
+    checker!(is_allow_invalid_utf8_set requires is_takes_value_set);
 }
 
 fn assert_defaults<'d>(
@@ -103,7 +102,7 @@ fn assert_defaults<'d>(
             if !arg.possible_vals.is_empty() {
                 assert!(
                     arg.possible_vals.iter().any(|possible_val| {
-                        possible_val.matches(default_s, arg.is_set(ArgSettings::IgnoreCase))
+                        possible_val.matches(default_s, arg.is_ignore_case_set())
                     }),
                     "Argument `{}`'s {}={} doesn't match possible values",
                     arg.name,

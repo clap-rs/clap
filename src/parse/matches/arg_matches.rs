@@ -830,7 +830,7 @@ impl ArgMatches {
     /// let m = App::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .use_delimiter(true)
+    ///         .use_value_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1
@@ -871,7 +871,7 @@ impl ArgMatches {
     /// let m = App::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .use_delimiter(true)
+    ///         .use_value_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1

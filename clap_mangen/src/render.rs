@@ -1,4 +1,4 @@
-use clap::{AppSettings, ArgSettings};
+use clap::AppSettings;
 use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(app: &clap::App) -> String {
@@ -81,10 +81,7 @@ pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
 }
 
 pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
-    let items: Vec<_> = app
-        .get_arguments()
-        .filter(|i| !i.is_set(ArgSettings::Hidden))
-        .collect();
+    let items: Vec<_> = app.get_arguments().filter(|i| !i.is_hide_set()).collect();
 
     for opt in items.iter().filter(|a| !a.is_positional()) {
         let mut body = vec![];
@@ -189,7 +186,7 @@ fn subcommand_markers(cmd: &clap::App) -> (&'static str, &'static str) {
 }
 
 fn option_markers(opt: &clap::Arg) -> (&'static str, &'static str) {
-    markers(opt.is_set(ArgSettings::Required))
+    markers(opt.is_required_set())
 }
 
 fn markers(required: bool) -> (&'static str, &'static str) {
@@ -209,7 +206,7 @@ fn long_option(opt: &str) -> Inline {
 }
 
 fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
-    if opt.is_set(ArgSettings::HideEnv) {
+    if opt.is_hide_env_set() {
         return None;
     } else if let Some(env) = opt.get_env() {
         return Some(vec![

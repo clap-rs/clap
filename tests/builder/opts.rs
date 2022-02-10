@@ -305,7 +305,7 @@ fn multiple_vals_pos_arg_delim() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
-                .use_delimiter(true),
+                .use_value_delimiter(true),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
@@ -322,8 +322,8 @@ fn require_delims_no_delim() {
     let r = App::new("mvae")
         .arg(
             arg!(o: -o [opt] ... "some opt")
-                .use_delimiter(true)
-                .require_delimiter(true),
+                .use_value_delimiter(true)
+                .require_value_delimiter(true),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["mvae", "-o", "1", "2", "some"]);
@@ -338,8 +338,8 @@ fn require_delims() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
-                .use_delimiter(true)
-                .require_delimiter(true),
+                .use_value_delimiter(true)
+                .require_value_delimiter(true),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);

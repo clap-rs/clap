@@ -887,6 +887,7 @@ impl<'help> Arg<'help> {
     ///
     /// [`ArgSettings`]: crate::ArgSettings
     #[inline]
+    // TODO: Deprecate
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
@@ -913,6 +914,7 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
+    // TODO: Deprecate
     pub fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
@@ -943,6 +945,7 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
+    // TODO: Deprecate
     pub fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
@@ -966,7 +969,7 @@ impl<'help> Arg<'help> {
     /// `--option=val1,val2,val3` is three values for the `--option` argument. If you wish to
     /// change the delimiter to another character you can use [`Arg::value_delimiter(char)`],
     /// alternatively you can turn delimiting values **OFF** by using
-    /// [`Arg::use_delimiter(false)`][Arg::use_delimiter]
+    /// [`Arg::use_value_delimiter(false)`][Arg::use_value_delimiter]
     ///
     /// # Examples
     ///
@@ -2097,6 +2100,70 @@ impl<'help> Arg<'help> {
     /// let delims = App::new("prog")
     ///     .arg(Arg::new("option")
     ///         .long("option")
+    ///         .use_value_delimiter(true)
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--option=val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(delims.is_present("option"));
+    /// assert_eq!(delims.occurrences_of("option"), 1);
+    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// ```
+    /// The next example shows the difference when turning delimiters off. This is the default
+    /// behavior
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let nodelims = App::new("prog")
+    ///     .arg(Arg::new("option")
+    ///         .long("option")
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--option=val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(nodelims.is_present("option"));
+    /// assert_eq!(nodelims.occurrences_of("option"), 1);
+    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
+    /// ```
+    /// [`Arg::value_delimiter`]: Arg::value_delimiter()
+    #[inline]
+    #[must_use]
+    pub fn use_value_delimiter(mut self, yes: bool) -> Self {
+        if yes {
+            if self.val_delim.is_none() {
+                self.val_delim = Some(',');
+            }
+            self.takes_value(true)
+                .setting(ArgSettings::UseValueDelimiter)
+        } else {
+            self.val_delim = None;
+            self.unset_setting(ArgSettings::UseValueDelimiter)
+        }
+    }
+
+    /// Specifies that an argument should allow grouping of multiple values via a
+    /// delimiter.
+    ///
+    /// i.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
+    /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
+    /// value delimiter for all arguments that accept values (options and positional arguments)
+    ///
+    /// **NOTE:** When this setting is used, it will default [`Arg::value_delimiter`]
+    /// to the comma `,`.
+    ///
+    /// **NOTE:** Implicitly sets [`Arg::takes_value`]
+    ///
+    /// # Examples
+    ///
+    /// The following example shows the default behavior.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let delims = App::new("prog")
+    ///     .arg(Arg::new("option")
+    ///         .long("option")
     ///         .use_delimiter(true)
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
@@ -2127,22 +2194,14 @@ impl<'help> Arg<'help> {
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
     #[inline]
     #[must_use]
-    pub fn use_delimiter(mut self, yes: bool) -> Self {
-        if yes {
-            if self.val_delim.is_none() {
-                self.val_delim = Some(',');
-            }
-            self.takes_value(true)
-                .setting(ArgSettings::UseValueDelimiter)
-        } else {
-            self.val_delim = None;
-            self.unset_setting(ArgSettings::UseValueDelimiter)
-        }
+    // TODO: Deprecate
+    pub fn use_delimiter(self, yes: bool) -> Self {
+        self.use_value_delimiter(yes)
     }
 
     /// Separator between the arguments values, defaults to `,` (comma).
     ///
-    /// **NOTE:** implicitly sets [`Arg::use_delimiter(true)`]
+    /// **NOTE:** implicitly sets [`Arg::use_value_delimiter(true)`]
     ///
     /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
     ///
@@ -2161,13 +2220,13 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
-    /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
+    /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     #[inline]
     #[must_use]
     pub fn value_delimiter(mut self, d: char) -> Self {
         self.val_delim = Some(d);
-        self.takes_value(true).use_delimiter(true)
+        self.takes_value(true).use_value_delimiter(true)
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter.
@@ -2178,7 +2237,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** The default is `false`.
     ///
-    /// **NOTE:** Setting this requires [`Arg::use_delimiter`] and
+    /// **NOTE:** Setting this requires [`Arg::use_value_delimiter`] and
     /// [`Arg::takes_value`]
     ///
     /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
@@ -2195,7 +2254,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("opt")
     ///         .short('o')
     ///         .takes_value(true)
-    ///         .use_delimiter(true)
+    ///         .use_value_delimiter(true)
     ///         .require_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec![
@@ -2214,7 +2273,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("opt")
     ///         .short('o')
     ///         .takes_value(true)
-    ///         .use_delimiter(true)
+    ///         .use_value_delimiter(true)
     ///         .require_delimiter(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -2248,12 +2307,95 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn require_delimiter(self, yes: bool) -> Self {
+    pub fn require_value_delimiter(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::RequireDelimiter)
         } else {
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
+    }
+
+    /// Specifies that *multiple values* may only be set using the delimiter.
+    ///
+    /// This means if an option is encountered, and no delimiter is found, it is assumed that no
+    /// additional values for that option follow. This is unlike the default, where it is generally
+    /// assumed that more values will follow regardless of whether or not a delimiter is used.
+    ///
+    /// **NOTE:** The default is `false`.
+    ///
+    /// **NOTE:** Setting this requires [`Arg::use_value_delimiter`] and
+    /// [`Arg::takes_value`]
+    ///
+    /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
+    /// through help text or other means.
+    ///
+    /// # Examples
+    ///
+    /// These examples demonstrate what happens when `require_delimiter(true)` is used. Notice
+    /// everything works in this first example, as we use a delimiter, as expected.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let delims = App::new("prog")
+    ///     .arg(Arg::new("opt")
+    ///         .short('o')
+    ///         .takes_value(true)
+    ///         .use_value_delimiter(true)
+    ///         .require_delimiter(true)
+    ///         .multiple_values(true))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-o", "val1,val2,val3",
+    ///     ]);
+    ///
+    /// assert!(delims.is_present("opt"));
+    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// ```
+    ///
+    /// In this next example, we will *not* use a delimiter. Notice it's now an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("opt")
+    ///         .short('o')
+    ///         .takes_value(true)
+    ///         .use_value_delimiter(true)
+    ///         .require_delimiter(true))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-o", "val1", "val2", "val3",
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// let err = res.unwrap_err();
+    /// assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
+    /// were present, it stops parsing `-o`. At this point it reaches `val2` and because no
+    /// positional arguments have been defined, it's an error of an unexpected argument.
+    ///
+    /// In this final example, we contrast the above with `clap`'s default behavior where the above
+    /// is *not* an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let delims = App::new("prog")
+    ///     .arg(Arg::new("opt")
+    ///         .short('o')
+    ///         .takes_value(true)
+    ///         .multiple_values(true))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-o", "val1", "val2", "val3",
+    ///     ]);
+    ///
+    /// assert!(delims.is_present("opt"));
+    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// ```
+    #[inline]
+    #[must_use]
+    // TODO: Deprecate
+    pub fn require_delimiter(self, yes: bool) -> Self {
+        self.require_value_delimiter(yes)
     }
 
     /// Sentinel to **stop** parsing multiple values of a give argument.
@@ -2689,7 +2831,7 @@ impl<'help> Arg<'help> {
     ///         .env("MY_FLAG_MULTI")
     ///         .takes_value(true)
     ///         .multiple_values(true)
-    ///         .use_delimiter(true))
+    ///         .use_value_delimiter(true))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -2700,7 +2842,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
+    /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
@@ -4625,8 +4767,9 @@ impl<'help> Arg<'help> {
     }
 
     /// Get information on if this argument is global or not
+    // TODO: Deprecate
     pub fn get_global(&self) -> bool {
-        self.is_set(ArgSettings::Global)
+        self.is_global_set()
     }
 
     /// Get the environment variable name specified for this argument, if any
@@ -4671,6 +4814,118 @@ impl<'help> Arg<'help> {
     /// ```
     pub fn is_positional(&self) -> bool {
         self.long.is_none() && self.short.is_none()
+    }
+
+    /// Reports whether [`Arg::required`] is set
+    pub fn is_required_set(&self) -> bool {
+        self.is_set(ArgSettings::Required)
+    }
+
+    /// Report whether [`Arg::multiple_values`] is set
+    pub fn is_multiple_values_set(&self) -> bool {
+        self.is_set(ArgSettings::MultipleValues)
+    }
+
+    /// Report whether [`Arg::multiple_occurrences`] is set
+    pub fn is_multiple_occurrences_set(&self) -> bool {
+        self.is_set(ArgSettings::MultipleOccurrences)
+    }
+
+    /// Report whether [`Arg::is_takes_value_set`] is set
+    pub fn is_takes_value_set(&self) -> bool {
+        self.is_set(ArgSettings::TakesValue)
+    }
+
+    /// Report whether [`Arg::allow_hyphen_values`] is set
+    pub fn is_allow_hyphen_values_set(&self) -> bool {
+        self.is_set(ArgSettings::AllowHyphenValues)
+    }
+
+    /// Report whether [`Arg::forbid_empty_values`] is set
+    pub fn is_forbid_empty_values_set(&self) -> bool {
+        self.is_set(ArgSettings::ForbidEmptyValues)
+    }
+
+    /// Report whether [`Arg::is_allow_invalid_utf8_set`] is set
+    pub fn is_allow_invalid_utf8_set(&self) -> bool {
+        self.is_set(ArgSettings::AllowInvalidUtf8)
+    }
+
+    /// Report whether [`Arg::global`] is set
+    pub fn is_global_set(&self) -> bool {
+        self.is_set(ArgSettings::Global)
+    }
+
+    /// Report whether [`Arg::next_line_help`] is set
+    pub fn is_next_line_help_set(&self) -> bool {
+        self.is_set(ArgSettings::NextLineHelp)
+    }
+
+    /// Report whether [`Arg::hide`] is set
+    pub fn is_hide_set(&self) -> bool {
+        self.is_set(ArgSettings::Hidden)
+    }
+
+    /// Report whether [`Arg::hide_default_value`] is set
+    pub fn is_hide_default_value_set(&self) -> bool {
+        self.is_set(ArgSettings::HideDefaultValue)
+    }
+
+    /// Report whether [`Arg::hide_possible_values`] is set
+    pub fn is_hide_possible_values_set(&self) -> bool {
+        self.is_set(ArgSettings::HidePossibleValues)
+    }
+
+    /// Report whether [`Arg::hide_env`] is set
+    #[cfg(feature = "env")]
+    pub fn is_hide_env_set(&self) -> bool {
+        self.is_set(ArgSettings::HideEnv)
+    }
+
+    /// Report whether [`Arg::hide_env_values`] is set
+    #[cfg(feature = "env")]
+    pub fn is_hide_env_values_set(&self) -> bool {
+        self.is_set(ArgSettings::HideEnvValues)
+    }
+
+    /// Report whether [`Arg::hide_short_help`] is set
+    pub fn is_hide_short_help_set(&self) -> bool {
+        self.is_set(ArgSettings::HiddenShortHelp)
+    }
+
+    /// Report whether [`Arg::hide_long_help`] is set
+    pub fn is_hide_long_help_set(&self) -> bool {
+        self.is_set(ArgSettings::HiddenLongHelp)
+    }
+
+    /// Report whether [`Arg::use_value_delimiter`] is set
+    pub fn is_use_value_delimiter_set(&self) -> bool {
+        self.is_set(ArgSettings::UseValueDelimiter)
+    }
+
+    /// Report whether [`Arg::require_value_delimiter`] is set
+    pub fn is_require_value_delimiter_set(&self) -> bool {
+        self.is_set(ArgSettings::RequireDelimiter)
+    }
+
+    /// Report whether [`Arg::require_equals`] is set
+    pub fn is_require_equals_set(&self) -> bool {
+        self.is_set(ArgSettings::RequireEquals)
+    }
+
+    /// Reports whether [`Arg::exclusive`] is set
+    pub fn is_exclusive_set(&self) -> bool {
+        self.is_set(ArgSettings::Exclusive)
+    }
+
+    /// Reports whether [`Arg::last`] is set
+    pub fn is_last_set(&self) -> bool {
+        self.is_set(ArgSettings::Last)
+    }
+
+    /// Reports whether [`Arg::ignore_case`] is set
+    pub fn is_ignore_case_set(&self) -> bool {
+        self.is_set(ArgSettings::IgnoreCase)
     }
 }
 
@@ -4882,8 +5137,7 @@ impl<'help> Arg<'help> {
             self.settings.set(ArgSettings::TakesValue);
         }
 
-        if (self.is_set(ArgSettings::UseValueDelimiter)
-            || self.is_set(ArgSettings::RequireDelimiter))
+        if (self.is_use_value_delimiter_set() || self.is_require_value_delimiter_set())
             && self.val_delim.is_none()
         {
             self.val_delim = Some(',');
@@ -4900,7 +5154,7 @@ impl<'help> Arg<'help> {
         }
 
         let self_id = self.id.clone();
-        if self.is_positional() || self.is_set(ArgSettings::MultipleOccurrences) {
+        if self.is_positional() || self.is_multiple_occurrences_set() {
             // Remove self-overrides where they don't make sense.
             //
             // We can evaluate switching this to a debug assert at a later time (though it will
@@ -4916,16 +5170,13 @@ impl<'help> Arg<'help> {
     }
 
     pub(crate) fn longest_filter(&self) -> bool {
-        self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
+        self.is_takes_value_set() || self.long.is_some() || self.short.is_none()
     }
 
     // Used for positionals when printing
     pub(crate) fn multiple_str(&self) -> &str {
         let mult_vals = self.val_names.len() > 1;
-        if (self.is_set(ArgSettings::MultipleValues)
-            || self.is_set(ArgSettings::MultipleOccurrences))
-            && !mult_vals
-        {
+        if (self.is_multiple_values_set() || self.is_multiple_occurrences_set()) && !mult_vals {
             "..."
         } else {
             ""
@@ -4935,7 +5186,7 @@ impl<'help> Arg<'help> {
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
         debug!("Arg::name_no_brackets:{}", self.name);
-        let delim = if self.is_set(ArgSettings::RequireDelimiter) {
+        let delim = if self.is_require_value_delimiter_set() {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
         } else {
             ' '
@@ -4963,7 +5214,7 @@ impl<'help> Arg<'help> {
 
     /// Either multiple values or occurrences
     pub(crate) fn is_multiple(&self) -> bool {
-        self.is_set(ArgSettings::MultipleValues) | self.is_set(ArgSettings::MultipleOccurrences)
+        self.is_multiple_values_set() | self.is_multiple_occurrences_set()
     }
 
     pub(crate) fn get_display_order(&self) -> usize {
@@ -5006,9 +5257,9 @@ impl<'help> Display for Arg<'help> {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
-        if !self.is_positional() && self.is_set(ArgSettings::TakesValue) {
+        if !self.is_positional() && self.is_takes_value_set() {
             let is_optional_val = self.min_vals == Some(0);
-            let sep = if self.is_set(ArgSettings::RequireEquals) {
+            let sep = if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
                     "[="
@@ -5023,7 +5274,7 @@ impl<'help> Display for Arg<'help> {
             };
             f.write_str(sep)?;
         }
-        if self.is_set(ArgSettings::TakesValue) || self.is_positional() {
+        if self.is_takes_value_set() || self.is_positional() {
             display_arg_val(self, |s, _| f.write_str(s))?;
         }
         if need_closing_bracket {
@@ -5109,9 +5360,9 @@ pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
 where
     F: FnMut(&str, bool) -> Result<T, E>,
 {
-    let mult_val = arg.is_set(ArgSettings::MultipleValues);
-    let mult_occ = arg.is_set(ArgSettings::MultipleOccurrences);
-    let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
+    let mult_val = arg.is_multiple_values_set();
+    let mult_occ = arg.is_multiple_occurrences_set();
+    let delim = if arg.is_require_value_delimiter_set() {
         arg.val_delim.expect(INTERNAL_ERROR_MSG)
     } else {
         ' '

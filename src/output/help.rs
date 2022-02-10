@@ -9,7 +9,7 @@ use std::{
 
 // Internal
 use crate::{
-    build::{arg::display_arg_val, App, AppSettings, Arg, ArgSettings},
+    build::{arg::display_arg_val, App, AppSettings, Arg},
     output::{fmt::Colorizer, Usage},
 };
 
@@ -282,9 +282,9 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     fn val(&mut self, arg: &Arg<'help>) -> io::Result<()> {
         debug!("Help::val: arg={}", arg.name);
         let mut need_closing_bracket = false;
-        if arg.is_set(ArgSettings::TakesValue) && !arg.is_positional() {
+        if arg.is_takes_value_set() && !arg.is_positional() {
             let is_optional_val = arg.min_vals == Some(0);
-            let sep = if arg.is_set(ArgSettings::RequireEquals) {
+            let sep = if arg.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
                     "[="
@@ -300,7 +300,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
             self.none(sep)?;
         }
 
-        if arg.is_set(ArgSettings::TakesValue) || arg.is_positional() {
+        if arg.is_takes_value_set() || arg.is_positional() {
             display_arg_val(
                 arg,
                 |s, good| if good { self.good(s) } else { self.none(s) },
@@ -476,7 +476,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     }
 
     fn arg_next_line_help(&self, arg: &Arg<'help>, spec_vals: &str, longest: usize) -> bool {
-        if self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long {
+        if self.next_line_help || arg.is_next_line_help_set() || self.use_long {
             // setting_next_line
             true
         } else {
@@ -495,12 +495,12 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
         let mut spec_vals = vec![];
         #[cfg(feature = "env")]
         if let Some(ref env) = a.env {
-            if !a.is_set(ArgSettings::HideEnv) {
+            if !a.is_hide_env_set() {
                 debug!(
                     "Help::spec_vals: Found environment variable...[{:?}:{:?}]",
                     env.0, env.1
                 );
-                let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
+                let env_val = if !a.is_hide_env_values_set() {
                     format!(
                         "={}",
                         env.1
@@ -514,7 +514,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
                 spec_vals.push(env_info);
             }
         }
-        if !a.is_set(ArgSettings::HideDefaultValue) && !a.default_vals.is_empty() {
+        if !a.is_hide_default_value_set() && !a.default_vals.is_empty() {
             debug!(
                 "Help::spec_vals: Found default value...[{:?}]",
                 a.default_vals
@@ -571,10 +571,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
             }
         }
 
-        if !self.hide_pv
-            && !a.is_set(ArgSettings::HidePossibleValues)
-            && !a.possible_vals.is_empty()
-        {
+        if !self.hide_pv && !a.is_hide_possible_values_set() && !a.possible_vals.is_empty() {
             debug!(
                 "Help::spec_vals: Found possible vals...{:?}",
                 a.possible_vals
@@ -584,7 +581,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
                 .possible_vals
                 .iter()
                 .filter_map(|value| {
-                    if value.is_hidden() {
+                    if value.is_hide_set() {
                         None
                     } else if value.get_name().contains(char::is_whitespace) {
                         Some(format!("{:?}", value.get_name()))
@@ -999,12 +996,12 @@ pub(crate) enum HelpWriter<'writer> {
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
     debug!("should_show_arg: use_long={:?}, arg={}", use_long, arg.name);
-    if arg.is_set(ArgSettings::Hidden) {
+    if arg.is_hide_set() {
         return false;
     }
-    (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long)
-        || (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long)
-        || arg.is_set(ArgSettings::NextLineHelp)
+    (!arg.is_hide_long_help_set() && use_long)
+        || (!arg.is_hide_short_help_set() && !use_long)
+        || arg.is_next_line_help_set()
 }
 
 fn should_show_subcommand(subcommand: &App) -> bool {

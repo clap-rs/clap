@@ -212,7 +212,7 @@ fn gen_options(app: &App, indent: usize) -> String {
 }
 
 fn gen_args(arg: &Arg, indent: usize) -> String {
-    if !arg.is_set(ArgSettings::TakesValue) {
+    if !arg.is_takes_value_set() {
         return "".to_string();
     }
 
@@ -225,7 +225,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         indent = indent
     ));
 
-    if arg.is_set(ArgSettings::MultipleValues) {
+    if arg.is_multiple_values_set() {
         buffer.push_str(&format!(
             "{:indent$}isVariadic: true,\n",
             "",
@@ -233,7 +233,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         ));
     }
 
-    if !arg.is_set(ArgSettings::Required) {
+    if !arg.is_required_set() {
         buffer.push_str(&format!(
             "{:indent$}isOptional: true,\n",
             "",

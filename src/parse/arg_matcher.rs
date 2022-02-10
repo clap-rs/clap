@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 
 // Internal
 use crate::{
-    build::{App, Arg, ArgPredicate, ArgSettings},
+    build::{App, Arg, ArgPredicate},
     parse::{ArgMatches, MatchedArg, SubCommand, ValueSource},
     util::Id,
 };
@@ -130,8 +130,8 @@ impl ArgMatcher {
         debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.update_ty(ValueSource::CommandLine);
-        ma.set_ignore_case(arg.is_set(ArgSettings::IgnoreCase));
-        ma.invalid_utf8_allowed(arg.is_set(ArgSettings::AllowInvalidUtf8));
+        ma.set_ignore_case(arg.is_ignore_case_set());
+        ma.invalid_utf8_allowed(arg.is_allow_invalid_utf8_set());
         ma.inc_occurrences();
     }
 
@@ -189,7 +189,7 @@ impl ArgMatcher {
             let current_num = ma.num_vals();
             if let Some(num) = o.num_vals {
                 debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-                return if o.is_set(ArgSettings::MultipleOccurrences) {
+                return if o.is_multiple_occurrences_set() {
                     (current_num % num) != 0
                 } else {
                     num != current_num
@@ -201,7 +201,7 @@ impl ArgMatcher {
                 debug!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }
-            return o.is_set(ArgSettings::MultipleValues);
+            return o.is_multiple_values_set();
         }
         true
     }
