@@ -1494,7 +1494,7 @@ impl<'help> Arg<'help> {
     /// Perform a custom validation on the argument value.
     ///
     /// You provide a closure
-    /// which accepts a [`String`] value, and return a [`Result`] where the [`Err(String)`] is a
+    /// which accepts a [`&str`] value, and return a [`Result`] where the [`Err(String)`] is a
     /// message displayed to the user.
     ///
     /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
@@ -1525,7 +1525,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// assert_eq!(res.unwrap().value_of("file"), Some("some@file"));
     /// ```
-    /// [`String`]: std::string::String
     /// [`Result`]: std::result::Result
     /// [`Err(String)`]: std::result::Result::Err
     /// [`Arc`]: std::sync::Arc
