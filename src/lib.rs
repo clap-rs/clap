@@ -65,7 +65,7 @@ mod macros;
 mod derive;
 
 #[cfg(feature = "regex")]
-pub use crate::build::arg::RegexRef;
+pub use crate::build::RegexRef;
 
 pub mod error;
 

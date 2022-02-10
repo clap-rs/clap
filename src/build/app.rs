@@ -16,7 +16,6 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::build::app_settings::{AppFlags, AppSettings};
-use crate::build::debug_asserts::assert_app;
 use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -25,6 +24,9 @@ use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
+
+#[cfg(debug_assertions)]
+use crate::build::debug_asserts::assert_app;
 
 /// Build a command-line interface.
 ///

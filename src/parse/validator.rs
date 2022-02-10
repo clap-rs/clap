@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgPredicate};
+use crate::build::{App, AppSettings as AS, Arg, ArgPredicate, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};

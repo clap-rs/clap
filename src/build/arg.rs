@@ -1,15 +1,3 @@
-mod arg_predicate;
-mod possible_value;
-mod settings;
-#[cfg(test)]
-mod tests;
-mod value_hint;
-
-pub use self::possible_value::PossibleValue;
-pub use self::settings::{ArgFlags, ArgSettings};
-pub use self::value_hint::ValueHint;
-pub(crate) use arg_predicate::ArgPredicate;
-
 // Std
 use std::{
     borrow::Cow,
@@ -27,17 +15,16 @@ use std::{env, ffi::OsString};
 use yaml_rust::Yaml;
 
 // Internal
-use crate::{
-    build::usage_parser::UsageParser,
-    util::{Id, Key},
-    INTERNAL_ERROR_MSG,
-};
+use crate::build::usage_parser::UsageParser;
+use crate::build::ArgPredicate;
+use crate::util::{Id, Key};
+use crate::PossibleValue;
+use crate::ValueHint;
+use crate::INTERNAL_ERROR_MSG;
+use crate::{ArgFlags, ArgSettings};
 
 #[cfg(feature = "regex")]
-mod regex;
-
-#[cfg(feature = "regex")]
-pub use self::regex::RegexRef;
+use crate::build::RegexRef;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
