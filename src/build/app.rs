@@ -859,11 +859,15 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn color(self, color: ColorChoice) -> Self {
-        #[allow(deprecated)]
+        #![allow(deprecated)]
+        let app = self
+            .unset_global_setting(AppSettings::ColorAuto)
+            .unset_global_setting(AppSettings::ColorAlways)
+            .unset_global_setting(AppSettings::ColorNever);
         match color {
-            ColorChoice::Auto => self.global_setting(AppSettings::ColorAuto),
-            ColorChoice::Always => self.global_setting(AppSettings::ColorAlways),
-            ColorChoice::Never => self.global_setting(AppSettings::ColorNever),
+            ColorChoice::Auto => app.global_setting(AppSettings::ColorAuto),
+            ColorChoice::Always => app.global_setting(AppSettings::ColorAlways),
+            ColorChoice::Never => app.global_setting(AppSettings::ColorNever),
         }
     }
 
