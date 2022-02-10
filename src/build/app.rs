@@ -96,6 +96,7 @@ pub struct App<'help> {
     pub(crate) subcommand_heading: Option<&'help str>,
 }
 
+/// Basic API
 impl<'help> App<'help> {
     /// Creates a new instance of an `App`.
     ///
@@ -834,7 +835,90 @@ impl<'help> App<'help> {
     }
 }
 
-/// App Settings
+/// App-wide Settings
+///
+/// These settings will apply to the top-level command and all subcommands, by default.  Some
+/// settings can be overridden in subcommands.
+impl<'help> App<'help> {
+    /// Sets when to color output.
+    ///
+    /// **NOTE:** This choice is propagated to all child subcommands.
+    ///
+    /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, ColorChoice};
+    /// App::new("myprog")
+    ///     .color(ColorChoice::Never)
+    ///     .get_matches();
+    /// ```
+    /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn color(self, color: ColorChoice) -> Self {
+        #[allow(deprecated)]
+        match color {
+            ColorChoice::Auto => self.global_setting(AppSettings::ColorAuto),
+            ColorChoice::Always => self.global_setting(AppSettings::ColorAlways),
+            ColorChoice::Never => self.global_setting(AppSettings::ColorNever),
+        }
+    }
+
+    /// Sets the terminal width at which to wrap help messages.
+    ///
+    /// Using `0` will ignore terminal widths and use source formatting.
+    ///
+    /// Defaults to current terminal width when `wrap_help` feature flag is enabled.  If the flag
+    /// is disabled or it cannot be determined, the default is 100.
+    ///
+    /// **NOTE:** This setting applies globally and *not* on a per-command basis.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .term_width(80)
+    /// # ;
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn term_width(mut self, width: usize) -> Self {
+        self.term_w = Some(width);
+        self
+    }
+
+    /// Sets the maximum terminal width at which to wrap help messages.
+    ///
+    /// This only applies when setting the current terminal width.  See [`App::term_width`] for
+    /// more details.
+    ///
+    /// Using `0` will ignore terminal widths and use source formatting.
+    ///
+    /// **NOTE:** This setting applies globally and *not* on a per-command basis.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .max_term_width(100)
+    /// # ;
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn max_term_width(mut self, w: usize) -> Self {
+        self.max_w = Some(w);
+        self
+    }
+}
+
+/// Command-specific Settings
+///
+/// These apply only to the current command and are not inherited by subcommands.
 impl<'help> App<'help> {
     /// (Re)Sets the program's name.
     ///
@@ -1298,33 +1382,6 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Sets when to color output.
-    ///
-    /// **NOTE:** This choice is propagated to all child subcommands.
-    ///
-    /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, ColorChoice};
-    /// App::new("myprog")
-    ///     .color(ColorChoice::Never)
-    ///     .get_matches();
-    /// ```
-    /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
-    #[cfg(feature = "color")]
-    #[inline]
-    #[must_use]
-    pub fn color(self, color: ColorChoice) -> Self {
-        #[allow(deprecated)]
-        match color {
-            ColorChoice::Auto => self.global_setting(AppSettings::ColorAuto),
-            ColorChoice::Always => self.global_setting(AppSettings::ColorAlways),
-            ColorChoice::Never => self.global_setting(AppSettings::ColorNever),
-        }
-    }
-
     /// Deprecated, replaced with [`App::next_help_heading`]
     #[inline]
     #[must_use]
@@ -1364,54 +1421,6 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn next_display_order(mut self, disp_ord: impl Into<Option<usize>>) -> Self {
         self.current_disp_ord = disp_ord.into();
-        self
-    }
-
-    /// Sets the terminal width at which to wrap help messages.
-    ///
-    /// Using `0` will ignore terminal widths and use source formatting.
-    ///
-    /// Defaults to current terminal width when `wrap_help` feature flag is enabled.  If the flag
-    /// is disabled or it cannot be determined, the default is 100.
-    ///
-    /// **NOTE:** This setting applies globally and *not* on a per-command basis.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::App;
-    /// App::new("myprog")
-    ///     .term_width(80)
-    /// # ;
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn term_width(mut self, width: usize) -> Self {
-        self.term_w = Some(width);
-        self
-    }
-
-    /// Sets the maximum terminal width at which to wrap help messages.
-    ///
-    /// This only applies when setting the current terminal width.  See [`App::term_width`] for
-    /// more details.
-    ///
-    /// Using `0` will ignore terminal widths and use source formatting.
-    ///
-    /// **NOTE:** This setting applies globally and *not* on a per-command basis.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::App;
-    /// App::new("myprog")
-    ///     .max_term_width(100)
-    /// # ;
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn max_term_width(mut self, w: usize) -> Self {
-        self.max_w = Some(w);
         self
     }
 
