@@ -1,11 +1,3 @@
-#[cfg(debug_assertions)]
-mod debug_asserts;
-mod settings;
-#[cfg(test)]
-mod tests;
-
-pub use self::settings::{AppFlags, AppSettings};
-
 // Std
 use std::{
     collections::HashMap,
@@ -23,6 +15,8 @@ use os_str_bytes::RawOsStr;
 use yaml_rust::Yaml;
 
 // Internal
+use crate::build::app_settings::{AppFlags, AppSettings};
+use crate::build::debug_asserts::assert_app;
 use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -2802,14 +2796,14 @@ impl<'help> App<'help> {
             self.args._build();
 
             #[cfg(debug_assertions)]
-            self::debug_asserts::assert_app(self);
+            assert_app(self);
             self.settings.set(AppSettings::Built);
         } else {
             debug!("App::_build: already built");
         }
     }
 
-    fn _panic_on_missing_help(&self, help_required_globally: bool) {
+    pub(crate) fn _panic_on_missing_help(&self, help_required_globally: bool) {
         if self.is_set(AppSettings::HelpExpected) || help_required_globally {
             let args_missing_help: Vec<String> = self
                 .args
@@ -2831,7 +2825,7 @@ impl<'help> App<'help> {
     }
 
     #[cfg(debug_assertions)]
-    fn two_args_of<F>(&self, condition: F) -> Option<(&Arg<'help>, &Arg<'help>)>
+    pub(crate) fn two_args_of<F>(&self, condition: F) -> Option<(&Arg<'help>, &Arg<'help>)>
     where
         F: Fn(&Arg) -> bool,
     {
