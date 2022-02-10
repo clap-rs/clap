@@ -84,7 +84,7 @@ PR expectations:
 - PRs remain small and focused
  - If needed, we can put changes behind feature flags as they evolve
 - Commits are atomic (i.e. do a single thing)
-- Commits are in [Conventional Commit](conventionalcommits.org/) style
+- Commits are in [Conventional Commit](https://www.conventionalcommits.org/) style
 
 We recognize that these are ideals and we don't want lack of comfort with git
 to get in the way of contributing.  If you didn't do these, bring it up with
