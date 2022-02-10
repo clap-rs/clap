@@ -1,6 +1,4 @@
 mod arg_predicate;
-#[cfg(debug_assertions)]
-pub mod debug_asserts;
 mod possible_value;
 mod settings;
 #[cfg(test)]
