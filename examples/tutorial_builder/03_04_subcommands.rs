@@ -2,7 +2,7 @@ use clap::{app_from_crate, arg, App, AppSettings};
 
 fn main() {
     let matches = app_from_crate!()
-        .global_setting(AppSettings::PropagateVersion)
+        .propagate_version(true)
         .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(

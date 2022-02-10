@@ -2,9 +2,9 @@ use clap::{AppSettings, Parser};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::AllArgsOverrideSelf))]
+#[clap(args_override_self = true)]
+#[clap(allow_negative_numbers = true)]
 #[clap(global_setting(AppSettings::DeriveDisplayOrder))]
-#[clap(global_setting(AppSettings::AllowNegativeNumbers))]
 struct Cli {
     #[clap(long)]
     two: String,

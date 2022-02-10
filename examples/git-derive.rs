@@ -3,7 +3,7 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use clap::{AppSettings, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 
 /// A fictional versioning CLI
 #[derive(Parser)]
@@ -17,19 +17,19 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Clones repos
-    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    #[clap(arg_required_else_help = true)]
     Clone {
         /// The remote to clone
         remote: String,
     },
     /// pushes things
-    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    #[clap(arg_required_else_help = true)]
     Push {
         /// The remote to target
         remote: String,
     },
     /// adds things
-    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    #[clap(arg_required_else_help = true)]
     Add {
         /// Stuff to add
         #[clap(required = true, parse(from_os_str))]

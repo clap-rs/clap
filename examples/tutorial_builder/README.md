@@ -326,7 +326,7 @@ SUBCOMMANDS:
 
 ```
 
-Because we set `AppSettings::PropagateVersion`:
+Because we set `App::propagate_version`:
 ```console
 $ 03_04_subcommands --version
 clap [..]

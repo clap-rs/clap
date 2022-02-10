@@ -1,6 +1,6 @@
 #![cfg(feature = "unstable-grouped")]
 
-use clap::{App, AppSettings, Arg};
+use clap::{App, Arg};
 
 #[test]
 fn grouped_value_works() {
@@ -201,7 +201,7 @@ fn issue_1374() {
 #[test]
 fn issue_2171() {
     let schema = App::new("ripgrep#1701 reproducer")
-        .setting(AppSettings::AllArgsOverrideSelf)
+        .args_override_self(true)
         .arg(Arg::new("pretty").short('p').long("pretty"))
         .arg(Arg::new("search_zip").short('z').long("search-zip"));
 

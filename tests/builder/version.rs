@@ -158,7 +158,7 @@ OPTIONS:
 fn version_about_multi_subcmd() {
     let app = with_subcommand()
         .mut_arg("version", |a| a.help("Print custom version about text"))
-        .global_setting(AppSettings::PropagateVersion);
+        .propagate_version(true);
 
     assert!(utils::compare_output(
         app,
@@ -190,7 +190,7 @@ fn no_propagation_by_default_short() {
 #[test]
 fn propagate_version_long() {
     let res = with_subcommand()
-        .setting(AppSettings::PropagateVersion)
+        .propagate_version(true)
         .try_get_matches_from("foo bar --version".split(' '));
 
     assert!(res.is_err());
@@ -201,7 +201,7 @@ fn propagate_version_long() {
 #[test]
 fn propagate_version_short() {
     let res = with_subcommand()
-        .setting(AppSettings::PropagateVersion)
+        .propagate_version(true)
         .try_get_matches_from("foo bar -V".split(' '));
 
     assert!(res.is_err());
@@ -234,7 +234,7 @@ fn mut_arg_version_no_auto_version() {
 #[should_panic = "No version information via App::version or App::long_version to propagate"]
 fn propagate_version_no_version_info() {
     let _res = common()
-        .setting(AppSettings::PropagateVersion)
+        .propagate_version(true)
         .subcommand(App::new("bar"))
         .try_get_matches_from("foo".split(' '));
 }

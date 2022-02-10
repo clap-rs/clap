@@ -165,11 +165,11 @@ fn gen_augment(
                         Some(subty) => {
                             if is_simple_ty(subty, "OsString") {
                                 quote_spanned! { kind.span()=>
-                                    let #app_var = #app_var.setting(clap::AppSettings::AllowExternalSubcommands).setting(clap::AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+                                    let #app_var = #app_var.allow_external_subcommands(true).allow_invalid_utf8_for_external_subcommands(true);
                                 }
                             } else {
                                 quote_spanned! { kind.span()=>
-                                    let #app_var = #app_var.setting(clap::AppSettings::AllowExternalSubcommands);
+                                    let #app_var = #app_var.allow_external_subcommands(true);
                                 }
                             }
                         }

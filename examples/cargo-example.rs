@@ -3,7 +3,7 @@
 fn main() {
     let app = clap::App::new("cargo")
         .bin_name("cargo")
-        .setting(clap::AppSettings::SubcommandRequired)
+        .subcommand_required(true)
         .subcommand(
             clap::app_from_crate!().name("example").arg(
                 clap::arg!(--"manifest-path" <PATH>)

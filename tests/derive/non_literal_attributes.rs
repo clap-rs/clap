@@ -12,14 +12,14 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::{AppSettings, ErrorKind, Parser};
+use clap::{ErrorKind, Parser};
 use std::num::ParseIntError;
 
 pub const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
 #[derive(Parser, Debug, PartialEq, Eq)]
-#[clap(global_setting = AppSettings::AllowHyphenValues)]
+#[clap(allow_hyphen_values = true)]
 struct Opt {
     #[clap(
         long = "x",

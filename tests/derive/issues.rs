@@ -2,7 +2,7 @@
 
 use crate::utils;
 
-use clap::{AppSettings, ArgGroup, Args, Parser, Subcommand};
+use clap::{ArgGroup, Args, Parser, Subcommand};
 
 #[test]
 fn issue_151() {
@@ -31,7 +31,7 @@ fn issue_151() {
 #[test]
 fn issue_289() {
     #[derive(Parser)]
-    #[clap(setting = AppSettings::InferSubcommands)]
+    #[clap(infer_subcommands = true)]
     enum Args {
         SomeCommand {
             #[clap(subcommand)]
@@ -41,7 +41,7 @@ fn issue_289() {
     }
 
     #[derive(Subcommand)]
-    #[clap(setting = AppSettings::InferSubcommands)]
+    #[clap(infer_subcommands = true)]
     enum SubSubCommand {
         TestCommand,
     }

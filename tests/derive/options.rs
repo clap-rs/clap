@@ -113,7 +113,7 @@ fn option_type_is_optional() {
 #[test]
 fn required_with_option_type() {
     #[derive(Debug, PartialEq, Eq, Parser)]
-    #[clap(setting(clap::AppSettings::SubcommandsNegateReqs))]
+    #[clap(subcommand_negates_reqs = true)]
     struct Opt {
         #[clap(required = true)]
         req_str: Option<String>,

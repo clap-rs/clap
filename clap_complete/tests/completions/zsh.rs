@@ -7,7 +7,7 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
-        .setting(AppSettings::PropagateVersion)
+        .propagate_version(true)
         .about("Test test's completions")
         .arg(
             Arg::new("file")

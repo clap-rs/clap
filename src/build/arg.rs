@@ -472,7 +472,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** This will change the usage string to look like `$ prog [OPTIONS] [-- <ARG>]` if
     /// `ARG` is marked as `.last(true)`.
     ///
-    /// **NOTE:** This setting will imply [`crate::AppSettings::DontCollapseArgsInUsage`] because failing
+    /// **NOTE:** This setting will imply [`crate::App::dont_collapse_args_in_usage`] because failing
     /// to set this can make the usage string very confusing.
     ///
     /// **NOTE**: This setting only applies to positional arguments, and has no effect on OPTIONS

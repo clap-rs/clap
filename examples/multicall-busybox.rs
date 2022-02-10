@@ -2,7 +2,7 @@
 
 use std::process::exit;
 
-use clap::{App, AppSettings, Arg};
+use clap::{App, Arg};
 
 fn applet_commands() -> [App<'static>; 2] {
     [
@@ -13,10 +13,10 @@ fn applet_commands() -> [App<'static>; 2] {
 
 fn main() {
     let app = App::new(env!("CARGO_CRATE_NAME"))
-        .setting(AppSettings::Multicall)
+        .multicall(true)
         .subcommand(
             App::new("busybox")
-                .setting(AppSettings::ArgRequiredElseHelp)
+                .arg_required_else_help(true)
                 .subcommand_value_name("APPLET")
                 .subcommand_help_heading("APPLETS")
                 .arg(

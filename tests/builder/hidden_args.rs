@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, AppSettings, Arg};
+use clap::{arg, App, Arg};
 
 static HIDDEN_ARGS: &str = "test 1.4
 Kevin K.
@@ -250,7 +250,7 @@ OPTIONS:
 fn hide_subcmds() {
     let app = App::new("test")
         .version("1.4")
-        .subcommand(App::new("sub").setting(AppSettings::Hidden));
+        .subcommand(App::new("sub").hide(true));
 
     assert!(utils::compare_output(
         app,
@@ -329,7 +329,7 @@ fn hide_subcmds_only() {
         .after_help("After help")
         .mut_arg("help", |a| a.hide(true))
         .mut_arg("version", |a| a.hide(true))
-        .subcommand(App::new("sub").setting(AppSettings::Hidden));
+        .subcommand(App::new("sub").hide(true));
 
     assert!(utils::compare_output(
         app,

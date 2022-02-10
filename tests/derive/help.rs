@@ -194,7 +194,7 @@ fn flatten_field_with_help_heading() {
 #[test]
 fn derive_generated_error_has_full_context() {
     #[derive(Debug, Parser)]
-    #[clap(setting(AppSettings::SubcommandsNegateReqs))]
+    #[clap(subcommand_negates_reqs = true)]
     struct Opts {
         #[clap(long)]
         req_str: String,

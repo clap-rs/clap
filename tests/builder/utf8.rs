@@ -1,6 +1,6 @@
 #![cfg(not(windows))]
 
-use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
+use clap::{arg, error::ErrorKind, App, Arg};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
@@ -322,7 +322,7 @@ fn invalid_utf8_option_long_equals() {
 #[test]
 fn refuse_invalid_utf8_subcommand_with_allow_external_subcommands() {
     let m = App::new("bad_utf8")
-        .setting(AppSettings::AllowExternalSubcommands)
+        .allow_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0xe9]),
@@ -335,8 +335,8 @@ fn refuse_invalid_utf8_subcommand_with_allow_external_subcommands() {
 #[test]
 fn refuse_invalid_utf8_subcommand_when_args_are_allowed_with_allow_external_subcommands() {
     let m = App::new("bad_utf8")
-        .setting(AppSettings::AllowExternalSubcommands)
-        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0xe9]),
@@ -349,7 +349,7 @@ fn refuse_invalid_utf8_subcommand_when_args_are_allowed_with_allow_external_subc
 #[test]
 fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     let m = App::new("bad_utf8")
-        .setting(AppSettings::AllowExternalSubcommands)
+        .allow_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("subcommand"),
@@ -364,8 +364,8 @@ fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 #[test]
 fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     let m = App::new("bad_utf8")
-        .setting(AppSettings::AllowExternalSubcommands)
-        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("subcommand"),
@@ -445,7 +445,7 @@ fn ignore_invalid_utf8_with_defaults() {
 
 #[test]
 fn allow_validated_utf8_external_subcommand_values_of() {
-    let a = App::new("test").setting(AppSettings::AllowExternalSubcommands);
+    let a = App::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     let _ = args.values_of("");
@@ -454,7 +454,7 @@ fn allow_validated_utf8_external_subcommand_values_of() {
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at ``"]
 fn panic_validated_utf8_external_subcommand_values_of_os() {
-    let a = App::new("test").setting(AppSettings::AllowExternalSubcommands);
+    let a = App::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     let _ = args.values_of_os("");
@@ -463,8 +463,8 @@ fn panic_validated_utf8_external_subcommand_values_of_os() {
 #[test]
 fn allow_invalid_utf8_external_subcommand_values_of_os() {
     let a = App::new("test")
-        .setting(AppSettings::AllowExternalSubcommands)
-        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     let _ = args.values_of_os("");
@@ -474,8 +474,8 @@ fn allow_invalid_utf8_external_subcommand_values_of_os() {
 #[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at ``"]
 fn panic_invalid_utf8_external_subcommand_values_of() {
     let a = App::new("test")
-        .setting(AppSettings::AllowExternalSubcommands)
-        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     let _ = args.values_of("");

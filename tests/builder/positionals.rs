@@ -15,7 +15,7 @@ fn only_pos_follow() {
 #[test]
 fn issue_946() {
     let r = App::new("compiletest")
-        .setting(clap::AppSettings::AllowHyphenValues)
+        .allow_hyphen_values(true)
         .arg(arg!(--exact    "filters match exactly"))
         .arg(
             clap::Arg::new("filter")

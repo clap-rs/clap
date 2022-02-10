@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, AppSettings, Arg, ArgGroup, PossibleValue};
+use clap::{arg, error::ErrorKind, App, Arg, ArgGroup, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 Kevin K.
@@ -684,7 +684,7 @@ fn req_last_arg_usage() {
 fn args_with_last_usage() {
     let app = App::new("flamegraph")
         .version("0.1")
-        .setting(AppSettings::TrailingVarArg)
+        .trailing_var_arg(true)
         .arg(
             Arg::new("verbose")
                 .help("Prints out more stuff.")
@@ -1182,7 +1182,7 @@ fn issue_688_hide_pos_vals() {
     let app1 = App::new("ctest")
             .version("0.1")
 			.term_width(120)
-			.setting(AppSettings::HidePossibleValues)
+			.hide_possible_values(true)
 			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
@@ -1383,7 +1383,7 @@ OPTIONS:
 fn sc_negates_reqs() {
     let app = App::new("prog")
         .version("1.0")
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .subcommand_negates_reqs(true)
         .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
@@ -1414,7 +1414,7 @@ fn hide_args() {
 fn args_negate_sc() {
     let app = App::new("prog")
         .version("1.0")
-        .setting(AppSettings::ArgsNegateSubcommands)
+        .args_conflicts_with_subcommands(true)
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("help"))
@@ -1434,7 +1434,7 @@ fn issue_1046_hide_scs() {
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("some"))
-        .subcommand(App::new("test").setting(AppSettings::Hidden));
+        .subcommand(App::new("test").hide(true));
     assert!(utils::compare_output(
         app,
         "prog --help",
@@ -1607,7 +1607,7 @@ fn last_arg_mult_usage_req() {
 fn last_arg_mult_usage_req_with_sc() {
     let app = App::new("last")
         .version("0.1")
-        .setting(AppSettings::SubcommandsNegateReqs)
+        .subcommand_negates_reqs(true)
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
@@ -1631,7 +1631,7 @@ fn last_arg_mult_usage_req_with_sc() {
 fn last_arg_mult_usage_with_sc() {
     let app = App::new("last")
         .version("0.1")
-        .setting(AppSettings::ArgsNegateSubcommands)
+        .args_conflicts_with_subcommands(true)
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
@@ -2042,7 +2042,7 @@ fn issue_1487() {
 #[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_but_not_given() {
     App::new("myapp")
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .arg(Arg::new("foo"))
         .try_get_matches_from(empty_args())
         .unwrap();
@@ -2054,7 +2054,7 @@ fn help_required_but_not_given() {
 fn help_required_but_not_given_settings_after_args() {
     App::new("myapp")
         .arg(Arg::new("foo"))
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .try_get_matches_from(empty_args())
         .unwrap();
 }
@@ -2064,7 +2064,7 @@ fn help_required_but_not_given_settings_after_args() {
 #[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_but_not_given_for_one_of_two_arguments() {
     App::new("myapp")
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar").help("It does bar stuff"))
         .try_get_matches_from(empty_args())
@@ -2072,9 +2072,10 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
 }
 
 #[test]
-fn help_required_locally_but_not_given_for_subcommand() {
+#[should_panic = "List of such arguments: delete"]
+fn help_required_globally() {
     App::new("myapp")
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
@@ -2090,7 +2091,7 @@ fn help_required_locally_but_not_given_for_subcommand() {
 #[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_globally_but_not_given_for_subcommand() {
     App::new("myapp")
-        .global_setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
@@ -2104,7 +2105,7 @@ fn help_required_globally_but_not_given_for_subcommand() {
 #[test]
 fn help_required_and_given_for_subcommand() {
     App::new("myapp")
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
@@ -2118,7 +2119,7 @@ fn help_required_and_given_for_subcommand() {
 #[test]
 fn help_required_and_given() {
     App::new("myapp")
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .try_get_matches_from(empty_args())
         .unwrap();
@@ -2127,7 +2128,7 @@ fn help_required_and_given() {
 #[test]
 fn help_required_and_no_args() {
     App::new("myapp")
-        .setting(AppSettings::HelpExpected)
+        .help_expected(true)
         .try_get_matches_from(empty_args())
         .unwrap();
 }
@@ -2155,8 +2156,8 @@ This is after help.
 fn after_help_no_args() {
     let mut app = App::new("myapp")
         .version("1.0")
-        .setting(AppSettings::DisableHelpFlag)
-        .setting(AppSettings::DisableVersionFlag)
+        .disable_help_flag(true)
+        .disable_version_flag(true)
         .after_help("This is after help.");
 
     let help = {
@@ -2416,7 +2417,7 @@ NETWORKING:
 fn only_custom_heading_opts_no_args() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
+        .disable_version_flag(true)
         .mut_arg("help", |a| a.hide(true))
         .next_help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
@@ -2442,7 +2443,7 @@ NETWORKING:
 fn only_custom_heading_pos_no_args() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
+        .disable_version_flag(true)
         .mut_arg("help", |a| a.hide(true))
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
@@ -2485,7 +2486,7 @@ OPTIONS:
 #[test]
 fn missing_positional_final_required() {
     let app = App::new("test")
-        .setting(AppSettings::AllowMissingPositional)
+        .allow_missing_positional(true)
         .arg(Arg::new("arg1"))
         .arg(Arg::new("arg2").required(true));
     assert!(utils::compare_output(
@@ -2510,7 +2511,7 @@ OPTIONS:
 #[test]
 fn missing_positional_final_multiple() {
     let app = App::new("test")
-        .setting(AppSettings::AllowMissingPositional)
+        .allow_missing_positional(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
         .arg(Arg::new("baz").takes_value(true).multiple_values(true));
@@ -2638,7 +2639,7 @@ OPTIONS:
 fn disabled_help_flag() {
     let res = App::new("foo")
         .subcommand(App::new("sub"))
-        .setting(AppSettings::DisableHelpFlag)
+        .disable_help_flag(true)
         .try_get_matches_from("foo a".split(' '));
     assert!(res.is_err());
     let err = res.unwrap_err();
@@ -2649,8 +2650,8 @@ fn disabled_help_flag() {
 fn disabled_help_flag_and_subcommand() {
     let res = App::new("foo")
         .subcommand(App::new("sub"))
-        .setting(AppSettings::DisableHelpFlag)
-        .setting(AppSettings::DisableHelpSubcommand)
+        .disable_help_flag(true)
+        .disable_help_subcommand(true)
         .try_get_matches_from("foo help".split(' '));
     assert!(res.is_err());
     let err = res.unwrap_err();
@@ -2667,7 +2668,7 @@ fn override_help_subcommand() {
     let app = App::new("bar")
         .subcommand(App::new("help").arg(Arg::new("arg").takes_value(true)))
         .subcommand(App::new("not_help").arg(Arg::new("arg").takes_value(true)))
-        .setting(AppSettings::DisableHelpSubcommand);
+        .disable_help_subcommand(true);
     let matches = app.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
     assert_eq!(
         matches.subcommand_matches("help").unwrap().value_of("arg"),
@@ -2679,7 +2680,7 @@ fn override_help_subcommand() {
 fn override_help_flag_using_long() {
     let app = App::new("foo")
         .subcommand(App::new("help").long_flag("help"))
-        .setting(AppSettings::DisableHelpFlag);
+        .disable_help_flag(true);
     let matches = app.try_get_matches_from(&["foo", "--help"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
@@ -2687,7 +2688,7 @@ fn override_help_flag_using_long() {
 #[test]
 fn override_help_flag_using_short() {
     let app = App::new("foo")
-        .setting(AppSettings::DisableHelpFlag)
+        .disable_help_flag(true)
         .subcommand(App::new("help").short_flag('h'));
     let matches = app.try_get_matches_from(&["foo", "-h"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
@@ -2718,7 +2719,7 @@ ARGS:
 #[test]
 fn disable_help_flag_affects_help_subcommand() {
     let mut app = App::new("test_app")
-        .global_setting(AppSettings::DisableHelpFlag)
+        .disable_help_flag(true)
         .subcommand(App::new("test").about("Subcommand"));
     app._build_all();
 
@@ -2739,7 +2740,7 @@ fn disable_help_flag_affects_help_subcommand() {
 fn dont_propagate_version_to_help_subcommand() {
     let app = clap::App::new("test")
         .version("1.0")
-        .global_setting(clap::AppSettings::PropagateVersion)
+        .propagate_version(true)
         .subcommand(clap::App::new("subcommand"));
 
     assert!(utils::compare_output(

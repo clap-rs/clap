@@ -2,9 +2,9 @@ use clap::{app_from_crate, arg, AppSettings};
 
 fn main() {
     let matches = app_from_crate!()
-        .global_setting(AppSettings::AllArgsOverrideSelf)
+        .args_override_self(true)
         .global_setting(AppSettings::DeriveDisplayOrder)
-        .global_setting(AppSettings::AllowNegativeNumbers)
+        .allow_negative_numbers(true)
         .arg(arg!(--two <VALUE>))
         .arg(arg!(--one <VALUE>))
         .get_matches();
