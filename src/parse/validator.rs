@@ -23,7 +23,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
-        let mut reqs_validated = false;
 
         #[cfg(feature = "env")]
         self.p.add_env(matcher, trailing_values)?;
@@ -32,10 +31,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
-            self.validate_required(matcher)?;
 
             let o = &self.p.app[&a];
-            reqs_validated = true;
             let should_err = if let Some(v) = matcher.args.get(&o.id) {
                 v.all_val_groups_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
             } else {
@@ -65,7 +62,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             }
         }
         self.validate_conflicts(matcher)?;
-        if !(self.p.app.is_subcommand_negates_reqs_set() && is_subcmd || reqs_validated) {
+        if !(self.p.app.is_subcommand_negates_reqs_set() && is_subcmd) {
             self.validate_required(matcher)?;
         }
         self.validate_matched_args(matcher)?;
