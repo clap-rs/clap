@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 fn main() {
     let app = clap::App::new("cargo")
         .bin_name("cargo")

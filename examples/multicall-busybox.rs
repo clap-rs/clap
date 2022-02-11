@@ -1,3 +1,5 @@
+// Note: this requires the `unstable-multicall` feature
+
 use std::process::exit;
 
 use clap::{App, AppSettings, Arg};
