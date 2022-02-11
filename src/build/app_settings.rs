@@ -132,25 +132,12 @@ pub enum AppSettings {
     )]
     SubcommandRequired,
 
-    /// Display help if no [`subcommands`] are present at runtime and exit gracefully (i.e. an
-    /// empty run such as `$ myprog`).
-    ///
-    /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
-    /// nearly same thing; this prints the help text, and the other prints an error.
-    ///
-    /// **NOTE:** If the user specifies arguments at runtime, but no subcommand the help text will
-    /// still be displayed and exit. If this is *not* the desired result, consider using
-    /// [`AppSettings::ArgRequiredElseHelp`] instead.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequiredElseHelp);
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::subcommand_required`] combined with
+    /// [`App::arg_required_else_help`].
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::subcommand_required` combined with `App::arg_required_else_help`"
+    )]
     SubcommandRequiredElseHelp,
 
     /// Deprecated, replaced with [`App::allow_external_subcommands`] and
