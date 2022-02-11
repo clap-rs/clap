@@ -176,26 +176,8 @@ pub enum AppSettings {
     )]
     AllowInvalidUtf8ForExternalSubcommands,
 
-    /// Specifies that the help subcommand should print the long help message (`--help`).
-    ///
-    /// **NOTE:** This setting is useless if [`AppSettings::DisableHelpSubcommand`] or [`AppSettings::NoAutoHelp`] is set,
-    /// or if the app contains no subcommands at all.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
-    ///     .subcommand(App::new("test")
-    ///         .arg(Arg::new("foo")
-    ///             .help("short form about message")
-    ///             .long_help("long form about message")
-    ///         )
-    ///     )
-    ///     .get_matches();
-    /// ```
-    /// [long format]: crate::App::long_about
+    /// Deprecated, this is now the default
+    #[deprecated(since = "3.1.0", note = "This is now the default")]
     UseLongFormatForHelpSubcommand,
 
     /// Deprecated, replaced with [`App::subcommand_negates_reqs`] and

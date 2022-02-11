@@ -661,7 +661,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         let parser = Parser::new(&mut sc);
 
-        Err(parser.help_err(self.app.is_set(AS::UseLongFormatForHelpSubcommand)))
+        Err(parser.help_err(true))
     }
 
     fn is_new_arg(&self, next: &RawOsStr, current_positional: &Arg) -> bool {

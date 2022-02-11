@@ -3,7 +3,6 @@ use clap::{app_from_crate, arg, App, AppSettings};
 fn main() {
     let matches = app_from_crate!()
         .propagate_version(true)
-        .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(
             App::new("add")
