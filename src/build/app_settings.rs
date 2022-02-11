@@ -48,20 +48,41 @@ pub enum AppSettings {
     /// ```
     IgnoreErrors,
 
-    /// Display the message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
-    /// exiting
-    ///
-    /// This is most useful when writing an application which is run from a GUI shortcut, or on
-    /// Windows where a user tries to open the binary by double-clicking instead of using the
-    /// command line.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::WaitOnError);
+    /// Deprecated, replace
+    /// ```rust,no_run
+    /// let app = clap::App::new("app")
+    ///     .global_setting(clap::AppSettings::WaitOnError)
+    ///     .arg(clap::arg!(--flag));
+    /// let m = app.get_matches();
     /// ```
+    /// with
+    /// ```rust
+    /// let app = clap::App::new("app")
+    ///     .arg(clap::arg!(--flag));
+    /// let m = match app.try_get_matches() {
+    ///     Ok(m) => m,
+    ///     Err(err) => {
+    ///         if err.use_stderr() {
+    ///             let _ = err.print();
+    ///
+    ///             eprintln!("\nPress [ENTER] / [RETURN] to continue...");
+    ///             use std::io::BufRead;
+    ///             let mut s = String::new();
+    ///             let i = std::io::stdin();
+    ///             i.lock().read_line(&mut s).unwrap();
+    ///
+    ///             std::process::exit(2);
+    ///         } else {
+    ///             let _ = err.print();
+    ///             std::process::exit(0);
+    ///         }
+    ///     }
+    /// };
+    /// ```
+    #[deprecated(
+        since = "3.1.0",
+        note = "See documentation for how to hand-implement this"
+    )]
     WaitOnError,
 
     /// Specifies that leading hyphens are allowed in all argument *values* (e.g. `-10`).
