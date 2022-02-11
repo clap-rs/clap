@@ -962,10 +962,10 @@ impl ArgMatches {
     /// with pattern matching!
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings};
+    /// # use clap::App;
     /// // Assume there is an external subcommand named "subcmd"
     /// let app_m = App::new("myprog")
-    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .allow_external_subcommands(true)
     ///     .get_matches_from(vec![
     ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
     ///     ]);

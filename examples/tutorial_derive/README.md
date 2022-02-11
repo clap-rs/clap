@@ -111,9 +111,7 @@ clap [..]
 
 ```
 
-You can use `AppSettings` to change the application level behavior of clap. You
-can apply the setting to the top level command (`app.setting()`) or to it and
-all subcommands (`app.global_setting()`).
+You can use `App` methods to change the application level behavior of clap.
 
 [Example:](02_app_settings.rs)
 ```console

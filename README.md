@@ -151,7 +151,7 @@ Why use the procedural [Builder API](https://github.com/clap-rs/clap/blob/v3.0.1
 **Warning:** These may contain breaking changes between minor releases.
 
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
-* **unstable-multicall**: Enable [`AppSettings::Multicall`](https://github.com/clap-rs/clap/issues/2861)
+* **unstable-multicall**: Enable [`App::multicall`](https://github.com/clap-rs/clap/issues/2861)
 * **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
 
 ## Sponsors

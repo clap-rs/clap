@@ -486,8 +486,9 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Setting this requires [`Arg::takes_value`]
     ///
     /// **CAUTION:** Using this setting *and* having child subcommands is not
-    /// recommended with the exception of *also* using [`crate::AppSettings::ArgsNegateSubcommands`]
-    /// (or [`crate::AppSettings::SubcommandsNegateReqs`] if the argument marked `Last` is also
+    /// recommended with the exception of *also* using
+    /// [`crate::App::args_conflicts_with_subcommands`]
+    /// (or [`crate::App::subcommand_negates_reqs`] if the argument marked `Last` is also
     /// marked [`Arg::required`])
     ///
     /// # Examples
@@ -1468,9 +1469,9 @@ impl<'help> Arg<'help> {
     /// To take a full command line and its arguments (for example, when writing a command wrapper):
     ///
     /// ```
-    /// # use clap::{App, AppSettings, Arg, ValueHint};
+    /// # use clap::{App, Arg, ValueHint};
     /// App::new("prog")
-    ///     .setting(AppSettings::TrailingVarArg)
+    ///     .trailing_var_arg(true)
     ///     .arg(
     ///         Arg::new("command")
     ///             .takes_value(true)
@@ -2333,7 +2334,7 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// Will result in everything after `--` to be considered one raw argument. This behavior
-    /// may not be exactly what you are expecting and using [`crate::AppSettings::TrailingVarArg`]
+    /// may not be exactly what you are expecting and using [`crate::App::trailing_var_arg`]
     /// may be more appropriate.
     ///
     /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple_values(true)`],
@@ -2371,9 +2372,6 @@ impl<'help> Arg<'help> {
     /// will be applied.
     ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
-    ///
-    /// **NOTE:** This setting effectively disables `AppSettings::ArgRequiredElseHelp` if used in
-    /// conjunction as it ensures that some argument will always be present.
     ///
     /// # Examples
     ///
@@ -2920,8 +2918,8 @@ impl<'help> Arg<'help> {
     /// This can be helpful for arguments with very long or complex help messages.
     /// This can also be helpful for arguments with very long flag names, or many/long value names.
     ///
-    /// **NOTE:** To apply this setting to all arguments consider using
-    /// [`crate::AppSettings::NextLineHelp`]
+    /// **NOTE:** To apply this setting to all arguments and subcommands, consider using
+    /// [`crate::App::next_line_help`]
     ///
     /// # Examples
     ///
@@ -3018,7 +3016,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Setting this requires [`Arg::takes_value`]
     ///
     /// To set this for all arguments, see
-    /// [`AppSettings::HidePossibleValues`][crate::AppSettings::HidePossibleValues].
+    /// [`App::hide_possible_values`][crate::App::hide_possible_values].
     ///
     /// # Examples
     ///

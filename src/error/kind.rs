@@ -252,15 +252,15 @@ pub enum ErrorKind {
     /// ```
     MissingRequiredArgument,
 
-    /// Occurs when a subcommand is required (as defined by [`AppSettings::SubcommandRequired`]),
+    /// Occurs when a subcommand is required (as defined by [`App::subcommand_required`]),
     /// but the user does not provide one.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
+    /// # use clap::{App, ErrorKind};
     /// let err = App::new("prog")
-    ///     .setting(AppSettings::SubcommandRequired)
+    ///     .subcommand_required(true)
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog",
@@ -270,7 +270,7 @@ pub enum ErrorKind {
     /// # ;
     /// ```
     ///
-    /// [`AppSettings::SubcommandRequired`]: crate::AppSettings::SubcommandRequired
+    /// [`App::subcommand_required`]: crate::App::subcommand_required
     MissingSubcommand,
 
     /// Occurs when the user provides multiple values to an argument which doesn't allow that.
@@ -293,7 +293,7 @@ pub enum ErrorKind {
     ///
     /// To allow arbitrary data
     /// - Set [`Arg::allow_invalid_utf8`] for argument values
-    /// - Set [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] for external-subcommand
+    /// - Set [`App::allow_invalid_utf8_for_external_subcommands`] for external-subcommand
     ///   values
     ///
     /// # Platform Specific
@@ -304,7 +304,7 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, Arg, ErrorKind, AppSettings};
+    /// # use clap::{App, Arg, ErrorKind};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = App::new("prog")
@@ -319,7 +319,7 @@ pub enum ErrorKind {
     /// ```
     ///
     /// [`Arg::allow_invalid_utf8`]: crate::Arg::allow_invalid_utf8
-    /// [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`]: crate::AppSettings::AllowInvalidUtf8ForExternalSubcommands
+    /// [`App::allow_invalid_utf8_for_external_subcommands`]: crate::App::allow_invalid_utf8_for_external_subcommands
     InvalidUtf8,
 
     /// Not a true "error" as it means `--help` or similar was used.
@@ -340,16 +340,15 @@ pub enum ErrorKind {
     DisplayHelp,
 
     /// Occurs when either an argument or a [`Subcommand`] is required, as defined by
-    /// [`AppSettings::ArgRequiredElseHelp`] and
-    /// [`AppSettings::SubcommandRequiredElseHelp`], but the user did not provide
+    /// [`App::arg_required_else_help`] , but the user did not provide
     /// one.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind, };
+    /// # use clap::{App, Arg, ErrorKind, };
     /// let result = App::new("prog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
+    ///     .arg_required_else_help(true)
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
@@ -360,8 +359,7 @@ pub enum ErrorKind {
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
-    /// [`AppSettings::ArgRequiredElseHelp`]: crate::AppSettings::ArgRequiredElseHelp
-    /// [`AppSettings::SubcommandRequiredElseHelp`]: crate::AppSettings::SubcommandRequiredElseHelp
+    /// [`App::arg_required_else_help`]: crate::App::arg_required_else_help
     DisplayHelpOnMissingArgumentOrSubcommand,
 
     /// Not a true "error" as it means `--version` or similar was used.
