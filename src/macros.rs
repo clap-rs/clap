@@ -382,8 +382,8 @@ macro_rules! arg_impl {
 
                 let mut arg = $arg;
                 let long = $crate::arg_impl! { @string $long };
-                if arg.get_name().is_empty() {
-                    arg = arg.name(long);
+                if arg.get_id().is_empty() {
+                    arg = arg.id(long);
                 }
                 arg.long(long)
             })
@@ -404,8 +404,8 @@ macro_rules! arg_impl {
 
                 let mut arg = $arg;
                 let long = $crate::arg_impl! { @string $long };
-                if arg.get_name().is_empty() {
-                    arg = arg.name(long);
+                if arg.get_id().is_empty() {
+                    arg = arg.id(long);
                 }
                 arg.long(long)
             })
@@ -466,8 +466,8 @@ macro_rules! arg_impl {
                 arg = arg.takes_value(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
-                if arg.get_name().is_empty() {
-                    arg = arg.name(value_name);
+                if arg.get_id().is_empty() {
+                    arg = arg.id(value_name);
                 }
                 arg.value_name(value_name)
             })
@@ -496,8 +496,8 @@ macro_rules! arg_impl {
                 arg = arg.takes_value(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
-                if arg.get_name().is_empty() {
-                    arg = arg.name(value_name);
+                if arg.get_id().is_empty() {
+                    arg = arg.id(value_name);
                 }
                 arg.value_name(value_name)
             })
@@ -622,7 +622,7 @@ macro_rules! arg {
         let arg = $crate::arg_impl! {
             @arg ($crate::Arg::default()) $($tail)+
         };
-        debug_assert!(!arg.get_name().is_empty(), "Without a value or long flag, the `name:` prefix is required");
+        debug_assert!(!arg.get_id().is_empty(), "Without a value or long flag, the `name:` prefix is required");
         arg
     }};
 }

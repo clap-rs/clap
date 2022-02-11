@@ -2727,7 +2727,7 @@ fn disable_help_flag_affects_help_subcommand() {
         .find_subcommand("help")
         .unwrap()
         .get_arguments()
-        .map(|a| a.get_name())
+        .map(|a| a.get_id())
         .collect::<Vec<_>>();
     assert!(
         !args.contains(&"help"),
@@ -2768,10 +2768,7 @@ fn help_without_short() {
         .arg(arg!(--help));
 
     app._build_all();
-    let help = app
-        .get_arguments()
-        .find(|a| a.get_name() == "help")
-        .unwrap();
+    let help = app.get_arguments().find(|a| a.get_id() == "help").unwrap();
     assert_eq!(help.get_short(), None);
 
     let m = app.try_get_matches_from(["test", "-h", "0x100"]).unwrap();

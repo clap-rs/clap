@@ -648,7 +648,7 @@ fn assert_arg_flags(arg: &Arg) {
                 )+
 
                 if !s.is_empty() {
-                    panic!("Argument {:?}\n{}", arg.get_name(), s)
+                    panic!("Argument {:?}\n{}", arg.get_id(), s)
                 }
             }
         }

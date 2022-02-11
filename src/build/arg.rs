@@ -117,11 +117,17 @@ impl<'help> Arg<'help> {
     ///
     /// See [`Arg::new`] for more details.
     #[must_use]
-    pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
+    pub fn id<S: Into<&'help str>>(mut self, n: S) -> Self {
         let name = n.into();
         self.id = Id::from(&*name);
         self.name = name;
         self
+    }
+
+    /// Deprecated, replaced with [`Arg::id`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::id`")]
+    pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
+        self.id(n)
     }
 
     /// Sets the short version of the argument without the preceding `-`.
@@ -4489,8 +4495,14 @@ impl<'help> Arg<'help> {
 impl<'help> Arg<'help> {
     /// Get the name of the argument
     #[inline]
-    pub fn get_name(&self) -> &'help str {
+    pub fn get_id(&self) -> &'help str {
         self.name
+    }
+
+    /// Deprecated, replaced with [`Arg::get_id`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::get_id`")]
+    pub fn get_name(&self) -> &'help str {
+        self.get_id()
     }
 
     /// Get the help specified for this argument, if any

@@ -293,7 +293,7 @@ mod arg {
     #[test]
     fn name_explicit() {
         let arg = clap::arg!(foo: --bar <NUM>);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("bar"));
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(arg.is_required_set());
@@ -302,7 +302,7 @@ mod arg {
     #[test]
     fn name_from_long() {
         let arg = clap::arg!(--bar <NUM>);
-        assert_eq!(arg.get_name(), "bar");
+        assert_eq!(arg.get_id(), "bar");
         assert_eq!(arg.get_long(), Some("bar"));
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(arg.is_required_set());
@@ -311,7 +311,7 @@ mod arg {
     #[test]
     fn name_from_value() {
         let arg = clap::arg!(<NUM>);
-        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_long(), None);
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(arg.is_required_set());
@@ -332,28 +332,28 @@ mod arg {
     #[test]
     fn short() {
         let arg = clap::arg!(foo: -b);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -'b');
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -b ...);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(arg.is_multiple_occurrences_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -b "How to use it");
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(!arg.is_required_set());
@@ -363,7 +363,7 @@ mod arg {
     #[test]
     fn short_and_long() {
         let arg = clap::arg!(foo: -b --hello);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(!arg.is_multiple_occurrences_set());
@@ -371,7 +371,7 @@ mod arg {
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -'b' --hello);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(!arg.is_multiple_occurrences_set());
@@ -379,7 +379,7 @@ mod arg {
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -b --hello ...);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(arg.is_multiple_occurrences_set());
@@ -387,7 +387,7 @@ mod arg {
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -b --hello "How to use it");
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(!arg.is_multiple_occurrences_set());
@@ -398,42 +398,42 @@ mod arg {
     #[test]
     fn positional() {
         let arg = clap::arg!(<NUM>);
-        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!([NUM]);
-        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(<NUM>);
-        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: <NUM>);
-        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(<NUM> ...);
-        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(arg.is_multiple_occurrences_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(<NUM> "How to use it");
-        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(!arg.is_multiple_occurrences_set());
         assert!(arg.is_required_set());

@@ -16,13 +16,13 @@ fn arg_help_heading_applied() {
 
     let should_be_in_section_a = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-section-a")
+        .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
     let should_be_in_section_b = app
         .get_arguments()
-        .find(|a| a.get_name() == "no-section")
+        .find(|a| a.get_id() == "no-section")
         .unwrap();
     assert_eq!(should_be_in_section_b.get_help_heading(), None);
 }
@@ -44,13 +44,13 @@ fn app_help_heading_applied() {
 
     let should_be_in_section_a = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-section-a")
+        .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
     let should_be_in_default_section = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-default-section")
+        .find(|a| a.get_id() == "should-be-in-default-section")
         .unwrap();
     assert_eq!(
         should_be_in_default_section.get_help_heading(),
@@ -121,19 +121,19 @@ fn app_help_heading_flattened() {
 
     let should_be_in_section_a = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-section-a")
+        .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
     let should_be_in_section_b = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-section-b")
+        .find(|a| a.get_id() == "should-be-in-section-b")
         .unwrap();
     assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
     let should_be_in_default_section = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-default-section")
+        .find(|a| a.get_id() == "should-be-in-default-section")
         .unwrap();
     assert_eq!(should_be_in_default_section.get_help_heading(), None);
 
@@ -141,7 +141,7 @@ fn app_help_heading_flattened() {
 
     let should_be_in_sub_a = sub_a_two
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-sub-a")
+        .find(|a| a.get_id() == "should-be-in-sub-a")
         .unwrap();
     assert_eq!(should_be_in_sub_a.get_help_heading(), Some("SUB A"));
 
@@ -149,7 +149,7 @@ fn app_help_heading_flattened() {
 
     let should_be_in_sub_b = sub_b_one
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-sub-b")
+        .find(|a| a.get_id() == "should-be-in-sub-b")
         .unwrap();
     assert_eq!(should_be_in_sub_b.get_help_heading(), Some("SUB B"));
 
@@ -158,7 +158,7 @@ fn app_help_heading_flattened() {
 
     let should_be_in_sub_c = sub_c_one
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-sub-c")
+        .find(|a| a.get_id() == "should-be-in-sub-c")
         .unwrap();
     assert_eq!(should_be_in_sub_c.get_help_heading(), Some("SUB C"));
 }
@@ -182,7 +182,7 @@ fn flatten_field_with_help_heading() {
 
     let should_be_in_section_a = app
         .get_arguments()
-        .find(|a| a.get_name() == "should-be-in-section-a")
+        .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 }

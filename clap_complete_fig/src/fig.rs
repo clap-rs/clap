@@ -221,7 +221,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
     buffer.push_str(&format!(
         "{{\n{:indent$}  name: \"{}\",\n",
         "",
-        arg.get_name(),
+        arg.get_id(),
         indent = indent
     ));
 
