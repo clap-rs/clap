@@ -7,7 +7,6 @@ fn compatible() {
     #[derive(StructOpt)]
     #[structopt(author, version, about)]
     #[structopt(global_setting(AppSettings::PropagateVersion))]
-    #[structopt(global_setting(AppSettings::UseLongFormatForHelpSubcommand))]
     struct Cli {
         #[structopt(subcommand)]
         command: Commands,

@@ -79,54 +79,6 @@ SUBCOMMANDS:
     info    
 ";
 
-static LONG_FORMAT_FOR_HELP_SUBCOMMAND: &str = "myprog-test 
-
-USAGE:
-    myprog test [foo]
-
-ARGS:
-    <foo>
-            long form help message
-
-OPTIONS:
-    -h, --help
-            Print help information
-";
-
-static LONG_FORMAT_FOR_NESTED_HELP_SUBCOMMAND: &str = "myprog-test-nested 
-long form about message
-
-USAGE:
-    myprog test nested
-
-OPTIONS:
-    -h, --help
-            Print help information
-";
-
-static LONG_FORMAT_SINGLE_ARG_HELP_SUBCOMMAND: &str = "myprog 1.0
-
-USAGE:
-    myprog [foo] [SUBCOMMAND]
-
-ARGS:
-    <foo>
-            long form help message
-
-OPTIONS:
-    -h, --help
-            Print help information
-
-    -V, --version
-            Print version information
-
-SUBCOMMANDS:
-    help
-            Print this message or the help of the given subcommand(s)
-    test
-            
-";
-
 #[test]
 fn setting() {
     #![allow(deprecated)]
@@ -1135,63 +1087,6 @@ fn aaos_option_use_delim_false() {
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
         &["one,two"]
     );
-}
-
-#[test]
-fn nested_help_subcommand_with_global_setting() {
-    let m = App::new("myprog")
-        .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
-        .subcommand(
-            App::new("test").subcommand(
-                App::new("nested")
-                    .about("short form about message")
-                    .long_about("long form about message"),
-            ),
-        );
-    assert!(utils::compare_output(
-        m,
-        "myprog test help nested",
-        LONG_FORMAT_FOR_NESTED_HELP_SUBCOMMAND,
-        false
-    ));
-}
-
-#[test]
-fn single_arg_help_with_long_format_setting() {
-    let m = App::new("myprog")
-        .version("1.0")
-        .setting(AppSettings::UseLongFormatForHelpSubcommand)
-        .subcommand(App::new("test"))
-        .arg(
-            Arg::new("foo")
-                .help("short form help message")
-                .long_help("long form help message"),
-        );
-    assert!(utils::compare_output(
-        m,
-        "myprog help",
-        LONG_FORMAT_SINGLE_ARG_HELP_SUBCOMMAND,
-        false
-    ));
-}
-
-#[test]
-fn use_long_format_for_help_subcommand_with_setting() {
-    let m = App::new("myprog")
-        .setting(AppSettings::UseLongFormatForHelpSubcommand)
-        .subcommand(
-            App::new("test").arg(
-                Arg::new("foo")
-                    .help("short form help message")
-                    .long_help("long form help message"),
-            ),
-        );
-    assert!(utils::compare_output(
-        m,
-        "myprog help test",
-        LONG_FORMAT_FOR_HELP_SUBCOMMAND,
-        false
-    ));
 }
 
 #[test]
