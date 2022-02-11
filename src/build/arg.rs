@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 // Std
 use std::{
     borrow::Cow,
@@ -872,7 +874,6 @@ impl<'help> Arg<'help> {
     ///
     /// [`ArgSettings`]: crate::ArgSettings
     #[inline]
-    // TODO: Deprecate
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
@@ -899,7 +900,6 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
-    // TODO: Deprecate
     pub fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
@@ -930,7 +930,6 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
-    // TODO: Deprecate
     pub fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
@@ -2128,58 +2127,10 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that an argument should allow grouping of multiple values via a
-    /// delimiter.
-    ///
-    /// i.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
-    /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
-    /// value delimiter for all arguments that accept values (options and positional arguments)
-    ///
-    /// **NOTE:** When this setting is used, it will default [`Arg::value_delimiter`]
-    /// to the comma `,`.
-    ///
-    /// **NOTE:** Implicitly sets [`Arg::takes_value`]
-    ///
-    /// # Examples
-    ///
-    /// The following example shows the default behavior.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let delims = App::new("prog")
-    ///     .arg(Arg::new("option")
-    ///         .long("option")
-    ///         .use_delimiter(true)
-    ///         .takes_value(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--option=val1,val2,val3",
-    ///     ]);
-    ///
-    /// assert!(delims.is_present("option"));
-    /// assert_eq!(delims.occurrences_of("option"), 1);
-    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
-    /// ```
-    /// The next example shows the difference when turning delimiters off. This is the default
-    /// behavior
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let nodelims = App::new("prog")
-    ///     .arg(Arg::new("option")
-    ///         .long("option")
-    ///         .takes_value(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--option=val1,val2,val3",
-    ///     ]);
-    ///
-    /// assert!(nodelims.is_present("option"));
-    /// assert_eq!(nodelims.occurrences_of("option"), 1);
-    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
-    /// ```
-    /// [`Arg::value_delimiter`]: Arg::value_delimiter()
+    /// Deprecated, replaced with [`Arg::use_value_delimiter`]
     #[inline]
     #[must_use]
-    // TODO: Deprecate
+    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::use_value_delimiter`")]
     pub fn use_delimiter(self, yes: bool) -> Self {
         self.use_value_delimiter(yes)
     }
@@ -2300,85 +2251,10 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that *multiple values* may only be set using the delimiter.
-    ///
-    /// This means if an option is encountered, and no delimiter is found, it is assumed that no
-    /// additional values for that option follow. This is unlike the default, where it is generally
-    /// assumed that more values will follow regardless of whether or not a delimiter is used.
-    ///
-    /// **NOTE:** The default is `false`.
-    ///
-    /// **NOTE:** Setting this requires [`Arg::use_value_delimiter`] and
-    /// [`Arg::takes_value`]
-    ///
-    /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
-    /// through help text or other means.
-    ///
-    /// # Examples
-    ///
-    /// These examples demonstrate what happens when `require_delimiter(true)` is used. Notice
-    /// everything works in this first example, as we use a delimiter, as expected.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let delims = App::new("prog")
-    ///     .arg(Arg::new("opt")
-    ///         .short('o')
-    ///         .takes_value(true)
-    ///         .use_value_delimiter(true)
-    ///         .require_delimiter(true)
-    ///         .multiple_values(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-o", "val1,val2,val3",
-    ///     ]);
-    ///
-    /// assert!(delims.is_present("opt"));
-    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
-    /// ```
-    ///
-    /// In this next example, we will *not* use a delimiter. Notice it's now an error.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("opt")
-    ///         .short('o')
-    ///         .takes_value(true)
-    ///         .use_value_delimiter(true)
-    ///         .require_delimiter(true))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-o", "val1", "val2", "val3",
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// let err = res.unwrap_err();
-    /// assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    /// ```
-    ///
-    /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
-    /// were present, it stops parsing `-o`. At this point it reaches `val2` and because no
-    /// positional arguments have been defined, it's an error of an unexpected argument.
-    ///
-    /// In this final example, we contrast the above with `clap`'s default behavior where the above
-    /// is *not* an error.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let delims = App::new("prog")
-    ///     .arg(Arg::new("opt")
-    ///         .short('o')
-    ///         .takes_value(true)
-    ///         .multiple_values(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-o", "val1", "val2", "val3",
-    ///     ]);
-    ///
-    /// assert!(delims.is_present("opt"));
-    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
-    /// ```
+    /// Deprecated, replaced with [`Arg::require_value_delimiter`]
     #[inline]
     #[must_use]
-    // TODO: Deprecate
+    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::require_value_delimiter`")]
     pub fn require_delimiter(self, yes: bool) -> Self {
         self.require_value_delimiter(yes)
     }
@@ -4751,8 +4627,8 @@ impl<'help> Arg<'help> {
         self.value_hint
     }
 
-    /// Get information on if this argument is global or not
-    // TODO: Deprecate
+    /// Deprecated, replaced with [`Arg::is_global_set`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::is_global_set`")]
     pub fn get_global(&self) -> bool {
         self.is_global_set()
     }

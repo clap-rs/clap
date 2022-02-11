@@ -1067,7 +1067,7 @@ fn aaos_opts_mult() {
                 .number_of_values(1)
                 .takes_value(true)
                 .use_value_delimiter(true)
-                .require_delimiter(true),
+                .require_value_delimiter(true),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());

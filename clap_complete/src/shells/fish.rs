@@ -153,7 +153,7 @@ fn value_completion(option: &Arg) -> String {
         format!(
             " -r -f -a \"{{{}}}\"",
             data.iter()
-                .filter_map(|value| if value.is_hidden() {
+                .filter_map(|value| if value.is_hide_set() {
                     None
                 } else {
                     Some(format!(

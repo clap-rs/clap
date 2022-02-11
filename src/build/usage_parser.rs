@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 // Internal
 use crate::{
     build::{Arg, ArgSettings},

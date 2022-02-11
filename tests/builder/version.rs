@@ -27,7 +27,6 @@ fn no_version_flag_short() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
-    assert_eq!(err.info, ["-V"]);
 }
 
 #[test]
@@ -37,7 +36,6 @@ fn no_version_flag_long() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
-    assert_eq!(err.info, ["--version"]);
 }
 
 #[test]
@@ -178,7 +176,6 @@ fn no_propagation_by_default_long() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    assert_eq!(err.info, &["--version"]);
 }
 
 #[test]
@@ -188,7 +185,6 @@ fn no_propagation_by_default_short() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    assert_eq!(err.info, &["-V"]);
 }
 
 #[test]

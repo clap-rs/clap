@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 // Std
 use std::ops::BitOr;
 #[cfg(feature = "yaml")]
@@ -5,6 +7,9 @@ use std::str::FromStr;
 
 // Third party
 use bitflags::bitflags;
+
+#[allow(unused)]
+use crate::Arg;
 
 #[doc(hidden)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,13 +31,25 @@ impl Default for ArgFlags {
 /// [`Arg::is_set`]: crate::Arg::is_set()
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[non_exhaustive]
-// TODO: Deprecate
 pub enum ArgSettings {
-    /// Specifies that an arg must be used
+    /// Deprecated, replaced with [`Arg::required`] and [`Arg::is_required_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::required` and `Arg::is_required_set`"
+    )]
     Required,
-    /// Allows an arg to accept multiple values
+    /// Deprecated, replaced with [`Arg::multiple_values`] and [`Arg::is_multiple_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::multiple_values` and `Arg::`is_multiple_values_set`"
+    )]
     MultipleValues,
-    /// Allows an arg to appear multiple times
+    /// Deprecated, replaced with [`Arg::multiple_occurrences`] and
+    /// [`Arg::is_multiple_occurrences_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::multiple_occurrences` and `Arg::is_multiple_occurrences_set`"
+    )]
     MultipleOccurrences,
     /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
     /// [`ArgSettings::MultipleValues`]
@@ -41,24 +58,64 @@ pub enum ArgSettings {
         note = "Split into `ArgSettings::MultipleOccurrences` (most likely what you want)  and `ArgSettings::MultipleValues`"
     )]
     Multiple,
-    /// Forbids an arg from accepting empty values such as `""`
+    /// Deprecated, replaced with [`Arg::forbid_empty_values`] and
+    /// [`Arg::is_forbid_empty_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::forbid_empty_values` and `Arg::is_forbid_empty_values_set`"
+    )]
     ForbidEmptyValues,
-    /// Sets an arg to be global (i.e. exist in all subcommands)
+    /// Deprecated, replaced with [`Arg::global`] and [`Arg::is_global_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::global` and `Arg::is_global_set`"
+    )]
     Global,
-    /// Hides an arg from the help message
+    /// Deprecated, replaced with [`Arg::hide`] and [`Arg::is_hide_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide` and `Arg::is_hide_set`"
+    )]
     Hidden,
-    /// Allows an argument to take a value (such as `--option value`)
+    /// Deprecated, replaced with [`Arg::takes_value`] and [`Arg::is_takes_value_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::takes_value` and `Arg::is_takes_value_set`"
+    )]
     TakesValue,
-    /// Enables a delimiter to break up arguments `--option val1,val2,val3` becomes three values
-    /// (`val1`, `val2`, and `val3`) instead of the default one (`val1,val2,val3`)
+    /// Deprecated, replaced with [`Arg::use_value_delimiter`] and
+    /// [`Arg::is_use_value_delimiter_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::use_value_delimiter` and `Arg::is_use_value_delimiter_set`"
+    )]
     UseValueDelimiter,
-    /// Tells an arg to display it's help on the line below the arg itself in the help message
+    /// Deprecated, replaced with [`Arg::next_line_help`] and [`Arg::is_next_line_help_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::next_line_help` and `Arg::is_next_line_help_set`"
+    )]
     NextLineHelp,
-    /// Says that arg *must* use a delimiter to separate values
+    /// Deprecated, replaced with [`Arg::require_value_delimiter`] and
+    /// [`Arg::is_require_value_delimiter_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::require_value_delimiter` and `Arg::is_require_value_delimiter_set`"
+    )]
     RequireDelimiter,
-    /// Hides the possible values from the help message
+    /// Deprecated, replaced with [`Arg::hide_possible_values`] and
+    /// [`Arg::is_hide_possible_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide_possible_values` and `Arg::is_hide_possible_values_set`"
+    )]
     HidePossibleValues,
-    /// Allows values that start with a hyphen
+    /// Deprecated, replaced with [`Arg::allow_hyphen_values`] and
+    /// [`Arg::is_allow_hyphen_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
+    )]
     AllowHyphenValues,
     /// Deprecated, replaced with [`ArgSettings::AllowHyphenValues`]
     #[deprecated(
@@ -66,33 +123,70 @@ pub enum ArgSettings {
         note = "Replaced with `ArgSettings::AllowHyphenValues`"
     )]
     AllowLeadingHyphen,
-    /// Requires that an equals be used to provide a value to an option such as `--option=value`
+    /// Deprecated, replaced with [`Arg::require_equals`] and [`Arg::is_require_equals_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::require_equals` and `Arg::is_require_equals_set`"
+    )]
     RequireEquals,
-    /// Says that a positional arg will be the last positional, and requires `--` to be accessed.
-    /// It can also be accessed early (i.e. before other positionals) by providing `--`
+    /// Deprecated, replaced with [`Arg::last`] and [`Arg::is_last_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::last` and `Arg::is_last_set`"
+    )]
     Last,
-    /// Hides the default value from the help message
+    /// Deprecated, replaced with [`Arg::hide_default_value`] and [`Arg::is_hide_default_value_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide_default_value` and `Arg::is_hide_default_value_set`"
+    )]
     HideDefaultValue,
-    /// Possible values become case insensitive
+    /// Deprecated, replaced with [`Arg::ignore_case`] and [`Arg::is_ignore_case_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`"
+    )]
     IgnoreCase,
     /// Deprecated, replaced with [`ArgSettings::IgnoreCase`]
     #[deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")]
     CaseInsensitive,
-    /// Hides environment variable arguments from the help message
+    /// Deprecated, replaced with [`Arg::hide_env`] and [`Arg::is_hide_env_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide_env` and `Arg::is_hide_env_set`"
+    )]
     #[cfg(feature = "env")]
     HideEnv,
-    /// Hides any values currently assigned to ENV variables in the help message (good for sensitive
-    /// information)
+    /// Deprecated, replaced with [`Arg::hide_env_values`] and [`Arg::is_hide_env_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide_env_values` and `Arg::is_hide_env_values_set`"
+    )]
     #[cfg(feature = "env")]
     HideEnvValues,
-    /// The argument should **not** be shown in short help text
+    /// Deprecated, replaced with [`Arg::hide_short_help`] and [`Arg::is_hide_short_help_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide_short_help` and `Arg::is_hide_short_help_set`"
+    )]
     HiddenShortHelp,
-    /// The argument should **not** be shown in long help text
+    /// Deprecated, replaced with [`Arg::hide_long_help`] and [`Arg::is_hide_long_help_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::hide_long_help` and `Arg::is_hide_long_help_set`"
+    )]
     HiddenLongHelp,
-    /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
+    /// Deprecated, replaced with [`Arg::allow_invalid_utf8`] and [`Arg::is_allow_invalid_utf8_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::allow_invalid_utf8` and `Arg::is_allow_invalid_utf8_set`"
+    )]
     AllowInvalidUtf8,
-    /// Specifies that option should exist on its own.
-    /// Having any other arguments present at runtime is an error.
+    /// Deprecated, replaced with [`Arg::exclusive`] and [`Arg::is_exclusive_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `Arg::exclusive` and `Arg::is_exclusive_set`"
+    )]
     Exclusive,
 }
 

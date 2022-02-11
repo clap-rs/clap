@@ -1325,20 +1325,10 @@ impl<'help> App<'help> {
         }
     }
 
-    /// Set the default section heading for future args.
-    ///
-    /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
-    ///
-    /// This is useful if the default `OPTIONS` or `ARGS` headings are
-    /// not specific enough for one's use case.
-    ///
-    /// For subcommands, see [`App::subcommand_help_heading`]
-    ///
-    /// [`App::arg`]: App::arg()
-    /// [`Arg::help_heading`]: crate::Arg::help_heading()
+    /// Deprecated, replaced with [`App::next_help_heading`]
     #[inline]
     #[must_use]
-    // TODO: Deprecate
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::next_help_heading`")]
     pub fn help_heading<O>(self, heading: O) -> Self
     where
         O: Into<Option<&'help str>>,
@@ -2197,11 +2187,9 @@ impl<'help> App<'help> {
         self.long_about
     }
 
-    /// Get the custom section heading specified via [`App::help_heading`].
-    ///
-    /// [`App::help_heading`]: App::help_heading()
+    /// Deprecated, replaced with [`App::get_next_help_heading`]
     #[inline]
-    // TODO: Deprecate
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::get_next_help_heading`")]
     pub fn get_help_heading(&self) -> Option<&'help str> {
         self.get_next_help_heading()
     }
