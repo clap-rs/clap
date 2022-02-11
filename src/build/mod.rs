@@ -19,9 +19,7 @@ mod regex;
 mod debug_asserts;
 
 #[cfg(test)]
-mod app_tests;
-#[cfg(test)]
-mod arg_tests;
+mod tests;
 
 pub use app::App;
 pub use app_settings::{AppFlags, AppSettings};

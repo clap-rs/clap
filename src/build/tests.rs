@@ -1,4 +1,5 @@
 use crate::App;
+use crate::Arg;
 
 #[test]
 fn propagate_version() {
@@ -45,4 +46,11 @@ fn issue_2090() {
         .next()
         .unwrap()
         .is_disable_version_flag_set());
+}
+
+// This test will *fail to compile* if Arg is not Send + Sync
+#[test]
+fn arg_send_sync() {
+    fn foo<T: Send + Sync>(_: T) {}
+    foo(Arg::new("test"))
 }
