@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 use std::path::PathBuf;
 
 use clap::{arg, App, AppSettings};

@@ -1,3 +1,5 @@
+// Note: this requires the `derive` feature
+
 use clap::Parser;
 
 #[derive(Parser)]
