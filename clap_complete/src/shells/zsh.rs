@@ -545,7 +545,7 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
     let mut ret = vec![];
 
     for f in utils::flags(p) {
-        debug!("write_flags_of:iter: f={}", f.get_name());
+        debug!("write_flags_of:iter: f={}", f.get_id());
 
         let help = f.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, &f, p_global);
@@ -639,7 +639,7 @@ fn write_positionals_of(p: &App) -> String {
         let a = format!(
             "'{cardinality}:{name}{help}:{value_completion}' \\",
             cardinality = cardinality,
-            name = arg.get_name(),
+            name = arg.get_id(),
             help = arg
                 .get_help()
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)

@@ -109,7 +109,7 @@ impl<'help> ArgGroup<'help> {
     /// # ;
     /// ```
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        ArgGroup::default().name(n)
+        ArgGroup::default().id(n)
     }
 
     /// Sets the group name.
@@ -122,10 +122,16 @@ impl<'help> ArgGroup<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
+    pub fn id<S: Into<&'help str>>(mut self, n: S) -> Self {
         self.name = n.into();
         self.id = Id::from(self.name);
         self
+    }
+
+    /// Deprecated, replaced with [`ArgGroup::id`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `ArgGroup::id`")]
+    pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
+        self.id(n)
     }
 
     /// Adds an [argument] to this group by name
@@ -495,7 +501,7 @@ impl<'help> From<&'help Yaml> for ArgGroup<'help> {
                 "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "name" => {
                     if let Some(ys) = v.as_str() {
-                        a = a.name(ys);
+                        a = a.id(ys);
                     }
                     a
                 }

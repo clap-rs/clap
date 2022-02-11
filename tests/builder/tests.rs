@@ -400,7 +400,7 @@ fn mut_arg_all() {
     let mut app = utils::complex_app();
     let arg_names = app
         .get_arguments()
-        .map(|a| a.get_name())
+        .map(|a| a.get_id())
         .filter(|a| *a != "version" && *a != "help")
         .collect::<Vec<_>>();
 

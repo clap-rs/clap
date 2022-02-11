@@ -61,7 +61,7 @@ pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
     for arg in app.get_positionals() {
         let (lhs, rhs) = option_markers(arg);
         line.push(roman(lhs));
-        line.push(italic(arg.get_name()));
+        line.push(italic(arg.get_id()));
         line.push(roman(rhs));
         line.push(roman(" "));
     }
@@ -120,7 +120,7 @@ pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
 
     for pos in items.iter().filter(|a| a.is_positional()) {
         let (lhs, rhs) = option_markers(pos);
-        let name = format!("{}{}{}", lhs, pos.get_name(), rhs);
+        let name = format!("{}{}{}", lhs, pos.get_id(), rhs);
 
         let mut header = vec![bold(&name)];
 
