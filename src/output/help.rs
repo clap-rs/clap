@@ -9,7 +9,7 @@ use std::{
 
 // Internal
 use crate::{
-    build::{arg::display_arg_val, App, AppSettings, Arg},
+    build::{arg::display_arg_val, App, Arg},
     output::{fmt::Colorizer, Usage},
 };
 
@@ -25,7 +25,6 @@ pub(crate) struct Help<'help, 'app, 'writer> {
     app: &'app App<'help>,
     usage: &'app Usage<'help, 'app>,
     next_line_help: bool,
-    hide_pv: bool,
     term_w: usize,
     use_long: bool,
 }
@@ -65,15 +64,13 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
                 },
             ),
         };
-        let next_line_help = app.is_set(AppSettings::NextLineHelp);
-        let hide_pv = app.is_set(AppSettings::HidePossibleValues);
+        let next_line_help = app.is_next_line_help_set();
 
         Help {
             writer,
             app,
             usage,
             next_line_help,
-            hide_pv,
             term_w,
             use_long,
         }
@@ -571,7 +568,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
             }
         }
 
-        if !self.hide_pv && !a.is_hide_possible_values_set() && !a.possible_vals.is_empty() {
+        if !a.is_hide_possible_values_set() && !a.possible_vals.is_empty() {
             debug!(
                 "Help::spec_vals: Found possible vals...{:?}",
                 a.possible_vals
@@ -1005,7 +1002,7 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
 }
 
 fn should_show_subcommand(subcommand: &App) -> bool {
-    !subcommand.is_set(AppSettings::Hidden)
+    !subcommand.is_hide_set()
 }
 
 fn text_wrapper(help: &str, width: usize) -> String {

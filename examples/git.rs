@@ -8,24 +8,24 @@ fn main() {
     let matches = App::new("git")
         .about("A fictional versioning CLI")
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .setting(AppSettings::AllowExternalSubcommands)
-        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand(
             App::new("clone")
                 .about("Clones repos")
                 .arg(arg!(<REMOTE> "The remote to clone"))
-                .setting(AppSettings::ArgRequiredElseHelp),
+                .arg_required_else_help(true),
         )
         .subcommand(
             App::new("push")
                 .about("pushes things")
                 .arg(arg!(<REMOTE> "The remote to target"))
-                .setting(AppSettings::ArgRequiredElseHelp),
+                .arg_required_else_help(true),
         )
         .subcommand(
             App::new("add")
                 .about("adds things")
-                .setting(AppSettings::ArgRequiredElseHelp)
+                .arg_required_else_help(true)
                 .arg(arg!(<PATH> ... "Stuff to add").allow_invalid_utf8(true)),
         )
         .get_matches();

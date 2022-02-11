@@ -64,7 +64,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     // Should we color the help?
     pub(crate) fn color_help(&self) -> ColorChoice {
         #[cfg(feature = "color")]
-        if self.is_set(AS::DisableColoredHelp) {
+        if self.app.is_disable_colored_help_set() {
             return ColorChoice::Never;
         }
 
@@ -139,7 +139,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         .last()
                         .map_or(false, |p_name| !p_name.is_last_set());
 
-                let missing_pos = self.is_set(AS::AllowMissingPositional)
+                let missing_pos = self.app.is_allow_missing_positional_set()
                     && is_second_to_last
                     && !trailing_values;
 
@@ -181,7 +181,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         pos_counter
                     }
                 } else if trailing_values
-                    && (self.is_set(AS::AllowMissingPositional) || contains_last)
+                    && (self.app.is_allow_missing_positional_set() || contains_last)
                 {
                     // Came to -- and one positional has .last(true) set, so we go immediately
                     // to the last (highest index) positional
@@ -194,7 +194,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !trailing_values {
-                if self.is_set(AS::SubcommandPrecedenceOverArg)
+                if self.app.is_subcommand_precedence_over_arg_set()
                     || !matches!(parse_state, ParseState::Opt(_) | ParseState::Pos(_))
                 {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
@@ -203,7 +203,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     if let Some(sc_name) = sc_name {
                         if sc_name == "help"
                             && !self.is_set(AS::NoAutoHelp)
-                            && !self.is_set(AS::DisableHelpSubcommand)
+                            && !self.app.is_disable_help_subcommand_set()
                         {
                             self.parse_help_subcommand(remaining_args)?;
                         }
@@ -284,7 +284,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else if let Some(short_arg) = arg_os.strip_prefix("-") {
                     // Arg looks like a short flag, and not a possible number
 
-                    // Try to parse short args like normal, if AllowHyphenValues or
+                    // Try to parse short args like normal, if allow_hyphen_values or
                     // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                     // an error, and instead return Ok(None)
                     let parse_result = self.parse_short_arg(
@@ -396,7 +396,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     ));
                 }
 
-                if self.is_set(AS::TrailingVarArg) && pos_counter == positional_count {
+                if self.app.is_trailing_var_arg_set() && pos_counter == positional_count {
                     trailing_values = true;
                 }
 
@@ -426,7 +426,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     parse_state = ParseState::Pos(p.id.clone());
                 }
                 valid_arg_found = true;
-            } else if self.is_set(AS::AllowExternalSubcommands) {
+            } else if self.app.is_allow_external_subcommands_set() {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_str() {
                     Some(s) => s.to_string(),
@@ -442,8 +442,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut sc_m = ArgMatcher::new(self.app);
 
                 while let Some((v, _)) = it.next() {
-                    let allow_invalid_utf8 =
-                        self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands);
+                    let allow_invalid_utf8 = self
+                        .app
+                        .is_allow_invalid_utf8_for_external_subcommands_set();
                     if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.app,
@@ -487,7 +488,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .name
                 .clone();
             self.parse_subcommand(&sc_name, matcher, it, keep_state)?;
-        } else if self.is_set(AS::SubcommandRequired) {
+        } else if self.app.is_subcommand_required_set() {
             let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
             return Err(ClapError::missing_subcommand(
                 self.app,
@@ -541,7 +542,8 @@ impl<'help, 'app> Parser<'help, 'app> {
             );
         }
         // If the argument must be a subcommand.
-        if !self.app.has_args() || self.is_set(AS::InferSubcommands) && self.app.has_subcommands() {
+        if !self.app.has_args() || self.app.is_infer_subcommands_set() && self.app.has_subcommands()
+        {
             return ClapError::unrecognized_subcommand(
                 self.app,
                 arg_os.to_str_lossy().into_owned(),
@@ -564,8 +566,8 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn possible_subcommand(&self, arg_os: &RawOsStr, valid_arg_found: bool) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
-        if !(self.is_set(AS::ArgsNegateSubcommands) && valid_arg_found) {
-            if self.is_set(AS::InferSubcommands) {
+        if !(self.app.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
+            if self.app.is_infer_subcommands_set() {
                 // For subcommand `test`, we accepts it's prefix: `t`, `te`,
                 // `tes` and `test`.
                 let v = self
@@ -591,7 +593,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     // Checks if the arg matches a long flag subcommand name, or any of its aliases (if defined)
     fn possible_long_flag_subcommand(&self, arg_os: &RawOsStr) -> Option<&str> {
         debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
-        if self.is_set(AS::InferSubcommands) {
+        if self.app.is_infer_subcommands_set() {
             let options = self
                 .app
                 .get_subcommands()
@@ -668,9 +670,10 @@ impl<'help, 'app> Parser<'help, 'app> {
             next, current_positional.name
         );
 
-        if self.is_set(AS::AllowHyphenValues)
+        if self.app.is_allow_hyphen_values_set()
             || self.app[&current_positional.id].is_allow_hyphen_values_set()
-            || (self.is_set(AS::AllowNegativeNumbers) && next.to_str_lossy().parse::<f64>().is_ok())
+            || (self.app.is_allow_negative_numbers_set()
+                && next.to_str_lossy().parse::<f64>().is_ok())
         {
             // If allow hyphen, this isn't a new arg.
             debug!("Parser::is_new_arg: Allow hyphen");
@@ -702,7 +705,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         let mut mid_string = String::from(" ");
 
-        if !self.is_set(AS::SubcommandsNegateReqs) {
+        if !self.app.is_subcommand_negates_reqs_set() {
             let reqs =
                 Usage::new(self.app, &self.required).get_required_usage_from(&[], None, true); // maybe Some(m)
 
@@ -712,7 +715,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
 
-        let partial_parsing_enabled = self.is_set(AS::IgnoreErrors);
+        let partial_parsing_enabled = self.app.is_ignore_errors_set();
 
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             // Display subcommand name, short and long in usage
@@ -795,7 +798,8 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(help) = self.app.find(&Id::help_hash()) {
             if let Some(h) = help.long {
-                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.is_set(AS::DisableHelpFlag) {
+                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.app.is_disable_help_flag_set()
+                {
                     debug!("Help");
                     return Some(ParseResult::HelpFlag);
                 }
@@ -806,7 +810,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some(v) = version.long {
                 if arg == v
                     && !self.is_set(AS::NoAutoVersion)
-                    && !self.is_set(AS::DisableVersionFlag)
+                    && !self.app.is_disable_version_flag_set()
                 {
                     debug!("Version");
                     return Some(ParseResult::VersionFlag);
@@ -827,7 +831,8 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(help) = self.app.find(&Id::help_hash()) {
             if let Some(h) = help.short {
-                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.is_set(AS::DisableHelpFlag) {
+                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.app.is_disable_help_flag_set()
+                {
                     debug!("Help");
                     return Some(ParseResult::HelpFlag);
                 }
@@ -838,7 +843,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some(v) = version.short {
                 if arg == v
                     && !self.is_set(AS::NoAutoVersion)
-                    && !self.is_set(AS::DisableVersionFlag)
+                    && !self.app.is_disable_version_flag_set()
                 {
                     debug!("Version");
                     return Some(ParseResult::VersionFlag);
@@ -908,7 +913,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 opt.to_string()
             );
             Some(opt)
-        } else if self.is_set(AS::InferLongArgs) {
+        } else if self.app.is_infer_long_args_set() {
             let arg_str = arg.to_str_lossy();
             self.app.args.args().find(|a| {
                 a.long.map_or(false, |long| long.starts_with(&*arg_str))
@@ -954,7 +959,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(arg) {
             ParseResult::FlagSubCommand(sc_name.to_string())
-        } else if self.is_set(AS::AllowHyphenValues) {
+        } else if self.app.is_allow_hyphen_values_set() {
             ParseResult::MaybeHyphenValue
         } else {
             ParseResult::NoMatchingArg {
@@ -977,10 +982,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         let arg = short_arg.to_str_lossy();
 
         #[allow(clippy::blocks_in_if_conditions)]
-        if self.is_set(AS::AllowNegativeNumbers) && arg.parse::<f64>().is_ok() {
+        if self.app.is_allow_negative_numbers_set() && arg.parse::<f64>().is_ok() {
             debug!("Parser::parse_short_arg: negative number");
             return ParseResult::MaybeHyphenValue;
-        } else if self.is_set(AS::AllowHyphenValues)
+        } else if self.app.is_allow_hyphen_values_set()
             && arg.chars().any(|c| !self.app.contains_short(c))
         {
             debug!("Parser::parse_short_args: contains non-short flag");
@@ -1167,9 +1172,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!(
             "Parser::add_val_to_arg; trailing_values={:?}, DontDelimTrailingVals={:?}",
             trailing_values,
-            self.is_set(AS::DontDelimitTrailingValues)
+            self.app.is_dont_delimit_trailing_values_set()
         );
-        if !(trailing_values && self.is_set(AS::DontDelimitTrailingValues)) {
+        if !(trailing_values && self.app.is_dont_delimit_trailing_values_set()) {
             if let Some(delim) = arg.val_delim {
                 let terminator = arg.terminator.map(OsStr::new);
                 let vals = val

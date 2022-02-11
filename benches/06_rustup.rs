@@ -43,7 +43,7 @@ fn build_cli() -> App<'static> {
             App::new("install")
                 .about("Update Rust toolchains")
                 .after_help(TOOLCHAIN_INSTALL_HELP)
-                .setting(AppSettings::Hidden) // synonym for 'toolchain install'
+                .hide(true) // synonym for 'toolchain install'
                 .arg(Arg::new("toolchain").required(true)),
         )
         .subcommand(
@@ -89,17 +89,17 @@ fn build_cli() -> App<'static> {
                 )
                 .subcommand(
                     App::new("update")
-                        .setting(AppSettings::Hidden) // synonym for 'install'
+                        .hide(true) // synonym for 'install'
                         .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("add")
-                        .setting(AppSettings::Hidden) // synonym for 'install'
+                        .hide(true) // synonym for 'install'
                         .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("remove")
-                        .setting(AppSettings::Hidden) // synonym for 'uninstall'
+                        .hide(true) // synonym for 'uninstall'
                         .arg(Arg::new("toolchain").required(true)),
                 ),
         )
@@ -127,13 +127,13 @@ fn build_cli() -> App<'static> {
                 )
                 .subcommand(
                     App::new("install")
-                        .setting(AppSettings::Hidden) // synonym for 'add'
+                        .hide(true) // synonym for 'add'
                         .arg(Arg::new("target").required(true))
                         .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 )
                 .subcommand(
                     App::new("uninstall")
-                        .setting(AppSettings::Hidden) // synonym for 'remove'
+                        .hide(true) // synonym for 'remove'
                         .arg(Arg::new("target").required(true))
                         .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 ),
@@ -193,12 +193,12 @@ fn build_cli() -> App<'static> {
                 )
                 .subcommand(
                     App::new("add")
-                        .setting(AppSettings::Hidden) // synonym for 'set'
+                        .hide(true) // synonym for 'set'
                         .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("remove")
-                        .setting(AppSettings::Hidden) // synonym for 'unset'
+                        .hide(true) // synonym for 'unset'
                         .about("Remove the override toolchain for a directory")
                         .arg(Arg::new("path").long("path").takes_value(true))
                         .arg(
@@ -212,7 +212,7 @@ fn build_cli() -> App<'static> {
             App::new("run")
                 .about("Run a command with an environment configured for a given toolchain")
                 .after_help(RUN_HELP)
-                .setting(AppSettings::TrailingVarArg)
+                .trailing_var_arg(true)
                 .arg(Arg::new("toolchain").required(true))
                 .arg(
                     Arg::new("command")
@@ -264,7 +264,7 @@ fn build_cli() -> App<'static> {
         .subcommand(
             App::new("telemetry")
                 .about("rustup telemetry commands")
-                .setting(AppSettings::Hidden)
+                .hide(true)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(App::new("enable").about("Enable rustup telemetry"))
                 .subcommand(App::new("disable").about("Disable rustup telemetry"))

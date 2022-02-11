@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{App, AppSettings as AS, Arg, ArgPredicate, PossibleValue};
+use crate::build::{App, Arg, ArgPredicate, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -60,13 +60,13 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .count();
         if num_user_values == 0
             && matcher.subcommand_name().is_none()
-            && self.p.is_set(AS::ArgRequiredElseHelp)
+            && self.p.app.is_arg_required_else_help_set()
         {
             let message = self.p.write_help_err()?;
             return Err(Error::display_help_error(self.p.app, message));
         }
         self.validate_conflicts(matcher)?;
-        if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
+        if !(self.p.app.is_subcommand_negates_reqs_set() && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
         }
         self.validate_matched_args(matcher)?;

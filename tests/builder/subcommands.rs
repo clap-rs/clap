@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
+use clap::{arg, error::ErrorKind, App, Arg};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -506,8 +506,8 @@ fn issue_2494_subcommand_is_present() {
 fn subcommand_not_recognized() {
     let app = App::new("fake")
         .subcommand(App::new("sub"))
-        .setting(AppSettings::DisableHelpSubcommand)
-        .setting(AppSettings::InferSubcommands);
+        .disable_help_subcommand(true)
+        .infer_subcommands(true);
     assert!(utils::compare_output(
         app,
         "fake help",
@@ -529,7 +529,7 @@ fn busybox_like_multicall() {
         [App::new("true"), App::new("false")]
     }
     let app = App::new("busybox")
-        .setting(AppSettings::Multicall)
+        .multicall(true)
         .subcommand(App::new("busybox").subcommands(applet_commands()))
         .subcommands(applet_commands());
 
@@ -552,7 +552,7 @@ fn busybox_like_multicall() {
 #[test]
 fn hostname_like_multicall() {
     let mut app = App::new("hostname")
-        .setting(AppSettings::Multicall)
+        .multicall(true)
         .subcommand(App::new("hostname"))
         .subcommand(App::new("dnsdomainname"));
 

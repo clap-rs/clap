@@ -2,7 +2,7 @@ use clap::{AppSettings, Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::PropagateVersion))]
+#[clap(propagate_version = true)]
 #[clap(global_setting(AppSettings::UseLongFormatForHelpSubcommand))]
 struct Cli {
     #[clap(subcommand)]

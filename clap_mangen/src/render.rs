@@ -144,10 +144,7 @@ pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
 }
 
 pub(crate) fn subcommands(roff: &mut Roff, app: &clap::App, section: &str) {
-    for sub in app
-        .get_subcommands()
-        .filter(|s| !s.is_set(AppSettings::Hidden))
-    {
+    for sub in app.get_subcommands().filter(|s| !s.is_hide_set()) {
         roff.control("TP", []);
 
         let name = format!("{}-{}({})", app.get_name(), sub.get_name(), section);
@@ -179,10 +176,7 @@ pub(crate) fn after_help(roff: &mut Roff, app: &clap::App) {
 }
 
 fn subcommand_markers(cmd: &clap::App) -> (&'static str, &'static str) {
-    markers(
-        cmd.is_set(AppSettings::SubcommandRequired)
-            || cmd.is_set(AppSettings::SubcommandRequiredElseHelp),
-    )
+    markers(cmd.is_subcommand_required_set() || cmd.is_set(AppSettings::SubcommandRequiredElseHelp))
 }
 
 fn option_markers(opt: &clap::Arg) -> (&'static str, &'static str) {

@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, AppSettings, Arg, ArgMatches};
+use clap::{arg, error::ErrorKind, App, Arg, ArgMatches};
 
 #[cfg(feature = "suggestions")]
 static DYM: &str =
@@ -589,7 +589,7 @@ fn issue_2279() {
 #[test]
 fn infer_long_arg() {
     let app = App::new("test")
-        .setting(AppSettings::InferLongArgs)
+        .infer_long_args(true)
         .arg(Arg::new("racetrack").long("racetrack").alias("autobahn"))
         .arg(Arg::new("racecar").long("racecar").takes_value(true));
 
@@ -615,7 +615,7 @@ fn infer_long_arg() {
     assert_eq!(matches.value_of("racecar"), None);
 
     let app = App::new("test")
-        .setting(AppSettings::InferLongArgs)
+        .infer_long_args(true)
         .arg(Arg::new("arg").long("arg"));
 
     let matches = app.clone().try_get_matches_from(&["test", "--"]).unwrap();

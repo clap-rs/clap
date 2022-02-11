@@ -64,7 +64,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             usage.push_str(" [OPTIONS]");
         }
 
-        let allow_missing_positional = self.app.is_set(AS::AllowMissingPositional);
+        let allow_missing_positional = self.app.is_allow_missing_positional_set();
         if !allow_missing_positional {
             usage.push_str(&req_string);
         }
@@ -77,8 +77,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             .get_non_positionals()
             .any(|o| o.is_multiple_values_set())
             && self.app.get_positionals().any(|p| !p.is_required_set())
-            && !(self.app.has_visible_subcommands()
-                || self.app.is_set(AS::AllowExternalSubcommands))
+            && !(self.app.has_visible_subcommands() || self.app.is_allow_external_subcommands_set())
             && !has_last
         {
             usage.push_str(" [--]");
@@ -121,14 +120,14 @@ impl<'help, 'app> Usage<'help, 'app> {
 
         // incl_reqs is only false when this function is called recursively
         if self.app.has_visible_subcommands() && incl_reqs
-            || self.app.is_set(AS::AllowExternalSubcommands)
+            || self.app.is_allow_external_subcommands_set()
         {
             let placeholder = self.app.subcommand_value_name.unwrap_or("SUBCOMMAND");
-            if self.app.is_set(AS::SubcommandsNegateReqs)
-                || self.app.is_set(AS::ArgsNegateSubcommands)
+            if self.app.is_subcommand_negates_reqs_set()
+                || self.app.is_args_conflicts_with_subcommands_set()
             {
                 usage.push_str("\n    ");
-                if !self.app.is_set(AS::ArgsNegateSubcommands) {
+                if !self.app.is_args_conflicts_with_subcommands_set() {
                     usage.push_str(&*self.create_help_usage(false));
                 } else {
                     usage.push_str(&*name);
@@ -136,7 +135,7 @@ impl<'help, 'app> Usage<'help, 'app> {
                 usage.push_str(" <");
                 usage.push_str(placeholder);
                 usage.push('>');
-            } else if self.app.is_set(AS::SubcommandRequired)
+            } else if self.app.is_subcommand_required_set()
                 || self.app.is_set(AS::SubcommandRequiredElseHelp)
             {
                 usage.push_str(" <");
@@ -173,7 +172,7 @@ impl<'help, 'app> Usage<'help, 'app> {
                 .unwrap_or(&self.app.name)[..],
         );
         usage.push_str(&*r_string);
-        if self.app.is_set(AS::SubcommandRequired) {
+        if self.app.is_subcommand_required_set() {
             usage.push_str(" <");
             usage.push_str(self.app.subcommand_value_name.unwrap_or("SUBCOMMAND"));
             usage.push('>');
@@ -211,7 +210,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             }
         }
 
-        if !self.app.is_set(AS::DontCollapseArgsInUsage) && count > 1 {
+        if !self.app.is_dont_collapse_args_in_usage_set() && count > 1 {
             debug!("Usage::get_args_tag:iter: More than one, returning [ARGS]");
 
             // [ARGS]
@@ -245,7 +244,7 @@ impl<'help, 'app> Usage<'help, 'app> {
                 pos.name_no_brackets(),
                 pos.multiple_str()
             ))
-        } else if self.app.is_set(AS::DontCollapseArgsInUsage)
+        } else if self.app.is_dont_collapse_args_in_usage_set()
             && self.app.has_positionals()
             && incl_reqs
         {

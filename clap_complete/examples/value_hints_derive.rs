@@ -12,7 +12,7 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{App, AppSettings, IntoApp, Parser, ValueHint};
+use clap::{App, IntoApp, Parser, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;
@@ -21,8 +21,8 @@ use std::path::PathBuf;
 #[derive(Parser, Debug, PartialEq)]
 #[clap(
     name = "value_hints_derive",
-    // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
-    setting = AppSettings::TrailingVarArg,
+    // App::trailing_var_ar is required to use ValueHint::CommandWithArguments
+    trailing_var_arg = true,
 )]
 struct Opt {
     /// If provided, outputs the completion file for given shell

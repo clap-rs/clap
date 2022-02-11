@@ -1,13 +1,13 @@
 mod completions;
 
-use clap::{App, AppSettings, Arg, ValueHint};
+use clap::{App, Arg, ValueHint};
 
 use clap_complete::shells::*;
 use completions::common;
 
 pub fn build_app_with_value_hints() -> App<'static> {
     App::new("my_app")
-        .setting(AppSettings::TrailingVarArg)
+        .trailing_var_arg(true)
         .arg(
             Arg::new("choice")
                 .long("choice")

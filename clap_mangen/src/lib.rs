@@ -264,6 +264,5 @@ fn app_has_arguments(app: &clap::App) -> bool {
 
 // Does the application have any subcommands?
 fn app_has_subcommands(app: &clap::App) -> bool {
-    app.get_subcommands()
-        .any(|i| !i.is_set(clap::AppSettings::Hidden))
+    app.get_subcommands().any(|i| !i.is_hide_set())
 }

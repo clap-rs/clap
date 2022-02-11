@@ -1,9 +1,9 @@
-use crate::{App, AppSettings};
+use crate::App;
 
 #[test]
 fn propagate_version() {
     let mut app = App::new("test")
-        .setting(AppSettings::PropagateVersion)
+        .propagate_version(true)
         .version("1.1")
         .subcommand(App::new("sub1"));
     app._propagate();
@@ -13,7 +13,7 @@ fn propagate_version() {
 #[test]
 fn global_setting() {
     let mut app = App::new("test")
-        .global_setting(AppSettings::AllowHyphenValues)
+        .disable_version_flag(true)
         .subcommand(App::new("subcmd"));
     app._propagate();
     assert!(app
@@ -21,28 +21,7 @@ fn global_setting() {
         .iter()
         .find(|s| s.name == "subcmd")
         .unwrap()
-        .is_set(AppSettings::AllowHyphenValues));
-}
-
-#[test]
-fn global_settings() {
-    let mut app = App::new("test")
-        .global_setting(AppSettings::AllowHyphenValues)
-        .global_setting(AppSettings::TrailingVarArg)
-        .subcommand(App::new("subcmd"));
-    app._propagate();
-    assert!(app
-        .subcommands
-        .iter()
-        .find(|s| s.name == "subcmd")
-        .unwrap()
-        .is_set(AppSettings::AllowHyphenValues));
-    assert!(app
-        .subcommands
-        .iter()
-        .find(|s| s.name == "subcmd")
-        .unwrap()
-        .is_set(AppSettings::TrailingVarArg));
+        .is_disable_version_flag_set());
 }
 
 // This test will *fail to compile* if App is not Send + Sync
@@ -55,9 +34,9 @@ fn app_send_sync() {
 #[test]
 fn issue_2090() {
     let mut app = App::new("app")
-        .global_setting(AppSettings::DisableVersionFlag)
+        .disable_version_flag(true)
         .subcommand(App::new("sub"));
     app._build();
 
-    assert!(app.subcommands[0].is_set(AppSettings::DisableVersionFlag));
+    assert!(app.subcommands[0].is_disable_version_flag_set());
 }

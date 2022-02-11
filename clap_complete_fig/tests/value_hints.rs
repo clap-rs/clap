@@ -1,4 +1,4 @@
-use clap::{App, AppSettings, Arg, ValueHint};
+use clap::{App, Arg, ValueHint};
 use clap_complete_fig::Fig;
 use completions::common;
 
@@ -6,8 +6,8 @@ mod completions;
 
 pub fn build_app_with_value_hints() -> App<'static> {
     App::new("my_app")
-        .setting(AppSettings::DisableVersionFlag)
-        .setting(AppSettings::TrailingVarArg)
+        .disable_version_flag(true)
+        .trailing_var_arg(true)
         .arg(
             Arg::new("choice")
                 .long("choice")

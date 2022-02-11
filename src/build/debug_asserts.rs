@@ -15,7 +15,7 @@ pub(crate) fn assert_app(app: &App) {
     if app.version.is_none() && app.long_version.is_none() {
         // PropagateVersion is meaningless if there is no version
         assert!(
-            !app.settings.is_set(AppSettings::PropagateVersion),
+            !app.is_propagate_version_set(),
             "App {}: No version information via App::version or App::long_version to propagate",
             app.get_name(),
         );
@@ -215,7 +215,7 @@ pub(crate) fn assert_app(app: &App) {
             );
 
             assert!(
-                app.is_set(AppSettings::TrailingVarArg),
+                app.is_trailing_var_arg_set(),
                 "App {}: Positional argument '{}' has hint CommandWithArguments, so App must have TrailingVarArg set.",
                     app.get_name(),
                 arg.name
@@ -291,7 +291,7 @@ pub(crate) fn assert_app(app: &App) {
         );
     }
 
-    app._panic_on_missing_help(app.g_settings.is_set(AppSettings::HelpExpected));
+    app._panic_on_missing_help(app.is_help_expected_set());
     assert_app_flags(app);
 }
 
@@ -373,15 +373,13 @@ fn find_duplicates<T: PartialEq>(slice: &[T]) -> impl Iterator<Item = (&T, &T)> 
 }
 
 fn assert_app_flags(app: &App) {
-    use AppSettings::*;
-
     macro_rules! checker {
         ($a:ident requires $($b:ident)|+) => {
-            if app.is_set($a) {
+            if app.$a() {
                 let mut s = String::new();
 
                 $(
-                    if !app.is_set($b) {
+                    if !app.$b() {
                         s.push_str(&format!("  AppSettings::{} is required when AppSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
@@ -392,11 +390,11 @@ fn assert_app_flags(app: &App) {
             }
         };
         ($a:ident conflicts $($b:ident)|+) => {
-            if app.is_set($a) {
+            if app.$a() {
                 let mut s = String::new();
 
                 $(
-                    if app.is_set($b) {
+                    if app.$b() {
                         s.push_str(&format!("  AppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
@@ -408,9 +406,9 @@ fn assert_app_flags(app: &App) {
         };
     }
 
-    checker!(AllowInvalidUtf8ForExternalSubcommands requires AllowExternalSubcommands);
+    checker!(is_allow_invalid_utf8_for_external_subcommands_set requires is_allow_external_subcommands_set);
     #[cfg(feature = "unstable-multicall")]
-    checker!(Multicall conflicts NoBinaryName);
+    checker!(is_multicall_set conflicts is_no_binary_name_set);
 }
 
 #[cfg(debug_assertions)]
@@ -502,7 +500,7 @@ fn _verify_positionals(app: &App) -> bool {
 
     let mut found = false;
 
-    if app.is_set(AppSettings::AllowMissingPositional) {
+    if app.is_allow_missing_positional_set() {
         // Check that if a required positional argument is found, all positions with a lower
         // index are also required.
         let mut foundx2 = false;
@@ -566,7 +564,7 @@ fn _verify_positionals(app: &App) -> bool {
         .get_positionals()
         .any(|p| p.is_last_set() && p.is_required_set())
         && app.has_subcommands()
-        && !app.is_set(AppSettings::SubcommandsNegateReqs)
+        && !app.is_subcommand_negates_reqs_set()
     {
         panic!(
             "Having a required positional argument with .last(true) set *and* child \

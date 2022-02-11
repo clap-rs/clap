@@ -30,7 +30,7 @@ impl ArgMatcher {
             //
             // See clap-rs/clap#3263
             #[cfg(debug_assertions)]
-            disable_asserts: _app.is_set(crate::AppSettings::AllowExternalSubcommands),
+            disable_asserts: _app.is_allow_external_subcommands_set(),
             ..Default::default()
         })
     }

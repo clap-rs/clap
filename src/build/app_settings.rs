@@ -1,7 +1,14 @@
+#![allow(deprecated)]
+
 // Std
 use std::ops::BitOr;
 #[cfg(feature = "yaml")]
 use std::str::FromStr;
+
+#[allow(unused)]
+use crate::App;
+#[allow(unused)]
+use crate::Arg;
 
 // Third party
 use bitflags::bitflags;
@@ -25,314 +32,104 @@ impl Default for AppFlags {
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[non_exhaustive]
 pub enum AppSettings {
-    /// Try not to fail on parse errors, like missing option values.
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
-    ///
-    /// ```rust
-    /// # use clap::{App, arg, AppSettings};
-    /// let app = App::new("app")
-    ///   .global_setting(AppSettings::IgnoreErrors)
-    ///   .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
-    ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file").required(false))
-    ///   .arg(arg!(f: -f "Flag"));
-    ///
-    /// let r = app.try_get_matches_from(vec!["app", "-c", "file", "-f", "-x"]);
-    ///
-    /// assert!(r.is_ok(), "unexpected error: {:?}", r);
-    /// let m = r.unwrap();
-    /// assert_eq!(m.value_of("config"), Some("file"));
-    /// assert!(m.is_present("f"));
-    /// assert_eq!(m.value_of("stuff"), None);
-    /// ```
+    /// Deprecated, replaced with [`App::ignore_errors`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::ignore_errors`")]
     IgnoreErrors,
 
-    /// Display the message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
-    /// exiting
-    ///
-    /// This is most useful when writing an application which is run from a GUI shortcut, or on
-    /// Windows where a user tries to open the binary by double-clicking instead of using the
-    /// command line.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::WaitOnError);
+    /// Deprecated, replace
+    /// ```rust,no_run
+    /// let app = clap::App::new("app")
+    ///     .global_setting(clap::AppSettings::WaitOnError)
+    ///     .arg(clap::arg!(--flag));
+    /// let m = app.get_matches();
     /// ```
+    /// with
+    /// ```rust
+    /// let app = clap::App::new("app")
+    ///     .arg(clap::arg!(--flag));
+    /// let m = match app.try_get_matches() {
+    ///     Ok(m) => m,
+    ///     Err(err) => {
+    ///         if err.use_stderr() {
+    ///             let _ = err.print();
+    ///
+    ///             eprintln!("\nPress [ENTER] / [RETURN] to continue...");
+    ///             use std::io::BufRead;
+    ///             let mut s = String::new();
+    ///             let i = std::io::stdin();
+    ///             i.lock().read_line(&mut s).unwrap();
+    ///
+    ///             std::process::exit(2);
+    ///         } else {
+    ///             let _ = err.print();
+    ///             std::process::exit(0);
+    ///         }
+    ///     }
+    /// };
+    /// ```
+    #[deprecated(
+        since = "3.1.0",
+        note = "See documentation for how to hand-implement this"
+    )]
     WaitOnError,
 
-    /// Specifies that leading hyphens are allowed in all argument *values* (e.g. `-10`).
-    ///
-    /// Otherwise they will be parsed as another flag or option.  See also
-    /// [`AppSettings::AllowNegativeNumbers`].
-    ///
-    /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
-    /// otherwise be an error (such as accidentally forgetting to specify a value for leading
-    /// option). It is preferred to set this on a per argument basis, via [`Arg::allow_hyphen_values`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Arg, App, AppSettings};
-    /// // Imagine you needed to represent negative numbers as well, such as -10
-    /// let m = App::new("nums")
-    ///     .setting(AppSettings::AllowHyphenValues)
-    ///     .arg(Arg::new("neg"))
-    ///     .get_matches_from(vec![
-    ///         "nums", "-20"
-    ///     ]);
-    ///
-    /// assert_eq!(m.value_of("neg"), Some("-20"));
-    /// # ;
-    /// ```
-    /// [`Arg::allow_hyphen_values`]: crate::Arg::allow_hyphen_values()
+    /// Deprecated, replaced with [`App::allow_hyphen_values`] and
+    /// [`Arg::is_allow_hyphen_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
+    )]
     AllowHyphenValues,
 
-    /// Allows negative numbers to pass as values.
-    ///
-    /// This is similar to [`AppSettings::AllowHyphenValues`] except that it only allows numbers,
-    /// all other undefined leading hyphens will fail to parse.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// let res = App::new("myprog")
-    ///     .global_setting(AppSettings::AllowNegativeNumbers)
-    ///     .arg(Arg::new("num"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "-20"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert_eq!(m.value_of("num").unwrap(), "-20");
-    /// ```
+    /// Deprecated, replaced with [`App::allow_negative_numbers`] and
+    /// [`App::is_allow_negative_numbers_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::allow_negative_numbers` and `App::is_allow_negative_numbers_set`"
+    )]
     AllowNegativeNumbers,
 
-    /// Specifies that all arguments override themselves.
-    ///
-    /// This is the equivalent to saying the `foo` arg using [`Arg::overrides_with("foo")`] for all
-    /// defined arguments.
-    ///
-    /// [`Arg::overrides_with("foo")`]: crate::Arg::overrides_with()
+    /// Deprecated, replaced with [`App::args_override_self`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::args_override_self`")]
     AllArgsOverrideSelf,
 
-    /// Allows one to implement two styles of CLIs where positionals can be used out of order.
-    ///
-    /// The first example is a CLI where the second to last positional argument is optional, but
-    /// the final positional argument is required. Such as `$ prog [optional] <required>` where one
-    /// of the two following usages is allowed:
-    ///
-    /// * `$ prog [optional] <required>`
-    /// * `$ prog <required>`
-    ///
-    /// This would otherwise not be allowed. This is useful when `[optional]` has a default value.
-    ///
-    /// **Note:** when using this style of "missing positionals" the final positional *must* be
-    /// [required] if `--` will not be used to skip to the final positional argument.
-    ///
-    /// **Note:** This style also only allows a single positional argument to be "skipped" without
-    /// the use of `--`. To skip more than one, see the second example.
-    ///
-    /// The second example is when one wants to skip multiple optional positional arguments, and use
-    /// of the `--` operator is OK (but not required if all arguments will be specified anyways).
-    ///
-    /// For example, imagine a CLI which has three positional arguments `[foo] [bar] [baz]...` where
-    /// `baz` accepts multiple values (similar to man `ARGS...` style training arguments).
-    ///
-    /// With this setting the following invocations are posisble:
-    ///
-    /// * `$ prog foo bar baz1 baz2 baz3`
-    /// * `$ prog foo -- baz1 baz2 baz3`
-    /// * `$ prog -- baz1 baz2 baz3`
-    ///
-    /// # Examples
-    ///
-    /// Style number one from above:
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::new("arg1"))
-    ///     .arg(Arg::new("arg2")
-    ///         .required(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "other"
-    ///     ]);
-    ///
-    /// assert_eq!(m.value_of("arg1"), None);
-    /// assert_eq!(m.value_of("arg2"), Some("other"));
-    /// ```
-    ///
-    /// Now the same example, but using a default value for the first optional positional argument
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::new("arg1")
-    ///         .default_value("something"))
-    ///     .arg(Arg::new("arg2")
-    ///         .required(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "other"
-    ///     ]);
-    ///
-    /// assert_eq!(m.value_of("arg1"), Some("something"));
-    /// assert_eq!(m.value_of("arg2"), Some("other"));
-    /// ```
-    ///
-    /// Style number two from above:
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::new("foo"))
-    ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").takes_value(true).multiple_values(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
-    ///     ]);
-    ///
-    /// assert_eq!(m.value_of("foo"), Some("foo"));
-    /// assert_eq!(m.value_of("bar"), Some("bar"));
-    /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
-    /// ```
-    ///
-    /// Now nofice if we don't specify `foo` or `baz` but use the `--` operator.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::new("foo"))
-    ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").takes_value(true).multiple_values(true))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--", "baz1", "baz2", "baz3"
-    ///     ]);
-    ///
-    /// assert_eq!(m.value_of("foo"), None);
-    /// assert_eq!(m.value_of("bar"), None);
-    /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
-    /// ```
-    ///
-    /// [required]: crate::Arg::required()
+    /// Deprecated, replaced with [`App::allow_missing_positional`] and
+    /// [`App::is_allow_missing_positional_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::allow_missing_positional` and `App::is_allow_missing_positional_set`"
+    )]
     AllowMissingPositional,
 
-    /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
-    /// attempt to parse any further args.
-    ///
-    /// The values of the trailing positional argument will contain all args from itself on.
-    ///
-    /// **NOTE:** The final positional argument **must** have [`Arg::multiple_values(true)`] or the usage
-    /// string equivalent.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, arg, AppSettings};
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::TrailingVarArg)
-    ///     .arg(arg!(<cmd> ... "commands to run"))
-    ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
-    ///
-    /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
-    /// assert_eq!(trail, ["arg1", "-r", "val1"]);
-    /// ```
-    /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
+    /// Deprecated, replaced with [`App::trailing_var_arg`] and [`App::is_trailing_var_arg_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::trailing_var_arg` and `App::is_trailing_var_arg_set`"
+    )]
     TrailingVarArg,
 
-    /// Disables the automatic delimiting of values when `--` or [`AppSettings::TrailingVarArg`]
-    /// was used.
-    ///
-    /// **NOTE:** The same thing can be done manually by setting the final positional argument to
-    /// [`Arg::use_value_delimiter(false)`]. Using this setting is safer, because it's easier to locate
-    /// when making changes.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::DontDelimitTrailingValues)
-    ///     .get_matches();
-    /// ```
-    ///
-    /// [`Arg::use_value_delimiter(false)`]: crate::Arg::use_value_delimiter()
+    /// Deprecated, replaced with [`App::dont_delimit_trailing_values`] and
+    /// [`App::is_dont_delimit_trailing_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::dont_delimit_trailing_values` and `App::is_dont_delimit_trailing_values_set`"
+    )]
     DontDelimitTrailingValues,
 
-    /// Allow partial matches of long arguments or their [aliases].
-    ///
-    /// For example, to match an argument named `--test`, one could use `--t`, `--te`, `--tes`, and
-    /// `--test`.
-    ///
-    /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match
-    /// `--te` to `--test` there could not also be another argument or alias `--temp` because both
-    /// start with `--te`
-    ///
-    /// [aliases]: crate::App::aliases()
+    /// Deprecated, replaced with [`App::infer_long_args`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::infer_long_args`")]
     InferLongArgs,
 
-    /// Allow partial matches of [subcommand] names and their [aliases].
-    ///
-    /// For example, to match a subcommand named `test`, one could use `t`, `te`, `tes`, and
-    /// `test`.
-    ///
-    /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match `te`
-    /// to `test` there could not also be a subcommand or alias `temp` because both start with `te`
-    ///
-    /// **CAUTION:** This setting can interfere with [positional/free arguments], take care when
-    /// designing CLIs which allow inferred subcommands and have potential positional/free
-    /// arguments whose values could start with the same characters as subcommands. If this is the
-    /// case, it's recommended to use settings such as [`AppSettings::ArgsNegateSubcommands`] in
-    /// conjunction with this setting.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// let m = App::new("prog")
-    ///     .global_setting(AppSettings::InferSubcommands)
-    ///     .subcommand(App::new("test"))
-    ///     .get_matches_from(vec![
-    ///         "prog", "te"
-    ///     ]);
-    /// assert_eq!(m.subcommand_name(), Some("test"));
-    /// ```
-    ///
-    /// [subcommand]: crate::App::subcommand()
-    /// [positional/free arguments]: crate::Arg::index()
-    /// [aliases]: crate::App::aliases()
+    /// Deprecated, replaced with [`App::infer_subcommands`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::infer_subcommands`")]
     InferSubcommands,
 
-    /// If no [`subcommand`] is present at runtime, error and exit gracefully.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let err = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog",
-    ///     ]);
-    /// assert!(err.is_err());
-    /// assert_eq!(err.unwrap_err().kind(), ErrorKind::MissingSubcommand);
-    /// # ;
-    /// ```
-    ///
-    /// [`subcommand`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::subcommand_required`] and
+    /// [`App::is_subcommand_required_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::subcommand_required` and `App::is_subcommand_required_set`"
+    )]
     SubcommandRequired,
 
     /// Display help if no [`subcommands`] are present at runtime and exit gracefully (i.e. an
@@ -356,177 +153,27 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     SubcommandRequiredElseHelp,
 
-    /// Assume unexpected positional arguments are a [`subcommand`].
-    ///
-    /// **NOTE:** Use this setting with caution,
-    /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
-    /// will **not** cause an error and instead be treated as a potential subcommand.
-    /// One should check for such cases manually and inform the user appropriately.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec![
-    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
-    ///     ]);
-    ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
-    /// // string argument name
-    /// match m.subcommand() {
-    ///     Some((external, ext_m)) => {
-    ///          let ext_args: Vec<&str> = ext_m.values_of("").unwrap().collect();
-    ///          assert_eq!(external, "subcmd");
-    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
-    ///     },
-    ///     _ => {},
-    /// }
-    /// ```
-    ///
-    /// [`subcommand`]: crate::App::subcommand()
-    /// [`ArgMatches`]: crate::ArgMatches
-    /// [`ErrorKind::UnknownArgument`]: crate::ErrorKind::UnknownArgument
+    /// Deprecated, replaced with [`App::allow_external_subcommands`] and
+    /// [`App::is_allow_external_subcommands_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::allow_external_subcommands` and `App::is_allow_external_subcommands_set`"
+    )]
     AllowExternalSubcommands,
 
-    /// Strip directory path from argv\[0\] and use as an argument.
-    ///
-    /// A "multicall" executable is a single executable
-    /// that contains a variety of applets,
-    /// and decides which applet to run based on the name of the file.
-    /// The executable can be called from different names by creating hard links
-    /// or symbolic links to it.
-    ///
-    /// This is desirable when it is convenient to store code
-    /// for many programs in the same file,
-    /// such as deduplicating code across multiple programs
-    /// without loading a shared library at runtime.
-    ///
-    /// Multicall can't be used with [`NoBinaryName`] since they interpret
-    /// the command name in incompatible ways.
-    ///
-    /// # Examples
-    ///
-    /// `hostname` is an example of a multicall executable.
-    /// Both `hostname` and `dnsdomainname` are provided by the same executable
-    /// and which behaviour to use is based on the executable file name.
-    ///
-    /// This is desirable when the executable has a primary purpose
-    /// but there is other related functionality that would be convenient to provide
-    /// and it is convenient for the code to implement it to be in the same executable.
-    ///
-    /// The name of the app is essentially unused
-    /// and may be the same as the name of a subcommand.
-    ///
-    /// The names of the immediate subcommands of the App
-    /// are matched against the basename of the first argument,
-    /// which is conventionally the path of the executable.
-    ///
-    /// This does not allow the subcommand to be passed as the first non-path argument.
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let mut app = App::new("hostname")
-    ///     .setting(AppSettings::Multicall)
-    ///     .subcommand(App::new("hostname"))
-    ///     .subcommand(App::new("dnsdomainname"));
-    /// let m = app.try_get_matches_from_mut(&["/usr/bin/hostname", "dnsdomainname"]);
-    /// assert!(m.is_err());
-    /// assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
-    /// let m = app.get_matches_from(&["/usr/bin/dnsdomainname"]);
-    /// assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
-    /// ```
-    ///
-    /// Busybox is another common example of a multicall executable
-    /// with a subcommmand for each applet that can be run directly,
-    /// e.g. with the `cat` applet being run by running `busybox cat`,
-    /// or with `cat` as a link to the `busybox` binary.
-    ///
-    /// This is desirable when the launcher program has additional options
-    /// or it is useful to run the applet without installing a symlink
-    /// e.g. to test the applet without installing it
-    /// or there may already be a command of that name installed.
-    ///
-    /// To make an applet usable as both a multicall link and a subcommand
-    /// the subcommands must be defined both in the top-level App
-    /// and as subcommands of the "main" applet.
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings};
-    /// fn applet_commands() -> [App<'static>; 2] {
-    ///     [App::new("true"), App::new("false")]
-    /// }
-    /// let mut app = App::new("busybox")
-    ///     .setting(AppSettings::Multicall)
-    ///     .subcommand(
-    ///         App::new("busybox")
-    ///             .subcommand_value_name("APPLET")
-    ///             .subcommand_help_heading("APPLETS")
-    ///             .subcommands(applet_commands()),
-    ///     )
-    ///     .subcommands(applet_commands());
-    /// // When called from the executable's canonical name
-    /// // its applets can be matched as subcommands.
-    /// let m = app.try_get_matches_from_mut(&["/usr/bin/busybox", "true"]).unwrap();
-    /// assert_eq!(m.subcommand_name(), Some("busybox"));
-    /// assert_eq!(m.subcommand().unwrap().1.subcommand_name(), Some("true"));
-    /// // When called from a link named after an applet that applet is matched.
-    /// let m = app.get_matches_from(&["/usr/bin/true"]);
-    /// assert_eq!(m.subcommand_name(), Some("true"));
-    /// ```
-    ///
-    /// **NOTE:** Applets are slightly semantically different from subcommands,
-    /// so it's recommended to use [`App::subcommand_help_heading`] and
-    /// [`App::subcommand_value_name`] to change the descriptive text as above.
-    ///
-    /// [`NoBinaryName`]: crate::AppSettings::NoBinaryName
-    /// [`App::subcommand_value_name`]: crate::App::subcommand_value_name
-    /// [`App::subcommand_help_heading`]: crate::App::subcommand_help_heading
+    /// Deprecated, replaced with [`App::multicall`] and [`App::is_multicall_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::multicall` and `App::is_multicall_set`"
+    )]
     #[cfg(feature = "unstable-multicall")]
     Multicall,
 
-    /// Specifies that external subcommands that are invalid UTF-8 should *not* be treated as an error.
-    ///
-    /// **NOTE:** Using external subcommand argument values with invalid UTF-8 requires using
-    /// [`ArgMatches::values_of_os`] or [`ArgMatches::values_of_lossy`] for those particular
-    /// arguments which may contain invalid UTF-8 values
-    ///
-    /// **NOTE:** Setting this requires [`AppSettings::AllowExternalSubcommands`]
-    ///
-    /// # Platform Specific
-    ///
-    /// Non Windows systems only
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
-    ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec![
-    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
-    ///     ]);
-    ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
-    /// // string argument name
-    /// match m.subcommand() {
-    ///     Some((external, ext_m)) => {
-    ///          let ext_args: Vec<&std::ffi::OsStr> = ext_m.values_of_os("").unwrap().collect();
-    ///          assert_eq!(external, "subcmd");
-    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
-    ///     },
-    ///     _ => {},
-    /// }
-    /// ```
-    ///
-    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
-    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
-    /// [`subcommands`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::allow_invalid_utf8_for_external_subcommands`] and [`App::is_allow_invalid_utf8_for_external_subcommands_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::allow_invalid_utf8_for_external_subcommands` and `App::is_allow_invalid_utf8_for_external_subcommands_set`"
+    )]
     AllowInvalidUtf8ForExternalSubcommands,
 
     /// Specifies that the help subcommand should print the long help message (`--help`).
@@ -551,152 +198,36 @@ pub enum AppSettings {
     /// [long format]: crate::App::long_about
     UseLongFormatForHelpSubcommand,
 
-    /// Allows [`subcommands`] to override all requirements of the parent command.
-    ///
-    /// For example, if you had a subcommand or top level application with a required argument
-    /// that is only required as long as there is no subcommand present,
-    /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
-    /// and yet receive no error so long as the user uses a valid subcommand instead.
-    ///
-    /// **NOTE:** This defaults to false (using subcommand does *not* negate requirements)
-    ///
-    /// # Examples
-    ///
-    /// This first example shows that it is an error to not use a required argument
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind};
-    /// let err = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandsNegateReqs)
-    ///     .arg(Arg::new("opt").required(true))
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog"
-    ///     ]);
-    /// assert!(err.is_err());
-    /// assert_eq!(err.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
-    /// # ;
-    /// ```
-    ///
-    /// This next example shows that it is no longer error to not use a required argument if a
-    /// valid subcommand is used.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind};
-    /// let noerr = App::new("myprog")
-    ///     .setting(AppSettings::SubcommandsNegateReqs)
-    ///     .arg(Arg::new("opt").required(true))
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "test"
-    ///     ]);
-    /// assert!(noerr.is_ok());
-    /// # ;
-    /// ```
-    ///
-    /// [`Arg::required(true)`]: crate::Arg::required()
-    /// [`subcommands`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::subcommand_negates_reqs`] and
+    /// [`App::is_subcommand_negates_reqs_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::subcommand_negates_reqs` and `App::is_subcommand_negates_reqs_set`"
+    )]
     SubcommandsNegateReqs,
 
-    /// Specifies that use of an argument prevents the use of [`subcommands`].
-    ///
-    /// By default `clap` allows arguments between subcommands such
-    /// as `<cmd> [cmd_args] <subcmd> [subcmd_args] <subsubcmd> [subsubcmd_args]`.
-    ///
-    /// This setting disables that functionality and says that arguments can
-    /// only follow the *final* subcommand. For instance using this setting
-    /// makes only the following invocations possible:
-    ///
-    /// * `<cmd> <subcmd> <subsubcmd> [subsubcmd_args]`
-    /// * `<cmd> <subcmd> [subcmd_args]`
-    /// * `<cmd> [cmd_args]`
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ArgsNegateSubcommands);
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::args_conflicts_with_subcommands`] and
+    /// [`App::is_args_conflicts_with_subcommands_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::args_conflicts_with_subcommands` and `App::is_args_conflicts_with_subcommands_set`"
+    )]
     ArgsNegateSubcommands,
 
-    /// Prevent subcommands from being consumed as an arguments value.
-    ///
-    /// By default, if an option taking multiple values is followed by a subcommand, the
-    /// subcommand will be parsed as another value.
-    ///
-    /// ```text
-    /// app --foo val1 val2 subcommand
-    ///           --------- ----------
-    ///             values   another value
-    /// ```
-    ///
-    /// This setting instructs the parser to stop when encountering a subcommand instead of
-    /// greedily consuming arguments.
-    ///
-    /// ```text
-    /// app --foo val1 val2 subcommand
-    ///           --------- ----------
-    ///             values   subcommand
-    /// ```
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, Arg};
-    /// let app = App::new("app").subcommand(App::new("sub")).arg(
-    ///     Arg::new("arg")
-    ///         .long("arg")
-    ///         .multiple_values(true)
-    ///         .takes_value(true),
-    /// );
-    ///
-    /// let matches = app
-    ///     .clone()
-    ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
-    ///     .unwrap();
-    ///
-    /// assert_eq!(
-    ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
-    ///     &["1", "2", "3", "sub"]
-    /// );
-    /// assert!(matches.subcommand_matches("sub").is_none());
-    ///
-    /// let matches = app
-    ///     .setting(AppSettings::SubcommandPrecedenceOverArg)
-    ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
-    ///     .unwrap();
-    ///
-    /// assert_eq!(
-    ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
-    ///     &["1", "2", "3"]
-    /// );
-    /// assert!(matches.subcommand_matches("sub").is_some());
-    /// ```
+    /// Deprecated, replaced with [`App::subcommand_precedence_over_arg`] and
+    /// [`App::is_subcommand_precedence_over_arg_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::subcommand_precedence_over_arg` and `App::is_subcommand_precedence_over_arg_set`"
+    )]
     SubcommandPrecedenceOverArg,
 
-    /// Exit gracefully if no arguments are present (e.g. `$ myprog`).
-    ///
-    /// **NOTE:** [`subcommands`] count as arguments
-    ///
-    /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
-    /// ensure that some argument is always present.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp);
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
-    /// [`Arg::default_value`]: crate::Arg::default_value()
+    /// Deprecated, replaced with [`App::arg_required_else_help`] and
+    /// [`App::is_arg_required_else_help_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::arg_required_else_help` and `App::is_arg_required_else_help_set`"
+    )]
     ArgRequiredElseHelp,
 
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
@@ -718,193 +249,80 @@ pub enum AppSettings {
     /// [`App::display_order`]: crate::App::display_order
     DeriveDisplayOrder,
 
-    /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::DontCollapseArgsInUsage)
-    ///     .get_matches();
-    /// ```
+    /// Deprecated, replaced with [`App::dont_collapse_args_in_usage`] and
+    /// [`App::is_dont_collapse_args_in_usage_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::dont_collapse_args_in_usage` and `App::is_dont_collapse_args_in_usage_set`"
+    )]
     DontCollapseArgsInUsage,
 
-    /// Places the help string for all arguments on the line after the argument.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::NextLineHelp)
-    ///     .get_matches();
-    /// ```
+    /// Deprecated, replaced with [`App::next_line_help`] and [`App::is_next_line_help_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::next_line_help` and `App::is_next_line_help_set`"
+    )]
     NextLineHelp,
 
-    /// Disables colorized help messages.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::DisableColoredHelp)
-    ///     .get_matches();
-    /// ```
+    /// Deprecated, replaced with [`App::disable_colored_help`] and
+    /// [`App::is_disable_colored_help_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::disable_colored_help` and `App::is_disable_colored_help_set`"
+    )]
     DisableColoredHelp,
 
-    /// Disables `-h` and `--help` flag.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpFlag)
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "-h"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
-    /// ```
+    /// Deprecated, replaced with [`App::disable_help_flag`] and [`App::is_disable_help_flag_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::disable_help_flag` and `App::is_disable_help_flag_set`"
+    )]
     DisableHelpFlag,
 
-    /// Disables the `help` [`subcommand`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind, };
-    /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpSubcommand)
-    ///     // Normally, creating a subcommand causes a `help` subcommand to automatically
-    ///     // be generated as well
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "help"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
-    /// ```
-    ///
-    /// [`subcommand`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::disable_help_subcommand`] and
+    /// [`App::is_disable_help_subcommand_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::disable_help_subcommand` and `App::is_disable_help_subcommand_set`"
+    )]
     DisableHelpSubcommand,
 
-    /// Disables `-V` and `--version` flag.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableVersionFlag)
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "-V"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
-    /// ```
+    /// Deprecated, replaced with [`App::disable_version_flag`] and
+    /// [`App::is_disable_version_flag_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::disable_version_flag` and `App::is_disable_version_flag_set`"
+    )]
     DisableVersionFlag,
 
-    /// Specifies to use the version of the current command for all [`subcommands`].
-    ///
-    /// Defaults to `false`; subcommands have independent version strings from their parents.
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .version("v1.1")
-    ///     .global_setting(AppSettings::PropagateVersion)
-    ///     .subcommand(App::new("test"))
-    ///     .get_matches();
-    /// // running `$ myprog test --version` will display
-    /// // "myprog-test v1.1"
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::propagate_version`] and [`App::is_propagate_version_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::propagate_version` and `App::is_propagate_version_set`"
+    )]
     PropagateVersion,
 
-    /// Specifies that this [`subcommand`] should be hidden from help messages
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings, };
-    /// App::new("myprog")
-    ///     .subcommand(App::new("test")
-    ///     .setting(AppSettings::Hidden))
-    /// # ;
-    /// ```
-    ///
-    /// [`subcommand`]: crate::App::subcommand()
+    /// Deprecated, replaced with [`App::hide`] and [`App::is_hide_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::hide` and `App::is_hide_set`"
+    )]
     Hidden,
 
-    /// Tells `clap` *not* to print possible values when displaying help information.
-    ///
-    /// This can be useful if there are many values, or they are explained elsewhere.
-    ///
-    /// To set this per argument, see
-    /// [`Arg::hide_possible_values`][crate::Arg::hide_possible_values].
+    /// Deprecated, replaced with [`App::hide_possible_values`] and
+    /// [`Arg::is_hide_possible_values_set`]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::hide_possible_values` and `Arg::is_hide_possible_values_set`"
+    )]
     HidePossibleValues,
 
-    /// Panic if help descriptions are omitted.
-    ///
-    /// **NOTE:** When deriving [`Parser`][crate::Parser], you could instead check this at
-    /// compile-time with `#![deny(missing_docs)]`
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .global_setting(AppSettings::HelpExpected)
-    ///     .arg(
-    ///         Arg::new("foo").help("It does foo stuff")
-    ///         // As required via AppSettings::HelpExpected, a help message was supplied
-    ///      )
-    /// #    .get_matches();
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// ```rust,no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myapp")
-    ///     .global_setting(AppSettings::HelpExpected)
-    ///     .arg(
-    ///         Arg::new("foo")
-    ///         // Someone forgot to put .about("...") here
-    ///         // Since the setting AppSettings::HelpExpected is activated, this will lead to
-    ///         // a panic (if you are in debug mode)
-    ///     )
-    /// #   .get_matches();
-    ///```
+    /// Deprecated, replaced with [`App::help_expected`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::help_expected`")]
     HelpExpected,
 
-    /// Specifies that the parser should not assume the first argument passed is the binary name.
-    ///
-    /// This is normally the case when using a "daemon" style mode, or an interactive CLI where
-    /// one would not normally type the binary or program name for each command.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, arg, AppSettings};
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::NoBinaryName)
-    ///     .arg(arg!(<cmd> ... "commands to run"))
-    ///     .get_matches_from(vec!["command", "set"]);
-    ///
-    /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
-    /// assert_eq!(cmds, ["command", "set"]);
-    /// ```
-    /// [`try_get_matches_from_mut`]: crate::App::try_get_matches_from_mut()
+    /// Deprecated, replaced with [`App::no_binary_name`]
+    #[deprecated(since = "3.1.0", note = "Replaced with `App::no_binary_name`")]
     NoBinaryName,
 
     /// Treat the auto-generated `-h, --help` flags like any other flag, and *not* print the help

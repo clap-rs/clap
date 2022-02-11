@@ -1,4 +1,4 @@
-use clap::{arg, App, AppSettings, Arg};
+use clap::{arg, App, Arg};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 static OPT3_VALS: [&str; 2] = ["fast", "slow"];
@@ -257,7 +257,7 @@ pub fn parse_args_negate_scs(c: &mut Criterion) {
     c.bench_function("parse_args_negate_scs", |b| {
         b.iter(|| {
             create_app!()
-                .setting(AppSettings::ArgsNegateSubcommands)
+                .args_conflicts_with_subcommands(true)
                 .get_matches_from(vec![
                     "myprog",
                     "arg1",

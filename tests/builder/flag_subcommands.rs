@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
+use clap::{arg, error::ErrorKind, App, Arg};
 
 #[test]
 fn flag_subcommand_normal() {
@@ -395,7 +395,7 @@ fn flag_subcommand_conflict_with_version() {
 #[test]
 fn flag_subcommand_long_infer_pass() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .infer_subcommands(true)
         .subcommand(App::new("test").long_flag("test"))
         .try_get_matches_from(vec!["prog", "--te"])
         .unwrap();
@@ -406,7 +406,7 @@ fn flag_subcommand_long_infer_pass() {
 #[test]
 fn flag_subcommand_long_infer_fail() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .infer_subcommands(true)
         .subcommand(App::new("test").long_flag("test"))
         .subcommand(App::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--te"]);
@@ -418,7 +418,7 @@ fn flag_subcommand_long_infer_fail() {
 #[test]
 fn flag_subcommand_long_infer_fail() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .infer_subcommands(true)
         .subcommand(App::new("test").long_flag("test"))
         .subcommand(App::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--te"]);
@@ -429,7 +429,7 @@ fn flag_subcommand_long_infer_fail() {
 #[test]
 fn flag_subcommand_long_infer_pass_close() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .infer_subcommands(true)
         .subcommand(App::new("test").long_flag("test"))
         .subcommand(App::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--tes"])
@@ -440,7 +440,7 @@ fn flag_subcommand_long_infer_pass_close() {
 #[test]
 fn flag_subcommand_long_infer_exact_match() {
     let m = App::new("prog")
-        .setting(AppSettings::InferSubcommands)
+        .infer_subcommands(true)
         .subcommand(App::new("test").long_flag("test"))
         .subcommand(App::new("testa").long_flag("testa"))
         .subcommand(App::new("testb").long_flag("testb"))
@@ -466,7 +466,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
     let app = App::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand_required(true)
         .author("Pacman Development Team")
         // Query subcommand
         //
@@ -520,7 +520,7 @@ fn flag_subcommand_long_normal_usage_string() {
     let app = App::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand_required(true)
         .author("Pacman Development Team")
         // Query subcommand
         //
@@ -573,7 +573,7 @@ fn flag_subcommand_short_normal_usage_string() {
     let app = App::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand_required(true)
         .author("Pacman Development Team")
         // Query subcommand
         //
