@@ -306,7 +306,7 @@ $ 03_04_subcommands add bob
 
 ```
 
-Because we set `AppSettings::SubcommandRequiredElseHelp`:
+Because we set `App::arg_required_else_help`:
 ```console
 $ 03_04_subcommands
 ? failed

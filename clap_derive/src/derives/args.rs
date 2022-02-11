@@ -168,6 +168,7 @@ pub fn gen_augment(
                 quote!()
             } else {
                 quote_spanned! { kind.span()=>
+                    #[allow(deprecated)]
                     let #app_var = #app_var.setting(
                         clap::AppSettings::SubcommandRequiredElseHelp
                     );

@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{App, Arg, ArgPredicate, PossibleValue};
+use crate::build::{App, AppSettings, Arg, ArgPredicate, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -18,12 +18,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     pub(crate) fn validate(
         &mut self,
         parse_state: ParseState,
-        is_subcmd: bool,
         matcher: &mut ArgMatcher,
         trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
-        let mut reqs_validated = false;
+        let has_subcmd = matcher.subcommand_name().is_some();
 
         #[cfg(feature = "env")]
         self.p.add_env(matcher, trailing_values)?;
@@ -32,10 +31,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
-            self.validate_required(matcher)?;
 
             let o = &self.p.app[&a];
-            reqs_validated = true;
             let should_err = if let Some(v) = matcher.args.get(&o.id) {
                 v.all_val_groups_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
             } else {
@@ -54,19 +51,32 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             }
         }
 
-        let num_user_values = matcher
-            .arg_names()
-            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
-            .count();
-        if num_user_values == 0
-            && matcher.subcommand_name().is_none()
-            && self.p.app.is_arg_required_else_help_set()
-        {
+        if !has_subcmd && self.p.app.is_arg_required_else_help_set() {
+            let num_user_values = matcher
+                .arg_names()
+                .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+                .count();
+            if num_user_values == 0 {
+                let message = self.p.write_help_err()?;
+                return Err(Error::display_help_error(self.p.app, message));
+            }
+        }
+        #[allow(deprecated)]
+        if !has_subcmd && self.p.app.is_subcommand_required_set() {
+            let bn = self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name);
+            return Err(Error::missing_subcommand(
+                self.p.app,
+                bn.to_string(),
+                Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+            ));
+        } else if !has_subcmd && self.p.app.is_set(AppSettings::SubcommandRequiredElseHelp) {
+            debug!("Validator::new::get_matches_with: SubcommandRequiredElseHelp=true");
             let message = self.p.write_help_err()?;
             return Err(Error::display_help_error(self.p.app, message));
         }
+
         self.validate_conflicts(matcher)?;
-        if !(self.p.app.is_subcommand_negates_reqs_set() && is_subcmd || reqs_validated) {
+        if !(self.p.app.is_subcommand_negates_reqs_set() && has_subcmd) {
             self.validate_required(matcher)?;
         }
         self.validate_matched_args(matcher)?;

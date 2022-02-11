@@ -468,12 +468,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     matches: sc_m.into_inner(),
                 });
 
-                return Validator::new(self).validate(
-                    parse_state,
-                    subcmd_name.is_some(),
-                    matcher,
-                    trailing_values,
-                );
+                return Validator::new(self).validate(parse_state, matcher, trailing_values);
             } else {
                 // Start error processing
                 return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
@@ -488,20 +483,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .name
                 .clone();
             self.parse_subcommand(&sc_name, matcher, it, keep_state)?;
-        } else if self.app.is_subcommand_required_set() {
-            let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
-            return Err(ClapError::missing_subcommand(
-                self.app,
-                bn.to_string(),
-                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
-            ));
-        } else if self.is_set(AS::SubcommandRequiredElseHelp) {
-            debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
-            let message = self.write_help_err()?;
-            return Err(ClapError::display_help_error(self.app, message));
         }
 
-        Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher, trailing_values)
+        Validator::new(self).validate(parse_state, matcher, trailing_values)
     }
 
     fn match_arg_error(
