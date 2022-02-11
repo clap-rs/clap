@@ -1,10 +1,11 @@
-use clap::{App, AppSettings, Arg};
+use clap::{App, Arg};
 
 fn main() {
     let matches = App::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .author("Pacman Development Team")
         // Query subcommand
         //

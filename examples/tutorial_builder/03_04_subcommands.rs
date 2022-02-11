@@ -1,9 +1,10 @@
-use clap::{app_from_crate, arg, App, AppSettings};
+use clap::{app_from_crate, arg, App};
 
 fn main() {
     let matches = app_from_crate!()
         .propagate_version(true)
-        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .subcommand(
             App::new("add")
                 .about("Adds files to myapp")
@@ -16,8 +17,6 @@ fn main() {
             "'myapp add' was used, name is: {:?}",
             sub_matches.value_of("NAME")
         ),
-        _ => unreachable!(
-            "Exhausted list of subcommands and SubcommandRequiredElseHelp prevents `None`"
-        ),
+        _ => unreachable!("Exhausted list of subcommands and subcommand_required prevents `None`"),
     }
 }

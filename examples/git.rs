@@ -2,12 +2,13 @@
 
 use std::path::PathBuf;
 
-use clap::{arg, App, AppSettings};
+use clap::{arg, App};
 
 fn main() {
     let matches = App::new("git")
         .about("A fictional versioning CLI")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand(
