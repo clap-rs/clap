@@ -515,7 +515,7 @@ fn arg_conflicts(app: &App, arg: &Arg, app_global: Option<&App>) -> String {
     }
 
     let mut res = vec![];
-    match (app_global, arg.get_global()) {
+    match (app_global, arg.is_global_set()) {
         (Some(x), true) => {
             let conflicts = x.get_arg_conflicts_with(arg);
 
