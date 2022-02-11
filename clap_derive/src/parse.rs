@@ -33,11 +33,9 @@ pub enum ClapAttr {
     Subcommand(Ident),
     VerbatimDocComment(Ident),
     ExternalSubcommand(Ident),
-
-    // ident [= "string literal"]
-    About(Ident, Option<LitStr>),
-    Author(Ident, Option<LitStr>),
-    Version(Ident, Option<LitStr>),
+    About(Ident),
+    Author(Ident),
+    Version(Ident),
 
     // ident = "string literal"
     RenameAllEnv(Ident, LitStr),
@@ -75,37 +73,10 @@ impl Parse for ClapAttr {
 
             if input.peek(LitStr) {
                 let lit: LitStr = input.parse()?;
-                let lit_str = lit.value();
-
-                let check_empty_lit = |s| {
-                    if lit_str.is_empty() {
-                        abort!(
-                            lit,
-                            "`#[clap({} = \"\")` is deprecated, \
-                             now it's default behavior",
-                            s
-                        );
-                    }
-                };
 
                 match &*name_str {
                     "rename_all" => Ok(RenameAll(name, lit)),
                     "rename_all_env" => Ok(RenameAllEnv(name, lit)),
-
-                    "version" => {
-                        check_empty_lit("version");
-                        Ok(Version(name, Some(lit)))
-                    }
-
-                    "author" => {
-                        check_empty_lit("author");
-                        Ok(Author(name, Some(lit)))
-                    }
-
-                    "about" => {
-                        check_empty_lit("about");
-                        Ok(About(name, Some(lit)))
-                    }
 
                     "skip" => {
                         let expr = ExprLit {
@@ -227,9 +198,9 @@ impl Parse for ClapAttr {
                 }
                 "default_value_t" => Ok(DefaultValueT(name, None)),
                 "default_value_os_t" => Ok(DefaultValueOsT(name, None)),
-                "about" => (Ok(About(name, None))),
-                "author" => (Ok(Author(name, None))),
-                "version" => Ok(Version(name, None)),
+                "about" => (Ok(About(name))),
+                "author" => (Ok(Author(name))),
+                "version" => Ok(Version(name)),
 
                 "skip" => Ok(Skip(name, None)),
 
