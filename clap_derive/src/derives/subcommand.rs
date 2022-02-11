@@ -248,7 +248,9 @@ fn gen_augment(
                             let #subcommand_var = clap::App::new(#name);
                             let #subcommand_var = #subcommand_var #initial_app_methods;
                             let #subcommand_var = #arg_block;
-                            let #subcommand_var = #subcommand_var.setting(clap::AppSettings::SubcommandRequiredElseHelp);
+                            let #subcommand_var = #subcommand_var
+                                .subcommand_required(true)
+                                .arg_required_else_help(true);
                             #subcommand_var #final_from_attrs
                         });
                     };

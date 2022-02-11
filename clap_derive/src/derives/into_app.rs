@@ -104,7 +104,8 @@ pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute])
         impl #impl_generics clap::IntoApp for #enum_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::App<'b> {
                 let #app_var = clap::App::new(#name)
-                    .setting(clap::AppSettings::SubcommandRequiredElseHelp);
+                    .subcommand_required(true)
+                    .arg_required_else_help(true);
                 <Self as clap::Subcommand>::augment_subcommands(#app_var)
             }
 
