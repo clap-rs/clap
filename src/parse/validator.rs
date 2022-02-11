@@ -54,16 +54,15 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             }
         }
 
-        let num_user_values = matcher
-            .arg_names()
-            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
-            .count();
-        if num_user_values == 0
-            && matcher.subcommand_name().is_none()
-            && self.p.app.is_arg_required_else_help_set()
-        {
-            let message = self.p.write_help_err()?;
-            return Err(Error::display_help_error(self.p.app, message));
+        if matcher.subcommand_name().is_none() && self.p.app.is_arg_required_else_help_set() {
+            let num_user_values = matcher
+                .arg_names()
+                .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+                .count();
+            if num_user_values == 0 {
+                let message = self.p.write_help_err()?;
+                return Err(Error::display_help_error(self.p.app, message));
+            }
         }
         self.validate_conflicts(matcher)?;
         if !(self.p.app.is_subcommand_negates_reqs_set() && is_subcmd || reqs_validated) {
