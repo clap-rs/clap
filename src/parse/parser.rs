@@ -468,12 +468,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     matches: sc_m.into_inner(),
                 });
 
-                return Validator::new(self).validate(
-                    parse_state,
-                    subcmd_name.is_some(),
-                    matcher,
-                    trailing_values,
-                );
+                return Validator::new(self).validate(parse_state, matcher, trailing_values);
             } else {
                 // Start error processing
                 return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
@@ -501,7 +496,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             return Err(ClapError::display_help_error(self.app, message));
         }
 
-        Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher, trailing_values)
+        Validator::new(self).validate(parse_state, matcher, trailing_values)
     }
 
     fn match_arg_error(

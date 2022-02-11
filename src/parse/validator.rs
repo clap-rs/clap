@@ -18,11 +18,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     pub(crate) fn validate(
         &mut self,
         parse_state: ParseState,
-        is_subcmd: bool,
         matcher: &mut ArgMatcher,
         trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
+        let has_subcmd = matcher.subcommand_name().is_some();
 
         #[cfg(feature = "env")]
         self.p.add_env(matcher, trailing_values)?;
@@ -51,7 +51,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             }
         }
 
-        if matcher.subcommand_name().is_none() && self.p.app.is_arg_required_else_help_set() {
+        if !has_subcmd && self.p.app.is_arg_required_else_help_set() {
             let num_user_values = matcher
                 .arg_names()
                 .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
@@ -62,7 +62,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             }
         }
         self.validate_conflicts(matcher)?;
-        if !(self.p.app.is_subcommand_negates_reqs_set() && is_subcmd) {
+        if !(self.p.app.is_subcommand_negates_reqs_set() && has_subcmd) {
             self.validate_required(matcher)?;
         }
         self.validate_matched_args(matcher)?;
