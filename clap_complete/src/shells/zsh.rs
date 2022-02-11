@@ -442,7 +442,7 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
     let mut ret = vec![];
 
     for o in p.get_opts() {
-        debug!("write_opts_of:iter: o={}", o.get_name());
+        debug!("write_opts_of:iter: o={}", o.get_id());
 
         let help = o.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o, p_global);
@@ -626,7 +626,7 @@ fn write_positionals_of(p: &App) -> String {
     let mut ret = vec![];
 
     for arg in p.get_positionals() {
-        debug!("write_positionals_of:iter: arg={}", arg.get_name());
+        debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
         let cardinality = if arg.is_multiple_values_set() || arg.is_multiple_occurrences_set() {
             "*:"

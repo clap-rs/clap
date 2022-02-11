@@ -172,7 +172,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
 }
 
 fn vals_for(o: &Arg) -> String {
-    debug!("vals_for: o={}", o.get_name());
+    debug!("vals_for: o={}", o.get_id());
 
     if let Some(vals) = o.get_possible_values() {
         format!(
