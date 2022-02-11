@@ -260,6 +260,7 @@ fn arg_required_else_help_error_message() {
 
 #[test]
 fn subcommand_required_else_help() {
+    #![allow(deprecated)]
     let result = App::new("test")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("info"))
@@ -275,6 +276,7 @@ fn subcommand_required_else_help() {
 
 #[test]
 fn subcommand_required_else_help_error_message() {
+    #![allow(deprecated)]
     let app = App::new("test")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version("1.0")

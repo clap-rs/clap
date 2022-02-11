@@ -123,6 +123,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             || self.app.is_allow_external_subcommands_set()
         {
             let placeholder = self.app.subcommand_value_name.unwrap_or("SUBCOMMAND");
+            #[allow(deprecated)]
             if self.app.is_subcommand_negates_reqs_set()
                 || self.app.is_args_conflicts_with_subcommands_set()
             {

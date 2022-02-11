@@ -61,6 +61,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 return Err(Error::display_help_error(self.p.app, message));
             }
         }
+        #[allow(deprecated)]
         if !has_subcmd && self.p.app.is_subcommand_required_set() {
             let bn = self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name);
             return Err(Error::missing_subcommand(

@@ -176,6 +176,7 @@ pub(crate) fn after_help(roff: &mut Roff, app: &clap::App) {
 }
 
 fn subcommand_markers(cmd: &clap::App) -> (&'static str, &'static str) {
+    #[allow(deprecated)]
     markers(cmd.is_subcommand_required_set() || cmd.is_set(AppSettings::SubcommandRequiredElseHelp))
 }
 
