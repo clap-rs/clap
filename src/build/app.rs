@@ -514,7 +514,7 @@ impl<'help> App<'help> {
     /// Parse the specified arguments, exiting on failure.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// [`AppSettings::NoBinaryName`] is used.
+    /// [`App::no_binary_name`] is used.
     ///
     /// # Panics
     ///
@@ -552,7 +552,7 @@ impl<'help> App<'help> {
     /// perform a [`std::process::exit`] yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// [`AppSettings::NoBinaryName`] is used.
+    /// [`App::no_binary_name`] is used.
     ///
     /// # Panics
     ///
@@ -597,7 +597,7 @@ impl<'help> App<'help> {
     /// perform a [`std::process::exit`] yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// [`AppSettings::NoBinaryName`] is used.
+    /// [`App::no_binary_name`] is used.
     ///
     /// # Panics
     ///
@@ -851,7 +851,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, arg, AppSettings};
+    /// # use clap::{App, arg};
     /// let m = App::new("myprog")
     ///     .no_binary_name(true)
     ///     .arg(arg!(<cmd> ... "commands to run"))
@@ -1293,7 +1293,7 @@ impl<'help> App<'help> {
     /// **CAUTION:** This setting can interfere with [positional/free arguments], take care when
     /// designing CLIs which allow inferred subcommands and have potential positional/free
     /// arguments whose values could start with the same characters as subcommands. If this is the
-    /// case, it's recommended to use settings such as [`AppSettings::ArgsNegateSubcommands`] in
+    /// case, it's recommended to use settings such as [`App::args_conflicts_with_subcommands`] in
     /// conjunction with this setting.
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
@@ -2635,7 +2635,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, };
+    /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .subcommand(
     ///         App::new("test").hide(true)
@@ -2658,7 +2658,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
+    /// # use clap::{App, ErrorKind};
     /// let err = App::new("myprog")
     ///     .subcommand_required(true)
     ///     .subcommand(App::new("test"))
@@ -2689,7 +2689,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings};
+    /// # use clap::App;
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .allow_external_subcommands(true)
@@ -2736,7 +2736,7 @@ impl<'help> App<'help> {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, AppSettings};
+    /// # use clap::App;
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .allow_invalid_utf8_for_external_subcommands(true)
@@ -2784,7 +2784,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings};
+    /// # use clap::App;
     /// App::new("myprog")
     ///     .args_conflicts_with_subcommands(true);
     /// ```
@@ -2824,7 +2824,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, Arg};
+    /// # use clap::{App, Arg};
     /// let app = App::new("app").subcommand(App::new("sub")).arg(
     ///     Arg::new("arg")
     ///         .long("arg")
@@ -2874,7 +2874,7 @@ impl<'help> App<'help> {
     /// This first example shows that it is an error to not use a required argument
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let err = App::new("myprog")
     ///     .subcommand_negates_reqs(true)
     ///     .arg(Arg::new("opt").required(true))
@@ -2891,7 +2891,7 @@ impl<'help> App<'help> {
     /// valid subcommand is used.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let noerr = App::new("myprog")
     ///     .subcommand_negates_reqs(true)
     ///     .arg(Arg::new("opt").required(true))
@@ -2926,7 +2926,7 @@ impl<'help> App<'help> {
     /// such as deduplicating code across multiple programs
     /// without loading a shared library at runtime.
     ///
-    /// Multicall can't be used with [`NoBinaryName`] since they interpret
+    /// Multicall can't be used with [`no_binary_name`] since they interpret
     /// the command name in incompatible ways.
     ///
     /// # Examples
@@ -2949,7 +2949,7 @@ impl<'help> App<'help> {
     /// This does not allow the subcommand to be passed as the first non-path argument.
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
+    /// # use clap::{App, ErrorKind};
     /// let mut app = App::new("hostname")
     ///     .multicall(true)
     ///     .subcommand(App::new("hostname"))
@@ -2976,7 +2976,7 @@ impl<'help> App<'help> {
     /// and as subcommands of the "main" applet.
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings};
+    /// # use clap::App;
     /// fn applet_commands() -> [App<'static>; 2] {
     ///     [App::new("true"), App::new("false")]
     /// }
@@ -3003,7 +3003,7 @@ impl<'help> App<'help> {
     /// so it's recommended to use [`App::subcommand_help_heading`] and
     /// [`App::subcommand_value_name`] to change the descriptive text as above.
     ///
-    /// [`NoBinaryName`]: crate::AppSettings::NoBinaryName
+    /// [`no_binary_name`]: crate::App::no_binary_name
     /// [`App::subcommand_value_name`]: crate::App::subcommand_value_name
     /// [`App::subcommand_help_heading`]: crate::App::subcommand_help_heading
     #[inline]

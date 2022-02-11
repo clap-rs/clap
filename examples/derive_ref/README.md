@@ -144,7 +144,7 @@ And for `Subcommand` variants:
 - `skip`: Ignore this variant
 - `flatten`: Delegates to the variant for more subcommands (must implement `Subcommand`)
 - `subcommand`: Nest subcommands under the current set of subcommands (must implement `Subcommand`)
-- `external_subcommand`: `clap::AppSettings::AllowExternalSubcommand`
+- `external_subcommand`: `clap::App::allow_external_subcommand(true)`
   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 
 ### Arg Attributes
