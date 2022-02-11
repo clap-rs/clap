@@ -483,17 +483,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .name
                 .clone();
             self.parse_subcommand(&sc_name, matcher, it, keep_state)?;
-        } else if self.app.is_subcommand_required_set() {
-            let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
-            return Err(ClapError::missing_subcommand(
-                self.app,
-                bn.to_string(),
-                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
-            ));
-        } else if self.is_set(AS::SubcommandRequiredElseHelp) {
-            debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
-            let message = self.write_help_err()?;
-            return Err(ClapError::display_help_error(self.app, message));
         }
 
         Validator::new(self).validate(parse_state, matcher, trailing_values)

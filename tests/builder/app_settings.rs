@@ -194,10 +194,26 @@ fn arg_required_else_help() {
 }
 
 #[test]
-fn arg_required_else_help_over_reqs() {
+fn arg_required_else_help_over_req_arg() {
     let result = App::new("arg_required")
         .arg_required_else_help(true)
         .arg(Arg::new("test").index(1).required(true))
+        .try_get_matches_from(vec![""]);
+
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(
+        err.kind(),
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    );
+}
+
+#[test]
+fn arg_required_else_help_over_req_subcommand() {
+    let result = App::new("sub_required")
+        .arg_required_else_help(true)
+        .subcommand_required(true)
+        .subcommand(App::new("sub1"))
         .try_get_matches_from(vec![""]);
 
     assert!(result.is_err());

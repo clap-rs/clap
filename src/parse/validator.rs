@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{App, Arg, ArgPredicate, PossibleValue};
+use crate::build::{App, AppSettings, Arg, ArgPredicate, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -61,6 +61,19 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 return Err(Error::display_help_error(self.p.app, message));
             }
         }
+        if !has_subcmd && self.p.app.is_subcommand_required_set() {
+            let bn = self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name);
+            return Err(Error::missing_subcommand(
+                self.p.app,
+                bn.to_string(),
+                Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+            ));
+        } else if !has_subcmd && self.p.app.is_set(AppSettings::SubcommandRequiredElseHelp) {
+            debug!("Validator::new::get_matches_with: SubcommandRequiredElseHelp=true");
+            let message = self.p.write_help_err()?;
+            return Err(Error::display_help_error(self.p.app, message));
+        }
+
         self.validate_conflicts(matcher)?;
         if !(self.p.app.is_subcommand_negates_reqs_set() && has_subcmd) {
             self.validate_required(matcher)?;
