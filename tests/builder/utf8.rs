@@ -1,12 +1,12 @@
 #![cfg(not(windows))]
 
-use clap::{arg, error::ErrorKind, App, Arg};
+use clap::{arg, error::ErrorKind, Arg, Command};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
 #[test]
 fn invalid_utf8_strict_positional() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .arg(Arg::new("arg"))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(m.is_err());
@@ -15,7 +15,7 @@ fn invalid_utf8_strict_positional() {
 
 #[test]
 fn invalid_utf8_strict_option_short_space() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -28,7 +28,7 @@ fn invalid_utf8_strict_option_short_space() {
 
 #[test]
 fn invalid_utf8_strict_option_short_equals() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -40,7 +40,7 @@ fn invalid_utf8_strict_option_short_equals() {
 
 #[test]
 fn invalid_utf8_strict_option_short_no_space() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -52,7 +52,7 @@ fn invalid_utf8_strict_option_short_no_space() {
 
 #[test]
 fn invalid_utf8_strict_option_long_space() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -65,7 +65,7 @@ fn invalid_utf8_strict_option_long_space() {
 
 #[test]
 fn invalid_utf8_strict_option_long_equals() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -77,7 +77,7 @@ fn invalid_utf8_strict_option_long_equals() {
 
 #[test]
 fn invalid_utf8_lossy_positional() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(Arg::new("arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -88,7 +88,7 @@ fn invalid_utf8_lossy_positional() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_space() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -109,7 +109,7 @@ fn invalid_utf8_lossy_option_short_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_equals() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -129,7 +129,7 @@ fn invalid_utf8_lossy_option_short_equals() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_no_space() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -149,7 +149,7 @@ fn invalid_utf8_lossy_option_short_no_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_long_space() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -170,7 +170,7 @@ fn invalid_utf8_lossy_option_long_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_long_equals() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -190,7 +190,7 @@ fn invalid_utf8_lossy_option_long_equals() {
 
 #[test]
 fn invalid_utf8_positional() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(Arg::new("arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -204,7 +204,7 @@ fn invalid_utf8_positional() {
 
 #[test]
 fn invalid_utf8_option_short_space() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -228,7 +228,7 @@ fn invalid_utf8_option_short_space() {
 
 #[test]
 fn invalid_utf8_option_short_equals() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -251,7 +251,7 @@ fn invalid_utf8_option_short_equals() {
 
 #[test]
 fn invalid_utf8_option_short_no_space() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -274,7 +274,7 @@ fn invalid_utf8_option_short_no_space() {
 
 #[test]
 fn invalid_utf8_option_long_space() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -298,7 +298,7 @@ fn invalid_utf8_option_long_space() {
 
 #[test]
 fn invalid_utf8_option_long_equals() {
-    let r = App::new("bad_utf8")
+    let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
                 .short('a')
@@ -321,7 +321,7 @@ fn invalid_utf8_option_long_equals() {
 
 #[test]
 fn refuse_invalid_utf8_subcommand_with_allow_external_subcommands() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -334,7 +334,7 @@ fn refuse_invalid_utf8_subcommand_with_allow_external_subcommands() {
 
 #[test]
 fn refuse_invalid_utf8_subcommand_when_args_are_allowed_with_allow_external_subcommands() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec![
@@ -348,7 +348,7 @@ fn refuse_invalid_utf8_subcommand_when_args_are_allowed_with_allow_external_subc
 
 #[test]
 fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -363,7 +363,7 @@ fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 
 #[test]
 fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
-    let m = App::new("bad_utf8")
+    let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec![
@@ -390,7 +390,7 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 
 #[test]
 fn allow_validated_utf8_value_of() {
-    let a = App::new("test").arg(arg!(--name <NAME>));
+    let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of("name");
 }
@@ -398,7 +398,7 @@ fn allow_validated_utf8_value_of() {
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `name`"]
 fn panic_validated_utf8_value_of_os() {
-    let a = App::new("test").arg(arg!(--name <NAME>));
+    let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of_os("name");
 }
@@ -407,7 +407,7 @@ fn panic_validated_utf8_value_of_os() {
 fn ignore_validated_utf8_with_defaults() {
     // For now, we don't check the correct call is used with defaults (due to pain of piping it
     // through the code) but we need to make sure we don't erroneously panic.
-    let a = App::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
+    let a = Command::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
     let m = a.try_get_matches_from(["test"]).unwrap();
     let _ = m.value_of("value");
     let _ = m.value_of_os("value");
@@ -415,7 +415,7 @@ fn ignore_validated_utf8_with_defaults() {
 
 #[test]
 fn allow_invalid_utf8_value_of_os() {
-    let a = App::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
+    let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of_os("name");
 }
@@ -423,7 +423,7 @@ fn allow_invalid_utf8_value_of_os() {
 #[test]
 #[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `name`"]
 fn panic_invalid_utf8_value_of() {
-    let a = App::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
+    let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of("name");
 }
@@ -432,7 +432,7 @@ fn panic_invalid_utf8_value_of() {
 fn ignore_invalid_utf8_with_defaults() {
     // For now, we don't check the correct call is used with defaults (due to pain of piping it
     // through the code) but we need to make sure we don't erroneously panic.
-    let a = App::new("test").arg(
+    let a = Command::new("test").arg(
         arg!(--value <VALUE>)
             .required(false)
             .default_value("foo")
@@ -445,7 +445,7 @@ fn ignore_invalid_utf8_with_defaults() {
 
 #[test]
 fn allow_validated_utf8_external_subcommand_values_of() {
-    let a = App::new("test").allow_external_subcommands(true);
+    let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     let _ = args.values_of("");
@@ -454,7 +454,7 @@ fn allow_validated_utf8_external_subcommand_values_of() {
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at ``"]
 fn panic_validated_utf8_external_subcommand_values_of_os() {
-    let a = App::new("test").allow_external_subcommands(true);
+    let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     let _ = args.values_of_os("");
@@ -462,7 +462,7 @@ fn panic_validated_utf8_external_subcommand_values_of_os() {
 
 #[test]
 fn allow_invalid_utf8_external_subcommand_values_of_os() {
-    let a = App::new("test")
+    let a = Command::new("test")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
@@ -473,7 +473,7 @@ fn allow_invalid_utf8_external_subcommand_values_of_os() {
 #[test]
 #[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at ``"]
 fn panic_invalid_utf8_external_subcommand_values_of() {
-    let a = App::new("test")
+    let a = Command::new("test")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();

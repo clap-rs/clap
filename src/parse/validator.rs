@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{App, AppSettings, Arg, ArgPredicate, PossibleValue};
+use crate::build::{AppSettings, Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -608,7 +608,7 @@ impl Conflicts {
         Self::default()
     }
 
-    fn gather_conflicts(&mut self, app: &App, matcher: &ArgMatcher, arg_id: &Id) -> Vec<Id> {
+    fn gather_conflicts(&mut self, app: &Command, matcher: &ArgMatcher, arg_id: &Id) -> Vec<Id> {
         debug!("Conflicts::gather_conflicts");
         let mut conflicts = Vec::new();
         for other_arg_id in matcher
@@ -635,7 +635,7 @@ impl Conflicts {
         conflicts
     }
 
-    fn gather_direct_conflicts(&mut self, app: &App, arg_id: &Id) -> &[Id] {
+    fn gather_direct_conflicts(&mut self, app: &Command, arg_id: &Id) -> &[Id] {
         self.potential.entry(arg_id.clone()).or_insert_with(|| {
             let conf = if let Some(arg) = app.find(arg_id) {
                 let mut conf = arg.blacklist.clone();

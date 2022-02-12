@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 static HIDDEN_ARGS: &str = "test 1.4
 Kevin K.
@@ -18,7 +18,7 @@ OPTIONS:
 
 #[test]
 fn hide_args() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.4")
@@ -73,7 +73,7 @@ OPTIONS:
 /// Ensure hide with short option
 #[test]
 fn hide_short_args() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .about("hides short args")
         .author("Steve P.")
         .version("2.31.2")
@@ -100,7 +100,7 @@ fn hide_short_args() {
 /// Ensure visible with opposite option
 #[test]
 fn hide_short_args_long_help() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .about("hides short args")
         .author("Steve P.")
         .version("2.31.2")
@@ -144,7 +144,7 @@ OPTIONS:
 
 #[test]
 fn hide_long_args() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .about("hides long args")
         .author("Steve P.")
         .version("2.31.2")
@@ -184,7 +184,7 @@ OPTIONS:
 
 #[test]
 fn hide_long_args_short_help() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .about("hides long args")
         .author("Steve P.")
         .version("2.31.2")
@@ -223,7 +223,7 @@ OPTIONS:
 
 #[test]
 fn hide_pos_args() {
-    let app = App::new("test").version("1.4").args(&[
+    let app = Command::new("test").version("1.4").args(&[
         Arg::new("pos").help("some pos").hide(true),
         Arg::new("another").help("another pos"),
     ]);
@@ -248,9 +248,9 @@ OPTIONS:
 
 #[test]
 fn hide_subcmds() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .version("1.4")
-        .subcommand(App::new("sub").hide(true));
+        .subcommand(Command::new("sub").hide(true));
 
     assert!(utils::compare_output(
         app,
@@ -270,7 +270,7 @@ After help
 
 #[test]
 fn hide_opt_args_only() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .version("1.4")
         .after_help("After help")
         .mut_arg("help", |a| a.hide(true))
@@ -299,7 +299,7 @@ After help
 
 #[test]
 fn hide_pos_args_only() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .version("1.4")
         .after_help("After help")
         .mut_arg("help", |a| a.hide(true))
@@ -324,12 +324,12 @@ After help
 
 #[test]
 fn hide_subcmds_only() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .version("1.4")
         .after_help("After help")
         .mut_arg("help", |a| a.hide(true))
         .mut_arg("version", |a| a.hide(true))
-        .subcommand(App::new("sub").hide(true));
+        .subcommand(Command::new("sub").hide(true));
 
     assert!(utils::compare_output(
         app,

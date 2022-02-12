@@ -1,12 +1,12 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, Arg};
+use clap::{arg, error::ErrorKind, Arg, Command};
 
 #[test]
 fn flag_subcommand_normal() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some").short_flag('S').long_flag("some").arg(
+            Command::new("some").short_flag('S').long_flag("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -22,9 +22,9 @@ fn flag_subcommand_normal() {
 
 #[test]
 fn flag_subcommand_normal_with_alias() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .short_flag('S')
                 .long_flag("S")
                 .arg(
@@ -44,9 +44,9 @@ fn flag_subcommand_normal_with_alias() {
 
 #[test]
 fn flag_subcommand_short() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some").short_flag('S').arg(
+            Command::new("some").short_flag('S').arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -62,9 +62,9 @@ fn flag_subcommand_short() {
 
 #[test]
 fn flag_subcommand_short_with_args() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some").short_flag('S').arg(
+            Command::new("some").short_flag('S').arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -80,9 +80,9 @@ fn flag_subcommand_short_with_args() {
 
 #[test]
 fn flag_subcommand_short_with_alias() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .short_flag('S')
                 .arg(
                     Arg::new("test")
@@ -102,8 +102,8 @@ fn flag_subcommand_short_with_alias() {
 
 #[test]
 fn flag_subcommand_short_with_alias_same_as_short_flag() {
-    let matches = App::new("test")
-        .subcommand(App::new("some").short_flag('S').short_flag_alias('S'))
+    let matches = Command::new("test")
+        .subcommand(Command::new("some").short_flag('S').short_flag_alias('S'))
         .try_get_matches_from(vec!["myprog", "-S"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
@@ -111,8 +111,12 @@ fn flag_subcommand_short_with_alias_same_as_short_flag() {
 
 #[test]
 fn flag_subcommand_long_with_alias_same_as_long_flag() {
-    let matches = App::new("test")
-        .subcommand(App::new("some").long_flag("sync").long_flag_alias("sync"))
+    let matches = Command::new("test")
+        .subcommand(
+            Command::new("some")
+                .long_flag("sync")
+                .long_flag_alias("sync"),
+        )
         .try_get_matches_from(vec!["myprog", "--sync"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
@@ -120,8 +124,8 @@ fn flag_subcommand_long_with_alias_same_as_long_flag() {
 
 #[test]
 fn flag_subcommand_short_with_aliases_vis_and_hidden() {
-    let app = App::new("test").subcommand(
-        App::new("some")
+    let app = Command::new("test").subcommand(
+        Command::new("some")
             .short_flag('S')
             .arg(
                 Arg::new("test")
@@ -147,9 +151,9 @@ fn flag_subcommand_short_with_aliases_vis_and_hidden() {
 
 #[test]
 fn flag_subcommand_short_with_aliases() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .short_flag('S')
                 .arg(
                     Arg::new("test")
@@ -169,9 +173,9 @@ fn flag_subcommand_short_with_aliases() {
 #[test]
 #[should_panic]
 fn flag_subcommand_short_with_alias_hyphen() {
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .short_flag('S')
                 .arg(
                     Arg::new("test")
@@ -188,9 +192,9 @@ fn flag_subcommand_short_with_alias_hyphen() {
 #[test]
 #[should_panic]
 fn flag_subcommand_short_with_aliases_hyphen() {
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .short_flag('S')
                 .arg(
                     Arg::new("test")
@@ -206,9 +210,9 @@ fn flag_subcommand_short_with_aliases_hyphen() {
 
 #[test]
 fn flag_subcommand_short_after_long_arg() {
-    let m = App::new("pacman")
+    let m = Command::new("pacman")
         .subcommand(
-            App::new("sync")
+            Command::new("sync")
                 .short_flag('S')
                 .arg(Arg::new("clean").short('c')),
         )
@@ -223,9 +227,9 @@ fn flag_subcommand_short_after_long_arg() {
 
 #[test]
 fn flag_subcommand_long() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some").long_flag("some").arg(
+            Command::new("some").long_flag("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -241,9 +245,9 @@ fn flag_subcommand_long() {
 
 #[test]
 fn flag_subcommand_long_with_alias() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .long_flag("some")
                 .arg(
                     Arg::new("test")
@@ -262,9 +266,9 @@ fn flag_subcommand_long_with_alias() {
 
 #[test]
 fn flag_subcommand_long_with_aliases() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .long_flag("some")
                 .arg(
                     Arg::new("test")
@@ -283,15 +287,15 @@ fn flag_subcommand_long_with_aliases() {
 
 #[test]
 fn flag_subcommand_multiple() {
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .short_flag('S')
                 .long_flag("some")
                 .arg(arg!(-f --flag "some flag"))
                 .arg(arg!(-p --print "print something"))
                 .subcommand(
-                    App::new("result")
+                    Command::new("result")
                         .short_flag('R')
                         .long_flag("result")
                         .arg(arg!(-f --flag "some flag"))
@@ -314,8 +318,8 @@ fn flag_subcommand_multiple() {
 #[test]
 #[should_panic = "the \'-f\' short flag for the \'test\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_short_conflict_with_arg() {
-    let _ = App::new("test")
-        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("some").short_flag('f').long_flag("some"))
         .arg(Arg::new("test").short('f'))
         .try_get_matches_from(vec!["myprog", "-f"])
         .unwrap();
@@ -325,9 +329,9 @@ fn flag_subcommand_short_conflict_with_arg() {
 #[test]
 #[should_panic = "the \'-f\' short flag is specified for both \'some\' and \'result\' subcommands"]
 fn flag_subcommand_short_conflict_with_alias() {
-    let _ = App::new("test")
-        .subcommand(App::new("some").short_flag('f').long_flag("some"))
-        .subcommand(App::new("result").short_flag('t').short_flag_alias('f'))
+    let _ = Command::new("test")
+        .subcommand(Command::new("some").short_flag('f').long_flag("some"))
+        .subcommand(Command::new("result").short_flag('t').short_flag_alias('f'))
         .try_get_matches_from(vec!["myprog", "-f"])
         .unwrap();
 }
@@ -336,9 +340,13 @@ fn flag_subcommand_short_conflict_with_alias() {
 #[test]
 #[should_panic = "the \'--flag\' long flag is specified for both \'some\' and \'result\' subcommands"]
 fn flag_subcommand_long_conflict_with_alias() {
-    let _ = App::new("test")
-        .subcommand(App::new("some").long_flag("flag"))
-        .subcommand(App::new("result").long_flag("test").long_flag_alias("flag"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("some").long_flag("flag"))
+        .subcommand(
+            Command::new("result")
+                .long_flag("test")
+                .long_flag_alias("flag"),
+        )
         .try_get_matches_from(vec!["myprog", "--flag"])
         .unwrap();
 }
@@ -347,8 +355,8 @@ fn flag_subcommand_long_conflict_with_alias() {
 #[test]
 #[should_panic = "the \'-f\' short flag for the \'test\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_short_conflict_with_arg_alias() {
-    let _ = App::new("test")
-        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("some").short_flag('f').long_flag("some"))
         .arg(Arg::new("test").short('t').short_alias('f'))
         .try_get_matches_from(vec!["myprog", "-f"])
         .unwrap();
@@ -358,8 +366,8 @@ fn flag_subcommand_short_conflict_with_arg_alias() {
 #[test]
 #[should_panic = "the \'--some\' long flag for the \'test\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_long_conflict_with_arg_alias() {
-    let _ = App::new("test")
-        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("some").short_flag('f').long_flag("some"))
         .arg(Arg::new("test").long("test").alias("some"))
         .try_get_matches_from(vec!["myprog", "--some"])
         .unwrap();
@@ -369,8 +377,8 @@ fn flag_subcommand_long_conflict_with_arg_alias() {
 #[test]
 #[should_panic = "the \'--flag\' long flag for the \'flag\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_long_conflict_with_arg() {
-    let _ = App::new("test")
-        .subcommand(App::new("some").short_flag('a').long_flag("flag"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("some").short_flag('a').long_flag("flag"))
         .arg(Arg::new("flag").long("flag"))
         .try_get_matches_from(vec!["myprog", "--flag"])
         .unwrap();
@@ -378,25 +386,25 @@ fn flag_subcommand_long_conflict_with_arg() {
 
 #[test]
 fn flag_subcommand_conflict_with_help() {
-    let _ = App::new("test")
-        .subcommand(App::new("help").short_flag('h').long_flag("help"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("help").short_flag('h').long_flag("help"))
         .try_get_matches_from(vec!["myprog", "--help"])
         .unwrap();
 }
 
 #[test]
 fn flag_subcommand_conflict_with_version() {
-    let _ = App::new("test")
-        .subcommand(App::new("ver").short_flag('V').long_flag("version"))
+    let _ = Command::new("test")
+        .subcommand(Command::new("ver").short_flag('V').long_flag("version"))
         .try_get_matches_from(vec!["myprog", "--version"])
         .unwrap();
 }
 
 #[test]
 fn flag_subcommand_long_infer_pass() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test").long_flag("test"))
+        .subcommand(Command::new("test").long_flag("test"))
         .try_get_matches_from(vec!["prog", "--te"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -405,10 +413,10 @@ fn flag_subcommand_long_infer_pass() {
 #[cfg(not(feature = "suggestions"))]
 #[test]
 fn flag_subcommand_long_infer_fail() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test").long_flag("test"))
-        .subcommand(App::new("temp").long_flag("temp"))
+        .subcommand(Command::new("test").long_flag("test"))
+        .subcommand(Command::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
@@ -417,10 +425,10 @@ fn flag_subcommand_long_infer_fail() {
 #[cfg(feature = "suggestions")]
 #[test]
 fn flag_subcommand_long_infer_fail() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test").long_flag("test"))
-        .subcommand(App::new("temp").long_flag("temp"))
+        .subcommand(Command::new("test").long_flag("test"))
+        .subcommand(Command::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
@@ -428,10 +436,10 @@ fn flag_subcommand_long_infer_fail() {
 
 #[test]
 fn flag_subcommand_long_infer_pass_close() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test").long_flag("test"))
-        .subcommand(App::new("temp").long_flag("temp"))
+        .subcommand(Command::new("test").long_flag("test"))
+        .subcommand(Command::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--tes"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -439,11 +447,11 @@ fn flag_subcommand_long_infer_pass_close() {
 
 #[test]
 fn flag_subcommand_long_infer_exact_match() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test").long_flag("test"))
-        .subcommand(App::new("testa").long_flag("testa"))
-        .subcommand(App::new("testb").long_flag("testb"))
+        .subcommand(Command::new("test").long_flag("test"))
+        .subcommand(Command::new("testa").long_flag("testa"))
+        .subcommand(Command::new("testb").long_flag("testb"))
         .try_get_matches_from(vec!["prog", "--test"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -463,7 +471,7 @@ OPTIONS:
 
 #[test]
 fn flag_subcommand_long_short_normal_usage_string() {
-    let app = App::new("pacman")
+    let app = Command::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
         .subcommand_required(true)
@@ -472,7 +480,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
         //
         // Only a few of its arguments are implemented below.
         .subcommand(
-            App::new("query")
+            Command::new("query")
                 .short_flag('Q')
                 .long_flag("query")
                 .about("Query the package database.")
@@ -517,7 +525,7 @@ OPTIONS:
 
 #[test]
 fn flag_subcommand_long_normal_usage_string() {
-    let app = App::new("pacman")
+    let app = Command::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
         .subcommand_required(true)
@@ -526,7 +534,7 @@ fn flag_subcommand_long_normal_usage_string() {
         //
         // Only a few of its arguments are implemented below.
         .subcommand(
-            App::new("query")
+            Command::new("query")
                 .long_flag("query")
                 .about("Query the package database.")
                 .arg(
@@ -570,7 +578,7 @@ OPTIONS:
 
 #[test]
 fn flag_subcommand_short_normal_usage_string() {
-    let app = App::new("pacman")
+    let app = Command::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
         .subcommand_required(true)
@@ -579,7 +587,7 @@ fn flag_subcommand_short_normal_usage_string() {
         //
         // Only a few of its arguments are implemented below.
         .subcommand(
-            App::new("query")
+            Command::new("query")
                 .short_flag('Q')
                 .about("Query the package database.")
                 .arg(

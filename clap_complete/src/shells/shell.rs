@@ -87,7 +87,7 @@ impl Generator for Shell {
         }
     }
 
-    fn generate(&self, app: &clap::App, buf: &mut dyn std::io::Write) {
+    fn generate(&self, app: &clap::Command, buf: &mut dyn std::io::Write) {
         match self {
             Shell::Bash => shells::Bash.generate(app, buf),
             Shell::Elvish => shells::Elvish.generate(app, buf),

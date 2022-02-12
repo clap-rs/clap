@@ -1,5 +1,5 @@
 use crate::utils;
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 const USE_FLAG_AS_ARGUMENT: &str =
     "error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
@@ -14,7 +14,7 @@ For more information try --help
 
 #[test]
 fn flag_using_short() {
-    let m = App::new("flag")
+    let m = Command::new("flag")
         .args(&[
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
@@ -27,7 +27,7 @@ fn flag_using_short() {
 
 #[test]
 fn lots_o_flags_sep() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .arg(arg!(o: -o ... "some flag"))
         .try_get_matches_from(vec![
             "", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
@@ -61,7 +61,7 @@ fn lots_o_flags_sep() {
 
 #[test]
 fn lots_o_flags_combined() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .arg(arg!(o: -o ... "some flag"))
         .try_get_matches_from(vec![
             "",
@@ -79,7 +79,7 @@ fn lots_o_flags_combined() {
 
 #[test]
 fn flag_using_long() {
-    let m = App::new("flag")
+    let m = Command::new("flag")
         .args(&[arg!(--flag "some flag"), arg!(--color "some other flag")])
         .try_get_matches_from(vec!["", "--flag", "--color"])
         .unwrap();
@@ -91,7 +91,7 @@ fn flag_using_long() {
 fn flag_using_long_with_literals() {
     use clap::error::ErrorKind;
 
-    let m = App::new("flag")
+    let m = Command::new("flag")
         .arg(Arg::new("rainbow").long("rainbow"))
         .try_get_matches_from(vec!["", "--rainbow=false"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
@@ -100,7 +100,7 @@ fn flag_using_long_with_literals() {
 
 #[test]
 fn flag_using_mixed() {
-    let m = App::new("flag")
+    let m = Command::new("flag")
         .args(&[
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
@@ -110,7 +110,7 @@ fn flag_using_mixed() {
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 
-    let m = App::new("flag")
+    let m = Command::new("flag")
         .args(&[
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
@@ -123,7 +123,7 @@ fn flag_using_mixed() {
 
 #[test]
 fn multiple_flags_in_single() {
-    let m = App::new("multe_flags")
+    let m = Command::new("multe_flags")
         .args(&[
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
@@ -138,7 +138,7 @@ fn multiple_flags_in_single() {
 
 #[test]
 fn issue_1284_argument_in_flag_style() {
-    let app = App::new("mycat")
+    let app = Command::new("mycat")
         .arg(Arg::new("filename"))
         .arg(Arg::new("a-flag").long("a-flag"));
 
@@ -180,7 +180,7 @@ USAGE:
 
 For more information try --help
 ";
-    let app = App::new("test").arg(Arg::new("arg").takes_value(true).required(true));
+    let app = Command::new("test").arg(Arg::new("arg").takes_value(true).required(true));
 
     assert!(utils::compare_output(
         app,

@@ -13,8 +13,8 @@ pub enum ColorChoice {
     ///
     #[cfg_attr(not(feature = "color"), doc = " ```ignore")]
     #[cfg_attr(feature = "color", doc = " ```no_run")]
-    /// # use clap::{App, ColorChoice};
-    /// App::new("myprog")
+    /// # use clap::{Command, ColorChoice};
+    /// Command::new("myprog")
     ///     .color(ColorChoice::Auto)
     ///     .get_matches();
     /// ```
@@ -30,8 +30,8 @@ pub enum ColorChoice {
     ///
     #[cfg_attr(not(feature = "color"), doc = " ```ignore")]
     #[cfg_attr(feature = "color", doc = " ```no_run")]
-    /// # use clap::{App, ColorChoice};
-    /// App::new("myprog")
+    /// # use clap::{Command, ColorChoice};
+    /// Command::new("myprog")
     ///     .color(ColorChoice::Always)
     ///     .get_matches();
     /// ```
@@ -47,8 +47,8 @@ pub enum ColorChoice {
     ///
     #[cfg_attr(not(feature = "color"), doc = " ```ignore")]
     #[cfg_attr(feature = "color", doc = " ```no_run")]
-    /// # use clap::{App, ColorChoice};
-    /// App::new("myprog")
+    /// # use clap::{Command, ColorChoice};
+    /// Command::new("myprog")
     ///     .color(ColorChoice::Never)
     ///     .get_matches();
     /// ```

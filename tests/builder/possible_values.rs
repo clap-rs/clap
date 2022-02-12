@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{error::ErrorKind, App, Arg, PossibleValue};
+use clap::{error::ErrorKind, Arg, Command, PossibleValue};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
@@ -48,7 +48,7 @@ For more information try --help
 
 #[test]
 fn possible_values_of_positional() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(Arg::new("positional").index(1).possible_value("test123"))
         .try_get_matches_from(vec!["myprog", "test123"]);
 
@@ -61,7 +61,7 @@ fn possible_values_of_positional() {
 
 #[test]
 fn possible_value_arg_value() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("arg_value").index(1).possible_value(
                 PossibleValue::new("test123")
@@ -80,7 +80,7 @@ fn possible_value_arg_value() {
 
 #[test]
 fn possible_values_of_positional_fail() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(Arg::new("positional").index(1).possible_value("test123"))
         .try_get_matches_from(vec!["myprog", "notest"]);
 
@@ -90,7 +90,7 @@ fn possible_values_of_positional_fail() {
 
 #[test]
 fn possible_values_of_positional_multiple() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("positional")
                 .index(1)
@@ -113,7 +113,7 @@ fn possible_values_of_positional_multiple() {
 
 #[test]
 fn possible_values_of_positional_multiple_fail() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("positional")
                 .index(1)
@@ -130,7 +130,7 @@ fn possible_values_of_positional_multiple_fail() {
 
 #[test]
 fn possible_values_of_option() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -149,7 +149,7 @@ fn possible_values_of_option() {
 
 #[test]
 fn possible_values_of_option_fail() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -165,7 +165,7 @@ fn possible_values_of_option_fail() {
 
 #[test]
 fn possible_values_of_option_multiple() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -189,7 +189,7 @@ fn possible_values_of_option_multiple() {
 
 #[test]
 fn possible_values_of_option_multiple_fail() {
-    let m = App::new("possible_values")
+    let m = Command::new("possible_values")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -208,7 +208,7 @@ fn possible_values_of_option_multiple_fail() {
 #[test]
 fn possible_values_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(Arg::new("option").short('O').possible_values([
+        Command::new("test").arg(Arg::new("option").short('O').possible_values([
             "slow",
             "fast",
             "ludicrous speed"
@@ -222,7 +222,7 @@ fn possible_values_output() {
 #[test]
 fn possible_values_alias_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(
+        Command::new("test").arg(
             Arg::new("option")
                 .short('O')
                 .possible_value("slow")
@@ -238,7 +238,7 @@ fn possible_values_alias_output() {
 #[test]
 fn possible_values_hidden_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(
+        Command::new("test").arg(
             Arg::new("option")
                 .short('O')
                 .possible_values(["slow", "fast"])
@@ -254,7 +254,7 @@ fn possible_values_hidden_output() {
 #[test]
 fn escaped_possible_values_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(Arg::new("option").short('O').possible_values([
+        Command::new("test").arg(Arg::new("option").short('O').possible_values([
             "slow",
             "fast",
             "ludicrous speed"
@@ -268,7 +268,7 @@ fn escaped_possible_values_output() {
 #[test]
 fn missing_possible_value_error() {
     assert!(utils::compare_output(
-        App::new("test").arg(
+        Command::new("test").arg(
             Arg::new("option")
                 .short('O')
                 .possible_value("slow")
@@ -294,7 +294,7 @@ For more information try --help
 
 #[test]
 fn alias() {
-    let m = App::new("pv")
+    let m = Command::new("pv")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -312,7 +312,7 @@ fn alias() {
 
 #[test]
 fn aliases() {
-    let m = App::new("pv")
+    let m = Command::new("pv")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -330,7 +330,7 @@ fn aliases() {
 
 #[test]
 fn ignore_case() {
-    let m = App::new("pv")
+    let m = Command::new("pv")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -352,7 +352,7 @@ fn ignore_case() {
 
 #[test]
 fn ignore_case_fail() {
-    let m = App::new("pv")
+    let m = Command::new("pv")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -369,7 +369,7 @@ fn ignore_case_fail() {
 
 #[test]
 fn ignore_case_multiple() {
-    let m = App::new("pv")
+    let m = Command::new("pv")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -391,7 +391,7 @@ fn ignore_case_multiple() {
 
 #[test]
 fn ignore_case_multiple_fail() {
-    let m = App::new("pv")
+    let m = Command::new("pv")
         .arg(
             Arg::new("option")
                 .short('o')

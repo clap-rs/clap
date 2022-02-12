@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 
 // Internal
 use crate::{
-    build::{App, Arg, ArgPredicate},
+    build::{Arg, ArgPredicate, Command},
     parse::{ArgMatches, MatchedArg, SubCommand, ValueSource},
     util::Id,
 };
@@ -15,7 +15,7 @@ use indexmap::map::Entry;
 pub(crate) struct ArgMatcher(ArgMatches);
 
 impl ArgMatcher {
-    pub(crate) fn new(_app: &App) -> Self {
+    pub(crate) fn new(_app: &Command) -> Self {
         ArgMatcher(ArgMatches {
             #[cfg(debug_assertions)]
             valid_args: {

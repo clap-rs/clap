@@ -8,8 +8,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("speed")
     ///         .possible_value("fast")
     ///         .possible_value("slow"))
@@ -24,8 +24,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(arg!(--flag "some flag"))
     ///     .try_get_matches_from(vec!["prog", "--other"]);
     /// assert!(result.is_err());
@@ -42,9 +42,9 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(feature = "suggestions"), doc = " ```no_run")]
     #[cfg_attr(feature = "suggestions", doc = " ```")]
-    /// # use clap::{App, Arg, ErrorKind, };
-    /// let result = App::new("prog")
-    ///     .subcommand(App::new("config")
+    /// # use clap::{Command, Arg, ErrorKind, };
+    /// let result = Command::new("prog")
+    ///     .subcommand(Command::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")
@@ -69,9 +69,9 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, };
-    /// let result = App::new("prog")
-    ///     .subcommand(App::new("config")
+    /// # use clap::{Command, Arg, ErrorKind, };
+    /// let result = Command::new("prog")
+    ///     .subcommand(Command::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")
@@ -92,8 +92,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let res = Command::new("prog")
     ///     .arg(Arg::new("color")
     ///          .takes_value(true)
     ///          .forbid_empty_values(true)
@@ -108,8 +108,8 @@ pub enum ErrorKind {
     /// sign to provide values.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let res = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let res = Command::new("prog")
     ///     .arg(Arg::new("color")
     ///          .takes_value(true)
     ///          .require_equals(true)
@@ -126,7 +126,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind};
     /// fn is_numeric(val: &str) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
@@ -134,7 +134,7 @@ pub enum ErrorKind {
     ///     }
     /// }
     ///
-    /// let result = App::new("prog")
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("num")
     ///          .validator(is_numeric))
     ///     .try_get_matches_from(vec!["prog", "NotANumber"]);
@@ -149,8 +149,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("arg")
     ///         .max_values(2))
     ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);
@@ -166,8 +166,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
     ///         .min_values(3))
@@ -184,8 +184,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("verbosity")
     ///         .short('v')
     ///         .max_occurrences(2))
@@ -203,8 +203,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
     ///         .takes_value(true)
@@ -224,8 +224,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
     ///         .conflicts_with("color"))
@@ -242,8 +242,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .required(true))
     ///     .try_get_matches_from(vec!["prog"]);
@@ -252,16 +252,16 @@ pub enum ErrorKind {
     /// ```
     MissingRequiredArgument,
 
-    /// Occurs when a subcommand is required (as defined by [`App::subcommand_required`]),
+    /// Occurs when a subcommand is required (as defined by [`Command::subcommand_required`]),
     /// but the user does not provide one.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, ErrorKind};
-    /// let err = App::new("prog")
+    /// # use clap::{Command, ErrorKind};
+    /// let err = Command::new("prog")
     ///     .subcommand_required(true)
-    ///     .subcommand(App::new("test"))
+    ///     .subcommand(Command::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog",
     ///     ]);
@@ -270,7 +270,7 @@ pub enum ErrorKind {
     /// # ;
     /// ```
     ///
-    /// [`App::subcommand_required`]: crate::App::subcommand_required
+    /// [`Command::subcommand_required`]: crate::Command::subcommand_required
     MissingSubcommand,
 
     /// Occurs when the user provides multiple values to an argument which doesn't allow that.
@@ -278,8 +278,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
     ///         .multiple_occurrences(false))
@@ -293,7 +293,7 @@ pub enum ErrorKind {
     ///
     /// To allow arbitrary data
     /// - Set [`Arg::allow_invalid_utf8`] for argument values
-    /// - Set [`App::allow_invalid_utf8_for_external_subcommands`] for external-subcommand
+    /// - Set [`Command::allow_invalid_utf8_for_external_subcommands`] for external-subcommand
     ///   values
     ///
     /// # Platform Specific
@@ -304,10 +304,10 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
-    /// let result = App::new("prog")
+    /// let result = Command::new("prog")
     ///     .arg(Arg::new("utf8")
     ///         .short('u')
     ///         .takes_value(true))
@@ -319,7 +319,7 @@ pub enum ErrorKind {
     /// ```
     ///
     /// [`Arg::allow_invalid_utf8`]: crate::Arg::allow_invalid_utf8
-    /// [`App::allow_invalid_utf8_for_external_subcommands`]: crate::App::allow_invalid_utf8_for_external_subcommands
+    /// [`Command::allow_invalid_utf8_for_external_subcommands`]: crate::Command::allow_invalid_utf8_for_external_subcommands
     InvalidUtf8,
 
     /// Not a true "error" as it means `--help` or similar was used.
@@ -331,8 +331,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--help"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::DisplayHelp);
@@ -340,16 +340,16 @@ pub enum ErrorKind {
     DisplayHelp,
 
     /// Occurs when either an argument or a [`Subcommand`] is required, as defined by
-    /// [`App::arg_required_else_help`] , but the user did not provide
+    /// [`Command::arg_required_else_help`] , but the user did not provide
     /// one.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, };
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind, };
+    /// let result = Command::new("prog")
     ///     .arg_required_else_help(true)
-    ///     .subcommand(App::new("config")
+    ///     .subcommand(Command::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
     ///             .help("The configuration file to use")))
@@ -359,7 +359,7 @@ pub enum ErrorKind {
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
-    /// [`App::arg_required_else_help`]: crate::App::arg_required_else_help
+    /// [`Command::arg_required_else_help`]: crate::Command::arg_required_else_help
     DisplayHelpOnMissingArgumentOrSubcommand,
 
     /// Not a true "error" as it means `--version` or similar was used.
@@ -368,8 +368,8 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
-    /// let result = App::new("prog")
+    /// # use clap::{Command, Arg, ErrorKind};
+    /// let result = Command::new("prog")
     ///     .version("3.0")
     ///     .try_get_matches_from(vec!["prog", "--version"]);
     /// assert!(result.is_err());

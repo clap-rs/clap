@@ -1,7 +1,7 @@
 // Note: this requires the `cargo` feature
 
 fn main() {
-    let app = clap::App::new("cargo")
+    let app = clap::Command::new("cargo")
         .bin_name("cargo")
         .subcommand_required(true)
         .subcommand(

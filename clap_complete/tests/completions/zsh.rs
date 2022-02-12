@@ -1,11 +1,11 @@
 use super::*;
 
-fn build_app() -> App<'static> {
+fn build_app() -> Command<'static> {
     build_app_with_name("myapp")
 }
 
-fn build_app_with_name(s: &'static str) -> App<'static> {
-    App::new(s)
+fn build_app_with_name(s: &'static str) -> Command<'static> {
+    Command::new(s)
         .version("3.0")
         .propagate_version(true)
         .about("Test test's completions")
@@ -15,7 +15,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
                 .help("some input's file"),
         )
         .subcommand(
-            App::new("test").about("test test's things").arg(
+            Command::new("test").about("test test's things").arg(
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
@@ -108,19 +108,19 @@ fn zsh_with_special_commands() {
     common(Zsh, &mut app, "my_app", ZSH_SPECIAL_CMDS);
 }
 
-fn build_app_special_commands() -> App<'static> {
+fn build_app_special_commands() -> Command<'static> {
     build_app_with_name("my_app")
         .subcommand(
-            App::new("some_cmd").about("tests other things").arg(
+            Command::new("some_cmd").about("tests other things").arg(
                 Arg::new("config")
                     .long("--config")
                     .takes_value(true)
                     .help("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(Command::new("some-cmd-with-hypens").alias("hyphen"))
         .subcommand(
-            App::new("some_cmd_with_special_characters")
+            Command::new("some_cmd_with_special_characters")
                 .about("This 'is' a \"special\" [character] string \\"),
         )
 }
@@ -246,8 +246,8 @@ fn zsh_with_special_help() {
     common(Zsh, &mut app, "my_app", ZSH_SPECIAL_HELP);
 }
 
-fn build_app_special_help() -> App<'static> {
-    App::new("my_app")
+fn build_app_special_help() -> Command<'static> {
+    Command::new("my_app")
         .version("3.0")
         .arg(
             Arg::new("single-quotes")
@@ -322,10 +322,10 @@ fn zsh_with_nested_subcommands() {
     common(Zsh, &mut app, "my_app", ZSH_NESTED_SUBCOMMANDS);
 }
 
-fn build_app_nested_subcommands() -> App<'static> {
-    App::new("first")
+fn build_app_nested_subcommands() -> Command<'static> {
+    Command::new("first")
         .version("3.0")
-        .subcommand(App::new("second").subcommand(App::new("third")))
+        .subcommand(Command::new("second").subcommand(Command::new("third")))
 }
 
 static ZSH_NESTED_SUBCOMMANDS: &str = r#"#compdef my_app
@@ -442,8 +442,8 @@ fn zsh_with_aliases() {
     common(Zsh, &mut app, "cmd", ZSH_ALIASES);
 }
 
-fn build_app_with_aliases() -> App<'static> {
-    App::new("cmd")
+fn build_app_with_aliases() -> Command<'static> {
+    Command::new("cmd")
         .version("3.0")
         .about("testing bash completions")
         .arg(
@@ -514,8 +514,8 @@ fn zsh_with_files_and_dirs() {
     common(Zsh, &mut app, "my_app", ZSH_PATHS);
 }
 
-fn build_app_with_files_and_dirs() -> App<'static> {
-    App::new("my_app")
+fn build_app_with_files_and_dirs() -> Command<'static> {
+    Command::new("my_app")
         .version("3.0")
         .about("testing zsh completions")
         .arg(

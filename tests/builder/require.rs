@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, Arg, ArgGroup};
+use clap::{arg, error::ErrorKind, Arg, ArgGroup, Command};
 
 static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
@@ -51,7 +51,7 @@ For more information try --help
 
 #[test]
 fn flag_required() {
-    let result = App::new("flag_required")
+    let result = Command::new("flag_required")
         .arg(arg!(-f --flag "some flag").requires("color"))
         .arg(arg!(-c --color "third flag"))
         .try_get_matches_from(vec!["", "-f"]);
@@ -62,7 +62,7 @@ fn flag_required() {
 
 #[test]
 fn flag_required_2() {
-    let m = App::new("flag_required")
+    let m = Command::new("flag_required")
         .arg(arg!(-f --flag "some flag").requires("color"))
         .arg(arg!(-c --color "third flag"))
         .try_get_matches_from(vec!["", "-f", "-c"])
@@ -73,7 +73,7 @@ fn flag_required_2() {
 
 #[test]
 fn option_required() {
-    let result = App::new("option_required")
+    let result = Command::new("option_required")
         .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
         .arg(arg!(c: -c <color> "third flag").required(false))
         .try_get_matches_from(vec!["", "-f", "val"]);
@@ -84,7 +84,7 @@ fn option_required() {
 
 #[test]
 fn option_required_2() {
-    let m = App::new("option_required")
+    let m = Command::new("option_required")
         .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
         .arg(arg!(c: -c <color> "third flag").required(false))
         .try_get_matches_from(vec!["", "-f", "val", "-c", "other_val"])
@@ -97,7 +97,7 @@ fn option_required_2() {
 
 #[test]
 fn positional_required() {
-    let result = App::new("positional_required")
+    let result = Command::new("positional_required")
         .arg(Arg::new("flag").index(1).required(true))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
@@ -107,7 +107,7 @@ fn positional_required() {
 
 #[test]
 fn positional_required_2() {
-    let m = App::new("positional_required")
+    let m = Command::new("positional_required")
         .arg(Arg::new("flag").index(1).required(true))
         .try_get_matches_from(vec!["", "someval"])
         .unwrap();
@@ -117,7 +117,7 @@ fn positional_required_2() {
 
 #[test]
 fn positional_required_with_requires() {
-    let app = App::new("positional_required")
+    let app = Command::new("positional_required")
         .arg(Arg::new("flag").required(true).requires("opt"))
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
@@ -142,7 +142,7 @@ For more information try --help
 
 #[test]
 fn positional_required_with_requires_if_no_value() {
-    let app = App::new("positional_required")
+    let app = Command::new("positional_required")
         .arg(Arg::new("flag").required(true).requires_if("val", "opt"))
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
@@ -166,7 +166,7 @@ For more information try --help
 
 #[test]
 fn positional_required_with_requires_if_value() {
-    let app = App::new("positional_required")
+    let app = Command::new("positional_required")
         .arg(Arg::new("flag").required(true).requires_if("val", "opt"))
         .arg(Arg::new("foo").required(true))
         .arg(Arg::new("opt"))
@@ -192,7 +192,7 @@ For more information try --help
 
 #[test]
 fn group_required() {
-    let result = App::new("group_required")
+    let result = Command::new("group_required")
         .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
@@ -205,7 +205,7 @@ fn group_required() {
 
 #[test]
 fn group_required_2() {
-    let m = App::new("group_required")
+    let m = Command::new("group_required")
         .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
@@ -219,7 +219,7 @@ fn group_required_2() {
 
 #[test]
 fn group_required_3() {
-    let m = App::new("group_required")
+    let m = Command::new("group_required")
         .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
@@ -233,7 +233,7 @@ fn group_required_3() {
 
 #[test]
 fn arg_require_group() {
-    let result = App::new("arg_require_group")
+    let result = Command::new("arg_require_group")
         .arg(arg!(-f --flag "some flag").requires("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
@@ -246,7 +246,7 @@ fn arg_require_group() {
 
 #[test]
 fn arg_require_group_2() {
-    let res = App::new("arg_require_group")
+    let res = Command::new("arg_require_group")
         .arg(arg!(-f --flag "some flag").requires("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
@@ -261,7 +261,7 @@ fn arg_require_group_2() {
 
 #[test]
 fn arg_require_group_3() {
-    let res = App::new("arg_require_group")
+    let res = Command::new("arg_require_group")
         .arg(arg!(-f --flag "some flag").requires("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
@@ -278,7 +278,7 @@ fn arg_require_group_3() {
 
 #[test]
 fn issue_753() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .arg(arg!(
             -l --list "List available interfaces (and stop there)"
         ))
@@ -306,7 +306,7 @@ fn issue_753() {
 
 #[test]
 fn required_unless_present() {
-    let res = App::new("unlesstest")
+    let res = Command::new("unlesstest")
         .arg(
             Arg::new("cfg")
                 .required_unless_present("dbg")
@@ -324,7 +324,7 @@ fn required_unless_present() {
 
 #[test]
 fn required_unless_present_err() {
-    let res = App::new("unlesstest")
+    let res = Command::new("unlesstest")
         .arg(
             Arg::new("cfg")
                 .required_unless_present("dbg")
@@ -340,7 +340,7 @@ fn required_unless_present_err() {
 
 #[test]
 fn required_unless_present_with_optional_value() {
-    let res = App::new("unlesstest")
+    let res = Command::new("unlesstest")
         .arg(Arg::new("opt").long("opt").min_values(0).max_values(1))
         .arg(
             Arg::new("cfg")
@@ -359,7 +359,7 @@ fn required_unless_present_with_optional_value() {
 
 #[test]
 fn required_unless_present_all() {
-    let res = App::new("unlessall")
+    let res = Command::new("unlessall")
         .arg(
             Arg::new("cfg")
                 .required_unless_present_all(&["dbg", "infile"])
@@ -379,7 +379,7 @@ fn required_unless_present_all() {
 
 #[test]
 fn required_unless_all_err() {
-    let res = App::new("unlessall")
+    let res = Command::new("unlessall")
         .arg(
             Arg::new("cfg")
                 .required_unless_present_all(&["dbg", "infile"])
@@ -398,7 +398,7 @@ fn required_unless_all_err() {
 
 #[test]
 fn required_unless_present_any() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
@@ -419,7 +419,7 @@ fn required_unless_present_any() {
 fn required_unless_any_2() {
     // This tests that the required_unless_present_any works when the second arg in the array is used
     // instead of the first.
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
@@ -439,7 +439,7 @@ fn required_unless_any_2() {
 #[test]
 fn required_unless_any_works_with_short() {
     // GitHub issue: https://github.com/clap-rs/clap/issues/1135
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
         .arg(
@@ -454,7 +454,7 @@ fn required_unless_any_works_with_short() {
 
 #[test]
 fn required_unless_any_works_with_short_err() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
         .arg(
@@ -469,7 +469,7 @@ fn required_unless_any_works_with_short_err() {
 
 #[test]
 fn required_unless_any_works_without() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
         .arg(Arg::new("x").required_unless_present_any(&["a", "b"]))
@@ -480,7 +480,7 @@ fn required_unless_any_works_without() {
 
 #[test]
 fn required_unless_any_works_with_long() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
         .arg(
@@ -495,7 +495,7 @@ fn required_unless_any_works_with_long() {
 
 #[test]
 fn required_unless_any_1() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
@@ -515,7 +515,7 @@ fn required_unless_any_1() {
 
 #[test]
 fn required_unless_any_err() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
@@ -544,7 +544,7 @@ fn missing_required_output() {
 
 #[test]
 fn requires_if_present_val() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .requires_if("my.cfg", "extra")
@@ -560,7 +560,7 @@ fn requires_if_present_val() {
 
 #[test]
 fn requires_if_present_mult() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
@@ -577,7 +577,7 @@ fn requires_if_present_mult() {
 
 #[test]
 fn requires_if_present_mult_pass() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
@@ -593,7 +593,7 @@ fn requires_if_present_mult_pass() {
 
 #[test]
 fn requires_if_present_val_no_present_pass() {
-    let res = App::new("unlessone")
+    let res = Command::new("unlessone")
         .arg(
             Arg::new("cfg")
                 .requires_if("my.cfg", "extra")
@@ -610,7 +610,7 @@ fn requires_if_present_val_no_present_pass() {
 
 #[test]
 fn required_if_val_present_pass() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "val")
@@ -625,7 +625,7 @@ fn required_if_val_present_pass() {
 
 #[test]
 fn required_if_val_present_fail() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "val")
@@ -641,7 +641,7 @@ fn required_if_val_present_fail() {
 
 #[test]
 fn required_if_val_present_ignore_case_pass() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "Val")
@@ -661,7 +661,7 @@ fn required_if_val_present_ignore_case_pass() {
 
 #[test]
 fn required_if_val_present_ignore_case_fail() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "Val")
@@ -682,7 +682,7 @@ fn required_if_val_present_ignore_case_fail() {
 
 #[test]
 fn required_if_all_values_present_pass() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
@@ -700,7 +700,7 @@ fn required_if_all_values_present_pass() {
 
 #[test]
 fn required_if_some_values_present_pass() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
@@ -716,7 +716,7 @@ fn required_if_some_values_present_pass() {
 
 #[test]
 fn required_if_all_values_present_fail() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
@@ -733,7 +733,7 @@ fn required_if_all_values_present_fail() {
 
 #[test]
 fn required_if_any_all_values_present_pass() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
@@ -752,7 +752,7 @@ fn required_if_any_all_values_present_pass() {
 
 #[test]
 fn required_if_any_all_values_present_fail() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
@@ -770,7 +770,7 @@ fn required_if_any_all_values_present_fail() {
 
 #[test]
 fn list_correct_required_args() {
-    let app = App::new("Test app")
+    let app = Command::new("Test app")
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
@@ -804,7 +804,7 @@ fn list_correct_required_args() {
 
 #[test]
 fn required_if_val_present_fail_error_output() {
-    let app = App::new("Test app")
+    let app = Command::new("Test app")
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
@@ -838,7 +838,7 @@ fn required_if_val_present_fail_error_output() {
 
 #[test]
 fn required_if_wrong_val() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "val")
@@ -853,7 +853,7 @@ fn required_if_wrong_val() {
 
 #[test]
 fn required_ifs_val_present_pass() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
@@ -869,7 +869,7 @@ fn required_ifs_val_present_pass() {
 
 #[test]
 fn required_ifs_val_present_fail() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
@@ -886,7 +886,7 @@ fn required_ifs_val_present_fail() {
 
 #[test]
 fn required_ifs_wrong_val() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
@@ -902,7 +902,7 @@ fn required_ifs_wrong_val() {
 
 #[test]
 fn required_ifs_wrong_val_mult_fail() {
-    let res = App::new("ri")
+    let res = Command::new("ri")
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
@@ -919,7 +919,7 @@ fn required_ifs_wrong_val_mult_fail() {
 
 #[test]
 fn require_eq() {
-    let app = App::new("clap-test").version("v1.4.8").arg(
+    let app = Command::new("clap-test").version("v1.4.8").arg(
         Arg::new("opt")
             .long("opt")
             .short('o')
@@ -938,7 +938,7 @@ fn require_eq() {
 
 #[test]
 fn require_eq_filtered() {
-    let app = App::new("clap-test")
+    let app = Command::new("clap-test")
         .version("v1.4.8")
         .arg(
             Arg::new("opt")
@@ -968,7 +968,7 @@ fn require_eq_filtered() {
 
 #[test]
 fn require_eq_filtered_group() {
-    let app = App::new("clap-test")
+    let app = Command::new("clap-test")
         .version("v1.4.8")
         .arg(
             Arg::new("opt")
@@ -1024,8 +1024,8 @@ USAGE:
 For more information try --help
 ";
 
-fn issue_1158_app() -> App<'static> {
-    App::new("example")
+fn issue_1158_app() -> Command<'static> {
+    Command::new("example")
         .arg(
             arg!(-c --config <FILE> "Custom config file.")
                 .required(false)
@@ -1055,7 +1055,7 @@ USAGE:
 
 For more information try --help
 ";
-    let app = App::new("test")
+    let app = Command::new("test")
         .arg(
             Arg::new("a")
                 .long("a")
@@ -1110,7 +1110,7 @@ fn issue_1158_conflicting_requirements_rev() {
 fn issue_1643_args_mutually_require_each_other() {
     use clap::*;
 
-    let app = App::new("test")
+    let app = Command::new("test")
         .arg(
             Arg::new("relation_id")
                 .help("The relation id to get the data from")
@@ -1134,7 +1134,7 @@ fn issue_1643_args_mutually_require_each_other() {
 
 #[test]
 fn short_flag_require_equals_with_minvals_zero() {
-    let m = App::new("foo")
+    let m = Command::new("foo")
         .arg(
             Arg::new("check")
                 .short('c')
@@ -1150,7 +1150,7 @@ fn short_flag_require_equals_with_minvals_zero() {
 
 #[test]
 fn issue_2624() {
-    let matches = App::new("foo")
+    let matches = Command::new("foo")
         .arg(
             Arg::new("check")
                 .short('c')
@@ -1168,7 +1168,7 @@ fn issue_2624() {
 
 #[test]
 fn required_unless_all_with_any() {
-    let app = App::new("prog")
+    let app = Command::new("prog")
         .arg(Arg::new("foo").long("foo"))
         .arg(Arg::new("bar").long("bar"))
         .arg(Arg::new("baz").long("baz"))
@@ -1204,7 +1204,7 @@ fn required_unless_all_with_any() {
 #[test]
 #[should_panic = "Argument or group 'extra' specified in 'requires*' for 'config' does not exist"]
 fn requires_invalid_arg() {
-    let _ = App::new("prog")
+    let _ = Command::new("prog")
         .arg(Arg::new("config").requires("extra").long("config"))
         .try_get_matches_from(vec!["", "--config"]);
 }
@@ -1213,7 +1213,7 @@ fn requires_invalid_arg() {
 #[test]
 #[should_panic = "Argument or group 'extra' specified in 'requires*' for 'config' does not exist"]
 fn requires_if_invalid_arg() {
-    let _ = App::new("prog")
+    let _ = Command::new("prog")
         .arg(
             Arg::new("config")
                 .requires_if("val", "extra")
@@ -1226,7 +1226,7 @@ fn requires_if_invalid_arg() {
 #[test]
 #[should_panic = "Argument or group 'extra' specified in 'required_if_eq*' for 'config' does not exist"]
 fn required_if_invalid_arg() {
-    let _ = App::new("prog")
+    let _ = Command::new("prog")
         .arg(
             Arg::new("config")
                 .required_if_eq("extra", "val")
@@ -1239,7 +1239,7 @@ fn required_if_invalid_arg() {
 #[test]
 #[should_panic = "Argument or group 'extra' specified in 'required_unless*' for 'config' does not exist"]
 fn required_unless_invalid_arg() {
-    let _ = App::new("prog")
+    let _ = Command::new("prog")
         .arg(
             Arg::new("config")
                 .required_unless_present("extra")
@@ -1250,7 +1250,7 @@ fn required_unless_invalid_arg() {
 
 #[test]
 fn requires_with_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(
             Arg::new("opt")
                 .long("opt")
@@ -1273,7 +1273,7 @@ fn requires_with_default_value() {
 
 #[test]
 fn requires_if_with_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(
             Arg::new("opt")
                 .long("opt")
@@ -1296,7 +1296,7 @@ fn requires_if_with_default_value() {
 
 #[test]
 fn group_requires_with_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(Arg::new("opt").long("opt").default_value("default"))
         .arg(Arg::new("flag").long("flag"))
         .group(ArgGroup::new("one").arg("opt").requires("flag"))
@@ -1315,7 +1315,7 @@ fn group_requires_with_default_value() {
 
 #[test]
 fn required_if_eq_on_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(Arg::new("opt").long("opt").default_value("default"))
         .arg(
             Arg::new("flag")
@@ -1337,7 +1337,7 @@ fn required_if_eq_on_default_value() {
 
 #[test]
 fn required_if_eq_all_on_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(Arg::new("opt").long("opt").default_value("default"))
         .arg(
             Arg::new("flag")
@@ -1359,7 +1359,7 @@ fn required_if_eq_all_on_default_value() {
 
 #[test]
 fn required_unless_on_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(Arg::new("opt").long("opt").default_value("default"))
         .arg(Arg::new("flag").long("flag").required_unless_present("opt"))
         .try_get_matches_from(vec!["myprog"]);
@@ -1369,7 +1369,7 @@ fn required_unless_on_default_value() {
 
 #[test]
 fn required_unless_all_on_default_value() {
-    let result = App::new("prog")
+    let result = Command::new("prog")
         .arg(Arg::new("opt").long("opt").default_value("default"))
         .arg(
             Arg::new("flag")

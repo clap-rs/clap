@@ -57,13 +57,13 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::IntoApp for #struct_name #ty_generics #where_clause {
-            fn into_app<'b>() -> clap::App<'b> {
-                let #app_var = clap::App::new(#name);
+            fn into_app<'b>() -> clap::Command<'b> {
+                let #app_var = clap::Command::new(#name);
                 <Self as clap::Args>::augment_args(#app_var)
             }
 
-            fn into_app_for_update<'b>() -> clap::App<'b> {
-                let #app_var = clap::App::new(#name);
+            fn into_app_for_update<'b>() -> clap::Command<'b> {
+                let #app_var = clap::Command::new(#name);
                 <Self as clap::Args>::augment_args_for_update(#app_var)
             }
         }
@@ -102,15 +102,15 @@ pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute])
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::IntoApp for #enum_name #ty_generics #where_clause {
-            fn into_app<'b>() -> clap::App<'b> {
+            fn into_app<'b>() -> clap::Command<'b> {
                 #[allow(deprecated)]
-                let #app_var = clap::App::new(#name)
+                let #app_var = clap::Command::new(#name)
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp);
                 <Self as clap::Subcommand>::augment_subcommands(#app_var)
             }
 
-            fn into_app_for_update<'b>() -> clap::App<'b> {
-                let #app_var = clap::App::new(#name);
+            fn into_app_for_update<'b>() -> clap::Command<'b> {
+                let #app_var = clap::Command::new(#name);
                 <Self as clap::Subcommand>::augment_subcommands_for_update(#app_var)
             }
         }

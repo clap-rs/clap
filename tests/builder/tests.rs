@@ -3,7 +3,7 @@ use crate::utils;
 use std::io::Write;
 use std::str;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 static SCF2OP: &str = "flag present 2 times
 option NOT present
@@ -224,7 +224,7 @@ pub fn check_complex_output(args: &str, out: &str) {
 
 #[test]
 fn create_app() {
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .version("1.0")
         .author("kevin")
         .about("does awesome things")
@@ -234,7 +234,7 @@ fn create_app() {
 
 #[test]
 fn add_multiple_arg() {
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .args(&[Arg::new("test").short('s'), Arg::new("test2").short('l')])
         .try_get_matches_from(vec![""])
         .unwrap();

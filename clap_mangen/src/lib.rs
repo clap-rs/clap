@@ -14,7 +14,7 @@ use std::io::Write;
 
 /// A manpage writer
 pub struct Man<'a> {
-    app: clap::App<'a>,
+    app: clap::Command<'a>,
     title: String,
     section: String,
     date: String,
@@ -25,7 +25,7 @@ pub struct Man<'a> {
 /// Build a [`Man`]
 impl<'a> Man<'a> {
     /// Create a new manual page.
-    pub fn new(mut app: clap::App<'a>) -> Self {
+    pub fn new(mut app: clap::Command<'a>) -> Self {
         app._build_all();
         let title = app.get_name().to_owned();
         let section = "1".to_owned();
@@ -251,18 +251,18 @@ impl<'a> Man<'a> {
 }
 
 // Does the application have a version?
-fn app_has_version(app: &clap::App) -> bool {
+fn app_has_version(app: &clap::Command) -> bool {
     app.get_version()
         .or_else(|| app.get_long_version())
         .is_some()
 }
 
 // Does the application have any command line arguments?
-fn app_has_arguments(app: &clap::App) -> bool {
+fn app_has_arguments(app: &clap::Command) -> bool {
     app.get_arguments().any(|i| !i.is_hide_set())
 }
 
 // Does the application have any subcommands?
-fn app_has_subcommands(app: &clap::App) -> bool {
+fn app_has_subcommands(app: &clap::Command) -> bool {
     app.get_subcommands().any(|i| !i.is_hide_set())
 }

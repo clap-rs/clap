@@ -14,7 +14,7 @@ impl Generator for Elvish {
         format!("{}.elv", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &Command, buf: &mut dyn Write) {
         let bin_name = app
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -67,7 +67,7 @@ fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
 }
 
 fn generate_inner<'help>(
-    p: &App<'help>,
+    p: &Command<'help>,
     previous_command_name: &str,
     names: &mut Vec<&'help str>,
 ) -> String {

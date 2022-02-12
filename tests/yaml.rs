@@ -1,18 +1,18 @@
 #![cfg(feature = "yaml")]
 #![allow(deprecated)]
 
-use clap::{load_yaml, App};
+use clap::{load_yaml, Command};
 
 #[test]
 fn create_app_from_yaml() {
     let yml = load_yaml!("app.yml");
-    App::from_yaml(yml);
+    Command::from_yaml(yml);
 }
 
 #[test]
 fn help_message() {
     let yml = load_yaml!("app.yml");
-    let mut app = App::from_yaml(yml);
+    let mut app = Command::from_yaml(yml);
     // Generate the full help message!
     let _ = app.get_matches_from_safe_borrow(Vec::<String>::new());
 
@@ -26,7 +26,7 @@ fn help_message() {
 #[test]
 fn author() {
     let yml = load_yaml!("app.yml");
-    let mut app = App::from_yaml(yml);
+    let mut app = Command::from_yaml(yml);
     // Generate the full help message!
     let _ = app.get_matches_from_safe_borrow(Vec::<String>::new());
 

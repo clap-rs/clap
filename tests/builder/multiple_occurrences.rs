@@ -1,8 +1,8 @@
-use clap::{arg, error::ErrorKind, App, Arg};
+use clap::{arg, error::ErrorKind, Arg, Command};
 
 #[test]
 fn multiple_occurrences_of_flags_long() {
-    let m = App::new("mo_flags_long")
+    let m = Command::new("mo_flags_long")
         .arg(arg!(--multflag "allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(--flag "disallowed multiple flag"))
         .try_get_matches_from(vec!["", "--multflag", "--flag", "--multflag"])
@@ -15,7 +15,7 @@ fn multiple_occurrences_of_flags_long() {
 
 #[test]
 fn multiple_occurrences_of_flags_short() {
-    let m = App::new("mo_flags_short")
+    let m = Command::new("mo_flags_short")
         .arg(arg!(-m --multflag "allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(-f --flag "disallowed multiple flag"))
         .try_get_matches_from(vec!["", "-m", "-f", "-m"])
@@ -28,7 +28,7 @@ fn multiple_occurrences_of_flags_short() {
 
 #[test]
 fn multiple_occurrences_of_flags_mixed() {
-    let m = App::new("mo_flags_mixed")
+    let m = Command::new("mo_flags_mixed")
         .arg(arg!(-m --multflag1 "allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(-n --multflag2 "another allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(-f --flag "disallowed multiple flag"))
@@ -52,7 +52,7 @@ fn multiple_occurrences_of_flags_mixed() {
 
 #[test]
 fn multiple_occurrences_of_positional() {
-    let app = App::new("test").arg(Arg::new("multi").multiple_occurrences(true));
+    let app = Command::new("test").arg(Arg::new("multi").multiple_occurrences(true));
 
     let m = app
         .clone()
@@ -88,7 +88,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .into_iter()
         .chain(vec!["-m"; 1024].into_iter())
         .collect();
-    let m = App::new("mo_flags_large_qty")
+    let m = Command::new("mo_flags_large_qty")
         .arg(arg!(-m --multflag "allowed multiple flag").multiple_occurrences(true))
         .try_get_matches_from(args)
         .unwrap();
@@ -99,7 +99,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
 #[cfg(feature = "env")]
 #[test]
 fn multiple_occurrences_of_before_env() {
-    let app = App::new("mo_before_env").arg(
+    let app = Command::new("mo_before_env").arg(
         Arg::new("verbose")
             .env("VERBOSE")
             .short('v')
@@ -127,7 +127,7 @@ fn multiple_occurrences_of_before_env() {
 #[cfg(feature = "env")]
 #[test]
 fn multiple_occurrences_of_after_env() {
-    let app = App::new("mo_after_env").arg(
+    let app = Command::new("mo_after_env").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
@@ -154,7 +154,7 @@ fn multiple_occurrences_of_after_env() {
 
 #[test]
 fn max_occurrences_implies_multiple_occurrences() {
-    let app = App::new("prog").arg(
+    let app = Command::new("prog").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
@@ -166,7 +166,7 @@ fn max_occurrences_implies_multiple_occurrences() {
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
     // One max should not imply multiple occurrences
-    let app = App::new("prog").arg(
+    let app = Command::new("prog").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
@@ -181,7 +181,7 @@ fn max_occurrences_implies_multiple_occurrences() {
 
 #[test]
 fn max_occurrences_try_inputs() {
-    let app = App::new("prog").arg(
+    let app = Command::new("prog").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
@@ -218,7 +218,7 @@ fn max_occurrences_try_inputs() {
 
 #[test]
 fn max_occurrences_positional() {
-    let app = App::new("prog").arg(Arg::new("verbose").max_occurrences(3));
+    let app = Command::new("prog").arg(Arg::new("verbose").max_occurrences(3));
     let m = app.clone().try_get_matches_from(vec!["prog", "v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);

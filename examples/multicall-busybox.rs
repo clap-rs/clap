@@ -2,20 +2,20 @@
 
 use std::process::exit;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
-fn applet_commands() -> [App<'static>; 2] {
+fn applet_commands() -> [Command<'static>; 2] {
     [
-        App::new("true").about("does nothing successfully"),
-        App::new("false").about("does nothing unsuccessfully"),
+        Command::new("true").about("does nothing successfully"),
+        Command::new("false").about("does nothing unsuccessfully"),
     ]
 }
 
 fn main() {
-    let app = App::new(env!("CARGO_CRATE_NAME"))
+    let app = Command::new(env!("CARGO_CRATE_NAME"))
         .multicall(true)
         .subcommand(
-            App::new("busybox")
+            Command::new("busybox")
                 .arg_required_else_help(true)
                 .subcommand_value_name("APPLET")
                 .subcommand_help_heading("APPLETS")

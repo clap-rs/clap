@@ -1,16 +1,16 @@
 use std::io;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 use clap_complete::{generate, shells::*};
 
 #[test]
 fn generate_completions() {
-    let mut app = App::new("test_app")
+    let mut app = Command::new("test_app")
         .arg(Arg::new("config").short('c').global(true))
         .arg(Arg::new("v").short('v').conflicts_with("config"))
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("Subcommand")
                 .arg(Arg::new("debug").short('d')),
         );

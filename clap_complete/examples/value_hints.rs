@@ -12,12 +12,12 @@
 //! . ./value_hints.fish
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
-use clap::{App, Arg, ValueHint};
+use clap::{Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
-fn build_cli() -> App<'static> {
-    App::new("value_hints")
+fn build_cli() -> Command<'static> {
+    Command::new("value_hints")
         // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
         .trailing_var_arg(true)
         .arg(
@@ -92,7 +92,7 @@ fn build_cli() -> App<'static> {
         )
 }
 
-fn print_completions<G: Generator>(gen: G, app: &mut App) {
+fn print_completions<G: Generator>(gen: G, app: &mut Command) {
     generate(gen, app, app.get_name().to_string(), &mut io::stdout());
 }
 

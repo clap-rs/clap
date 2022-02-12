@@ -1,9 +1,9 @@
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 macro_rules! create_app {
     () => {{
-        App::new("claptests")
+        Command::new("claptests")
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
@@ -19,7 +19,7 @@ pub fn build_simple(c: &mut Criterion) {
 
 pub fn build_with_flag(c: &mut Criterion) {
     c.bench_function("build_with_flag", |b| {
-        b.iter(|| App::new("claptests").arg(arg!(-s --some "something")))
+        b.iter(|| Command::new("claptests").arg(arg!(-s --some "something")))
     });
 }
 
@@ -27,14 +27,14 @@ pub fn build_with_flag_ref(c: &mut Criterion) {
     c.bench_function("build_with_flag_ref", |b| {
         b.iter(|| {
             let arg = arg!(-s --some "something");
-            App::new("claptests").arg(&arg)
+            Command::new("claptests").arg(&arg)
         })
     });
 }
 
 pub fn build_with_opt(c: &mut Criterion) {
     c.bench_function("build_with_opt", |b| {
-        b.iter(|| App::new("claptests").arg(arg!(-s --some <FILE> "something")))
+        b.iter(|| Command::new("claptests").arg(arg!(-s --some <FILE> "something")))
     });
 }
 
@@ -42,14 +42,14 @@ pub fn build_with_opt_ref(c: &mut Criterion) {
     c.bench_function("build_with_opt_ref", |b| {
         b.iter(|| {
             let arg = arg!(-s --some <FILE> "something");
-            App::new("claptests").arg(&arg)
+            Command::new("claptests").arg(&arg)
         })
     });
 }
 
 pub fn build_with_pos(c: &mut Criterion) {
     c.bench_function("build_with_pos", |b| {
-        b.iter(|| App::new("claptests").arg(Arg::new("some")))
+        b.iter(|| Command::new("claptests").arg(Arg::new("some")))
     });
 }
 
@@ -57,7 +57,7 @@ pub fn build_with_pos_ref(c: &mut Criterion) {
     c.bench_function("build_with_pos_ref", |b| {
         b.iter(|| {
             let arg = Arg::new("some");
-            App::new("claptests").arg(&arg)
+            Command::new("claptests").arg(&arg)
         })
     });
 }

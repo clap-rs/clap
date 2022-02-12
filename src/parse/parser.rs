@@ -9,7 +9,7 @@ use os_str_bytes::RawOsStr;
 
 // Internal
 use crate::build::AppSettings as AS;
-use crate::build::{App, Arg};
+use crate::build::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
@@ -21,7 +21,7 @@ use crate::util::{color::ColorChoice, Id};
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'app> {
-    pub(crate) app: &'app mut App<'help>,
+    pub(crate) app: &'app mut Command<'help>,
     pub(crate) overridden: RefCell<Vec<Id>>,
     seen: Vec<Id>,
     cur_idx: Cell<usize>,
@@ -34,7 +34,7 @@ pub(crate) struct Parser<'help, 'app> {
 
 // Initializing Methods
 impl<'help, 'app> Parser<'help, 'app> {
-    pub(crate) fn new(app: &'app mut App<'help>) -> Self {
+    pub(crate) fn new(app: &'app mut Command<'help>) -> Self {
         Parser {
             app,
             overridden: Default::default(),

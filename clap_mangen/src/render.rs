@@ -1,14 +1,14 @@
 use clap::AppSettings;
 use roff::{bold, italic, roman, Inline, Roff};
 
-pub(crate) fn subcommand_heading(app: &clap::App) -> String {
+pub(crate) fn subcommand_heading(app: &clap::Command) -> String {
     match app.get_subcommand_help_heading() {
         Some(title) => title.to_string(),
         None => "SUBCOMMANDS".to_string(),
     }
 }
 
-pub(crate) fn about(roff: &mut Roff, app: &clap::App) {
+pub(crate) fn about(roff: &mut Roff, app: &clap::Command) {
     let s = match app.get_about().or_else(|| app.get_long_about()) {
         Some(about) => format!("{} - {}", app.get_name(), about),
         None => app.get_name().to_string(),
@@ -16,7 +16,7 @@ pub(crate) fn about(roff: &mut Roff, app: &clap::App) {
     roff.text([roman(&s)]);
 }
 
-pub(crate) fn description(roff: &mut Roff, app: &clap::App) {
+pub(crate) fn description(roff: &mut Roff, app: &clap::Command) {
     if let Some(about) = app.get_long_about().or_else(|| app.get_about()) {
         for line in about.lines() {
             if line.trim().is_empty() {
@@ -28,7 +28,7 @@ pub(crate) fn description(roff: &mut Roff, app: &clap::App) {
     }
 }
 
-pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
+pub(crate) fn synopsis(roff: &mut Roff, app: &clap::Command) {
     let mut line = vec![bold(app.get_name()), roman(" ")];
 
     for opt in app.get_arguments() {
@@ -80,7 +80,7 @@ pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
     roff.text(line);
 }
 
-pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
+pub(crate) fn options(roff: &mut Roff, app: &clap::Command) {
     let items: Vec<_> = app.get_arguments().filter(|i| !i.is_hide_set()).collect();
 
     for opt in items.iter().filter(|a| !a.is_positional()) {
@@ -143,7 +143,7 @@ pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
     }
 }
 
-pub(crate) fn subcommands(roff: &mut Roff, app: &clap::App, section: &str) {
+pub(crate) fn subcommands(roff: &mut Roff, app: &clap::Command, section: &str) {
     for sub in app.get_subcommands().filter(|s| !s.is_hide_set()) {
         roff.control("TP", []);
 
@@ -158,7 +158,7 @@ pub(crate) fn subcommands(roff: &mut Roff, app: &clap::App, section: &str) {
     }
 }
 
-pub(crate) fn version(app: &clap::App) -> String {
+pub(crate) fn version(app: &clap::Command) -> String {
     format!(
         "v{}",
         app.get_long_version()
@@ -167,7 +167,7 @@ pub(crate) fn version(app: &clap::App) -> String {
     )
 }
 
-pub(crate) fn after_help(roff: &mut Roff, app: &clap::App) {
+pub(crate) fn after_help(roff: &mut Roff, app: &clap::Command) {
     if let Some(about) = app.get_after_long_help().or_else(|| app.get_after_help()) {
         for line in about.lines() {
             roff.text([roman(line)]);
@@ -175,7 +175,7 @@ pub(crate) fn after_help(roff: &mut Roff, app: &clap::App) {
     }
 }
 
-fn subcommand_markers(cmd: &clap::App) -> (&'static str, &'static str) {
+fn subcommand_markers(cmd: &clap::Command) -> (&'static str, &'static str) {
     #[allow(deprecated)]
     markers(cmd.is_subcommand_required_set() || cmd.is_set(AppSettings::SubcommandRequiredElseHelp))
 }

@@ -1,10 +1,10 @@
 #![cfg(feature = "unstable-grouped")]
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 #[test]
 fn grouped_value_works() {
-    let m = App::new("cli")
+    let m = Command::new("cli")
         .arg(
             Arg::new("option")
                 .long("option")
@@ -34,7 +34,7 @@ fn grouped_value_works() {
 
 #[test]
 fn issue_1026() {
-    let m = App::new("cli")
+    let m = Command::new("cli")
         .arg(Arg::new("server").short('s').takes_value(true))
         .arg(Arg::new("user").short('u').takes_value(true))
         .arg(
@@ -63,7 +63,7 @@ fn issue_1026() {
 
 #[test]
 fn grouped_value_long_flag_delimiter() {
-    let m = App::new("myapp")
+    let m = Command::new("myapp")
         .arg(
             Arg::new("option")
                 .long("option")
@@ -93,7 +93,7 @@ fn grouped_value_long_flag_delimiter() {
 
 #[test]
 fn grouped_value_short_flag_delimiter() {
-    let m = App::new("myapp")
+    let m = Command::new("myapp")
         .arg(
             Arg::new("option")
                 .short('o')
@@ -113,7 +113,7 @@ fn grouped_value_short_flag_delimiter() {
 
 #[test]
 fn grouped_value_positional_arg() {
-    let m = App::new("multiple_values")
+    let m = Command::new("multiple_values")
         .arg(
             Arg::new("pos")
                 .help("multiple positionals")
@@ -133,7 +133,7 @@ fn grouped_value_positional_arg() {
 
 #[test]
 fn grouped_value_multiple_positional_arg() {
-    let m = App::new("multiple_values")
+    let m = Command::new("multiple_values")
         .arg(Arg::new("pos1").help("multiple positionals"))
         .arg(
             Arg::new("pos2")
@@ -154,7 +154,7 @@ fn grouped_value_multiple_positional_arg() {
 
 #[test]
 fn grouped_value_multiple_positional_arg_last_multiple() {
-    let m = App::new("multiple_values")
+    let m = Command::new("multiple_values")
         .arg(Arg::new("pos1").help("multiple positionals"))
         .arg(
             Arg::new("pos2")
@@ -176,7 +176,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
 
 #[test]
 fn issue_1374() {
-    let app = App::new("MyApp").arg(
+    let app = Command::new("MyApp").arg(
         Arg::new("input")
             .takes_value(true)
             .long("input")
@@ -200,7 +200,7 @@ fn issue_1374() {
 
 #[test]
 fn issue_2171() {
-    let schema = App::new("ripgrep#1701 reproducer")
+    let schema = Command::new("ripgrep#1701 reproducer")
         .args_override_self(true)
         .arg(Arg::new("pretty").short('p').long("pretty"))
         .arg(Arg::new("search_zip").short('z').long("search-zip"));

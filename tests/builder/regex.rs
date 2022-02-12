@@ -1,13 +1,13 @@
 #![cfg(feature = "regex")]
 
-use clap::{error::ErrorKind, App, Arg};
+use clap::{error::ErrorKind, Arg, Command};
 use regex::{Regex, RegexSet};
 
 #[test]
 fn validator_regex() {
     let priority = Regex::new(r"[A-C]").unwrap();
 
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .arg(
             Arg::new("priority")
                 .index(1)
@@ -23,7 +23,7 @@ fn validator_regex() {
 fn validator_regex_with_regex_set() {
     let priority = RegexSet::new(&[r"[A-C]", r"[X-Z]"]).unwrap();
 
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .arg(
             Arg::new("priority")
                 .index(1)

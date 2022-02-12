@@ -17,7 +17,7 @@ use crate::{
     output::fmt::Colorizer,
     parse::features::suggestions,
     util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE},
-    App, AppSettings,
+    AppSettings, Command,
 };
 
 mod context;
@@ -34,9 +34,9 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 
 /// Command Line Argument Parser Error
 ///
-/// See [`App::error`] to create an error.
+/// See [`Command::error`] to create an error.
 ///
-/// [`App::error`]: crate::App::error
+/// [`Command::error`]: crate::Command::error
 #[derive(Debug)]
 pub struct Error {
     inner: Box<ErrorInner>,
@@ -64,18 +64,18 @@ impl Error {
     /// Create an unformatted error
     ///
     /// This is for you need to pass the error up to
-    /// a place that has access to the `App` at which point you can call [`Error::format`].
+    /// a place that has access to the `Command` at which point you can call [`Error::format`].
     ///
-    /// Prefer [`App::error`] for generating errors.
+    /// Prefer [`Command::error`] for generating errors.
     ///
-    /// [`App::error`]: crate::App::error
+    /// [`Command::error`]: crate::Command::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
         Self::new(kind).set_message(message.to_string())
     }
 
-    /// Format the existing message with the App's context
+    /// Format the existing message with the Command's context
     #[must_use]
-    pub fn format(mut self, app: &mut App) -> Self {
+    pub fn format(mut self, app: &mut Command) -> Self {
         app._build();
         let usage = app.render_usage();
         if let Some(message) = self.inner.message.as_mut() {
@@ -131,9 +131,9 @@ impl Error {
     ///
     /// # Example
     /// ```no_run
-    /// use clap::App;
+    /// use clap::Command;
     ///
-    /// match App::new("App").try_get_matches() {
+    /// match Command::new("Command").try_get_matches() {
     ///     Ok(matches) => {
     ///         // do_something
     ///     },
@@ -147,10 +147,10 @@ impl Error {
         self.formatted().print()
     }
 
-    /// Deprecated, replaced with [`App::error`]
+    /// Deprecated, replaced with [`Command::error`]
     ///
-    /// [`App::error`]: crate::App::error
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
+    /// [`Command::error`]: crate::Command::error
+    #[deprecated(since = "3.0.0", note = "Replaced with `Command::error`")]
     #[doc(hidden)]
     pub fn with_description(description: String, kind: ErrorKind) -> Self {
         Error::raw(kind, description)
@@ -174,14 +174,14 @@ impl Error {
     }
 
     #[inline(never)]
-    fn for_app(kind: ErrorKind, app: &App, colorizer: Colorizer, info: Vec<String>) -> Self {
+    fn for_app(kind: ErrorKind, app: &Command, colorizer: Colorizer, info: Vec<String>) -> Self {
         Self::new(kind)
             .set_message(colorizer)
             .with_app(app)
             .set_info(info)
     }
 
-    pub(crate) fn with_app(self, app: &App) -> Self {
+    pub(crate) fn with_app(self, app: &Command) -> Self {
         self.set_wait_on_exit(app.is_set(AppSettings::WaitOnError))
             .set_color(app.get_color())
             .set_help_flag(get_help_flag(app))
@@ -246,11 +246,11 @@ impl Error {
             .find_map(|(k, v)| (*k == kind).then(|| v))
     }
 
-    pub(crate) fn display_help(app: &App, colorizer: Colorizer) -> Self {
+    pub(crate) fn display_help(app: &Command, colorizer: Colorizer) -> Self {
         Self::for_app(ErrorKind::DisplayHelp, app, colorizer, vec![])
     }
 
-    pub(crate) fn display_help_error(app: &App, colorizer: Colorizer) -> Self {
+    pub(crate) fn display_help_error(app: &Command, colorizer: Colorizer) -> Self {
         Self::for_app(
             ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
             app,
@@ -259,12 +259,12 @@ impl Error {
         )
     }
 
-    pub(crate) fn display_version(app: &App, colorizer: Colorizer) -> Self {
+    pub(crate) fn display_version(app: &Command, colorizer: Colorizer) -> Self {
         Self::for_app(ErrorKind::DisplayVersion, app, colorizer, vec![])
     }
 
     pub(crate) fn argument_conflict(
-        app: &App,
+        app: &Command,
         arg: &Arg,
         mut others: Vec<String>,
         usage: String,
@@ -288,7 +288,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn empty_value(app: &App, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
+    pub(crate) fn empty_value(app: &Command, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
         let info = vec![arg.to_string()];
         let mut err = Self::new(ErrorKind::EmptyValue)
             .with_app(app)
@@ -309,7 +309,7 @@ impl Error {
         err
     }
 
-    pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
+    pub(crate) fn no_equals(app: &Command, arg: String, usage: String) -> Self {
         let info = vec![arg.to_string()];
         Self::new(ErrorKind::NoEquals)
             .with_app(app)
@@ -321,7 +321,7 @@ impl Error {
     }
 
     pub(crate) fn invalid_value(
-        app: &App,
+        app: &Command,
         bad_val: String,
         good_vals: &[&str],
         arg: &Arg,
@@ -356,7 +356,7 @@ impl Error {
     }
 
     pub(crate) fn invalid_subcommand(
-        app: &App,
+        app: &Command,
         subcmd: String,
         did_you_mean: String,
         name: String,
@@ -381,7 +381,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
+    pub(crate) fn unrecognized_subcommand(app: &Command, subcmd: String, name: String) -> Self {
         let info = vec![subcmd.clone()];
         let usage = format!("USAGE:\n    {} <subcommands>", name);
         Self::new(ErrorKind::UnrecognizedSubcommand)
@@ -394,7 +394,7 @@ impl Error {
     }
 
     pub(crate) fn missing_required_argument(
-        app: &App,
+        app: &Command,
         required: Vec<String>,
         usage: String,
     ) -> Self {
@@ -408,7 +408,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
+    pub(crate) fn missing_subcommand(app: &Command, name: String, usage: String) -> Self {
         let info = vec![];
         Self::new(ErrorKind::MissingSubcommand)
             .with_app(app)
@@ -419,7 +419,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
+    pub(crate) fn invalid_utf8(app: &Command, usage: String) -> Self {
         let info = vec![];
         Self::new(ErrorKind::InvalidUtf8)
             .with_app(app)
@@ -428,7 +428,7 @@ impl Error {
     }
 
     pub(crate) fn too_many_occurrences(
-        app: &App,
+        app: &Command,
         arg: &Arg,
         max_occurs: usize,
         curr_occurs: usize,
@@ -459,7 +459,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
+    pub(crate) fn too_many_values(app: &Command, val: String, arg: String, usage: String) -> Self {
         let info = vec![arg.to_string(), val.clone()];
         Self::new(ErrorKind::TooManyValues)
             .with_app(app)
@@ -472,7 +472,7 @@ impl Error {
     }
 
     pub(crate) fn too_few_values(
-        app: &App,
+        app: &Command,
         arg: &Arg,
         min_vals: usize,
         curr_vals: usize,
@@ -515,7 +515,7 @@ impl Error {
     }
 
     pub(crate) fn wrong_number_of_values(
-        app: &App,
+        app: &Command,
         arg: &Arg,
         num_vals: usize,
         curr_vals: usize,
@@ -542,7 +542,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
+    pub(crate) fn unexpected_multiple_usage(app: &Command, arg: &Arg, usage: String) -> Self {
         let info = vec![arg.to_string()];
         Self::new(ErrorKind::UnexpectedMultipleUsage)
             .with_app(app)
@@ -557,7 +557,7 @@ impl Error {
     }
 
     pub(crate) fn unknown_argument(
-        app: &App,
+        app: &Command,
         arg: String,
         did_you_mean: Option<(String, Option<String>)>,
         usage: String,
@@ -585,7 +585,7 @@ impl Error {
         err
     }
 
-    pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
+    pub(crate) fn unnecessary_double_dash(app: &Command, arg: String, usage: String) -> Self {
         let info = vec![arg.to_string()];
         Self::new(ErrorKind::UnknownArgument)
             .with_app(app)
@@ -1046,7 +1046,7 @@ fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
     c.none(usage);
 }
 
-fn get_help_flag(app: &App) -> Option<&'static str> {
+fn get_help_flag(app: &Command) -> Option<&'static str> {
     if !app.is_disable_help_flag_set() {
         Some("--help")
     } else if app.has_subcommands() && !app.is_disable_help_subcommand_set() {
@@ -1087,7 +1087,7 @@ pub(crate) enum Message {
 }
 
 impl Message {
-    fn format(&mut self, app: &App, usage: String) {
+    fn format(&mut self, app: &Command, usage: String) {
         match self {
             Message::Raw(s) => {
                 let mut c = Colorizer::new(true, app.get_color());

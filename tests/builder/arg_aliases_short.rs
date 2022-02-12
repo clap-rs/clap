@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
@@ -30,7 +30,7 @@ OPTIONS:
 
 #[test]
 fn single_short_alias_of_option() {
-    let a = App::new("single_alias")
+    let a = Command::new("single_alias")
         .arg(
             Arg::new("alias")
                 .long("alias")
@@ -47,7 +47,7 @@ fn single_short_alias_of_option() {
 
 #[test]
 fn multiple_short_aliases_of_option() {
-    let a = App::new("multiple_aliases").arg(
+    let a = Command::new("multiple_aliases").arg(
         Arg::new("aliases")
             .long("aliases")
             .takes_value(true)
@@ -84,7 +84,7 @@ fn multiple_short_aliases_of_option() {
 
 #[test]
 fn single_short_alias_of_flag() {
-    let a = App::new("test")
+    let a = Command::new("test")
         .arg(Arg::new("flag").long("flag").short_alias('f'))
         .try_get_matches_from(vec!["", "-f"]);
     assert!(a.is_ok(), "{}", a.unwrap_err());
@@ -94,7 +94,7 @@ fn single_short_alias_of_flag() {
 
 #[test]
 fn multiple_short_aliases_of_flag() {
-    let a = App::new("test").arg(
+    let a = Command::new("test").arg(
         Arg::new("flag")
             .long("flag")
             .short_aliases(&['a', 'b', 'c', 'd', 'e']),
@@ -124,9 +124,9 @@ fn multiple_short_aliases_of_flag() {
 
 #[test]
 fn short_alias_on_a_subcommand_option() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .subcommand(
-            App::new("some").arg(
+            Command::new("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -151,8 +151,8 @@ fn short_alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_short_arg_aliases_help_output() {
-    let app = App::new("ct").author("Salim Afiune").subcommand(
-        App::new("test")
+    let app = Command::new("ct").author("Salim Afiune").subcommand(
+        Command::new("test")
             .about("Some help")
             .version("1.2")
             .arg(
@@ -174,8 +174,8 @@ fn invisible_short_arg_aliases_help_output() {
 
 #[test]
 fn visible_short_arg_aliases_help_output() {
-    let app = App::new("ct").author("Salim Afiune").subcommand(
-        App::new("test")
+    let app = Command::new("ct").author("Salim Afiune").subcommand(
+        Command::new("test")
             .about("Some help")
             .version("1.2")
             .arg(

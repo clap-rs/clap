@@ -66,7 +66,7 @@ In addition to this tutorial, see the [derive reference](../derive_ref/README.md
 
 ## Configuring the Parser
 
-You use the `App` the start building a parser.
+You use the `Command` the start building a parser.
 
 [Example:](02_apps.rs)
 ```console
@@ -111,7 +111,7 @@ clap [..]
 
 ```
 
-You can use `App` methods to change the application level behavior of clap.
+You can use `Command` methods to change the application level behavior of clap.
 
 [Example:](02_app_settings.rs)
 ```console
@@ -266,7 +266,7 @@ name: Some("bob")
 
 ### Subcommands
 
-Subcommands are defined as `App`s that get added via `App::subcommand`. Each
+Subcommands are defined as `Command`s that get added via `Command::subcommand`. Each
 instance of a Subcommand can have its own version, author(s), Args, and even its own
 subcommands.
 
@@ -326,7 +326,7 @@ SUBCOMMANDS:
 
 ```
 
-Because we set `App::propagate_version`:
+Because we set `Command::propagate_version`:
 ```console
 $ 03_04_subcommands_derive --version
 clap [..]
@@ -610,7 +610,7 @@ Doing work using input input.txt and config config.toml
 
 ## Tips
 
-- Proactively check for bad `App` configurations by calling `App::debug_assert` ([example](05_01_assert.rs))
+- Proactively check for bad `Command` configurations by calling `Command::debug_assert` ([example](05_01_assert.rs))
 
 ## Contributing
 

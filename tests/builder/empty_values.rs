@@ -1,10 +1,10 @@
 use crate::utils;
 
-use clap::{error::ErrorKind, App, Arg};
+use clap::{error::ErrorKind, Arg, Command};
 
 #[test]
 fn empty_values() {
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(Arg::new("config").long("config").takes_value(true))
         .try_get_matches_from(&["config", "--config", ""])
         .unwrap();
@@ -13,13 +13,13 @@ fn empty_values() {
 
 #[test]
 fn empty_values_with_equals() {
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(Arg::new("config").long("config").takes_value(true))
         .try_get_matches_from(&["config", "--config="])
         .unwrap();
     assert_eq!(m.value_of("config"), Some(""));
 
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(Arg::new("config").short('c').takes_value(true))
         .try_get_matches_from(&["config", "-c="])
         .unwrap();
@@ -28,7 +28,7 @@ fn empty_values_with_equals() {
 
 #[test]
 fn no_empty_values() {
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(
             Arg::new("config")
                 .long("config")
@@ -39,7 +39,7 @@ fn no_empty_values() {
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(
             Arg::new("config")
                 .short('c')
@@ -53,7 +53,7 @@ fn no_empty_values() {
 
 #[test]
 fn no_empty_values_with_equals() {
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(
             Arg::new("config")
                 .long("config")
@@ -64,7 +64,7 @@ fn no_empty_values_with_equals() {
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(
             Arg::new("config")
                 .short('c')
@@ -78,7 +78,7 @@ fn no_empty_values_with_equals() {
 
 #[test]
 fn no_empty_values_without_equals() {
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(
             Arg::new("config")
                 .long("config")
@@ -89,7 +89,7 @@ fn no_empty_values_without_equals() {
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 
-    let m = App::new("config")
+    let m = Command::new("config")
         .arg(
             Arg::new("config")
                 .short('c')
@@ -103,7 +103,7 @@ fn no_empty_values_without_equals() {
 
 #[test]
 fn no_empty_values_without_equals_but_requires_equals() {
-    let app = App::new("config").arg(
+    let app = Command::new("config").arg(
         Arg::new("config")
             .long("config")
             .takes_value(true)

@@ -1,8 +1,8 @@
-use clap::{arg, App, Arg, ArgMatches};
+use clap::{arg, Arg, ArgMatches, Command};
 
 #[test]
 fn opt_missing() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             Arg::new("color")
                 .long("color")
@@ -21,7 +21,7 @@ fn opt_missing() {
 
 #[test]
 fn opt_present_with_missing_value() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             Arg::new("color")
                 .long("color")
@@ -40,7 +40,7 @@ fn opt_present_with_missing_value() {
 
 #[test]
 fn opt_present_with_value() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             Arg::new("color")
                 .long("color")
@@ -59,7 +59,7 @@ fn opt_present_with_value() {
 
 #[test]
 fn opt_present_with_empty_value() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             Arg::new("color")
                 .long("color")
@@ -80,7 +80,7 @@ fn opt_present_with_empty_value() {
 #[test]
 fn opt_default() {
     // assert no change to usual argument handling when adding default_missing_value()
-    let r = App::new("app")
+    let r = Command::new("app")
         .arg(
             arg!(o: -o [opt] "some opt")
                 .default_value("default")
@@ -96,7 +96,7 @@ fn opt_default() {
 #[test]
 fn opt_default_user_override() {
     // assert no change to usual argument handling when adding default_missing_value()
-    let r = App::new("app")
+    let r = Command::new("app")
         .arg(
             arg!(o: -o [opt] "some opt")
                 .default_value("default")
@@ -112,7 +112,7 @@ fn opt_default_user_override() {
 #[test]
 #[allow(clippy::bool_assert_comparison)]
 fn default_missing_value_flag_value() {
-    let app = App::new("test").arg(
+    let app = Command::new("test").arg(
         Arg::new("flag")
             .long("flag")
             .takes_value(true)
@@ -160,9 +160,9 @@ fn default_missing_value_flag_value() {
 #[test]
 #[should_panic = "Argument `arg`'s default_missing_value=value doesn't match possible values"]
 fn default_missing_values_are_possible_values() {
-    use clap::{App, Arg};
+    use clap::{Arg, Command};
 
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(
             Arg::new("arg")
                 .possible_values(["one", "two"])
@@ -175,9 +175,9 @@ fn default_missing_values_are_possible_values() {
 #[test]
 #[should_panic = "Argument `arg`'s default_missing_value=value failed validation: invalid digit found in string"]
 fn default_missing_values_are_valid() {
-    use clap::{App, Arg};
+    use clap::{Arg, Command};
 
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(
             Arg::new("arg")
                 .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))

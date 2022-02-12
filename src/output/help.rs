@@ -9,7 +9,7 @@ use std::{
 
 // Internal
 use crate::{
-    build::{display_arg_val, App, Arg},
+    build::{display_arg_val, Arg, Command},
     output::{fmt::Colorizer, Usage},
 };
 
@@ -22,7 +22,7 @@ use textwrap::core::display_width;
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
 pub(crate) struct Help<'help, 'app, 'writer> {
     writer: HelpWriter<'writer>,
-    app: &'app App<'help>,
+    app: &'app Command<'help>,
     usage: &'app Usage<'help, 'app>,
     next_line_help: bool,
     term_w: usize,
@@ -48,7 +48,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     /// Create a new `Help` instance.
     pub(crate) fn new(
         writer: HelpWriter<'writer>,
-        app: &'app App<'help>,
+        app: &'app Command<'help>,
         usage: &'app Usage<'help, 'app>,
         use_long: bool,
     ) -> Self {
@@ -656,7 +656,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     fn write_subcommand(
         &mut self,
         sc_str: &str,
-        app: &App<'help>,
+        app: &Command<'help>,
         next_line_help: bool,
         longest: usize,
     ) -> io::Result<()> {
@@ -673,7 +673,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
         self.help(false, about, spec_vals, next_line_help, longest)
     }
 
-    fn sc_spec_vals(&self, a: &App) -> String {
+    fn sc_spec_vals(&self, a: &Command) -> String {
         debug!("Help::sc_spec_vals: a={}", a.get_name());
         let mut spec_vals = vec![];
         if 0 < a.get_all_aliases().count() || 0 < a.get_all_short_flag_aliases().count() {
@@ -704,7 +704,12 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
         spec_vals.join(" ")
     }
 
-    fn subcommand_next_line_help(&self, app: &App<'help>, spec_vals: &str, longest: usize) -> bool {
+    fn subcommand_next_line_help(
+        &self,
+        app: &Command<'help>,
+        spec_vals: &str,
+        longest: usize,
+    ) -> bool {
         if self.next_line_help | self.use_long {
             // setting_next_line
             true
@@ -818,7 +823,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     /// Will use next line help on writing subcommands.
     fn will_subcommands_wrap<'a>(
         &self,
-        subcommands: impl IntoIterator<Item = &'a App<'help>>,
+        subcommands: impl IntoIterator<Item = &'a Command<'help>>,
         longest: usize,
     ) -> bool
     where
@@ -834,7 +839,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     }
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
-    fn write_subcommands(&mut self, app: &App<'help>) -> io::Result<()> {
+    fn write_subcommands(&mut self, app: &Command<'help>) -> io::Result<()> {
         debug!("Help::write_subcommands");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
@@ -895,9 +900,9 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
 impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     /// Write help to stream for the parser in the format defined by the template.
     ///
-    /// For details about the template language see [`App::help_template`].
+    /// For details about the template language see [`Command::help_template`].
     ///
-    /// [`App::help_template`]: App::help_template()
+    /// [`Command::help_template`]: Command::help_template()
     fn write_templated_help(&mut self, template: &str) -> io::Result<()> {
         debug!("Help::write_templated_help");
 
@@ -1022,7 +1027,7 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
         || arg.is_next_line_help_set()
 }
 
-fn should_show_subcommand(subcommand: &App) -> bool {
+fn should_show_subcommand(subcommand: &Command) -> bool {
     !subcommand.is_hide_set()
 }
 

@@ -1,8 +1,8 @@
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 #[test]
 fn single_short_arg_without_value() {
-    let app = App::new("app").ignore_errors(true).arg(arg!(
+    let app = Command::new("app").ignore_errors(true).arg(arg!(
         -c --config [FILE] "Sets a custom config file"
     ));
 
@@ -15,7 +15,7 @@ fn single_short_arg_without_value() {
 
 #[test]
 fn single_long_arg_without_value() {
-    let app = App::new("app").ignore_errors(true).arg(arg!(
+    let app = Command::new("app").ignore_errors(true).arg(arg!(
         -c --config [FILE] "Sets a custom config file"
     ));
 
@@ -28,7 +28,7 @@ fn single_long_arg_without_value() {
 
 #[test]
 fn multiple_args_and_final_arg_without_value() {
-    let app = App::new("app")
+    let app = Command::new("app")
         .ignore_errors(true)
         .arg(arg!(
             -c --config [FILE] "Sets a custom config file"
@@ -51,7 +51,7 @@ fn multiple_args_and_final_arg_without_value() {
 
 #[test]
 fn multiple_args_and_intermittent_arg_without_value() {
-    let app = App::new("app")
+    let app = Command::new("app")
         .ignore_errors(true)
         .arg(arg!(
             -c --config[FILE] "Sets a custom config file"
@@ -75,10 +75,10 @@ fn multiple_args_and_intermittent_arg_without_value() {
 
 #[test]
 fn subcommand() {
-    let app = App::new("test")
+    let app = Command::new("test")
         .ignore_errors(true)
         .subcommand(
-            App::new("some")
+            Command::new("some")
                 .arg(
                     Arg::new("test")
                         .short('t')

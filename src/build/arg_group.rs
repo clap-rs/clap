@@ -37,8 +37,8 @@ use yaml_rust::Yaml;
 /// the arguments from the specified group is present at runtime.
 ///
 /// ```rust
-/// # use clap::{App, arg, ArgGroup, ErrorKind};
-/// let result = App::new("app")
+/// # use clap::{Command, arg, ArgGroup, ErrorKind};
+/// let result = Command::new("app")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
 ///     .arg(arg!(--major           "auto increase major"))
 ///     .arg(arg!(--minor           "auto increase minor"))
@@ -55,8 +55,8 @@ use yaml_rust::Yaml;
 /// This next example shows a passing parse of the same scenario
 ///
 /// ```rust
-/// # use clap::{App, arg, ArgGroup};
-/// let result = App::new("app")
+/// # use clap::{Command, arg, ArgGroup};
+/// let result = Command::new("app")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
 ///     .arg(arg!(--major           "auto increase major"))
 ///     .arg(arg!(--minor           "auto increase minor"))
@@ -104,7 +104,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, ArgGroup};
+    /// # use clap::{Command, ArgGroup};
     /// ArgGroup::new("config")
     /// # ;
     /// ```
@@ -117,7 +117,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, ArgGroup};
+    /// # use clap::{Command, ArgGroup};
     /// ArgGroup::default().name("config")
     /// # ;
     /// ```
@@ -139,8 +139,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let m = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup};
+    /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -166,8 +166,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let m = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup};
+    /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -197,8 +197,8 @@ impl<'help> ArgGroup<'help> {
     /// group
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup};
-    /// let m = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup};
+    /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -214,8 +214,8 @@ impl<'help> ArgGroup<'help> {
     /// an error if more than one of the args in the group was used.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
-    /// let result = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -242,7 +242,7 @@ impl<'help> ArgGroup<'help> {
     /// This is unless conflicting with another argument.  A required group will be displayed in
     /// the usage string of the application in the format `<arg|arg2|arg3>`.
     ///
-    /// **NOTE:** This setting only applies to the current [`App`] / [`Subcommand`]s, and not
+    /// **NOTE:** This setting only applies to the current [`Command`] / [`Subcommand`]s, and not
     /// globally.
     ///
     /// **NOTE:** By default, [`ArgGroup::multiple`] is set to `false` which when combined with
@@ -253,8 +253,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
-    /// let result = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -271,7 +271,7 @@ impl<'help> ArgGroup<'help> {
     ///
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
-    /// [`App`]: crate::App
+    /// [`Command`]: crate::Command
     #[inline]
     #[must_use]
     pub fn required(mut self, yes: bool) -> Self {
@@ -290,8 +290,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
-    /// let result = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -327,8 +327,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
-    /// let result = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -368,8 +368,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
-    /// let result = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")
@@ -402,8 +402,8 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgGroup, ErrorKind};
-    /// let result = App::new("myprog")
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .arg(Arg::new("color")

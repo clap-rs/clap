@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App};
+use clap::{arg, Command};
 
 static EXAMPLE1_TMPL_S: &str = "{bin} {version}
 {author}
@@ -89,7 +89,7 @@ fn custom_template() {
 
 #[test]
 fn template_empty() {
-    let app = App::new("MyApp")
+    let app = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -99,7 +99,7 @@ fn template_empty() {
 
 #[test]
 fn template_notag() {
-    let app = App::new("MyApp")
+    let app = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -114,7 +114,7 @@ fn template_notag() {
 
 #[test]
 fn template_unknowntag() {
-    let app = App::new("MyApp")
+    let app = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -129,7 +129,7 @@ fn template_unknowntag() {
 
 #[test]
 fn template_author_version() {
-    let app = App::new("MyApp")
+    let app = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -144,8 +144,8 @@ fn template_author_version() {
 
 // ----------
 
-fn get_app() -> App<'static> {
-    App::new("MyApp")
+fn get_app() -> Command<'static> {
+    Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -162,7 +162,7 @@ fn get_app() -> App<'static> {
             d: -d ...           "Turn debugging information on"
         ))
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "lists test values")),
         )

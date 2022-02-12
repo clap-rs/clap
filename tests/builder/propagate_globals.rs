@@ -1,7 +1,7 @@
-use clap::{App, Arg, ArgMatches};
+use clap::{Arg, ArgMatches, Command};
 
-fn get_app() -> App<'static> {
-    App::new("myprog")
+fn get_app() -> Command<'static> {
+    Command::new("myprog")
         .arg(
             Arg::new("GLOBAL_ARG")
                 .long("global-arg")
@@ -17,10 +17,10 @@ fn get_app() -> App<'static> {
                 .global(true)
                 .multiple_occurrences(true),
         )
-        .subcommand(App::new("outer").subcommand(App::new("inner")))
+        .subcommand(Command::new("outer").subcommand(Command::new("inner")))
 }
 
-fn get_matches(app: App<'static>, argv: &'static str) -> ArgMatches {
+fn get_matches(app: Command<'static>, argv: &'static str) -> ArgMatches {
     app.try_get_matches_from(argv.split(' ').collect::<Vec<_>>())
         .unwrap()
 }

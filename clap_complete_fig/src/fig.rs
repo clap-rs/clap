@@ -13,7 +13,7 @@ impl Generator for Fig {
         format!("{}.ts", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &Command, buf: &mut dyn Write) {
         let command = app.get_bin_name().unwrap();
         let mut buffer = String::new();
 
@@ -45,7 +45,7 @@ fn gen_fig_inner(
     root_command: &str,
     parent_commands: &[&str],
     indent: usize,
-    app: &App,
+    app: &Command,
     buffer: &mut String,
 ) {
     if app.has_subcommands() {
@@ -105,7 +105,7 @@ fn gen_fig_inner(
     };
 }
 
-fn gen_options(app: &App, indent: usize) -> String {
+fn gen_options(app: &Command, indent: usize) -> String {
     let mut buffer = String::new();
 
     buffer.push_str(&format!("{:indent$}options: [\n", "", indent = indent));

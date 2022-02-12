@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, Arg};
+use clap::{arg, error::ErrorKind, Arg, Command};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -99,9 +99,9 @@ For more information try --help
 
 #[test]
 fn subcommand() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .subcommand(
-            App::new("some").arg(
+            Command::new("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -121,9 +121,9 @@ fn subcommand() {
 
 #[test]
 fn subcommand_none_given() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .subcommand(
-            App::new("some").arg(
+            Command::new("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -140,16 +140,16 @@ fn subcommand_none_given() {
 
 #[test]
 fn subcommand_multiple() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .subcommands(vec![
-            App::new("some").arg(
+            Command::new("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
             ),
-            App::new("add").arg(Arg::new("roster").short('r')),
+            Command::new("add").arg(Arg::new("roster").short('r')),
         ])
         .arg(Arg::new("other").long("other"))
         .try_get_matches_from(vec!["myprog", "some", "--test", "testing"])
@@ -165,11 +165,11 @@ fn subcommand_multiple() {
 
 #[test]
 fn subcommand_display_order() {
-    let app_subcmd_alpha_order = App::new("test").version("1").subcommands(vec![
-        App::new("b1")
+    let app_subcmd_alpha_order = Command::new("test").version("1").subcommands(vec![
+        Command::new("b1")
             .about("blah b1")
             .arg(Arg::new("test").short('t')),
-        App::new("a1")
+        Command::new("a1")
             .about("blah a1")
             .arg(Arg::new("roster").short('r')),
     ]);
@@ -181,14 +181,14 @@ fn subcommand_display_order() {
         false,
     ));
 
-    let app_subcmd_decl_order = App::new("test")
+    let app_subcmd_decl_order = Command::new("test")
         .version("1")
         .setting(clap::AppSettings::DeriveDisplayOrder)
         .subcommands(vec![
-            App::new("b1")
+            Command::new("b1")
                 .about("blah b1")
                 .arg(Arg::new("test").short('t')),
-            App::new("a1")
+            Command::new("a1")
                 .about("blah a1")
                 .arg(Arg::new("roster").short('r')),
         ]);
@@ -203,8 +203,8 @@ fn subcommand_display_order() {
 
 #[test]
 fn single_alias() {
-    let m = App::new("myprog")
-        .subcommand(App::new("test").alias("do-stuff"))
+    let m = Command::new("myprog")
+        .subcommand(Command::new("test").alias("do-stuff"))
         .try_get_matches_from(vec!["myprog", "do-stuff"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -212,8 +212,8 @@ fn single_alias() {
 
 #[test]
 fn multiple_aliases() {
-    let m = App::new("myprog")
-        .subcommand(App::new("test").aliases(&["do-stuff", "test-stuff"]))
+    let m = Command::new("myprog")
+        .subcommand(Command::new("test").aliases(&["do-stuff", "test-stuff"]))
         .try_get_matches_from(vec!["myprog", "test-stuff"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -222,16 +222,16 @@ fn multiple_aliases() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output() {
-    let app = App::new("dym").subcommand(App::new("subcmd"));
+    let app = Command::new("dym").subcommand(Command::new("subcmd"));
     assert!(utils::compare_output(app, "dym subcm", DYM_SUBCMD, true));
 }
 
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_ambiguous() {
-    let app = App::new("dym")
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"));
+    let app = Command::new("dym")
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"));
     assert!(utils::compare_output(
         app,
         "dym te",
@@ -256,8 +256,8 @@ USAGE:
 For more information try --help
 ";
 
-    let app = App::new("dym").subcommand(
-        App::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
+    let app = Command::new("dym").subcommand(
+        Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
     );
 
     assert!(utils::compare_output(
@@ -282,8 +282,8 @@ USAGE:
 For more information try --help
 ";
 
-    let app = App::new("dym").subcommand(
-        App::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
+    let app = Command::new("dym").subcommand(
+        Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
     );
 
     assert!(utils::compare_output(
@@ -296,8 +296,8 @@ For more information try --help
 
 #[test]
 fn alias_help() {
-    let m = App::new("myprog")
-        .subcommand(App::new("test").alias("do-stuff"))
+    let m = Command::new("myprog")
+        .subcommand(Command::new("test").alias("do-stuff"))
         .try_get_matches_from(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::DisplayHelp);
@@ -305,8 +305,8 @@ fn alias_help() {
 
 #[test]
 fn visible_aliases_help_output() {
-    let app = App::new("clap-test").version("2.6").subcommand(
-        App::new("test")
+    let app = Command::new("clap-test").version("2.6").subcommand(
+        Command::new("test")
             .about("Some help")
             .alias("invisible")
             .visible_alias("dongle")
@@ -322,9 +322,9 @@ fn visible_aliases_help_output() {
 
 #[test]
 fn invisible_aliases_help_output() {
-    let app = App::new("clap-test")
+    let app = Command::new("clap-test")
         .version("2.6")
-        .subcommand(App::new("test").about("Some help").alias("invisible"));
+        .subcommand(Command::new("test").about("Some help").alias("invisible"));
     assert!(utils::compare_output(
         app,
         "clap-test --help",
@@ -336,8 +336,10 @@ fn invisible_aliases_help_output() {
 #[test]
 #[cfg(feature = "unstable-replace")]
 fn replace() {
-    let m = App::new("prog")
-        .subcommand(App::new("module").subcommand(App::new("install").about("Install module")))
+    let m = Command::new("prog")
+        .subcommand(
+            Command::new("module").subcommand(Command::new("install").about("Install module")),
+        )
         .replace("install", &["module", "install"])
         .try_get_matches_from(vec!["prog", "install"])
         .unwrap();
@@ -351,9 +353,9 @@ fn replace() {
 
 #[test]
 fn issue_1031_args_with_same_name() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(arg!(--"ui-path" <PATH>))
-        .subcommand(App::new("signer"))
+        .subcommand(Command::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "signer"]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
@@ -363,9 +365,9 @@ fn issue_1031_args_with_same_name() {
 
 #[test]
 fn issue_1031_args_with_same_name_no_more_vals() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(arg!(--"ui-path" <PATH>))
-        .subcommand(App::new("signer"))
+        .subcommand(Command::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "value", "signer"]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
@@ -377,7 +379,7 @@ fn issue_1031_args_with_same_name_no_more_vals() {
 #[test]
 fn issue_1161_multiple_hyphen_hyphen() {
     // from example 22
-    let res = App::new("myprog")
+    let res = Command::new("myprog")
         .arg(Arg::new("eff").short('f'))
         .arg(Arg::new("pea").short('p').takes_value(true))
         .arg(
@@ -418,8 +420,8 @@ fn issue_1161_multiple_hyphen_hyphen() {
 
 #[test]
 fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
-    let m = App::new("myprog")
-        .subcommand(App::new("subcommand"))
+    let m = Command::new("myprog")
+        .subcommand(Command::new("subcommand"))
         .arg(Arg::new("argument"))
         .try_get_matches_from(vec!["myprog", "--", "subcommand"]);
     assert_eq!(m.unwrap().value_of("argument"), Some("subcommand"));
@@ -427,8 +429,8 @@ fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
 
 #[test]
 fn subcommand_placeholder_test() {
-    let mut app = App::new("myprog")
-        .subcommand(App::new("subcommand"))
+    let mut app = Command::new("myprog")
+        .subcommand(Command::new("subcommand"))
         .subcommand_value_name("TEST_PLACEHOLDER")
         .subcommand_help_heading("TEST_HEADER");
 
@@ -445,7 +447,7 @@ fn subcommand_placeholder_test() {
 
 #[test]
 fn subcommand_used_after_double_dash() {
-    let app = App::new("app").subcommand(App::new("subcmd"));
+    let app = Command::new("app").subcommand(Command::new("subcmd"));
 
     assert!(utils::compare_output(
         app,
@@ -457,9 +459,9 @@ fn subcommand_used_after_double_dash() {
 
 #[test]
 fn subcommand_after_argument() {
-    let m = App::new("myprog")
+    let m = Command::new("myprog")
         .arg(Arg::new("some_text"))
-        .subcommand(App::new("test"))
+        .subcommand(Command::new("test"))
         .try_get_matches_from(vec!["myprog", "teat", "test"])
         .unwrap();
     assert_eq!(m.value_of("some_text"), Some("teat"));
@@ -468,9 +470,9 @@ fn subcommand_after_argument() {
 
 #[test]
 fn subcommand_after_argument_looks_like_help() {
-    let m = App::new("myprog")
+    let m = Command::new("myprog")
         .arg(Arg::new("some_text"))
-        .subcommand(App::new("test"))
+        .subcommand(Command::new("test"))
         .try_get_matches_from(vec!["myprog", "helt", "test"])
         .unwrap();
     assert_eq!(m.value_of("some_text"), Some("helt"));
@@ -479,9 +481,9 @@ fn subcommand_after_argument_looks_like_help() {
 
 #[test]
 fn issue_2494_subcommand_is_present() {
-    let app = App::new("opt")
+    let app = Command::new("opt")
         .arg(Arg::new("global").long("global"))
-        .subcommand(App::new("global"));
+        .subcommand(Command::new("global"));
 
     let m = app
         .clone()
@@ -504,8 +506,8 @@ fn issue_2494_subcommand_is_present() {
 
 #[test]
 fn subcommand_not_recognized() {
-    let app = App::new("fake")
-        .subcommand(App::new("sub"))
+    let app = Command::new("fake")
+        .subcommand(Command::new("sub"))
         .disable_help_subcommand(true)
         .infer_subcommands(true);
     assert!(utils::compare_output(
@@ -525,12 +527,12 @@ For more information try --help
 #[cfg(feature = "unstable-multicall")]
 #[test]
 fn busybox_like_multicall() {
-    fn applet_commands() -> [App<'static>; 2] {
-        [App::new("true"), App::new("false")]
+    fn applet_commands() -> [Command<'static>; 2] {
+        [Command::new("true"), Command::new("false")]
     }
-    let app = App::new("busybox")
+    let app = Command::new("busybox")
         .multicall(true)
-        .subcommand(App::new("busybox").subcommands(applet_commands()))
+        .subcommand(Command::new("busybox").subcommands(applet_commands()))
         .subcommands(applet_commands());
 
     let m = app
@@ -551,10 +553,10 @@ fn busybox_like_multicall() {
 #[cfg(feature = "unstable-multicall")]
 #[test]
 fn hostname_like_multicall() {
-    let mut app = App::new("hostname")
+    let mut app = Command::new("hostname")
         .multicall(true)
-        .subcommand(App::new("hostname"))
-        .subcommand(App::new("dnsdomainname"));
+        .subcommand(Command::new("hostname"))
+        .subcommand(Command::new("dnsdomainname"));
 
     let m = app.clone().try_get_matches_from(&["hostname"]).unwrap();
     assert_eq!(m.subcommand_name(), Some("hostname"));

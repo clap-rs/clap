@@ -13,7 +13,7 @@ impl Generator for Bash {
         format!("{}.bash", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &Command, buf: &mut dyn Write) {
         let bin_name = app
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -72,7 +72,7 @@ complete -F _{name} -o bashdefault -o default {name}
     }
 }
 
-fn all_subcommands(app: &App) -> String {
+fn all_subcommands(app: &Command) -> String {
     debug!("all_subcommands");
 
     let mut subcmds = vec![String::new()];
@@ -97,7 +97,7 @@ fn all_subcommands(app: &App) -> String {
     subcmds.join("\n            ")
 }
 
-fn subcommand_details(app: &App) -> String {
+fn subcommand_details(app: &Command) -> String {
     debug!("subcommand_details");
 
     let mut subcmd_dets = vec![String::new()];
@@ -134,7 +134,7 @@ fn subcommand_details(app: &App) -> String {
     subcmd_dets.join("\n        ")
 }
 
-fn option_details_for_path(app: &App, path: &str) -> String {
+fn option_details_for_path(app: &Command, path: &str) -> String {
     debug!("option_details_for_path: path={}", path);
 
     let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());
@@ -187,7 +187,7 @@ fn vals_for(o: &Arg) -> String {
     }
 }
 
-fn all_options_for_path(app: &App, path: &str) -> String {
+fn all_options_for_path(app: &Command, path: &str) -> String {
     debug!("all_options_for_path: path={}", path);
 
     let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());

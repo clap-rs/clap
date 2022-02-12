@@ -1,4 +1,4 @@
-use clap::{error::ErrorKind, App, Arg};
+use clap::{error::ErrorKind, Arg, Command};
 
 static HELP: &str = "prog 
 
@@ -30,8 +30,8 @@ USAGE:
 For more information try --help
 ";
 
-fn app() -> App<'static> {
-    App::new("prog")
+fn app() -> Command<'static> {
+    Command::new("prog")
         .arg(
             Arg::new("a")
                 .short('a')

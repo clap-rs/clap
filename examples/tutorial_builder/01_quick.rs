@@ -1,4 +1,4 @@
-use clap::{app_from_crate, arg, App};
+use clap::{app_from_crate, arg, Command};
 use std::path::Path;
 
 fn main() {
@@ -17,7 +17,7 @@ fn main() {
             -d --debug ... "Turn debugging information on"
         ))
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "lists test values")),
         )

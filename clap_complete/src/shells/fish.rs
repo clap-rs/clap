@@ -15,7 +15,7 @@ impl Generator for Fish {
         format!("{}.fish", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &Command, buf: &mut dyn Write) {
         let bin_name = app
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -31,7 +31,12 @@ fn escape_string(string: &str) -> String {
     string.replace('\\', "\\\\").replace('\'', "\\'")
 }
 
-fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffer: &mut String) {
+fn gen_fish_inner(
+    root_command: &str,
+    parent_commands: &[&str],
+    app: &Command,
+    buffer: &mut String,
+) {
     debug!("gen_fish_inner");
     // example :
     //

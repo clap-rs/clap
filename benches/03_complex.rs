@@ -1,4 +1,4 @@
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 static OPT3_VALS: [&str; 2] = ["fast", "slow"];
@@ -6,7 +6,7 @@ static POS3_VALS: [&str; 2] = ["vi", "emacs"];
 
 macro_rules! create_app {
     () => {{
-        App::new("claptests")
+        Command::new("claptests")
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
@@ -35,7 +35,7 @@ macro_rules! create_app {
                 arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").max_values(3).multiple_values(true).required(false),
             ])
             .subcommand(
-                App::new("subcmd")
+                Command::new("subcmd")
                     .about("tests subcommands")
                     .version("0.1")
                     .author("Kevin K. <kbknapp@gmail.com>")
@@ -48,7 +48,7 @@ macro_rules! create_app {
 pub fn build_from_builder(c: &mut Criterion) {
     c.bench_function("build_from_builder", |b| {
         b.iter(|| {
-            App::new("claptests")
+            Command::new("claptests")
                 .version("0.1")
                 .about("tests clap library")
                 .author("Kevin K. <kbknapp@gmail.com>")
@@ -141,7 +141,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .max_values(3),
                 )
                 .subcommand(
-                    App::new("subcmd")
+                    Command::new("subcmd")
                         .about("tests subcommands")
                         .version("0.1")
                         .author("Kevin K. <kbknapp@gmail.com>")

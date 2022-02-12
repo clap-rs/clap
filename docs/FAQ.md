@@ -66,7 +66,7 @@ Previously, we supported:
 
 There are also experiments with other APIs:
 - [fncmd](https://github.com/yuhr/fncmd): function attribute
-- [clap-serde](https://github.com/aobatact/clap-serde): create an `App` from a deserializer
+- [clap-serde](https://github.com/aobatact/clap-serde): create an `Command` from a deserializer
 
 ### Why is there a default subcommand of help?
 

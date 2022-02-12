@@ -1,12 +1,12 @@
 //! Helpers for writing generators
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-pub fn all_subcommands(app: &App) -> Vec<(String, String)> {
+pub fn all_subcommands(app: &Command) -> Vec<(String, String)> {
     let mut subcmds: Vec<_> = subcommands(app);
 
     for sc_v in app.get_subcommands().map(all_subcommands) {
@@ -16,13 +16,13 @@ pub fn all_subcommands(app: &App) -> Vec<(String, String)> {
     subcmds
 }
 
-/// Finds the subcommand [`clap::App`] from the given [`clap::App`] with the given path.
+/// Finds the subcommand [`clap::Command`] from the given [`clap::Command`] with the given path.
 ///
 /// **NOTE:** `path` should not contain the root `bin_name`.
 pub fn find_subcommand_with_path<'help, 'app>(
-    p: &'app App<'help>,
+    p: &'app Command<'help>,
     path: Vec<&str>,
-) -> &'app App<'help> {
+) -> &'app Command<'help> {
     let mut app = p;
 
     for sc in path {
@@ -32,11 +32,11 @@ pub fn find_subcommand_with_path<'help, 'app>(
     app
 }
 
-/// Gets subcommands of [`clap::App`] in the form of `("name", "bin_name")`.
+/// Gets subcommands of [`clap::Command`] in the form of `("name", "bin_name")`.
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-pub fn subcommands(p: &App) -> Vec<(String, String)> {
+pub fn subcommands(p: &Command) -> Vec<(String, String)> {
     debug!("subcommands: name={}", p.get_name());
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
@@ -61,9 +61,9 @@ pub fn subcommands(p: &App) -> Vec<(String, String)> {
     subcmds
 }
 
-/// Gets all the short options, their visible aliases and flags of a [`clap::App`].
+/// Gets all the short options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `h` and `V` depending on the [`clap::AppSettings`].
-pub fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
+pub fn shorts_and_visible_aliases(p: &Command) -> Vec<char> {
     debug!("shorts: name={}", p.get_name());
 
     p.get_arguments()
@@ -86,9 +86,9 @@ pub fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
         .collect()
 }
 
-/// Gets all the long options, their visible aliases and flags of a [`clap::App`].
+/// Gets all the long options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `help` and `version` depending on the [`clap::AppSettings`].
-pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
+pub fn longs_and_visible_aliases(p: &Command) -> Vec<String> {
     debug!("longs: name={}", p.get_name());
 
     p.get_arguments()
@@ -116,9 +116,9 @@ pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
         .collect()
 }
 
-/// Gets all the flags of a [`clap::App`](App).
+/// Gets all the flags of a [`clap::Command`](Command).
 /// Includes `help` and `version` depending on the [`clap::AppSettings`].
-pub fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
+pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
     debug!("flags: name={}", p.get_name());
     p.get_arguments()
         .filter(|a| !a.is_takes_value_set() && !a.is_positional())
@@ -132,10 +132,10 @@ mod tests {
     use clap::Arg;
     use pretty_assertions::assert_eq;
 
-    fn common_app() -> App<'static> {
-        App::new("myapp")
+    fn common_app() -> Command<'static> {
+        Command::new("myapp")
             .subcommand(
-                App::new("test").subcommand(App::new("config")).arg(
+                Command::new("test").subcommand(Command::new("config")).arg(
                     Arg::new("file")
                         .short('f')
                         .short_alias('c')
@@ -144,18 +144,18 @@ mod tests {
                         .visible_alias("path"),
                 ),
             )
-            .subcommand(App::new("hello"))
+            .subcommand(Command::new("hello"))
             .bin_name("my-app")
     }
 
-    fn built() -> App<'static> {
+    fn built() -> Command<'static> {
         let mut app = common_app();
 
         app._build_all();
         app
     }
 
-    fn built_with_version() -> App<'static> {
+    fn built_with_version() -> Command<'static> {
         let mut app = common_app().version("3.0");
 
         app._build_all();

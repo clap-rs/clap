@@ -1,11 +1,11 @@
-use clap::{App, Arg, ValueHint};
+use clap::{Arg, Command, ValueHint};
 use clap_complete_fig::Fig;
 use completions::common;
 
 mod completions;
 
-pub fn build_app_with_value_hints() -> App<'static> {
-    App::new("my_app")
+pub fn build_app_with_value_hints() -> Command<'static> {
+    Command::new("my_app")
         .disable_version_flag(true)
         .trailing_var_arg(true)
         .arg(

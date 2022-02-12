@@ -1,8 +1,8 @@
-use clap::{arg, error::ErrorKind, App, Arg};
+use clap::{arg, error::ErrorKind, Arg, Command};
 
 #[test]
 fn flag_overrides_itself() {
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .arg(
             arg!(--flag  "some flag"
             )
@@ -17,7 +17,7 @@ fn flag_overrides_itself() {
 
 #[test]
 fn mult_flag_overrides_itself() {
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .arg(arg!(--flag ...  "some flag").overrides_with("flag"))
         .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -28,7 +28,7 @@ fn mult_flag_overrides_itself() {
 
 #[test]
 fn option_overrides_itself() {
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .arg(
             arg!(--opt <val> "some option")
                 .required(false)
@@ -44,7 +44,7 @@ fn option_overrides_itself() {
 
 #[test]
 fn mult_option_require_delim_overrides_itself() {
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .arg(
             arg!(--opt <val> ... "some option")
                 .required(false)
@@ -67,7 +67,7 @@ fn mult_option_require_delim_overrides_itself() {
 
 #[test]
 fn mult_option_overrides_itself() {
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .arg(
             arg!(--opt <val> ... "some option")
                 .required(false)
@@ -96,7 +96,7 @@ fn mult_option_overrides_itself() {
 
 #[test]
 fn option_use_delim_false_override_itself() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(--opt <val> "some option")
                 .required(false)
@@ -115,7 +115,7 @@ fn option_use_delim_false_override_itself() {
 #[test]
 fn pos_mult_overrides_itself() {
     // opts with multiple
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .arg(arg!([val] ... "some pos").overrides_with("val"))
         .try_get_matches_from(vec!["", "some", "other", "value"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -129,7 +129,7 @@ fn pos_mult_overrides_itself() {
 }
 #[test]
 fn posix_compatible_flags_long() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(arg!(--flag  "some flag").overrides_with("color"))
         .arg(arg!(--color "some other flag"))
         .try_get_matches_from(vec!["", "--flag", "--color"])
@@ -140,7 +140,7 @@ fn posix_compatible_flags_long() {
 
 #[test]
 fn posix_compatible_flags_long_rev() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(arg!(--flag  "some flag").overrides_with("color"))
         .arg(arg!(--color "some other flag"))
         .try_get_matches_from(vec!["", "--color", "--flag"])
@@ -151,7 +151,7 @@ fn posix_compatible_flags_long_rev() {
 
 #[test]
 fn posix_compatible_flags_short() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(arg!(-f --flag  "some flag").overrides_with("color"))
         .arg(arg!(-c --color "some other flag"))
         .try_get_matches_from(vec!["", "-f", "-c"])
@@ -162,7 +162,7 @@ fn posix_compatible_flags_short() {
 
 #[test]
 fn posix_compatible_flags_short_rev() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(arg!(-f --flag  "some flag").overrides_with("color"))
         .arg(arg!(-c --color "some other flag"))
         .try_get_matches_from(vec!["", "-c", "-f"])
@@ -173,7 +173,7 @@ fn posix_compatible_flags_short_rev() {
 
 #[test]
 fn posix_compatible_opts_long() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(--flag <flag> "some flag")
                 .required(false)
@@ -189,7 +189,7 @@ fn posix_compatible_opts_long() {
 
 #[test]
 fn posix_compatible_opts_long_rev() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(--flag <flag> "some flag")
                 .required(false)
@@ -205,7 +205,7 @@ fn posix_compatible_opts_long_rev() {
 
 #[test]
 fn posix_compatible_opts_long_equals() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(--flag <flag> "some flag")
                 .required(false)
@@ -221,7 +221,7 @@ fn posix_compatible_opts_long_equals() {
 
 #[test]
 fn posix_compatible_opts_long_equals_rev() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(--flag <flag> "some flag")
                 .required(false)
@@ -237,7 +237,7 @@ fn posix_compatible_opts_long_equals_rev() {
 
 #[test]
 fn posix_compatible_opts_short() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(f: -f <flag>  "some flag")
                 .required(false)
@@ -253,7 +253,7 @@ fn posix_compatible_opts_short() {
 
 #[test]
 fn posix_compatible_opts_short_rev() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .arg(
             arg!(f: -f <flag>  "some flag")
                 .required(false)
@@ -269,7 +269,7 @@ fn posix_compatible_opts_short_rev() {
 
 #[test]
 fn conflict_overridden() {
-    let m = App::new("conflict_overridden")
+    let m = Command::new("conflict_overridden")
         .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
@@ -282,7 +282,7 @@ fn conflict_overridden() {
 
 #[test]
 fn conflict_overridden_2() {
-    let result = App::new("conflict_overridden")
+    let result = Command::new("conflict_overridden")
         .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
@@ -296,7 +296,7 @@ fn conflict_overridden_2() {
 
 #[test]
 fn conflict_overridden_3() {
-    let result = App::new("conflict_overridden")
+    let result = Command::new("conflict_overridden")
         .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
@@ -308,7 +308,7 @@ fn conflict_overridden_3() {
 
 #[test]
 fn conflict_overridden_4() {
-    let m = App::new("conflict_overridden")
+    let m = Command::new("conflict_overridden")
         .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
@@ -321,7 +321,7 @@ fn conflict_overridden_4() {
 
 #[test]
 fn pos_required_overridden_by_flag() {
-    let result = App::new("require_overridden")
+    let result = Command::new("require_overridden")
         .arg(Arg::new("pos").index(1).required(true))
         .arg(arg!(-c --color "some flag").overrides_with("pos"))
         .try_get_matches_from(vec!["", "test", "-c"]);
@@ -330,7 +330,7 @@ fn pos_required_overridden_by_flag() {
 
 #[test]
 fn require_overridden_2() {
-    let m = App::new("require_overridden")
+    let m = Command::new("require_overridden")
         .arg(Arg::new("req_pos").required(true))
         .arg(arg!(-c --color "other flag").overrides_with("req_pos"))
         .try_get_matches_from(vec!["", "-c", "req_pos"])
@@ -341,7 +341,7 @@ fn require_overridden_2() {
 
 #[test]
 fn require_overridden_3() {
-    let m = App::new("require_overridden")
+    let m = Command::new("require_overridden")
         .arg(arg!(-f --flag "some flag").requires("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
@@ -354,7 +354,7 @@ fn require_overridden_3() {
 
 #[test]
 fn require_overridden_4() {
-    let result = App::new("require_overridden")
+    let result = Command::new("require_overridden")
         .arg(arg!(-f --flag "some flag").requires("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
@@ -366,7 +366,7 @@ fn require_overridden_4() {
 
 #[test]
 fn issue_1374_overrides_self_with_multiple_values() {
-    let app = App::new("test").arg(
+    let app = Command::new("test").arg(
         Arg::new("input")
             .long("input")
             .takes_value(true)
@@ -390,7 +390,7 @@ fn issue_1374_overrides_self_with_multiple_values() {
 
 #[test]
 fn incremental_override() {
-    let mut app = App::new("test")
+    let mut app = Command::new("test")
         .arg(arg!(--name <NAME>).multiple_occurrences(true))
         .arg(arg!(--"no-name").overrides_with("name"));
     let m = app

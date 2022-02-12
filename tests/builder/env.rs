@@ -3,13 +3,13 @@
 use std::env;
 use std::ffi::OsStr;
 
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 #[test]
 fn env() {
     env::set_var("CLP_TEST_ENV", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!([arg] "some opt").env("CLP_TEST_ENV").takes_value(true))
         .try_get_matches_from(vec![""]);
 
@@ -25,7 +25,7 @@ fn env_bool_literal() {
     env::set_var("CLP_TEST_FLAG_TRUE", "On");
     env::set_var("CLP_TEST_FLAG_FALSE", "nO");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(Arg::new("present").short('p').env("CLP_TEST_FLAG_TRUE"))
         .arg(Arg::new("negated").short('n').env("CLP_TEST_FLAG_FALSE"))
         .arg(Arg::new("absent").short('a').env("CLP_TEST_FLAG_ABSENT"))
@@ -44,7 +44,7 @@ fn env_bool_literal() {
 fn env_os() {
     env::set_var("CLP_TEST_ENV_OS", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env_os(OsStr::new("CLP_TEST_ENV_OS"))
@@ -65,7 +65,7 @@ fn no_env() {
     // we need another variable just in case one of the others is running at the same time...
     env::remove_var("CLP_TEST_ENV_NONE");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_NONE")
@@ -86,7 +86,7 @@ fn no_env_no_takes_value() {
     // we need another variable just in case one of the others is running at the same time...
     env::remove_var("CLP_TEST_ENV_NONE");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!([arg] "some opt").env("CLP_TEST_ENV_NONE"))
         .try_get_matches_from(vec![""]);
 
@@ -101,7 +101,7 @@ fn no_env_no_takes_value() {
 fn with_default() {
     env::set_var("CLP_TEST_ENV_WD", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_WD")
@@ -121,7 +121,7 @@ fn with_default() {
 fn opt_user_override() {
     env::set_var("CLP_TEST_ENV_OR", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!(--arg [FILE] "some arg")
                 .env("CLP_TEST_ENV_OR")
@@ -144,7 +144,7 @@ fn opt_user_override() {
 fn positionals() {
     env::set_var("CLP_TEST_ENV_P", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_P")
@@ -163,7 +163,7 @@ fn positionals() {
 fn positionals_user_override() {
     env::set_var("CLP_TEST_ENV_POR", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_POR")
@@ -186,7 +186,7 @@ fn positionals_user_override() {
 fn multiple_one() {
     env::set_var("CLP_TEST_ENV_MO", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MO")
@@ -207,7 +207,7 @@ fn multiple_one() {
 fn multiple_three() {
     env::set_var("CLP_TEST_ENV_MULTI1", "env1,env2,env3");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MULTI1")
@@ -231,7 +231,7 @@ fn multiple_three() {
 fn multiple_no_delimiter() {
     env::set_var("CLP_TEST_ENV_MULTI2", "env1 env2 env3");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MULTI2")
@@ -254,7 +254,7 @@ fn multiple_no_delimiter() {
 fn possible_value() {
     env::set_var("CLP_TEST_ENV_PV", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_PV")
@@ -274,7 +274,7 @@ fn possible_value() {
 fn not_possible_value() {
     env::set_var("CLP_TEST_ENV_NPV", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_NPV")
@@ -290,7 +290,7 @@ fn not_possible_value() {
 fn validator() {
     env::set_var("CLP_TEST_ENV_VDOR", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VDOR")
@@ -316,7 +316,7 @@ fn validator() {
 fn validator_output() {
     env::set_var("CLP_TEST_ENV_VO", "42");
 
-    let m = App::new("df")
+    let m = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VO")
@@ -333,7 +333,7 @@ fn validator_output() {
 fn validator_invalid() {
     env::set_var("CLP_TEST_ENV_IV", "env");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_IV")

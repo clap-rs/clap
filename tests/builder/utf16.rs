@@ -4,7 +4,7 @@
 
 #![cfg(windows)]
 
-use clap::{arg, App};
+use clap::{arg, Command};
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
@@ -22,7 +22,7 @@ fn bad_osstring(ascii: &[u8]) -> OsString {
 
 #[test]
 fn invalid_utf16_lossy_positional() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(<arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -33,7 +33,7 @@ fn invalid_utf16_lossy_positional() {
 
 #[test]
 fn invalid_utf16_lossy_option_short_space() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -48,7 +48,7 @@ fn invalid_utf16_lossy_option_short_space() {
 
 #[test]
 fn invalid_utf16_lossy_option_short_equals() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a=")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -59,7 +59,7 @@ fn invalid_utf16_lossy_option_short_equals() {
 
 #[test]
 fn invalid_utf16_lossy_option_short_no_space() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -70,7 +70,7 @@ fn invalid_utf16_lossy_option_short_no_space() {
 
 #[test]
 fn invalid_utf16_lossy_option_long_space() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -85,7 +85,7 @@ fn invalid_utf16_lossy_option_long_space() {
 
 #[test]
 fn invalid_utf16_lossy_option_long_equals() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"--arg=")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -96,7 +96,7 @@ fn invalid_utf16_lossy_option_long_equals() {
 
 #[test]
 fn invalid_utf16_positional() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(<arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -107,7 +107,7 @@ fn invalid_utf16_positional() {
 
 #[test]
 fn invalid_utf16_option_short_space() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -122,7 +122,7 @@ fn invalid_utf16_option_short_space() {
 
 #[test]
 fn invalid_utf16_option_short_equals() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a=")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -133,7 +133,7 @@ fn invalid_utf16_option_short_equals() {
 
 #[test]
 fn invalid_utf16_option_short_no_space() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -144,7 +144,7 @@ fn invalid_utf16_option_short_no_space() {
 
 #[test]
 fn invalid_utf16_option_long_space() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -159,7 +159,7 @@ fn invalid_utf16_option_long_space() {
 
 #[test]
 fn invalid_utf16_option_long_equals() {
-    let r = App::new("bad_utf16")
+    let r = Command::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"--arg=")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());

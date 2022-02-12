@@ -2,7 +2,7 @@
 
 use std::env;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 use crate::utils;
 
@@ -98,7 +98,7 @@ OPTIONS:
 fn hide_env() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -116,7 +116,7 @@ fn hide_env() {
 fn show_env() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -133,7 +133,7 @@ fn show_env() {
 fn hide_env_vals() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -156,7 +156,7 @@ fn hide_env_vals() {
 fn show_env_vals() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -178,7 +178,7 @@ fn show_env_vals() {
 fn hide_env_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -199,7 +199,7 @@ fn hide_env_flag() {
 fn show_env_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -219,7 +219,7 @@ fn show_env_flag() {
 fn hide_env_vals_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -240,7 +240,7 @@ fn hide_env_vals_flag() {
 fn show_env_vals_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let app = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")

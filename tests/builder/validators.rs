@@ -1,10 +1,10 @@
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Argument 'test' has both `validator` and `validator_os` set which is not allowed"]
 fn both_validator_and_validator_os() {
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(
             Arg::new("test")
                 .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
@@ -22,7 +22,7 @@ fn both_validator_and_validator_os() {
 fn test_validator_fromstr_trait() {
     use std::str::FromStr;
 
-    let matches = App::new("test")
+    let matches = Command::new("test")
         .arg(Arg::new("from_str").validator(u32::from_str))
         .try_get_matches_from(&["app", "1234"])
         .expect("match failed");
@@ -32,7 +32,7 @@ fn test_validator_fromstr_trait() {
 
 #[test]
 fn test_validator_msg_newline() {
-    let res = App::new("test")
+    let res = Command::new("test")
         .arg(Arg::new("test").validator(|val| val.parse::<u32>().map_err(|e| e.to_string())))
         .try_get_matches_from(&["app", "f"]);
 
@@ -54,7 +54,7 @@ fn test_validator_msg_newline() {
 #[test]
 fn stateful_validator() {
     let mut state = false;
-    App::new("test")
+    Command::new("test")
         .arg(Arg::new("test").validator(|val| {
             state = true;
             val.parse::<u32>().map_err(|e| e.to_string())

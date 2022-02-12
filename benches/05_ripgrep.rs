@@ -3,7 +3,7 @@
 //
 // CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -270,17 +270,17 @@ OPTIONS:
 {options}";
 
 /// Build a clap application with short help strings.
-fn app_short() -> App<'static> {
+fn app_short() -> Command<'static> {
     app(false, |k| USAGES[k].short)
 }
 
 /// Build a clap application with long help strings.
-fn app_long() -> App<'static> {
+fn app_long() -> Command<'static> {
     app(true, |k| USAGES[k].long)
 }
 
 /// Build the help text of an application.
-fn build_help(app: &mut App) -> String {
+fn build_help(app: &mut Command) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     app.write_help(&mut buf).unwrap();
     let content = buf.into_inner();
@@ -294,14 +294,14 @@ fn build_help(app: &mut App) -> String {
 ///
 /// This is an intentionally stand-alone module so that it can be used easily
 /// in a `build.rs` script to build shell completion files.
-fn app<F>(_next_line_help: bool, doc: F) -> App<'static>
+fn app<F>(_next_line_help: bool, doc: F) -> Command<'static>
 where
     F: Fn(&'static str) -> &'static str,
 {
     let arg = |name| Arg::new(name).help(doc(name));
     let flag = |name| arg(name).long(name);
 
-    App::new("ripgrep")
+    Command::new("ripgrep")
         .author("BurntSushi") // simulating since it's only a bench
         .version("0.4.0") // Simulating
         .about(ABOUT)

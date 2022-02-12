@@ -10,7 +10,7 @@ fn main() {
     println!("PORT = {}", port);
 }
 
-fn app() -> clap::App<'static> {
+fn app() -> clap::Command<'static> {
     app_from_crate!().arg(
         arg!(<PORT>)
             .help("Network port to use")

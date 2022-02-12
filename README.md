@@ -119,7 +119,7 @@ Why use the procedural [Builder API](https://github.com/clap-rs/clap/blob/v3.0.1
 
 - [wild](https://crates.io/crates/wild) for supporting wildcards (`*`) on Windows like you do Linux
 - [argfile](https://crates.io/crates/argfile) for loading additional arguments from a file (aka response files)
-- [shadow-rs](https://crates.io/crates/shadow-rs) for generating `App::long_version`
+- [shadow-rs](https://crates.io/crates/shadow-rs) for generating `Command::long_version`
 - [clap_mangen](https://crates.io/crates/clap_mangen) for generating man page source (roff)
 - [clap_complete](https://crates.io/crates/clap_complete) for shell completion support
 - [clap-verbosity-flag](https://crates.io/crates/clap-verbosity-flag)
@@ -150,8 +150,8 @@ Why use the procedural [Builder API](https://github.com/clap-rs/clap/blob/v3.0.1
 
 **Warning:** These may contain breaking changes between minor releases.
 
-* **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
-* **unstable-multicall**: Enable [`App::multicall`](https://github.com/clap-rs/clap/issues/2861)
+* **unstable-replace**: Enable [`Command::replace`](https://github.com/clap-rs/clap/issues/2836)
+* **unstable-multicall**: Enable [`Command::multicall`](https://github.com/clap-rs/clap/issues/2861)
 * **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
 
 ## Sponsors

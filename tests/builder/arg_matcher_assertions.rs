@@ -1,11 +1,11 @@
 #[cfg(debug_assertions)]
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 #[test]
 #[cfg(debug_assertions)]
 #[should_panic = "`f` is not a name of an argument or a group."]
 fn arg_matches_if_present_wrong_arg() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .arg(Arg::new("flag").short('f'))
         .try_get_matches_from(&["test", "-f"])
         .unwrap();
@@ -18,7 +18,7 @@ fn arg_matches_if_present_wrong_arg() {
 #[cfg(debug_assertions)]
 #[should_panic = "`o` is not a name of an argument or a group."]
 fn arg_matches_value_of_wrong_arg() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .arg(Arg::new("opt").short('o').takes_value(true))
         .try_get_matches_from(&["test", "-o", "val"])
         .unwrap();
@@ -31,8 +31,8 @@ fn arg_matches_value_of_wrong_arg() {
 #[cfg(debug_assertions)]
 #[should_panic = "`seed` is not a name of a subcommand."]
 fn arg_matches_subcommand_matches_wrong_sub() {
-    let m = App::new("test")
-        .subcommand(App::new("speed"))
+    let m = Command::new("test")
+        .subcommand(Command::new("speed"))
         .try_get_matches_from(&["test", "speed"])
         .unwrap();
 

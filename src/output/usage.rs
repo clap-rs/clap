@@ -2,19 +2,19 @@ use indexmap::IndexSet;
 
 // Internal
 use crate::build::AppSettings as AS;
-use crate::build::{App, Arg, ArgPredicate};
+use crate::build::{Arg, ArgPredicate, Command};
 use crate::parse::ArgMatcher;
 use crate::util::ChildGraph;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
 pub(crate) struct Usage<'help, 'app> {
-    app: &'app App<'help>,
+    app: &'app Command<'help>,
     required: Option<&'app ChildGraph<Id>>,
 }
 
 impl<'help, 'app> Usage<'help, 'app> {
-    pub(crate) fn new(app: &'app App<'help>) -> Self {
+    pub(crate) fn new(app: &'app Command<'help>) -> Self {
         Usage {
             app,
             required: None,

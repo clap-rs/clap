@@ -1246,8 +1246,8 @@ mod test {
 
     #[test]
     fn value_names_building_num_vals_from_usage() {
-        use crate::App;
-        let m = App::new("test")
+        use crate::Command;
+        let m = Command::new("test")
             .arg(Arg::from_usage("--pos <who> <what> <why>"))
             .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
@@ -1262,9 +1262,9 @@ mod test {
 
     #[test]
     fn issue_665() {
-        use crate::{error::ErrorKind, App};
+        use crate::{error::ErrorKind, Command};
         // Verify fix for "arg_from_usage(): required values not being enforced when followed by another option"
-        let res = App::new("tester")
+        let res = Command::new("tester")
         .arg(Arg::from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'"))
         .arg(
             Arg::from_usage("--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")

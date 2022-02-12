@@ -1,14 +1,14 @@
 //! This module contains traits that are usable with the `#[derive(...)].`
 //! macros in [`clap_derive`].
 
-use crate::{App, ArgMatches, Error, PossibleValue};
+use crate::{ArgMatches, Command, Error, PossibleValue};
 
 use std::ffi::OsString;
 
 /// Parse command-line arguments into `Self`.
 ///
 /// The primary one-stop-shop trait used to create an instance of a `clap`
-/// [`App`], conduct the parsing, and turn the resulting [`ArgMatches`] back
+/// [`Command`], conduct the parsing, and turn the resulting [`ArgMatches`] back
 /// into concrete instance of the user struct.
 ///
 /// This trait is primarily a convenience on top of [`FromArgMatches`] +
@@ -46,11 +46,11 @@ use std::ffi::OsString;
 /// }
 /// ```
 ///
-/// The equivalent [`App`] struct + `From` implementation:
+/// The equivalent [`Command`] struct + `From` implementation:
 ///
 /// ```rust
-/// # use clap::{App, Arg, ArgMatches};
-/// App::new("demo")
+/// # use clap::{Command, Arg, ArgMatches};
+/// Command::new("demo")
 ///     .about("My super CLI")
 ///     .arg(Arg::new("verbose")
 ///         .long("verbose")
@@ -154,14 +154,14 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
             .map_err(format_error::<Self>)
     }
 
-    /// Deprecated, `StructOpt::clap` replaced with [`IntoApp::into_app`] (derive as part of
+    /// Deprecated, `StructOpt::clap` replaced with [`IntoCommand::into_app`] (derive as part of
     /// [`Parser`])
     #[deprecated(
         since = "3.0.0",
-        note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
+        note = "`StructOpt::clap` is replaced with `IntoCommand::into_app` (derived as part of `Parser`)"
     )]
     #[doc(hidden)]
-    fn clap<'help>() -> App<'help> {
+    fn clap<'help>() -> Command<'help> {
         <Self as IntoApp>::into_app()
     }
 
@@ -226,18 +226,18 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     }
 }
 
-/// Create an [`App`] relevant for a user-defined container.
+/// Create an [`Command`] relevant for a user-defined container.
 ///
 /// Derived as part of [`Parser`].
 pub trait IntoApp: Sized {
-    /// Build an [`App`] that can instantiate `Self`.
+    /// Build an [`Command`] that can instantiate `Self`.
     ///
     /// See [`FromArgMatches::from_arg_matches`] for instantiating `Self`.
-    fn into_app<'help>() -> App<'help>;
-    /// Build an [`App`] that can update `self`.
+    fn into_app<'help>() -> Command<'help>;
+    /// Build an [`Command`] that can update `self`.
     ///
     /// See [`FromArgMatches::update_from_arg_matches`] for updating `self`.
-    fn into_app_for_update<'help>() -> App<'help>;
+    fn into_app_for_update<'help>() -> Command<'help>;
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
@@ -313,16 +313,16 @@ pub trait FromArgMatches: Sized {
 /// }
 /// ```
 pub trait Args: FromArgMatches + Sized {
-    /// Append to [`App`] so it can instantiate `Self`.
+    /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`IntoApp`].
-    fn augment_args(app: App<'_>) -> App<'_>;
-    /// Append to [`App`] so it can update `self`.
+    fn augment_args(app: Command<'_>) -> Command<'_>;
+    /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
     ///
     /// See also [`IntoApp`].
-    fn augment_args_for_update(app: App<'_>) -> App<'_>;
+    fn augment_args_for_update(app: Command<'_>) -> Command<'_>;
 }
 
 /// Parse a sub-command into a user-defined enum.
@@ -357,16 +357,16 @@ pub trait Args: FromArgMatches + Sized {
 /// }
 /// ```
 pub trait Subcommand: FromArgMatches + Sized {
-    /// Append to [`App`] so it can instantiate `Self`.
+    /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`IntoApp`].
-    fn augment_subcommands(app: App<'_>) -> App<'_>;
-    /// Append to [`App`] so it can update `self`.
+    fn augment_subcommands(app: Command<'_>) -> Command<'_>;
+    /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
     ///
     /// See also [`IntoApp`].
-    fn augment_subcommands_for_update(app: App<'_>) -> App<'_>;
+    fn augment_subcommands_for_update(app: Command<'_>) -> Command<'_>;
     /// Test whether `Self` can parse a specific subcommand
     fn has_subcommand(name: &str) -> bool;
 }
@@ -452,10 +452,10 @@ impl<T: Parser> Parser for Box<T> {
 }
 
 impl<T: IntoApp> IntoApp for Box<T> {
-    fn into_app<'help>() -> App<'help> {
+    fn into_app<'help>() -> Command<'help> {
         <T as IntoApp>::into_app()
     }
-    fn into_app_for_update<'help>() -> App<'help> {
+    fn into_app_for_update<'help>() -> Command<'help> {
         <T as IntoApp>::into_app_for_update()
     }
 }
@@ -470,19 +470,19 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
 }
 
 impl<T: Args> Args for Box<T> {
-    fn augment_args(app: App<'_>) -> App<'_> {
+    fn augment_args(app: Command<'_>) -> Command<'_> {
         <T as Args>::augment_args(app)
     }
-    fn augment_args_for_update(app: App<'_>) -> App<'_> {
+    fn augment_args_for_update(app: Command<'_>) -> Command<'_> {
         <T as Args>::augment_args_for_update(app)
     }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn augment_subcommands(app: App<'_>) -> App<'_> {
+    fn augment_subcommands(app: Command<'_>) -> Command<'_> {
         <T as Subcommand>::augment_subcommands(app)
     }
-    fn augment_subcommands_for_update(app: App<'_>) -> App<'_> {
+    fn augment_subcommands_for_update(app: Command<'_>) -> Command<'_> {
         <T as Subcommand>::augment_subcommands_for_update(app)
     }
     fn has_subcommand(name: &str) -> bool {

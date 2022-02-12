@@ -38,7 +38,7 @@ pub fn arg_enum(input: TokenStream) -> TokenStream {
 
 /// Generates the `Parser` implementation.
 ///
-/// This is far less verbose than defining the `clap::App` struct manually,
+/// This is far less verbose than defining the `clap::Command` struct manually,
 /// receiving an instance of `clap::ArgMatches` from conducting parsing, and then
 /// implementing a conversion code to instantiate an instance of the user
 /// context struct.
