@@ -4804,6 +4804,7 @@ impl<'help> Arg<'help> {
 impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::new`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")]
+    #[doc(hidden)]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
     }
@@ -4814,6 +4815,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
     )]
+    #[doc(hidden)]
     pub fn from_yaml(y: &'help Yaml) -> Self {
         #![allow(deprecated)]
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
@@ -4883,12 +4885,14 @@ impl<'help> Arg<'help> {
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[doc(hidden)]
     pub fn from_usage(u: &'help str) -> Self {
         UsageParser::from_usage(u).parse()
     }
 
     /// Deprecated, replaced with [`Arg::required_unless_present`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn required_unless<T: Key>(self, arg_id: T) -> Self {
         self.required_unless_present(arg_id)
@@ -4899,6 +4903,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_all`"
     )]
+    #[doc(hidden)]
     #[must_use]
     pub fn required_unless_all<T, I>(self, names: I) -> Self
     where
@@ -4913,6 +4918,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_any`"
     )]
+    #[doc(hidden)]
     #[must_use]
     pub fn required_unless_one<T, I>(self, names: I) -> Self
     where
@@ -4924,6 +4930,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::required_if_eq`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn required_if<T: Key>(self, arg_id: T, val: &'help str) -> Self {
         self.required_if_eq(arg_id, val)
@@ -4931,6 +4938,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::required_if_eq_any`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn required_ifs<T: Key>(self, ifs: &[(T, &'help str)]) -> Self {
         self.required_if_eq_any(ifs)
@@ -4938,6 +4946,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::hide`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")]
+    #[doc(hidden)]
     #[inline]
     #[must_use]
     pub fn hidden(self, yes: bool) -> Self {
@@ -4946,6 +4955,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::ignore_case`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")]
+    #[doc(hidden)]
     #[inline]
     #[must_use]
     pub fn case_insensitive(self, yes: bool) -> Self {
@@ -4954,6 +4964,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::forbid_empty_values`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn empty_values(self, yes: bool) -> Self {
         self.forbid_empty_values(!yes)
@@ -4965,6 +4976,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
     )]
+    #[doc(hidden)]
     #[must_use]
     pub fn multiple(self, yes: bool) -> Self {
         self.multiple_occurrences(yes).multiple_values(yes)
@@ -4972,6 +4984,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::hide_short_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")]
+    #[doc(hidden)]
     #[inline]
     #[must_use]
     pub fn hidden_short_help(self, yes: bool) -> Self {
@@ -4980,6 +4993,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::hide_long_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")]
+    #[doc(hidden)]
     #[inline]
     #[must_use]
     pub fn hidden_long_help(self, yes: bool) -> Self {
@@ -4988,6 +5002,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::setting`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn set(self, s: ArgSettings) -> Self {
         self.setting(s)
@@ -4995,6 +5010,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::unset_setting`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn unset(self, s: ArgSettings) -> Self {
         self.unset_setting(s)

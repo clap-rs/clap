@@ -151,6 +151,7 @@ impl Error {
     ///
     /// [`App::error`]: crate::App::error
     #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
+    #[doc(hidden)]
     pub fn with_description(description: String, kind: ErrorKind) -> Self {
         Error::raw(kind, description)
     }

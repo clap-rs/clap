@@ -3615,6 +3615,7 @@ impl<'help> App<'help> {
         since = "3.0.0",
         note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
     )]
+    #[doc(hidden)]
     pub fn from_yaml(y: &'help Yaml) -> Self {
         #![allow(deprecated)]
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
@@ -3702,6 +3703,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::override_usage`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::override_usage`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn usage<S: Into<&'help str>>(self, usage: S) -> Self {
         self.override_usage(usage)
@@ -3709,6 +3711,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::override_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::override_help`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn help<S: Into<&'help str>>(self, help: S) -> Self {
         self.override_help(help)
@@ -3716,6 +3719,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn help_short(self, c: char) -> Self {
         self.mut_arg("help", |a| a.short(c))
@@ -3723,6 +3727,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn version_short(self, c: char) -> Self {
         self.mut_arg("version", |a| a.short(c))
@@ -3730,6 +3735,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn help_message(self, s: impl Into<&'help str>) -> Self {
         self.mut_arg("help", |a| a.help(s.into()))
@@ -3737,6 +3743,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn version_message(self, s: impl Into<&'help str>) -> Self {
         self.mut_arg("version", |a| a.help(s.into()))
@@ -3744,6 +3751,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::help_template`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::help_template`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn template<S: Into<&'help str>>(self, s: S) -> Self {
         self.help_template(s)
@@ -3751,6 +3759,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::setting(a| b)`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::setting(a | b)`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
@@ -3761,6 +3770,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::unset_setting(a| b)`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::unset_setting(a | b)`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
@@ -3771,6 +3781,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::global_setting(a| b)`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::global_setting(a | b)`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
@@ -3782,6 +3793,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::term_width`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::term_width`")]
+    #[doc(hidden)]
     #[must_use]
     pub fn set_term_width(self, width: usize) -> Self {
         self.term_width(width)
@@ -3789,6 +3801,7 @@ impl<'help> App<'help> {
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[doc(hidden)]
     #[must_use]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
         #![allow(deprecated)]
@@ -3797,6 +3810,7 @@ impl<'help> App<'help> {
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[doc(hidden)]
     #[must_use]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
         #![allow(deprecated)]
@@ -3812,24 +3826,28 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::render_version`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")]
+    #[doc(hidden)]
     pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_version()).map_err(From::from)
     }
 
     /// Deprecated, replaced with [`App::render_long_version`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")]
+    #[doc(hidden)]
     pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_long_version()).map_err(From::from)
     }
 
     /// Deprecated, replaced with [`App::try_get_matches`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches`")]
+    #[doc(hidden)]
     pub fn get_matches_safe(self) -> ClapResult<ArgMatches> {
         self.try_get_matches()
     }
 
     /// Deprecated, replaced with [`App::try_get_matches_from`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches_from`")]
+    #[doc(hidden)]
     pub fn get_matches_from_safe<I, T>(self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,
@@ -3843,6 +3861,7 @@ impl<'help> App<'help> {
         since = "3.0.0",
         note = "Replaced with `App::try_get_matches_from_mut`"
     )]
+    #[doc(hidden)]
     pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,
