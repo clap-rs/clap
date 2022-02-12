@@ -4,6 +4,7 @@
     since = "3.0.0",
     note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
 )]
+#[doc(hidden)]
 #[macro_export]
 macro_rules! load_yaml {
     ($yaml:expr) => {
@@ -15,6 +16,7 @@ macro_rules! load_yaml {
 /// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
+#[doc(hidden)]
 macro_rules! value_t {
     ($m:ident, $v:expr, $t:ty) => {
         $crate::value_t!($m.value_of($v), $t)
@@ -30,6 +32,7 @@ macro_rules! value_t {
     since = "3.0.0",
     note = "Replaced with `ArgMatches::value_of_t_or_exit`"
 )]
+#[doc(hidden)]
 macro_rules! value_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
         value_t_or_exit!($m.value_of($v), $t)
@@ -42,6 +45,7 @@ macro_rules! value_t_or_exit {
 /// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
+#[doc(hidden)]
 macro_rules! values_t {
     ($m:ident, $v:expr, $t:ty) => {
         values_t!($m.values_of($v), $t)
@@ -57,6 +61,7 @@ macro_rules! values_t {
     since = "3.0.0",
     note = "Replaced with `ArgMatches::values_of_t_or_exit`"
 )]
+#[doc(hidden)]
 macro_rules! values_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
         values_t_or_exit!($m.values_of($v), $t)
@@ -68,6 +73,7 @@ macro_rules! values_t_or_exit {
 
 /// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[doc(hidden)]
 #[macro_export]
 macro_rules! arg_enum {
     (@as_item $($i:item)*) => ($($i)*);
@@ -632,6 +638,7 @@ macro_rules! arg {
     since = "3.0.0",
     note = "Replaced with `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)"
 )]
+#[doc(hidden)]
 #[macro_export]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };

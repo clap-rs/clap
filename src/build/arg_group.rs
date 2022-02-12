@@ -434,6 +434,7 @@ impl<'help> ArgGroup<'help> {
 
     /// Deprecated, replaced with [`ArgGroup::new`]
     #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")]
+    #[doc(hidden)]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
     }
@@ -444,6 +445,7 @@ impl<'help> ArgGroup<'help> {
         since = "3.0.0",
         note = "Maybe clap::Parser would fit your use case? (Issue #3087)"
     )]
+    #[doc(hidden)]
     pub fn from_yaml(yaml: &'help Yaml) -> Self {
         Self::from(yaml)
     }

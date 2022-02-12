@@ -57,6 +57,7 @@ pub enum ArgSettings {
         since = "3.0.0",
         note = "Split into `ArgSettings::MultipleOccurrences` (most likely what you want)  and `ArgSettings::MultipleValues`"
     )]
+    #[doc(hidden)]
     Multiple,
     /// Deprecated, replaced with [`Arg::forbid_empty_values`] and
     /// [`Arg::is_forbid_empty_values_set`]
@@ -122,6 +123,7 @@ pub enum ArgSettings {
         since = "3.0.0",
         note = "Replaced with `ArgSettings::AllowHyphenValues`"
     )]
+    #[doc(hidden)]
     AllowLeadingHyphen,
     /// Deprecated, replaced with [`Arg::require_equals`] and [`Arg::is_require_equals_set`]
     #[deprecated(
@@ -149,6 +151,7 @@ pub enum ArgSettings {
     IgnoreCase,
     /// Deprecated, replaced with [`ArgSettings::IgnoreCase`]
     #[deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")]
+    #[doc(hidden)]
     CaseInsensitive,
     /// Deprecated, replaced with [`Arg::hide_env`] and [`Arg::is_hide_env_set`]
     #[deprecated(

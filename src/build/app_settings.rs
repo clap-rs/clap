@@ -342,6 +342,7 @@ pub enum AppSettings {
         since = "3.0.0",
         note = "Replaced with `AppSettings::AllowHyphenValues`"
     )]
+    #[doc(hidden)]
     AllowLeadingHyphen,
 
     /// Deprecated, this is now the default, see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8] for the opposite.
@@ -349,30 +350,37 @@ pub enum AppSettings {
         since = "3.0.0",
         note = "This is now the default see `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8` for the opposite."
     )]
+    #[doc(hidden)]
     StrictUtf8,
 
     /// Deprecated, this is now the default
     #[deprecated(since = "3.0.0", note = "This is now the default")]
+    #[doc(hidden)]
     UnifiedHelpMessage,
 
     /// Deprecated, this is now the default
     #[deprecated(since = "3.0.0", note = "This is now the default")]
+    #[doc(hidden)]
     ColoredHelp,
 
     /// Deprecated, see [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    #[doc(hidden)]
     ColorAuto,
 
     /// Deprecated, replaced with [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    #[doc(hidden)]
     ColorAlways,
 
     /// Deprecated, replaced with [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    #[doc(hidden)]
     ColorNever,
 
     /// Deprecated, replaced with [`AppSettings::DisableHelpFlag`]
     #[deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")]
+    #[doc(hidden)]
     DisableHelpFlags,
 
     /// Deprecated, replaced with [`AppSettings::DisableVersionFlag`]
@@ -380,6 +388,7 @@ pub enum AppSettings {
         since = "3.0.0",
         note = "Replaced with `AppSettings::DisableVersionFlag`"
     )]
+    #[doc(hidden)]
     DisableVersion,
 
     /// Deprecated, replaced with [`AppSettings::PropagateVersion`]
@@ -387,6 +396,7 @@ pub enum AppSettings {
         since = "3.0.0",
         note = "Replaced with `AppSettings::PropagateVersion`"
     )]
+    #[doc(hidden)]
     GlobalVersion,
 
     /// Deprecated, replaced with [`AppSettings::HidePossibleValues`]
@@ -394,10 +404,12 @@ pub enum AppSettings {
         since = "3.0.0",
         note = "Replaced with AppSettings::HidePossibleValues"
     )]
+    #[doc(hidden)]
     HidePossibleValuesInHelp,
 
     /// Deprecated, this is now the default
     #[deprecated(since = "3.0.0", note = "This is now the default")]
+    #[doc(hidden)]
     UnifiedHelp,
 
     /// If the app is already built, used for caching.

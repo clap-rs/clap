@@ -160,6 +160,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         since = "3.0.0",
         note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
     )]
+    #[doc(hidden)]
     fn clap<'help>() -> App<'help> {
         <Self as IntoApp>::into_app()
     }
@@ -170,6 +171,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         since = "3.0.0",
         note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches` (derived as part of `Parser`)"
     )]
+    #[doc(hidden)]
     fn from_clap(matches: &ArgMatches) -> Self {
         <Self as FromArgMatches>::from_arg_matches(matches).unwrap()
     }
@@ -179,6 +181,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         since = "3.0.0",
         note = "`StructOpt::from_args` is replaced with `Parser::parse` (note the change in derives)"
     )]
+    #[doc(hidden)]
     fn from_args() -> Self {
         Self::parse()
     }
@@ -188,6 +191,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         since = "3.0.0",
         note = "`StructOpt::from_args_safe` is replaced with `Parser::try_parse` (note the change in derives)"
     )]
+    #[doc(hidden)]
     fn from_args_safe() -> Result<Self, Error> {
         Self::try_parse()
     }
@@ -197,6 +201,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         since = "3.0.0",
         note = "`StructOpt::from_iter` is replaced with `Parser::parse_from` (note the change in derives)"
     )]
+    #[doc(hidden)]
     fn from_iter<I, T>(itr: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -211,6 +216,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         since = "3.0.0",
         note = "`StructOpt::from_iter_safe` is replaced with `Parser::try_parse_from` (note the change in derives)"
     )]
+    #[doc(hidden)]
     fn from_iter_safe<I, T>(itr: I) -> Result<Self, Error>
     where
         I: IntoIterator<Item = T>,

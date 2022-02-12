@@ -44,6 +44,7 @@ pub use crate::error::{ErrorKind, Result};
     since = "3.0.0",
     note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
 )]
+#[doc(hidden)]
 pub use yaml_rust::YamlLoader;
 
 #[cfg(feature = "derive")]
@@ -52,6 +53,7 @@ pub use clap_derive::{self, *};
 
 /// Deprecated, replaced with [`Parser`]
 #[deprecated(since = "3.0.0", note = "Replaced with `Parser`")]
+#[doc(hidden)]
 pub use Parser as StructOpt;
 
 #[cfg(any(feature = "derive", feature = "cargo"))]
@@ -84,6 +86,7 @@ const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
     since = "3.0.0",
     note = "Replaced with `App::new` unless you intended the `Subcommand` trait"
 )]
+#[doc(hidden)]
 #[derive(Debug, Copy, Clone)]
 pub struct SubCommand {}
 
@@ -92,6 +95,7 @@ impl SubCommand {
     /// Deprecated, replaced with [`App::new`].
     /// Did you mean Subcommand (lower-case c)?
     #[deprecated(since = "3.0.0", note = "Replaced with `App::new`")]
+    #[doc(hidden)]
     pub fn with_name<'help>(name: &str) -> App<'help> {
         App::new(name)
     }
@@ -102,6 +106,7 @@ impl SubCommand {
         since = "3.0.0",
         note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
     )]
+    #[doc(hidden)]
     pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {
         #![allow(deprecated)]
         App::from_yaml(yaml)
