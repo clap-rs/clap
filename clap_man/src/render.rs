@@ -141,8 +141,6 @@ pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
         }
 
         roff.control("TP", []);
-        dbg!(&header);
-        dbg!(&body);
         roff.text(header);
     }
 
