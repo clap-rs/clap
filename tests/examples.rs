@@ -4,10 +4,6 @@
 fn example_tests() {
     let t = trycmd::TestCases::new();
     let features = [
-        #[cfg(feature = "debug")]
-        "debug",
-        #[cfg(feature = "unstable-doc")]
-        "unstable-doc",
         #[cfg(feature = "std")]
         "std",
         #[cfg(feature = "derive")]
