@@ -19,12 +19,12 @@ impl ArgMatcher {
         ArgMatcher(ArgMatches {
             #[cfg(debug_assertions)]
             valid_args: {
-                let args = _app.args.args().map(|a| a.id.clone());
-                let groups = _app.groups.iter().map(|g| g.id.clone());
+                let args = _app.get_arguments().map(|a| a.id.clone());
+                let groups = _app.get_groups().map(|g| g.id.clone());
                 args.chain(groups).collect()
             },
             #[cfg(debug_assertions)]
-            valid_subcommands: _app.subcommands.iter().map(|sc| sc.id.clone()).collect(),
+            valid_subcommands: _app.get_subcommands().map(|sc| sc.get_id()).collect(),
             // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
             // since users can't detect it and avoid the asserts.
             //

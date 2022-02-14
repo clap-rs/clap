@@ -182,7 +182,7 @@ impl Error {
     }
 
     pub(crate) fn with_app(self, app: &App) -> Self {
-        self.set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
+        self.set_wait_on_exit(app.is_set(AppSettings::WaitOnError))
             .set_color(app.get_color())
             .set_help_flag(get_help_flag(app))
     }
@@ -1047,9 +1047,9 @@ fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
 }
 
 fn get_help_flag(app: &App) -> Option<&'static str> {
-    if !app.settings.is_set(AppSettings::DisableHelpFlag) {
+    if !app.is_disable_help_flag_set() {
         Some("--help")
-    } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
+    } else if app.has_subcommands() && !app.is_disable_help_subcommand_set() {
         Some("help")
     } else {
         None

@@ -2,7 +2,7 @@ use clap::AppSettings;
 use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(app: &clap::App) -> String {
-    match app.get_subommand_help_heading() {
+    match app.get_subcommand_help_heading() {
         Some(title) => title.to_string(),
         None => "SUBCOMMANDS".to_string(),
     }
