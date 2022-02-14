@@ -687,9 +687,8 @@ impl<'help> App<'help> {
         let color = self.get_color();
 
         let mut c = Colorizer::new(false, color);
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, false).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help()?;
         c.print()
     }
 
@@ -713,9 +712,8 @@ impl<'help> App<'help> {
         let color = self.get_color();
 
         let mut c = Colorizer::new(false, color);
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, true).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help()?;
         c.print()
     }
 
@@ -738,9 +736,8 @@ impl<'help> App<'help> {
     pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Normal(w), parser.app, &usage, false).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Normal(w), self, &usage, false).write_help()?;
         w.flush()
     }
 
@@ -763,9 +760,8 @@ impl<'help> App<'help> {
     pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Normal(w), parser.app, &usage, true).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Normal(w), self, &usage, true).write_help()?;
         w.flush()
     }
 
@@ -832,8 +828,7 @@ impl<'help> App<'help> {
         // before parsing incase we run into a subcommand
         self._build();
 
-        let parser = Parser::new(self);
-        Usage::new(parser.app, &parser.required).create_usage_with_title(&[])
+        Usage::new(self).create_usage_with_title(&[])
     }
 }
 

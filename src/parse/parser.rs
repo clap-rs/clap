@@ -18,12 +18,11 @@ use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
-use crate::util::{color::ColorChoice, ChildGraph, Id};
+use crate::util::{color::ColorChoice, Id};
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'app> {
     pub(crate) app: &'app mut App<'help>,
-    pub(crate) required: ChildGraph<Id>,
     pub(crate) overridden: RefCell<Vec<Id>>,
     seen: Vec<Id>,
     cur_idx: Cell<usize>,
@@ -37,11 +36,8 @@ pub(crate) struct Parser<'help, 'app> {
 // Initializing Methods
 impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn new(app: &'app mut App<'help>) -> Self {
-        let reqs = app.required_graph();
-
         Parser {
             app,
-            required: reqs,
             overridden: Default::default(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
@@ -239,7 +235,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                             return Err(ClapError::no_equals(
                                 self.app,
                                 arg,
-                                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                                Usage::new(self.app).create_usage_with_title(&[]),
                             ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
@@ -254,7 +250,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 self.app,
                                 rest,
                                 arg,
-                                Usage::new(self.app, &self.required).create_usage_no_title(&used),
+                                Usage::new(self.app).create_usage_no_title(&used),
                             ))
                         }
                         ParseResult::HelpFlag => {
@@ -328,7 +324,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                             return Err(ClapError::no_equals(
                                 self.app,
                                 arg,
-                                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                                Usage::new(self.app).create_usage_with_title(&[]),
                             ))
                         }
                         ParseResult::NoMatchingArg { arg } => {
@@ -336,7 +332,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 self.app,
                                 arg,
                                 None,
-                                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                                Usage::new(self.app).create_usage_with_title(&[]),
                             ));
                         }
                         ParseResult::HelpFlag => {
@@ -381,7 +377,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         self.app,
                         arg_os.to_str_lossy().into_owned(),
                         None,
-                        Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                        Usage::new(self.app).create_usage_with_title(&[]),
                     ));
                 }
 
@@ -422,7 +418,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     None => {
                         return Err(ClapError::invalid_utf8(
                             self.app,
-                            Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                            Usage::new(self.app).create_usage_with_title(&[]),
                         ));
                     }
                 };
@@ -437,7 +433,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.app,
-                            Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                            Usage::new(self.app).create_usage_with_title(&[]),
                         ));
                     }
                     sc_m.add_val_to(
@@ -490,7 +486,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 return ClapError::unnecessary_double_dash(
                     self.app,
                     arg_os.to_str_lossy().into_owned(),
-                    Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                    Usage::new(self.app).create_usage_with_title(&[]),
                 );
             }
         }
@@ -511,7 +507,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     .as_ref()
                     .unwrap_or(&self.app.name)
                     .to_string(),
-                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+                Usage::new(self.app).create_usage_with_title(&[]),
             );
         }
         // If the argument must be a subcommand.
@@ -531,7 +527,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app,
             arg_os.to_str_lossy().into_owned(),
             None,
-            Usage::new(self.app, &self.required).create_usage_with_title(&[]),
+            Usage::new(self.app).create_usage_with_title(&[]),
         )
     }
 
@@ -679,8 +675,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut mid_string = String::from(" ");
 
         if !self.app.is_subcommand_negates_reqs_set() {
-            let reqs =
-                Usage::new(self.app, &self.required).get_required_usage_from(&[], None, true); // maybe Some(m)
+            let reqs = Usage::new(self.app).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
                 mid_string.push_str(s);
@@ -908,13 +903,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                 );
                 self.parse_opt(val, opt, matcher, trailing_values)
             } else if let Some(rest) = val {
+                let required = self.app.required_graph();
                 debug!("Parser::parse_long_arg: Got invalid literal `{:?}`", rest);
                 let used: Vec<Id> = matcher
                     .arg_names()
                     .filter(|&n| {
-                        self.app.find(n).map_or(true, |a| {
-                            !(a.is_hide_set() || self.required.contains(&a.id))
-                        })
+                        self.app
+                            .find(n)
+                            .map_or(true, |a| !(a.is_hide_set() || required.contains(&a.id)))
                     })
                     .cloned()
                     .collect();
@@ -1509,12 +1505,13 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
 
+        let required = self.app.required_graph();
         let used: Vec<Id> = matcher
             .arg_names()
             .filter(|n| {
-                self.app.find(n).map_or(true, |a| {
-                    !(self.required.contains(&a.id) || a.is_hide_set())
-                })
+                self.app
+                    .find(n)
+                    .map_or(true, |a| !(required.contains(&a.id) || a.is_hide_set()))
             })
             .cloned()
             .collect();
@@ -1523,12 +1520,14 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app,
             format!("--{}", arg),
             did_you_mean,
-            Usage::new(self.app, &self.required).create_usage_with_title(&*used),
+            Usage::new(self.app)
+                .required(&required)
+                .create_usage_with_title(&*used),
         )
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let usage = Usage::new(self.app, &self.required);
+        let usage = Usage::new(self.app);
         let mut c = Colorizer::new(true, self.color_help());
         Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, false).write_help()?;
         Ok(c)
@@ -1541,7 +1540,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
-        let usage = Usage::new(self.app, &self.required);
+        let usage = Usage::new(self.app);
         let mut c = Colorizer::new(false, self.color_help());
 
         match Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, use_long).write_help() {

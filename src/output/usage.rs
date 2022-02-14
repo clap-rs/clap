@@ -1,22 +1,29 @@
 use indexmap::IndexSet;
 
 // Internal
-use crate::{
-    build::AppSettings as AS,
-    build::{App, Arg, ArgPredicate},
-    parse::ArgMatcher,
-    util::{ChildGraph, Id},
-    INTERNAL_ERROR_MSG,
-};
+use crate::build::AppSettings as AS;
+use crate::build::{App, Arg, ArgPredicate};
+use crate::parse::ArgMatcher;
+use crate::util::ChildGraph;
+use crate::util::Id;
+use crate::INTERNAL_ERROR_MSG;
 
 pub(crate) struct Usage<'help, 'app> {
     app: &'app App<'help>,
-    required: &'app ChildGraph<Id>,
+    required: Option<&'app ChildGraph<Id>>,
 }
 
 impl<'help, 'app> Usage<'help, 'app> {
-    pub(crate) fn new(app: &'app App<'help>, required: &'app ChildGraph<Id>) -> Self {
-        Usage { app, required }
+    pub(crate) fn new(app: &'app App<'help>) -> Self {
+        Usage {
+            app,
+            required: None,
+        }
+    }
+
+    pub(crate) fn required(mut self, required: &'app ChildGraph<Id>) -> Self {
+        self.required = Some(required);
+        self
     }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
@@ -42,7 +49,7 @@ impl<'help, 'app> Usage<'help, 'app> {
     }
 
     // Creates a usage string for display in help messages (i.e. not for errors)
-    pub(crate) fn create_help_usage(&self, incl_reqs: bool) -> String {
+    fn create_help_usage(&self, incl_reqs: bool) -> String {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
         let mut usage = String::with_capacity(75);
         let name = self
@@ -346,7 +353,15 @@ impl<'help, 'app> Usage<'help, 'app> {
 
         let mut unrolled_reqs = IndexSet::new();
 
-        for a in self.required.iter() {
+        let required_owned;
+        let required = if let Some(required) = self.required {
+            required
+        } else {
+            required_owned = self.app.required_graph();
+            &required_owned
+        };
+
+        for a in required.iter() {
             let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
                 let required = match val {
                     ArgPredicate::Equals(_) => {
@@ -380,7 +395,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             .app
             .groups
             .iter()
-            .filter(|gn| self.required.contains(&gn.id))
+            .filter(|gn| required.contains(&gn.id))
             .flat_map(|g| self.app.unroll_args_in_group(&g.id))
             .collect::<Vec<_>>();
 
