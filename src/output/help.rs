@@ -9,7 +9,7 @@ use std::{
 
 // Internal
 use crate::{
-    build::{arg::display_arg_val, App, Arg},
+    build::{display_arg_val, App, Arg},
     output::{fmt::Colorizer, Usage},
 };
 
