@@ -2,7 +2,6 @@
 use std::{
     cell::{Cell, RefCell},
     ffi::{OsStr, OsString},
-    fmt::Write as _,
 };
 
 // Third Party
@@ -672,56 +671,9 @@ impl<'help, 'app> Parser<'help, 'app> {
     ) -> ClapResult<()> {
         debug!("Parser::parse_subcommand");
 
-        let mut mid_string = String::from(" ");
-
-        if !self.app.is_subcommand_negates_reqs_set() {
-            let reqs = Usage::new(self.app).get_required_usage_from(&[], None, true); // maybe Some(m)
-
-            for s in &reqs {
-                mid_string.push_str(s);
-                mid_string.push(' ');
-            }
-        }
-
         let partial_parsing_enabled = self.app.is_ignore_errors_set();
 
-        if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
-            // Display subcommand name, short and long in usage
-            let mut sc_names = sc.name.clone();
-            let mut flag_subcmd = false;
-            if let Some(l) = sc.long_flag {
-                write!(sc_names, ", --{}", l).unwrap();
-                flag_subcmd = true;
-            }
-            if let Some(s) = sc.short_flag {
-                write!(sc_names, ", -{}", s).unwrap();
-                flag_subcmd = true;
-            }
-
-            if flag_subcmd {
-                sc_names = format!("{{{}}}", sc_names);
-            }
-
-            sc.usage = Some(
-                self.app
-                    .bin_name
-                    .as_ref()
-                    .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
-                    .unwrap_or(sc_names),
-            );
-
-            // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
-            // a space
-            sc.bin_name = Some(format!(
-                "{}{}{}",
-                self.app.bin_name.as_ref().unwrap_or(&String::new()),
-                if self.app.bin_name.is_some() { " " } else { "" },
-                &*sc.name
-            ));
-
-            // Ensure all args are built and ready to parse
-            sc._build();
-
+        if let Some(sc) = self.app._build_subcommand(sc_name) {
             let mut sc_matcher = ArgMatcher::new(sc);
 
             debug!("Parser::parse_subcommand: About to parse sc={}", sc.name);
