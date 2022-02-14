@@ -65,7 +65,7 @@ fn main() {
     let opt = Opt::parse();
 
     if let Some(generator) = opt.generator {
-        let mut cmd = Opt::into_app();
+        let mut cmd = Opt::command();
         eprintln!("Generating completion file for {:?}...", generator);
         print_completions(generator, &mut cmd);
     } else {

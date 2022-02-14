@@ -9,7 +9,7 @@ use clap::IntoApp;
 
 pub fn get_help<T: IntoApp>() -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::into_app().write_help(&mut output).unwrap();
+    <T as IntoApp>::command().write_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     eprintln!("\n%%% HELP %%%:=====\n{}\n=====\n", output);
@@ -20,7 +20,7 @@ pub fn get_help<T: IntoApp>() -> String {
 
 pub fn get_long_help<T: IntoApp>() -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::into_app()
+    <T as IntoApp>::command()
         .write_long_help(&mut output)
         .unwrap();
     let output = String::from_utf8(output).unwrap();
@@ -33,7 +33,7 @@ pub fn get_long_help<T: IntoApp>() -> String {
 
 pub fn get_subcommand_long_help<T: IntoApp>(subcmd: &str) -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::into_app()
+    <T as IntoApp>::command()
         .get_subcommands_mut()
         .find(|s| s.get_name() == subcmd)
         .unwrap()

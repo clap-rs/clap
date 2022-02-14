@@ -56,6 +56,7 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
+        #[allow(deprecated)]
         impl #impl_generics clap::IntoApp for #struct_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::Command<'b> {
                 let #app_var = clap::Command::new(#name);

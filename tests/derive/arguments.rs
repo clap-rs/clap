@@ -52,7 +52,7 @@ fn auto_value_name() {
     }
 
     let mut help = Vec::new();
-    Opt::into_app().write_help(&mut help).unwrap();
+    Opt::command().write_help(&mut help).unwrap();
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("MY_SPECIAL_ARG"));
@@ -72,7 +72,7 @@ fn explicit_value_name() {
     }
 
     let mut help = Vec::new();
-    Opt::into_app().write_help(&mut help).unwrap();
+    Opt::command().write_help(&mut help).unwrap();
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("BROWNIE_POINTS"));

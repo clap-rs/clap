@@ -79,7 +79,7 @@ use std::ffi::OsString;
 pub trait Parser: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
-        let matches = <Self as IntoApp>::into_app().get_matches();
+        let matches = <Self as IntoApp>::command().get_matches();
         let res =
             <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>);
         match res {
@@ -94,7 +94,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
 
     /// Parse from `std::env::args_os()`, return Err on error.
     fn try_parse() -> Result<Self, Error> {
-        let matches = <Self as IntoApp>::into_app().try_get_matches()?;
+        let matches = <Self as IntoApp>::command().try_get_matches()?;
         <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>)
     }
 
@@ -104,7 +104,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as IntoApp>::into_app().get_matches_from(itr);
+        let matches = <Self as IntoApp>::command().get_matches_from(itr);
         let res =
             <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>);
         match res {
@@ -123,7 +123,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
+        let matches = <Self as IntoApp>::command().try_get_matches_from(itr)?;
         <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>)
     }
 
@@ -133,7 +133,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as IntoApp>::into_app_for_update().get_matches_from(itr);
+        let matches = <Self as IntoApp>::command().get_matches_from(itr);
         let res = <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
             .map_err(format_error::<Self>);
         if let Err(e) = res {
@@ -149,20 +149,20 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as IntoApp>::into_app_for_update().try_get_matches_from(itr)?;
+        let matches = <Self as IntoApp>::command().try_get_matches_from(itr)?;
         <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
             .map_err(format_error::<Self>)
     }
 
-    /// Deprecated, `StructOpt::clap` replaced with [`IntoCommand::into_app`] (derive as part of
+    /// Deprecated, `StructOpt::clap` replaced with [`IntoCommand::command`] (derive as part of
     /// [`Parser`])
     #[deprecated(
         since = "3.0.0",
-        note = "`StructOpt::clap` is replaced with `IntoCommand::into_app` (derived as part of `Parser`)"
+        note = "`StructOpt::clap` is replaced with `IntoCommand::command` (derived as part of `Parser`)"
     )]
     #[doc(hidden)]
     fn clap<'help>() -> Command<'help> {
-        <Self as IntoApp>::into_app()
+        <Self as IntoApp>::command()
     }
 
     /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches`] (derive as part of
@@ -233,10 +233,22 @@ pub trait IntoApp: Sized {
     /// Build an [`Command`] that can instantiate `Self`.
     ///
     /// See [`FromArgMatches::from_arg_matches`] for instantiating `Self`.
+    fn command<'help>() -> Command<'help> {
+        #[allow(deprecated)]
+        Self::into_app()
+    }
+    /// Deprecated, replaced with `IntoApp::command`
+    #[deprecated(since = "3.1.0", note = "Replaced with `IntoApp::command")]
     fn into_app<'help>() -> Command<'help>;
     /// Build an [`Command`] that can update `self`.
     ///
     /// See [`FromArgMatches::update_from_arg_matches`] for updating `self`.
+    fn command_for_update<'help>() -> Command<'help> {
+        #[allow(deprecated)]
+        Self::into_app_for_update()
+    }
+    /// Deprecated, replaced with `IntoApp::command_for_update`
+    #[deprecated(since = "3.1.0", note = "Replaced with `IntoApp::command_for_update")]
     fn into_app_for_update<'help>() -> Command<'help>;
 }
 
@@ -451,6 +463,7 @@ impl<T: Parser> Parser for Box<T> {
     }
 }
 
+#[allow(deprecated)]
 impl<T: IntoApp> IntoApp for Box<T> {
     fn into_app<'help>() -> Command<'help> {
         <T as IntoApp>::into_app()
@@ -491,6 +504,6 @@ impl<T: Subcommand> Subcommand for Box<T> {
 }
 
 fn format_error<I: IntoApp>(err: crate::Error) -> crate::Error {
-    let mut cmd = I::into_app();
+    let mut cmd = I::command();
     err.format(&mut cmd)
 }

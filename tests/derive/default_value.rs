@@ -53,5 +53,5 @@ fn detect_os_variant() {
         #[clap(default_value_os = ("123".as_ref()))]
         x: String,
     }
-    Options::into_app().debug_assert();
+    Options::command().debug_assert();
 }

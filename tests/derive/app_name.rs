@@ -7,7 +7,7 @@ fn app_name_in_short_help_from_struct() {
     struct MyApp {}
 
     let mut help = Vec::new();
-    MyApp::into_app().write_help(&mut help).unwrap();
+    MyApp::command().write_help(&mut help).unwrap();
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("my-cmd"));
@@ -20,7 +20,7 @@ fn app_name_in_long_help_from_struct() {
     struct MyApp {}
 
     let mut help = Vec::new();
-    MyApp::into_app().write_long_help(&mut help).unwrap();
+    MyApp::command().write_long_help(&mut help).unwrap();
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("my-cmd"));
@@ -33,7 +33,7 @@ fn app_name_in_short_help_from_enum() {
     enum MyApp {}
 
     let mut help = Vec::new();
-    MyApp::into_app().write_help(&mut help).unwrap();
+    MyApp::command().write_help(&mut help).unwrap();
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("my-cmd"));
@@ -46,7 +46,7 @@ fn app_name_in_long_help_from_enum() {
     enum MyApp {}
 
     let mut help = Vec::new();
-    MyApp::into_app().write_long_help(&mut help).unwrap();
+    MyApp::command().write_long_help(&mut help).unwrap();
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("my-cmd"));
@@ -58,7 +58,7 @@ fn app_name_in_short_version_from_struct() {
     #[clap(name = "my-cmd")]
     struct MyApp {}
 
-    let version = MyApp::into_app().render_version();
+    let version = MyApp::command().render_version();
 
     assert!(version.contains("my-cmd"));
 }
@@ -69,7 +69,7 @@ fn app_name_in_long_version_from_struct() {
     #[clap(name = "my-cmd")]
     struct MyApp {}
 
-    let version = MyApp::into_app().render_long_version();
+    let version = MyApp::command().render_long_version();
 
     assert!(version.contains("my-cmd"));
 }
@@ -80,7 +80,7 @@ fn app_name_in_short_version_from_enum() {
     #[clap(name = "my-cmd")]
     enum MyApp {}
 
-    let version = MyApp::into_app().render_version();
+    let version = MyApp::command().render_version();
 
     assert!(version.contains("my-cmd"));
 }
@@ -91,7 +91,7 @@ fn app_name_in_long_version_from_enum() {
     #[clap(name = "my-cmd")]
     enum MyApp {}
 
-    let version = MyApp::into_app().render_long_version();
+    let version = MyApp::command().render_long_version();
 
     assert!(version.contains("my-cmd"));
 }
