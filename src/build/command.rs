@@ -61,6 +61,9 @@ use crate::build::debug_asserts::assert_app;
 /// // Your program logic starts here...
 /// ```
 /// [`App::get_matches`]: App::get_matches()
+pub type Command<'help> = App<'help>;
+
+/// Deprecated, replaced with [`Command`]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct App<'help> {
     id: Id,

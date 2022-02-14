@@ -25,6 +25,7 @@ pub use arg::Arg;
 pub use arg_group::ArgGroup;
 pub use arg_settings::{ArgFlags, ArgSettings};
 pub use command::App;
+pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
 
