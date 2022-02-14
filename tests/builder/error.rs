@@ -29,7 +29,7 @@ USAGE:
 
 For more information try --help
 ";
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .arg(
             Arg::new("all")
                 .short('a')
@@ -52,9 +52,9 @@ For more information try --help
                 .long("no-git-push")
                 .help("Do not push generated commit and tags to git remote"),
         );
-    let mut app = app;
+    let mut cmd = cmd;
     let expected_kind = ErrorKind::InvalidValue;
-    let err = app.error(expected_kind, "Failed for mysterious reasons");
+    let err = cmd.error(expected_kind, "Failed for mysterious reasons");
     assert!(compare_error(err, expected_kind, MESSAGE, true));
 }
 

@@ -52,9 +52,9 @@ fn multiple_occurrences_of_flags_mixed() {
 
 #[test]
 fn multiple_occurrences_of_positional() {
-    let app = Command::new("test").arg(Arg::new("multi").multiple_occurrences(true));
+    let cmd = Command::new("test").arg(Arg::new("multi").multiple_occurrences(true));
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(&["test"])
         .expect("zero occurrences work");
@@ -62,7 +62,7 @@ fn multiple_occurrences_of_positional() {
     assert_eq!(m.occurrences_of("multi"), 0);
     assert!(m.values_of("multi").is_none());
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(&["test", "one"])
         .expect("single occurrence work");
@@ -70,7 +70,7 @@ fn multiple_occurrences_of_positional() {
     assert_eq!(m.occurrences_of("multi"), 1);
     assert_eq!(m.values_of("multi").unwrap().collect::<Vec<_>>(), ["one"]);
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(&["test", "one", "two", "three", "four"])
         .expect("many occurrences work");
@@ -99,7 +99,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
 #[cfg(feature = "env")]
 #[test]
 fn multiple_occurrences_of_before_env() {
-    let app = Command::new("mo_before_env").arg(
+    let cmd = Command::new("mo_before_env").arg(
         Arg::new("verbose")
             .env("VERBOSE")
             .short('v')
@@ -108,18 +108,18 @@ fn multiple_occurrences_of_before_env() {
             .multiple_occurrences(true),
     );
 
-    let m = app.clone().try_get_matches_from(vec![""]);
+    let m = cmd.clone().try_get_matches_from(vec![""]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
 
-    let m = app.clone().try_get_matches_from(vec!["", "-v"]);
+    let m = cmd.clone().try_get_matches_from(vec!["", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
 
-    let m = app.clone().try_get_matches_from(vec!["", "-vv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
-    let m = app.clone().try_get_matches_from(vec!["", "-vvv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 }
@@ -127,7 +127,7 @@ fn multiple_occurrences_of_before_env() {
 #[cfg(feature = "env")]
 #[test]
 fn multiple_occurrences_of_after_env() {
-    let app = Command::new("mo_after_env").arg(
+    let cmd = Command::new("mo_after_env").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
@@ -136,44 +136,44 @@ fn multiple_occurrences_of_after_env() {
             .env("VERBOSE"),
     );
 
-    let m = app.clone().try_get_matches_from(vec![""]);
+    let m = cmd.clone().try_get_matches_from(vec![""]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
 
-    let m = app.clone().try_get_matches_from(vec!["", "-v"]);
+    let m = cmd.clone().try_get_matches_from(vec!["", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
 
-    let m = app.clone().try_get_matches_from(vec!["", "-vv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
-    let m = app.clone().try_get_matches_from(vec!["", "-vvv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 }
 
 #[test]
 fn max_occurrences_implies_multiple_occurrences() {
-    let app = Command::new("prog").arg(
+    let cmd = Command::new("prog").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
             .max_occurrences(3),
     );
-    let m = app.try_get_matches_from(vec!["prog", "-vvv"]);
+    let m = cmd.try_get_matches_from(vec!["prog", "-vvv"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
     // One max should not imply multiple occurrences
-    let app = Command::new("prog").arg(
+    let cmd = Command::new("prog").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
             .max_occurrences(1),
     );
 
-    let m = app.try_get_matches_from(vec!["prog", "-vvv"]);
+    let m = cmd.try_get_matches_from(vec!["prog", "-vvv"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnexpectedMultipleUsage);
@@ -181,35 +181,35 @@ fn max_occurrences_implies_multiple_occurrences() {
 
 #[test]
 fn max_occurrences_try_inputs() {
-    let app = Command::new("prog").arg(
+    let cmd = Command::new("prog").arg(
         Arg::new("verbose")
             .short('v')
             .long("verbose")
             .max_occurrences(3),
     );
-    let m = app.clone().try_get_matches_from(vec!["prog", "-v"]);
+    let m = cmd.clone().try_get_matches_from(vec!["prog", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
 
-    let m = app.clone().try_get_matches_from(vec!["prog", "-vv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["prog", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
 
-    let m = app.clone().try_get_matches_from(vec!["prog", "-vvv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["prog", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
-    let m = app.clone().try_get_matches_from(vec!["prog", "-vvvv"]);
+    let m = cmd.clone().try_get_matches_from(vec!["prog", "-vvvv"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["prog", "-v", "-v", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["prog", "-v", "-vv", "-v"]);
     assert!(m.is_err());
@@ -218,22 +218,22 @@ fn max_occurrences_try_inputs() {
 
 #[test]
 fn max_occurrences_positional() {
-    let app = Command::new("prog").arg(Arg::new("verbose").max_occurrences(3));
-    let m = app.clone().try_get_matches_from(vec!["prog", "v"]);
+    let cmd = Command::new("prog").arg(Arg::new("verbose").max_occurrences(3));
+    let m = cmd.clone().try_get_matches_from(vec!["prog", "v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
 
-    let m = app.clone().try_get_matches_from(vec!["prog", "v", "v"]);
+    let m = cmd.clone().try_get_matches_from(vec!["prog", "v", "v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["prog", "v", "v", "v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["prog", "v", "v", "v", "v"]);
     assert!(m.is_err());

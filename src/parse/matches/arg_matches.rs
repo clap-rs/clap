@@ -85,16 +85,16 @@ impl ArgMatches {
     ///
     /// ```rust
     /// # use clap::{Command, Arg};
-    /// let mut app = Command::new("myapp")
+    /// let mut cmd = Command::new("myapp")
     ///     .arg(Arg::new("output")
     ///         .takes_value(true));
     ///
-    /// let m = app
+    /// let m = cmd
     ///     .try_get_matches_from_mut(vec!["myapp", "something"])
     ///     .unwrap();
     /// assert!(m.args_present());
     ///
-    /// let m = app
+    /// let m = cmd
     ///     .try_get_matches_from_mut(vec!["myapp"])
     ///     .unwrap();
     /// assert!(! m.args_present());

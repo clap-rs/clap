@@ -117,13 +117,13 @@ fn positional_required_2() {
 
 #[test]
 fn positional_required_with_requires() {
-    let app = Command::new("positional_required")
+    let cmd = Command::new("positional_required")
         .arg(Arg::new("flag").required(true).requires("opt"))
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test",
         POSITIONAL_REQ,
         true
@@ -142,13 +142,13 @@ For more information try --help
 
 #[test]
 fn positional_required_with_requires_if_no_value() {
-    let app = Command::new("positional_required")
+    let cmd = Command::new("positional_required")
         .arg(Arg::new("flag").required(true).requires_if("val", "opt"))
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test",
         POSITIONAL_REQ_IF_NO_VAL,
         true
@@ -166,14 +166,14 @@ For more information try --help
 
 #[test]
 fn positional_required_with_requires_if_value() {
-    let app = Command::new("positional_required")
+    let cmd = Command::new("positional_required")
         .arg(Arg::new("flag").required(true).requires_if("val", "opt"))
         .arg(Arg::new("foo").required(true))
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test val",
         POSITIONAL_REQ_IF_VAL,
         true
@@ -770,7 +770,7 @@ fn required_if_any_all_values_present_fail() {
 
 #[test]
 fn list_correct_required_args() {
-    let app = Command::new("Test app")
+    let cmd = Command::new("Test cmd")
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
@@ -795,7 +795,7 @@ fn list_correct_required_args() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --input somepath --target file",
         COND_REQ_IN_USAGE,
         true
@@ -804,7 +804,7 @@ fn list_correct_required_args() {
 
 #[test]
 fn required_if_val_present_fail_error_output() {
-    let app = Command::new("Test app")
+    let cmd = Command::new("Test cmd")
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
@@ -829,7 +829,7 @@ fn required_if_val_present_fail_error_output() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --input somepath --target file",
         COND_REQ_IN_USAGE,
         true
@@ -919,7 +919,7 @@ fn required_ifs_wrong_val_mult_fail() {
 
 #[test]
 fn require_eq() {
-    let app = Command::new("clap-test").version("v1.4.8").arg(
+    let cmd = Command::new("clap-test").version("v1.4.8").arg(
         Arg::new("opt")
             .long("opt")
             .short('o')
@@ -929,7 +929,7 @@ fn require_eq() {
             .help("some"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test",
         REQUIRE_EQUALS,
         true
@@ -938,7 +938,7 @@ fn require_eq() {
 
 #[test]
 fn require_eq_filtered() {
-    let app = Command::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .arg(
             Arg::new("opt")
@@ -959,7 +959,7 @@ fn require_eq_filtered() {
                 .help("some other arg"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test -f=blah",
         REQUIRE_EQUALS_FILTERED,
         true
@@ -968,7 +968,7 @@ fn require_eq_filtered() {
 
 #[test]
 fn require_eq_filtered_group() {
-    let app = Command::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .arg(
             Arg::new("opt")
@@ -1006,7 +1006,7 @@ fn require_eq_filtered_group() {
                 .required(true),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test -f=blah --g1=blah",
         REQUIRE_EQUALS_FILTERED_GROUP,
         true
@@ -1055,7 +1055,7 @@ USAGE:
 
 For more information try --help
 ";
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .arg(
             Arg::new("a")
                 .long("a")
@@ -1085,7 +1085,7 @@ For more information try --help
                 .conflicts_with("c"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --c asd",
         MULTIPLE_REQUIRED_UNLESS_USAGE,
         true
@@ -1094,9 +1094,9 @@ For more information try --help
 
 #[test]
 fn issue_1158_conflicting_requirements() {
-    let app = issue_1158_app();
+    let cmd = issue_1158_app();
 
-    assert!(utils::compare_output(app, "example id", ISSUE_1158, true));
+    assert!(utils::compare_output(cmd, "example id", ISSUE_1158, true));
 }
 
 #[test]
@@ -1110,7 +1110,7 @@ fn issue_1158_conflicting_requirements_rev() {
 fn issue_1643_args_mutually_require_each_other() {
     use clap::*;
 
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .arg(
             Arg::new("relation_id")
                 .help("The relation id to get the data from")
@@ -1128,7 +1128,7 @@ fn issue_1643_args_mutually_require_each_other() {
                 .requires("relation_id"),
         );
 
-    app.try_get_matches_from(&["test", "-u", "hello", "-r", "farewell"])
+    cmd.try_get_matches_from(&["test", "-u", "hello", "-r", "farewell"])
         .unwrap();
 }
 
@@ -1168,7 +1168,7 @@ fn issue_2624() {
 
 #[test]
 fn required_unless_all_with_any() {
-    let app = Command::new("prog")
+    let cmd = Command::new("prog")
         .arg(Arg::new("foo").long("foo"))
         .arg(Arg::new("bar").long("bar"))
         .arg(Arg::new("baz").long("baz"))
@@ -1179,23 +1179,23 @@ fn required_unless_all_with_any() {
                 .required_unless_present_all(&["bar", "baz"]),
         );
 
-    let result = app.clone().try_get_matches_from(vec!["myprog"]);
+    let result = cmd.clone().try_get_matches_from(vec!["myprog"]);
 
     assert!(result.is_err(), "{:?}", result.unwrap());
 
-    let result = app.clone().try_get_matches_from(vec!["myprog", "--foo"]);
+    let result = cmd.clone().try_get_matches_from(vec!["myprog", "--foo"]);
 
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
     assert!(!result.unwrap().is_present("flag"));
 
-    let result = app
+    let result = cmd
         .clone()
         .try_get_matches_from(vec!["myprog", "--bar", "--baz"]);
 
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
     assert!(!result.unwrap().is_present("flag"));
 
-    let result = app.try_get_matches_from(vec!["myprog", "--bar"]);
+    let result = cmd.try_get_matches_from(vec!["myprog", "--bar"]);
 
     assert!(result.is_err(), "{:?}", result.unwrap());
 }

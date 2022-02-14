@@ -15,7 +15,7 @@ fn both_validator_and_validator_os() {
                         .map_err(|e| e.to_string())
                 }),
         )
-        .try_get_matches_from(&["app", "1"]);
+        .try_get_matches_from(&["cmd", "1"]);
 }
 
 #[test]
@@ -24,7 +24,7 @@ fn test_validator_fromstr_trait() {
 
     let matches = Command::new("test")
         .arg(Arg::new("from_str").validator(u32::from_str))
-        .try_get_matches_from(&["app", "1234"])
+        .try_get_matches_from(&["cmd", "1234"])
         .expect("match failed");
 
     assert_eq!(matches.value_of_t::<u32>("from_str").ok(), Some(1234));
@@ -34,7 +34,7 @@ fn test_validator_fromstr_trait() {
 fn test_validator_msg_newline() {
     let res = Command::new("test")
         .arg(Arg::new("test").validator(|val| val.parse::<u32>().map_err(|e| e.to_string())))
-        .try_get_matches_from(&["app", "f"]);
+        .try_get_matches_from(&["cmd", "f"]);
 
     assert!(res.is_err());
     let err = res.unwrap_err();
@@ -59,7 +59,7 @@ fn stateful_validator() {
             state = true;
             val.parse::<u32>().map_err(|e| e.to_string())
         }))
-        .try_get_matches_from(&["app", "10"])
+        .try_get_matches_from(&["cmd", "10"])
         .unwrap();
 
     assert!(state);

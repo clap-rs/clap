@@ -179,36 +179,36 @@ fn positional_hyphen_does_not_panic() {
 
 #[test]
 fn single_positional_usage_string() {
-    let mut app = Command::new("test").arg(arg!([FILE] "some file"));
-    assert_eq!(app.render_usage(), "USAGE:\n    test [FILE]");
+    let mut cmd = Command::new("test").arg(arg!([FILE] "some file"));
+    assert_eq!(cmd.render_usage(), "USAGE:\n    test [FILE]");
 }
 
 #[test]
 fn single_positional_multiple_usage_string() {
-    let mut app = Command::new("test").arg(arg!([FILE]... "some file"));
-    assert_eq!(app.render_usage(), "USAGE:\n    test [FILE]...");
+    let mut cmd = Command::new("test").arg(arg!([FILE]... "some file"));
+    assert_eq!(cmd.render_usage(), "USAGE:\n    test [FILE]...");
 }
 
 #[test]
 fn multiple_positional_usage_string() {
-    let mut app = Command::new("test")
+    let mut cmd = Command::new("test")
         .arg(arg!([FILE] "some file"))
         .arg(arg!([FILES]... "some file"));
-    assert_eq!(app.render_usage(), "USAGE:\n    test [ARGS]");
+    assert_eq!(cmd.render_usage(), "USAGE:\n    test [ARGS]");
 }
 
 #[test]
 fn multiple_positional_one_required_usage_string() {
-    let mut app = Command::new("test")
+    let mut cmd = Command::new("test")
         .arg(arg!(<FILE> "some file"))
         .arg(arg!([FILES]... "some file"));
-    assert_eq!(app.render_usage(), "USAGE:\n    test <FILE> [FILES]...");
+    assert_eq!(cmd.render_usage(), "USAGE:\n    test <FILE> [FILES]...");
 }
 
 #[test]
 fn single_positional_required_usage_string() {
-    let mut app = Command::new("test").arg(arg!(<FILE> "some file"));
-    assert_eq!(app.render_usage(), "USAGE:\n    test <FILE>");
+    let mut cmd = Command::new("test").arg(arg!(<FILE> "some file"));
+    assert_eq!(cmd.render_usage(), "USAGE:\n    test <FILE>");
 }
 
 // This tests a programmer error and will only succeed with debug_assertions
@@ -290,7 +290,7 @@ fn positional_arg_with_short() {
 
 #[test]
 fn ignore_hyphen_values_on_last() {
-    let app = clap::Command::new("foo")
+    let cmd = clap::Command::new("foo")
         .arg(
             clap::Arg::new("cmd")
                 .multiple_values(true)
@@ -305,6 +305,6 @@ fn ignore_hyphen_values_on_last() {
                 .required(false),
         );
 
-    let matches = app.try_get_matches_from(["test", "-n", "foo"]).unwrap();
+    let matches = cmd.try_get_matches_from(["test", "-n", "foo"]).unwrap();
     assert_eq!(matches.value_of("name"), Some("foo"));
 }

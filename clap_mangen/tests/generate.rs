@@ -4,7 +4,7 @@ use std::io;
 
 #[test]
 fn render_manpage() {
-    let app = Command::new("myapp")
+    let cmd = Command::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -25,5 +25,5 @@ fn render_manpage() {
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    Man::new(app).render(&mut io::sink()).unwrap();
+    Man::new(cmd).render(&mut io::sink()).unwrap();
 }

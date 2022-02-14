@@ -43,7 +43,7 @@ fn main() {
     }
 
     // You can check for the existence of subcommands, and if found use their
-    // matches just as you would the top level app
+    // matches just as you would the top level cmd
     if let Some(matches) = matches.subcommand_matches("test") {
         // "$ myapp test" was run
         if matches.is_present("list") {

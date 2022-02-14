@@ -55,14 +55,14 @@ USAGE:
 
 For more information try --help
 ";
-    let app = Command::new("prog").arg(
+    let cmd = Command::new("prog").arg(
         Arg::new("cfg")
             .require_equals(true)
             .takes_value(true)
             .long("config"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --config file.conf",
         NO_EQUALS,
         true
@@ -462,14 +462,14 @@ fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> 
 
 #[test]
 fn issue_1105_empty_value_long_fail() {
-    let r = issue_1105_setup(vec!["app", "--option", "--flag"]);
+    let r = issue_1105_setup(vec!["cmd", "--option", "--flag"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind(), ErrorKind::EmptyValue);
 }
 
 #[test]
 fn issue_1105_empty_value_long_explicit() {
-    let r = issue_1105_setup(vec!["app", "--option", ""]);
+    let r = issue_1105_setup(vec!["cmd", "--option", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -477,7 +477,7 @@ fn issue_1105_empty_value_long_explicit() {
 
 #[test]
 fn issue_1105_empty_value_long_equals() {
-    let r = issue_1105_setup(vec!["app", "--option="]);
+    let r = issue_1105_setup(vec!["cmd", "--option="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -485,14 +485,14 @@ fn issue_1105_empty_value_long_equals() {
 
 #[test]
 fn issue_1105_empty_value_short_fail() {
-    let r = issue_1105_setup(vec!["app", "-o", "--flag"]);
+    let r = issue_1105_setup(vec!["cmd", "-o", "--flag"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind(), ErrorKind::EmptyValue);
 }
 
 #[test]
 fn issue_1105_empty_value_short_explicit() {
-    let r = issue_1105_setup(vec!["app", "-o", ""]);
+    let r = issue_1105_setup(vec!["cmd", "-o", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -500,7 +500,7 @@ fn issue_1105_empty_value_short_explicit() {
 
 #[test]
 fn issue_1105_empty_value_short_equals() {
-    let r = issue_1105_setup(vec!["app", "-o="]);
+    let r = issue_1105_setup(vec!["cmd", "-o="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -508,7 +508,7 @@ fn issue_1105_empty_value_short_equals() {
 
 #[test]
 fn issue_1105_empty_value_short_explicit_no_space() {
-    let r = issue_1105_setup(vec!["app", "-o", ""]);
+    let r = issue_1105_setup(vec!["cmd", "-o", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -517,11 +517,11 @@ fn issue_1105_empty_value_short_explicit_no_space() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn issue_1073_suboptimal_flag_suggestion() {
-    let app = Command::new("ripgrep-616")
+    let cmd = Command::new("ripgrep-616")
         .arg(Arg::new("files-with-matches").long("files-with-matches"))
         .arg(Arg::new("files-without-match").long("files-without-match"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ripgrep-616 --files-without-matches",
         DYM_ISSUE_1073,
         true
@@ -530,7 +530,7 @@ fn issue_1073_suboptimal_flag_suggestion() {
 
 #[test]
 fn short_non_ascii_no_space() {
-    let matches = Command::new("app")
+    let matches = Command::new("cmd")
         .arg(arg!(opt: -'磨' <opt>))
         .try_get_matches_from(&["test", "-磨VALUE"])
         .unwrap();
@@ -540,7 +540,7 @@ fn short_non_ascii_no_space() {
 
 #[test]
 fn short_eq_val_starts_with_eq() {
-    let matches = Command::new("app")
+    let matches = Command::new("cmd")
         .arg(arg!(opt: -f <opt>))
         .try_get_matches_from(&["test", "-f==value"])
         .unwrap();
@@ -550,7 +550,7 @@ fn short_eq_val_starts_with_eq() {
 
 #[test]
 fn long_eq_val_starts_with_eq() {
-    let matches = Command::new("app")
+    let matches = Command::new("cmd")
         .arg(arg!(opt: --foo <opt>))
         .try_get_matches_from(&["test", "--foo==value"])
         .unwrap();
@@ -560,16 +560,16 @@ fn long_eq_val_starts_with_eq() {
 
 #[test]
 fn issue_2022_get_flags_misuse() {
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .next_help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
-    let matches = app.try_get_matches_from(&[""]).unwrap();
+    let matches = cmd.try_get_matches_from(&[""]).unwrap();
     assert!(matches.value_of("a").is_some())
 }
 
 #[test]
 fn issue_2279() {
-    let before_help_heading = Command::new("app")
+    let before_help_heading = Command::new("cmd")
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .next_help_heading(Some("This causes default_value to be ignored"))
         .try_get_matches_from(&[""])
@@ -577,7 +577,7 @@ fn issue_2279() {
 
     assert_eq!(before_help_heading.value_of("foo"), Some("bar"));
 
-    let after_help_heading = Command::new("app")
+    let after_help_heading = Command::new("cmd")
         .next_help_heading(Some("This causes default_value to be ignored"))
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .try_get_matches_from(&[""])
@@ -588,39 +588,39 @@ fn issue_2279() {
 
 #[test]
 fn infer_long_arg() {
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .infer_long_args(true)
         .arg(Arg::new("racetrack").long("racetrack").alias("autobahn"))
         .arg(Arg::new("racecar").long("racecar").takes_value(true));
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--racec=hello"])
         .unwrap();
     assert!(!matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), Some("hello"));
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--racet"])
         .unwrap();
     assert!(matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), None);
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--auto"])
         .unwrap();
     assert!(matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), None);
 
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .infer_long_args(true)
         .arg(Arg::new("arg").long("arg"));
 
-    let matches = app.clone().try_get_matches_from(&["test", "--"]).unwrap();
+    let matches = cmd.clone().try_get_matches_from(&["test", "--"]).unwrap();
     assert!(!matches.is_present("arg"));
 
-    let matches = app.clone().try_get_matches_from(&["test", "--a"]).unwrap();
+    let matches = cmd.clone().try_get_matches_from(&["test", "--a"]).unwrap();
     assert!(matches.is_present("arg"));
 }

@@ -151,7 +151,7 @@ fn short_alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_short_arg_aliases_help_output() {
-    let app = Command::new("ct").author("Salim Afiune").subcommand(
+    let cmd = Command::new("ct").author("Salim Afiune").subcommand(
         Command::new("test")
             .about("Some help")
             .version("1.2")
@@ -165,7 +165,7 @@ fn invisible_short_arg_aliases_help_output() {
             .arg(arg!(-f - -flag).short_aliases(&['x', 'y', 'z'])),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ct test --help",
         SC_INVISIBLE_ALIAS_HELP,
         false
@@ -174,7 +174,7 @@ fn invisible_short_arg_aliases_help_output() {
 
 #[test]
 fn visible_short_arg_aliases_help_output() {
-    let app = Command::new("ct").author("Salim Afiune").subcommand(
+    let cmd = Command::new("ct").author("Salim Afiune").subcommand(
         Command::new("test")
             .about("Some help")
             .version("1.2")
@@ -195,7 +195,7 @@ fn visible_short_arg_aliases_help_output() {
             ),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ct test --help",
         SC_VISIBLE_ALIAS_HELP,
         false

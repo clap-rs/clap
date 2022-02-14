@@ -36,11 +36,11 @@ In your `build.rs`:
 fn main() -> std::io::Result<()> {
     let out_dir = std::path::PathBuf::from(std::env::var_os("OUT_DIR").ok_or_else(|| std::io::ErrorKind::NotFound)?);
 
-    let app = clap::Command::new("mybin")
+    let cmd = clap::Command::new("mybin")
         .arg(clap::arg!(-n --name <NAME>))
         .arg(clap::arg!(-c --count <NUM>));
 
-    let man = clap_mangen::Man::new(app);
+    let man = clap_mangen::Man::new(cmd);
     let mut buffer: Vec<u8> = Default::default();
     man.render(&mut buffer)?;
 

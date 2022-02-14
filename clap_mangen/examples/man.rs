@@ -5,7 +5,7 @@ use std::io;
 // Run this example as `cargo run --example man | man -l -`.
 
 fn main() -> Result<(), std::io::Error> {
-    let app = Command::new("myapp")
+    let cmd = Command::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>:Ola Nordmann <old@nordmann.no>")
         .about("Does awesome things")
@@ -36,5 +36,5 @@ And a few newlines.",
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    Man::new(app).render(&mut io::stdout())
+    Man::new(cmd).render(&mut io::stdout())
 }

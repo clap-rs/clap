@@ -156,12 +156,12 @@ OPTIONS:
 
 #[test]
 fn version_about_multi_subcmd() {
-    let app = with_subcommand()
+    let cmd = with_subcommand()
         .mut_arg("version", |a| a.help("Print custom version about text"))
         .propagate_version(true);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "foo bar baz -h",
         VERSION_ABOUT_MULTI_SC,
         false

@@ -92,16 +92,16 @@ fn build_cli() -> Command<'static> {
         )
 }
 
-fn print_completions<G: Generator>(gen: G, app: &mut Command) {
-    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
     let matches = build_cli().get_matches();
 
     if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
-        let mut app = build_cli();
+        let mut cmd = build_cli();
         eprintln!("Generating completion file for {}...", generator);
-        print_completions(generator, &mut app);
+        print_completions(generator, &mut cmd);
     }
 }

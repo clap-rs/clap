@@ -38,7 +38,7 @@ use yaml_rust::Yaml;
 ///
 /// ```rust
 /// # use clap::{Command, arg, ArgGroup, ErrorKind};
-/// let result = Command::new("app")
+/// let result = Command::new("cmd")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
 ///     .arg(arg!(--major           "auto increase major"))
 ///     .arg(arg!(--minor           "auto increase minor"))
@@ -46,7 +46,7 @@ use yaml_rust::Yaml;
 ///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor", "patch"])
 ///          .required(true))
-///     .try_get_matches_from(vec!["app", "--major", "--patch"]);
+///     .try_get_matches_from(vec!["cmd", "--major", "--patch"]);
 /// // Because we used two args in the group it's an error
 /// assert!(result.is_err());
 /// let err = result.unwrap_err();
@@ -56,7 +56,7 @@ use yaml_rust::Yaml;
 ///
 /// ```rust
 /// # use clap::{Command, arg, ArgGroup};
-/// let result = Command::new("app")
+/// let result = Command::new("cmd")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
 ///     .arg(arg!(--major           "auto increase major"))
 ///     .arg(arg!(--minor           "auto increase minor"))
@@ -64,7 +64,7 @@ use yaml_rust::Yaml;
 ///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
-///     .try_get_matches_from(vec!["app", "--major"]);
+///     .try_get_matches_from(vec!["cmd", "--major"]);
 /// assert!(result.is_ok());
 /// let matches = result.unwrap();
 /// // We may not know which of the args was used, so we can test for the group...

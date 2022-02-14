@@ -124,7 +124,7 @@ fn flag_subcommand_long_with_alias_same_as_long_flag() {
 
 #[test]
 fn flag_subcommand_short_with_aliases_vis_and_hidden() {
-    let app = Command::new("test").subcommand(
+    let cmd = Command::new("test").subcommand(
         Command::new("some")
             .short_flag('S')
             .arg(
@@ -136,15 +136,15 @@ fn flag_subcommand_short_with_aliases_vis_and_hidden() {
             .visible_short_flag_aliases(&['M', 'B'])
             .short_flag_alias('C'),
     );
-    let app1 = app.clone();
+    let app1 = cmd.clone();
     let matches1 = app1.try_get_matches_from(vec!["test", "-M"]).unwrap();
     assert_eq!(matches1.subcommand_name().unwrap(), "some");
 
-    let app2 = app.clone();
+    let app2 = cmd.clone();
     let matches2 = app2.try_get_matches_from(vec!["test", "-C"]).unwrap();
     assert_eq!(matches2.subcommand_name().unwrap(), "some");
 
-    let app3 = app.clone();
+    let app3 = cmd.clone();
     let matches3 = app3.try_get_matches_from(vec!["test", "-B"]).unwrap();
     assert_eq!(matches3.subcommand_name().unwrap(), "some");
 }
@@ -471,7 +471,7 @@ OPTIONS:
 
 #[test]
 fn flag_subcommand_long_short_normal_usage_string() {
-    let app = Command::new("pacman")
+    let cmd = Command::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
         .subcommand_required(true)
@@ -504,7 +504,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                 ),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "pacman -Qh",
         FLAG_SUBCOMMAND_HELP,
         false
@@ -525,7 +525,7 @@ OPTIONS:
 
 #[test]
 fn flag_subcommand_long_normal_usage_string() {
-    let app = Command::new("pacman")
+    let cmd = Command::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
         .subcommand_required(true)
@@ -557,7 +557,7 @@ fn flag_subcommand_long_normal_usage_string() {
                 ),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "pacman query --help",
         FLAG_SUBCOMMAND_NO_SHORT_HELP,
         false
@@ -578,7 +578,7 @@ OPTIONS:
 
 #[test]
 fn flag_subcommand_short_normal_usage_string() {
-    let app = Command::new("pacman")
+    let cmd = Command::new("pacman")
         .about("package manager utility")
         .version("5.2.1")
         .subcommand_required(true)
@@ -610,7 +610,7 @@ fn flag_subcommand_short_normal_usage_string() {
                 ),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "pacman query --help",
         FLAG_SUBCOMMAND_NO_LONG_HELP,
         false

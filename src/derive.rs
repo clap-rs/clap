@@ -316,13 +316,13 @@ pub trait Args: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`IntoApp`].
-    fn augment_args(app: Command<'_>) -> Command<'_>;
+    fn augment_args(cmd: Command<'_>) -> Command<'_>;
     /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
     ///
     /// See also [`IntoApp`].
-    fn augment_args_for_update(app: Command<'_>) -> Command<'_>;
+    fn augment_args_for_update(cmd: Command<'_>) -> Command<'_>;
 }
 
 /// Parse a sub-command into a user-defined enum.
@@ -360,13 +360,13 @@ pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`IntoApp`].
-    fn augment_subcommands(app: Command<'_>) -> Command<'_>;
+    fn augment_subcommands(cmd: Command<'_>) -> Command<'_>;
     /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
     ///
     /// See also [`IntoApp`].
-    fn augment_subcommands_for_update(app: Command<'_>) -> Command<'_>;
+    fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_>;
     /// Test whether `Self` can parse a specific subcommand
     fn has_subcommand(name: &str) -> bool;
 }
@@ -470,20 +470,20 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
 }
 
 impl<T: Args> Args for Box<T> {
-    fn augment_args(app: Command<'_>) -> Command<'_> {
-        <T as Args>::augment_args(app)
+    fn augment_args(cmd: Command<'_>) -> Command<'_> {
+        <T as Args>::augment_args(cmd)
     }
-    fn augment_args_for_update(app: Command<'_>) -> Command<'_> {
-        <T as Args>::augment_args_for_update(app)
+    fn augment_args_for_update(cmd: Command<'_>) -> Command<'_> {
+        <T as Args>::augment_args_for_update(cmd)
     }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn augment_subcommands(app: Command<'_>) -> Command<'_> {
-        <T as Subcommand>::augment_subcommands(app)
+    fn augment_subcommands(cmd: Command<'_>) -> Command<'_> {
+        <T as Subcommand>::augment_subcommands(cmd)
     }
-    fn augment_subcommands_for_update(app: Command<'_>) -> Command<'_> {
-        <T as Subcommand>::augment_subcommands_for_update(app)
+    fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_> {
+        <T as Subcommand>::augment_subcommands_for_update(cmd)
     }
     fn has_subcommand(name: &str) -> bool {
         <T as Subcommand>::has_subcommand(name)
@@ -491,6 +491,6 @@ impl<T: Subcommand> Subcommand for Box<T> {
 }
 
 fn format_error<I: IntoApp>(err: crate::Error) -> crate::Error {
-    let mut app = I::into_app();
-    err.format(&mut app)
+    let mut cmd = I::into_app();
+    err.format(&mut cmd)
 }

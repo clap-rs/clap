@@ -103,14 +103,14 @@ fn no_empty_values_without_equals() {
 
 #[test]
 fn no_empty_values_without_equals_but_requires_equals() {
-    let app = Command::new("config").arg(
+    let cmd = Command::new("config").arg(
         Arg::new("config")
             .long("config")
             .takes_value(true)
             .forbid_empty_values(true)
             .require_equals(true),
     );
-    let m = app.clone().try_get_matches_from(&["config", "--config"]);
+    let m = cmd.clone().try_get_matches_from(&["config", "--config"]);
     // Should error on no equals rather than empty value.
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::NoEquals);
@@ -125,7 +125,7 @@ For more information try --help
 ";
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "config --config",
         NO_EUQALS_ERROR,
         true

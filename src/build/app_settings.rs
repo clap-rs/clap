@@ -38,16 +38,16 @@ pub enum AppSettings {
 
     /// Deprecated, replace
     /// ```rust,no_run
-    /// let app = clap::Command::new("app")
+    /// let cmd = clap::Command::new("cmd")
     ///     .global_setting(clap::AppSettings::WaitOnError)
     ///     .arg(clap::arg!(--flag));
-    /// let m = app.get_matches();
+    /// let m = cmd.get_matches();
     /// ```
     /// with
     /// ```rust
-    /// let app = clap::Command::new("app")
+    /// let cmd = clap::Command::new("cmd")
     ///     .arg(clap::arg!(--flag));
-    /// let m = match app.try_get_matches() {
+    /// let m = match cmd.try_get_matches() {
     ///     Ok(m) => m,
     ///     Err(err) => {
     ///         if err.use_stderr() {
@@ -412,11 +412,11 @@ pub enum AppSettings {
     #[doc(hidden)]
     UnifiedHelp,
 
-    /// If the app is already built, used for caching.
+    /// If the cmd is already built, used for caching.
     #[doc(hidden)]
     Built,
 
-    /// If the app's bin name is already built, used for caching.
+    /// If the cmd's bin name is already built, used for caching.
     #[doc(hidden)]
     BinNameBuilt,
 }

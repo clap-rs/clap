@@ -13,8 +13,8 @@ impl Generator for Bash {
         format!("{}.bash", name)
     }
 
-    fn generate(&self, app: &Command, buf: &mut dyn Write) {
-        let bin_name = app
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
@@ -62,21 +62,21 @@ complete -F _{name} -o bashdefault -o default {name}
 ",
                 name = bin_name,
                 cmd = bin_name.replace('-', "__"),
-                name_opts = all_options_for_path(app, bin_name),
-                name_opts_details = option_details_for_path(app, bin_name),
-                subcmds = all_subcommands(app),
-                subcmd_details = subcommand_details(app)
+                name_opts = all_options_for_path(cmd, bin_name),
+                name_opts_details = option_details_for_path(cmd, bin_name),
+                subcmds = all_subcommands(cmd),
+                subcmd_details = subcommand_details(cmd)
             )
             .as_bytes()
         );
     }
 }
 
-fn all_subcommands(app: &Command) -> String {
+fn all_subcommands(cmd: &Command) -> String {
     debug!("all_subcommands");
 
     let mut subcmds = vec![String::new()];
-    let mut scs = utils::all_subcommands(app)
+    let mut scs = utils::all_subcommands(cmd)
         .iter()
         .map(|x| x.0.clone())
         .collect::<Vec<_>>();
@@ -97,11 +97,11 @@ fn all_subcommands(app: &Command) -> String {
     subcmds.join("\n            ")
 }
 
-fn subcommand_details(app: &Command) -> String {
+fn subcommand_details(cmd: &Command) -> String {
     debug!("subcommand_details");
 
     let mut subcmd_dets = vec![String::new()];
-    let mut scs = utils::all_subcommands(app)
+    let mut scs = utils::all_subcommands(cmd)
         .iter()
         .map(|x| x.1.replace(' ', "__"))
         .collect::<Vec<_>>();
@@ -125,19 +125,19 @@ fn subcommand_details(app: &Command) -> String {
             return 0
             ;;",
             subcmd = sc.replace('-', "__"),
-            sc_opts = all_options_for_path(app, &*sc),
+            sc_opts = all_options_for_path(cmd, &*sc),
             level = sc.split("__").map(|_| 1).sum::<u64>(),
-            opts_details = option_details_for_path(app, &*sc)
+            opts_details = option_details_for_path(cmd, &*sc)
         )
     }));
 
     subcmd_dets.join("\n        ")
 }
 
-fn option_details_for_path(app: &Command, path: &str) -> String {
+fn option_details_for_path(cmd: &Command, path: &str) -> String {
     debug!("option_details_for_path: path={}", path);
 
-    let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let p = utils::find_subcommand_with_path(cmd, path.split("__").skip(1).collect());
     let mut opts = vec![String::new()];
 
     for o in p.get_opts() {
@@ -187,10 +187,10 @@ fn vals_for(o: &Arg) -> String {
     }
 }
 
-fn all_options_for_path(app: &Command, path: &str) -> String {
+fn all_options_for_path(cmd: &Command, path: &str) -> String {
     debug!("all_options_for_path: path={}", path);
 
-    let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let p = utils::find_subcommand_with_path(cmd, path.split("__").skip(1).collect());
 
     let mut opts = String::new();
     for short in utils::shorts_and_visible_aliases(p) {

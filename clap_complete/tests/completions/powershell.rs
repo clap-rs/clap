@@ -34,8 +34,8 @@ fn build_app_with_name(s: &'static str) -> Command<'static> {
 
 #[test]
 fn powershell() {
-    let mut app = build_app();
-    common(PowerShell, &mut app, "my_app", POWERSHELL);
+    let mut cmd = build_app();
+    common(PowerShell, &mut cmd, "my_app", POWERSHELL);
 }
 
 static POWERSHELL: &str = r#"
@@ -93,8 +93,8 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
 
 #[test]
 fn powershell_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(PowerShell, &mut app, "my_app", POWERSHELL_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(PowerShell, &mut cmd, "my_app", POWERSHELL_SPECIAL_CMDS);
 }
 
 fn build_app_special_commands() -> Command<'static> {
@@ -182,8 +182,8 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
 
 #[test]
 fn powershell_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(PowerShell, &mut app, "cmd", POWERSHELL_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(PowerShell, &mut cmd, "cmd", POWERSHELL_ALIASES);
 }
 
 fn build_app_with_aliases() -> Command<'static> {

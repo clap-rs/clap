@@ -167,7 +167,7 @@ fn empty_group() {
 
 #[test]
 fn req_group_usage_string() {
-    let app = Command::new("req_group")
+    let cmd = Command::new("req_group")
         .arg(arg!([base] "Base commit"))
         .arg(arg!(
             -d --delete "Remove the base commit information"
@@ -179,7 +179,7 @@ fn req_group_usage_string() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test",
         REQ_GROUP_USAGE,
         true
@@ -188,7 +188,7 @@ fn req_group_usage_string() {
 
 #[test]
 fn req_group_with_conflict_usage_string() {
-    let app = Command::new("req_group")
+    let cmd = Command::new("req_group")
         .arg(arg!([base] "Base commit").conflicts_with("delete"))
         .arg(arg!(
             -d --delete "Remove the base commit information"
@@ -200,7 +200,7 @@ fn req_group_with_conflict_usage_string() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --delete base",
         REQ_GROUP_CONFLICT_USAGE,
         true
@@ -209,7 +209,7 @@ fn req_group_with_conflict_usage_string() {
 
 #[test]
 fn req_group_with_conflict_usage_string_only_options() {
-    let app = Command::new("req_group")
+    let cmd = Command::new("req_group")
         .arg(arg!(-a --all "All").conflicts_with("delete"))
         .arg(arg!(
             -d --delete "Remove the base commit information"
@@ -220,7 +220,7 @@ fn req_group_with_conflict_usage_string_only_options() {
                 .required(true),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --delete --all",
         REQ_GROUP_CONFLICT_ONLY_OPTIONS,
         true
@@ -270,11 +270,11 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ";
-    let app = Command::new("prog")
+    let cmd = Command::new("prog")
         .arg(Arg::new("a").value_name("A"))
         .group(ArgGroup::new("group").arg("a").required(true));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --help",
         GROUP_USAGE_USE_VAL_NAME,
         false,
@@ -296,7 +296,7 @@ fn group_acts_like_arg() {
 /* This is used to be fixed in a hack, we need to find a better way to fix it.
 #[test]
 fn issue_1794() {
-    let app = clap::Command::new("hello")
+    let cmd = clap::Command::new("hello")
         .bin_name("deno")
         .arg(Arg::new("option1").long("option1").takes_value(false))
         .arg(Arg::new("pos1").takes_value(true))
@@ -307,14 +307,14 @@ fn issue_1794() {
                 .required(true),
         );
 
-    let m = app.clone().try_get_matches_from(&["app", "pos1", "pos2"]).unwrap();
+    let m = cmd.clone().try_get_matches_from(&["cmd", "pos1", "pos2"]).unwrap();
     assert_eq!(m.value_of("pos1"), Some("pos1"));
     assert_eq!(m.value_of("pos2"), Some("pos2"));
     assert!(!m.is_present("option1"));
 
-    let m = app
+    let m = cmd
         .clone()
-        .try_get_matches_from(&["app", "--option1", "positional"]).unwrap();
+        .try_get_matches_from(&["cmd", "--option1", "positional"]).unwrap();
     assert_eq!(m.value_of("pos1"), None);
     assert_eq!(m.value_of("pos2"), Some("positional"));
     assert!(m.is_present("option1"));

@@ -12,7 +12,7 @@ fn applet_commands() -> [Command<'static>; 2] {
 }
 
 fn main() {
-    let app = Command::new(env!("CARGO_CRATE_NAME"))
+    let cmd = Command::new(env!("CARGO_CRATE_NAME"))
         .multicall(true)
         .subcommand(
             Command::new("busybox")
@@ -32,7 +32,7 @@ fn main() {
         )
         .subcommands(applet_commands());
 
-    let matches = app.get_matches();
+    let matches = cmd.get_matches();
     let mut subcommand = matches.subcommand();
     if let Some(("busybox", cmd)) = subcommand {
         if cmd.occurrences_of("install") > 0 {

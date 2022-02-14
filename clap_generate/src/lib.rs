@@ -22,7 +22,7 @@ pub mod utils {
 #[deprecated(since = "3.0.0", note = "Renamed to `clap_complete::generate_to`")]
 pub fn generate_to<G, S, T>(
     gen: G,
-    app: &mut clap::Command,
+    cmd: &mut clap::Command,
     bin_name: S,
     out_dir: T,
 ) -> Result<PathBuf, Error>
@@ -31,14 +31,14 @@ where
     S: Into<String>,
     T: Into<OsString>,
 {
-    clap_complete::generate_to(gen, app, bin_name, out_dir)
+    clap_complete::generate_to(gen, cmd, bin_name, out_dir)
 }
 
 #[deprecated(since = "3.0.0", note = "Renamed to `clap_complete`")]
-pub fn generate<G, S>(gen: G, app: &mut clap::Command, bin_name: S, buf: &mut dyn Write)
+pub fn generate<G, S>(gen: G, cmd: &mut clap::Command, bin_name: S, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
 {
-    clap_complete::generate(gen, app, bin_name, buf)
+    clap_complete::generate(gen, cmd, bin_name, buf)
 }

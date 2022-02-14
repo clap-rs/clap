@@ -46,10 +46,10 @@ pub fn subcommand(name: &Ident) {
     from_arg_matches(name);
     append_dummy(quote! {
         impl clap::Subcommand for #name {
-            fn augment_subcommands(_app: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_subcommands(_cmd: clap::Command<'_>) -> clap::Command<'_> {
                 unimplemented!()
             }
-            fn augment_subcommands_for_update(_app: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_subcommands_for_update(_cmd: clap::Command<'_>) -> clap::Command<'_> {
                 unimplemented!()
             }
             fn has_subcommand(name: &str) -> bool {
@@ -63,10 +63,10 @@ pub fn args(name: &Ident) {
     from_arg_matches(name);
     append_dummy(quote! {
         impl clap::Args for #name {
-            fn augment_args(_app: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_args(_cmd: clap::Command<'_>) -> clap::Command<'_> {
                 unimplemented!()
             }
-            fn augment_args_for_update(_app: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_args_for_update(_cmd: clap::Command<'_>) -> clap::Command<'_> {
                 unimplemented!()
             }
         }

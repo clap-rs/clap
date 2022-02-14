@@ -5,35 +5,35 @@ use crate::mkeymap::KeyType;
 use crate::util::Id;
 use crate::{AppSettings, Arg, Command, ValueHint};
 
-pub(crate) fn assert_app(app: &Command) {
+pub(crate) fn assert_app(cmd: &Command) {
     debug!("Command::_debug_asserts");
 
     let mut short_flags = vec![];
     let mut long_flags = vec![];
 
     // Invalid version flag settings
-    if app.get_version().is_none() && app.get_long_version().is_none() {
+    if cmd.get_version().is_none() && cmd.get_long_version().is_none() {
         // PropagateVersion is meaningless if there is no version
         assert!(
-            !app.is_propagate_version_set(),
+            !cmd.is_propagate_version_set(),
             "Command {}: No version information via Command::version or Command::long_version to propagate",
-            app.get_name(),
+            cmd.get_name(),
         );
 
         // Used `Command::mut_arg("version", ..) but did not provide any version information to display
-        let has_mutated_version = app
+        let has_mutated_version = cmd
             .get_arguments()
             .any(|x| x.id == Id::version_hash() && x.provider == ArgProvider::GeneratedMutated);
 
         if has_mutated_version {
-            assert!(app.is_set(AppSettings::NoAutoVersion),
+            assert!(cmd.is_set(AppSettings::NoAutoVersion),
                 "Command {}: Used Command::mut_arg(\"version\", ..) without providing Command::version, Command::long_version or using AppSettings::NoAutoVersion"
-            ,app.get_name()
+            ,cmd.get_name()
                 );
         }
     }
 
-    for sc in app.get_subcommands() {
+    for sc in cmd.get_subcommands() {
         if let Some(s) = sc.get_short_flag().as_ref() {
             short_flags.push(Flag::Command(format!("-{}", s), sc.get_name()));
         }
@@ -51,7 +51,7 @@ pub(crate) fn assert_app(app: &Command) {
         }
     }
 
-    for arg in app.get_arguments() {
+    for arg in cmd.get_arguments() {
         assert_arg(arg);
 
         if let Some(s) = arg.short.as_ref() {
@@ -72,19 +72,19 @@ pub(crate) fn assert_app(app: &Command) {
 
         // Name conflicts
         assert!(
-            app.two_args_of(|x| x.id == arg.id).is_none(),
+            cmd.two_args_of(|x| x.id == arg.id).is_none(),
             "Command {}: Argument names must be unique, but '{}' is in use by more than one argument or group",
-            app.get_name(),
+            cmd.get_name(),
             arg.name,
         );
 
         // Long conflicts
         if let Some(l) = arg.long {
-            if let Some((first, second)) = app.two_args_of(|x| x.long == Some(l)) {
+            if let Some((first, second)) = cmd.two_args_of(|x| x.long == Some(l)) {
                 panic!(
                     "Command {}: Long option names must be unique for each argument, \
                         but '--{}' is in use by both '{}' and '{}'",
-                    app.get_name(),
+                    cmd.get_name(),
                     l,
                     first.name,
                     second.name
@@ -94,11 +94,11 @@ pub(crate) fn assert_app(app: &Command) {
 
         // Short conflicts
         if let Some(s) = arg.short {
-            if let Some((first, second)) = app.two_args_of(|x| x.short == Some(s)) {
+            if let Some((first, second)) = cmd.two_args_of(|x| x.short == Some(s)) {
                 panic!(
                     "Command {}: Short option names must be unique for each argument, \
                         but '-{}' is in use by both '{}' and '{}'",
-                    app.get_name(),
+                    cmd.get_name(),
                     s,
                     first.name,
                     second.name
@@ -109,14 +109,14 @@ pub(crate) fn assert_app(app: &Command) {
         // Index conflicts
         if let Some(idx) = arg.index {
             if let Some((first, second)) =
-                app.two_args_of(|x| x.is_positional() && x.index == Some(idx))
+                cmd.two_args_of(|x| x.is_positional() && x.index == Some(idx))
             {
                 panic!(
                     "Command {}: Argument '{}' has the same index as '{}' \
                     and they are both positional arguments\n\n\t \
                     Use Arg::multiple_values(true) to allow one \
                     positional argument to take multiple values",
-                    app.get_name(),
+                    cmd.get_name(),
                     first.name,
                     second.name
                 )
@@ -126,9 +126,9 @@ pub(crate) fn assert_app(app: &Command) {
         // requires, r_if, r_unless
         for req in &arg.requires {
             assert!(
-                app.id_exists(&req.1),
+                cmd.id_exists(&req.1),
                 "Command {}: Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
-                app.get_name(),
+                cmd.get_name(),
                 req.1,
                 arg.name,
             );
@@ -136,9 +136,9 @@ pub(crate) fn assert_app(app: &Command) {
 
         for req in &arg.r_ifs {
             assert!(
-                app.id_exists(&req.0),
+                cmd.id_exists(&req.0),
                 "Command {}: Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
-                    app.get_name(),
+                    cmd.get_name(),
                 req.0,
                 arg.name
             );
@@ -146,9 +146,9 @@ pub(crate) fn assert_app(app: &Command) {
 
         for req in &arg.r_ifs_all {
             assert!(
-                app.id_exists(&req.0),
+                cmd.id_exists(&req.0),
                 "Command {}: Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
-                    app.get_name(),
+                    cmd.get_name(),
                 req.0,
                 arg.name
             );
@@ -156,9 +156,9 @@ pub(crate) fn assert_app(app: &Command) {
 
         for req in &arg.r_unless {
             assert!(
-                app.id_exists(req),
+                cmd.id_exists(req),
                 "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
-                    app.get_name(),
+                    cmd.get_name(),
                 req,
                 arg.name,
             );
@@ -167,9 +167,9 @@ pub(crate) fn assert_app(app: &Command) {
         // blacklist
         for req in &arg.blacklist {
             assert!(
-                app.id_exists(req),
+                cmd.id_exists(req),
                 "Command {}: Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
-                    app.get_name(),
+                    cmd.get_name(),
                 req,
                 arg.name,
             );
@@ -179,13 +179,13 @@ pub(crate) fn assert_app(app: &Command) {
             assert!(
                 arg.long.is_none(),
                 "Command {}: Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
-                    app.get_name(),
+                    cmd.get_name(),
                 arg.name
             );
             assert!(
                 arg.short.is_none(),
                 "Command {}: Flags or Options cannot have last(true) set. '{}' has both a short and last(true) set.",
-                    app.get_name(),
+                    cmd.get_name(),
                 arg.name
             );
         }
@@ -193,7 +193,7 @@ pub(crate) fn assert_app(app: &Command) {
         assert!(
             !(arg.is_required_set() && arg.is_global_set()),
             "Command {}: Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
-                    app.get_name(),
+                    cmd.get_name(),
             arg.name
         );
 
@@ -201,7 +201,7 @@ pub(crate) fn assert_app(app: &Command) {
         assert!(
             arg.validator.is_none() || arg.validator_os.is_none(),
             "Command {}: Argument '{}' has both `validator` and `validator_os` set which is not allowed",
-                    app.get_name(),
+                    cmd.get_name(),
             arg.name
         );
 
@@ -209,33 +209,33 @@ pub(crate) fn assert_app(app: &Command) {
             assert!(
                 arg.is_positional(),
                 "Command {}: Argument '{}' has hint CommandWithArguments and must be positional.",
-                app.get_name(),
+                cmd.get_name(),
                 arg.name
             );
 
             assert!(
-                app.is_trailing_var_arg_set(),
+                cmd.is_trailing_var_arg_set(),
                 "Command {}: Positional argument '{}' has hint CommandWithArguments, so Command must have TrailingVarArg set.",
-                    app.get_name(),
+                    cmd.get_name(),
                 arg.name
             );
         }
     }
 
-    for group in app.get_groups() {
+    for group in cmd.get_groups() {
         // Name conflicts
         assert!(
-            app.get_groups().filter(|x| x.id == group.id).count() < 2,
+            cmd.get_groups().filter(|x| x.id == group.id).count() < 2,
             "Command {}: Argument group name must be unique\n\n\t'{}' is already in use",
-            app.get_name(),
+            cmd.get_name(),
             group.name,
         );
 
         // Groups should not have naming conflicts with Args
         assert!(
-            !app.get_arguments().any(|x| x.id == group.id),
+            !cmd.get_arguments().any(|x| x.id == group.id),
             "Command {}: Argument group name '{}' must not conflict with argument name",
-            app.get_name(),
+            cmd.get_name(),
             group.name,
         );
 
@@ -243,11 +243,11 @@ pub(crate) fn assert_app(app: &Command) {
         if group.required && !group.args.is_empty() {
             assert!(
                 group.args.iter().any(|arg| {
-                    app.get_arguments()
+                    cmd.get_arguments()
                         .any(|x| x.id == *arg && x.default_vals.is_empty())
                 }),
                 "Command {}: Argument group '{}' is required but all of it's arguments have a default value.",
-                    app.get_name(),
+                    cmd.get_name(),
                 group.name
             )
         }
@@ -255,9 +255,9 @@ pub(crate) fn assert_app(app: &Command) {
         for arg in &group.args {
             // Args listed inside groups should exist
             assert!(
-                app.get_arguments().any(|x| x.id == *arg),
+                cmd.get_arguments().any(|x| x.id == *arg),
                 "Command {}: Argument group '{}' contains non-existent argument '{:?}'",
-                app.get_name(),
+                cmd.get_name(),
                 group.name,
                 arg
             );
@@ -272,25 +272,25 @@ pub(crate) fn assert_app(app: &Command) {
     detect_duplicate_flags(&long_flags, "long");
     detect_duplicate_flags(&short_flags, "short");
 
-    _verify_positionals(app);
+    _verify_positionals(cmd);
 
-    if let Some(help_template) = app.get_help_template() {
+    if let Some(help_template) = cmd.get_help_template() {
         assert!(
             !help_template.contains("{flags}"),
             "Command {}: {}",
-                    app.get_name(),
+                    cmd.get_name(),
             "`{flags}` template variable was removed in clap3, they are now included in `{options}`",
         );
         assert!(
             !help_template.contains("{unified}"),
             "Command {}: {}",
-            app.get_name(),
+            cmd.get_name(),
             "`{unified}` template variable was removed in clap3, use `{options}` instead"
         );
     }
 
-    app._panic_on_missing_help(app.is_help_expected_set());
-    assert_app_flags(app);
+    cmd._panic_on_missing_help(cmd.is_help_expected_set());
+    assert_app_flags(cmd);
 }
 
 #[derive(Eq)]
@@ -370,14 +370,14 @@ fn find_duplicates<T: PartialEq>(slice: &[T]) -> impl Iterator<Item = (&T, &T)> 
     })
 }
 
-fn assert_app_flags(app: &Command) {
+fn assert_app_flags(cmd: &Command) {
     macro_rules! checker {
         ($a:ident requires $($b:ident)|+) => {
-            if app.$a() {
+            if cmd.$a() {
                 let mut s = String::new();
 
                 $(
-                    if !app.$b() {
+                    if !cmd.$b() {
                         s.push_str(&format!("  AppSettings::{} is required when AppSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
@@ -388,17 +388,17 @@ fn assert_app_flags(app: &Command) {
             }
         };
         ($a:ident conflicts $($b:ident)|+) => {
-            if app.$a() {
+            if cmd.$a() {
                 let mut s = String::new();
 
                 $(
-                    if app.$b() {
+                    if cmd.$b() {
                         s.push_str(&format!("  AppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
 
                 if !s.is_empty() {
-                    panic!("{}\n{}", app.get_name(), s)
+                    panic!("{}\n{}", cmd.get_name(), s)
                 }
             }
         };
@@ -410,7 +410,7 @@ fn assert_app_flags(app: &Command) {
 }
 
 #[cfg(debug_assertions)]
-fn _verify_positionals(app: &Command) -> bool {
+fn _verify_positionals(cmd: &Command) -> bool {
     debug!("Command::_verify_positionals");
     // Because you must wait until all arguments have been supplied, this is the first chance
     // to make assertions on positional argument indexes
@@ -419,7 +419,7 @@ fn _verify_positionals(app: &Command) -> bool {
     // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
     // but no 2)
 
-    let highest_idx = app
+    let highest_idx = cmd
         .get_keymap()
         .keys()
         .filter_map(|x| {
@@ -432,7 +432,7 @@ fn _verify_positionals(app: &Command) -> bool {
         .max()
         .unwrap_or(0);
 
-    let num_p = app.get_keymap().keys().filter(|x| x.is_position()).count();
+    let num_p = cmd.get_keymap().keys().filter(|x| x.is_position()).count();
 
     assert!(
         highest_idx == num_p,
@@ -444,7 +444,7 @@ fn _verify_positionals(app: &Command) -> bool {
 
     // Next we verify that only the highest index has takes multiple arguments (if any)
     let only_highest = |a: &Arg| a.is_multiple() && (a.index.unwrap_or(0) != highest_idx);
-    if app.get_positionals().any(only_highest) {
+    if cmd.get_positionals().any(only_highest) {
         // First we make sure if there is a positional that allows multiple values
         // the one before it (second to last) has one of these:
         //  * a value terminator
@@ -453,8 +453,8 @@ fn _verify_positionals(app: &Command) -> bool {
 
         // We can't pass the closure (it.next()) to the macro directly because each call to
         // find() (iterator, not macro) gets called repeatedly.
-        let last = &app.get_keymap()[&KeyType::Position(highest_idx)];
-        let second_to_last = &app.get_keymap()[&KeyType::Position(highest_idx - 1)];
+        let last = &cmd.get_keymap()[&KeyType::Position(highest_idx)];
+        let second_to_last = &cmd.get_keymap()[&KeyType::Position(highest_idx - 1)];
 
         // Either the final positional is required
         // Or the second to last has a terminator or .last(true) set
@@ -477,7 +477,7 @@ fn _verify_positionals(app: &Command) -> bool {
         );
 
         // Next we check how many have both Multiple and not a specific number of values set
-        let count = app
+        let count = cmd
             .get_positionals()
             .filter(|p| {
                 p.is_multiple_occurrences_set()
@@ -498,12 +498,12 @@ fn _verify_positionals(app: &Command) -> bool {
 
     let mut found = false;
 
-    if app.is_allow_missing_positional_set() {
+    if cmd.is_allow_missing_positional_set() {
         // Check that if a required positional argument is found, all positions with a lower
         // index are also required.
         let mut foundx2 = false;
 
-        for p in app.get_positionals() {
+        for p in cmd.get_positionals() {
             if foundx2 && !p.is_required_set() {
                 assert!(
                     p.is_required_set(),
@@ -533,7 +533,7 @@ fn _verify_positionals(app: &Command) -> bool {
     } else {
         // Check that if a required positional argument is found, all positions with a lower
         // index are also required
-        for p in (1..=num_p).rev().filter_map(|n| app.get_keymap().get(&n)) {
+        for p in (1..=num_p).rev().filter_map(|n| cmd.get_keymap().get(&n)) {
             if found {
                 assert!(
                     p.is_required_set(),
@@ -555,14 +555,14 @@ fn _verify_positionals(app: &Command) -> bool {
         }
     }
     assert!(
-        app.get_positionals().filter(|p| p.is_last_set()).count() < 2,
+        cmd.get_positionals().filter(|p| p.is_last_set()).count() < 2,
         "Only one positional argument may have last(true) set. Found two."
     );
-    if app
+    if cmd
         .get_positionals()
         .any(|p| p.is_last_set() && p.is_required_set())
-        && app.has_subcommands()
-        && !app.is_subcommand_negates_reqs_set()
+        && cmd.has_subcommands()
+        && !cmd.is_subcommand_negates_reqs_set()
     {
         panic!(
             "Having a required positional argument with .last(true) set *and* child \

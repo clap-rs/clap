@@ -149,12 +149,12 @@ complete -c my_app -l help -d 'Print help information'
 
 #[test]
 fn zsh_with_value_hints() {
-    let mut app = build_app_with_value_hints();
-    common(Zsh, &mut app, "my_app", ZSH_VALUE_HINTS);
+    let mut cmd = build_app_with_value_hints();
+    common(Zsh, &mut cmd, "my_app", ZSH_VALUE_HINTS);
 }
 
 #[test]
 fn fish_with_value_hints() {
-    let mut app = build_app_with_value_hints();
-    common(Fish, &mut app, "my_app", FISH_VALUE_HINTS);
+    let mut cmd = build_app_with_value_hints();
+    common(Fish, &mut cmd, "my_app", FISH_VALUE_HINTS);
 }

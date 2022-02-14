@@ -74,33 +74,33 @@ fn flag_conflict_with_everything() {
 
 #[test]
 fn arg_conflicts_with_group() {
-    let mut app = Command::new("group_conflict")
+    let mut cmd = Command::new("group_conflict")
         .arg(arg!(-f --flag "some flag").conflicts_with("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"));
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--flag"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
@@ -108,7 +108,7 @@ fn arg_conflicts_with_group() {
 
 #[test]
 fn arg_conflicts_with_group_with_multiple_sources() {
-    let mut app = clap::Command::new("group_conflict")
+    let mut cmd = clap::Command::new("group_conflict")
         .arg(clap::arg!(-f --flag "some flag").conflicts_with("gr"))
         .group(clap::ArgGroup::new("gr").multiple(true))
         .arg(
@@ -123,29 +123,29 @@ fn arg_conflicts_with_group_with_multiple_sources() {
                 .group("gr"),
         );
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "-f"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--some", "usb1"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some", "usb1"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--some", "usb1", "--other", "40"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some", "usb1", "--other", "40"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some", "usb1"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some", "usb1"]);
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
 fn group_conflicts_with_arg() {
-    let mut app = Command::new("group_conflict")
+    let mut cmd = Command::new("group_conflict")
         .arg(arg!(-f --flag "some flag"))
         .group(
             ArgGroup::new("gr")
@@ -156,27 +156,27 @@ fn group_conflicts_with_arg() {
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"));
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--flag"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
@@ -184,28 +184,28 @@ fn group_conflicts_with_arg() {
 
 #[test]
 fn arg_conflicts_with_required_group() {
-    let mut app = Command::new("group_conflict")
+    let mut cmd = Command::new("group_conflict")
         .arg(arg!(-f --flag "some flag").conflicts_with("gr"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"));
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
@@ -213,7 +213,7 @@ fn arg_conflicts_with_required_group() {
 
 #[test]
 fn required_group_conflicts_with_arg() {
-    let mut app = Command::new("group_conflict")
+    let mut cmd = Command::new("group_conflict")
         .arg(arg!(-f --flag "some flag"))
         .group(
             ArgGroup::new("gr")
@@ -225,22 +225,22 @@ fn required_group_conflicts_with_arg() {
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"));
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
 
-    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
         panic!("{}", err);
     }
@@ -288,7 +288,7 @@ fn conflict_output_rev_with_required() {
 
 #[test]
 fn conflict_output_three_conflicting() {
-    let app = Command::new("three_conflicting_arguments")
+    let cmd = Command::new("three_conflicting_arguments")
         .arg(
             Arg::new("one")
                 .long("one")
@@ -305,7 +305,7 @@ fn conflict_output_three_conflicting() {
                 .conflicts_with_all(&["one", "two"]),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "three_conflicting_arguments --one --two --three",
         CONFLICT_ERR_THREE,
         true,

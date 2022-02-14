@@ -28,7 +28,7 @@ pub trait Generator {
     /// pub struct Fish;
     ///
     /// impl Generator for Fish {
-    /// #   fn generate(&self, app: &Command, buf: &mut dyn Write) {}
+    /// #   fn generate(&self, cmd: &Command, buf: &mut dyn Write) {}
     ///     fn file_name(&self, name: &str) -> String {
     ///         format!("{}.fish", name)
     ///     }
@@ -55,15 +55,15 @@ pub trait Generator {
     /// pub struct ClapDebug;
     ///
     /// impl Generator for ClapDebug {
-    ///     fn generate(&self, app: &Command, buf: &mut dyn Write) {
-    ///         write!(buf, "{}", app).unwrap();
+    ///     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+    ///         write!(buf, "{}", cmd).unwrap();
     ///     }
     /// #   fn file_name(&self, name: &str) -> String {
     /// #    name.into()
     /// #   }
     /// }
     /// ```
-    fn generate(&self, app: &Command, buf: &mut dyn Write);
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write);
 }
 
 /// Generate a completions file for a specified shell at compile-time.
@@ -144,10 +144,10 @@ pub trait Generator {
 ///         Some(outdir) => outdir,
 ///     };
 ///
-///     let mut app = build_cli();
+///     let mut cmd = build_cli();
 ///     let path = generate_to(
 ///         Bash,
-///         &mut app, // We need to specify what generator to use
+///         &mut cmd, // We need to specify what generator to use
 ///         "myapp",  // We need to specify the bin name manually
 ///         outdir,   // We need to specify where to write to
 ///     )?;
@@ -166,7 +166,7 @@ pub trait Generator {
 /// to see the name of the files generated.
 pub fn generate_to<G, S, T>(
     gen: G,
-    app: &mut clap::Command,
+    cmd: &mut clap::Command,
     bin_name: S,
     out_dir: T,
 ) -> Result<PathBuf, Error>
@@ -175,15 +175,15 @@ where
     S: Into<String>,
     T: Into<OsString>,
 {
-    app.set_bin_name(bin_name);
+    cmd.set_bin_name(bin_name);
 
     let out_dir = PathBuf::from(out_dir.into());
-    let file_name = gen.file_name(app.get_bin_name().unwrap());
+    let file_name = gen.file_name(cmd.get_bin_name().unwrap());
 
     let path = out_dir.join(file_name);
     let mut file = File::create(&path)?;
 
-    _generate::<G, S>(gen, app, &mut file);
+    _generate::<G, S>(gen, cmd, &mut file);
     Ok(path)
 }
 
@@ -222,21 +222,21 @@ where
 /// ```shell
 /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
 /// ```
-pub fn generate<G, S>(gen: G, app: &mut clap::Command, bin_name: S, buf: &mut dyn Write)
+pub fn generate<G, S>(gen: G, cmd: &mut clap::Command, bin_name: S, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
 {
-    app.set_bin_name(bin_name);
-    _generate::<G, S>(gen, app, buf)
+    cmd.set_bin_name(bin_name);
+    _generate::<G, S>(gen, cmd, buf)
 }
 
-fn _generate<G, S>(gen: G, app: &mut clap::Command, buf: &mut dyn Write)
+fn _generate<G, S>(gen: G, cmd: &mut clap::Command, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
 {
-    app._build_all();
+    cmd._build_all();
 
-    gen.generate(app, buf)
+    gen.generate(cmd, buf)
 }

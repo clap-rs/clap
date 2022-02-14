@@ -26,8 +26,8 @@ fn build_app_with_name(s: &'static str) -> Command<'static> {
 
 #[test]
 fn zsh() {
-    let mut app = build_app();
-    common(Zsh, &mut app, "myapp", ZSH);
+    let mut cmd = build_app();
+    common(Zsh, &mut cmd, "myapp", ZSH);
 }
 
 static ZSH: &str = r#"#compdef myapp
@@ -104,8 +104,8 @@ _myapp "$@"
 
 #[test]
 fn zsh_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Zsh, &mut app, "my_app", ZSH_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Zsh, &mut cmd, "my_app", ZSH_SPECIAL_CMDS);
 }
 
 fn build_app_special_commands() -> Command<'static> {
@@ -242,8 +242,8 @@ _my_app "$@"
 
 #[test]
 fn zsh_with_special_help() {
-    let mut app = build_app_special_help();
-    common(Zsh, &mut app, "my_app", ZSH_SPECIAL_HELP);
+    let mut cmd = build_app_special_help();
+    common(Zsh, &mut cmd, "my_app", ZSH_SPECIAL_HELP);
 }
 
 fn build_app_special_help() -> Command<'static> {
@@ -318,8 +318,8 @@ _my_app "$@"
 
 #[test]
 fn zsh_with_nested_subcommands() {
-    let mut app = build_app_nested_subcommands();
-    common(Zsh, &mut app, "my_app", ZSH_NESTED_SUBCOMMANDS);
+    let mut cmd = build_app_nested_subcommands();
+    common(Zsh, &mut cmd, "my_app", ZSH_NESTED_SUBCOMMANDS);
 }
 
 fn build_app_nested_subcommands() -> Command<'static> {
@@ -438,8 +438,8 @@ _my_app "$@"
 
 #[test]
 fn zsh_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Zsh, &mut app, "cmd", ZSH_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Zsh, &mut cmd, "cmd", ZSH_ALIASES);
 }
 
 fn build_app_with_aliases() -> Command<'static> {
@@ -510,8 +510,8 @@ _cmd "$@"
 
 #[test]
 fn zsh_with_files_and_dirs() {
-    let mut app = build_app_with_files_and_dirs();
-    common(Zsh, &mut app, "my_app", ZSH_PATHS);
+    let mut cmd = build_app_with_files_and_dirs();
+    common(Zsh, &mut cmd, "my_app", ZSH_PATHS);
 }
 
 fn build_app_with_files_and_dirs() -> Command<'static> {

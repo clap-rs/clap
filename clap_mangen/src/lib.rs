@@ -14,7 +14,7 @@ use std::io::Write;
 
 /// A manpage writer
 pub struct Man<'a> {
-    app: clap::Command<'a>,
+    cmd: clap::Command<'a>,
     title: String,
     section: String,
     date: String,
@@ -25,19 +25,19 @@ pub struct Man<'a> {
 /// Build a [`Man`]
 impl<'a> Man<'a> {
     /// Create a new manual page.
-    pub fn new(mut app: clap::Command<'a>) -> Self {
-        app._build_all();
-        let title = app.get_name().to_owned();
+    pub fn new(mut cmd: clap::Command<'a>) -> Self {
+        cmd._build_all();
+        let title = cmd.get_name().to_owned();
         let section = "1".to_owned();
         let date = "".to_owned();
         let source = format!(
             "{} {}",
-            app.get_name(),
-            app.get_version().unwrap_or_default()
+            cmd.get_name(),
+            cmd.get_version().unwrap_or_default()
         );
         let manual = "".to_owned();
         Self {
-            app,
+            cmd,
             title,
             section,
             date,
@@ -105,23 +105,23 @@ impl<'a> Man<'a> {
         self._render_synopsis_section(&mut roff);
         self._render_description_section(&mut roff);
 
-        if app_has_arguments(&self.app) {
+        if app_has_arguments(&self.cmd) {
             self._render_options_section(&mut roff);
         }
 
-        if app_has_subcommands(&self.app) {
+        if app_has_subcommands(&self.cmd) {
             self._render_subcommands_section(&mut roff);
         }
 
-        if self.app.get_after_long_help().is_some() || self.app.get_after_help().is_some() {
+        if self.cmd.get_after_long_help().is_some() || self.cmd.get_after_help().is_some() {
             self._render_extra_section(&mut roff);
         }
 
-        if app_has_version(&self.app) {
+        if app_has_version(&self.cmd) {
             self._render_version_section(&mut roff);
         }
 
-        if self.app.get_author().is_some() {
+        if self.cmd.get_author().is_some() {
             self._render_authors_section(&mut roff);
         }
 
@@ -159,7 +159,7 @@ impl<'a> Man<'a> {
 
     fn _render_name_section(&self, roff: &mut Roff) {
         roff.control("SH", ["NAME"]);
-        render::about(roff, &self.app);
+        render::about(roff, &self.cmd);
     }
 
     /// Render the SYNOPSIS section into the writer.
@@ -171,7 +171,7 @@ impl<'a> Man<'a> {
 
     fn _render_synopsis_section(&self, roff: &mut Roff) {
         roff.control("SH", ["SYNOPSIS"]);
-        render::synopsis(roff, &self.app);
+        render::synopsis(roff, &self.cmd);
     }
 
     /// Render the DESCRIPTION section into the writer.
@@ -183,7 +183,7 @@ impl<'a> Man<'a> {
 
     fn _render_description_section(&self, roff: &mut Roff) {
         roff.control("SH", ["DESCRIPTION"]);
-        render::description(roff, &self.app);
+        render::description(roff, &self.cmd);
     }
 
     /// Render the OPTIONS section into the writer.
@@ -195,7 +195,7 @@ impl<'a> Man<'a> {
 
     fn _render_options_section(&self, roff: &mut Roff) {
         roff.control("SH", ["OPTIONS"]);
-        render::options(roff, &self.app);
+        render::options(roff, &self.cmd);
     }
 
     /// Render the SUBCOMMANDS section into the writer.
@@ -206,9 +206,9 @@ impl<'a> Man<'a> {
     }
 
     fn _render_subcommands_section(&self, roff: &mut Roff) {
-        let heading = subcommand_heading(&self.app);
+        let heading = subcommand_heading(&self.cmd);
         roff.control("SH", [heading.as_str()]);
-        render::subcommands(roff, &self.app, &self.section);
+        render::subcommands(roff, &self.cmd, &self.section);
     }
 
     /// Render the EXTRA section into the writer.
@@ -220,7 +220,7 @@ impl<'a> Man<'a> {
 
     fn _render_extra_section(&self, roff: &mut Roff) {
         roff.control("SH", ["EXTRA"]);
-        render::after_help(roff, &self.app);
+        render::after_help(roff, &self.cmd);
     }
 
     /// Render the VERSION section into the writer.
@@ -231,7 +231,7 @@ impl<'a> Man<'a> {
     }
 
     fn _render_version_section(&self, roff: &mut Roff) {
-        let version = roman(&render::version(&self.app));
+        let version = roman(&render::version(&self.cmd));
         roff.control("SH", ["VERSION"]);
         roff.text([version]);
     }
@@ -244,25 +244,25 @@ impl<'a> Man<'a> {
     }
 
     fn _render_authors_section(&self, roff: &mut Roff) {
-        let author = roman(self.app.get_author().unwrap_or_default());
+        let author = roman(self.cmd.get_author().unwrap_or_default());
         roff.control("SH", ["AUTHORS"]);
         roff.text([author]);
     }
 }
 
 // Does the application have a version?
-fn app_has_version(app: &clap::Command) -> bool {
-    app.get_version()
-        .or_else(|| app.get_long_version())
+fn app_has_version(cmd: &clap::Command) -> bool {
+    cmd.get_version()
+        .or_else(|| cmd.get_long_version())
         .is_some()
 }
 
 // Does the application have any command line arguments?
-fn app_has_arguments(app: &clap::Command) -> bool {
-    app.get_arguments().any(|i| !i.is_hide_set())
+fn app_has_arguments(cmd: &clap::Command) -> bool {
+    cmd.get_arguments().any(|i| !i.is_hide_set())
 }
 
 // Does the application have any subcommands?
-fn app_has_subcommands(app: &clap::Command) -> bool {
-    app.get_subcommands().any(|i| !i.is_hide_set())
+fn app_has_subcommands(cmd: &clap::Command) -> bool {
+    cmd.get_subcommands().any(|i| !i.is_hide_set())
 }

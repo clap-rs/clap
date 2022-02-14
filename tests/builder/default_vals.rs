@@ -505,7 +505,7 @@ fn default_ifs_arg_present_order() {
 
 #[test]
 fn conditional_reqs_pass() {
-    let m = Command::new("Test app")
+    let m = Command::new("Test cmd")
         .arg(
             Arg::new("target")
                 .takes_value(true)
@@ -568,7 +568,7 @@ fn multiple_defaults_override() {
 
 #[test]
 fn default_vals_donnot_show_in_smart_usage() {
-    let app = Command::new("bug")
+    let cmd = Command::new("bug")
         .arg(
             Arg::new("foo")
                 .long("config")
@@ -578,7 +578,7 @@ fn default_vals_donnot_show_in_smart_usage() {
         .arg(Arg::new("input").required(true));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "bug",
         "error: The following required arguments were not provided:
     <input>
@@ -663,7 +663,7 @@ fn default_values_are_valid() {
 
 #[test]
 fn with_value_delimiter() {
-    let app = Command::new("multiple_values").arg(
+    let cmd = Command::new("multiple_values").arg(
         Arg::new("option")
             .long("option")
             .help("multiple options")
@@ -671,7 +671,7 @@ fn with_value_delimiter() {
             .default_value("first;second"),
     );
 
-    let matches = app.try_get_matches_from(vec![""]).unwrap();
+    let matches = cmd.try_get_matches_from(vec![""]).unwrap();
 
     assert_eq!(
         matches.values_of("option").unwrap().collect::<Vec<_>>(),
@@ -681,14 +681,14 @@ fn with_value_delimiter() {
 
 #[test]
 fn missing_with_value_delimiter() {
-    let app = Command::new("program").arg(
+    let cmd = Command::new("program").arg(
         Arg::new("option")
             .long("option")
             .value_delimiter(';')
             .default_missing_values(&["value1;value2;value3", "value4;value5"]),
     );
 
-    let matches = app
+    let matches = cmd
         .try_get_matches_from(vec!["program", "--option"])
         .unwrap();
 

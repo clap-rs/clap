@@ -2,11 +2,11 @@ use clap::{arg, Arg, Command};
 
 #[test]
 fn single_short_arg_without_value() {
-    let app = Command::new("app").ignore_errors(true).arg(arg!(
+    let cmd = Command::new("cmd").ignore_errors(true).arg(arg!(
         -c --config [FILE] "Sets a custom config file"
     ));
 
-    let r = app.try_get_matches_from(vec!["app", "-c" /* missing: , "config file" */]);
+    let r = cmd.try_get_matches_from(vec!["cmd", "-c" /* missing: , "config file" */]);
 
     assert!(r.is_ok(), "unexpected error: {:?}", r);
     let m = r.unwrap();
@@ -15,11 +15,11 @@ fn single_short_arg_without_value() {
 
 #[test]
 fn single_long_arg_without_value() {
-    let app = Command::new("app").ignore_errors(true).arg(arg!(
+    let cmd = Command::new("cmd").ignore_errors(true).arg(arg!(
         -c --config [FILE] "Sets a custom config file"
     ));
 
-    let r = app.try_get_matches_from(vec!["app", "--config" /* missing: , "config file" */]);
+    let r = cmd.try_get_matches_from(vec!["cmd", "--config" /* missing: , "config file" */]);
 
     assert!(r.is_ok(), "unexpected error: {:?}", r);
     let m = r.unwrap();
@@ -28,7 +28,7 @@ fn single_long_arg_without_value() {
 
 #[test]
 fn multiple_args_and_final_arg_without_value() {
-    let app = Command::new("app")
+    let cmd = Command::new("cmd")
         .ignore_errors(true)
         .arg(arg!(
             -c --config [FILE] "Sets a custom config file"
@@ -38,8 +38,8 @@ fn multiple_args_and_final_arg_without_value() {
         ))
         .arg(arg!(f: -f "Flag"));
 
-    let r = app.try_get_matches_from(vec![
-        "app", "-c", "file", "-f", "-x", /* missing: , "some stuff" */
+    let r = cmd.try_get_matches_from(vec![
+        "cmd", "-c", "file", "-f", "-x", /* missing: , "some stuff" */
     ]);
 
     assert!(r.is_ok(), "unexpected error: {:?}", r);
@@ -51,7 +51,7 @@ fn multiple_args_and_final_arg_without_value() {
 
 #[test]
 fn multiple_args_and_intermittent_arg_without_value() {
-    let app = Command::new("app")
+    let cmd = Command::new("cmd")
         .ignore_errors(true)
         .arg(arg!(
             -c --config[FILE] "Sets a custom config file"
@@ -61,8 +61,8 @@ fn multiple_args_and_intermittent_arg_without_value() {
         ))
         .arg(arg!(f: -f "Flag"));
 
-    let r = app.try_get_matches_from(vec![
-        "app", "-x", /* missing: ,"some stuff" */
+    let r = cmd.try_get_matches_from(vec![
+        "cmd", "-x", /* missing: ,"some stuff" */
         "-c", "file", "-f",
     ]);
 
@@ -75,7 +75,7 @@ fn multiple_args_and_intermittent_arg_without_value() {
 
 #[test]
 fn subcommand() {
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .ignore_errors(true)
         .subcommand(
             Command::new("some")
@@ -96,7 +96,7 @@ fn subcommand() {
         )
         .arg(Arg::new("other").long("other"));
 
-    let m = app
+    let m = cmd
         .try_get_matches_from(vec![
             "myprog",
             "some",

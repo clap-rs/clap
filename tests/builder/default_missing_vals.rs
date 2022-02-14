@@ -80,7 +80,7 @@ fn opt_present_with_empty_value() {
 #[test]
 fn opt_default() {
     // assert no change to usual argument handling when adding default_missing_value()
-    let r = Command::new("app")
+    let r = Command::new("cmd")
         .arg(
             arg!(o: -o [opt] "some opt")
                 .default_value("default")
@@ -96,7 +96,7 @@ fn opt_default() {
 #[test]
 fn opt_default_user_override() {
     // assert no change to usual argument handling when adding default_missing_value()
-    let r = Command::new("app")
+    let r = Command::new("cmd")
         .arg(
             arg!(o: -o [opt] "some opt")
                 .default_value("default")
@@ -112,7 +112,7 @@ fn opt_default_user_override() {
 #[test]
 #[allow(clippy::bool_assert_comparison)]
 fn default_missing_value_flag_value() {
-    let app = Command::new("test").arg(
+    let cmd = Command::new("test").arg(
         Arg::new("flag")
             .long("flag")
             .takes_value(true)
@@ -127,12 +127,12 @@ fn default_missing_value_flag_value() {
     }
 
     assert_eq!(
-        flag_value(app.clone().try_get_matches_from(&["test"]).unwrap()),
+        flag_value(cmd.clone().try_get_matches_from(&["test"]).unwrap()),
         false
     );
     assert_eq!(
         flag_value(
-            app.clone()
+            cmd.clone()
                 .try_get_matches_from(&["test", "--flag"])
                 .unwrap()
         ),
@@ -140,7 +140,7 @@ fn default_missing_value_flag_value() {
     );
     assert_eq!(
         flag_value(
-            app.clone()
+            cmd.clone()
                 .try_get_matches_from(&["test", "--flag=true"])
                 .unwrap()
         ),
@@ -148,7 +148,7 @@ fn default_missing_value_flag_value() {
     );
     assert_eq!(
         flag_value(
-            app.clone()
+            cmd.clone()
                 .try_get_matches_from(&["test", "--flag=false"])
                 .unwrap()
         ),

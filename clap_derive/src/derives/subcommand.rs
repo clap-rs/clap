@@ -260,7 +260,7 @@ fn gen_augment(
                     let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
                     let sub_augment = match variant.fields {
                         Named(ref fields) => {
-                            // Defer to `gen_augment` for adding app methods
+                            // Defer to `gen_augment` for adding cmd methods
                             args::gen_augment(&fields.named, &subcommand_var, &attrs, override_required)
                         }
                         Unit => {

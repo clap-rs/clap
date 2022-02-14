@@ -2,7 +2,7 @@ use clap::{arg, Arg, Command};
 
 #[test]
 fn issue_1076() {
-    let mut app = Command::new("myprog")
+    let mut cmd = Command::new("myprog")
         .arg(
             Arg::new("GLOBAL_ARG")
                 .long("global-arg")
@@ -19,9 +19,9 @@ fn issue_1076() {
                 .takes_value(true),
         )
         .subcommand(Command::new("outer").subcommand(Command::new("inner")));
-    let _ = app.try_get_matches_from_mut(vec!["myprog"]);
-    let _ = app.try_get_matches_from_mut(vec!["myprog"]);
-    let _ = app.try_get_matches_from_mut(vec!["myprog"]);
+    let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
+    let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
+    let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
                 .subcommand(Command::new("test")),
         )
         .try_get_matches_from(&[
-            "app",
+            "cmd",
             "test",
             "test",
             "--global-flag",
@@ -91,7 +91,7 @@ fn global_arg_available_in_subcommand() {
 
 #[test]
 fn deeply_nested_discovery() {
-    let app = Command::new("a")
+    let cmd = Command::new("a")
         .arg(arg!(--"long-a").global(true))
         .subcommand(
             Command::new("b")
@@ -103,7 +103,7 @@ fn deeply_nested_discovery() {
                 ),
         );
 
-    let m = app
+    let m = cmd
         .try_get_matches_from(["a", "b", "c", "d", "--long-a", "--long-b", "--long-c"])
         .unwrap();
     assert!(m.is_present("long-a"));

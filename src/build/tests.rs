@@ -3,24 +3,24 @@ use crate::Command;
 
 #[test]
 fn propagate_version() {
-    let mut app = Command::new("test")
+    let mut cmd = Command::new("test")
         .propagate_version(true)
         .version("1.1")
         .subcommand(Command::new("sub1"));
-    app._propagate();
+    cmd._propagate();
     assert_eq!(
-        app.get_subcommands().next().unwrap().get_version(),
+        cmd.get_subcommands().next().unwrap().get_version(),
         Some("1.1")
     );
 }
 
 #[test]
 fn global_setting() {
-    let mut app = Command::new("test")
+    let mut cmd = Command::new("test")
         .disable_version_flag(true)
         .subcommand(Command::new("subcmd"));
-    app._propagate();
-    assert!(app
+    cmd._propagate();
+    assert!(cmd
         .get_subcommands()
         .find(|s| s.get_name() == "subcmd")
         .unwrap()
@@ -36,12 +36,12 @@ fn app_send_sync() {
 
 #[test]
 fn issue_2090() {
-    let mut app = Command::new("app")
+    let mut cmd = Command::new("cmd")
         .disable_version_flag(true)
         .subcommand(Command::new("sub"));
-    app._build();
+    cmd._build();
 
-    assert!(app
+    assert!(cmd
         .get_subcommands()
         .next()
         .unwrap()

@@ -176,7 +176,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
 
 #[test]
 fn issue_1374() {
-    let app = Command::new("MyApp").arg(
+    let cmd = Command::new("MyApp").arg(
         Arg::new("input")
             .takes_value(true)
             .long("input")
@@ -184,13 +184,13 @@ fn issue_1374() {
             .min_values(0)
             .multiple_occurrences(true),
     );
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"])
         .unwrap();
     let vs = matches.values_of("input").unwrap();
     assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"])
         .unwrap();

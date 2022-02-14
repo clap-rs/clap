@@ -26,8 +26,8 @@ fn build_app_with_name(s: &'static str) -> Command<'static> {
 
 #[test]
 fn elvish() {
-    let mut app = build_app();
-    common(Elvish, &mut app, "my_app", ELVISH);
+    let mut cmd = build_app();
+    common(Elvish, &mut cmd, "my_app", ELVISH);
 }
 
 static ELVISH: &str = r#"
@@ -73,8 +73,8 @@ set edit:completion:arg-completer[my_app] = {|@words|
 
 #[test]
 fn elvish_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Elvish, &mut app, "my_app", ELVISH_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Elvish, &mut cmd, "my_app", ELVISH_SPECIAL_CMDS);
 }
 
 fn build_app_special_commands() -> Command<'static> {
@@ -148,8 +148,8 @@ set edit:completion:arg-completer[my_app] = {|@words|
 
 #[test]
 fn elvish_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Elvish, &mut app, "cmd", ELVISH_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Elvish, &mut cmd, "cmd", ELVISH_ALIASES);
 }
 
 fn build_app_with_aliases() -> Command<'static> {

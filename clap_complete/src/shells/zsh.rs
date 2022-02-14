@@ -14,8 +14,8 @@ impl Generator for Zsh {
         format!("_{}", name)
     }
 
-    fn generate(&self, app: &Command, buf: &mut dyn Write) {
-        let bin_name = app
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
@@ -46,9 +46,9 @@ _{name}() {{
 _{name} \"$@\"
 ",
                 name = bin_name,
-                initial_args = get_args_of(app, None),
-                subcommands = get_subcommands_of(app),
-                subcommand_details = subcommand_details(app)
+                initial_args = get_args_of(cmd, None),
+                subcommands = get_subcommands_of(cmd),
+                subcommand_details = subcommand_details(cmd)
             )
             .as_bytes()
         );
@@ -280,10 +280,10 @@ esac",
 //
 // Given the bin_name "a b c" and the Command for "a" this returns the "c" Command.
 // Given the bin_name "a b c" and the Command for "b" this returns the "c" Command.
-fn parser_of<'help, 'app>(
-    parent: &'app Command<'help>,
+fn parser_of<'help, 'cmd>(
+    parent: &'cmd Command<'help>,
     bin_name: &str,
-) -> Option<&'app Command<'help>> {
+) -> Option<&'cmd Command<'help>> {
     debug!("parser_of: p={}, bin_name={}", parent.get_name(), bin_name);
 
     if bin_name == parent.get_bin_name().unwrap_or(&String::new()) {
@@ -504,7 +504,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
     ret.join("\n")
 }
 
-fn arg_conflicts(app: &Command, arg: &Arg, app_global: Option<&Command>) -> String {
+fn arg_conflicts(cmd: &Command, arg: &Arg, app_global: Option<&Command>) -> String {
     fn push_conflicts(conflicts: &[&Arg], res: &mut Vec<String>) {
         for conflict in conflicts {
             if let Some(s) = conflict.get_short() {
@@ -529,7 +529,7 @@ fn arg_conflicts(app: &Command, arg: &Arg, app_global: Option<&Command>) -> Stri
             push_conflicts(&conflicts, &mut res);
         }
         (_, _) => {
-            let conflicts = app.get_arg_conflicts_with(arg);
+            let conflicts = cmd.get_arg_conflicts_with(arg);
 
             if conflicts.is_empty() {
                 return String::new();

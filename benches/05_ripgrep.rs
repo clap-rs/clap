@@ -19,13 +19,13 @@ pub fn build_rg_with_long_help(c: &mut Criterion) {
 }
 
 pub fn write_rg_short_help(c: &mut Criterion) {
-    let mut app = app_short();
-    c.bench_function("write_rg_short_help", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_short();
+    c.bench_function("write_rg_short_help", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn write_rg_long_help(c: &mut Criterion) {
-    let mut app = app_long();
-    c.bench_function("write_rg_long_help", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_long();
+    c.bench_function("write_rg_long_help", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn parse_rg(c: &mut Criterion) {
@@ -271,18 +271,18 @@ OPTIONS:
 
 /// Build a clap application with short help strings.
 fn app_short() -> Command<'static> {
-    app(false, |k| USAGES[k].short)
+    cmd(false, |k| USAGES[k].short)
 }
 
 /// Build a clap application with long help strings.
 fn app_long() -> Command<'static> {
-    app(true, |k| USAGES[k].long)
+    cmd(true, |k| USAGES[k].long)
 }
 
 /// Build the help text of an application.
-fn build_help(app: &mut Command) -> String {
+fn build_help(cmd: &mut Command) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
-    app.write_help(&mut buf).unwrap();
+    cmd.write_help(&mut buf).unwrap();
     let content = buf.into_inner();
     String::from_utf8(content).unwrap()
 }
@@ -290,11 +290,11 @@ fn build_help(app: &mut Command) -> String {
 /// Build a clap application parameterized by usage strings.
 ///
 /// The function given should take a clap argument name and return a help
-/// string. `app` will panic if a usage string is not defined.
+/// string. `cmd` will panic if a usage string is not defined.
 ///
 /// This is an intentionally stand-alone module so that it can be used easily
 /// in a `build.rs` script to build shell completion files.
-fn app<F>(_next_line_help: bool, doc: F) -> Command<'static>
+fn cmd<F>(_next_line_help: bool, doc: F) -> Command<'static>
 where
     F: Fn(&'static str) -> &'static str,
 {

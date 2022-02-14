@@ -27,8 +27,8 @@ fn build_app_with_name(s: &'static str) -> Command<'static> {
 
 #[test]
 fn bash() {
-    let mut app = build_app();
-    common(Bash, &mut app, "myapp", BASH);
+    let mut cmd = build_app();
+    common(Bash, &mut cmd, "myapp", BASH);
 }
 
 static BASH: &str = r#"_myapp() {
@@ -111,8 +111,8 @@ complete -F _myapp -o bashdefault -o default myapp
 
 #[test]
 fn bash_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Bash, &mut app, "my_app", BASH_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Bash, &mut cmd, "my_app", BASH_SPECIAL_CMDS);
 }
 
 fn build_app_special_commands() -> Command<'static> {
@@ -246,8 +246,8 @@ complete -F _my_app -o bashdefault -o default my_app
 
 #[test]
 fn bash_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Bash, &mut app, "cmd", BASH_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Bash, &mut cmd, "cmd", BASH_ALIASES);
 }
 
 fn build_app_with_aliases() -> Command<'static> {

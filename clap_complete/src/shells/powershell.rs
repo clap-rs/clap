@@ -14,13 +14,13 @@ impl Generator for PowerShell {
         format!("_{}.ps1", name)
     }
 
-    fn generate(&self, app: &Command, buf: &mut dyn Write) {
-        let bin_name = app
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
         let mut names = vec![];
-        let subcommands_cases = generate_inner(app, "", &mut names);
+        let subcommands_cases = generate_inner(cmd, "", &mut names);
 
         let result = format!(
             r#"

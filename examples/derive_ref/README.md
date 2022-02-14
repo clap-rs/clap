@@ -3,7 +3,7 @@
 1. [Overview](#overview)
 2. [Raw Attributes](#raw-attributes)
 3. [Magic Attributes](#magic-attributes)
-    1. [Command Attributes](#app-attributes)
+    1. [Command Attributes](#cmd-attributes)
     2. [Arg Attributes](#arg-attributes)
     3. [Arg Types](#arg-types)
     4. [Arg Enum Attributes](#arg-enum-attributes)
@@ -173,7 +173,7 @@ In addition to the raw attributes, the following magic attributes are supported:
     [clap-rs/clap#3269](https://github.com/clap-rs/clap/issues/3269) for why
     arg attributes are not generally supported.
   - **Tip:** Though we do apply a flattened `Args`'s Parent Command Attributes, this
-    makes reuse harder. Generally prefer putting the app attributes on the `Parser`
+    makes reuse harder. Generally prefer putting the cmd attributes on the `Parser`
     or on the flattened field.
 - `subcommand`: Delegates definition of subcommands to the field (must implement `Subcommand`)
   - When `Option<T>`, the subcommand becomes optional

@@ -241,7 +241,7 @@ fn arg_required_else_help_with_default() {
 
 #[test]
 fn arg_required_else_help_error_message() {
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .arg_required_else_help(true)
         .version("1.0")
         .arg(
@@ -251,7 +251,7 @@ fn arg_required_else_help_error_message() {
                 .long("info"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test",
         ARG_REQUIRED_ELSE_HELP,
         true // Unlike normal displaying of help, we should provide a fatal exit code
@@ -277,12 +277,12 @@ fn subcommand_required_else_help() {
 #[test]
 fn subcommand_required_else_help_error_message() {
     #![allow(deprecated)]
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version("1.0")
         .subcommand(Command::new("info").arg(Arg::new("filename")));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test",
         SUBCOMMAND_REQUIRED_ELSE_HELP,
         true // Unlike normal displaying of help, we should provide a fatal exit code
@@ -407,7 +407,7 @@ fn no_bin_name() {
 
 #[test]
 fn skip_possible_values() {
-    let app = Command::new("test")
+    let cmd = Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
@@ -420,7 +420,7 @@ fn skip_possible_values() {
         ]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         SKIP_POS_VALS,
         false
@@ -616,7 +616,7 @@ fn disable_help_subcommand() {
 
 #[test]
 fn dont_collapse_args() {
-    let app = Command::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .dont_collapse_args_in_usage(true)
         .args(&[
@@ -625,7 +625,7 @@ fn dont_collapse_args() {
             Arg::new("arg3").help("some"),
         ]);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         DONT_COLLAPSE_ARGS,
         false
@@ -634,7 +634,7 @@ fn dont_collapse_args() {
 
 #[test]
 fn require_eq() {
-    let app = Command::new("clap-test").version("v1.4.8").arg(
+    let cmd = Command::new("clap-test").version("v1.4.8").arg(
         Arg::new("opt")
             .long("opt")
             .short('o')
@@ -644,7 +644,7 @@ fn require_eq() {
             .help("some"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         REQUIRE_EQUALS,
         false
@@ -860,11 +860,11 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
 
 #[test]
 fn issue_1093_allow_ext_sc() {
-    let app = Command::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .allow_external_subcommands(true);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         ALLOW_EXT_SC,
         false
@@ -1111,21 +1111,21 @@ fn aaos_option_use_delim_false() {
 
 #[test]
 fn no_auto_help() {
-    let app = Command::new("myprog")
+    let cmd = Command::new("myprog")
         .setting(AppSettings::NoAutoHelp)
         .subcommand(Command::new("foo"));
 
-    let result = app.clone().try_get_matches_from("myprog --help".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog --help".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("help"));
 
-    let result = app.clone().try_get_matches_from("myprog -h".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog -h".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("help"));
 
-    let result = app.clone().try_get_matches_from("myprog help".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog help".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert_eq!(result.unwrap().subcommand_name(), Some("help"));
@@ -1133,18 +1133,18 @@ fn no_auto_help() {
 
 #[test]
 fn no_auto_version() {
-    let app = Command::new("myprog")
+    let cmd = Command::new("myprog")
         .version("3.0")
         .setting(AppSettings::NoAutoVersion);
 
-    let result = app
+    let result = cmd
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 
-    let result = app.clone().try_get_matches_from("myprog -V".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
@@ -1152,19 +1152,19 @@ fn no_auto_version() {
 
 #[test]
 fn no_auto_version_mut_arg() {
-    let app = Command::new("myprog")
+    let cmd = Command::new("myprog")
         .version("3.0")
         .mut_arg("version", |v| v.help("custom help"))
         .setting(AppSettings::NoAutoVersion);
 
-    let result = app
+    let result = cmd
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 
-    let result = app.clone().try_get_matches_from("myprog -V".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
@@ -1173,12 +1173,12 @@ fn no_auto_version_mut_arg() {
 #[test]
 #[cfg(feature = "color")]
 fn color_is_global() {
-    let mut app = Command::new("myprog")
+    let mut cmd = Command::new("myprog")
         .color(clap::ColorChoice::Never)
         .subcommand(Command::new("foo"));
-    app._build_all();
-    assert_eq!(app.get_color(), clap::ColorChoice::Never);
+    cmd._build_all();
+    assert_eq!(cmd.get_color(), clap::ColorChoice::Never);
 
-    let sub = app.get_subcommands().collect::<Vec<_>>()[0];
+    let sub = cmd.get_subcommands().collect::<Vec<_>>()[0];
     assert_eq!(sub.get_color(), clap::ColorChoice::Never);
 }

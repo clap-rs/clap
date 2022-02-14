@@ -57,17 +57,17 @@ struct Opt {
     email: Option<String>,
 }
 
-fn print_completions<G: Generator>(gen: G, app: &mut Command) {
-    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
     let opt = Opt::parse();
 
     if let Some(generator) = opt.generator {
-        let mut app = Opt::into_app();
+        let mut cmd = Opt::into_app();
         eprintln!("Generating completion file for {:?}...", generator);
-        print_completions(generator, &mut app);
+        print_completions(generator, &mut cmd);
     } else {
         println!("{:#?}", opt);
     }

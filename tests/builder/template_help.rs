@@ -67,9 +67,9 @@ SUBCOMMANDS:
 
 #[test]
 fn with_template() {
-    let app = get_app().help_template(EXAMPLE1_TMPL_S);
+    let cmd = get_app().help_template(EXAMPLE1_TMPL_S);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "MyApp --help",
         SIMPLE_TEMPLATE,
         false
@@ -78,9 +78,9 @@ fn with_template() {
 
 #[test]
 fn custom_template() {
-    let app = get_app().help_template(EXAMPLE1_TMPS_F);
+    let cmd = get_app().help_template(EXAMPLE1_TMPS_F);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "MyApp --help",
         CUSTOM_TEMPL_HELP,
         false
@@ -89,23 +89,23 @@ fn custom_template() {
 
 #[test]
 fn template_empty() {
-    let app = Command::new("MyApp")
+    let cmd = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("");
-    assert!(utils::compare_output(app, "MyApp --help", "\n", false));
+    assert!(utils::compare_output(cmd, "MyApp --help", "\n", false));
 }
 
 #[test]
 fn template_notag() {
-    let app = Command::new("MyApp")
+    let cmd = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("test no tag test");
     assert!(utils::compare_output(
-        app,
+        cmd,
         "MyApp --help",
         "test no tag test\n",
         false
@@ -114,13 +114,13 @@ fn template_notag() {
 
 #[test]
 fn template_unknowntag() {
-    let app = Command::new("MyApp")
+    let cmd = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("test {unknown_tag} test");
     assert!(utils::compare_output(
-        app,
+        cmd,
         "MyApp --help",
         "test {unknown_tag} test\n",
         false
@@ -129,13 +129,13 @@ fn template_unknowntag() {
 
 #[test]
 fn template_author_version() {
-    let app = Command::new("MyApp")
+    let cmd = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("{author}\n{version}\n{about}\n{bin}");
     assert!(utils::compare_output(
-        app,
+        cmd,
         "MyApp --help",
         "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp\n",
         false

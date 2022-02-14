@@ -366,19 +366,19 @@ fn require_overridden_4() {
 
 #[test]
 fn issue_1374_overrides_self_with_multiple_values() {
-    let app = Command::new("test").arg(
+    let cmd = Command::new("test").arg(
         Arg::new("input")
             .long("input")
             .takes_value(true)
             .overrides_with("input")
             .min_values(0),
     );
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(&["test", "--input", "a", "b", "c", "--input", "d"])
         .unwrap();
     assert_eq!(m.values_of("input").unwrap().collect::<Vec<_>>(), &["d"]);
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(&["test", "--input", "a", "b", "--input", "c", "d"])
         .unwrap();
@@ -390,10 +390,10 @@ fn issue_1374_overrides_self_with_multiple_values() {
 
 #[test]
 fn incremental_override() {
-    let mut app = Command::new("test")
+    let mut cmd = Command::new("test")
         .arg(arg!(--name <NAME>).multiple_occurrences(true))
         .arg(arg!(--"no-name").overrides_with("name"));
-    let m = app
+    let m = cmd
         .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])
         .unwrap();
     assert_eq!(m.values_of("name").unwrap().collect::<Vec<_>>(), &["ali"]);

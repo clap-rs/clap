@@ -226,19 +226,19 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::{Command, Arg};
     ///
-    /// let mut app = Command::new("foo")
+    /// let mut cmd = Command::new("foo")
     ///     .arg(Arg::new("bar")
     ///         .short('b'))
     ///     .mut_arg("bar", |a| a.short('B'));
     ///
-    /// let res = app.try_get_matches_from_mut(vec!["foo", "-b"]);
+    /// let res = cmd.try_get_matches_from_mut(vec!["foo", "-b"]);
     ///
     /// // Since we changed `bar`'s short to "B" this should err as there
     /// // is no `-b` anymore, only `-B`
     ///
     /// assert!(res.is_err());
     ///
-    /// let res = app.try_get_matches_from_mut(vec!["foo", "-B"]);
+    /// let res = cmd.try_get_matches_from_mut(vec!["foo", "-B"]);
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
@@ -285,7 +285,7 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     /// # use clap::{Command, arg, ArgGroup};
-    /// Command::new("app")
+    /// Command::new("cmd")
     ///     .arg(arg!("--set-ver [ver] 'set the version manually'"))
     ///     .arg(arg!("--major 'auto increase major'"))
     ///     .arg(arg!("--minor 'auto increase minor'"))
@@ -308,7 +308,7 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     /// # use clap::{Command, arg, ArgGroup};
-    /// Command::new("app")
+    /// Command::new("cmd")
     ///     .arg(arg!("--set-ver [ver] 'set the version manually'"))
     ///     .arg(arg!("--major         'auto increase major'"))
     ///     .arg(arg!("--minor         'auto increase minor'"))
@@ -403,7 +403,7 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg};
-    /// fn app() -> Command<'static> {
+    /// fn cmd() -> Command<'static> {
     ///     Command::new("foo")
     ///         .arg(Arg::new("bar").short('b')
     ///     )
@@ -411,11 +411,11 @@ impl<'help> App<'help> {
     ///
     /// #[test]
     /// fn verify_app() {
-    ///     app().debug_assert();
+    ///     cmd().debug_assert();
     /// }
     ///
     /// fn main() {
-    ///     let m = app().get_matches_from(vec!["foo", "-b"]);
+    ///     let m = cmd().get_matches_from(vec!["foo", "-b"]);
     ///     println!("{}", m.is_present("bar"));
     /// }
     /// ```
@@ -429,8 +429,8 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, ErrorKind};
-    /// let mut app = Command::new("myprog");
-    /// let err = app.error(ErrorKind::InvalidValue, "Some failure case");
+    /// let mut cmd = Command::new("myprog");
+    /// let err = cmd.error(ErrorKind::InvalidValue, "Some failure case");
     /// ```
     pub fn error(&mut self, kind: ErrorKind, message: impl std::fmt::Display) -> Error {
         Error::raw(kind, message).format(self)
@@ -469,10 +469,10 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     /// # use clap::{Command, Arg};
-    /// let mut app = Command::new("myprog")
+    /// let mut cmd = Command::new("myprog")
     ///     // Args and options go here...
     ///     ;
-    /// let matches = app.get_matches_mut();
+    /// let matches = cmd.get_matches_mut();
     /// ```
     /// [`env::args_os`]: std::env::args_os()
     /// [`App::get_matches`]: Command::get_matches()
@@ -613,9 +613,9 @@ impl<'help> App<'help> {
     /// # use clap::{Command, Arg};
     /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
     ///
-    /// let mut app = Command::new("myprog");
+    /// let mut cmd = Command::new("myprog");
     ///     // Args and options go here...
-    /// let matches = app.try_get_matches_from_mut(arg_vec)
+    /// let matches = cmd.try_get_matches_from_mut(arg_vec)
     ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`App::try_get_matches_from`]: Command::try_get_matches_from()
@@ -683,8 +683,8 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::Command;
-    /// let mut app = Command::new("myprog");
-    /// app.print_help();
+    /// let mut cmd = Command::new("myprog");
+    /// cmd.print_help();
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
     pub fn print_help(&mut self) -> io::Result<()> {
@@ -705,8 +705,8 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::Command;
-    /// let mut app = Command::new("myprog");
-    /// app.print_long_help();
+    /// let mut cmd = Command::new("myprog");
+    /// cmd.print_long_help();
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
     /// [`BufWriter`]: std::io::BufWriter
@@ -731,9 +731,9 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// use std::io;
-    /// let mut app = Command::new("myprog");
+    /// let mut cmd = Command::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_help(&mut out).expect("failed to write to stdout");
+    /// cmd.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
@@ -755,9 +755,9 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// use std::io;
-    /// let mut app = Command::new("myprog");
+    /// let mut cmd = Command::new("myprog");
     /// let mut out = io::stdout();
-    /// app.write_long_help(&mut out).expect("failed to write to stdout");
+    /// cmd.write_long_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
@@ -783,8 +783,8 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// use std::io;
-    /// let app = Command::new("myprog");
-    /// println!("{}", app.render_version());
+    /// let cmd = Command::new("myprog");
+    /// println!("{}", cmd.render_version());
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-V` (short)]: Command::version()
@@ -807,8 +807,8 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// use std::io;
-    /// let app = Command::new("myprog");
-    /// println!("{}", app.render_long_version());
+    /// let cmd = Command::new("myprog");
+    /// println!("{}", cmd.render_long_version());
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-V` (short)]: Command::version()
@@ -825,8 +825,8 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// use std::io;
-    /// let mut app = Command::new("myprog");
-    /// println!("{}", app.render_usage());
+    /// let mut cmd = Command::new("myprog");
+    /// println!("{}", cmd.render_usage());
     /// ```
     pub fn render_usage(&mut self) -> String {
         // If there are global arguments, or settings we need to propagate them down to subcommands
@@ -880,13 +880,13 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, arg};
-    /// let app = Command::new("app")
+    /// let cmd = Command::new("cmd")
     ///   .ignore_errors(true)
     ///   .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
     ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file").required(false))
     ///   .arg(arg!(f: -f "Flag"));
     ///
-    /// let r = app.try_get_matches_from(vec!["app", "-c", "file", "-f", "-x"]);
+    /// let r = cmd.try_get_matches_from(vec!["cmd", "-c", "file", "-f", "-x"]);
     ///
     /// assert!(r.is_ok(), "unexpected error: {:?}", r);
     /// let m = r.unwrap();
@@ -970,14 +970,14 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn color(self, color: ColorChoice) -> Self {
         #![allow(deprecated)]
-        let app = self
+        let cmd = self
             .unset_global_setting(AppSettings::ColorAuto)
             .unset_global_setting(AppSettings::ColorAlways)
             .unset_global_setting(AppSettings::ColorNever);
         match color {
-            ColorChoice::Auto => app.global_setting(AppSettings::ColorAuto),
-            ColorChoice::Always => app.global_setting(AppSettings::ColorAlways),
-            ColorChoice::Never => app.global_setting(AppSettings::ColorNever),
+            ColorChoice::Auto => cmd.global_setting(AppSettings::ColorAuto),
+            ColorChoice::Always => cmd.global_setting(AppSettings::ColorAlways),
+            ColorChoice::Never => cmd.global_setting(AppSettings::ColorNever),
         }
     }
 
@@ -1335,11 +1335,11 @@ impl<'help> App<'help> {
     ///
     /// ```ignore
     /// # use clap::{Command, load_yaml};
-    /// let yaml = load_yaml!("app.yaml");
-    /// let app = Command::from(yaml)
+    /// let yaml = load_yaml!("cmd.yaml");
+    /// let cmd = Command::from(yaml)
     ///     .name(crate_name!());
     ///
-    /// // continued logic goes here, such as `app.get_matches()` etc.
+    /// // continued logic goes here, such as `cmd.get_matches()` etc.
     /// ```
     #[must_use]
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
@@ -1847,27 +1847,27 @@ impl<'help> App<'help> {
     ///
     /// We'll start with the "subcommand short" example. In this example, let's
     /// assume we have a program with a subcommand `module` which can be invoked
-    /// via `app module`. Now let's also assume `module` also has a subcommand
-    /// called `install` which can be invoked `app module install`. If for some
-    /// reason users needed to be able to reach `app module install` via the
-    /// short-hand `app install`, we'd have several options.
+    /// via `cmd module`. Now let's also assume `module` also has a subcommand
+    /// called `install` which can be invoked `cmd module install`. If for some
+    /// reason users needed to be able to reach `cmd module install` via the
+    /// short-hand `cmd install`, we'd have several options.
     ///
     /// We *could* create another sibling subcommand to `module` called
     /// `install`, but then we would need to manage another subcommand and manually
-    /// dispatch to `app module install` handling code. This is error prone and
+    /// dispatch to `cmd module install` handling code. This is error prone and
     /// tedious.
     ///
-    /// We could instead use [`Command::replace`] so that, when the user types `app
+    /// We could instead use [`Command::replace`] so that, when the user types `cmd
     /// install`, `clap` will replace `install` with `module install` which will
     /// end up getting parsed as if the user typed the entire incantation.
     ///
     /// ```rust
     /// # use clap::Command;
-    /// let m = Command::new("app")
+    /// let m = Command::new("cmd")
     ///     .subcommand(Command::new("module")
     ///         .subcommand(Command::new("install")))
     ///     .replace("install", &["module", "install"])
-    ///     .get_matches_from(vec!["app", "install"]);
+    ///     .get_matches_from(vec!["cmd", "install"]);
     ///
     /// assert!(m.subcommand_matches("module").is_some());
     /// assert!(m.subcommand_matches("module").unwrap().subcommand_matches("install").is_some());
@@ -1878,7 +1878,7 @@ impl<'help> App<'help> {
     /// Let's assume we have an application with two flags `--save-context` and
     /// `--save-runtime`. But often users end up needing to do *both* at the
     /// same time. We can add a third flag `--save-all` which semantically means
-    /// the same thing as `app --save-context --save-runtime`. To implement that,
+    /// the same thing as `cmd --save-context --save-runtime`. To implement that,
     /// we have several options.
     ///
     /// We could create this third argument and manually check if that argument
@@ -1896,13 +1896,13 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg};
-    /// let m = Command::new("app")
+    /// let m = Command::new("cmd")
     ///     .arg(Arg::new("save-context")
     ///         .long("save-context"))
     ///     .arg(Arg::new("save-runtime")
     ///         .long("save-runtime"))
     ///     .replace("--save-all", &["--save-context", "--save-runtime"])
-    ///     .get_matches_from(vec!["app", "--save-all"]);
+    ///     .get_matches_from(vec!["cmd", "--save-all"]);
     ///
     /// assert!(m.is_present("save-context"));
     /// assert!(m.is_present("save-runtime"));
@@ -1916,7 +1916,7 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg};
-    /// let m = Command::new("app")
+    /// let m = Command::new("cmd")
     ///     .arg(Arg::new("save-context")
     ///         .long("save-context"))
     ///     .arg(Arg::new("save-runtime")
@@ -1926,7 +1926,7 @@ impl<'help> App<'help> {
     ///         .takes_value(true)
     ///         .possible_values(["txt", "json"]))
     ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
-    ///     .get_matches_from(vec!["app", "--save-all"]);
+    ///     .get_matches_from(vec!["cmd", "--save-all"]);
     ///
     /// assert!(m.is_present("save-context"));
     /// assert!(m.is_present("save-runtime"));
@@ -2803,7 +2803,7 @@ impl<'help> App<'help> {
     /// subcommand will be parsed as another value.
     ///
     /// ```text
-    /// app --foo val1 val2 subcommand
+    /// cmd --foo val1 val2 subcommand
     ///           --------- ----------
     ///             values   another value
     /// ```
@@ -2812,7 +2812,7 @@ impl<'help> App<'help> {
     /// greedily consuming arguments.
     ///
     /// ```text
-    /// app --foo val1 val2 subcommand
+    /// cmd --foo val1 val2 subcommand
     ///           --------- ----------
     ///             values   subcommand
     /// ```
@@ -2824,16 +2824,16 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg};
-    /// let app = Command::new("app").subcommand(Command::new("sub")).arg(
+    /// let cmd = Command::new("cmd").subcommand(Command::new("sub")).arg(
     ///     Arg::new("arg")
     ///         .long("arg")
     ///         .multiple_values(true)
     ///         .takes_value(true),
     /// );
     ///
-    /// let matches = app
+    /// let matches = cmd
     ///     .clone()
-    ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
+    ///     .try_get_matches_from(&["cmd", "--arg", "1", "2", "3", "sub"])
     ///     .unwrap();
     /// assert_eq!(
     ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
@@ -2841,9 +2841,9 @@ impl<'help> App<'help> {
     /// );
     /// assert!(matches.subcommand_matches("sub").is_none());
     ///
-    /// let matches = app
+    /// let matches = cmd
     ///     .subcommand_precedence_over_arg(true)
-    ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
+    ///     .try_get_matches_from(&["cmd", "--arg", "1", "2", "3", "sub"])
     ///     .unwrap();
     /// assert_eq!(
     ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
@@ -2938,7 +2938,7 @@ impl<'help> App<'help> {
     /// but there is other related functionality that would be convenient to provide
     /// and it is convenient for the code to implement it to be in the same executable.
     ///
-    /// The name of the app is essentially unused
+    /// The name of the cmd is essentially unused
     /// and may be the same as the name of a subcommand.
     ///
     /// The names of the immediate subcommands of the Command
@@ -2949,14 +2949,14 @@ impl<'help> App<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, ErrorKind};
-    /// let mut app = Command::new("hostname")
+    /// let mut cmd = Command::new("hostname")
     ///     .multicall(true)
     ///     .subcommand(Command::new("hostname"))
     ///     .subcommand(Command::new("dnsdomainname"));
-    /// let m = app.try_get_matches_from_mut(&["/usr/bin/hostname", "dnsdomainname"]);
+    /// let m = cmd.try_get_matches_from_mut(&["/usr/bin/hostname", "dnsdomainname"]);
     /// assert!(m.is_err());
     /// assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
-    /// let m = app.get_matches_from(&["/usr/bin/dnsdomainname"]);
+    /// let m = cmd.get_matches_from(&["/usr/bin/dnsdomainname"]);
     /// assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
     /// ```
     ///
@@ -2979,7 +2979,7 @@ impl<'help> App<'help> {
     /// fn applet_commands() -> [Command<'static>; 2] {
     ///     [Command::new("true"), Command::new("false")]
     /// }
-    /// let mut app = Command::new("busybox")
+    /// let mut cmd = Command::new("busybox")
     ///     .multicall(true)
     ///     .subcommand(
     ///         Command::new("busybox")
@@ -2990,11 +2990,11 @@ impl<'help> App<'help> {
     ///     .subcommands(applet_commands());
     /// // When called from the executable's canonical name
     /// // its applets can be matched as subcommands.
-    /// let m = app.try_get_matches_from_mut(&["/usr/bin/busybox", "true"]).unwrap();
+    /// let m = cmd.try_get_matches_from_mut(&["/usr/bin/busybox", "true"]).unwrap();
     /// assert_eq!(m.subcommand_name(), Some("busybox"));
     /// assert_eq!(m.subcommand().unwrap().1.subcommand_name(), Some("true"));
     /// // When called from a link named after an applet that applet is matched.
-    /// let m = app.get_matches_from(&["/usr/bin/true"]);
+    /// let m = cmd.get_matches_from(&["/usr/bin/true"]);
     /// assert_eq!(m.subcommand_name(), Some("true"));
     /// ```
     ///
@@ -3172,25 +3172,25 @@ impl<'help> App<'help> {
         self.bin_name = Some(name.into());
     }
 
-    /// Get the name of the app.
+    /// Get the name of the cmd.
     #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
     }
 
-    /// Get the version of the app.
+    /// Get the version of the cmd.
     #[inline]
     pub fn get_version(&self) -> Option<&'help str> {
         self.version
     }
 
-    /// Get the long version of the app.
+    /// Get the long version of the cmd.
     #[inline]
     pub fn get_long_version(&self) -> Option<&'help str> {
         self.long_version
     }
 
-    /// Get the authors of the app.
+    /// Get the authors of the cmd.
     #[inline]
     pub fn get_author(&self) -> Option<&'help str> {
         self.author
@@ -3444,7 +3444,7 @@ impl<'help> App<'help> {
                 .map(|id| {
                     self.args.args().find(|arg| arg.id == *id).expect(
                         "App::get_arg_conflicts_with: \
-                    The passed arg conflicts with an arg unknown to the app",
+                    The passed arg conflicts with an arg unknown to the cmd",
                     )
                 })
                 .collect()
@@ -3475,7 +3475,7 @@ impl<'help> App<'help> {
                     .find(|arg| arg.id == *id)
                     .expect(
                         "App::get_arg_conflicts_with: \
-                    The passed arg conflicts with an arg unknown to the app",
+                    The passed arg conflicts with an arg unknown to the cmd",
                     )
             })
             .collect()
@@ -3653,7 +3653,7 @@ impl<'help> App<'help> {
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
         // We WANT this to panic on error...so expect() is good.
         let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
-            (App::new(name), yaml_file_hash, "app".into())
+            (App::new(name), yaml_file_hash, "cmd".into())
         } else {
             let (name_yaml, value_yaml) = yaml_file_hash
                 .iter()
@@ -4243,7 +4243,7 @@ impl<'help> App<'help> {
                         panic!(
                             "`help`s `-h` conflicts with `{}`.
 
-To change `help`s short, call `app.arg(Arg::new(\"help\")...)`.",
+To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                             other_arg.name
                         );
                     }

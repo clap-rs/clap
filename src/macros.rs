@@ -188,7 +188,7 @@ macro_rules! arg_enum {
 /// # extern crate clap;
 /// # use clap::Command;
 /// # fn main() {
-/// let m = Command::new("app")
+/// let m = Command::new("cmd")
 ///             .version(crate_version!())
 ///             .get_matches();
 /// # }
@@ -201,7 +201,7 @@ macro_rules! crate_version {
     };
 }
 
-/// Allows you to pull the authors for the app from your Cargo.toml at
+/// Allows you to pull the authors for the command from your Cargo.toml at
 /// compile time in the form:
 /// `"author1 lastname <author1@example.com>:author2 lastname <author2@example.com>"`
 ///
@@ -217,7 +217,7 @@ macro_rules! crate_version {
 /// # extern crate clap;
 /// # use clap::Command;
 /// # fn main() {
-/// let m = Command::new("app")
+/// let m = Command::new("cmd")
 ///             .author(crate_authors!("\n"))
 ///             .get_matches();
 /// # }
@@ -247,7 +247,7 @@ macro_rules! crate_authors {
 /// # extern crate clap;
 /// # use clap::Command;
 /// # fn main() {
-/// let m = Command::new("app")
+/// let m = Command::new("cmd")
 ///             .about(crate_description!())
 ///             .get_matches();
 /// # }
@@ -308,34 +308,34 @@ macro_rules! crate_name {
 #[macro_export]
 macro_rules! app_from_crate {
     () => {{
-        let mut app = $crate::Command::new($crate::crate_name!()).version($crate::crate_version!());
+        let mut cmd = $crate::Command::new($crate::crate_name!()).version($crate::crate_version!());
 
         let author = $crate::crate_authors!(", ");
         if !author.is_empty() {
-            app = app.author(author)
+            cmd = cmd.author(author)
         }
 
         let about = $crate::crate_description!();
         if !about.is_empty() {
-            app = app.about(about)
+            cmd = cmd.about(about)
         }
 
-        app
+        cmd
     }};
     ($sep:expr) => {{
-        let mut app = $crate::Command::new($crate::crate_name!()).version($crate::crate_version!());
+        let mut cmd = $crate::Command::new($crate::crate_name!()).version($crate::crate_version!());
 
         let author = $crate::crate_authors!($sep);
         if !author.is_empty() {
-            app = app.author(author)
+            cmd = cmd.author(author)
         }
 
         let about = $crate::crate_description!();
         if !about.is_empty() {
-            app = app.about(about)
+            cmd = cmd.about(about)
         }
 
-        app
+        cmd
     }};
 }
 

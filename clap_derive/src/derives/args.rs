@@ -145,7 +145,7 @@ pub fn gen_from_arg_matches_for_struct(
 }
 
 /// Generate a block of code to add arguments/subcommands corresponding to
-/// the `fields` to an app.
+/// the `fields` to an cmd.
 pub fn gen_augment(
     fields: &Punctuated<Field, Comma>,
     app_var: &Ident,

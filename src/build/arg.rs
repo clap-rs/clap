@@ -2474,7 +2474,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{Command, Arg};
     ///
-    /// macro_rules! app {
+    /// macro_rules! cmd {
     ///     () => {{
     ///         Command::new("prog")
     ///             .arg(Arg::new("color").long("color")
@@ -2494,7 +2494,7 @@ impl<'help> Arg<'help> {
     ///
     /// // first, we'll provide no arguments
     ///
-    /// m  = app!().get_matches_from(vec![
+    /// m  = cmd!().get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
@@ -2504,7 +2504,7 @@ impl<'help> Arg<'help> {
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
     ///
-    /// m  = app!().get_matches_from(vec![
+    /// m  = cmd!().get_matches_from(vec![
     ///         "prog", "--color=never"
     ///     ]);
     ///
@@ -2514,7 +2514,7 @@ impl<'help> Arg<'help> {
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
     ///
-    /// m  = app!().get_matches_from(vec![
+    /// m  = cmd!().get_matches_from(vec![
     ///         "prog", "--color"
     ///     ]);
     ///

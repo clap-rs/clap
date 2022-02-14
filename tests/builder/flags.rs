@@ -138,30 +138,30 @@ fn multiple_flags_in_single() {
 
 #[test]
 fn issue_1284_argument_in_flag_style() {
-    let app = Command::new("mycat")
+    let cmd = Command::new("mycat")
         .arg(Arg::new("filename"))
         .arg(Arg::new("a-flag").long("a-flag"));
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["", "--", "--another-flag"])
         .unwrap();
     assert_eq!(m.value_of("filename"), Some("--another-flag"));
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["", "--a-flag"])
         .unwrap();
     assert!(m.is_present("a-flag"));
 
-    let m = app
+    let m = cmd
         .clone()
         .try_get_matches_from(vec!["", "--", "--a-flag"])
         .unwrap();
     assert_eq!(m.value_of("filename"), Some("--a-flag"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "mycat --another-flag",
         USE_FLAG_AS_ARGUMENT,
         true
@@ -180,10 +180,10 @@ USAGE:
 
 For more information try --help
 ";
-    let app = Command::new("test").arg(Arg::new("arg").takes_value(true).required(true));
+    let cmd = Command::new("test").arg(Arg::new("arg").takes_value(true).required(true));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test -----",
         MULTIPLE_DASHES,
         true

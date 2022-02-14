@@ -28,8 +28,8 @@ fn build_app_with_name(s: &'static str) -> Command<'static> {
 
 #[test]
 fn fish() {
-    let mut app = build_app();
-    common(Fish, &mut app, "myapp", FISH);
+    let mut cmd = build_app();
+    common(Fish, &mut cmd, "myapp", FISH);
 }
 
 static FISH: &str = r#"complete -c myapp -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
@@ -43,8 +43,8 @@ complete -c myapp -n "__fish_seen_subcommand_from test" -s V -l version -d 'Prin
 
 #[test]
 fn fish_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Fish, &mut app, "my_app", FISH_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Fish, &mut cmd, "my_app", FISH_SPECIAL_CMDS);
 }
 
 fn build_app_special_commands() -> Command<'static> {
@@ -78,8 +78,8 @@ complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hyphens" -s V -
 
 #[test]
 fn fish_with_special_help() {
-    let mut app = build_app_special_help();
-    common(Fish, &mut app, "my_app", FISH_SPECIAL_HELP);
+    let mut cmd = build_app_special_help();
+    common(Fish, &mut cmd, "my_app", FISH_SPECIAL_HELP);
 }
 
 fn build_app_special_help() -> Command<'static> {
@@ -125,8 +125,8 @@ complete -c my_app -l expansions -d 'Execute the shell command with $SHELL'
 
 #[test]
 fn fish_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Fish, &mut app, "cmd", FISH_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Fish, &mut cmd, "cmd", FISH_ALIASES);
 }
 
 fn build_app_with_aliases() -> Command<'static> {
@@ -161,8 +161,8 @@ complete -c cmd -s f -s F -l flag -l flg -d 'cmd flag'
 
 #[test]
 fn fish_with_sub_subcommands() {
-    let mut app = build_app_sub_subcommands();
-    common(Fish, &mut app, "my_app", FISH_SUB_SUBCMDS);
+    let mut cmd = build_app_sub_subcommands();
+    common(Fish, &mut cmd, "my_app", FISH_SUB_SUBCMDS);
 }
 
 fn build_app_sub_subcommands() -> Command<'static> {

@@ -397,14 +397,14 @@ fn sc_short_flag_x2_long_opt_eq_pos() {
 
 #[test]
 fn mut_arg_all() {
-    let mut app = utils::complex_app();
-    let arg_names = app
+    let mut cmd = utils::complex_app();
+    let arg_names = cmd
         .get_arguments()
         .map(|a| a.get_id())
         .filter(|a| *a != "version" && *a != "help")
         .collect::<Vec<_>>();
 
     for arg_name in arg_names {
-        app = app.mut_arg(arg_name, |arg| arg.hide_possible_values(true));
+        cmd = cmd.mut_arg(arg_name, |arg| arg.hide_possible_values(true));
     }
 }

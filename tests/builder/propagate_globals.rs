@@ -20,8 +20,8 @@ fn get_app() -> Command<'static> {
         .subcommand(Command::new("outer").subcommand(Command::new("inner")))
 }
 
-fn get_matches(app: Command<'static>, argv: &'static str) -> ArgMatches {
-    app.try_get_matches_from(argv.split(' ').collect::<Vec<_>>())
+fn get_matches(cmd: Command<'static>, argv: &'static str) -> ArgMatches {
+    cmd.try_get_matches_from(argv.split(' ').collect::<Vec<_>>())
         .unwrap()
 }
 
