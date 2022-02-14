@@ -57,7 +57,7 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         #[allow(deprecated)]
-        impl #impl_generics clap::IntoApp for #struct_name #ty_generics #where_clause {
+        impl #impl_generics clap::CommandFactory for #struct_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::Command<'b> {
                 let #app_var = clap::Command::new(#name);
                 <Self as clap::Args>::augment_args(#app_var)
@@ -102,7 +102,7 @@ pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute])
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::IntoApp for #enum_name #ty_generics #where_clause {
+        impl #impl_generics clap::CommandFactory for #enum_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::Command<'b> {
                 #[allow(deprecated)]
                 let #app_var = clap::Command::new(#name)

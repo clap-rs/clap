@@ -5,11 +5,13 @@
 // Accept and endure. Do not touch.
 #![allow(unused)]
 
-use clap::IntoApp;
+use clap::CommandFactory;
 
-pub fn get_help<T: IntoApp>() -> String {
+pub fn get_help<T: CommandFactory>() -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::command().write_help(&mut output).unwrap();
+    <T as CommandFactory>::command()
+        .write_help(&mut output)
+        .unwrap();
     let output = String::from_utf8(output).unwrap();
 
     eprintln!("\n%%% HELP %%%:=====\n{}\n=====\n", output);
@@ -18,9 +20,9 @@ pub fn get_help<T: IntoApp>() -> String {
     output
 }
 
-pub fn get_long_help<T: IntoApp>() -> String {
+pub fn get_long_help<T: CommandFactory>() -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::command()
+    <T as CommandFactory>::command()
         .write_long_help(&mut output)
         .unwrap();
     let output = String::from_utf8(output).unwrap();
@@ -31,9 +33,9 @@ pub fn get_long_help<T: IntoApp>() -> String {
     output
 }
 
-pub fn get_subcommand_long_help<T: IntoApp>(subcmd: &str) -> String {
+pub fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::command()
+    <T as CommandFactory>::command()
         .get_subcommands_mut()
         .find(|s| s.get_name() == subcmd)
         .unwrap()

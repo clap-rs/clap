@@ -1,4 +1,4 @@
-use clap::{IntoApp, Parser};
+use clap::{CommandFactory, Parser};
 
 use crate::utils;
 

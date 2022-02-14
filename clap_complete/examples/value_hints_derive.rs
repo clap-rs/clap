@@ -12,7 +12,7 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{Command, IntoApp, Parser, ValueHint};
+use clap::{Command, CommandFactory, Parser, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;

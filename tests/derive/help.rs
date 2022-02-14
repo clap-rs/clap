@@ -1,4 +1,4 @@
-use clap::{AppSettings, Args, IntoApp, Parser, Subcommand};
+use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
 
 #[test]
 fn arg_help_heading_applied() {
@@ -277,7 +277,7 @@ OPTIONS:
         option_b: Option<String>,
     }
 
-    use clap::IntoApp;
+    use clap::CommandFactory;
     let mut cmd = Args::command();
 
     let mut buffer: Vec<u8> = Default::default();
@@ -334,7 +334,7 @@ OPTIONS:
         option_b: Option<String>,
     }
 
-    use clap::IntoApp;
+    use clap::CommandFactory;
     let mut cmd = Args::command();
 
     let mut buffer: Vec<u8> = Default::default();
@@ -390,7 +390,7 @@ OPTIONS:
         option_b: Option<String>,
     }
 
-    use clap::IntoApp;
+    use clap::CommandFactory;
     let mut cmd = Args::command();
 
     let mut buffer: Vec<u8> = Default::default();

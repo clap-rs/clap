@@ -1,4 +1,4 @@
-use clap::IntoApp;
+use clap::CommandFactory;
 use clap::Parser;
 #[test]
 fn app_name_in_short_help_from_struct() {

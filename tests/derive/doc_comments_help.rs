@@ -14,7 +14,7 @@
 
 use crate::utils;
 
-use clap::{ArgEnum, IntoApp, Parser};
+use clap::{ArgEnum, CommandFactory, Parser};
 
 #[test]
 fn doc_comments() {
