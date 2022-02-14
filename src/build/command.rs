@@ -64,6 +64,7 @@ use crate::build::debug_asserts::assert_app;
 pub type Command<'help> = App<'help>;
 
 /// Deprecated, replaced with [`Command`]
+#[deprecated(since = "3.1.0", note = "Replaced with `Command`")]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct App<'help> {
     id: Id,
