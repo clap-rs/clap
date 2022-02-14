@@ -58,7 +58,7 @@ pacman[EXE]-sync
 Synchronize packages.
 
 USAGE:
-    pacman[EXE] {sync, --sync, -S} [OPTIONS] [--] [package]...
+    pacman[EXE] {sync|--sync|-S} [OPTIONS] [--] [package]...
 
 ARGS:
     <package>...    packages
@@ -77,7 +77,7 @@ $ pacman -S -s foo -i bar
 error: The argument '--search <search>...' cannot be used with '--info'
 
 USAGE:
-    pacman[EXE] {sync, --sync, -S} --search <search>... <package>...
+    pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
 
 For more information try --help
 

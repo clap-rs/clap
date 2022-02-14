@@ -4003,11 +4003,11 @@ impl<'help> App<'help> {
         let mut sc_names = sc.name.clone();
         let mut flag_subcmd = false;
         if let Some(l) = sc.long_flag {
-            write!(sc_names, ", --{}", l).unwrap();
+            write!(sc_names, "|--{}", l).unwrap();
             flag_subcmd = true;
         }
         if let Some(s) = sc.short_flag {
-            write!(sc_names, ", -{}", s).unwrap();
+            write!(sc_names, "|-{}", s).unwrap();
             flag_subcmd = true;
         }
 
