@@ -846,10 +846,10 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
             let mut sc_str = String::new();
             sc_str.push_str(subcommand.get_name());
             if let Some(short) = subcommand.get_short_flag() {
-                write!(sc_str, "-{}", short).unwrap();
+                write!(sc_str, " -{}", short).unwrap();
             }
             if let Some(long) = subcommand.get_long_flag() {
-                write!(sc_str, "--{}", long).unwrap();
+                write!(sc_str, " --{}", long).unwrap();
             }
             longest = longest.max(display_width(&sc_str));
             ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
