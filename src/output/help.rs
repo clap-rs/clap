@@ -53,12 +53,12 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
         use_long: bool,
     ) -> Self {
         debug!("Help::new");
-        let term_w = match app.term_w {
+        let term_w = match app.get_term_width() {
             Some(0) => usize::MAX,
             Some(w) => w,
             None => cmp::min(
                 dimensions().map_or(100, |(w, _)| w),
-                match app.max_w {
+                match app.get_max_term_width() {
                     None | Some(0) => usize::MAX,
                     Some(mw) => mw,
                 },
@@ -80,9 +80,9 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     pub(crate) fn write_help(&mut self) -> io::Result<()> {
         debug!("Help::write_help");
 
-        if let Some(h) = self.app.help_str {
+        if let Some(h) = self.app.get_override_help() {
             self.none(h)?;
-        } else if let Some(tmpl) = self.app.template {
+        } else if let Some(tmpl) = self.app.get_help_template() {
             self.write_templated_help(tmpl)?;
         } else {
             let pos = self
@@ -353,9 +353,11 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     fn write_before_help(&mut self) -> io::Result<()> {
         debug!("Help::write_before_help");
         let before_help = if self.use_long {
-            self.app.before_long_help.or(self.app.before_help)
+            self.app
+                .get_before_long_help()
+                .or_else(|| self.app.get_before_help())
         } else {
-            self.app.before_help
+            self.app.get_before_help()
         };
         if let Some(output) = before_help {
             self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w))?;
@@ -367,9 +369,11 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     fn write_after_help(&mut self) -> io::Result<()> {
         debug!("Help::write_after_help");
         let after_help = if self.use_long {
-            self.app.after_long_help.or(self.app.after_help)
+            self.app
+                .get_after_long_help()
+                .or_else(|| self.app.get_after_help())
         } else {
-            self.app.after_help
+            self.app.get_after_help()
         };
         if let Some(output) = after_help {
             self.none("\n\n")?;
@@ -606,9 +610,9 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
 
     fn write_about(&mut self, before_new_line: bool, after_new_line: bool) -> io::Result<()> {
         let about = if self.use_long {
-            self.app.long_about.or(self.app.about)
+            self.app.get_long_about().or_else(|| self.app.get_about())
         } else {
-            self.app.about
+            self.app.get_about()
         };
         if let Some(output) = about {
             if before_new_line {
@@ -623,7 +627,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     }
 
     fn write_author(&mut self, before_new_line: bool, after_new_line: bool) -> io::Result<()> {
-        if let Some(author) = self.app.author {
+        if let Some(author) = self.app.get_author() {
             if before_new_line {
                 self.none("\n")?;
             }
@@ -636,7 +640,10 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     }
 
     fn write_version(&mut self) -> io::Result<()> {
-        let version = self.app.version.or(self.app.long_version);
+        let version = self
+            .app
+            .get_version()
+            .or_else(|| self.app.get_long_version());
         if let Some(output) = version {
             self.none(text_wrapper(output, self.term_w))?;
         }
@@ -657,20 +664,26 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
 
         let spec_vals = &self.sc_spec_vals(app);
 
-        let about = app.about.or(app.long_about).unwrap_or("");
+        let about = app
+            .get_about()
+            .or_else(|| app.get_long_about())
+            .unwrap_or("");
 
         self.subcmd(sc_str, next_line_help, longest)?;
         self.help(false, about, spec_vals, next_line_help, longest)
     }
 
     fn sc_spec_vals(&self, a: &App) -> String {
-        debug!("Help::sc_spec_vals: a={}", a.name);
+        debug!("Help::sc_spec_vals: a={}", a.get_name());
         let mut spec_vals = vec![];
-        if !a.aliases.is_empty() || !a.short_flag_aliases.is_empty() {
-            debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
+        if 0 < a.get_all_aliases().count() || 0 < a.get_all_short_flag_aliases().count() {
+            debug!(
+                "Help::spec_vals: Found aliases...{:?}",
+                a.get_all_aliases().collect::<Vec<_>>()
+            );
             debug!(
                 "Help::spec_vals: Found short flag aliases...{:?}",
-                a.short_flag_aliases
+                a.get_all_short_flag_aliases().collect::<Vec<_>>()
             );
 
             let mut short_als = a
@@ -697,7 +710,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
             true
         } else {
             // force_next_line
-            let h = app.about.unwrap_or("");
+            let h = app.get_about().unwrap_or("");
             let h_w = display_width(h) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
@@ -738,8 +751,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
 
         let custom_headings = self
             .app
-            .args
-            .args()
+            .get_arguments()
             .filter_map(|arg| arg.get_help_heading())
             .collect::<IndexSet<_>>();
 
@@ -764,8 +776,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
             for heading in custom_headings {
                 let args = self
                     .app
-                    .args
-                    .args()
+                    .get_arguments()
                     .filter(|a| {
                         if let Some(help_heading) = a.get_help_heading() {
                             return help_heading == heading;
@@ -791,7 +802,11 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
                 self.none("\n\n")?;
             }
 
-            self.warning(self.app.subcommand_heading.unwrap_or("SUBCOMMANDS"))?;
+            self.warning(
+                self.app
+                    .get_subcommand_help_heading()
+                    .unwrap_or("SUBCOMMANDS"),
+            )?;
             self.warning(":\n")?;
 
             self.write_subcommands(self.app)?;
@@ -801,9 +816,16 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     }
 
     /// Will use next line help on writing subcommands.
-    fn will_subcommands_wrap(&self, subcommands: &[App<'help>], longest: usize) -> bool {
+    fn will_subcommands_wrap<'a>(
+        &self,
+        subcommands: impl IntoIterator<Item = &'a App<'help>>,
+        longest: usize,
+    ) -> bool
+    where
+        'help: 'a,
+    {
         subcommands
-            .iter()
+            .into_iter()
             .filter(|&subcommand| should_show_subcommand(subcommand))
             .any(|subcommand| {
                 let spec_vals = &self.sc_spec_vals(subcommand);
@@ -818,18 +840,17 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
         let mut longest = 2;
         let mut ord_v = Vec::new();
         for subcommand in app
-            .subcommands
-            .iter()
+            .get_subcommands()
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let mut sc_str = String::new();
-            if let Some(short) = subcommand.short_flag {
+            if let Some(short) = subcommand.get_short_flag() {
                 write!(sc_str, "-{}", short).unwrap();
             }
-            if let Some(long) = subcommand.long_flag {
+            if let Some(long) = subcommand.get_long_flag() {
                 write!(sc_str, "--{}", long).unwrap();
             }
-            sc_str.push_str(&subcommand.name);
+            sc_str.push_str(subcommand.get_name());
             longest = longest.max(display_width(&sc_str));
             ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
         }
@@ -837,7 +858,7 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
 
         debug!("Help::write_subcommands longest = {}", longest);
 
-        let next_line_help = self.will_subcommands_wrap(&app.subcommands, longest);
+        let next_line_help = self.will_subcommands_wrap(app.get_subcommands(), longest);
 
         let mut first = true;
         for (_, sc_str, sc) in &ord_v {
@@ -855,15 +876,15 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     fn write_bin_name(&mut self) -> io::Result<()> {
         debug!("Help::write_bin_name");
 
-        let bin_name = if let Some(bn) = self.app.bin_name.as_ref() {
+        let bin_name = if let Some(bn) = self.app.get_bin_name() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
                 bn.replace(' ', "-")
             } else {
-                text_wrapper(&self.app.name.replace("{n}", "\n"), self.term_w)
+                text_wrapper(&self.app.get_name().replace("{n}", "\n"), self.term_w)
             }
         } else {
-            text_wrapper(&self.app.name.replace("{n}", "\n"), self.term_w)
+            text_wrapper(&self.app.get_name().replace("{n}", "\n"), self.term_w)
         };
         self.good(&bin_name)?;
         Ok(())

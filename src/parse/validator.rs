@@ -68,7 +68,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
         #[allow(deprecated)]
         if !has_subcmd && self.p.app.is_subcommand_required_set() {
-            let bn = self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name);
+            let bn = self
+                .p
+                .app
+                .get_bin_name()
+                .unwrap_or_else(|| self.p.app.get_name());
             return Err(Error::missing_subcommand(
                 self.p.app,
                 bn.to_string(),
@@ -487,7 +491,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
 
         // Validate the conditionally required args
-        for a in self.p.app.args.args() {
+        for a in self.p.app.get_arguments() {
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
                     && !matcher.contains(&a.id)
@@ -531,8 +535,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         let failed_args: Vec<_> = self
             .p
             .app
-            .args
-            .args()
+            .get_arguments()
             .filter(|&a| {
                 (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
                     && !matcher.contains(&a.id)

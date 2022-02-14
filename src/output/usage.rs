@@ -39,7 +39,7 @@ impl<'help, 'app> Usage<'help, 'app> {
     // Creates a usage string (*without title*) if one was not provided by the user manually.
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
         debug!("Usage::create_usage_no_title");
-        if let Some(u) = self.app.usage_str {
+        if let Some(u) = self.app.get_override_usage() {
             String::from(&*u)
         } else if used.is_empty() {
             self.create_help_usage(true)
@@ -54,11 +54,10 @@ impl<'help, 'app> Usage<'help, 'app> {
         let mut usage = String::with_capacity(75);
         let name = self
             .app
-            .usage_name
-            .as_ref()
-            .or_else(|| self.app.bin_name.as_ref())
-            .unwrap_or(&self.app.name);
-        usage.push_str(&*name);
+            .get_usage_name()
+            .or_else(|| self.app.get_bin_name())
+            .unwrap_or_else(|| self.app.get_name());
+        usage.push_str(name);
         let req_string = if incl_reqs {
             self.get_required_usage_from(&[], None, false)
                 .iter()
@@ -129,7 +128,7 @@ impl<'help, 'app> Usage<'help, 'app> {
         if self.app.has_visible_subcommands() && incl_reqs
             || self.app.is_allow_external_subcommands_set()
         {
-            let placeholder = self.app.subcommand_value_name.unwrap_or("SUBCOMMAND");
+            let placeholder = self.app.get_subcommand_value_name().unwrap_or("SUBCOMMAND");
             #[allow(deprecated)]
             if self.app.is_subcommand_negates_reqs_set()
                 || self.app.is_args_conflicts_with_subcommands_set()
@@ -172,17 +171,15 @@ impl<'help, 'app> Usage<'help, 'app> {
             .fold(String::new(), |acc, s| acc + " " + s);
 
         usage.push_str(
-            &self
-                .app
-                .usage_name
-                .as_ref()
-                .or_else(|| self.app.bin_name.as_ref())
-                .unwrap_or(&self.app.name)[..],
+            self.app
+                .get_usage_name()
+                .or_else(|| self.app.get_bin_name())
+                .unwrap_or_else(|| self.app.get_name()),
         );
         usage.push_str(&*r_string);
         if self.app.is_subcommand_required_set() {
             usage.push_str(" <");
-            usage.push_str(self.app.subcommand_value_name.unwrap_or("SUBCOMMAND"));
+            usage.push_str(self.app.get_subcommand_value_name().unwrap_or("SUBCOMMAND"));
             usage.push('>');
         }
         usage.shrink_to_fit();
@@ -204,10 +201,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             let required = self.app.groups_for_arg(&pos.id).any(|grp_s| {
                 debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
-                self.app
-                    .groups
-                    .iter()
-                    .any(|g| g.required && (g.id == grp_s))
+                self.app.get_groups().any(|g| g.required && (g.id == grp_s))
             });
             if !required {
                 count += 1;
@@ -234,10 +228,7 @@ impl<'help, 'app> Usage<'help, 'app> {
                         && !self.app.groups_for_arg(&pos.id).any(|grp_s| {
                             debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                             // if it's part of a required group we don't want to count it
-                            self.app
-                                .groups
-                                .iter()
-                                .any(|g| g.required && (g.id == grp_s))
+                            self.app.get_groups().any(|g| g.required && (g.id == grp_s))
                         })
                 })
                 .expect(INTERNAL_ERROR_MSG);
@@ -319,7 +310,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             }
             for grp_s in self.app.groups_for_arg(&f.id) {
                 debug!("Usage::needs_options_tag:iter:iter: grp_s={:?}", grp_s);
-                if self.app.groups.iter().any(|g| g.id == grp_s && g.required) {
+                if self.app.get_groups().any(|g| g.id == grp_s && g.required) {
                     debug!("Usage::needs_options_tag:iter:iter: Group is required");
                     continue 'outer;
                 }
@@ -393,8 +384,7 @@ impl<'help, 'app> Usage<'help, 'app> {
 
         let args_in_groups = self
             .app
-            .groups
-            .iter()
+            .get_groups()
             .filter(|gn| required.contains(&gn.id))
             .flat_map(|g| self.app.unroll_args_in_group(&g.id))
             .collect::<Vec<_>>();
@@ -403,7 +393,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             .iter()
             .chain(incls.iter())
             .filter(|name| !self.app.get_positionals().any(|p| &&p.id == name))
-            .filter(|name| !self.app.groups.iter().any(|g| &&g.id == name))
+            .filter(|name| !self.app.get_groups().any(|g| &&g.id == name))
             .filter(|name| !args_in_groups.contains(name))
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
         {
@@ -414,7 +404,7 @@ impl<'help, 'app> Usage<'help, 'app> {
         let mut g_vec: Vec<String> = vec![];
         for g in unrolled_reqs
             .iter()
-            .filter(|n| self.app.groups.iter().any(|g| g.id == **n))
+            .filter(|n| self.app.get_groups().any(|g| g.id == **n))
         {
             // don't print requirement for required groups that have an arg.
             if let Some(m) = matcher {

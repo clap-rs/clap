@@ -3,6 +3,7 @@
 // Std
 use std::collections::HashMap;
 use std::env;
+use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::fmt;
 use std::io;
@@ -62,40 +63,40 @@ use crate::build::debug_asserts::assert_app;
 /// [`App::get_matches`]: App::get_matches()
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct App<'help> {
-    pub(crate) id: Id,
-    pub(crate) name: String,
-    pub(crate) long_flag: Option<&'help str>,
-    pub(crate) short_flag: Option<char>,
-    pub(crate) bin_name: Option<String>,
-    pub(crate) author: Option<&'help str>,
-    pub(crate) version: Option<&'help str>,
-    pub(crate) long_version: Option<&'help str>,
-    pub(crate) about: Option<&'help str>,
-    pub(crate) long_about: Option<&'help str>,
-    pub(crate) before_help: Option<&'help str>,
-    pub(crate) before_long_help: Option<&'help str>,
-    pub(crate) after_help: Option<&'help str>,
-    pub(crate) after_long_help: Option<&'help str>,
-    pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
-    pub(crate) short_flag_aliases: Vec<(char, bool)>, // (name, visible)
-    pub(crate) long_flag_aliases: Vec<(&'help str, bool)>, // (name, visible)
-    pub(crate) usage_str: Option<&'help str>,
-    pub(crate) usage_name: Option<String>,
-    pub(crate) help_str: Option<&'help str>,
-    pub(crate) disp_ord: Option<usize>,
-    pub(crate) term_w: Option<usize>,
-    pub(crate) max_w: Option<usize>,
-    pub(crate) template: Option<&'help str>,
-    pub(crate) settings: AppFlags,
-    pub(crate) g_settings: AppFlags,
-    pub(crate) args: MKeyMap<'help>,
-    pub(crate) subcommands: Vec<App<'help>>,
-    pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
-    pub(crate) groups: Vec<ArgGroup<'help>>,
-    pub(crate) current_help_heading: Option<&'help str>,
-    pub(crate) current_disp_ord: Option<usize>,
-    pub(crate) subcommand_value_name: Option<&'help str>,
-    pub(crate) subcommand_heading: Option<&'help str>,
+    id: Id,
+    name: String,
+    long_flag: Option<&'help str>,
+    short_flag: Option<char>,
+    bin_name: Option<String>,
+    author: Option<&'help str>,
+    version: Option<&'help str>,
+    long_version: Option<&'help str>,
+    about: Option<&'help str>,
+    long_about: Option<&'help str>,
+    before_help: Option<&'help str>,
+    before_long_help: Option<&'help str>,
+    after_help: Option<&'help str>,
+    after_long_help: Option<&'help str>,
+    aliases: Vec<(&'help str, bool)>,           // (name, visible)
+    short_flag_aliases: Vec<(char, bool)>,      // (name, visible)
+    long_flag_aliases: Vec<(&'help str, bool)>, // (name, visible)
+    usage_str: Option<&'help str>,
+    usage_name: Option<String>,
+    help_str: Option<&'help str>,
+    disp_ord: Option<usize>,
+    term_w: Option<usize>,
+    max_w: Option<usize>,
+    template: Option<&'help str>,
+    settings: AppFlags,
+    g_settings: AppFlags,
+    args: MKeyMap<'help>,
+    subcommands: Vec<App<'help>>,
+    replacers: HashMap<&'help OsStr, &'help [&'help str]>,
+    groups: Vec<ArgGroup<'help>>,
+    current_help_heading: Option<&'help str>,
+    current_disp_ord: Option<usize>,
+    subcommand_value_name: Option<&'help str>,
+    subcommand_heading: Option<&'help str>,
 }
 
 /// Basic API
@@ -1933,7 +1934,7 @@ impl<'help> App<'help> {
     #[cfg(feature = "unstable-replace")]
     #[must_use]
     pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
-        self.replacers.insert(name, target);
+        self.replacers.insert(OsStr::new(name), target);
         self
     }
 
@@ -3151,6 +3152,11 @@ impl<'help> App<'help> {
 
 /// Reflection
 impl<'help> App<'help> {
+    #[inline]
+    pub(crate) fn get_usage_name(&self) -> Option<&str> {
+        self.usage_name.as_deref()
+    }
+
     /// Get the name of the binary.
     #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
@@ -3324,14 +3330,36 @@ impl<'help> App<'help> {
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_subommand_help_heading(&self) -> Option<&str> {
+    pub fn get_subcommand_help_heading(&self) -> Option<&str> {
         self.subcommand_heading
+    }
+
+    /// Deprecated, replaced with [`App::get_subcommand_help_heading`]
+    #[inline]
+    #[deprecated(
+        since = "3.1.0",
+        note = "Replaced with `App::get_subcommand_help_heading`"
+    )]
+    pub fn get_subommand_help_heading(&self) -> Option<&str> {
+        self.get_subcommand_help_heading()
     }
 
     /// Returns the subcommand value name.
     #[inline]
     pub fn get_subcommand_value_name(&self) -> Option<&str> {
         self.subcommand_value_name
+    }
+
+    /// Returns the help heading for listing subcommands.
+    #[inline]
+    pub fn get_before_help(&self) -> Option<&str> {
+        self.before_help
+    }
+
+    /// Returns the help heading for listing subcommands.
+    #[inline]
+    pub fn get_before_long_help(&self) -> Option<&str> {
+        self.before_long_help
     }
 
     /// Returns the help heading for listing subcommands.
@@ -3367,6 +3395,12 @@ impl<'help> App<'help> {
         T: PartialEq<str> + ?Sized,
     {
         self.get_subcommands_mut().find(|s| s.aliases_to(name))
+    }
+
+    /// Iterate through the set of groups.
+    #[inline]
+    pub fn get_groups(&self) -> impl Iterator<Item = &ArgGroup<'help>> {
+        self.groups.iter()
     }
 
     /// Iterate through the set of arguments.
@@ -3867,6 +3901,38 @@ impl<'help> App<'help> {
 
 // Internally used only
 impl<'help> App<'help> {
+    pub(crate) fn get_id(&self) -> Id {
+        self.id.clone()
+    }
+
+    pub(crate) fn get_override_usage(&self) -> Option<&str> {
+        self.usage_str
+    }
+
+    pub(crate) fn get_override_help(&self) -> Option<&str> {
+        self.help_str
+    }
+
+    pub(crate) fn get_help_template(&self) -> Option<&str> {
+        self.template
+    }
+
+    pub(crate) fn get_term_width(&self) -> Option<usize> {
+        self.term_w
+    }
+
+    pub(crate) fn get_max_term_width(&self) -> Option<usize> {
+        self.max_w
+    }
+
+    pub(crate) fn get_replacement(&self, key: &OsStr) -> Option<&[&str]> {
+        self.replacers.get(key).copied()
+    }
+
+    pub(crate) fn get_keymap(&self) -> &MKeyMap<'help> {
+        &self.args
+    }
+
     fn get_used_global_args(&self, matches: &ArgMatches, global_arg_vec: &mut Vec<Id>) {
         global_arg_vec.extend(
             self.args

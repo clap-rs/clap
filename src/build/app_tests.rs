@@ -7,7 +7,10 @@ fn propagate_version() {
         .version("1.1")
         .subcommand(App::new("sub1"));
     app._propagate();
-    assert_eq!(app.subcommands[0].version, Some("1.1"));
+    assert_eq!(
+        app.get_subcommands().next().unwrap().get_version(),
+        Some("1.1")
+    );
 }
 
 #[test]
@@ -17,9 +20,8 @@ fn global_setting() {
         .subcommand(App::new("subcmd"));
     app._propagate();
     assert!(app
-        .subcommands
-        .iter()
-        .find(|s| s.name == "subcmd")
+        .get_subcommands()
+        .find(|s| s.get_name() == "subcmd")
         .unwrap()
         .is_disable_version_flag_set());
 }
@@ -38,5 +40,9 @@ fn issue_2090() {
         .subcommand(App::new("sub"));
     app._build();
 
-    assert!(app.subcommands[0].is_disable_version_flag_set());
+    assert!(app
+        .get_subcommands()
+        .next()
+        .unwrap()
+        .is_disable_version_flag_set());
 }

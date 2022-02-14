@@ -12,7 +12,7 @@ pub(crate) fn assert_app(app: &App) {
     let mut long_flags = vec![];
 
     // Invalid version flag settings
-    if app.version.is_none() && app.long_version.is_none() {
+    if app.get_version().is_none() && app.get_long_version().is_none() {
         // PropagateVersion is meaningless if there is no version
         assert!(
             !app.is_propagate_version_set(),
@@ -22,37 +22,36 @@ pub(crate) fn assert_app(app: &App) {
 
         // Used `App::mut_arg("version", ..) but did not provide any version information to display
         let has_mutated_version = app
-            .args
-            .args()
+            .get_arguments()
             .any(|x| x.id == Id::version_hash() && x.provider == ArgProvider::GeneratedMutated);
 
         if has_mutated_version {
-            assert!(app.settings.is_set(AppSettings::NoAutoVersion),
+            assert!(app.is_set(AppSettings::NoAutoVersion),
                 "App {}: Used App::mut_arg(\"version\", ..) without providing App::version, App::long_version or using AppSettings::NoAutoVersion"
             ,app.get_name()
                 );
         }
     }
 
-    for sc in &app.subcommands {
-        if let Some(s) = sc.short_flag.as_ref() {
-            short_flags.push(Flag::App(format!("-{}", s), &sc.name));
+    for sc in app.get_subcommands() {
+        if let Some(s) = sc.get_short_flag().as_ref() {
+            short_flags.push(Flag::App(format!("-{}", s), sc.get_name()));
         }
 
-        for (short_alias, _) in &sc.short_flag_aliases {
-            short_flags.push(Flag::App(format!("-{}", short_alias), &sc.name));
+        for short_alias in sc.get_all_short_flag_aliases() {
+            short_flags.push(Flag::App(format!("-{}", short_alias), sc.get_name()));
         }
 
-        if let Some(l) = sc.long_flag.as_ref() {
-            long_flags.push(Flag::App(format!("--{}", l), &sc.name));
+        if let Some(l) = sc.get_long_flag().as_ref() {
+            long_flags.push(Flag::App(format!("--{}", l), sc.get_name()));
         }
 
-        for (long_alias, _) in &sc.long_flag_aliases {
-            long_flags.push(Flag::App(format!("--{}", long_alias), &sc.name));
+        for long_alias in sc.get_all_long_flag_aliases() {
+            long_flags.push(Flag::App(format!("--{}", long_alias), sc.get_name()));
         }
     }
 
-    for arg in app.args.args() {
+    for arg in app.get_arguments() {
         assert_arg(arg);
 
         if let Some(s) = arg.short.as_ref() {
@@ -223,10 +222,10 @@ pub(crate) fn assert_app(app: &App) {
         }
     }
 
-    for group in &app.groups {
+    for group in app.get_groups() {
         // Name conflicts
         assert!(
-            app.groups.iter().filter(|x| x.id == group.id).count() < 2,
+            app.get_groups().filter(|x| x.id == group.id).count() < 2,
             "App {}: Argument group name must be unique\n\n\t'{}' is already in use",
             app.get_name(),
             group.name,
@@ -234,7 +233,7 @@ pub(crate) fn assert_app(app: &App) {
 
         // Groups should not have naming conflicts with Args
         assert!(
-            !app.args.args().any(|x| x.id == group.id),
+            !app.get_arguments().any(|x| x.id == group.id),
             "App {}: Argument group name '{}' must not conflict with argument name",
             app.get_name(),
             group.name,
@@ -244,8 +243,7 @@ pub(crate) fn assert_app(app: &App) {
         if group.required && !group.args.is_empty() {
             assert!(
                 group.args.iter().any(|arg| {
-                    app.args
-                        .args()
+                    app.get_arguments()
                         .any(|x| x.id == *arg && x.default_vals.is_empty())
                 }),
                 "App {}: Argument group '{}' is required but all of it's arguments have a default value.",
@@ -257,7 +255,7 @@ pub(crate) fn assert_app(app: &App) {
         for arg in &group.args {
             // Args listed inside groups should exist
             assert!(
-                app.args.args().any(|x| x.id == *arg),
+                app.get_arguments().any(|x| x.id == *arg),
                 "App {}: Argument group '{}' contains non-existent argument '{:?}'",
                 app.get_name(),
                 group.name,
@@ -276,7 +274,7 @@ pub(crate) fn assert_app(app: &App) {
 
     _verify_positionals(app);
 
-    if let Some(help_template) = app.template {
+    if let Some(help_template) = app.get_help_template() {
         assert!(
             !help_template.contains("{flags}"),
             "App {}: {}",
@@ -422,7 +420,7 @@ fn _verify_positionals(app: &App) -> bool {
     // but no 2)
 
     let highest_idx = app
-        .args
+        .get_keymap()
         .keys()
         .filter_map(|x| {
             if let KeyType::Position(n) = x {
@@ -434,7 +432,7 @@ fn _verify_positionals(app: &App) -> bool {
         .max()
         .unwrap_or(0);
 
-    let num_p = app.args.keys().filter(|x| x.is_position()).count();
+    let num_p = app.get_keymap().keys().filter(|x| x.is_position()).count();
 
     assert!(
         highest_idx == num_p,
@@ -455,8 +453,8 @@ fn _verify_positionals(app: &App) -> bool {
 
         // We can't pass the closure (it.next()) to the macro directly because each call to
         // find() (iterator, not macro) gets called repeatedly.
-        let last = &app.args[&KeyType::Position(highest_idx)];
-        let second_to_last = &app.args[&KeyType::Position(highest_idx - 1)];
+        let last = &app.get_keymap()[&KeyType::Position(highest_idx)];
+        let second_to_last = &app.get_keymap()[&KeyType::Position(highest_idx - 1)];
 
         // Either the final positional is required
         // Or the second to last has a terminator or .last(true) set
@@ -535,7 +533,7 @@ fn _verify_positionals(app: &App) -> bool {
     } else {
         // Check that if a required positional argument is found, all positions with a lower
         // index are also required
-        for p in (1..=num_p).rev().filter_map(|n| app.args.get(&n)) {
+        for p in (1..=num_p).rev().filter_map(|n| app.get_keymap().get(&n)) {
             if found {
                 assert!(
                     p.is_required_set(),
