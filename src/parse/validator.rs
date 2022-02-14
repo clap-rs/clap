@@ -3,16 +3,19 @@ use crate::build::{App, AppSettings, Arg, ArgPredicate, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
+use crate::util::ChildGraph;
 use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Validator<'help, 'app, 'parser> {
     p: &'parser mut Parser<'help, 'app>,
+    required: ChildGraph<Id>,
 }
 
 impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     pub(crate) fn new(p: &'parser mut Parser<'help, 'app>) -> Self {
-        Validator { p }
+        let required = p.app.required_graph();
+        Validator { p, required }
     }
 
     pub(crate) fn validate(
@@ -46,7 +49,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .filter_map(PossibleValue::get_visible_name)
                         .collect::<Vec<_>>(),
                     o,
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
         }
@@ -67,7 +72,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             return Err(Error::missing_subcommand(
                 self.p.app,
                 bn.to_string(),
-                Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                Usage::new(self.p.app)
+                    .required(&self.required)
+                    .create_usage_with_title(&[]),
             ));
         } else if !has_subcmd && self.p.app.is_set(AppSettings::SubcommandRequiredElseHelp) {
             debug!("Validator::new::get_matches_with: SubcommandRequiredElseHelp=true");
@@ -99,7 +106,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 );
                 return Err(Error::invalid_utf8(
                     self.p.app,
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
             if !arg.possible_vals.is_empty() {
@@ -118,7 +127,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                         .filter(|&n| {
                             self.p.app.find(n).map_or(true, |a| {
-                                !(a.is_hide_set() || self.p.required.contains(&a.id))
+                                !(a.is_hide_set() || self.required.contains(&a.id))
                             })
                         })
                         .cloned()
@@ -131,7 +140,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .filter_map(PossibleValue::get_visible_name)
                             .collect::<Vec<_>>(),
                         arg,
-                        Usage::new(self.p.app, &self.p.required).create_usage_with_title(&used),
+                        Usage::new(self.p.app)
+                            .required(&self.required)
+                            .create_usage_with_title(&used),
                     ));
                 }
             }
@@ -144,7 +155,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .filter_map(PossibleValue::get_visible_name)
                         .collect::<Vec<_>>(),
                     arg,
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
 
@@ -221,7 +234,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     self.p.app,
                     arg,
                     Vec::new(),
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ))
             })
     }
@@ -277,7 +292,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .chain(used_filtered.iter())
             .cloned()
             .collect();
-        Usage::new(self.p.app, &self.p.required).create_usage_with_title(&required)
+        Usage::new(self.p.app)
+            .required(&self.required)
+            .create_usage_with_title(&required)
     }
 
     fn gather_requires(&mut self, matcher: &ArgMatcher) {
@@ -294,12 +311,12 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 };
 
                 for req in self.p.app.unroll_arg_requires(is_relevant, &arg.id) {
-                    self.p.required.insert(req);
+                    self.required.insert(req);
                 }
             } else if let Some(g) = self.p.app.find_group(name) {
                 debug!("Validator::gather_requires:iter:{:?}:group", name);
                 for r in &g.requires {
-                    self.p.required.insert(r.clone());
+                    self.required.insert(r.clone());
                 }
             }
         }
@@ -335,7 +352,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             return Err(Error::unexpected_multiple_usage(
                 self.p.app,
                 a,
-                Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                Usage::new(self.p.app)
+                    .required(&self.required)
+                    .create_usage_with_title(&[]),
             ));
         }
         if let Some(max_occurs) = a.max_occurs {
@@ -350,7 +369,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     a,
                     max_occurs,
                     occurs,
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
         }
@@ -379,7 +400,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     } else {
                         total_num
                     },
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
         }
@@ -396,7 +419,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .expect(INVALID_UTF8)
                         .to_string(),
                     a.to_string(),
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
         }
@@ -409,7 +434,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     a,
                     num,
                     ma.num_vals(),
-                    Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                    Usage::new(self.p.app)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
                 ));
             }
             num == 0
@@ -426,20 +453,19 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     .filter_map(PossibleValue::get_visible_name)
                     .collect::<Vec<_>>(),
                 a,
-                Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
+                Usage::new(self.p.app)
+                    .required(&self.required)
+                    .create_usage_with_title(&[]),
             ));
         }
         Ok(())
     }
 
     fn validate_required(&mut self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debug!(
-            "Validator::validate_required: required={:?}",
-            self.p.required
-        );
+        debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
-        for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
+        for arg_or_group in self.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
             if let Some(arg) = self.p.app.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
@@ -535,10 +561,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         debug!("Validator::missing_required_error; incl={:?}", incl);
         debug!(
             "Validator::missing_required_error: reqs={:?}",
-            self.p.required
+            self.required
         );
 
-        let usg = Usage::new(self.p.app, &self.p.required);
+        let usg = Usage::new(self.p.app).required(&self.required);
 
         let req_args = usg.get_required_usage_from(&incl, Some(matcher), true);
 
@@ -552,9 +578,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
-                self.p.app.find(n).map_or(true, |a| {
-                    !a.is_hide_set() && !self.p.required.contains(&a.id)
-                })
+                self.p
+                    .app
+                    .find(n)
+                    .map_or(true, |a| !a.is_hide_set() && !self.required.contains(&a.id))
             })
             .cloned()
             .chain(incl)

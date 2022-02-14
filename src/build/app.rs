@@ -1,15 +1,13 @@
 #![allow(deprecated)]
 
 // Std
-use std::{
-    collections::HashMap,
-    env,
-    ffi::OsString,
-    fmt,
-    io::{self, Write},
-    ops::Index,
-    path::Path,
-};
+use std::collections::HashMap;
+use std::env;
+use std::ffi::OsString;
+use std::fmt;
+use std::io;
+use std::ops::Index;
+use std::path::Path;
 
 // Third Party
 use os_str_bytes::RawOsStr;
@@ -25,6 +23,7 @@ use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
+use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
@@ -81,7 +80,7 @@ pub struct App<'help> {
     pub(crate) short_flag_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) long_flag_aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) usage_str: Option<&'help str>,
-    pub(crate) usage: Option<String>,
+    pub(crate) usage_name: Option<String>,
     pub(crate) help_str: Option<&'help str>,
     pub(crate) disp_ord: Option<usize>,
     pub(crate) term_w: Option<usize>,
@@ -688,9 +687,8 @@ impl<'help> App<'help> {
         let color = self.get_color();
 
         let mut c = Colorizer::new(false, color);
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, false).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help()?;
         c.print()
     }
 
@@ -714,9 +712,8 @@ impl<'help> App<'help> {
         let color = self.get_color();
 
         let mut c = Colorizer::new(false, color);
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, true).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help()?;
         c.print()
     }
 
@@ -736,12 +733,11 @@ impl<'help> App<'help> {
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
-    pub fn write_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
+    pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Normal(w), parser.app, &usage, false).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Normal(w), self, &usage, false).write_help()?;
         w.flush()
     }
 
@@ -761,12 +757,11 @@ impl<'help> App<'help> {
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
-    pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
+    pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
-        let parser = Parser::new(self);
-        let usage = Usage::new(parser.app, &parser.required);
-        Help::new(HelpWriter::Normal(w), parser.app, &usage, true).write_help()?;
+        let usage = Usage::new(self);
+        Help::new(HelpWriter::Normal(w), self, &usage, true).write_help()?;
         w.flush()
     }
 
@@ -833,8 +828,7 @@ impl<'help> App<'help> {
         // before parsing incase we run into a subcommand
         self._build();
 
-        let parser = Parser::new(self);
-        Usage::new(parser.app, &parser.required).create_usage_with_title(&[])
+        Usage::new(self).create_usage_with_title(&[])
     }
 }
 
@@ -3827,14 +3821,14 @@ impl<'help> App<'help> {
     /// Deprecated, replaced with [`App::render_version`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")]
     #[doc(hidden)]
-    pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+    pub fn write_version<W: io::Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_version()).map_err(From::from)
     }
 
     /// Deprecated, replaced with [`App::render_long_version`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")]
     #[doc(hidden)]
-    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+    pub fn write_long_version<W: io::Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_long_version()).map_err(From::from)
     }
 
@@ -3922,6 +3916,59 @@ impl<'help> App<'help> {
             subcmd._build();
         }
         self._build_bin_names();
+    }
+
+    pub(crate) fn _build_subcommand(&mut self, name: &str) -> Option<&mut Self> {
+        use std::fmt::Write;
+
+        let mut mid_string = String::from(" ");
+        if !self.is_subcommand_negates_reqs_set() {
+            let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
+
+            for s in &reqs {
+                mid_string.push_str(s);
+                mid_string.push(' ');
+            }
+        }
+
+        let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
+
+        // Display subcommand name, short and long in usage
+        let mut sc_names = sc.name.clone();
+        let mut flag_subcmd = false;
+        if let Some(l) = sc.long_flag {
+            write!(sc_names, ", --{}", l).unwrap();
+            flag_subcmd = true;
+        }
+        if let Some(s) = sc.short_flag {
+            write!(sc_names, ", -{}", s).unwrap();
+            flag_subcmd = true;
+        }
+
+        if flag_subcmd {
+            sc_names = format!("{{{}}}", sc_names);
+        }
+
+        sc.usage_name = Some(
+            self.bin_name
+                .as_ref()
+                .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
+                .unwrap_or(sc_names),
+        );
+
+        // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
+        // a space
+        sc.bin_name = Some(format!(
+            "{}{}{}",
+            self.bin_name.as_ref().unwrap_or(&String::new()),
+            if self.bin_name.is_some() { " " } else { "" },
+            &*sc.name
+        ));
+
+        // Ensure all args are built and ready to parse
+        sc._build();
+
+        Some(sc)
     }
 
     // used in clap_complete (https://github.com/clap-rs/clap_complete)
@@ -4446,6 +4493,23 @@ impl<'help> App<'help> {
         })
     }
 
+    pub(crate) fn required_graph(&self) -> ChildGraph<Id> {
+        let mut reqs = ChildGraph::with_capacity(5);
+        for a in self.args.args().filter(|a| a.is_required_set()) {
+            reqs.insert(a.id.clone());
+        }
+        for group in &self.groups {
+            if group.required {
+                let idx = reqs.insert(group.id.clone());
+                for a in &group.requires {
+                    reqs.insert_child(idx, a.clone());
+                }
+            }
+        }
+
+        reqs
+    }
+
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
         debug!("App::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
@@ -4546,7 +4610,7 @@ impl<'help> Default for App<'help> {
             short_flag_aliases: Default::default(),
             long_flag_aliases: Default::default(),
             usage_str: Default::default(),
-            usage: Default::default(),
+            usage_name: Default::default(),
             help_str: Default::default(),
             disp_ord: Default::default(),
             term_w: Default::default(),
