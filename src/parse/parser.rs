@@ -37,18 +37,7 @@ pub(crate) struct Parser<'help, 'app> {
 // Initializing Methods
 impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn new(app: &'app mut App<'help>) -> Self {
-        let mut reqs = ChildGraph::with_capacity(5);
-        for a in app.args.args().filter(|a| a.is_required_set()) {
-            reqs.insert(a.id.clone());
-        }
-        for group in &app.groups {
-            if group.required {
-                let idx = reqs.insert(group.id.clone());
-                for a in &group.requires {
-                    reqs.insert_child(idx, a.clone());
-                }
-            }
-        }
+        let reqs = app.required_graph();
 
         Parser {
             app,

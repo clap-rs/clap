@@ -23,6 +23,7 @@ use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
+use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
@@ -4442,6 +4443,23 @@ impl<'help> App<'help> {
             let aliases = sc.get_all_aliases();
             std::iter::once(name).chain(aliases)
         })
+    }
+
+    pub(crate) fn required_graph(&self) -> ChildGraph<Id> {
+        let mut reqs = ChildGraph::with_capacity(5);
+        for a in self.args.args().filter(|a| a.is_required_set()) {
+            reqs.insert(a.id.clone());
+        }
+        for group in &self.groups {
+            if group.required {
+                let idx = reqs.insert(group.id.clone());
+                for a in &group.requires {
+                    reqs.insert_child(idx, a.clone());
+                }
+            }
+        }
+
+        reqs
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
