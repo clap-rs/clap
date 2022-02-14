@@ -1,12 +1,12 @@
 #[macro_use]
 mod macros;
 
-mod app;
 mod app_settings;
 mod arg;
 mod arg_group;
 mod arg_predicate;
 mod arg_settings;
+mod command;
 mod possible_value;
 mod usage_parser;
 mod value_hint;
@@ -20,11 +20,11 @@ mod debug_asserts;
 #[cfg(test)]
 mod tests;
 
-pub use app::App;
 pub use app_settings::{AppFlags, AppSettings};
 pub use arg::Arg;
 pub use arg_group::ArgGroup;
 pub use arg_settings::{ArgFlags, ArgSettings};
+pub use command::App;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
 
