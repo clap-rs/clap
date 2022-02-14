@@ -158,8 +158,8 @@ fn value_completion(option: &Arg) -> String {
                 } else {
                     Some(format!(
                         "{}\t{}",
-                        value.get_name(),
-                        value.get_help().unwrap_or_default()
+                        escape_string(value.get_name()).as_str(),
+                        escape_string(value.get_help().unwrap_or_default()).as_str()
                     ))
                 })
                 .collect::<Vec<_>>()
