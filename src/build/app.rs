@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
-use std::io::{self, Write};
+use std::io;
 use std::ops::Index;
 use std::path::Path;
 
@@ -734,7 +734,7 @@ impl<'help> App<'help> {
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
-    pub fn write_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
+    pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
         let parser = Parser::new(self);
@@ -759,7 +759,7 @@ impl<'help> App<'help> {
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
-    pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
+    pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
         let parser = Parser::new(self);
@@ -3825,14 +3825,14 @@ impl<'help> App<'help> {
     /// Deprecated, replaced with [`App::render_version`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")]
     #[doc(hidden)]
-    pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+    pub fn write_version<W: io::Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_version()).map_err(From::from)
     }
 
     /// Deprecated, replaced with [`App::render_long_version`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")]
     #[doc(hidden)]
-    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+    pub fn write_long_version<W: io::Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_long_version()).map_err(From::from)
     }
 
