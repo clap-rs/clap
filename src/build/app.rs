@@ -1,15 +1,13 @@
 #![allow(deprecated)]
 
 // Std
-use std::{
-    collections::HashMap,
-    env,
-    ffi::OsString,
-    fmt,
-    io::{self, Write},
-    ops::Index,
-    path::Path,
-};
+use std::collections::HashMap;
+use std::env;
+use std::ffi::OsString;
+use std::fmt;
+use std::io::{self, Write};
+use std::ops::Index;
+use std::path::Path;
 
 // Third Party
 use os_str_bytes::RawOsStr;
