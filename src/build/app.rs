@@ -80,7 +80,7 @@ pub struct App<'help> {
     pub(crate) short_flag_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) long_flag_aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) usage_str: Option<&'help str>,
-    pub(crate) usage: Option<String>,
+    pub(crate) usage_name: Option<String>,
     pub(crate) help_str: Option<&'help str>,
     pub(crate) disp_ord: Option<usize>,
     pub(crate) term_w: Option<usize>,
@@ -3949,7 +3949,7 @@ impl<'help> App<'help> {
             sc_names = format!("{{{}}}", sc_names);
         }
 
-        sc.usage = Some(
+        sc.usage_name = Some(
             self.bin_name
                 .as_ref()
                 .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
@@ -4610,7 +4610,7 @@ impl<'help> Default for App<'help> {
             short_flag_aliases: Default::default(),
             long_flag_aliases: Default::default(),
             usage_str: Default::default(),
-            usage: Default::default(),
+            usage_name: Default::default(),
             help_str: Default::default(),
             disp_ord: Default::default(),
             term_w: Default::default(),

@@ -54,7 +54,7 @@ impl<'help, 'app> Usage<'help, 'app> {
         let mut usage = String::with_capacity(75);
         let name = self
             .app
-            .usage
+            .usage_name
             .as_ref()
             .or_else(|| self.app.bin_name.as_ref())
             .unwrap_or(&self.app.name);
@@ -174,7 +174,7 @@ impl<'help, 'app> Usage<'help, 'app> {
         usage.push_str(
             &self
                 .app
-                .usage
+                .usage_name
                 .as_ref()
                 .or_else(|| self.app.bin_name.as_ref())
                 .unwrap_or(&self.app.name)[..],
