@@ -43,6 +43,12 @@ use crate::build::debug_asserts::assert_app;
 /// [`CommandFactory::into_app`][crate::CommandFactory::into_app] to access the
 /// `Command`.
 ///
+/// - [Basic API][crate::App#basic-api]
+/// - [Application-wide Settings][crate::App#application-wide-settings]
+/// - [Command-specific Settings][crate::App#command-specific-settings]
+/// - [Subcommand-specific Settings][crate::App#subcommand-specific-settings]
+/// - [Reflection][crate::App#reflection]
+///
 /// # Examples
 ///
 /// ```no_run
@@ -103,7 +109,7 @@ pub struct App<'help> {
     subcommand_heading: Option<&'help str>,
 }
 
-/// Basic API
+/// # Basic API
 impl<'help> App<'help> {
     /// Creates a new instance of an `Command`.
     ///
@@ -837,7 +843,7 @@ impl<'help> App<'help> {
     }
 }
 
-/// Application-wide (i.e. global) Settings
+/// # Application-wide Settings
 ///
 /// These settings will apply to the top-level command and all subcommands, by default.  Some
 /// settings can be overridden in subcommands.
@@ -1323,7 +1329,7 @@ impl<'help> App<'help> {
     }
 }
 
-/// Command-specific Settings
+/// # Command-specific Settings
 ///
 /// These apply only to the current command and are not inherited by subcommands.
 impl<'help> App<'help> {
@@ -2173,7 +2179,7 @@ impl<'help> App<'help> {
     }
 }
 
-/// Subcommand-specific Settings
+/// # Subcommand-specific Settings
 impl<'help> App<'help> {
     /// Sets the short version of the subcommand flag without the preceding `-`.
     ///
@@ -3154,7 +3160,7 @@ impl<'help> App<'help> {
     }
 }
 
-/// Reflection
+/// # Reflection
 impl<'help> App<'help> {
     #[inline]
     pub(crate) fn get_usage_name(&self) -> Option<&str> {
