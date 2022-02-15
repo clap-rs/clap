@@ -453,7 +453,7 @@ static FLAG_SUBCOMMAND_HELP: &str = "pacman-query
 Query the package database.
 
 USAGE:
-    pacman {query, --query, -Q} [OPTIONS]
+    pacman {query|--query|-Q} [OPTIONS]
 
 OPTIONS:
     -h, --help                  Print help information
@@ -507,7 +507,7 @@ static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "pacman-query
 Query the package database.
 
 USAGE:
-    pacman {query, --query} [OPTIONS]
+    pacman {query|--query} [OPTIONS]
 
 OPTIONS:
     -h, --help                  Print help information
@@ -560,7 +560,7 @@ static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "pacman-query
 Query the package database.
 
 USAGE:
-    pacman {query, -Q} [OPTIONS]
+    pacman {query|-Q} [OPTIONS]
 
 OPTIONS:
     -h, --help                  Print help information

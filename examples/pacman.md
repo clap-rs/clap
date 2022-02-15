@@ -49,16 +49,16 @@ OPTIONS:
     -V, --version    Print version information
 
 SUBCOMMANDS:
-    -Q--queryquery    Query the package database.
-    -S--syncsync      Synchronize packages.
-    help              Print this message or the help of the given subcommand(s)
+    help                Print this message or the help of the given subcommand(s)
+    query -Q --query    Query the package database.
+    sync -S --sync      Synchronize packages.
 
 $ pacman -S -h
 pacman[EXE]-sync 
 Synchronize packages.
 
 USAGE:
-    pacman[EXE] {sync, --sync, -S} [OPTIONS] [--] [package]...
+    pacman[EXE] {sync|--sync|-S} [OPTIONS] [--] [package]...
 
 ARGS:
     <package>...    packages
@@ -77,7 +77,7 @@ $ pacman -S -s foo -i bar
 error: The argument '--search <search>...' cannot be used with '--info'
 
 USAGE:
-    pacman[EXE] {sync, --sync, -S} --search <search>... <package>...
+    pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
 
 For more information try --help
 
