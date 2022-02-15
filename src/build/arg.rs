@@ -35,6 +35,12 @@ use crate::build::RegexRef;
 /// manually, or using a usage string which is far less verbose but has fewer options. You can also
 /// use a combination of the two methods to achieve the best of both worlds.
 ///
+/// - [Basic API][crate::Arg#basic-api]
+/// - [Value Handling][crate::Arg#value-handling]
+/// - [Help][crate::Arg#help-1]
+/// - [Advanced Argument Relations][crate::Arg#advanced-argument-relations]
+/// - [Reflection][crate::Arg#reflection]
+///
 /// # Examples
 ///
 /// ```rust
@@ -91,6 +97,7 @@ pub struct Arg<'help> {
     pub(crate) value_hint: ValueHint,
 }
 
+/// # Basic API
 impl<'help> Arg<'help> {
     /// Create a new [`Arg`] with a unique name.
     ///
@@ -946,7 +953,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-/// Value handling
+/// # Value Handling
 impl<'help> Arg<'help> {
     /// Specifies that the argument takes a value at run time.
     ///
@@ -2727,7 +2734,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-/// Help
+/// # Help
 impl<'help> Arg<'help> {
     /// Sets the description of the argument for short help (`-h`).
     ///
@@ -3284,7 +3291,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-/// Advanced argument relations
+/// # Advanced Argument Relations
 impl<'help> Arg<'help> {
     /// The name of the [`ArgGroup`] the argument belongs to.
     ///
@@ -4489,7 +4496,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-/// Reflection
+/// # Reflection
 impl<'help> Arg<'help> {
     /// Get the name of the argument
     #[inline]
@@ -4800,7 +4807,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-/// Deprecated
+/// # Deprecated
 impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::new`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")]
@@ -5017,7 +5024,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-// Internally used only
+/// # Internally used only
 impl<'help> Arg<'help> {
     pub(crate) fn _build(&mut self) {
         if self.is_positional() {
