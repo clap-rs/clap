@@ -626,10 +626,7 @@ impl ArgMatches {
         self.args.contains_key(&id)
     }
 
-    /// Check if an argument was present at runtime.
-    ///
-    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    /// Report where argument value came from
     ///
     /// # Panics
     ///
@@ -638,7 +635,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
     ///         .short('d'))
@@ -646,7 +643,7 @@ impl ArgMatches {
     ///         "myprog", "-d"
     ///     ]);
     ///
-    /// assert!(m.is_present("debug"));
+    /// assert_eq!(m.value_source("debug"), Some(ValueSource::CommandLine));
     /// ```
     ///
     /// [`default_value`]: crate::Arg::default_value()
