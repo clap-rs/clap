@@ -28,4 +28,4 @@ test-%:
 	cargo test ${_FEATURES_${@:test-%=%}} ${ARGS}
 
 clippy-%:
-	cargo clippy ${_FEATURES_${@:clippy-%=%}} ${ARGS} --all-targets -- -D warnings
+	cargo clippy ${_FEATURES_${@:clippy-%=%}} ${ARGS} --all-targets -- -D warnings -A deprecated
