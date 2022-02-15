@@ -1,0 +1,5 @@
+error: unsupported parser `not_a_valid_parser`
+ --> tests/derive_ui/unsupported_parser.rs:5:18
+  |
+5 |     #[clap(parse(not_a_valid_parser))]
+  |                  ^^^^^^^^^^^^^^^^^^
