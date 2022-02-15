@@ -837,7 +837,7 @@ impl<'help> App<'help> {
     }
 }
 
-/// Command-wide Settings
+/// Application-wide (i.e. global) Settings
 ///
 /// These settings will apply to the top-level command and all subcommands, by default.  Some
 /// settings can be overridden in subcommands.
