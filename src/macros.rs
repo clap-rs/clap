@@ -283,15 +283,10 @@ macro_rules! crate_name {
 
 /// Allows you to build the `Command` instance from your Cargo.toml at compile time.
 ///
-/// Equivalent to using the `crate_*!` macros with their respective fields.
-///
-/// Provided separator is for the [`crate_authors!`] macro,
-/// refer to the documentation therefor.
-///
 /// **NOTE:** Changing the values in your `Cargo.toml` does not trigger a re-build automatically,
 /// and therefore won't change the generated output until you recompile.
 ///
-/// **Pro Tip:** In some cases you can "trick" the compiler into triggering a rebuild when your
+/// In some cases you can "trick" the compiler into triggering a rebuild when your
 /// `Cargo.toml` is changed by including this in your `src/main.rs` file
 /// `include_str!("../Cargo.toml");`
 ///
@@ -301,9 +296,33 @@ macro_rules! crate_name {
 /// # #[macro_use]
 /// # extern crate clap;
 /// # fn main() {
-/// let m = app_from_crate!().get_matches();
+/// let m = command!().get_matches();
 /// # }
 /// ```
+#[cfg(feature = "cargo")]
+#[macro_export]
+macro_rules! command {
+    () => {{
+        $crate::command!($crate::crate_name!())
+    }};
+    ($name:expr) => {{
+        let mut cmd = $crate::Command::new($name).version($crate::crate_version!());
+
+        let author = $crate::crate_authors!();
+        if !author.is_empty() {
+            cmd = cmd.author(author)
+        }
+
+        let about = $crate::crate_description!();
+        if !about.is_empty() {
+            cmd = cmd.about(about)
+        }
+
+        cmd
+    }};
+}
+
+/// Deprecated, replaced with [`clap::command!`][crate::command]
 #[cfg(feature = "cargo")]
 #[macro_export]
 macro_rules! app_from_crate {
