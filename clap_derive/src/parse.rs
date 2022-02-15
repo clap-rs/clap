@@ -266,12 +266,12 @@ fn raw_method_suggestion(ts: ParseBuffer) -> String {
         };
 
         format!(
-            "if you need to call `clap::Arg/App::{}` method you \
+            "if you need to call `clap::Arg/Command::{}` method you \
              can do it like this: #[clap({}{})]",
             name, name, suggestion
         )
     } else {
-        "if you need to call some method from `clap::Arg/App` \
+        "if you need to call some method from `clap::Arg/Command` \
          you should use raw method, see \
          https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#raw-attributes"
             .into()

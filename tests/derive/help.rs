@@ -12,15 +12,15 @@ fn arg_help_heading_applied() {
         no_section: u32,
     }
 
-    let app = CliOptions::into_app();
+    let cmd = CliOptions::into_app();
 
-    let should_be_in_section_a = app
+    let should_be_in_section_a = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
-    let should_be_in_section_b = app
+    let should_be_in_section_b = cmd
         .get_arguments()
         .find(|a| a.get_id() == "no-section")
         .unwrap();
@@ -40,15 +40,15 @@ fn app_help_heading_applied() {
         should_be_in_default_section: u32,
     }
 
-    let app = CliOptions::into_app();
+    let cmd = CliOptions::into_app();
 
-    let should_be_in_section_a = app
+    let should_be_in_section_a = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
-    let should_be_in_default_section = app
+    let should_be_in_default_section = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-default-section")
         .unwrap();
@@ -117,27 +117,27 @@ fn app_help_heading_flattened() {
         SubCOne { should_be_in_sub_c: u32 },
     }
 
-    let app = CliOptions::into_app();
+    let cmd = CliOptions::into_app();
 
-    let should_be_in_section_a = app
+    let should_be_in_section_a = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
-    let should_be_in_section_b = app
+    let should_be_in_section_b = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-section-b")
         .unwrap();
     assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
-    let should_be_in_default_section = app
+    let should_be_in_default_section = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-default-section")
         .unwrap();
     assert_eq!(should_be_in_default_section.get_help_heading(), None);
 
-    let sub_a_two = app.find_subcommand("sub-a-two").unwrap();
+    let sub_a_two = cmd.find_subcommand("sub-a-two").unwrap();
 
     let should_be_in_sub_a = sub_a_two
         .get_arguments()
@@ -145,7 +145,7 @@ fn app_help_heading_flattened() {
         .unwrap();
     assert_eq!(should_be_in_sub_a.get_help_heading(), Some("SUB A"));
 
-    let sub_b_one = app.find_subcommand("sub-b-one").unwrap();
+    let sub_b_one = cmd.find_subcommand("sub-b-one").unwrap();
 
     let should_be_in_sub_b = sub_b_one
         .get_arguments()
@@ -153,7 +153,7 @@ fn app_help_heading_flattened() {
         .unwrap();
     assert_eq!(should_be_in_sub_b.get_help_heading(), Some("SUB B"));
 
-    let sub_c = app.find_subcommand("sub-c").unwrap();
+    let sub_c = cmd.find_subcommand("sub-c").unwrap();
     let sub_c_one = sub_c.find_subcommand("sub-c-one").unwrap();
 
     let should_be_in_sub_c = sub_c_one
@@ -178,9 +178,9 @@ fn flatten_field_with_help_heading() {
         should_be_in_section_a: u32,
     }
 
-    let app = CliOptions::into_app();
+    let cmd = CliOptions::into_app();
 
-    let should_be_in_section_a = app
+    let should_be_in_section_a = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should-be-in-section-a")
         .unwrap();
@@ -278,10 +278,10 @@ OPTIONS:
     }
 
     use clap::IntoApp;
-    let mut app = Args::into_app();
+    let mut cmd = Args::into_app();
 
     let mut buffer: Vec<u8> = Default::default();
-    app.write_help(&mut buffer).unwrap();
+    cmd.write_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
     assert_eq!(help, HELP);
 }
@@ -335,10 +335,10 @@ OPTIONS:
     }
 
     use clap::IntoApp;
-    let mut app = Args::into_app();
+    let mut cmd = Args::into_app();
 
     let mut buffer: Vec<u8> = Default::default();
-    app.write_help(&mut buffer).unwrap();
+    cmd.write_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
     assert_eq!(help, HELP);
 }
@@ -391,10 +391,10 @@ OPTIONS:
     }
 
     use clap::IntoApp;
-    let mut app = Args::into_app();
+    let mut cmd = Args::into_app();
 
     let mut buffer: Vec<u8> = Default::default();
-    app.write_help(&mut buffer).unwrap();
+    cmd.write_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
     assert_eq!(help, HELP);
 }

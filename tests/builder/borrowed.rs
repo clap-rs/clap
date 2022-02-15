@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 #[test]
 fn borrowed_args() {
@@ -7,11 +7,11 @@ fn borrowed_args() {
         .short('S')
         .long("some-thing")
         .help("other help");
-    let result = App::new("sub_command_negate")
+    let result = Command::new("sub_command_negate")
         .arg(Arg::new("test").index(1))
         .arg(&arg)
         .arg(&arg2)
-        .subcommand(App::new("sub1").arg(&arg))
+        .subcommand(Command::new("sub1").arg(&arg))
         .try_get_matches_from(vec!["prog"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
 }

@@ -1,11 +1,11 @@
 use super::*;
 
-fn build_app() -> App<'static> {
+fn build_app() -> Command<'static> {
     build_app_with_name("myapp")
 }
 
-fn build_app_with_name(s: &'static str) -> App<'static> {
-    App::new(s)
+fn build_app_with_name(s: &'static str) -> Command<'static> {
+    Command::new(s)
         .version("3.0")
         .propagate_version(true)
         .about("Tests completions")
@@ -16,7 +16,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
         )
         .arg(Arg::new("choice").possible_values(["first", "second"]))
         .subcommand(
-            App::new("test").about("tests things").arg(
+            Command::new("test").about("tests things").arg(
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
@@ -27,8 +27,8 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
 
 #[test]
 fn bash() {
-    let mut app = build_app();
-    common(Bash, &mut app, "myapp", BASH);
+    let mut cmd = build_app();
+    common(Bash, &mut cmd, "myapp", BASH);
 }
 
 static BASH: &str = r#"_myapp() {
@@ -111,21 +111,21 @@ complete -F _myapp -o bashdefault -o default myapp
 
 #[test]
 fn bash_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Bash, &mut app, "my_app", BASH_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Bash, &mut cmd, "my_app", BASH_SPECIAL_CMDS);
 }
 
-fn build_app_special_commands() -> App<'static> {
+fn build_app_special_commands() -> Command<'static> {
     build_app_with_name("my_app")
         .subcommand(
-            App::new("some_cmd").about("tests other things").arg(
+            Command::new("some_cmd").about("tests other things").arg(
                 Arg::new("config")
                     .long("--config")
                     .takes_value(true)
                     .help("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
+        .subcommand(Command::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
@@ -246,12 +246,12 @@ complete -F _my_app -o bashdefault -o default my_app
 
 #[test]
 fn bash_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Bash, &mut app, "cmd", BASH_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Bash, &mut cmd, "cmd", BASH_ALIASES);
 }
 
-fn build_app_with_aliases() -> App<'static> {
-    App::new("cmd")
+fn build_app_with_aliases() -> Command<'static> {
+    Command::new("cmd")
         .version("3.0")
         .about("testing bash completions")
         .arg(

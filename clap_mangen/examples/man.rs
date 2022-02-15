@@ -1,11 +1,11 @@
-use clap::{arg, App};
+use clap::{arg, Command};
 use clap_mangen::Man;
 use std::io;
 
 // Run this example as `cargo run --example man | man -l -`.
 
 fn main() -> Result<(), std::io::Error> {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>:Ola Nordmann <old@nordmann.no>")
         .about("Does awesome things")
@@ -31,10 +31,10 @@ And a few newlines.",
                 .hide_env(true),
         )
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    Man::new(app).render(&mut io::stdout())
+    Man::new(cmd).render(&mut io::stdout())
 }

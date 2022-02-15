@@ -1,42 +1,42 @@
 //! Helpers for writing generators
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-pub fn all_subcommands(app: &App) -> Vec<(String, String)> {
-    let mut subcmds: Vec<_> = subcommands(app);
+pub fn all_subcommands(cmd: &Command) -> Vec<(String, String)> {
+    let mut subcmds: Vec<_> = subcommands(cmd);
 
-    for sc_v in app.get_subcommands().map(all_subcommands) {
+    for sc_v in cmd.get_subcommands().map(all_subcommands) {
         subcmds.extend(sc_v);
     }
 
     subcmds
 }
 
-/// Finds the subcommand [`clap::App`] from the given [`clap::App`] with the given path.
+/// Finds the subcommand [`clap::Command`] from the given [`clap::Command`] with the given path.
 ///
 /// **NOTE:** `path` should not contain the root `bin_name`.
-pub fn find_subcommand_with_path<'help, 'app>(
-    p: &'app App<'help>,
+pub fn find_subcommand_with_path<'help, 'cmd>(
+    p: &'cmd Command<'help>,
     path: Vec<&str>,
-) -> &'app App<'help> {
-    let mut app = p;
+) -> &'cmd Command<'help> {
+    let mut cmd = p;
 
     for sc in path {
-        app = app.find_subcommand(sc).unwrap();
+        cmd = cmd.find_subcommand(sc).unwrap();
     }
 
-    app
+    cmd
 }
 
-/// Gets subcommands of [`clap::App`] in the form of `("name", "bin_name")`.
+/// Gets subcommands of [`clap::Command`] in the form of `("name", "bin_name")`.
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-pub fn subcommands(p: &App) -> Vec<(String, String)> {
+pub fn subcommands(p: &Command) -> Vec<(String, String)> {
     debug!("subcommands: name={}", p.get_name());
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
@@ -61,9 +61,9 @@ pub fn subcommands(p: &App) -> Vec<(String, String)> {
     subcmds
 }
 
-/// Gets all the short options, their visible aliases and flags of a [`clap::App`].
+/// Gets all the short options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `h` and `V` depending on the [`clap::AppSettings`].
-pub fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
+pub fn shorts_and_visible_aliases(p: &Command) -> Vec<char> {
     debug!("shorts: name={}", p.get_name());
 
     p.get_arguments()
@@ -86,9 +86,9 @@ pub fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
         .collect()
 }
 
-/// Gets all the long options, their visible aliases and flags of a [`clap::App`].
+/// Gets all the long options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `help` and `version` depending on the [`clap::AppSettings`].
-pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
+pub fn longs_and_visible_aliases(p: &Command) -> Vec<String> {
     debug!("longs: name={}", p.get_name());
 
     p.get_arguments()
@@ -116,9 +116,9 @@ pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
         .collect()
 }
 
-/// Gets all the flags of a [`clap::App`](App).
+/// Gets all the flags of a [`clap::Command`](Command).
 /// Includes `help` and `version` depending on the [`clap::AppSettings`].
-pub fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
+pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
     debug!("flags: name={}", p.get_name());
     p.get_arguments()
         .filter(|a| !a.is_takes_value_set() && !a.is_positional())
@@ -132,10 +132,10 @@ mod tests {
     use clap::Arg;
     use pretty_assertions::assert_eq;
 
-    fn common_app() -> App<'static> {
-        App::new("myapp")
+    fn common_app() -> Command<'static> {
+        Command::new("myapp")
             .subcommand(
-                App::new("test").subcommand(App::new("config")).arg(
+                Command::new("test").subcommand(Command::new("config")).arg(
                     Arg::new("file")
                         .short('f')
                         .short_alias('c')
@@ -144,72 +144,72 @@ mod tests {
                         .visible_alias("path"),
                 ),
             )
-            .subcommand(App::new("hello"))
-            .bin_name("my-app")
+            .subcommand(Command::new("hello"))
+            .bin_name("my-cmd")
     }
 
-    fn built() -> App<'static> {
-        let mut app = common_app();
+    fn built() -> Command<'static> {
+        let mut cmd = common_app();
 
-        app._build_all();
-        app
+        cmd._build_all();
+        cmd
     }
 
-    fn built_with_version() -> App<'static> {
-        let mut app = common_app().version("3.0");
+    fn built_with_version() -> Command<'static> {
+        let mut cmd = common_app().version("3.0");
 
-        app._build_all();
-        app
+        cmd._build_all();
+        cmd
     }
 
     #[test]
     fn test_subcommands() {
-        let app = built_with_version();
+        let cmd = built_with_version();
 
         assert_eq!(
-            subcommands(&app),
+            subcommands(&cmd),
             vec![
-                ("test".to_string(), "my-app test".to_string()),
-                ("hello".to_string(), "my-app hello".to_string()),
-                ("help".to_string(), "my-app help".to_string()),
+                ("test".to_string(), "my-cmd test".to_string()),
+                ("hello".to_string(), "my-cmd hello".to_string()),
+                ("help".to_string(), "my-cmd help".to_string()),
             ]
         );
     }
 
     #[test]
     fn test_all_subcommands() {
-        let app = built_with_version();
+        let cmd = built_with_version();
 
         assert_eq!(
-            all_subcommands(&app),
+            all_subcommands(&cmd),
             vec![
-                ("test".to_string(), "my-app test".to_string()),
-                ("hello".to_string(), "my-app hello".to_string()),
-                ("help".to_string(), "my-app help".to_string()),
-                ("config".to_string(), "my-app test config".to_string()),
-                ("help".to_string(), "my-app test help".to_string()),
+                ("test".to_string(), "my-cmd test".to_string()),
+                ("hello".to_string(), "my-cmd hello".to_string()),
+                ("help".to_string(), "my-cmd help".to_string()),
+                ("config".to_string(), "my-cmd test config".to_string()),
+                ("help".to_string(), "my-cmd test help".to_string()),
             ]
         );
     }
 
     #[test]
     fn test_find_subcommand_with_path() {
-        let app = built_with_version();
-        let sc_app = find_subcommand_with_path(&app, "test config".split(' ').collect());
+        let cmd = built_with_version();
+        let sc_app = find_subcommand_with_path(&cmd, "test config".split(' ').collect());
 
         assert_eq!(sc_app.get_name(), "config");
     }
 
     #[test]
     fn test_flags() {
-        let app = built_with_version();
-        let actual_flags = flags(&app);
+        let cmd = built_with_version();
+        let actual_flags = flags(&cmd);
 
         assert_eq!(actual_flags.len(), 2);
         assert_eq!(actual_flags[0].get_long(), Some("help"));
         assert_eq!(actual_flags[1].get_long(), Some("version"));
 
-        let sc_flags = flags(find_subcommand_with_path(&app, vec!["test"]));
+        let sc_flags = flags(find_subcommand_with_path(&cmd, vec!["test"]));
 
         assert_eq!(sc_flags.len(), 2);
         assert_eq!(sc_flags[0].get_long(), Some("file"));
@@ -218,13 +218,13 @@ mod tests {
 
     #[test]
     fn test_flag_subcommand() {
-        let app = built();
-        let actual_flags = flags(&app);
+        let cmd = built();
+        let actual_flags = flags(&cmd);
 
         assert_eq!(actual_flags.len(), 1);
         assert_eq!(actual_flags[0].get_long(), Some("help"));
 
-        let sc_flags = flags(find_subcommand_with_path(&app, vec!["test"]));
+        let sc_flags = flags(find_subcommand_with_path(&cmd, vec!["test"]));
 
         assert_eq!(sc_flags.len(), 2);
         assert_eq!(sc_flags[0].get_long(), Some("file"));
@@ -233,14 +233,14 @@ mod tests {
 
     #[test]
     fn test_shorts() {
-        let app = built_with_version();
-        let shorts = shorts_and_visible_aliases(&app);
+        let cmd = built_with_version();
+        let shorts = shorts_and_visible_aliases(&cmd);
 
         assert_eq!(shorts.len(), 2);
         assert_eq!(shorts[0], 'h');
         assert_eq!(shorts[1], 'V');
 
-        let sc_shorts = shorts_and_visible_aliases(find_subcommand_with_path(&app, vec!["test"]));
+        let sc_shorts = shorts_and_visible_aliases(find_subcommand_with_path(&cmd, vec!["test"]));
 
         assert_eq!(sc_shorts.len(), 3);
         assert_eq!(sc_shorts[0], 'p');
@@ -250,14 +250,14 @@ mod tests {
 
     #[test]
     fn test_longs() {
-        let app = built_with_version();
-        let longs = longs_and_visible_aliases(&app);
+        let cmd = built_with_version();
+        let longs = longs_and_visible_aliases(&cmd);
 
         assert_eq!(longs.len(), 2);
         assert_eq!(longs[0], "help");
         assert_eq!(longs[1], "version");
 
-        let sc_longs = longs_and_visible_aliases(find_subcommand_with_path(&app, vec!["test"]));
+        let sc_longs = longs_and_visible_aliases(find_subcommand_with_path(&cmd, vec!["test"]));
 
         assert_eq!(sc_longs.len(), 3);
         assert_eq!(sc_longs[0], "path");

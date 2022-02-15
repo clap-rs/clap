@@ -1,4 +1,4 @@
-use clap::{app_from_crate, arg, App};
+use clap::{app_from_crate, arg, Command};
 
 fn main() {
     let matches = app_from_crate!()
@@ -6,7 +6,7 @@ fn main() {
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
-            App::new("add")
+            Command::new("add")
                 .about("Adds files to myapp")
                 .arg(arg!([NAME])),
         )

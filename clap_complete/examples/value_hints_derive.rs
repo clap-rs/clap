@@ -12,7 +12,7 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{App, IntoApp, Parser, ValueHint};
+use clap::{Command, IntoApp, Parser, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;
@@ -21,7 +21,7 @@ use std::path::PathBuf;
 #[derive(Parser, Debug, PartialEq)]
 #[clap(
     name = "value_hints_derive",
-    // App::trailing_var_ar is required to use ValueHint::CommandWithArguments
+    // Command::trailing_var_ar is required to use ValueHint::CommandWithArguments
     trailing_var_arg = true,
 )]
 struct Opt {
@@ -57,17 +57,17 @@ struct Opt {
     email: Option<String>,
 }
 
-fn print_completions<G: Generator>(gen: G, app: &mut App) {
-    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
     let opt = Opt::parse();
 
     if let Some(generator) = opt.generator {
-        let mut app = Opt::into_app();
+        let mut cmd = Opt::into_app();
         eprintln!("Generating completion file for {:?}...", generator);
-        print_completions(generator, &mut app);
+        print_completions(generator, &mut cmd);
     } else {
         println!("{:#?}", opt);
     }

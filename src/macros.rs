@@ -186,9 +186,9 @@ macro_rules! arg_enum {
 /// ```no_run
 /// # #[macro_use]
 /// # extern crate clap;
-/// # use clap::App;
+/// # use clap::Command;
 /// # fn main() {
-/// let m = App::new("app")
+/// let m = Command::new("cmd")
 ///             .version(crate_version!())
 ///             .get_matches();
 /// # }
@@ -201,7 +201,7 @@ macro_rules! crate_version {
     };
 }
 
-/// Allows you to pull the authors for the app from your Cargo.toml at
+/// Allows you to pull the authors for the command from your Cargo.toml at
 /// compile time in the form:
 /// `"author1 lastname <author1@example.com>:author2 lastname <author2@example.com>"`
 ///
@@ -215,9 +215,9 @@ macro_rules! crate_version {
 /// ```no_run
 /// # #[macro_use]
 /// # extern crate clap;
-/// # use clap::App;
+/// # use clap::Command;
 /// # fn main() {
-/// let m = App::new("app")
+/// let m = Command::new("cmd")
 ///             .author(crate_authors!("\n"))
 ///             .get_matches();
 /// # }
@@ -245,9 +245,9 @@ macro_rules! crate_authors {
 /// ```no_run
 /// # #[macro_use]
 /// # extern crate clap;
-/// # use clap::App;
+/// # use clap::Command;
 /// # fn main() {
-/// let m = App::new("app")
+/// let m = Command::new("cmd")
 ///             .about(crate_description!())
 ///             .get_matches();
 /// # }
@@ -267,9 +267,9 @@ macro_rules! crate_description {
 /// ```no_run
 /// # #[macro_use]
 /// # extern crate clap;
-/// # use clap::App;
+/// # use clap::Command;
 /// # fn main() {
-/// let m = App::new(crate_name!())
+/// let m = Command::new(crate_name!())
 ///             .get_matches();
 /// # }
 /// ```
@@ -281,7 +281,7 @@ macro_rules! crate_name {
     };
 }
 
-/// Allows you to build the `App` instance from your Cargo.toml at compile time.
+/// Allows you to build the `Command` instance from your Cargo.toml at compile time.
 ///
 /// Equivalent to using the `crate_*!` macros with their respective fields.
 ///
@@ -308,34 +308,34 @@ macro_rules! crate_name {
 #[macro_export]
 macro_rules! app_from_crate {
     () => {{
-        let mut app = $crate::App::new($crate::crate_name!()).version($crate::crate_version!());
+        let mut cmd = $crate::Command::new($crate::crate_name!()).version($crate::crate_version!());
 
         let author = $crate::crate_authors!(", ");
         if !author.is_empty() {
-            app = app.author(author)
+            cmd = cmd.author(author)
         }
 
         let about = $crate::crate_description!();
         if !about.is_empty() {
-            app = app.about(about)
+            cmd = cmd.about(about)
         }
 
-        app
+        cmd
     }};
     ($sep:expr) => {{
-        let mut app = $crate::App::new($crate::crate_name!()).version($crate::crate_version!());
+        let mut cmd = $crate::Command::new($crate::crate_name!()).version($crate::crate_version!());
 
         let author = $crate::crate_authors!($sep);
         if !author.is_empty() {
-            app = app.author(author)
+            cmd = cmd.author(author)
         }
 
         let about = $crate::crate_description!();
         if !about.is_empty() {
-            app = app.about(about)
+            cmd = cmd.about(about)
         }
 
-        app
+        cmd
     }};
 }
 
@@ -607,8 +607,8 @@ macro_rules! arg_impl {
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{App, Arg, arg};
-/// App::new("prog")
+/// # use clap::{Command, Arg, arg};
+/// Command::new("prog")
 ///     .args(&[
 ///         arg!(--config <FILE> "a required file for the configuration and no short"),
 ///         arg!(-d --debug ... "turns on debugging information and allows multiples"),
@@ -688,7 +688,7 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.subcommand(
-                $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
+                $crate::clap_app!{ @app ($crate::Command::new(stringify!($name))) $($tail)* }
             ))
             $($tt)*
         }
@@ -780,15 +780,15 @@ macro_rules! clap_app {
 
 // Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
+        $crate::clap_app!{ @app ($crate::Command::new(stringify!($name))) $($tail)* }
     };
 // Start the magic
     (($name:expr) => $($tail:tt)*) => {{
-        $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)*}
+        $crate::clap_app!{ @app ($crate::Command::new($name)) $($tail)*}
     }};
 
     ($name:ident => $($tail:tt)*) => {{
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
+        $crate::clap_app!{ @app ($crate::Command::new(stringify!($name))) $($tail)*}
     }};
 }
 

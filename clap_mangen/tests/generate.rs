@@ -1,10 +1,10 @@
-use clap::{arg, App};
+use clap::{arg, Command};
 use clap_mangen::Man;
 use std::io;
 
 #[test]
 fn render_manpage() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -20,10 +20,10 @@ fn render_manpage() {
         .arg(arg!([output] "Sets an optional output file").index(1))
         .arg(arg!(-d --debug ... "Turn debugging information on"))
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    Man::new(app).render(&mut io::sink()).unwrap();
+    Man::new(cmd).render(&mut io::sink()).unwrap();
 }

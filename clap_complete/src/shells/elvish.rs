@@ -14,13 +14,13 @@ impl Generator for Elvish {
         format!("{}.elv", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let bin_name = app
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
         let mut names = vec![];
-        let subcommands_cases = generate_inner(app, "", &mut names);
+        let subcommands_cases = generate_inner(cmd, "", &mut names);
 
         let result = format!(
             r#"
@@ -67,7 +67,7 @@ fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
 }
 
 fn generate_inner<'help>(
-    p: &App<'help>,
+    p: &Command<'help>,
     previous_command_name: &str,
     names: &mut Vec<&'help str>,
 ) -> String {

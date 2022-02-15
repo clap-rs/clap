@@ -1,12 +1,12 @@
 mod completions;
 
-use clap::{App, Arg, ValueHint};
+use clap::{Arg, Command, ValueHint};
 
 use clap_complete::shells::*;
 use completions::common;
 
-pub fn build_app_with_value_hints() -> App<'static> {
-    App::new("my_app")
+pub fn build_app_with_value_hints() -> Command<'static> {
+    Command::new("my_app")
         .trailing_var_arg(true)
         .arg(
             Arg::new("choice")
@@ -149,12 +149,12 @@ complete -c my_app -l help -d 'Print help information'
 
 #[test]
 fn zsh_with_value_hints() {
-    let mut app = build_app_with_value_hints();
-    common(Zsh, &mut app, "my_app", ZSH_VALUE_HINTS);
+    let mut cmd = build_app_with_value_hints();
+    common(Zsh, &mut cmd, "my_app", ZSH_VALUE_HINTS);
 }
 
 #[test]
 fn fish_with_value_hints() {
-    let mut app = build_app_with_value_hints();
-    common(Fish, &mut app, "my_app", FISH_VALUE_HINTS);
+    let mut cmd = build_app_with_value_hints();
+    common(Fish, &mut cmd, "my_app", FISH_VALUE_HINTS);
 }

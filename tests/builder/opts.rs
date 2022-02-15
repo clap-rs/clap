@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, Arg, ArgMatches};
+use clap::{arg, error::ErrorKind, Arg, ArgMatches, Command};
 
 #[cfg(feature = "suggestions")]
 static DYM: &str =
@@ -32,7 +32,7 @@ For more information try --help
 
 #[test]
 fn require_equals_fail() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
                 .require_equals(true)
@@ -55,14 +55,14 @@ USAGE:
 
 For more information try --help
 ";
-    let app = App::new("prog").arg(
+    let cmd = Command::new("prog").arg(
         Arg::new("cfg")
             .require_equals(true)
             .takes_value(true)
             .long("config"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --config file.conf",
         NO_EQUALS,
         true
@@ -71,7 +71,7 @@ For more information try --help
 
 #[test]
 fn require_equals_min_values_zero() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
                 .takes_value(true)
@@ -89,7 +89,7 @@ fn require_equals_min_values_zero() {
 
 #[test]
 fn double_hyphen_as_value() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
                 .takes_value(true)
@@ -103,7 +103,7 @@ fn double_hyphen_as_value() {
 
 #[test]
 fn require_equals_no_empty_values_fail() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
                 .takes_value(true)
@@ -119,7 +119,7 @@ fn require_equals_no_empty_values_fail() {
 
 #[test]
 fn require_equals_empty_vals_pass() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
                 .takes_value(true)
@@ -132,7 +132,7 @@ fn require_equals_empty_vals_pass() {
 
 #[test]
 fn require_equals_pass() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
                 .takes_value(true)
@@ -145,7 +145,7 @@ fn require_equals_pass() {
 
 #[test]
 fn stdin_char() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .arg(arg!(f: -f [flag] "some flag"))
         .try_get_matches_from(vec!["", "-f", "-"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -156,7 +156,7 @@ fn stdin_char() {
 
 #[test]
 fn opts_using_short() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .args(&[
             arg!(f: -f [flag] "some flag"),
             arg!(c: -c [color] "some other flag"),
@@ -172,7 +172,7 @@ fn opts_using_short() {
 
 #[test]
 fn lots_o_vals() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .arg(arg!(o: -o <opt> "some opt").multiple_values(true))
         .try_get_matches_from(vec![
             "", "-o", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -212,7 +212,7 @@ fn lots_o_vals() {
 
 #[test]
 fn opts_using_long_space() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .args(&[
             arg!(--flag [flag] "some flag"),
             arg!(--color [color] "some other flag"),
@@ -228,7 +228,7 @@ fn opts_using_long_space() {
 
 #[test]
 fn opts_using_long_equals() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .args(&[
             arg!(--flag [flag] "some flag"),
             arg!(--color [color] "some other flag"),
@@ -244,7 +244,7 @@ fn opts_using_long_equals() {
 
 #[test]
 fn opts_using_mixed() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .args(&[
             arg!(-f --flag [flag] "some flag"),
             arg!(-c --color [color] "some other flag"),
@@ -260,7 +260,7 @@ fn opts_using_mixed() {
 
 #[test]
 fn opts_using_mixed2() {
-    let r = App::new("opts")
+    let r = Command::new("opts")
         .args(&[
             arg!(-f --flag [flag] "some flag"),
             arg!(-c --color [color] "some other flag"),
@@ -276,7 +276,7 @@ fn opts_using_mixed2() {
 
 #[test]
 fn default_values_user_value() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(o: -o [opt] "some opt").default_value("default"))
         .try_get_matches_from(vec!["", "-o", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -287,7 +287,7 @@ fn default_values_user_value() {
 
 #[test]
 fn multiple_vals_pos_arg_equals() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(arg!(o: -o [opt] ... "some opt"))
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o=1", "some"]);
@@ -301,7 +301,7 @@ fn multiple_vals_pos_arg_equals() {
 
 #[test]
 fn multiple_vals_pos_arg_delim() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
@@ -319,7 +319,7 @@ fn multiple_vals_pos_arg_delim() {
 
 #[test]
 fn require_delims_no_delim() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(
             arg!(o: -o [opt] ... "some opt")
                 .use_value_delimiter(true)
@@ -334,7 +334,7 @@ fn require_delims_no_delim() {
 
 #[test]
 fn require_delims() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
@@ -353,7 +353,7 @@ fn require_delims() {
 
 #[test]
 fn leading_hyphen_pass() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
@@ -368,7 +368,7 @@ fn leading_hyphen_pass() {
 
 #[test]
 fn leading_hyphen_fail() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(arg!(o: -o <opt> "some opt"))
         .try_get_matches_from(vec!["", "-o", "-2"]);
     assert!(r.is_err());
@@ -378,7 +378,7 @@ fn leading_hyphen_fail() {
 
 #[test]
 fn leading_hyphen_with_flag_after() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
@@ -395,7 +395,7 @@ fn leading_hyphen_with_flag_after() {
 
 #[test]
 fn leading_hyphen_with_flag_before() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(arg!(o: -o [opt] ... "some opt").allow_hyphen_values(true))
         .arg(arg!(f: -f "some flag"))
         .try_get_matches_from(vec!["", "-f", "-o", "-2"]);
@@ -408,7 +408,7 @@ fn leading_hyphen_with_flag_before() {
 
 #[test]
 fn leading_hyphen_with_only_pos_follows() {
-    let r = App::new("mvae")
+    let r = Command::new("mvae")
         .arg(
             arg!(o: -o [opt] ... "some opt")
                 .number_of_values(1)
@@ -437,7 +437,7 @@ fn did_you_mean() {
 
 #[test]
 fn issue_1047_min_zero_vals_default_val() {
-    let m = App::new("foo")
+    let m = Command::new("foo")
         .arg(
             Arg::new("del")
                 .short('d')
@@ -454,7 +454,7 @@ fn issue_1047_min_zero_vals_default_val() {
 }
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> {
-    App::new("opts")
+    Command::new("opts")
         .arg(arg!(-o --option <opt> "some option"))
         .arg(arg!(--flag "some flag"))
         .try_get_matches_from(argv)
@@ -462,14 +462,14 @@ fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> 
 
 #[test]
 fn issue_1105_empty_value_long_fail() {
-    let r = issue_1105_setup(vec!["app", "--option", "--flag"]);
+    let r = issue_1105_setup(vec!["cmd", "--option", "--flag"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind(), ErrorKind::EmptyValue);
 }
 
 #[test]
 fn issue_1105_empty_value_long_explicit() {
-    let r = issue_1105_setup(vec!["app", "--option", ""]);
+    let r = issue_1105_setup(vec!["cmd", "--option", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -477,7 +477,7 @@ fn issue_1105_empty_value_long_explicit() {
 
 #[test]
 fn issue_1105_empty_value_long_equals() {
-    let r = issue_1105_setup(vec!["app", "--option="]);
+    let r = issue_1105_setup(vec!["cmd", "--option="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -485,14 +485,14 @@ fn issue_1105_empty_value_long_equals() {
 
 #[test]
 fn issue_1105_empty_value_short_fail() {
-    let r = issue_1105_setup(vec!["app", "-o", "--flag"]);
+    let r = issue_1105_setup(vec!["cmd", "-o", "--flag"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind(), ErrorKind::EmptyValue);
 }
 
 #[test]
 fn issue_1105_empty_value_short_explicit() {
-    let r = issue_1105_setup(vec!["app", "-o", ""]);
+    let r = issue_1105_setup(vec!["cmd", "-o", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -500,7 +500,7 @@ fn issue_1105_empty_value_short_explicit() {
 
 #[test]
 fn issue_1105_empty_value_short_equals() {
-    let r = issue_1105_setup(vec!["app", "-o="]);
+    let r = issue_1105_setup(vec!["cmd", "-o="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -508,7 +508,7 @@ fn issue_1105_empty_value_short_equals() {
 
 #[test]
 fn issue_1105_empty_value_short_explicit_no_space() {
-    let r = issue_1105_setup(vec!["app", "-o", ""]);
+    let r = issue_1105_setup(vec!["cmd", "-o", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
@@ -517,11 +517,11 @@ fn issue_1105_empty_value_short_explicit_no_space() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn issue_1073_suboptimal_flag_suggestion() {
-    let app = App::new("ripgrep-616")
+    let cmd = Command::new("ripgrep-616")
         .arg(Arg::new("files-with-matches").long("files-with-matches"))
         .arg(Arg::new("files-without-match").long("files-without-match"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ripgrep-616 --files-without-matches",
         DYM_ISSUE_1073,
         true
@@ -530,7 +530,7 @@ fn issue_1073_suboptimal_flag_suggestion() {
 
 #[test]
 fn short_non_ascii_no_space() {
-    let matches = App::new("app")
+    let matches = Command::new("cmd")
         .arg(arg!(opt: -'磨' <opt>))
         .try_get_matches_from(&["test", "-磨VALUE"])
         .unwrap();
@@ -540,7 +540,7 @@ fn short_non_ascii_no_space() {
 
 #[test]
 fn short_eq_val_starts_with_eq() {
-    let matches = App::new("app")
+    let matches = Command::new("cmd")
         .arg(arg!(opt: -f <opt>))
         .try_get_matches_from(&["test", "-f==value"])
         .unwrap();
@@ -550,7 +550,7 @@ fn short_eq_val_starts_with_eq() {
 
 #[test]
 fn long_eq_val_starts_with_eq() {
-    let matches = App::new("app")
+    let matches = Command::new("cmd")
         .arg(arg!(opt: --foo <opt>))
         .try_get_matches_from(&["test", "--foo==value"])
         .unwrap();
@@ -560,16 +560,16 @@ fn long_eq_val_starts_with_eq() {
 
 #[test]
 fn issue_2022_get_flags_misuse() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .next_help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
-    let matches = app.try_get_matches_from(&[""]).unwrap();
+    let matches = cmd.try_get_matches_from(&[""]).unwrap();
     assert!(matches.value_of("a").is_some())
 }
 
 #[test]
 fn issue_2279() {
-    let before_help_heading = App::new("app")
+    let before_help_heading = Command::new("cmd")
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .next_help_heading(Some("This causes default_value to be ignored"))
         .try_get_matches_from(&[""])
@@ -577,7 +577,7 @@ fn issue_2279() {
 
     assert_eq!(before_help_heading.value_of("foo"), Some("bar"));
 
-    let after_help_heading = App::new("app")
+    let after_help_heading = Command::new("cmd")
         .next_help_heading(Some("This causes default_value to be ignored"))
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .try_get_matches_from(&[""])
@@ -588,39 +588,39 @@ fn issue_2279() {
 
 #[test]
 fn infer_long_arg() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .infer_long_args(true)
         .arg(Arg::new("racetrack").long("racetrack").alias("autobahn"))
         .arg(Arg::new("racecar").long("racecar").takes_value(true));
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--racec=hello"])
         .unwrap();
     assert!(!matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), Some("hello"));
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--racet"])
         .unwrap();
     assert!(matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), None);
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--auto"])
         .unwrap();
     assert!(matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), None);
 
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .infer_long_args(true)
         .arg(Arg::new("arg").long("arg"));
 
-    let matches = app.clone().try_get_matches_from(&["test", "--"]).unwrap();
+    let matches = cmd.clone().try_get_matches_from(&["test", "--"]).unwrap();
     assert!(!matches.is_present("arg"));
 
-    let matches = app.clone().try_get_matches_from(&["test", "--a"]).unwrap();
+    let matches = cmd.clone().try_get_matches_from(&["test", "--a"]).unwrap();
     assert!(matches.is_present("arg"));
 }

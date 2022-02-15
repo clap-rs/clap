@@ -2,22 +2,22 @@ use crate::utils;
 
 use std::str;
 
-use clap::{error::ErrorKind, App, AppSettings, Arg};
+use clap::{error::ErrorKind, AppSettings, Arg, Command};
 
-fn common() -> App<'static> {
-    App::new("foo")
+fn common() -> Command<'static> {
+    Command::new("foo")
 }
 
-fn with_version() -> App<'static> {
+fn with_version() -> Command<'static> {
     common().version("3.0")
 }
 
-fn with_long_version() -> App<'static> {
+fn with_long_version() -> Command<'static> {
     common().long_version("3.0 (abcdefg)")
 }
 
-fn with_subcommand() -> App<'static> {
-    with_version().subcommand(App::new("bar").subcommand(App::new("baz")))
+fn with_subcommand() -> Command<'static> {
+    with_version().subcommand(Command::new("bar").subcommand(Command::new("baz")))
 }
 
 #[test]
@@ -156,12 +156,12 @@ OPTIONS:
 
 #[test]
 fn version_about_multi_subcmd() {
-    let app = with_subcommand()
+    let cmd = with_subcommand()
         .mut_arg("version", |a| a.help("Print custom version about text"))
         .propagate_version(true);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "foo bar baz -h",
         VERSION_ABOUT_MULTI_SC,
         false
@@ -211,7 +211,7 @@ fn propagate_version_short() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Used App::mut_arg(\"version\", ..) without providing App::version, App::long_version or using AppSettings::NoAutoVersion"]
+#[should_panic = "Used Command::mut_arg(\"version\", ..) without providing Command::version, Command::long_version or using AppSettings::NoAutoVersion"]
 fn mut_arg_version_panic() {
     let _res = common()
         .mut_arg("version", |v| v.short('z'))
@@ -231,10 +231,10 @@ fn mut_arg_version_no_auto_version() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "No version information via App::version or App::long_version to propagate"]
+#[should_panic = "No version information via Command::version or Command::long_version to propagate"]
 fn propagate_version_no_version_info() {
     let _res = common()
         .propagate_version(true)
-        .subcommand(App::new("bar"))
+        .subcommand(Command::new("bar"))
         .try_get_matches_from("foo".split(' '));
 }

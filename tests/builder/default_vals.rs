@@ -1,9 +1,9 @@
 use crate::utils;
-use clap::{arg, error::ErrorKind, App, Arg};
+use clap::{arg, error::ErrorKind, Arg, Command};
 
 #[test]
 fn opts() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .required(false)
@@ -18,7 +18,7 @@ fn opts() {
 
 #[test]
 fn opt_without_value_fail() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .required(false)
@@ -36,7 +36,7 @@ fn opt_without_value_fail() {
 
 #[test]
 fn opt_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!(--opt <FILE> "some arg")
                 .required(false)
@@ -51,7 +51,7 @@ fn opt_user_override() {
 
 #[test]
 fn positionals() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!([arg] "some opt").default_value("default"))
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -62,7 +62,7 @@ fn positionals() {
 
 #[test]
 fn positional_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!([arg] "some arg").default_value("default"))
         .try_get_matches_from(vec!["", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -78,7 +78,7 @@ fn osstr_opts() {
     use std::ffi::OsStr;
     let expected = OsStr::new("default");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!(o: -o <opt> "some opt")
                 .required(false)
@@ -96,7 +96,7 @@ fn osstr_opt_user_override() {
     use std::ffi::OsStr;
     let default = OsStr::new("default");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(
             arg!(--opt <FILE> "some arg")
                 .required(false)
@@ -114,7 +114,7 @@ fn osstr_positionals() {
     use std::ffi::OsStr;
     let expected = OsStr::new("default");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!([arg] "some opt").default_value_os(expected))
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -128,7 +128,7 @@ fn osstr_positional_user_override() {
     use std::ffi::OsStr;
     let default = OsStr::new("default");
 
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!([arg] "some arg").default_value_os(default))
         .try_get_matches_from(vec!["", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -141,7 +141,7 @@ fn osstr_positional_user_override() {
 
 #[test]
 fn default_if_arg_present_no_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(true))
         .arg(arg!([arg] "some arg").default_value_if("opt", None, Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some"]);
@@ -153,7 +153,7 @@ fn default_if_arg_present_no_default() {
 
 #[test]
 fn default_if_arg_present_no_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", None, Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
@@ -165,7 +165,7 @@ fn default_if_arg_present_no_default_user_override() {
 
 #[test]
 fn default_if_arg_present_no_arg_with_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -181,7 +181,7 @@ fn default_if_arg_present_no_arg_with_default() {
 
 #[test]
 fn default_if_arg_present_with_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -197,7 +197,7 @@ fn default_if_arg_present_with_default() {
 
 #[test]
 fn default_if_arg_present_with_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -213,7 +213,7 @@ fn default_if_arg_present_with_default_user_override() {
 
 #[test]
 fn default_if_arg_present_no_arg_with_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -231,7 +231,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
 
 #[test]
 fn default_if_arg_present_with_value_no_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), Some("default")))
         .try_get_matches_from(vec!["", "--opt", "value"]);
@@ -243,7 +243,7 @@ fn default_if_arg_present_with_value_no_default() {
 
 #[test]
 fn default_if_arg_present_with_value_no_default_fail() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), Some("default")))
         .try_get_matches_from(vec!["", "--opt", "other"]);
@@ -255,7 +255,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
 
 #[test]
 fn default_if_arg_present_with_value_no_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("some"), Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
@@ -267,7 +267,7 @@ fn default_if_arg_present_with_value_no_default_user_override() {
 
 #[test]
 fn default_if_arg_present_with_value_no_arg_with_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -283,7 +283,7 @@ fn default_if_arg_present_with_value_no_arg_with_default() {
 
 #[test]
 fn default_if_arg_present_with_value_no_arg_with_default_fail() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -299,7 +299,7 @@ fn default_if_arg_present_with_value_no_arg_with_default_fail() {
 
 #[test]
 fn default_if_arg_present_with_value_with_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -315,7 +315,7 @@ fn default_if_arg_present_with_value_with_default() {
 
 #[test]
 fn default_if_arg_present_with_value_with_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -331,7 +331,7 @@ fn default_if_arg_present_with_value_with_default_user_override() {
 
 #[test]
 fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -347,7 +347,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
 
 #[test]
 fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -365,7 +365,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
 
 #[test]
 fn no_default_if_arg_present_with_value_no_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), None))
         .try_get_matches_from(vec!["", "--opt", "value"]);
@@ -376,7 +376,7 @@ fn no_default_if_arg_present_with_value_no_default() {
 
 #[test]
 fn no_default_if_arg_present_with_value_with_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -392,7 +392,7 @@ fn no_default_if_arg_present_with_value_with_default() {
 
 #[test]
 fn no_default_if_arg_present_with_value_with_default_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -408,7 +408,7 @@ fn no_default_if_arg_present_with_value_with_default_user_override() {
 
 #[test]
 fn no_default_if_arg_present_no_arg_with_value_with_default() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(
             arg!([arg] "some arg")
@@ -426,7 +426,7 @@ fn no_default_if_arg_present_no_arg_with_value_with_default() {
 
 #[test]
 fn default_ifs_arg_present() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!(--flag "some arg"))
         .arg(
@@ -446,7 +446,7 @@ fn default_ifs_arg_present() {
 
 #[test]
 fn no_default_ifs_arg_present() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!(--flag "some arg"))
         .arg(
@@ -463,7 +463,7 @@ fn no_default_ifs_arg_present() {
 
 #[test]
 fn default_ifs_arg_present_user_override() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!(--flag "some arg"))
         .arg(
@@ -483,7 +483,7 @@ fn default_ifs_arg_present_user_override() {
 
 #[test]
 fn default_ifs_arg_present_order() {
-    let r = App::new("df")
+    let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!(--flag "some arg"))
         .arg(
@@ -505,7 +505,7 @@ fn default_ifs_arg_present_order() {
 
 #[test]
 fn conditional_reqs_pass() {
-    let m = App::new("Test app")
+    let m = Command::new("Test cmd")
         .arg(
             Arg::new("target")
                 .takes_value(true)
@@ -534,7 +534,7 @@ fn conditional_reqs_pass() {
 
 #[test]
 fn multiple_defaults() {
-    let r = App::new("diff")
+    let r = Command::new("diff")
         .arg(
             Arg::new("files")
                 .long("files")
@@ -551,7 +551,7 @@ fn multiple_defaults() {
 
 #[test]
 fn multiple_defaults_override() {
-    let r = App::new("diff")
+    let r = Command::new("diff")
         .arg(
             Arg::new("files")
                 .long("files")
@@ -568,7 +568,7 @@ fn multiple_defaults_override() {
 
 #[test]
 fn default_vals_donnot_show_in_smart_usage() {
-    let app = App::new("bug")
+    let cmd = Command::new("bug")
         .arg(
             Arg::new("foo")
                 .long("config")
@@ -578,7 +578,7 @@ fn default_vals_donnot_show_in_smart_usage() {
         .arg(Arg::new("input").required(true));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "bug",
         "error: The following required arguments were not provided:
     <input>
@@ -594,7 +594,7 @@ For more information try --help
 
 #[test]
 fn issue_1050_num_vals_and_defaults() {
-    let res = App::new("hello")
+    let res = Command::new("hello")
         .arg(
             Arg::new("exit-code")
                 .long("exit-code")
@@ -612,9 +612,9 @@ fn issue_1050_num_vals_and_defaults() {
 #[test]
 #[should_panic = "Argument group 'group' is required but all of it's arguments have a default value."]
 fn required_groups_with_default_values() {
-    use clap::{App, Arg, ArgGroup};
+    use clap::{Arg, ArgGroup, Command};
 
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(Arg::new("arg").default_value("value"))
         .group(ArgGroup::new("group").args(&["arg"]).required(true))
         .try_get_matches();
@@ -624,9 +624,9 @@ fn required_groups_with_default_values() {
 #[test]
 #[should_panic = "Argument 'arg' is required and can't have a default value"]
 fn required_args_with_default_values() {
-    use clap::{App, Arg};
+    use clap::{Arg, Command};
 
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(Arg::new("arg").required(true).default_value("value"))
         .try_get_matches();
 }
@@ -635,9 +635,9 @@ fn required_args_with_default_values() {
 #[test]
 #[should_panic = "Argument `arg`'s default_value=value doesn't match possible values"]
 fn default_values_are_possible_values() {
-    use clap::{App, Arg};
+    use clap::{Arg, Command};
 
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(
             Arg::new("arg")
                 .possible_values(["one", "two"])
@@ -650,9 +650,9 @@ fn default_values_are_possible_values() {
 #[test]
 #[should_panic = "Argument `arg`'s default_value=value failed validation: invalid digit found in string"]
 fn default_values_are_valid() {
-    use clap::{App, Arg};
+    use clap::{Arg, Command};
 
-    let _ = App::new("test")
+    let _ = Command::new("test")
         .arg(
             Arg::new("arg")
                 .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
@@ -663,7 +663,7 @@ fn default_values_are_valid() {
 
 #[test]
 fn with_value_delimiter() {
-    let app = App::new("multiple_values").arg(
+    let cmd = Command::new("multiple_values").arg(
         Arg::new("option")
             .long("option")
             .help("multiple options")
@@ -671,7 +671,7 @@ fn with_value_delimiter() {
             .default_value("first;second"),
     );
 
-    let matches = app.try_get_matches_from(vec![""]).unwrap();
+    let matches = cmd.try_get_matches_from(vec![""]).unwrap();
 
     assert_eq!(
         matches.values_of("option").unwrap().collect::<Vec<_>>(),
@@ -681,14 +681,14 @@ fn with_value_delimiter() {
 
 #[test]
 fn missing_with_value_delimiter() {
-    let app = App::new("program").arg(
+    let cmd = Command::new("program").arg(
         Arg::new("option")
             .long("option")
             .value_delimiter(';')
             .default_missing_values(&["value1;value2;value3", "value4;value5"]),
     );
 
-    let matches = app
+    let matches = cmd
         .try_get_matches_from(vec!["program", "--option"])
         .unwrap();
 

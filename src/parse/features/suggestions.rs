@@ -2,7 +2,7 @@
 use std::cmp::Ordering;
 
 // Internal
-use crate::build::App;
+use crate::build::Command;
 
 /// Produces multiple strings from a given list of possible values which are similar
 /// to the passed in value `v` within a certain confidence by least confidence.
@@ -37,7 +37,7 @@ pub(crate) fn did_you_mean_flag<'a, 'help, I, T>(
     arg: &str,
     remaining_args: &[&str],
     longs: I,
-    subcommands: impl IntoIterator<Item = &'a mut App<'help>>,
+    subcommands: impl IntoIterator<Item = &'a mut Command<'help>>,
 ) -> Option<(String, Option<String>)>
 where
     'help: 'a,

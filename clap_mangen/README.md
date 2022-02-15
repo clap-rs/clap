@@ -18,7 +18,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 ## About
 
-Generate [ROFF](https://en.wikipedia.org/wiki/Roff_(software)) from a `clap::App`.
+Generate [ROFF](https://en.wikipedia.org/wiki/Roff_(software)) from a `clap::Command`.
 
 ### Example
 
@@ -36,11 +36,11 @@ In your `build.rs`:
 fn main() -> std::io::Result<()> {
     let out_dir = std::path::PathBuf::from(std::env::var_os("OUT_DIR").ok_or_else(|| std::io::ErrorKind::NotFound)?);
 
-    let app = clap::App::new("mybin")
+    let cmd = clap::Command::new("mybin")
         .arg(clap::arg!(-n --name <NAME>))
         .arg(clap::arg!(-c --count <NUM>));
 
-    let man = clap_mangen::Man::new(app);
+    let man = clap_mangen::Man::new(cmd);
     let mut buffer: Vec<u8> = Default::default();
     man.render(&mut buffer)?;
 

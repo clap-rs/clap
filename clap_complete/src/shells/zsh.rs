@@ -14,8 +14,8 @@ impl Generator for Zsh {
         format!("_{}", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let bin_name = app
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
@@ -46,9 +46,9 @@ _{name}() {{
 _{name} \"$@\"
 ",
                 name = bin_name,
-                initial_args = get_args_of(app, None),
-                subcommands = get_subcommands_of(app),
-                subcommand_details = subcommand_details(app)
+                initial_args = get_args_of(cmd, None),
+                subcommands = get_subcommands_of(cmd),
+                subcommand_details = subcommand_details(cmd)
             )
             .as_bytes()
         );
@@ -82,7 +82,7 @@ _{name} \"$@\"
 //     )
 //     _describe -t commands 'rustup commands' commands "$@"
 //
-fn subcommand_details(p: &App) -> String {
+fn subcommand_details(p: &Command) -> String {
     debug!("subcommand_details");
 
     let bin_name = p
@@ -142,12 +142,12 @@ _{bin_name_underscore}_commands() {{
 // A snippet from rustup:
 //         'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
-fn subcommands_of(p: &App) -> String {
+fn subcommands_of(p: &Command) -> String {
     debug!("subcommands_of");
 
     let mut segments = vec![];
 
-    fn add_subcommands(subcommand: &App, name: &str, ret: &mut Vec<String>) {
+    fn add_subcommands(subcommand: &Command, name: &str, ret: &mut Vec<String>) {
         debug!("add_subcommands");
 
         let text = format!(
@@ -212,7 +212,7 @@ fn subcommands_of(p: &App) -> String {
 //    [name_hyphen] = The full space delineated bin_name, but replace spaces with hyphens
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
-fn get_subcommands_of(parent: &App) -> String {
+fn get_subcommands_of(parent: &Command) -> String {
     debug!(
         "get_subcommands_of: Has subcommands...{:?}",
         parent.has_subcommands()
@@ -276,11 +276,14 @@ esac",
     )
 }
 
-// Get the App for a given subcommand tree.
+// Get the Command for a given subcommand tree.
 //
-// Given the bin_name "a b c" and the App for "a" this returns the "c" App.
-// Given the bin_name "a b c" and the App for "b" this returns the "c" App.
-fn parser_of<'help, 'app>(parent: &'app App<'help>, bin_name: &str) -> Option<&'app App<'help>> {
+// Given the bin_name "a b c" and the Command for "a" this returns the "c" Command.
+// Given the bin_name "a b c" and the Command for "b" this returns the "c" Command.
+fn parser_of<'help, 'cmd>(
+    parent: &'cmd Command<'help>,
+    bin_name: &str,
+) -> Option<&'cmd Command<'help>> {
     debug!("parser_of: p={}, bin_name={}", parent.get_name(), bin_name);
 
     if bin_name == parent.get_bin_name().unwrap_or(&String::new()) {
@@ -316,7 +319,7 @@ fn parser_of<'help, 'app>(parent: &'app App<'help>, bin_name: &str) -> Option<&'
 //    -C: modify the $context internal variable
 //    -s: Allow stacking of short args (i.e. -a -b -c => -abc)
 //    -S: Do not complete anything after '--' and treat those as argument values
-fn get_args_of(parent: &App, p_global: Option<&App>) -> String {
+fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
     debug!("get_args_of");
 
     let mut segments = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
@@ -436,7 +439,7 @@ fn escape_value(string: &str) -> String {
         .replace(' ', "\\ ")
 }
 
-fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
+fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
     debug!("write_opts_of");
 
     let mut ret = vec![];
@@ -501,7 +504,7 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
     ret.join("\n")
 }
 
-fn arg_conflicts(app: &App, arg: &Arg, app_global: Option<&App>) -> String {
+fn arg_conflicts(cmd: &Command, arg: &Arg, app_global: Option<&Command>) -> String {
     fn push_conflicts(conflicts: &[&Arg], res: &mut Vec<String>) {
         for conflict in conflicts {
             if let Some(s) = conflict.get_short() {
@@ -526,7 +529,7 @@ fn arg_conflicts(app: &App, arg: &Arg, app_global: Option<&App>) -> String {
             push_conflicts(&conflicts, &mut res);
         }
         (_, _) => {
-            let conflicts = app.get_arg_conflicts_with(arg);
+            let conflicts = cmd.get_arg_conflicts_with(arg);
 
             if conflicts.is_empty() {
                 return String::new();
@@ -539,7 +542,7 @@ fn arg_conflicts(app: &App, arg: &Arg, app_global: Option<&App>) -> String {
     format!("({})", res.join(" "))
 }
 
-fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
+fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
     debug!("write_flags_of;");
 
     let mut ret = vec![];
@@ -620,7 +623,7 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
     ret.join("\n")
 }
 
-fn write_positionals_of(p: &App) -> String {
+fn write_positionals_of(p: &Command) -> String {
     debug!("write_positionals_of;");
 
     let mut ret = vec![];

@@ -5,7 +5,7 @@ use std::str;
 
 use regex::Regex;
 
-use clap::{arg, App, Arg, ArgGroup};
+use clap::{arg, Arg, ArgGroup, Command};
 
 pub fn compare<S, S2>(l: S, r: S2) -> bool
 where
@@ -32,7 +32,7 @@ where
     b
 }
 
-pub fn compare_output(l: App, args: &str, right: &str, stderr: bool) -> bool {
+pub fn compare_output(l: Command, args: &str, right: &str, stderr: bool) -> bool {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
@@ -51,11 +51,11 @@ pub fn compare_output(l: App, args: &str, right: &str, stderr: bool) -> bool {
 
 // Legacy tests from the python script days
 
-pub fn complex_app() -> App<'static> {
+pub fn complex_app() -> Command<'static> {
     let opt3_vals = ["fast", "slow"];
     let pos3_vals = ["vi", "emacs"];
 
-    App::new("clap-test")
+    Command::new("clap-test")
         .version("v1.4.8")
         .about("tests clap library")
         .author("Kevin K. <kbknapp@gmail.com>")
@@ -105,7 +105,7 @@ pub fn complex_app() -> App<'static> {
                 .number_of_values(1),
         ])
         .subcommand(
-            App::new("subcmd")
+            Command::new("subcmd")
                 .about("tests subcommands")
                 .version("0.1")
                 .author("Kevin K. <kbknapp@gmail.com>")

@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, Arg, Error};
+use clap::{arg, error::ErrorKind, Arg, Command, Error};
 
 fn compare_error(
     err: Error,
@@ -29,7 +29,7 @@ USAGE:
 
 For more information try --help
 ";
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .arg(
             Arg::new("all")
                 .short('a')
@@ -52,15 +52,15 @@ For more information try --help
                 .long("no-git-push")
                 .help("Do not push generated commit and tags to git remote"),
         );
-    let mut app = app;
+    let mut cmd = cmd;
     let expected_kind = ErrorKind::InvalidValue;
-    let err = app.error(expected_kind, "Failed for mysterious reasons");
+    let err = cmd.error(expected_kind, "Failed for mysterious reasons");
     assert!(compare_error(err, expected_kind, MESSAGE, true));
 }
 
 #[test]
 fn value_validation_has_newline() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .arg(arg!(<PORT>).help("Network port to use"))
         .try_get_matches_from(["test", "foo"])
         .unwrap();
@@ -78,7 +78,7 @@ fn value_validation_has_newline() {
 
 #[test]
 fn argument_not_found_auto_has_newline() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .arg(arg!([PORT]).help("Network port to use"))
         .try_get_matches_from(["test"])
         .unwrap();

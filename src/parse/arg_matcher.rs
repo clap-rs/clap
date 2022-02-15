@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 
 // Internal
 use crate::{
-    build::{App, Arg, ArgPredicate},
+    build::{Arg, ArgPredicate, Command},
     parse::{ArgMatches, MatchedArg, SubCommand, ValueSource},
     util::Id,
 };
@@ -15,22 +15,22 @@ use indexmap::map::Entry;
 pub(crate) struct ArgMatcher(ArgMatches);
 
 impl ArgMatcher {
-    pub(crate) fn new(_app: &App) -> Self {
+    pub(crate) fn new(_cmd: &Command) -> Self {
         ArgMatcher(ArgMatches {
             #[cfg(debug_assertions)]
             valid_args: {
-                let args = _app.get_arguments().map(|a| a.id.clone());
-                let groups = _app.get_groups().map(|g| g.id.clone());
+                let args = _cmd.get_arguments().map(|a| a.id.clone());
+                let groups = _cmd.get_groups().map(|g| g.id.clone());
                 args.chain(groups).collect()
             },
             #[cfg(debug_assertions)]
-            valid_subcommands: _app.get_subcommands().map(|sc| sc.get_id()).collect(),
+            valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
             // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
             // since users can't detect it and avoid the asserts.
             //
             // See clap-rs/clap#3263
             #[cfg(debug_assertions)]
-            disable_asserts: _app.is_allow_external_subcommands_set(),
+            disable_asserts: _cmd.is_allow_external_subcommands_set(),
             ..Default::default()
         })
     }

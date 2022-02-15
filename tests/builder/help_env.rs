@@ -2,7 +2,7 @@
 
 use std::env;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 use crate::utils;
 
@@ -98,7 +98,7 @@ OPTIONS:
 fn hide_env() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -109,14 +109,14 @@ fn hide_env() {
             .takes_value(true),
     );
 
-    assert!(utils::compare_output(app, "ctest --help", HIDE_ENV, false));
+    assert!(utils::compare_output(cmd, "ctest --help", HIDE_ENV, false));
 }
 
 #[test]
 fn show_env() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -126,14 +126,14 @@ fn show_env() {
             .takes_value(true),
     );
 
-    assert!(utils::compare_output(app, "ctest --help", SHOW_ENV, false));
+    assert!(utils::compare_output(cmd, "ctest --help", SHOW_ENV, false));
 }
 
 #[test]
 fn hide_env_vals() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -145,7 +145,7 @@ fn hide_env_vals() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         HIDE_ENV_VALS,
         false
@@ -156,7 +156,7 @@ fn hide_env_vals() {
 fn show_env_vals() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -167,7 +167,7 @@ fn show_env_vals() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         SHOW_ENV_VALS,
         false
@@ -178,7 +178,7 @@ fn show_env_vals() {
 fn hide_env_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -188,7 +188,7 @@ fn hide_env_flag() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         HIDE_ENV_FLAG,
         false
@@ -199,7 +199,7 @@ fn hide_env_flag() {
 fn show_env_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -208,7 +208,7 @@ fn show_env_flag() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         SHOW_ENV_FLAG,
         false
@@ -219,7 +219,7 @@ fn show_env_flag() {
 fn hide_env_vals_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -229,7 +229,7 @@ fn hide_env_vals_flag() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         HIDE_ENV_VALS_FLAG,
         false
@@ -240,7 +240,7 @@ fn hide_env_vals_flag() {
 fn show_env_vals_flag() {
     env::set_var("ENVVAR", "MYVAL");
 
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -249,7 +249,7 @@ fn show_env_vals_flag() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         SHOW_ENV_VALS_FLAG,
         false

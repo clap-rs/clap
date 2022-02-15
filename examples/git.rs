@@ -2,29 +2,29 @@
 
 use std::path::PathBuf;
 
-use clap::{arg, App};
+use clap::{arg, Command};
 
 fn main() {
-    let matches = App::new("git")
+    let matches = Command::new("git")
         .about("A fictional versioning CLI")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand(
-            App::new("clone")
+            Command::new("clone")
                 .about("Clones repos")
                 .arg(arg!(<REMOTE> "The remote to clone"))
                 .arg_required_else_help(true),
         )
         .subcommand(
-            App::new("push")
+            Command::new("push")
                 .about("pushes things")
                 .arg(arg!(<REMOTE> "The remote to target"))
                 .arg_required_else_help(true),
         )
         .subcommand(
-            App::new("add")
+            Command::new("add")
                 .about("adds things")
                 .arg_required_else_help(true)
                 .arg(arg!(<PATH> ... "Stuff to add").allow_invalid_utf8(true)),

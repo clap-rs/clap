@@ -3,7 +3,7 @@
 1. [Overview](#overview)
 2. [Raw Attributes](#raw-attributes)
 3. [Magic Attributes](#magic-attributes)
-    1. [App Attributes](#app-attributes)
+    1. [Command Attributes](#cmd-attributes)
     2. [Arg Attributes](#arg-attributes)
     3. [Arg Types](#arg-types)
     4. [Arg Enum Attributes](#arg-enum-attributes)
@@ -85,7 +85,7 @@ See also the [tutorial](../tutorial_derive/README.md) and [examples](../README.m
 ## Raw Attributes
 
 **Raw attributes** are forwarded directly to the underlying `clap` builder.  Any
-`App`, `Arg`, or `PossibleValue` method can be used as an attribute.
+`Command`, `Arg`, or `PossibleValue` method can be used as an attribute.
 
 Raw attributes come in two different syntaxes:
 ```rust
@@ -107,33 +107,33 @@ translated into a mere method call.
 - Providing of defaults
 - Special behavior is triggered off of it
 
-### App Attributes
+### Command Attributes
 
-These correspond to a `clap::App` which is used for both top-level parsers and
+These correspond to a `clap::Command` which is used for both top-level parsers and
 when defining subcommands.
 
 In addition to the raw attributes, the following magic attributes are supported:
-- `name  = <expr>`: `clap::App::name`
+- `name  = <expr>`: `clap::Command::name`
   - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (`Parser` container), variant name (`Subcommand` variant)
-- `version [= <expr>]`: `clap::App::version`
+- `version [= <expr>]`: `clap::Command::version`
   - When not present: no version set
   - Without `<expr>`: defaults to [crate `version`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-version-field)
-- `author [= <expr>]`: `clap::App::author`
+- `author [= <expr>]`: `clap::Command::author`
   - When not present: no author set
   - Without `<expr>`: defaults to [crate `authors`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-authors-field)
-- `about [= <expr>]`: `clap::App::about`
+- `about [= <expr>]`: `clap::Command::about`
   - When not present: [Doc comment summary](#doc-comments)
   - Without `<expr>`: [crate `description`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-description-field) (`Parser` container)
     - **TIP:** When a doc comment is also present, you most likely want to add
       `#[clap(long_about = None)]` to clear the doc comment so only `about`
       gets shown with both `-h` and `--help`.
-- `long_about = <expr>`: `clap::App::long_about`
+- `long_about = <expr>`: `clap::Command::long_about`
   - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
 - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to `about` / `long_about`
-- `next_display_order`: `clap::App::next_display_order`
-- `next_help_heading`: `clap::App::next_help_heading`
+- `next_display_order`: `clap::Command::next_display_order`
+- `next_help_heading`: `clap::Command::next_help_heading`
   - When `flatten`ing `Args`, this is scoped to just the args in this struct and any struct `flatten`ed into it
-- `rename_all = <expr>`: Override default field / variant name case conversion for `App::name` / `Arg::name`
+- `rename_all = <expr>`: Override default field / variant name case conversion for `Command::name` / `Arg::name`
   - When not present: `kebab-case`
   - Available values: `camelCase`, `kebab-case`, `PascalCase`, `SCREAMING_SNAKE_CASE`, `snake_case`, `lower`, `UPPER`, `verbatim`
 - `rename_all_env = <expr>`: Override default field name case conversion for env variables for  `clap::Arg::env`
@@ -144,7 +144,7 @@ And for `Subcommand` variants:
 - `skip`: Ignore this variant
 - `flatten`: Delegates to the variant for more subcommands (must implement `Subcommand`)
 - `subcommand`: Nest subcommands under the current set of subcommands (must implement `Subcommand`)
-- `external_subcommand`: `clap::App::allow_external_subcommand(true)`
+- `external_subcommand`: `clap::Command::allow_external_subcommand(true)`
   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 
 ### Arg Attributes
@@ -172,8 +172,8 @@ In addition to the raw attributes, the following magic attributes are supported:
   - Only `help_heading` can be used with `flatten`.  See
     [clap-rs/clap#3269](https://github.com/clap-rs/clap/issues/3269) for why
     arg attributes are not generally supported.
-  - **Tip:** Though we do apply a flattened `Args`'s Parent App Attributes, this
-    makes reuse harder. Generally prefer putting the app attributes on the `Parser`
+  - **Tip:** Though we do apply a flattened `Args`'s Parent Command Attributes, this
+    makes reuse harder. Generally prefer putting the cmd attributes on the `Parser`
     or on the flattened field.
 - `subcommand`: Delegates definition of subcommands to the field (must implement `Subcommand`)
   - When `Option<T>`, the subcommand becomes optional
@@ -259,7 +259,7 @@ These correspond to a `clap::PossibleValue`.
 ### Doc Comments
 
 In clap, help messages for the whole binary can be specified
-via [`App::about`] and [`App::long_about`] while help messages
+via [`Command::about`] and [`Command::long_about`] while help messages
 for individual arguments can be specified via [`Arg::help`] and [`Arg::long_help`]".
 
 `long_*` variants are used when user calls the program with
@@ -292,8 +292,8 @@ struct Foo {
 
 **NOTE:** Attributes have priority over doc comments!
 
-**Top level doc comments always generate `App::about/long_about` calls!**
-If you really want to use the `App::about/long_about` methods (you likely don't),
+**Top level doc comments always generate `Command::about/long_about` calls!**
+If you really want to use the `Command::about/long_about` methods (you likely don't),
 use the `about` / `long_about` attributes to override the calls generated from
 the doc comment.  To clear `long_about`, you can use
 `#[clap(long_about = None)]`.
@@ -326,10 +326,10 @@ A doc comment consists of three parts:
 - A blank line (whitespace only)
 - Detailed description, all the rest
 
-The summary corresponds with `App::about` / `Arg::help`.  When a blank line is
-present, the whole doc comment will be passed to `App::long_about` /
-`Arg::long_help`.  Or in other words, a doc may result in just a `App::about` /
-`Arg::help` or `App::about` / `Arg::help` and `App::long_about` /
+The summary corresponds with `Command::about` / `Arg::help`.  When a blank line is
+present, the whole doc comment will be passed to `Command::long_about` /
+`Arg::long_help`.  Or in other words, a doc may result in just a `Command::about` /
+`Arg::help` or `Command::about` / `Arg::help` and `Command::long_about` /
 `Arg::long_help`
 
 In addition, when `verbatim_doc_comment` is not present, `clap` applies some preprocessing, including:

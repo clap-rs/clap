@@ -1,4 +1,4 @@
-use clap::{App, Arg, ValueHint};
+use clap::{Arg, Command, ValueHint};
 use clap_complete::{generate, Generator};
 use std::fmt;
 
@@ -19,9 +19,9 @@ macro_rules! assert_eq {
     };
 }
 
-pub fn common<G: Generator>(gen: G, app: &mut App, name: &str, fixture: &str) {
+pub fn common<G: Generator>(gen: G, cmd: &mut Command, name: &str, fixture: &str) {
     let mut buf = vec![];
-    generate(gen, app, name, &mut buf);
+    generate(gen, cmd, name, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
     assert_eq!(&string, fixture);

@@ -2,7 +2,7 @@ use clap::{app_from_crate, arg, ErrorKind};
 
 fn main() {
     // Create application like normal
-    let mut app = app_from_crate!()
+    let mut cmd = app_from_crate!()
         // Add the version arguments
         .arg(arg!(--"set-ver" <VER> "set version manually").required(false))
         .arg(arg!(--major         "auto inc major"))
@@ -15,7 +15,7 @@ fn main() {
         // Now let's assume we have a -c [config] argument which requires one of
         // (but **not** both) the "input" arguments
         .arg(arg!(config: -c <CONFIG>).required(false));
-    let matches = app.get_matches_mut();
+    let matches = cmd.get_matches_mut();
 
     // Let's assume the old version 1.2.3
     let mut major = 1;
@@ -26,7 +26,7 @@ fn main() {
     let version = if let Some(ver) = matches.value_of("set-ver") {
         if matches.is_present("major") || matches.is_present("minor") || matches.is_present("patch")
         {
-            app.error(
+            cmd.error(
                 ErrorKind::ArgumentConflict,
                 "Can't do relative and absolute version change",
             )
@@ -45,7 +45,7 @@ fn main() {
             (false, true, false) => minor += 1,
             (false, false, true) => patch += 1,
             _ => {
-                app.error(
+                cmd.error(
                     ErrorKind::ArgumentConflict,
                     "Cam only modify one version field",
                 )
@@ -63,7 +63,7 @@ fn main() {
             .value_of("INPUT_FILE")
             .or_else(|| matches.value_of("spec-in"))
             .unwrap_or_else(|| {
-                app.error(
+                cmd.error(
                     ErrorKind::MissingRequiredArgument,
                     "INPUT_FILE or --spec-in is required when using --config",
                 )

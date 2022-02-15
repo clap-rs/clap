@@ -1,12 +1,12 @@
 use super::*;
 use crate::Fig;
 
-fn build_app() -> App<'static> {
+fn build_app() -> Command<'static> {
     build_app_with_name("myapp")
 }
 
-fn build_app_with_name(s: &'static str) -> App<'static> {
-    App::new(s)
+fn build_app_with_name(s: &'static str) -> Command<'static> {
+    Command::new(s)
         .version("3.0")
         .propagate_version(true)
         .about("Tests completions")
@@ -16,7 +16,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
                 .help("some input file"),
         )
         .subcommand(
-            App::new("test").about("tests things").arg(
+            Command::new("test").about("tests things").arg(
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
@@ -27,8 +27,8 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
 
 #[test]
 fn fig() {
-    let mut app = build_app();
-    common(Fig, &mut app, "myapp", FIG);
+    let mut cmd = build_app();
+    common(Fig, &mut cmd, "myapp", FIG);
 }
 
 static FIG: &str = r#"const completion: Fig.Spec = {
@@ -90,21 +90,21 @@ export default completion;
 
 #[test]
 fn fig_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Fig, &mut app, "my_app", FIG_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Fig, &mut cmd, "my_app", FIG_SPECIAL_CMDS);
 }
 
-fn build_app_special_commands() -> App<'static> {
+fn build_app_special_commands() -> Command<'static> {
     build_app_with_name("my_app")
         .subcommand(
-            App::new("some_cmd").about("tests other things").arg(
+            Command::new("some_cmd").about("tests other things").arg(
                 Arg::new("config")
                     .long("--config")
                     .takes_value(true)
                     .help("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
+        .subcommand(Command::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
@@ -201,12 +201,12 @@ export default completion;
 
 #[test]
 fn fig_with_special_help() {
-    let mut app = build_app_special_help();
-    common(Fig, &mut app, "my_app", FIG_SPECIAL_HELP);
+    let mut cmd = build_app_special_help();
+    common(Fig, &mut cmd, "my_app", FIG_SPECIAL_HELP);
 }
 
-fn build_app_special_help() -> App<'static> {
-    App::new("my_app")
+fn build_app_special_help() -> Command<'static> {
+    Command::new("my_app")
         .version("3.0")
         .arg(
             Arg::new("single-quotes")
@@ -280,12 +280,12 @@ export default completion;
 
 #[test]
 fn fig_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Fig, &mut app, "cmd", FIG_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Fig, &mut cmd, "cmd", FIG_ALIASES);
 }
 
-fn build_app_with_aliases() -> App<'static> {
-    App::new("cmd")
+fn build_app_with_aliases() -> Command<'static> {
+    Command::new("cmd")
         .version("3.0")
         .about("testing bash completions")
         .arg(
@@ -344,16 +344,16 @@ export default completion;
 
 #[test]
 fn fig_with_sub_subcommands() {
-    let mut app = build_app_sub_subcommands();
-    common(Fig, &mut app, "my_app", FIG_SUB_SUBCMDS);
+    let mut cmd = build_app_sub_subcommands();
+    common(Fig, &mut cmd, "my_app", FIG_SUB_SUBCMDS);
 }
 
-fn build_app_sub_subcommands() -> App<'static> {
+fn build_app_sub_subcommands() -> Command<'static> {
     build_app_with_name("my_app").subcommand(
-        App::new("some_cmd")
+        Command::new("some_cmd")
             .about("top level subcommand")
             .subcommand(
-                App::new("sub_cmd").about("sub-subcommand").arg(
+                Command::new("sub_cmd").about("sub-subcommand").arg(
                     Arg::new("config")
                         .long("--config")
                         .takes_value(true)

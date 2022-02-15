@@ -12,12 +12,12 @@
 //! . ./value_hints.fish
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
-use clap::{App, Arg, ValueHint};
+use clap::{Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
-fn build_cli() -> App<'static> {
-    App::new("value_hints")
+fn build_cli() -> Command<'static> {
+    Command::new("value_hints")
         // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
         .trailing_var_arg(true)
         .arg(
@@ -92,16 +92,16 @@ fn build_cli() -> App<'static> {
         )
 }
 
-fn print_completions<G: Generator>(gen: G, app: &mut App) {
-    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
     let matches = build_cli().get_matches();
 
     if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
-        let mut app = build_cli();
+        let mut cmd = build_cli();
         eprintln!("Generating completion file for {}...", generator);
-        print_completions(generator, &mut app);
+        print_completions(generator, &mut cmd);
     }
 }

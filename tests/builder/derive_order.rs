@@ -2,7 +2,7 @@ use crate::utils;
 
 use std::str;
 
-use clap::{App, AppSettings, Arg};
+use clap::{AppSettings, Arg, Command};
 
 static NO_DERIVE_ORDER: &str = "test 1.2
 
@@ -86,7 +86,7 @@ OPTIONS:
 
 #[test]
 fn no_derive_order() {
-    let app = App::new("test").version("1.2").args(&[
+    let cmd = Command::new("test").version("1.2").args(&[
         Arg::new("flag_b").long("flag_b").help("first flag"),
         Arg::new("option_b")
             .long("option_b")
@@ -100,7 +100,7 @@ fn no_derive_order() {
     ]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         NO_DERIVE_ORDER,
         false
@@ -109,7 +109,7 @@ fn no_derive_order() {
 
 #[test]
 fn derive_order() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .args(&[
@@ -126,7 +126,7 @@ fn derive_order() {
         ]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         UNIFIED_HELP_AND_DERIVE,
         false
@@ -149,7 +149,7 @@ OPTIONS:
         --option_a <option_a>    second option
 ";
 
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .next_display_order(10000)
@@ -169,7 +169,7 @@ OPTIONS:
                 .help("first option"),
         );
 
-    assert!(utils::compare_output(app, "test --help", HELP, false));
+    assert!(utils::compare_output(cmd, "test --help", HELP, false));
 }
 
 #[test]
@@ -188,7 +188,7 @@ OPTIONS:
     -V, --version                Print version information
 ";
 
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .next_display_order(None)
@@ -207,15 +207,15 @@ OPTIONS:
                 .help("second option"),
         );
 
-    assert!(utils::compare_output(app, "test --help", HELP, false));
+    assert!(utils::compare_output(cmd, "test --help", HELP, false));
 }
 
 #[test]
 fn derive_order_subcommand_propagate() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)
         .subcommand(
-            App::new("sub").version("1.2").args(&[
+            Command::new("sub").version("1.2").args(&[
                 Arg::new("flag_b").long("flag_b").help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
@@ -230,7 +230,7 @@ fn derive_order_subcommand_propagate() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test sub --help",
         UNIFIED_DERIVE_SC_PROP,
         false
@@ -239,10 +239,10 @@ fn derive_order_subcommand_propagate() {
 
 #[test]
 fn derive_order_subcommand_propagate_with_explicit_display_order() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)
         .subcommand(
-            App::new("sub").version("1.2").args(&[
+            Command::new("sub").version("1.2").args(&[
                 Arg::new("flag_b").long("flag_b").help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
@@ -260,7 +260,7 @@ fn derive_order_subcommand_propagate_with_explicit_display_order() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test sub --help",
         UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER,
         false
@@ -269,7 +269,7 @@ fn derive_order_subcommand_propagate_with_explicit_display_order() {
 
 #[test]
 fn prefer_user_help_with_derive_order() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .args(&[
@@ -282,7 +282,7 @@ fn prefer_user_help_with_derive_order() {
         ]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         PREFER_USER_HELP_DERIVE_ORDER,
         false
@@ -291,10 +291,10 @@ fn prefer_user_help_with_derive_order() {
 
 #[test]
 fn prefer_user_help_in_subcommand_with_derive_order() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)
         .subcommand(
-            App::new("sub").version("1.2").args(&[
+            Command::new("sub").version("1.2").args(&[
                 Arg::new("help")
                     .long("help")
                     .short('h')
@@ -305,7 +305,7 @@ fn prefer_user_help_in_subcommand_with_derive_order() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test sub --help",
         PREFER_USER_HELP_SUBCMD_DERIVE_ORDER,
         false

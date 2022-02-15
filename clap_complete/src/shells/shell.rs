@@ -87,13 +87,13 @@ impl Generator for Shell {
         }
     }
 
-    fn generate(&self, app: &clap::App, buf: &mut dyn std::io::Write) {
+    fn generate(&self, cmd: &clap::Command, buf: &mut dyn std::io::Write) {
         match self {
-            Shell::Bash => shells::Bash.generate(app, buf),
-            Shell::Elvish => shells::Elvish.generate(app, buf),
-            Shell::Fish => shells::Fish.generate(app, buf),
-            Shell::PowerShell => shells::PowerShell.generate(app, buf),
-            Shell::Zsh => shells::Zsh.generate(app, buf),
+            Shell::Bash => shells::Bash.generate(cmd, buf),
+            Shell::Elvish => shells::Elvish.generate(cmd, buf),
+            Shell::Fish => shells::Fish.generate(cmd, buf),
+            Shell::PowerShell => shells::PowerShell.generate(cmd, buf),
+            Shell::Zsh => shells::Zsh.generate(cmd, buf),
         }
     }
 }

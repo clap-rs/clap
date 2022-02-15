@@ -87,10 +87,10 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
-            fn augment_args<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
+            fn augment_args<'b>(#app_var: clap::Command<'b>) -> clap::Command<'b> {
                 #augmentation
             }
-            fn augment_args_for_update<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
+            fn augment_args_for_update<'b>(#app_var: clap::Command<'b>) -> clap::Command<'b> {
                 #augmentation_update
             }
         }
@@ -145,7 +145,7 @@ pub fn gen_from_arg_matches_for_struct(
 }
 
 /// Generate a block of code to add arguments/subcommands corresponding to
-/// the `fields` to an app.
+/// the `fields` to an cmd.
 pub fn gen_augment(
     fields: &Punctuated<Field, Comma>,
     app_var: &Ident,

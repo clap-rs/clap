@@ -2,7 +2,7 @@
 
 #[test]
 fn possible_values_ignore_case() {
-    let m = clap::App::new("pv")
+    let m = clap::Command::new("pv")
         .arg(
             clap::Arg::new("option")
                 .short('o')

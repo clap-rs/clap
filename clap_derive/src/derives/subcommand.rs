@@ -75,10 +75,10 @@ pub fn gen_for_enum(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::Subcommand for #enum_name #ty_generics #where_clause {
-            fn augment_subcommands <'b>(__clap_app: clap::App<'b>) -> clap::App<'b> {
+            fn augment_subcommands <'b>(__clap_app: clap::Command<'b>) -> clap::Command<'b> {
                 #augmentation
             }
-            fn augment_subcommands_for_update <'b>(__clap_app: clap::App<'b>) -> clap::App<'b> {
+            fn augment_subcommands_for_update <'b>(__clap_app: clap::Command<'b>) -> clap::Command<'b> {
                 #augmentation_update
             }
             fn has_subcommand(__clap_name: &str) -> bool {
@@ -245,7 +245,7 @@ fn gen_augment(
                     let final_from_attrs = attrs.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
-                            let #subcommand_var = clap::App::new(#name);
+                            let #subcommand_var = clap::Command::new(#name);
                             let #subcommand_var = #subcommand_var #initial_app_methods;
                             let #subcommand_var = #arg_block;
                             #[allow(deprecated)]
@@ -260,7 +260,7 @@ fn gen_augment(
                     let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
                     let sub_augment = match variant.fields {
                         Named(ref fields) => {
-                            // Defer to `gen_augment` for adding app methods
+                            // Defer to `gen_augment` for adding cmd methods
                             args::gen_augment(&fields.named, &subcommand_var, &attrs, override_required)
                         }
                         Unit => {
@@ -304,7 +304,7 @@ fn gen_augment(
                     let name = attrs.cased_name();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
-                            let #subcommand_var = clap::App::new(#name);
+                            let #subcommand_var = clap::Command::new(#name);
                             #sub_augment
                         });
                     };

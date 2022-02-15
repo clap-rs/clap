@@ -1,7 +1,7 @@
-use clap::{arg, App};
+use clap::{arg, Command};
 
 fn main() {
-    let matches = App::new("MyApp")
+    let matches = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")

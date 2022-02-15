@@ -8,7 +8,7 @@ include = [
 	"LICENSE-*",
 	"README.md"
 ]
-description = "Generate shell completion scripts for your clap::App"
+description = "Generate shell completion scripts for your clap::Command"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
 documentation = "https://docs.rs/clap_complete"
 keywords = [

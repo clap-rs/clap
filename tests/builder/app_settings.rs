@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
+use clap::{arg, error::ErrorKind, AppSettings, Arg, Command};
 
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
@@ -82,21 +82,21 @@ SUBCOMMANDS:
 #[test]
 fn setting() {
     #![allow(deprecated)]
-    let m = App::new("setting").args_override_self(true);
+    let m = Command::new("setting").args_override_self(true);
     assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
 }
 
 #[test]
 fn global_setting() {
     #![allow(deprecated)]
-    let m = App::new("global_setting").args_override_self(true);
+    let m = Command::new("global_setting").args_override_self(true);
     assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
 }
 
 #[test]
 fn unset_setting() {
     #![allow(deprecated)]
-    let m = App::new("unset_setting").args_override_self(true);
+    let m = Command::new("unset_setting").args_override_self(true);
     assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
 
     let m = m.args_override_self(false);
@@ -106,7 +106,7 @@ fn unset_setting() {
 #[test]
 fn unset_global_setting() {
     #![allow(deprecated)]
-    let m = App::new("unset_global_setting").args_override_self(true);
+    let m = Command::new("unset_global_setting").args_override_self(true);
     assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
 
     let m = m.args_override_self(false);
@@ -116,7 +116,7 @@ fn unset_global_setting() {
 #[test]
 fn setting_bitor() {
     #![allow(deprecated)]
-    let m = App::new("setting_bitor").setting(
+    let m = Command::new("setting_bitor").setting(
         AppSettings::InferSubcommands | AppSettings::Hidden | AppSettings::DisableHelpSubcommand,
     );
 
@@ -128,7 +128,7 @@ fn setting_bitor() {
 #[test]
 fn unset_setting_bitor() {
     #![allow(deprecated)]
-    let m = App::new("unset_setting_bitor")
+    let m = Command::new("unset_setting_bitor")
         .setting(AppSettings::InferSubcommands)
         .setting(AppSettings::Hidden)
         .setting(AppSettings::DisableHelpSubcommand);
@@ -147,20 +147,20 @@ fn unset_setting_bitor() {
 
 #[test]
 fn sub_command_negate_required() {
-    App::new("sub_command_negate")
+    Command::new("sub_command_negate")
         .subcommand_negates_reqs(true)
         .arg(Arg::new("test").required(true).index(1))
-        .subcommand(App::new("sub1"))
+        .subcommand(Command::new("sub1"))
         .try_get_matches_from(vec!["myprog", "sub1"])
         .unwrap();
 }
 
 #[test]
 fn sub_command_negate_required_2() {
-    let result = App::new("sub_command_negate")
+    let result = Command::new("sub_command_negate")
         .subcommand_negates_reqs(true)
         .arg(Arg::new("test").required(true).index(1))
-        .subcommand(App::new("sub1"))
+        .subcommand(Command::new("sub1"))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -169,9 +169,9 @@ fn sub_command_negate_required_2() {
 
 #[test]
 fn sub_command_required() {
-    let result = App::new("sc_required")
+    let result = Command::new("sc_required")
         .subcommand_required(true)
-        .subcommand(App::new("sub1"))
+        .subcommand(Command::new("sub1"))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -180,7 +180,7 @@ fn sub_command_required() {
 
 #[test]
 fn arg_required_else_help() {
-    let result = App::new("arg_required")
+    let result = Command::new("arg_required")
         .arg_required_else_help(true)
         .arg(Arg::new("test").index(1))
         .try_get_matches_from(vec![""]);
@@ -195,7 +195,7 @@ fn arg_required_else_help() {
 
 #[test]
 fn arg_required_else_help_over_req_arg() {
-    let result = App::new("arg_required")
+    let result = Command::new("arg_required")
         .arg_required_else_help(true)
         .arg(Arg::new("test").index(1).required(true))
         .try_get_matches_from(vec![""]);
@@ -210,10 +210,10 @@ fn arg_required_else_help_over_req_arg() {
 
 #[test]
 fn arg_required_else_help_over_req_subcommand() {
-    let result = App::new("sub_required")
+    let result = Command::new("sub_required")
         .arg_required_else_help(true)
         .subcommand_required(true)
-        .subcommand(App::new("sub1"))
+        .subcommand(Command::new("sub1"))
         .try_get_matches_from(vec![""]);
 
     assert!(result.is_err());
@@ -226,7 +226,7 @@ fn arg_required_else_help_over_req_subcommand() {
 
 #[test]
 fn arg_required_else_help_with_default() {
-    let result = App::new("arg_required")
+    let result = Command::new("arg_required")
         .arg_required_else_help(true)
         .arg(arg!(--input <PATH>).required(false).default_value("-"))
         .try_get_matches_from(vec![""]);
@@ -241,7 +241,7 @@ fn arg_required_else_help_with_default() {
 
 #[test]
 fn arg_required_else_help_error_message() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .arg_required_else_help(true)
         .version("1.0")
         .arg(
@@ -251,7 +251,7 @@ fn arg_required_else_help_error_message() {
                 .long("info"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test",
         ARG_REQUIRED_ELSE_HELP,
         true // Unlike normal displaying of help, we should provide a fatal exit code
@@ -261,9 +261,9 @@ fn arg_required_else_help_error_message() {
 #[test]
 fn subcommand_required_else_help() {
     #![allow(deprecated)]
-    let result = App::new("test")
+    let result = Command::new("test")
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(App::new("info"))
+        .subcommand(Command::new("info"))
         .try_get_matches_from(&[""]);
 
     assert!(result.is_err());
@@ -277,12 +277,12 @@ fn subcommand_required_else_help() {
 #[test]
 fn subcommand_required_else_help_error_message() {
     #![allow(deprecated)]
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version("1.0")
-        .subcommand(App::new("info").arg(Arg::new("filename")));
+        .subcommand(Command::new("info").arg(Arg::new("filename")));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test",
         SUBCOMMAND_REQUIRED_ELSE_HELP,
         true // Unlike normal displaying of help, we should provide a fatal exit code
@@ -292,10 +292,10 @@ fn subcommand_required_else_help_error_message() {
 #[cfg(not(feature = "suggestions"))]
 #[test]
 fn infer_subcommands_fail_no_args() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
@@ -304,10 +304,10 @@ fn infer_subcommands_fail_no_args() {
 #[cfg(feature = "suggestions")]
 #[test]
 fn infer_subcommands_fail_no_args() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
@@ -315,11 +315,11 @@ fn infer_subcommands_fail_no_args() {
 
 #[test]
 fn infer_subcommands_fail_with_args() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
         .arg(Arg::new("some"))
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "t"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     assert_eq!(m.unwrap().value_of("some"), Some("t"));
@@ -327,11 +327,11 @@ fn infer_subcommands_fail_with_args() {
 
 #[test]
 fn infer_subcommands_fail_with_args2() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
         .arg(Arg::new("some"))
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     assert_eq!(m.unwrap().value_of("some"), Some("te"));
@@ -339,9 +339,9 @@ fn infer_subcommands_fail_with_args2() {
 
 #[test]
 fn infer_subcommands_pass() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
+        .subcommand(Command::new("test"))
         .try_get_matches_from(vec!["prog", "te"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -349,10 +349,10 @@ fn infer_subcommands_pass() {
 
 #[test]
 fn infer_subcommands_pass_close() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "tes"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -360,11 +360,11 @@ fn infer_subcommands_pass_close() {
 
 #[test]
 fn infer_subcommands_pass_exact_match() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
-        .subcommand(App::new("testa"))
-        .subcommand(App::new("testb"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("testa"))
+        .subcommand(Command::new("testb"))
         .try_get_matches_from(vec!["prog", "test"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
@@ -373,10 +373,10 @@ fn infer_subcommands_pass_exact_match() {
 #[cfg(feature = "suggestions")]
 #[test]
 fn infer_subcommands_fail_suggestions() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
@@ -385,10 +385,10 @@ fn infer_subcommands_fail_suggestions() {
 #[cfg(not(feature = "suggestions"))]
 #[test]
 fn infer_subcommands_fail_suggestions() {
-    let m = App::new("prog")
+    let m = Command::new("prog")
         .infer_subcommands(true)
-        .subcommand(App::new("test"))
-        .subcommand(App::new("temp"))
+        .subcommand(Command::new("test"))
+        .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
@@ -396,7 +396,7 @@ fn infer_subcommands_fail_suggestions() {
 
 #[test]
 fn no_bin_name() {
-    let result = App::new("arg_required")
+    let result = Command::new("arg_required")
         .no_binary_name(true)
         .arg(Arg::new("test").required(true).index(1))
         .try_get_matches_from(vec!["testing"]);
@@ -407,7 +407,7 @@ fn no_bin_name() {
 
 #[test]
 fn skip_possible_values() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
@@ -420,7 +420,7 @@ fn skip_possible_values() {
         ]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         SKIP_POS_VALS,
         false
@@ -429,7 +429,7 @@ fn skip_possible_values() {
 
 #[test]
 fn stop_delim_values_only_pos_follows() {
-    let r = App::new("onlypos")
+    let r = Command::new("onlypos")
         .dont_delimit_trailing_values(true)
         .args(&[
             arg!(f: -f <flag> "some opt").required(false),
@@ -448,7 +448,7 @@ fn stop_delim_values_only_pos_follows() {
 
 #[test]
 fn dont_delim_values_trailingvararg() {
-    let m = App::new("positional")
+    let m = Command::new("positional")
         .trailing_var_arg(true)
         .dont_delimit_trailing_values(true)
         .arg(arg!([opt] ... "some pos"))
@@ -463,7 +463,7 @@ fn dont_delim_values_trailingvararg() {
 
 #[test]
 fn delim_values_only_pos_follows() {
-    let r = App::new("onlypos")
+    let r = Command::new("onlypos")
         .args(&[arg!(f: -f [flag] "some opt"), arg!([arg] ... "some arg")])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -478,7 +478,7 @@ fn delim_values_only_pos_follows() {
 
 #[test]
 fn delim_values_trailingvararg() {
-    let m = App::new("positional")
+    let m = Command::new("positional")
         .trailing_var_arg(true)
         .arg(arg!([opt] ... "some pos"))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
@@ -492,7 +492,7 @@ fn delim_values_trailingvararg() {
 
 #[test]
 fn delim_values_only_pos_follows_with_delim() {
-    let r = App::new("onlypos")
+    let r = Command::new("onlypos")
         .args(&[
             arg!(f: -f [flag] "some opt"),
             arg!([arg] ... "some arg").use_value_delimiter(true),
@@ -510,7 +510,7 @@ fn delim_values_only_pos_follows_with_delim() {
 
 #[test]
 fn delim_values_trailingvararg_with_delim() {
-    let m = App::new("positional")
+    let m = Command::new("positional")
         .trailing_var_arg(true)
         .arg(arg!([opt] ... "some pos").use_value_delimiter(true))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
@@ -524,7 +524,7 @@ fn delim_values_trailingvararg_with_delim() {
 
 #[test]
 fn leading_hyphen_short() {
-    let res = App::new("leadhy")
+    let res = Command::new("leadhy")
         .allow_hyphen_values(true)
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short('o'))
@@ -538,7 +538,7 @@ fn leading_hyphen_short() {
 
 #[test]
 fn leading_hyphen_long() {
-    let res = App::new("leadhy")
+    let res = Command::new("leadhy")
         .allow_hyphen_values(true)
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short('o'))
@@ -552,7 +552,7 @@ fn leading_hyphen_long() {
 
 #[test]
 fn leading_hyphen_opt() {
-    let res = App::new("leadhy")
+    let res = Command::new("leadhy")
         .allow_hyphen_values(true)
         .arg(Arg::new("some").takes_value(true).long("opt"))
         .arg(Arg::new("other").short('o'))
@@ -566,7 +566,7 @@ fn leading_hyphen_opt() {
 
 #[test]
 fn allow_negative_numbers() {
-    let res = App::new("negnum")
+    let res = Command::new("negnum")
         .allow_negative_numbers(true)
         .arg(Arg::new("panum"))
         .arg(Arg::new("onum").short('o').takes_value(true))
@@ -579,7 +579,7 @@ fn allow_negative_numbers() {
 
 #[test]
 fn allow_negative_numbers_fail() {
-    let res = App::new("negnum")
+    let res = Command::new("negnum")
         .allow_negative_numbers(true)
         .arg(Arg::new("panum"))
         .arg(Arg::new("onum").short('o').takes_value(true))
@@ -590,7 +590,7 @@ fn allow_negative_numbers_fail() {
 
 #[test]
 fn leading_double_hyphen_trailingvararg() {
-    let m = App::new("positional")
+    let m = Command::new("positional")
         .trailing_var_arg(true)
         .allow_hyphen_values(true)
         .arg(arg!([opt] ... "some pos"))
@@ -605,9 +605,9 @@ fn leading_double_hyphen_trailingvararg() {
 
 #[test]
 fn disable_help_subcommand() {
-    let result = App::new("disablehelp")
+    let result = Command::new("disablehelp")
         .disable_help_subcommand(true)
-        .subcommand(App::new("sub1"))
+        .subcommand(Command::new("sub1"))
         .try_get_matches_from(vec!["", "help"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -616,7 +616,7 @@ fn disable_help_subcommand() {
 
 #[test]
 fn dont_collapse_args() {
-    let app = App::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .dont_collapse_args_in_usage(true)
         .args(&[
@@ -625,7 +625,7 @@ fn dont_collapse_args() {
             Arg::new("arg3").help("some"),
         ]);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         DONT_COLLAPSE_ARGS,
         false
@@ -634,7 +634,7 @@ fn dont_collapse_args() {
 
 #[test]
 fn require_eq() {
-    let app = App::new("clap-test").version("v1.4.8").arg(
+    let cmd = Command::new("clap-test").version("v1.4.8").arg(
         Arg::new("opt")
             .long("opt")
             .short('o')
@@ -644,7 +644,7 @@ fn require_eq() {
             .help("some"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         REQUIRE_EQUALS,
         false
@@ -653,12 +653,14 @@ fn require_eq() {
 
 #[test]
 fn args_negate_subcommands_one_level() {
-    let res = App::new("disablehelp")
+    let res = Command::new("disablehelp")
         .args_conflicts_with_subcommands(true)
         .subcommand_negates_reqs(true)
         .arg(arg!(<arg1> "some arg"))
         .arg(arg!(<arg2> "some arg"))
-        .subcommand(App::new("sub1").subcommand(App::new("sub2").subcommand(App::new("sub3"))))
+        .subcommand(
+            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
+        )
         .try_get_matches_from(vec!["", "pickles", "sub1"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
@@ -667,18 +669,18 @@ fn args_negate_subcommands_one_level() {
 
 #[test]
 fn args_negate_subcommands_two_levels() {
-    let res = App::new("disablehelp")
+    let res = Command::new("disablehelp")
         .args_conflicts_with_subcommands(true)
         .subcommand_negates_reqs(true)
         .arg(arg!(<arg1> "some arg"))
         .arg(arg!(<arg2> "some arg"))
         .subcommand(
-            App::new("sub1")
+            Command::new("sub1")
                 .args_conflicts_with_subcommands(true)
                 .subcommand_negates_reqs(true)
                 .arg(arg!(<arg> "some"))
                 .arg(arg!(<arg2> "some"))
-                .subcommand(App::new("sub2").subcommand(App::new("sub3"))),
+                .subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
         )
         .try_get_matches_from(vec!["", "sub1", "arg", "sub2"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
@@ -691,9 +693,9 @@ fn args_negate_subcommands_two_levels() {
 
 #[test]
 fn propagate_vals_down() {
-    let m = App::new("myprog")
+    let m = Command::new("myprog")
         .arg(arg!([cmd] "command to run").global(true))
-        .subcommand(App::new("foo"))
+        .subcommand(Command::new("foo"))
         .try_get_matches_from(vec!["myprog", "set", "foo"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
@@ -704,7 +706,7 @@ fn propagate_vals_down() {
 
 #[test]
 fn allow_missing_positional() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .allow_missing_positional(true)
         .arg(arg!([src] "some file").default_value("src"))
         .arg(arg!(<dest> "some file"))
@@ -717,7 +719,7 @@ fn allow_missing_positional() {
 
 #[test]
 fn allow_missing_positional_no_default() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .allow_missing_positional(true)
         .arg(arg!([src] "some file"))
         .arg(arg!(<dest> "some file"))
@@ -730,7 +732,7 @@ fn allow_missing_positional_no_default() {
 
 #[test]
 fn missing_positional_no_hyphen() {
-    let r = App::new("bench")
+    let r = Command::new("bench")
         .allow_missing_positional(true)
         .arg(arg!([BENCH] "some bench"))
         .arg(arg!([ARGS] ... "some args"))
@@ -751,7 +753,7 @@ fn missing_positional_no_hyphen() {
 
 #[test]
 fn missing_positional_hyphen() {
-    let r = App::new("bench")
+    let r = Command::new("bench")
         .allow_missing_positional(true)
         .arg(arg!([BENCH] "some bench"))
         .arg(arg!([ARGS] ... "some args"))
@@ -772,7 +774,7 @@ fn missing_positional_hyphen() {
 
 #[test]
 fn missing_positional_hyphen_far_back() {
-    let r = App::new("bench")
+    let r = Command::new("bench")
         .allow_missing_positional(true)
         .arg(arg!([BENCH1] "some bench"))
         .arg(arg!([BENCH2] "some bench"))
@@ -799,7 +801,7 @@ fn missing_positional_hyphen_far_back() {
 
 #[test]
 fn missing_positional_hyphen_req_error() {
-    let r = App::new("bench")
+    let r = Command::new("bench")
         .allow_missing_positional(true)
         .arg(arg!([BENCH1] "some bench"))
         .arg(arg!(<BENCH2> "some bench"))
@@ -811,7 +813,7 @@ fn missing_positional_hyphen_req_error() {
 
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .allow_hyphen_values(true)
         .arg(arg!(--"some-argument"))
         .try_get_matches_from(vec!["prog", "hello"]);
@@ -822,7 +824,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args() {
 
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .allow_hyphen_values(true)
         .arg(arg!(--"some-argument"))
         .try_get_matches_from(vec!["prog", "--hello"]);
@@ -833,7 +835,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
 
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
-    let res = App::new("prog")
+    let res = Command::new("prog")
         .allow_hyphen_values(true)
         .arg(arg!(--"some-argument" <val>))
         .try_get_matches_from(vec!["prog", "-hello"]);
@@ -844,7 +846,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
 
 #[test]
 fn issue_1437_allow_hyphen_values_for_positional_arg() {
-    let m = App::new("tmp")
+    let m = Command::new("tmp")
         .arg(
             Arg::new("pat")
                 .allow_hyphen_values(true)
@@ -858,11 +860,11 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
 
 #[test]
 fn issue_1093_allow_ext_sc() {
-    let app = App::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .allow_external_subcommands(true);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         ALLOW_EXT_SC,
         false
@@ -871,7 +873,7 @@ fn issue_1093_allow_ext_sc() {
 
 #[test]
 fn allow_ext_sc_when_sc_required() {
-    let res = App::new("clap-test")
+    let res = Command::new("clap-test")
         .version("v1.4.8")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
@@ -891,11 +893,11 @@ fn allow_ext_sc_when_sc_required() {
 
 #[test]
 fn external_subcommand_looks_like_built_in() {
-    let res = App::new("cargo")
+    let res = Command::new("cargo")
         .version("1.26.0")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true)
-        .subcommand(App::new("install"))
+        .subcommand(Command::new("install"))
         .try_get_matches_from(vec!["cargo", "install-update", "foo"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
@@ -911,7 +913,7 @@ fn external_subcommand_looks_like_built_in() {
 #[test]
 fn aaos_flags() {
     // flags
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--flag  "some flag"))
         .try_get_matches_from(vec!["", "--flag", "--flag"]);
@@ -924,7 +926,7 @@ fn aaos_flags() {
 #[test]
 fn aaos_flags_mult() {
     // flags with multiple
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--flag ...  "some flag"))
         .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
@@ -937,7 +939,7 @@ fn aaos_flags_mult() {
 #[test]
 fn aaos_opts() {
     // opts
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--opt <val> "some option"))
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
@@ -951,7 +953,7 @@ fn aaos_opts() {
 #[test]
 fn aaos_opts_w_other_overrides() {
     // opts with other overrides
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--opt <val> "some option").required(false))
         .arg(
@@ -971,7 +973,7 @@ fn aaos_opts_w_other_overrides() {
 #[test]
 fn aaos_opts_w_other_overrides_rev() {
     // opts with other overrides, rev
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--opt <val> "some option").required(true))
         .arg(
@@ -990,7 +992,7 @@ fn aaos_opts_w_other_overrides_rev() {
 #[test]
 fn aaos_opts_w_other_overrides_2() {
     // opts with other overrides
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
@@ -1010,7 +1012,7 @@ fn aaos_opts_w_other_overrides_2() {
 #[test]
 fn aaos_opts_w_other_overrides_rev_2() {
     // opts with other overrides, rev
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
@@ -1029,7 +1031,7 @@ fn aaos_opts_w_other_overrides_rev_2() {
 #[test]
 fn aaos_opts_mult() {
     // opts with multiple
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(
             arg!(--opt <val> ... "some option")
@@ -1052,7 +1054,7 @@ fn aaos_opts_mult() {
 #[test]
 fn aaos_opts_mult_req_delims() {
     // opts with multiple and require delims
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--opt <val> ... "some option").multiple_values(true))
         .try_get_matches_from(vec![
@@ -1078,7 +1080,7 @@ fn aaos_opts_mult_req_delims() {
 #[test]
 fn aaos_pos_mult() {
     // opts with multiple
-    let res = App::new("posix")
+    let res = Command::new("posix")
         .args_override_self(true)
         .arg(arg!([val] ... "some pos"))
         .try_get_matches_from(vec!["", "some", "other", "value"]);
@@ -1094,7 +1096,7 @@ fn aaos_pos_mult() {
 
 #[test]
 fn aaos_option_use_delim_false() {
-    let m = App::new("posix")
+    let m = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--opt <val> "some option").use_value_delimiter(false))
         .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
@@ -1109,21 +1111,21 @@ fn aaos_option_use_delim_false() {
 
 #[test]
 fn no_auto_help() {
-    let app = App::new("myprog")
+    let cmd = Command::new("myprog")
         .setting(AppSettings::NoAutoHelp)
-        .subcommand(App::new("foo"));
+        .subcommand(Command::new("foo"));
 
-    let result = app.clone().try_get_matches_from("myprog --help".split(' '));
-
-    assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("help"));
-
-    let result = app.clone().try_get_matches_from("myprog -h".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog --help".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("help"));
 
-    let result = app.clone().try_get_matches_from("myprog help".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog -h".split(' '));
+
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+    assert!(result.unwrap().is_present("help"));
+
+    let result = cmd.clone().try_get_matches_from("myprog help".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert_eq!(result.unwrap().subcommand_name(), Some("help"));
@@ -1131,18 +1133,18 @@ fn no_auto_help() {
 
 #[test]
 fn no_auto_version() {
-    let app = App::new("myprog")
+    let cmd = Command::new("myprog")
         .version("3.0")
         .setting(AppSettings::NoAutoVersion);
 
-    let result = app
+    let result = cmd
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 
-    let result = app.clone().try_get_matches_from("myprog -V".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
@@ -1150,19 +1152,19 @@ fn no_auto_version() {
 
 #[test]
 fn no_auto_version_mut_arg() {
-    let app = App::new("myprog")
+    let cmd = Command::new("myprog")
         .version("3.0")
         .mut_arg("version", |v| v.help("custom help"))
         .setting(AppSettings::NoAutoVersion);
 
-    let result = app
+    let result = cmd
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 
-    let result = app.clone().try_get_matches_from("myprog -V".split(' '));
+    let result = cmd.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
@@ -1171,12 +1173,12 @@ fn no_auto_version_mut_arg() {
 #[test]
 #[cfg(feature = "color")]
 fn color_is_global() {
-    let mut app = App::new("myprog")
+    let mut cmd = Command::new("myprog")
         .color(clap::ColorChoice::Never)
-        .subcommand(App::new("foo"));
-    app._build_all();
-    assert_eq!(app.get_color(), clap::ColorChoice::Never);
+        .subcommand(Command::new("foo"));
+    cmd._build_all();
+    assert_eq!(cmd.get_color(), clap::ColorChoice::Never);
 
-    let sub = app.get_subcommands().collect::<Vec<_>>()[0];
+    let sub = cmd.get_subcommands().collect::<Vec<_>>()[0];
     assert_eq!(sub.get_color(), clap::ColorChoice::Never);
 }

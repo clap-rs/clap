@@ -1,17 +1,17 @@
-use clap::App;
+use clap::Command;
 use clap::{arg, Arg};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::io::Cursor;
 
-fn build_help(app: &mut App) -> String {
+fn build_help(cmd: &mut Command) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
-    app.write_help(&mut buf).unwrap();
+    cmd.write_help(&mut buf).unwrap();
     let content = buf.into_inner();
     String::from_utf8(content).unwrap()
 }
 
-fn app_example1<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example1<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -24,21 +24,21 @@ fn app_example1<'c>() -> App<'c> {
         .arg(arg!(<output> "Sets an optional output file"))
         .arg(arg!(d: -d ... "Turn debugging information on"))
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "lists test values")),
         )
 }
 
-fn app_example2<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example2<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
 }
 
-fn app_example3<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example3<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .arg(
             Arg::new("debug")
                 .help("turn on debugging information")
@@ -64,8 +64,8 @@ fn app_example3<'c>() -> App<'c> {
         )
 }
 
-fn app_example4<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example4<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .about("Parses an input file to do awesome things")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
@@ -89,8 +89,8 @@ fn app_example4<'c>() -> App<'c> {
         )
 }
 
-fn app_example5<'c>() -> App<'c> {
-    App::new("MyApp").arg(
+fn app_example5<'c>() -> Command<'c> {
+    Command::new("MyApp").arg(
         Arg::new("awesome")
             .help("turns up the awesome")
             .short('a')
@@ -99,8 +99,8 @@ fn app_example5<'c>() -> App<'c> {
     )
 }
 
-fn app_example6<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example6<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .arg(
             Arg::new("input")
                 .help("the input file to use")
@@ -111,8 +111,8 @@ fn app_example6<'c>() -> App<'c> {
         .arg(Arg::new("config").help("the config file to use").index(2))
 }
 
-fn app_example7<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example7<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .arg(Arg::new("config"))
         .arg(Arg::new("output"))
         .arg(
@@ -129,8 +129,8 @@ fn app_example7<'c>() -> App<'c> {
         )
 }
 
-fn app_example8<'c>() -> App<'c> {
-    App::new("MyApp")
+fn app_example8<'c>() -> Command<'c> {
+    Command::new("MyApp")
         .arg(Arg::new("config"))
         .arg(Arg::new("output"))
         .arg(
@@ -147,8 +147,8 @@ fn app_example8<'c>() -> App<'c> {
         )
 }
 
-fn app_example10<'c>() -> App<'c> {
-    App::new("myapp").about("does awesome things").arg(
+fn app_example10<'c>() -> Command<'c> {
+    Command::new("myapp").about("does awesome things").arg(
         Arg::new("CONFIG")
             .help("The config file to use (default is \"config.json\")")
             .short('c')
@@ -157,53 +157,53 @@ fn app_example10<'c>() -> App<'c> {
 }
 
 pub fn example1(c: &mut Criterion) {
-    let mut app = app_example1();
-    c.bench_function("example1", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example1();
+    c.bench_function("example1", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example2(c: &mut Criterion) {
-    let mut app = app_example2();
-    c.bench_function("example2", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example2();
+    c.bench_function("example2", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example3(c: &mut Criterion) {
-    let mut app = app_example3();
-    c.bench_function("example3", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example3();
+    c.bench_function("example3", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example4(c: &mut Criterion) {
-    let mut app = app_example4();
-    c.bench_function("example4", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example4();
+    c.bench_function("example4", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example5(c: &mut Criterion) {
-    let mut app = app_example5();
-    c.bench_function("example5", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example5();
+    c.bench_function("example5", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example6(c: &mut Criterion) {
-    let mut app = app_example6();
-    c.bench_function("example6", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example6();
+    c.bench_function("example6", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example7(c: &mut Criterion) {
-    let mut app = app_example7();
-    c.bench_function("example7", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example7();
+    c.bench_function("example7", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example8(c: &mut Criterion) {
-    let mut app = app_example8();
-    c.bench_function("example8", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example8();
+    c.bench_function("example8", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example10(c: &mut Criterion) {
-    let mut app = app_example10();
-    c.bench_function("example10", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example10();
+    c.bench_function("example10", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 pub fn example4_template(c: &mut Criterion) {
-    let mut app = app_example4().help_template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nOPTIONS:\n{options}\n\nARGS:\n{args}\n");
-    c.bench_function("example4_template", |b| b.iter(|| build_help(&mut app)));
+    let mut cmd = app_example4().help_template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nOPTIONS:\n{options}\n\nARGS:\n{args}\n");
+    c.bench_function("example4_template", |b| b.iter(|| build_help(&mut cmd)));
 }
 
 criterion_group!(

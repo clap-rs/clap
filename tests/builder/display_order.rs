@@ -1,13 +1,13 @@
 use crate::utils;
 
-use clap::App;
+use clap::Command;
 
 #[test]
 fn very_large_display_order() {
-    let app = App::new("test").subcommand(App::new("sub").display_order(usize::MAX));
+    let cmd = Command::new("test").subcommand(Command::new("sub").display_order(usize::MAX));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 

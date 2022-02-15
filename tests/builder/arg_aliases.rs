@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
@@ -30,7 +30,7 @@ OPTIONS:
 
 #[test]
 fn single_alias_of_option() {
-    let a = App::new("single_alias")
+    let a = Command::new("single_alias")
         .arg(
             Arg::new("alias")
                 .long("alias")
@@ -47,7 +47,7 @@ fn single_alias_of_option() {
 
 #[test]
 fn multiple_aliases_of_option() {
-    let a = App::new("multiple_aliases").arg(
+    let a = Command::new("multiple_aliases").arg(
         Arg::new("aliases")
             .long("aliases")
             .takes_value(true)
@@ -90,7 +90,7 @@ fn multiple_aliases_of_option() {
 
 #[test]
 fn single_alias_of_flag() {
-    let a = App::new("test")
+    let a = Command::new("test")
         .arg(Arg::new("flag").long("flag").alias("alias"))
         .try_get_matches_from(vec!["", "--alias"]);
     assert!(a.is_ok(), "{}", a.unwrap_err());
@@ -100,7 +100,7 @@ fn single_alias_of_flag() {
 
 #[test]
 fn multiple_aliases_of_flag() {
-    let a = App::new("test").arg(Arg::new("flag").long("flag").aliases(&[
+    let a = Command::new("test").arg(Arg::new("flag").long("flag").aliases(&[
         "invisible",
         "set",
         "of",
@@ -132,9 +132,9 @@ fn multiple_aliases_of_flag() {
 
 #[test]
 fn alias_on_a_subcommand_option() {
-    let m = App::new("test")
+    let m = Command::new("test")
         .subcommand(
-            App::new("some").arg(
+            Command::new("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -155,8 +155,8 @@ fn alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_arg_aliases_help_output() {
-    let app = App::new("ct").author("Salim Afiune").subcommand(
-        App::new("test")
+    let cmd = Command::new("ct").author("Salim Afiune").subcommand(
+        Command::new("test")
             .about("Some help")
             .version("1.2")
             .arg(
@@ -169,7 +169,7 @@ fn invisible_arg_aliases_help_output() {
             .arg(arg!(-f - -flag).aliases(&["unseeable", "flg1", "anyway"])),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ct test --help",
         SC_INVISIBLE_ALIAS_HELP,
         false
@@ -178,8 +178,8 @@ fn invisible_arg_aliases_help_output() {
 
 #[test]
 fn visible_arg_aliases_help_output() {
-    let app = App::new("ct").author("Salim Afiune").subcommand(
-        App::new("test")
+    let cmd = Command::new("ct").author("Salim Afiune").subcommand(
+        Command::new("test")
             .about("Some help")
             .version("1.2")
             .arg(
@@ -198,7 +198,7 @@ fn visible_arg_aliases_help_output() {
             ),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ct test --help",
         SC_VISIBLE_ALIAS_HELP,
         false

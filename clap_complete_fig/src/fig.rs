@@ -13,8 +13,8 @@ impl Generator for Fig {
         format!("{}.ts", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let command = app.get_bin_name().unwrap();
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let command = cmd.get_bin_name().unwrap();
         let mut buffer = String::new();
 
         buffer.push_str(&format!(
@@ -24,10 +24,10 @@ impl Generator for Fig {
 
         buffer.push_str(&format!(
             "  description: \"{}\",\n",
-            app.get_about().unwrap_or_default()
+            cmd.get_about().unwrap_or_default()
         ));
 
-        gen_fig_inner(command, &[], 2, app, &mut buffer);
+        gen_fig_inner(command, &[], 2, cmd, &mut buffer);
 
         buffer.push_str("};\n\nexport default completion;\n");
 
@@ -45,13 +45,13 @@ fn gen_fig_inner(
     root_command: &str,
     parent_commands: &[&str],
     indent: usize,
-    app: &App,
+    cmd: &Command,
     buffer: &mut String,
 ) {
-    if app.has_subcommands() {
+    if cmd.has_subcommands() {
         buffer.push_str(&format!("{:indent$}subcommands: [\n", "", indent = indent));
         // generate subcommands
-        for subcommand in app.get_subcommands() {
+        for subcommand in cmd.get_subcommands() {
             buffer.push_str(&format!(
                 "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
                 "",
@@ -84,9 +84,9 @@ fn gen_fig_inner(
         buffer.push_str(&format!("{:indent$}],\n", "", indent = indent));
     }
 
-    buffer.push_str(&gen_options(app, indent));
+    buffer.push_str(&gen_options(cmd, indent));
 
-    let args = app.get_positionals().collect::<Vec<_>>();
+    let args = cmd.get_positionals().collect::<Vec<_>>();
 
     match args.len() {
         0 => {}
@@ -105,12 +105,12 @@ fn gen_fig_inner(
     };
 }
 
-fn gen_options(app: &App, indent: usize) -> String {
+fn gen_options(cmd: &Command, indent: usize) -> String {
     let mut buffer = String::new();
 
     buffer.push_str(&format!("{:indent$}options: [\n", "", indent = indent));
 
-    for option in app.get_opts() {
+    for option in cmd.get_opts() {
         buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
 
         let mut names = vec![];
@@ -160,7 +160,7 @@ fn gen_options(app: &App, indent: usize) -> String {
         buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
     }
 
-    for flag in generator::utils::flags(app) {
+    for flag in generator::utils::flags(cmd) {
         buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
 
         let mut flags = vec![];

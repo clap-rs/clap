@@ -1,4 +1,4 @@
-use clap::{error::ErrorKind, App, Arg};
+use clap::{error::ErrorKind, Arg, Command};
 
 static HELP: &str = "prog 
 
@@ -30,8 +30,8 @@ USAGE:
 For more information try --help
 ";
 
-fn app() -> App<'static> {
-    App::new("prog")
+fn cmd() -> Command<'static> {
+    Command::new("prog")
         .arg(
             Arg::new("a")
                 .short('a')
@@ -54,17 +54,17 @@ fn app() -> App<'static> {
 
 #[test]
 fn valid_cases() {
-    let res = app().try_get_matches_from(vec!["", "-a"]);
+    let res = cmd().try_get_matches_from(vec!["", "-a"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
-    let res = app().clone().try_get_matches_from(vec!["", "-b", "-c"]);
+    let res = cmd().clone().try_get_matches_from(vec!["", "-b", "-c"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
-    let res = app().try_get_matches_from(vec!["", "-c", "-b"]);
+    let res = cmd().try_get_matches_from(vec!["", "-c", "-b"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
 fn help_text() {
-    let res = app().try_get_matches_from(vec!["prog", "--help"]);
+    let res = cmd().try_get_matches_from(vec!["prog", "--help"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::DisplayHelp);
@@ -74,13 +74,13 @@ fn help_text() {
 
 #[test]
 fn no_duplicate_error() {
-    let res = app().try_get_matches_from(vec!["", "-b"]);
+    let res = cmd().try_get_matches_from(vec!["", "-b"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
     assert_eq!(err.to_string(), ONLY_B_ERROR);
 
-    let res = app().try_get_matches_from(vec!["", "-c"]);
+    let res = cmd().try_get_matches_from(vec!["", "-c"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);

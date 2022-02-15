@@ -1,11 +1,11 @@
 use super::*;
 
-fn build_app() -> App<'static> {
+fn build_app() -> Command<'static> {
     build_app_with_name("myapp")
 }
 
-fn build_app_with_name(s: &'static str) -> App<'static> {
-    App::new(s)
+fn build_app_with_name(s: &'static str) -> Command<'static> {
+    Command::new(s)
         .version("3.0")
         .propagate_version(true)
         .about("Tests completions")
@@ -15,7 +15,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
                 .help("some input file"),
         )
         .subcommand(
-            App::new("test").about("tests things").arg(
+            Command::new("test").about("tests things").arg(
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
@@ -26,8 +26,8 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
 
 #[test]
 fn elvish() {
-    let mut app = build_app();
-    common(Elvish, &mut app, "my_app", ELVISH);
+    let mut cmd = build_app();
+    common(Elvish, &mut cmd, "my_app", ELVISH);
 }
 
 static ELVISH: &str = r#"
@@ -73,21 +73,21 @@ set edit:completion:arg-completer[my_app] = {|@words|
 
 #[test]
 fn elvish_with_special_commands() {
-    let mut app = build_app_special_commands();
-    common(Elvish, &mut app, "my_app", ELVISH_SPECIAL_CMDS);
+    let mut cmd = build_app_special_commands();
+    common(Elvish, &mut cmd, "my_app", ELVISH_SPECIAL_CMDS);
 }
 
-fn build_app_special_commands() -> App<'static> {
+fn build_app_special_commands() -> Command<'static> {
     build_app_with_name("my_app")
         .subcommand(
-            App::new("some_cmd").about("tests other things").arg(
+            Command::new("some_cmd").about("tests other things").arg(
                 Arg::new("config")
                     .long("--config")
                     .takes_value(true)
                     .help("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
+        .subcommand(Command::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static ELVISH_SPECIAL_CMDS: &str = r#"
@@ -148,12 +148,12 @@ set edit:completion:arg-completer[my_app] = {|@words|
 
 #[test]
 fn elvish_with_aliases() {
-    let mut app = build_app_with_aliases();
-    common(Elvish, &mut app, "cmd", ELVISH_ALIASES);
+    let mut cmd = build_app_with_aliases();
+    common(Elvish, &mut cmd, "cmd", ELVISH_ALIASES);
 }
 
-fn build_app_with_aliases() -> App<'static> {
-    App::new("cmd")
+fn build_app_with_aliases() -> Command<'static> {
+    Command::new("cmd")
         .version("3.0")
         .about("testing bash completions")
         .arg(

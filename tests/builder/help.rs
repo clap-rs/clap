@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, error::ErrorKind, App, Arg, ArgGroup, PossibleValue};
+use clap::{arg, error::ErrorKind, Arg, ArgGroup, Command, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 Kevin K.
@@ -334,7 +334,7 @@ OPTIONS:
     -V, --version             Print version information
 ";
 
-static ISSUE_777: &str = "A app with a crazy very long long
+static ISSUE_777: &str = "A cmd with a crazy very long long
 long name hahaha 1.0
 Some Very Long Name and crazy long
 email <email@server.com>
@@ -606,8 +606,8 @@ SUBCOMMANDS:
     sub     short about sub
 ";
 
-fn setup() -> App<'static> {
-    App::new("test")
+fn setup() -> Command<'static> {
+    Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
@@ -645,7 +645,7 @@ fn help_no_subcommand() {
 fn help_subcommand() {
     let m = setup()
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .about("tests things")
                 .arg(arg!(-v --verbose "with verbosity")),
         )
@@ -657,7 +657,7 @@ fn help_subcommand() {
 
 #[test]
 fn req_last_arg_usage() {
-    let app = App::new("example")
+    let cmd = Command::new("example")
         .version("1.0")
         .arg(
             Arg::new("FIRST")
@@ -673,7 +673,7 @@ fn req_last_arg_usage() {
                 .last(true),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "example --help",
         LAST_ARG_REQ_MULT,
         false
@@ -682,7 +682,7 @@ fn req_last_arg_usage() {
 
 #[test]
 fn args_with_last_usage() {
-    let app = App::new("flamegraph")
+    let cmd = Command::new("flamegraph")
         .version("0.1")
         .trailing_var_arg(true)
         .arg(
@@ -720,7 +720,7 @@ fn args_with_last_usage() {
                 .value_name("ARGS"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "flamegraph --help",
         LAST_ARG_USAGE,
         false
@@ -763,19 +763,19 @@ fn complex_help_output() {
 
 #[test]
 fn after_and_before_help_output() {
-    let app = App::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .about("tests clap library")
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "clap-test -h",
         AFTER_HELP,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test --help",
         AFTER_HELP,
         false
@@ -784,7 +784,7 @@ fn after_and_before_help_output() {
 
 #[test]
 fn after_and_before_long_help_output() {
-    let app = App::new("clap-test")
+    let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .about("tests clap library")
         .before_help("some text that comes before the help")
@@ -792,13 +792,13 @@ fn after_and_before_long_help_output() {
         .before_long_help("some longer text that comes before the help")
         .after_long_help("some longer text that comes after the help");
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "clap-test --help",
         AFTER_LONG_HELP,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "clap-test -h",
         AFTER_HELP,
         false
@@ -807,9 +807,9 @@ fn after_and_before_long_help_output() {
 
 #[test]
 fn multi_level_sc_help() {
-    let app = App::new("ctest").subcommand(
-        App::new("subcmd").subcommand(
-            App::new("multi")
+    let cmd = Command::new("ctest").subcommand(
+        Command::new("subcmd").subcommand(
+            Command::new("multi")
                 .about("tests subcommands")
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .version("0.1")
@@ -827,7 +827,7 @@ fn multi_level_sc_help() {
         ),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest help subcmd multi",
         MULTI_SC_HELP,
         false
@@ -836,9 +836,11 @@ fn multi_level_sc_help() {
 
 #[test]
 fn no_wrap_help() {
-    let app = App::new("ctest").term_width(0).override_help(MULTI_SC_HELP);
+    let cmd = Command::new("ctest")
+        .term_width(0)
+        .override_help(MULTI_SC_HELP);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         &format!("{}\n", MULTI_SC_HELP),
         false
@@ -847,9 +849,9 @@ fn no_wrap_help() {
 
 #[test]
 fn no_wrap_default_help() {
-    let app = App::new("ctest").version("1.0").term_width(0);
+    let cmd = Command::new("ctest").version("1.0").term_width(0);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         DEFAULT_HELP,
         false
@@ -882,7 +884,7 @@ OPTIONS:
         --no-git-push
             Do not push generated commit and tags to git remote
 ";
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .term_width(67)
         .arg(
             Arg::new("all")
@@ -906,7 +908,7 @@ OPTIONS:
                 .help("Do not push generated commit and tags to git remote"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         WRAPPED_HELP,
         false
@@ -931,7 +933,7 @@ OPTIONS:
         --no-git-push      Do not push generated commit and tags to
                            git remote
 ";
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .term_width(68)
         .arg(
             Arg::new("all")
@@ -955,7 +957,7 @@ OPTIONS:
                 .help("Do not push generated commit and tags to git remote"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         UNWRAPPED_HELP,
         false
@@ -975,7 +977,7 @@ fn complex_subcommand_help_output() {
 
 #[test]
 fn issue_626_unicode_cutoff() {
-    let app = App::new("ctest").version("0.1").term_width(70).arg(
+    let cmd = Command::new("ctest").version("0.1").term_width(70).arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -991,7 +993,7 @@ fn issue_626_unicode_cutoff() {
             .takes_value(true),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         ISSUE_626_CUTOFF,
         false
@@ -1000,7 +1002,7 @@ fn issue_626_unicode_cutoff() {
 
 #[test]
 fn hide_possible_vals() {
-    let app = App::new("ctest")
+    let cmd = Command::new("ctest")
         .version("0.1")
         .arg(
             Arg::new("pos")
@@ -1022,7 +1024,7 @@ fn hide_possible_vals() {
                 .takes_value(true),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         HIDE_POS_VALS,
         false
@@ -1031,7 +1033,7 @@ fn hide_possible_vals() {
 
 #[test]
 fn hide_single_possible_val() {
-    let app = App::new("ctest")
+    let cmd = Command::new("ctest")
         .version("0.1")
         .arg(
             Arg::new("pos")
@@ -1052,7 +1054,7 @@ fn hide_single_possible_val() {
                 .takes_value(true),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         HIDE_POS_VALS,
         false
@@ -1061,7 +1063,7 @@ fn hide_single_possible_val() {
 
 #[test]
 fn issue_626_panic() {
-    let app = App::new("ctest")
+    let cmd = Command::new("ctest")
         .version("0.1")
         .term_width(52)
         .arg(Arg::new("cafe")
@@ -1073,7 +1075,7 @@ fn issue_626_panic() {
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .takes_value(true));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         ISSUE_626_PANIC,
         false
@@ -1083,7 +1085,7 @@ fn issue_626_panic() {
 #[test]
 fn issue_626_variable_panic() {
     for i in 10..320 {
-        let _ = App::new("ctest")
+        let _ = Command::new("ctest")
             .version("0.1")
             .term_width(i)
             .arg(Arg::new("cafe")
@@ -1100,9 +1102,9 @@ fn issue_626_variable_panic() {
 
 #[test]
 fn final_word_wrapping() {
-    let app = App::new("ctest").version("0.1").term_width(24);
+    let cmd = Command::new("ctest").version("0.1").term_width(24);
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         FINAL_WORD_WRAPPING,
         false
@@ -1111,7 +1113,7 @@ fn final_word_wrapping() {
 
 #[test]
 fn wrapping_newline_chars() {
-    let app = App::new("ctest")
+    let cmd = Command::new("ctest")
         .version("0.1")
         .term_width(60)
         .arg(Arg::new("mode").help(
@@ -1120,7 +1122,7 @@ fn wrapping_newline_chars() {
              m, med, medium    Copy-friendly, 8 characters, contains symbols.\n",
         ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         WRAPPING_NEWLINE_CHARS,
         false
@@ -1129,7 +1131,7 @@ fn wrapping_newline_chars() {
 
 #[test]
 fn wrapping_newline_variables() {
-    let app = App::new("ctest")
+    let cmd = Command::new("ctest")
         .version("0.1")
         .term_width(60)
         .arg(Arg::new("mode").help(
@@ -1138,7 +1140,7 @@ fn wrapping_newline_variables() {
              m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
         ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         WRAPPING_NEWLINE_CHARS,
         false
@@ -1147,13 +1149,13 @@ fn wrapping_newline_variables() {
 
 #[test]
 fn old_newline_chars() {
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("mode")
             .short('m')
             .help("Some help with some wrapping\n(Defaults to something)"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         OLD_NEWLINE_CHARS,
         false
@@ -1162,13 +1164,13 @@ fn old_newline_chars() {
 
 #[test]
 fn old_newline_variables() {
-    let app = App::new("ctest").version("0.1").arg(
+    let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("mode")
             .short('m')
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest --help",
         OLD_NEWLINE_CHARS,
         false
@@ -1179,7 +1181,7 @@ fn old_newline_variables() {
 fn issue_688_hide_pos_vals() {
     let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
 
-    let app1 = App::new("ctest")
+    let app1 = Command::new("ctest")
             .version("0.1")
 			.term_width(120)
 			.hide_possible_values(true)
@@ -1196,7 +1198,7 @@ fn issue_688_hide_pos_vals() {
         false
     ));
 
-    let app2 = App::new("ctest")
+    let app2 = Command::new("ctest")
             .version("0.1")
 			.term_width(120)
 			.arg(Arg::new("filter")
@@ -1212,7 +1214,7 @@ fn issue_688_hide_pos_vals() {
         false
     ));
 
-    let app3 = App::new("ctest")
+    let app3 = Command::new("ctest")
             .version("0.1")
 			.term_width(120)
 			.arg(Arg::new("filter")
@@ -1230,7 +1232,7 @@ fn issue_688_hide_pos_vals() {
 
 #[test]
 fn issue_702_multiple_values() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .version("1.0")
         .author("foo")
         .about("bar")
@@ -1263,12 +1265,12 @@ fn issue_702_multiple_values() {
                 .multiple_values(true)
                 .takes_value(true),
         );
-    assert!(utils::compare_output(app, "myapp --help", ISSUE_702, false));
+    assert!(utils::compare_output(cmd, "myapp --help", ISSUE_702, false));
 }
 
 #[test]
 fn long_about() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .version("1.0")
         .author("foo")
         .about("bar")
@@ -1277,7 +1279,7 @@ fn long_about() {
         )
         .arg(Arg::new("arg1").help("some option"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "myapp --help",
         LONG_ABOUT,
         false
@@ -1286,7 +1288,7 @@ fn long_about() {
 
 #[test]
 fn issue_760() {
-    let app = App::new("ctest")
+    let cmd = Command::new("ctest")
         .version("0.1")
         .arg(
             Arg::new("option")
@@ -1304,12 +1306,12 @@ fn issue_760() {
                 .long("opt")
                 .takes_value(true),
         );
-    assert!(utils::compare_output(app, "ctest --help", ISSUE_760, false));
+    assert!(utils::compare_output(cmd, "ctest --help", ISSUE_760, false));
 }
 
 #[test]
 fn issue_1571() {
-    let app = App::new("hello").arg(
+    let cmd = Command::new("hello").arg(
         Arg::new("name")
             .long("package")
             .short('p')
@@ -1318,7 +1320,7 @@ fn issue_1571() {
             .multiple_values(true),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "hello --help",
         "hello 
 
@@ -1335,7 +1337,7 @@ OPTIONS:
 
 #[test]
 fn ripgrep_usage() {
-    let app = App::new("ripgrep").version("0.5").override_usage(
+    let cmd = Command::new("ripgrep").version("0.5").override_usage(
         "rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
@@ -1343,7 +1345,7 @@ fn ripgrep_usage() {
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "rg --help",
         RIPGREP_USAGE,
         false
@@ -1352,7 +1354,7 @@ fn ripgrep_usage() {
 
 #[test]
 fn ripgrep_usage_using_templates() {
-    let app = App::new("ripgrep")
+    let cmd = Command::new("ripgrep")
         .version("0.5")
         .override_usage(
             "
@@ -1372,7 +1374,7 @@ OPTIONS:
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "rg --help",
         RIPGREP_USAGE,
         false
@@ -1381,14 +1383,14 @@ OPTIONS:
 
 #[test]
 fn sc_negates_reqs() {
-    let app = App::new("prog")
+    let cmd = Command::new("prog")
         .version("1.0")
         .subcommand_negates_reqs(true)
         .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("PATH").help("help"))
-        .subcommand(App::new("test"));
+        .subcommand(Command::new("test"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --help",
         SC_NEGATES_REQS,
         false
@@ -1397,13 +1399,13 @@ fn sc_negates_reqs() {
 
 #[test]
 fn hide_args() {
-    let app = App::new("prog")
+    let cmd = Command::new("prog")
         .version("1.0")
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("pos").hide(true));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --help",
         HIDDEN_ARGS,
         false
@@ -1412,15 +1414,15 @@ fn hide_args() {
 
 #[test]
 fn args_negate_sc() {
-    let app = App::new("prog")
+    let cmd = Command::new("prog")
         .version("1.0")
         .args_conflicts_with_subcommands(true)
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("help"))
-        .subcommand(App::new("test"));
+        .subcommand(Command::new("test"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --help",
         ARGS_NEGATE_SC,
         false
@@ -1429,14 +1431,14 @@ fn args_negate_sc() {
 
 #[test]
 fn issue_1046_hide_scs() {
-    let app = App::new("prog")
+    let cmd = Command::new("prog")
         .version("1.0")
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("some"))
-        .subcommand(App::new("test").hide(true));
+        .subcommand(Command::new("test").hide(true));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "prog --help",
         ISSUE_1046_HIDDEN_SCS,
         false
@@ -1445,12 +1447,12 @@ fn issue_1046_hide_scs() {
 
 #[test]
 fn issue_777_wrap_all_things() {
-    let app = App::new("A app with a crazy very long long long name hahaha")
+    let cmd = Command::new("A cmd with a crazy very long long long name hahaha")
         .version("1.0")
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
         .term_width(35);
-    assert!(utils::compare_output(app, "ctest --help", ISSUE_777, false));
+    assert!(utils::compare_output(cmd, "ctest --help", ISSUE_777, false));
 }
 
 static OVERRIDE_HELP_SHORT: &str = "test 0.1
@@ -1465,18 +1467,18 @@ OPTIONS:
 
 #[test]
 fn override_help_short() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .version("0.1")
         .mut_arg("help", |h| h.short('H'));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "test --help",
         OVERRIDE_HELP_SHORT,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test -H",
         OVERRIDE_HELP_SHORT,
         false
@@ -1495,18 +1497,18 @@ OPTIONS:
 
 #[test]
 fn override_help_long() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .version("0.1")
         .mut_arg("help", |h| h.long("hell"));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "test --hell",
         OVERRIDE_HELP_LONG,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test -h",
         OVERRIDE_HELP_LONG,
         false
@@ -1525,18 +1527,18 @@ OPTIONS:
 
 #[test]
 fn override_help_about() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .version("0.1")
         .mut_arg("help", |h| h.help("Print help information"));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "test --help",
         OVERRIDE_HELP_ABOUT,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test -h",
         OVERRIDE_HELP_ABOUT,
         false
@@ -1545,10 +1547,10 @@ fn override_help_about() {
 
 #[test]
 fn arg_short_conflict_with_help() {
-    let app = App::new("conflict").arg(Arg::new("home").short('h'));
+    let cmd = Command::new("conflict").arg(Arg::new("home").short('h'));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "conflict --help",
         HELP_CONFLICT,
         false
@@ -1559,7 +1561,7 @@ fn arg_short_conflict_with_help() {
 #[test]
 #[should_panic = "`help`s `-h` conflicts with `home`."]
 fn arg_short_conflict_with_help_mut_arg() {
-    let _ = App::new("conflict")
+    let _ = Command::new("conflict")
         .arg(Arg::new("home").short('h'))
         .mut_arg("help", |h| h.short('h'))
         .try_get_matches_from(vec![""]);
@@ -1567,7 +1569,7 @@ fn arg_short_conflict_with_help_mut_arg() {
 
 #[test]
 fn last_arg_mult_usage() {
-    let app = App::new("last")
+    let cmd = Command::new("last")
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
@@ -1578,12 +1580,12 @@ fn last_arg_mult_usage() {
                 .last(true)
                 .help("some"),
         );
-    assert!(utils::compare_output(app, "last --help", LAST_ARG, false));
+    assert!(utils::compare_output(cmd, "last --help", LAST_ARG, false));
 }
 
 #[test]
 fn last_arg_mult_usage_req() {
-    let app = App::new("last")
+    let cmd = Command::new("last")
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
@@ -1596,7 +1598,7 @@ fn last_arg_mult_usage_req() {
                 .help("some"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "last --help",
         LAST_ARG_REQ,
         false
@@ -1605,7 +1607,7 @@ fn last_arg_mult_usage_req() {
 
 #[test]
 fn last_arg_mult_usage_req_with_sc() {
-    let app = App::new("last")
+    let cmd = Command::new("last")
         .version("0.1")
         .subcommand_negates_reqs(true)
         .arg(Arg::new("TARGET").required(true).help("some"))
@@ -1618,9 +1620,9 @@ fn last_arg_mult_usage_req_with_sc() {
                 .required(true)
                 .help("some"),
         )
-        .subcommand(App::new("test").about("some"));
+        .subcommand(Command::new("test").about("some"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "last --help",
         LAST_ARG_REQ_SC,
         false
@@ -1629,7 +1631,7 @@ fn last_arg_mult_usage_req_with_sc() {
 
 #[test]
 fn last_arg_mult_usage_with_sc() {
-    let app = App::new("last")
+    let cmd = Command::new("last")
         .version("0.1")
         .args_conflicts_with_subcommands(true)
         .arg(Arg::new("TARGET").required(true).help("some"))
@@ -1641,9 +1643,9 @@ fn last_arg_mult_usage_with_sc() {
                 .last(true)
                 .help("some"),
         )
-        .subcommand(App::new("test").about("some"));
+        .subcommand(Command::new("test").about("some"));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "last --help",
         LAST_ARG_SC,
         false
@@ -1652,7 +1654,7 @@ fn last_arg_mult_usage_with_sc() {
 
 #[test]
 fn hide_default_val() {
-    let app1 = App::new("default").version("0.1").term_width(120).arg(
+    let app1 = Command::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .help("Pass an argument to the program. [default: default-argument]")
             .long("arg")
@@ -1666,7 +1668,7 @@ fn hide_default_val() {
         false
     ));
 
-    let app2 = App::new("default").version("0.1").term_width(120).arg(
+    let app2 = Command::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .help("Pass an argument to the program.")
             .long("arg")
@@ -1682,7 +1684,7 @@ fn hide_default_val() {
 
 #[test]
 fn escaped_whitespace_values() {
-    let app1 = App::new("default").version("0.1").term_width(120).arg(
+    let app1 = Command::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .help("Pass an argument to the program.")
             .long("arg")
@@ -1697,12 +1699,12 @@ fn escaped_whitespace_values() {
     ));
 }
 
-fn issue_1112_setup() -> App<'static> {
-    App::new("test")
+fn issue_1112_setup() -> Command<'static> {
+    Command::new("test")
         .version("1.3")
         .arg(Arg::new("help1").long("help").short('h').help("some help"))
         .subcommand(
-            App::new("foo").arg(Arg::new("help1").long("help").short('h').help("some help")),
+            Command::new("foo").arg(Arg::new("help1").long("help").short('h').help("some help")),
         )
 }
 
@@ -1748,7 +1750,7 @@ fn prefer_user_subcmd_help_short_1112() {
 
 #[test]
 fn issue_1052_require_delim_help() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
@@ -1763,7 +1765,7 @@ fn issue_1052_require_delim_help() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         REQUIRE_DELIM_HELP,
         false
@@ -1772,7 +1774,7 @@ fn issue_1052_require_delim_help() {
 
 #[test]
 fn custom_headers_headers() {
-    let app = App::new("blorp")
+    let cmd = Command::new("blorp")
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
@@ -1795,7 +1797,7 @@ fn custom_headers_headers() {
         .args(&[Arg::new("port").long("port")]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         CUSTOM_HELP_SECTION,
         false
@@ -1829,7 +1831,7 @@ SPECIAL:
 
 #[test]
 fn multiple_custom_help_headers() {
-    let app = App::new("blorp")
+    let cmd = Command::new("blorp")
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
@@ -1881,7 +1883,7 @@ fn multiple_custom_help_headers() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         MULTIPLE_CUSTOM_HELP_SECTIONS,
         false
@@ -1908,7 +1910,7 @@ SPECIAL:
 
 #[test]
 fn custom_help_headers_hide_args() {
-    let app = App::new("blorp")
+    let cmd = Command::new("blorp")
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
@@ -1939,7 +1941,7 @@ fn custom_help_headers_hide_args() {
         );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test -h",
         CUSTOM_HELP_SECTION_HIDDEN_ARGS,
         false
@@ -1962,14 +1964,14 @@ OPTIONS:
 
 #[test]
 fn show_long_about_issue_897() {
-    let app = App::new("ctest").version("0.1").subcommand(
-        App::new("foo")
+    let cmd = Command::new("ctest").version("0.1").subcommand(
+        Command::new("foo")
             .version("0.1")
             .about("About foo")
             .long_about("Long about foo"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest foo --help",
         ISSUE_897,
         false
@@ -1989,14 +1991,14 @@ OPTIONS:
 
 #[test]
 fn show_short_about_issue_897() {
-    let app = App::new("ctest").version("0.1").subcommand(
-        App::new("foo")
+    let cmd = Command::new("ctest").version("0.1").subcommand(
+        Command::new("foo")
             .version("0.1")
             .about("About foo")
             .long_about("Long about foo"),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "ctest foo -h",
         ISSUE_897_SHORT,
         false
@@ -2005,7 +2007,7 @@ fn show_short_about_issue_897() {
 
 #[test]
 fn issue_1364_no_short_options() {
-    let app = App::new("demo")
+    let cmd = Command::new("demo")
         .arg(Arg::new("foo").short('f'))
         .arg(
             Arg::new("baz")
@@ -2020,13 +2022,13 @@ fn issue_1364_no_short_options() {
                 .multiple_values(true),
         );
 
-    assert!(utils::compare_output(app, "demo -h", ISSUE_1364, false));
+    assert!(utils::compare_output(cmd, "demo -h", ISSUE_1364, false));
 }
 
 #[rustfmt::skip]
 #[test]
 fn issue_1487() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .arg(Arg::new("arg1")
             .group("group1"))
         .arg(Arg::new("arg2")
@@ -2034,14 +2036,14 @@ fn issue_1487() {
         .group(ArgGroup::new("group1")
             .args(&["arg1", "arg2"])
             .required(true));
-    assert!(utils::compare_output(app, "ctest -h", ISSUE_1487, false));
+    assert!(utils::compare_output(cmd, "ctest -h", ISSUE_1487, false));
 }
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
 fn help_required_but_not_given() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .arg(Arg::new("foo"))
         .try_get_matches_from(empty_args())
@@ -2050,9 +2052,9 @@ fn help_required_but_not_given() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
 fn help_required_but_not_given_settings_after_args() {
-    App::new("myapp")
+    Command::new("myapp")
         .arg(Arg::new("foo"))
         .help_expected(true)
         .try_get_matches_from(empty_args())
@@ -2061,9 +2063,9 @@ fn help_required_but_not_given_settings_after_args() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
 fn help_required_but_not_given_for_one_of_two_arguments() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar").help("It does bar stuff"))
@@ -2074,11 +2076,11 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
 #[test]
 #[should_panic = "List of such arguments: delete"]
 fn help_required_globally() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
-            App::new("bar")
+            Command::new("bar")
                 .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete")),
         )
@@ -2088,13 +2090,13 @@ fn help_required_globally() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
 fn help_required_globally_but_not_given_for_subcommand() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
-            App::new("bar")
+            Command::new("bar")
                 .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete")),
         )
@@ -2104,11 +2106,11 @@ fn help_required_globally_but_not_given_for_subcommand() {
 
 #[test]
 fn help_required_and_given_for_subcommand() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
-            App::new("bar")
+            Command::new("bar")
                 .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete").help("deletes bar")),
         )
@@ -2118,7 +2120,7 @@ fn help_required_and_given_for_subcommand() {
 
 #[test]
 fn help_required_and_given() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .try_get_matches_from(empty_args())
@@ -2127,7 +2129,7 @@ fn help_required_and_given() {
 
 #[test]
 fn help_required_and_no_args() {
-    App::new("myapp")
+    Command::new("myapp")
         .help_expected(true)
         .try_get_matches_from(empty_args())
         .unwrap();
@@ -2135,13 +2137,13 @@ fn help_required_and_no_args() {
 
 #[test]
 fn issue_1642_long_help_spacing() {
-    let app = App::new("prog").arg(Arg::new("cfg").long("config").long_help(
+    let cmd = Command::new("prog").arg(Arg::new("cfg").long("config").long_help(
         "The config file used by the myprog must be in JSON format
 with only valid keys and may not contain other nonsense
 that cannot be read by this program. Obviously I'm going on
 and on, so I'll stop now.",
     ));
-    assert!(utils::compare_output(app, "prog --help", ISSUE_1642, false));
+    assert!(utils::compare_output(cmd, "prog --help", ISSUE_1642, false));
 }
 
 const AFTER_HELP_NO_ARGS: &str = "myapp 1.0
@@ -2154,7 +2156,7 @@ This is after help.
 
 #[test]
 fn after_help_no_args() {
-    let mut app = App::new("myapp")
+    let mut cmd = Command::new("myapp")
         .version("1.0")
         .disable_help_flag(true)
         .disable_version_flag(true)
@@ -2162,7 +2164,7 @@ fn after_help_no_args() {
 
     let help = {
         let mut output = Vec::new();
-        app.write_help(&mut output).unwrap();
+        cmd.write_help(&mut output).unwrap();
         String::from_utf8(output).unwrap()
     };
 
@@ -2184,12 +2186,12 @@ OPTIONS:
 
 #[test]
 fn help_subcmd_help() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .mut_arg("help", |h| h.help("Print custom help text"))
-        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "myapp help help",
         HELP_SUBCMD_HELP,
         false
@@ -2211,12 +2213,12 @@ OPTIONS:
 
 #[test]
 fn subcmd_help_subcmd_help() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .mut_arg("help", |h| h.help("Print custom help text"))
-        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "myapp subcmd help help",
         SUBCMD_HELP_SUBCMD_HELP,
         false
@@ -2245,24 +2247,24 @@ OPTIONS:
 
 #[test]
 fn help_about_multi_subcmd() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .mut_arg("help", |h| h.help("Print custom help text"))
-        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "myapp help subcmd multi",
         HELP_ABOUT_MULTI_SC,
         false
     ));
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "myapp subcmd multi -h",
         HELP_ABOUT_MULTI_SC,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "myapp subcmd multi --help",
         HELP_ABOUT_MULTI_SC,
         false
@@ -2271,30 +2273,30 @@ fn help_about_multi_subcmd() {
 
 #[test]
 fn help_about_multi_subcmd_override() {
-    let app = App::new("myapp")
+    let cmd = Command::new("myapp")
         .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(
-            App::new("subcmd").subcommand(
-                App::new("multi")
+            Command::new("subcmd").subcommand(
+                Command::new("multi")
                     .version("1.0")
                     .mut_arg("help", |h| h.help("Print custom help text from multi")),
             ),
         );
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "myapp help subcmd multi",
         HELP_ABOUT_MULTI_SC_OVERRIDE,
         false
     ));
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "myapp subcmd multi -h",
         HELP_ABOUT_MULTI_SC_OVERRIDE,
         false
     ));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "myapp subcmd multi --help",
         HELP_ABOUT_MULTI_SC_OVERRIDE,
         false
@@ -2303,7 +2305,7 @@ fn help_about_multi_subcmd_override() {
 
 #[test]
 fn option_usage_order() {
-    let app = App::new("order").args(&[
+    let cmd = Command::new("order").args(&[
         Arg::new("a").short('a'),
         Arg::new("B").short('B'),
         Arg::new("b").short('b'),
@@ -2314,7 +2316,7 @@ fn option_usage_order() {
     ]);
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "order --help",
         OPTION_USAGE_ORDER,
         false
@@ -2323,14 +2325,14 @@ fn option_usage_order() {
 
 #[test]
 fn prefer_about_over_long_about_in_subcommands_list() {
-    let app = App::new("about-in-subcommands-list").subcommand(
-        App::new("sub")
+    let cmd = Command::new("about-in-subcommands-list").subcommand(
+        Command::new("sub")
             .long_about("long about sub")
             .about("short about sub"),
     );
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "about-in-subcommands-list --help",
         ABOUT_IN_SUBCOMMANDS_LIST,
         false
@@ -2353,7 +2355,7 @@ OPTIONS:
         --option1    
 ";
 
-    let app = clap::App::new("hello")
+    let cmd = clap::Command::new("hello")
         .bin_name("deno")
         .arg(Arg::new("option1").long("option1").takes_value(false))
         .arg(Arg::new("pos1").takes_value(true))
@@ -2365,7 +2367,7 @@ OPTIONS:
         .arg(Arg::new("pos2").takes_value(true));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "deno --help",
         USAGE_WITH_GROUP,
         false
@@ -2390,14 +2392,14 @@ NETWORKING:
 
 #[test]
 fn custom_heading_pos() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .version("1.4")
         .arg(Arg::new("gear").help("Which gear"))
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         CUSTOM_HEADING_POS,
         false
@@ -2415,7 +2417,7 @@ NETWORKING:
 
 #[test]
 fn only_custom_heading_opts_no_args() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .version("1.4")
         .disable_version_flag(true)
         .mut_arg("help", |a| a.hide(true))
@@ -2423,7 +2425,7 @@ fn only_custom_heading_opts_no_args() {
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         ONLY_CUSTOM_HEADING_OPTS_NO_ARGS,
         false
@@ -2441,7 +2443,7 @@ NETWORKING:
 
 #[test]
 fn only_custom_heading_pos_no_args() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .version("1.4")
         .disable_version_flag(true)
         .mut_arg("help", |a| a.hide(true))
@@ -2449,7 +2451,7 @@ fn only_custom_heading_pos_no_args() {
         .arg(Arg::new("speed").help("How fast"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         ONLY_CUSTOM_HEADING_POS_NO_ARGS,
         false
@@ -2458,7 +2460,7 @@ fn only_custom_heading_pos_no_args() {
 
 #[test]
 fn issue_2508_number_of_values_with_single_value_name() {
-    let app = App::new("my_app")
+    let cmd = Command::new("my_app")
         .arg(Arg::new("some_arg").long("some_arg").number_of_values(2))
         .arg(
             Arg::new("some_arg_issue")
@@ -2467,7 +2469,7 @@ fn issue_2508_number_of_values_with_single_value_name() {
                 .value_name("ARG"),
         );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "my_app --help",
         "my_app 
 
@@ -2485,12 +2487,12 @@ OPTIONS:
 
 #[test]
 fn missing_positional_final_required() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .allow_missing_positional(true)
         .arg(Arg::new("arg1"))
         .arg(Arg::new("arg2").required(true));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 
@@ -2510,13 +2512,13 @@ OPTIONS:
 
 #[test]
 fn missing_positional_final_multiple() {
-    let app = App::new("test")
+    let cmd = Command::new("test")
         .allow_missing_positional(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
         .arg(Arg::new("baz").takes_value(true).multiple_values(true));
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 
@@ -2537,14 +2539,14 @@ OPTIONS:
 
 #[test]
 fn positional_multiple_values_is_dotted() {
-    let app = App::new("test").arg(
+    let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
             .takes_value(true)
             .multiple_values(true),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 
@@ -2560,7 +2562,7 @@ OPTIONS:
         false
     ));
 
-    let app = App::new("test").arg(
+    let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
             .takes_value(true)
@@ -2568,7 +2570,7 @@ OPTIONS:
             .multiple_values(true),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 
@@ -2587,14 +2589,14 @@ OPTIONS:
 
 #[test]
 fn positional_multiple_occurrences_is_dotted() {
-    let app = App::new("test").arg(
+    let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
             .takes_value(true)
             .multiple_occurrences(true),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 
@@ -2610,7 +2612,7 @@ OPTIONS:
         false
     ));
 
-    let app = App::new("test").arg(
+    let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
             .takes_value(true)
@@ -2618,7 +2620,7 @@ OPTIONS:
             .multiple_occurrences(true),
     );
     assert!(utils::compare_output(
-        app,
+        cmd,
         "test --help",
         "test 
 
@@ -2637,8 +2639,8 @@ OPTIONS:
 
 #[test]
 fn disabled_help_flag() {
-    let res = App::new("foo")
-        .subcommand(App::new("sub"))
+    let res = Command::new("foo")
+        .subcommand(Command::new("sub"))
         .disable_help_flag(true)
         .try_get_matches_from("foo a".split(' '));
     assert!(res.is_err());
@@ -2648,8 +2650,8 @@ fn disabled_help_flag() {
 
 #[test]
 fn disabled_help_flag_and_subcommand() {
-    let res = App::new("foo")
-        .subcommand(App::new("sub"))
+    let res = Command::new("foo")
+        .subcommand(Command::new("sub"))
         .disable_help_flag(true)
         .disable_help_subcommand(true)
         .try_get_matches_from("foo help".split(' '));
@@ -2665,11 +2667,11 @@ fn disabled_help_flag_and_subcommand() {
 
 #[test]
 fn override_help_subcommand() {
-    let app = App::new("bar")
-        .subcommand(App::new("help").arg(Arg::new("arg").takes_value(true)))
-        .subcommand(App::new("not_help").arg(Arg::new("arg").takes_value(true)))
+    let cmd = Command::new("bar")
+        .subcommand(Command::new("help").arg(Arg::new("arg").takes_value(true)))
+        .subcommand(Command::new("not_help").arg(Arg::new("arg").takes_value(true)))
         .disable_help_subcommand(true);
-    let matches = app.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
+    let matches = cmd.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
     assert_eq!(
         matches.subcommand_matches("help").unwrap().value_of("arg"),
         Some("foo")
@@ -2678,19 +2680,19 @@ fn override_help_subcommand() {
 
 #[test]
 fn override_help_flag_using_long() {
-    let app = App::new("foo")
-        .subcommand(App::new("help").long_flag("help"))
+    let cmd = Command::new("foo")
+        .subcommand(Command::new("help").long_flag("help"))
         .disable_help_flag(true);
-    let matches = app.try_get_matches_from(&["foo", "--help"]).unwrap();
+    let matches = cmd.try_get_matches_from(&["foo", "--help"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
 
 #[test]
 fn override_help_flag_using_short() {
-    let app = App::new("foo")
+    let cmd = Command::new("foo")
         .disable_help_flag(true)
-        .subcommand(App::new("help").short_flag('h'));
-    let matches = app.try_get_matches_from(&["foo", "-h"]).unwrap();
+        .subcommand(Command::new("help").short_flag('h'));
+    let matches = cmd.try_get_matches_from(&["foo", "-h"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
 
@@ -2698,10 +2700,10 @@ fn override_help_flag_using_short() {
 fn subcommand_help_doesnt_have_useless_help_flag() {
     // The main care-about is that the docs and behavior match.  Since the `help` subcommand
     // currently ignores the `--help` flag, the output shouldn't have it.
-    let app = App::new("test_app").subcommand(App::new("test").about("Subcommand"));
+    let cmd = Command::new("test_app").subcommand(Command::new("test").about("Subcommand"));
 
     assert!(utils::compare_output(
-        app,
+        cmd,
         "example help help",
         "example-help 
 Print this message or the help of the given subcommand(s)
@@ -2718,12 +2720,12 @@ ARGS:
 
 #[test]
 fn disable_help_flag_affects_help_subcommand() {
-    let mut app = App::new("test_app")
+    let mut cmd = Command::new("test_app")
         .disable_help_flag(true)
-        .subcommand(App::new("test").about("Subcommand"));
-    app._build_all();
+        .subcommand(Command::new("test").about("Subcommand"));
+    cmd._build_all();
 
-    let args = app
+    let args = cmd
         .find_subcommand("help")
         .unwrap()
         .get_arguments()
@@ -2738,13 +2740,13 @@ fn disable_help_flag_affects_help_subcommand() {
 
 #[test]
 fn dont_propagate_version_to_help_subcommand() {
-    let app = clap::App::new("test")
+    let cmd = clap::Command::new("test")
         .version("1.0")
         .propagate_version(true)
-        .subcommand(clap::App::new("subcommand"));
+        .subcommand(clap::Command::new("subcommand"));
 
     assert!(utils::compare_output(
-        app.clone(),
+        cmd.clone(),
         "example help help",
         "example-help 
 Print this message or the help of the given subcommand(s)
@@ -2758,19 +2760,19 @@ ARGS:
         false
     ));
 
-    app.debug_assert();
+    cmd.debug_assert();
 }
 
 #[test]
 fn help_without_short() {
-    let mut app = clap::App::new("test")
+    let mut cmd = clap::Command::new("test")
         .arg(arg!(-h --hex <NUM>))
         .arg(arg!(--help));
 
-    app._build_all();
-    let help = app.get_arguments().find(|a| a.get_id() == "help").unwrap();
+    cmd._build_all();
+    let help = cmd.get_arguments().find(|a| a.get_id() == "help").unwrap();
     assert_eq!(help.get_short(), None);
 
-    let m = app.try_get_matches_from(["test", "-h", "0x100"]).unwrap();
+    let m = cmd.try_get_matches_from(["test", "-h", "0x100"]).unwrap();
     assert_eq!(m.value_of("hex"), Some("0x100"));
 }

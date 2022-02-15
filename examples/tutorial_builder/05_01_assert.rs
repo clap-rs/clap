@@ -1,7 +1,7 @@
 use clap::{app_from_crate, arg};
 
 fn main() {
-    let matches = app().get_matches();
+    let matches = cmd().get_matches();
 
     // Note, it's safe to call unwrap() because the arg is required
     let port: usize = matches
@@ -10,7 +10,7 @@ fn main() {
     println!("PORT = {}", port);
 }
 
-fn app() -> clap::App<'static> {
+fn cmd() -> clap::Command<'static> {
     app_from_crate!().arg(
         arg!(<PORT>)
             .help("Network port to use")
@@ -20,5 +20,5 @@ fn app() -> clap::App<'static> {
 
 #[test]
 fn verify_app() {
-    app().debug_assert();
+    cmd().debug_assert();
 }

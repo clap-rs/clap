@@ -15,13 +15,13 @@ impl Generator for Fish {
         format!("{}.fish", name)
     }
 
-    fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let bin_name = app
+    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
         let mut buffer = String::new();
-        gen_fish_inner(bin_name, &[], app, &mut buffer);
+        gen_fish_inner(bin_name, &[], cmd, &mut buffer);
         w!(buf, buffer.as_bytes());
     }
 }
@@ -31,7 +31,12 @@ fn escape_string(string: &str) -> String {
     string.replace('\\', "\\\\").replace('\'', "\\'")
 }
 
-fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffer: &mut String) {
+fn gen_fish_inner(
+    root_command: &str,
+    parent_commands: &[&str],
+    cmd: &Command,
+    buffer: &mut String,
+) {
     debug!("gen_fish_inner");
     // example :
     //
@@ -49,7 +54,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
     let mut basic_template = format!("complete -c {}", root_command);
 
     if parent_commands.is_empty() {
-        if app.has_subcommands() {
+        if cmd.has_subcommands() {
             basic_template.push_str(" -n \"__fish_use_subcommand\"");
         }
     } else {
@@ -60,7 +65,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
                     .iter()
                     .map(|command| format!("__fish_seen_subcommand_from {}", command))
                     .chain(
-                        app.get_subcommands()
+                        cmd.get_subcommands()
                             .map(|command| format!("not __fish_seen_subcommand_from {}", command))
                     )
                     .collect::<Vec<_>>()
@@ -72,7 +77,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
 
     debug!("gen_fish_inner: parent_commands={:?}", parent_commands);
 
-    for option in app.get_opts() {
+    for option in cmd.get_opts() {
         let mut template = basic_template.clone();
 
         if let Some(shorts) = option.get_short_and_visible_aliases() {
@@ -97,7 +102,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
         buffer.push('\n');
     }
 
-    for flag in utils::flags(app) {
+    for flag in utils::flags(cmd) {
         let mut template = basic_template.clone();
 
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
@@ -120,7 +125,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
         buffer.push('\n');
     }
 
-    for subcommand in app.get_subcommands() {
+    for subcommand in cmd.get_subcommands() {
         let mut template = basic_template.clone();
 
         template.push_str(" -f");
@@ -135,7 +140,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
     }
 
     // generate options of subcommands
-    for subcommand in app.get_subcommands() {
+    for subcommand in cmd.get_subcommands() {
         let mut parent_commands: Vec<_> = parent_commands.into();
         parent_commands.push(subcommand.get_name());
         gen_fish_inner(root_command, &parent_commands, subcommand, buffer);

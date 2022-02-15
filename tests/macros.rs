@@ -39,7 +39,7 @@ fn basic() {
 #[test]
 fn quoted_app_name() {
     #![allow(deprecated)]
-    let mut app = clap::clap_app!(("app name with spaces-and-hyphens") =>
+    let mut cmd = clap::clap_app!(("cmd name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -69,19 +69,19 @@ fn quoted_app_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    assert_eq!(app.get_name(), "app name with spaces-and-hyphens");
+    assert_eq!(cmd.get_name(), "cmd name with spaces-and-hyphens");
 
     let mut help_text = vec![];
-    app.write_help(&mut help_text)
+    cmd.write_help(&mut help_text)
         .expect("Could not write help text.");
     let help_text = String::from_utf8(help_text).expect("Help text is not valid utf-8");
-    assert!(help_text.starts_with("app name with spaces-and-hyphens 0.1\n"));
+    assert!(help_text.starts_with("cmd name with spaces-and-hyphens 0.1\n"));
 }
 
 #[test]
 fn quoted_arg_long_name() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -111,7 +111,7 @@ fn quoted_arg_long_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app
+    let matches = cmd
         .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
@@ -120,7 +120,7 @@ fn quoted_arg_long_name() {
 #[test]
 fn quoted_arg_name() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -150,7 +150,7 @@ fn quoted_arg_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app
+    let matches = cmd
         .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
@@ -159,7 +159,7 @@ fn quoted_arg_name() {
 #[test]
 fn group_macro() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -170,7 +170,7 @@ fn group_macro() {
              )
     );
 
-    let result = app.try_get_matches_from(vec!["bin_name", "--hard"]);
+    let result = cmd.try_get_matches_from(vec!["bin_name", "--hard"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -180,7 +180,7 @@ fn group_macro() {
 #[test]
 fn group_macro_set_multiple() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -191,7 +191,7 @@ fn group_macro_set_multiple() {
              )
     );
 
-    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    let result = cmd.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -203,7 +203,7 @@ fn group_macro_set_multiple() {
 #[test]
 fn group_macro_set_not_multiple() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -214,7 +214,7 @@ fn group_macro_set_not_multiple() {
              )
     );
 
-    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    let result = cmd.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
@@ -223,7 +223,7 @@ fn group_macro_set_not_multiple() {
 #[test]
 fn group_macro_set_required() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -234,7 +234,7 @@ fn group_macro_set_required() {
              )
     );
 
-    let result = app.try_get_matches_from(vec!["bin_name"]);
+    let result = cmd.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
@@ -243,7 +243,7 @@ fn group_macro_set_required() {
 #[test]
 fn group_macro_set_not_required() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -254,7 +254,7 @@ fn group_macro_set_not_required() {
              )
     );
 
-    let result = app.try_get_matches_from(vec!["bin_name"]);
+    let result = cmd.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(!matches.is_present("difficulty"));
@@ -263,7 +263,7 @@ fn group_macro_set_not_required() {
 #[test]
 fn multiarg() {
     #![allow(deprecated)]
-    let app = clap::clap_app!(claptests =>
+    let cmd = clap::clap_app!(claptests =>
         (@arg flag: --flag "value")
         (@arg multiarg: --multiarg
             default_value("flag-unset") default_value_if("flag", None, Some("flag-set"))
@@ -273,7 +273,7 @@ fn multiarg() {
             "multiarg2")
     );
 
-    let matches = app
+    let matches = cmd
         .clone()
         .try_get_matches_from(vec!["bin_name"])
         .expect("match failed");
@@ -281,7 +281,7 @@ fn multiarg() {
     assert_eq!(matches.value_of("multiarg"), Some("flag-unset"));
     assert_eq!(matches.value_of("multiarg2"), Some("flag-unset"));
 
-    let matches = app
+    let matches = cmd
         .try_get_matches_from(vec!["bin_name", "--flag"])
         .expect("match failed");
 

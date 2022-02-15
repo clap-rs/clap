@@ -1,8 +1,8 @@
-use clap::{arg, App, Arg};
+use clap::{arg, Arg, Command};
 
 #[test]
 fn issue_1076() {
-    let mut app = App::new("myprog")
+    let mut cmd = Command::new("myprog")
         .arg(
             Arg::new("GLOBAL_ARG")
                 .long("global-arg")
@@ -18,19 +18,19 @@ fn issue_1076() {
                 .global(true)
                 .takes_value(true),
         )
-        .subcommand(App::new("outer").subcommand(App::new("inner")));
-    let _ = app.try_get_matches_from_mut(vec!["myprog"]);
-    let _ = app.try_get_matches_from_mut(vec!["myprog"]);
-    let _ = app.try_get_matches_from_mut(vec!["myprog"]);
+        .subcommand(Command::new("outer").subcommand(Command::new("inner")));
+    let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
+    let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
+    let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
 }
 
 #[test]
 fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
-    let m1 = App::new("foo")
+    let m1 = Command::new("foo")
         .subcommand(
-            App::new("sub1")
+            Command::new("sub1")
                 .arg(Arg::new("arg1").long("arg1").takes_value(true).global(true))
-                .subcommand(App::new("sub1a")),
+                .subcommand(Command::new("sub1a")),
         )
         .try_get_matches_from(&["foo", "sub1", "--arg1", "v1", "sub1a"])
         .unwrap();
@@ -47,17 +47,17 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
 
 #[test]
 fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
-    let m = App::new("opts")
+    let m = Command::new("opts")
         .arg(arg!(--"global-flag").global(true))
         .arg(arg!(--"global-str" <str>).required(false).global(true))
         .subcommand(
-            App::new("test")
+            Command::new("test")
                 .arg(arg!(--"sub-flag").global(true))
                 .arg(arg!(--"sub-str" <str>).required(false).global(true))
-                .subcommand(App::new("test")),
+                .subcommand(Command::new("test")),
         )
         .try_get_matches_from(&[
-            "app",
+            "cmd",
             "test",
             "test",
             "--global-flag",
@@ -76,12 +76,12 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
 
 #[test]
 fn global_arg_available_in_subcommand() {
-    let m = App::new("opt")
+    let m = Command::new("opt")
         .args(&[
             Arg::new("global").global(true).long("global"),
             Arg::new("not").global(false).long("not"),
         ])
-        .subcommand(App::new("ping"))
+        .subcommand(Command::new("ping"))
         .try_get_matches_from(&["opt", "ping", "--global"])
         .unwrap();
 
@@ -91,15 +91,19 @@ fn global_arg_available_in_subcommand() {
 
 #[test]
 fn deeply_nested_discovery() {
-    let app = App::new("a").arg(arg!(--"long-a").global(true)).subcommand(
-        App::new("b").arg(arg!(--"long-b").global(true)).subcommand(
-            App::new("c")
-                .arg(arg!(--"long-c").global(true))
-                .subcommand(App::new("d")),
-        ),
-    );
+    let cmd = Command::new("a")
+        .arg(arg!(--"long-a").global(true))
+        .subcommand(
+            Command::new("b")
+                .arg(arg!(--"long-b").global(true))
+                .subcommand(
+                    Command::new("c")
+                        .arg(arg!(--"long-c").global(true))
+                        .subcommand(Command::new("d")),
+                ),
+        );
 
-    let m = app
+    let m = cmd
         .try_get_matches_from(["a", "b", "c", "d", "--long-a", "--long-b", "--long-c"])
         .unwrap();
     assert!(m.is_present("long-a"));
