@@ -5,7 +5,7 @@ fn main() {
         .bin_name("cargo")
         .subcommand_required(true)
         .subcommand(
-            clap::app_from_crate!().name("example").arg(
+            clap::command!("example").arg(
                 clap::arg!(--"manifest-path" <PATH>)
                     .required(false)
                     .allow_invalid_utf8(true),

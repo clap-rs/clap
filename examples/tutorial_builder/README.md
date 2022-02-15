@@ -86,7 +86,7 @@ MyApp 1.0
 
 ```
 
-You can use `app_from_crate!()` to fill these fields in from your `Cargo.toml`
+You can use `command!()` to fill these fields in from your `Cargo.toml`
 file.  **This requires the `cargo` feature flag.**
 
 [Example:](02_crate.rs)

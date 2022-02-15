@@ -324,6 +324,7 @@ macro_rules! command {
 
 /// Deprecated, replaced with [`clap::command!`][crate::command]
 #[cfg(feature = "cargo")]
+#[deprecated(since = "3.1.0", note = "Replaced with `clap::command!")]
 #[macro_export]
 macro_rules! app_from_crate {
     () => {{

@@ -1,9 +1,9 @@
 // Note: this requires the `cargo` feature
 
-use clap::{app_from_crate, arg};
+use clap::{arg, command};
 
 fn main() {
-    let matches = app_from_crate!()
+    let matches = command!()
         .arg(arg!(eff: -f))
         .arg(arg!(pea: -p <PEAR>).required(false))
         .arg(

@@ -1,8 +1,8 @@
-use clap::{app_from_crate, arg, Command};
+use clap::{arg, command, Command};
 use std::path::Path;
 
 fn main() {
-    let matches = app_from_crate!()
+    let matches = command!()
         .arg(arg!([name] "Optional name to operate on"))
         .arg(
             arg!(

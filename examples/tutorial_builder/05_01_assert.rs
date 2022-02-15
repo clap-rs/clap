@@ -1,4 +1,4 @@
-use clap::{app_from_crate, arg};
+use clap::{arg, command};
 
 fn main() {
     let matches = cmd().get_matches();
@@ -11,7 +11,7 @@ fn main() {
 }
 
 fn cmd() -> clap::Command<'static> {
-    app_from_crate!().arg(
+    command!().arg(
         arg!(<PORT>)
             .help("Network port to use")
             .validator(|s| s.parse::<usize>()),

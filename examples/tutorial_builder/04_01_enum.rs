@@ -1,4 +1,4 @@
-use clap::{app_from_crate, arg, ArgEnum, PossibleValue};
+use clap::{arg, command, ArgEnum, PossibleValue};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
 enum Mode {
@@ -37,7 +37,7 @@ impl std::str::FromStr for Mode {
 }
 
 fn main() {
-    let matches = app_from_crate!()
+    let matches = command!()
         .arg(
             arg!(<MODE>)
                 .help("What mode to run the program in")

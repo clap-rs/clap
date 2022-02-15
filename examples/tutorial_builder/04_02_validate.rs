@@ -1,11 +1,11 @@
-use clap::{app_from_crate, arg};
+use clap::{arg, command};
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 
 const PORT_RANGE: RangeInclusive<usize> = 1..=65535;
 
 fn main() {
-    let matches = app_from_crate!()
+    let matches = command!()
         .arg(arg!(<PORT>).help("Network port to use").validator(|s| {
             usize::from_str(s)
                 .map(|port| PORT_RANGE.contains(&port))

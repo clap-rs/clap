@@ -1,4 +1,5 @@
 #![cfg(feature = "cargo")]
+#![allow(deprecated)]
 
 use clap::{app_from_crate, error::ErrorKind};
 

@@ -1,7 +1,7 @@
-use clap::{app_from_crate, arg, AppSettings};
+use clap::{arg, command, AppSettings};
 
 fn main() {
-    let matches = app_from_crate!()
+    let matches = command!()
         .args_override_self(true)
         .global_setting(AppSettings::DeriveDisplayOrder)
         .allow_negative_numbers(true)
