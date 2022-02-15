@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Fish: escape possible values (#3467)
+
 ## [3.0.6] - 2022-02-05
 
 ### Fixes

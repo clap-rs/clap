@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+Changes in behavior of note that are not guaranteed to be compatible across releases:
+
+- *(help)* `help` subcommand shows long help like `--help`, rather than short help (`-h`), deprecated `clap::AppSettings::UseLongFormatForHelpSubcommand` (#3440)
+- *(help)* Pacman-style subcommands are now ordered the same as usage errors (#3470)
+- *(help)* Pacman-style subcommands use standard alternate syntax in usage (#3470)
+
+### Deprecations
+
+- `clap::Command` is now preferred over `clap::App` (#3089 in #3472)
+  - `clap::command!` is now preferred over `clap::app_from_crate` (#3089 in #3474)
+  - `clap::CommandFactory::command` is now preferred over `clap::IntoApp::into_app` (#3089 in #3473)
+- *(help)* `help` subcommand shows long help like `--help`, rather than short help (`-h`), deprecated `clap::AppSettings::UseLongFormatForHelpSubcommand` (#3440)
+- *(error)* Deprecate `clap::AppSettings::WaitOnError`, leaving it to the user to implement
+- *(validation)* `clap::Command::subcommand_required(true).arg_required_else_help(true)` is now preferred over `clap::AppSettings::SubcommandRequiredElseHelp` (#3280)
+- *(builder)* `clap::AppSettings` are nearly all deprecated and replaced with builder methods and getters (#2717)
+- *(builder)* `clap::Arg::id` and `clap::ArgGroup::id` are now preferred over `clap::Arg::name` and `clap::ArgGroup::name` (#3335)
+- *(help)* `clap::Command::next_help_heading` is now preferred over `clap::Command::help_heading` (#1807, #1553)
+- *(error)* `clap::error::ErrorKind` is now preferred over `clap::ErrorKind` (#3395)
+- *(error)* `clap::Error::kind()` is now preferred over `clap::Error::kind`
+- *(error)* `clap::Error::context()` is now preferred over `clap::Error::info` (#2628)
+
+Note: All items deprecated in 3.0.0 are now hidden in the documentation. (#3458)
+
+### Features
+
+- *(matches)* Add `clap::ArgMatches::value_source` to determine what insert the value (#1345)
+- *(help)* Override derived display order with `clap::Command::next_display_order` (#1807)
+- *(error)* Show possible values when an argument doesn't have a value (#3320)
+- *(error)* New `clap::Error::context` API to open the door for fully-custom error messages (#2628)
+  - *(error)* `clap::error::ErrorKind` now implements `Display`
+
+### Fixes
+
+- *(builder)* Some functions were renamed for consistency and fixing spelling issues
+- *(builder)* Allow `clap::Command::color` to override previous calls (#3449)
+- *(parse)* Propagate globals with multiple subcommands (#3428)
+- *(validation)* Give `ArgRequiredElseHelp` precedence over `SubcommandRequired` (#3456)
+- *(validation)* Default values no longer count as "present" for conflicts, requires, `clap::Command::arg_required_else_help`, etc (#3076, #1264)
+- *(assert)* Report invalid defaults (#3202)
+- *(help)* Clarify how to handle `-h` conflicts (#3403)
+- *(help)* Make it easier to debug the addition of help flags (#3425)
+- *(help)* Pacman-style subcommands are now separated with spaces (#3470)
+- *(help)* Pacman-style subcommands are now ordered the same as usage errors (#3470)
+- *(help)* Pacman-style subcommands use standard alternate syntax in usage (#3470)
+- *(error)* Be consistent in showing of required attributes between errors / usage (#3390)
+- *(error)* Show user's order of possible values, like in `--help` (#1549)
+- *(error)* Allow customizing error type in `clap::error::Result` (#3395)
+
+### Performance
+
+- *(error)* Reduced stack size of `clap::Error` (#3395)
+
+### Documentation
+
+- *(builder)* Correct data take accepted for `clap::Arg::validator`
+- *(derive)* Clarify `parse` attribute
+- *(tutorial)* Demonstrate custom parsing
+- *(example)* Consistently list out required feature flags (#3448)
+
 ## [3.0.14] - 2022-02-01
 
 ### Features
