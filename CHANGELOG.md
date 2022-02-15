@@ -24,6 +24,7 @@ Changes in behavior of note that are not guaranteed to be compatible across rele
 - *(error)* Deprecate `clap::AppSettings::WaitOnError`, leaving it to the user to implement
 - *(validation)* `clap::Command::subcommand_required(true).arg_required_else_help(true)` is now preferred over `clap::AppSettings::SubcommandRequiredElseHelp` (#3280)
 - *(builder)* `clap::AppSettings` are nearly all deprecated and replaced with builder methods and getters (#2717)
+- *(builder)* `clap::ArgSettings` is deprecated and replaced with builder methods and getters (#2717)
 - *(builder)* `clap::Arg::id` and `clap::ArgGroup::id` are now preferred over `clap::Arg::name` and `clap::ArgGroup::name` (#3335)
 - *(help)* `clap::Command::next_help_heading` is now preferred over `clap::Command::help_heading` (#1807, #1553)
 - *(error)* `clap::error::ErrorKind` is now preferred over `clap::ErrorKind` (#3395)
