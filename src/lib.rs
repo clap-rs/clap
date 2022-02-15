@@ -57,7 +57,6 @@ pub use clap_derive::{self, *};
 
 /// Deprecated, replaced with [`CommandFactory`]
 #[deprecated(since = "3.0.0", note = "Replaced with `CommandFactory`")]
-#[doc(hidden)]
 pub use CommandFactory as IntoApp;
 /// Deprecated, replaced with [`Parser`]
 #[deprecated(since = "3.0.0", note = "Replaced with `Parser`")]
