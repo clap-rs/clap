@@ -31,6 +31,30 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 - [PRs](https://github.com/clap-rs/clap/pulls) work well for when the solution has already been discussed as an Issue or there is little to no discussion (obvious bug or documentation fixes)
   - Focus: implementation discussions
 
+### Compatibility Expectations
+
+Our releases fall into one of:
+- Major releases which are reserved for breaking changes
+  - Released approximately every 6 months
+  - Remove all deprecated functionality
+  - Try to minimize new breaking changes to ease user transition and reduce time "we go dark" (unreleased feature-branch)
+- Minor releases which are for minor compatibility changes
+  - Released approximately every 2 months
+  - Changes to MSRV
+  - Deprecating existing functionality
+  - `#[doc(hidden)]` all deprecated items in the prior minor release
+- Patch releases
+  - One for every user-facing, user-contributed PR (i.e. release early, release often)
+
+If your change does not fit within a "patch" release, please coordinate with the clap maintainers for how to handle the situation.
+
+Some practices to avoid breaking changes
+- Duplicate functionality, with old functionality marked as "deprecated"
+  - Common documentation pattern: `/// Deprecated in [Issue #XXX](https://github.com/clap-rs/clap/issues/XXX), replaced with [intra-doc-link]`
+  - Common deprecation pattern: `#[deprecated(since = "X.Y.Z", note = "Replaced with `ITEM` in Issue #XXX")]`
+  - Please keep API addition and deprecation in separate commits in a PR to make it easier to review
+- Develop the feature behind an `unstable-<name>` feature flag with a stablization tracking issue (e.g. [Multicall Tracking issue](https://github.com/clap-rs/clap/issues/2861))
+
 ### Testing Code
 
 To test with all features both enabled and disabled, you can run this command:
