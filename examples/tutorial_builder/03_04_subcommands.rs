@@ -1,7 +1,7 @@
-use clap::{app_from_crate, arg, Command};
+use clap::{arg, command, Command};
 
 fn main() {
-    let matches = app_from_crate!()
+    let matches = command!()
         .propagate_version(true)
         .subcommand_required(true)
         .arg_required_else_help(true)

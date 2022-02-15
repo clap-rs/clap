@@ -1,8 +1,8 @@
-use clap::{app_from_crate, arg, ErrorKind};
+use clap::{arg, command, ErrorKind};
 
 fn main() {
     // Create application like normal
-    let mut cmd = app_from_crate!()
+    let mut cmd = command!()
         // Add the version arguments
         .arg(arg!(--"set-ver" <VER> "set version manually").required(false))
         .arg(arg!(--major         "auto inc major"))

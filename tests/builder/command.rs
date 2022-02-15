@@ -1,7 +1,6 @@
 #![cfg(feature = "cargo")]
-#![allow(deprecated)]
 
-use clap::{app_from_crate, error::ErrorKind};
+use clap::{command, error::ErrorKind};
 
 static EVERYTHING: &str = "clap {{version}}
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -15,8 +14,8 @@ OPTIONS:
 ";
 
 #[test]
-fn app_from_crate() {
-    let res = app_from_crate!().try_get_matches_from(vec!["clap", "--help"]);
+fn command() {
+    let res = command!().try_get_matches_from(vec!["clap", "--help"]);
 
     assert!(res.is_err());
     let err = res.unwrap_err();

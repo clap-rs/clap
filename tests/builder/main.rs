@@ -6,6 +6,7 @@ mod arg_matcher_assertions;
 mod arg_settings;
 mod borrowed;
 mod cargo;
+mod command;
 mod conflicts;
 mod default_missing_vals;
 mod default_vals;
