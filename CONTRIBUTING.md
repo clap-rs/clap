@@ -35,11 +35,11 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 Our releases fall into one of:
 - Major releases which are reserved for breaking changes
-  - Released approximately every 6 months
+  - Aspire to at least 6-9 months between releases
   - Remove all deprecated functionality
   - Try to minimize new breaking changes to ease user transition and reduce time "we go dark" (unreleased feature-branch)
 - Minor releases which are for minor compatibility changes
-  - Released approximately every 2 months
+  - Aspire to at least 2 months between releases
   - Changes to MSRV
   - Deprecating existing functionality
   - `#[doc(hidden)]` all deprecated items in the prior minor release
