@@ -18,7 +18,8 @@ pub fn parser_enum(name: &Ident) {
 
 pub fn into_app(name: &Ident) {
     append_dummy(quote! {
-        impl clap::IntoApp for #name {
+        #[allow(deprecated)]
+        impl clap::CommandFactory for #name {
             fn into_app<'b>() -> clap::Command<'b> {
                 unimplemented!()
             }

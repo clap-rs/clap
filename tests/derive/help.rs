@@ -1,4 +1,4 @@
-use clap::{AppSettings, Args, IntoApp, Parser, Subcommand};
+use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
 
 #[test]
 fn arg_help_heading_applied() {
@@ -12,7 +12,7 @@ fn arg_help_heading_applied() {
         no_section: u32,
     }
 
-    let cmd = CliOptions::into_app();
+    let cmd = CliOptions::command();
 
     let should_be_in_section_a = cmd
         .get_arguments()
@@ -40,7 +40,7 @@ fn app_help_heading_applied() {
         should_be_in_default_section: u32,
     }
 
-    let cmd = CliOptions::into_app();
+    let cmd = CliOptions::command();
 
     let should_be_in_section_a = cmd
         .get_arguments()
@@ -117,7 +117,7 @@ fn app_help_heading_flattened() {
         SubCOne { should_be_in_sub_c: u32 },
     }
 
-    let cmd = CliOptions::into_app();
+    let cmd = CliOptions::command();
 
     let should_be_in_section_a = cmd
         .get_arguments()
@@ -178,7 +178,7 @@ fn flatten_field_with_help_heading() {
         should_be_in_section_a: u32,
     }
 
-    let cmd = CliOptions::into_app();
+    let cmd = CliOptions::command();
 
     let should_be_in_section_a = cmd
         .get_arguments()
@@ -277,8 +277,8 @@ OPTIONS:
         option_b: Option<String>,
     }
 
-    use clap::IntoApp;
-    let mut cmd = Args::into_app();
+    use clap::CommandFactory;
+    let mut cmd = Args::command();
 
     let mut buffer: Vec<u8> = Default::default();
     cmd.write_help(&mut buffer).unwrap();
@@ -334,8 +334,8 @@ OPTIONS:
         option_b: Option<String>,
     }
 
-    use clap::IntoApp;
-    let mut cmd = Args::into_app();
+    use clap::CommandFactory;
+    let mut cmd = Args::command();
 
     let mut buffer: Vec<u8> = Default::default();
     cmd.write_help(&mut buffer).unwrap();
@@ -390,8 +390,8 @@ OPTIONS:
         option_b: Option<String>,
     }
 
-    use clap::IntoApp;
-    let mut cmd = Args::into_app();
+    use clap::CommandFactory;
+    let mut cmd = Args::command();
 
     let mut buffer: Vec<u8> = Default::default();
     cmd.write_help(&mut buffer).unwrap();

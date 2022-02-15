@@ -14,7 +14,7 @@
 
 use crate::utils;
 
-use clap::{ArgEnum, IntoApp, Parser};
+use clap::{ArgEnum, CommandFactory, Parser};
 
 #[test]
 fn doc_comments() {
@@ -232,7 +232,7 @@ fn doc_comment_about_handles_both_abouts() {
         Compress { output: String },
     }
 
-    let cmd = Opts::into_app();
+    let cmd = Opts::command();
     assert_eq!(cmd.get_about(), Some("Opts doc comment summary"));
     // clap will fallback to `about` on `None`.  The main care about is not providing a `Sub` doc
     // comment.

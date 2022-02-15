@@ -35,7 +35,7 @@ pub use crate::parse::{ArgMatches, Indices, OsValues, ValueSource, Values};
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
 
-pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcommand};
+pub use crate::derive::{ArgEnum, Args, CommandFactory, FromArgMatches, Parser, Subcommand};
 
 pub use crate::error::{ErrorKind, Result};
 
@@ -55,6 +55,10 @@ pub use yaml_rust::YamlLoader;
 #[doc(hidden)]
 pub use clap_derive::{self, *};
 
+/// Deprecated, replaced with [`CommandFactory`]
+#[deprecated(since = "3.0.0", note = "Replaced with `CommandFactory`")]
+#[doc(hidden)]
+pub use CommandFactory as IntoApp;
 /// Deprecated, replaced with [`Parser`]
 #[deprecated(since = "3.0.0", note = "Replaced with `Parser`")]
 #[doc(hidden)]

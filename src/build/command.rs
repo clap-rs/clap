@@ -40,7 +40,7 @@ use crate::build::debug_asserts::assert_app;
 /// arguments (or lack thereof).
 ///
 /// When deriving a [`Parser`][crate::Parser], you can use
-/// [`IntoApp::into_app`][crate::IntoApp::into_app] to access the
+/// [`CommandFactory::into_app`][crate::CommandFactory::into_app] to access the
 /// `Command`.
 ///
 /// # Examples
