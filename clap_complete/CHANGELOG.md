@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.1.0] - 2022-02-16
+
 ### Fixes
 
 - Fish: escape possible values (#3467)
@@ -41,7 +43,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.6...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.1.0...HEAD
+[3.1.0]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.6...clap_complete-v3.1.0
 [3.0.6]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.5...clap_complete-v3.0.6
 [3.0.5]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.4...clap_complete-v3.0.5
 [3.0.4]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.3...clap_complete-v3.0.4
