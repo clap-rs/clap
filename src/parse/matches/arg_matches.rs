@@ -138,6 +138,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
@@ -277,6 +278,7 @@ impl ArgMatches {
     /// ```
     /// [values]: Values
     /// [`Iterator`]: std::iter::Iterator
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
@@ -293,6 +295,7 @@ impl ArgMatches {
 
     /// Placeholder documentation.
     #[cfg(feature = "unstable-grouped")]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
