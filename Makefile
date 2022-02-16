@@ -15,6 +15,7 @@ _FEATURES_minimal = --no-default-features --features "std"
 _FEATURES_default =
 _FEATURES_wasm = --features "derive cargo env unicode yaml regex unstable-replace unstable-multicall unstable-grouped"
 _FEATURES_full = --features "derive cargo env unicode yaml regex unstable-replace unstable-multicall unstable-grouped wrap_help"
+_FEATURES_next = ${_FEATURES_full} --features unstable-v4
 _FEATURES_debug = ${_FEATURES_full} --features debug
 _FEATURES_release = ${_FEATURES_full} --release
 
