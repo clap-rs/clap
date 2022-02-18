@@ -66,7 +66,7 @@ In addition to this tutorial, see the [derive reference](../derive_ref/README.md
 
 ## Configuring the Parser
 
-You use the `Command` the start building a parser.
+You use derive `Parser` the start building a parser.
 
 [Example:](02_apps.rs)
 ```console
@@ -89,7 +89,7 @@ MyApp 1.0
 
 ```
 
-You can use `command!()` to fill these fields in from your `Cargo.toml` file.
+You can use `#[clap(author, version, about)]` attribute defaults to fill these fields in from your `Cargo.toml` file.
 
 [Example:](02_crate.rs)
 ```console
@@ -111,7 +111,7 @@ clap [..]
 
 ```
 
-You can use `Command` methods to change the application level behavior of clap.
+You can use derive attributes to change the application level behavior of clap.
 
 [Example:](02_app_settings.rs)
 ```console
@@ -266,7 +266,7 @@ name: Some("bob")
 
 ### Subcommands
 
-Subcommands are defined as `Command`s that get added via `Command::subcommand`. Each
+Subcommands are derived with `Subcommand` that get added via `#[clap(subcommand)]` attribute. Each
 instance of a Subcommand can have its own version, author(s), Args, and even its own
 subcommands.
 
@@ -326,7 +326,7 @@ SUBCOMMANDS:
 
 ```
 
-Because we set `Command::propagate_version`:
+Because we added `#[clap(propagate_version = true)]`:
 ```console
 $ 03_04_subcommands_derive --version
 clap [..]
@@ -339,8 +339,8 @@ $ 03_04_subcommands_derive add --version
 ### Defaults
 
 We've previously showed that arguments can be `required` or optional.  When
-optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
-set `Arg::default_value`.
+optional, you work with an `Option` and can `unwrap_or`.  Alternatively, you can
+set `#[clap(default_value_t)]`.
 
 [Example:](03_05_default_values.rs)
 ```console
