@@ -614,7 +614,7 @@ Doing work using input input.txt and config config.toml
 
 ## Tips
 
-- Proactively check for bad `Command` configurations by calling `Command::debug_assert` ([example](05_01_assert.rs))
+- Proactively check for bad `Command` configurations by calling `Command::debug_assert` in a test ([example](05_01_assert.rs))
 - See the [derive reference](../derive_ref/README.md) to understand how to use
   anything in the [builder API](https://docs.rs/clap/) in the derive API.
 
