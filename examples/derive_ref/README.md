@@ -16,7 +16,7 @@ To derive `clap` types, you need to enable the `derive` feature flag.
 
 See [demo.rs](../demo.rs) and [demo.md](../demo.md) for a brief example.
 
-Let's start by breaking down what can go where:
+Let's start by breaking down the anatomy of the derive attributes:
 ```rust
 use clap::{Parser, Args, Subcommand, ArgEnum};
 
