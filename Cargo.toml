@@ -310,6 +310,11 @@ path = "examples/tutorial_derive/03_04_subcommands.rs"
 required-features = ["derive"]
 
 [[example]]
+name = "03_04_subcommands_alt_derive"
+path = "examples/tutorial_derive/03_04_subcommands_alt.rs"
+required-features = ["derive"]
+
+[[example]]
 name = "03_05_default_values_derive"
 path = "examples/tutorial_derive/03_05_default_values.rs"
 required-features = ["derive"]
