@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, Args};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -16,7 +16,7 @@ enum Commands {
 
 #[derive(Args)]
 struct Add {
-    name: Option<String>
+    name: Option<String>,
 }
 
 fn main() {
@@ -25,8 +25,8 @@ fn main() {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Commands::Add { name } => {
-            println!("'myapp add' was used, name is: {:?}", name)
+        Commands::Add(name) => {
+            println!("'myapp add' was used, name is: {:?}", name.name)
         }
     }
 }
