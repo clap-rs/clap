@@ -2,13 +2,28 @@
 
 - Basic demo: [derive](demo.md)
 - Key-value pair arguments: [derive](keyvalue-derive.md)
+  - Topics:
+    - Custom `parse()`
 - Custom cargo command: [builder](cargo-example.md), [derive](cargo-example-derive.md)
+  - Topics:
+    - Subcommands
+    - Cargo plugins
 - git-like interface: [builder](git.md), [derive](git-derive.md)
+  - Topics:
+    - Subcommands
+    - External subcommands
 - pacman-like interface: [builder](pacman.md)
+  - Topics:
+    - Flag subcommands
+    - Conflicting arguments
 - Escaped positionals with `--`: [builder](escaped-positional.md), [derive](escaped-positional-derive.md)
 - Multi-call
   - busybox: [builder](multicall-busybox.md)
+    - Topics:
+      - Subcommands
   - hostname: [builder](multicall-hostname.md)
+    - Topics:
+      - Subcommands
 
 ## Contributing
 
