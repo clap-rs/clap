@@ -125,7 +125,7 @@ jobs:
         override: true
     - uses: Swatinem/rust-cache@v1
     - name: UI Tests
-      run: cargo test --test derive_ui --features derive
+      run: make test-ui
   docs:
     name: Docs
     runs-on: ubuntu-latest
