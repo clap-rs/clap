@@ -306,6 +306,10 @@ $ 03_04_subcommands_derive add bob
 
 ```
 
+Above, we used a struct-variant to define the `add` subcommand.  Alternatively,
+you can
+[use a struct for your subcommand's arguments](03_04_subcommands_alt_derive.rs).
+
 Because we used `command: Commands` instead of `command: Option<Commands>`:
 ```console
 $ 03_04_subcommands_derive
@@ -610,7 +614,10 @@ Doing work using input input.txt and config config.toml
 
 ## Tips
 
-- Proactively check for bad `Command` configurations by calling `Command::debug_assert` ([example](05_01_assert.rs))
+- For more complex demonstration of features, see our [examples](../README.md).
+- See the [derive reference](../derive_ref/README.md) to understand how to use
+  anything in the [builder API](https://docs.rs/clap/) in the derive API.
+- Proactively check for bad `Command` configurations by calling `Command::debug_assert` in a test ([example](05_01_assert.rs))
 
 ## Contributing
 

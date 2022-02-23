@@ -642,7 +642,8 @@ Doing work using input input.txt and config config.toml
 
 ## Tips
 
-- Proactively check for bad `Command` configurations by calling `Command::debug_assert` ([example](05_01_assert.rs))
+- For more complex demonstration of features, see our [examples](../README.md).
+- Proactively check for bad `Command` configurations by calling `Command::debug_assert` in a test ([example](05_01_assert.rs))
 
 ## Contributing
 
