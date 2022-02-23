@@ -296,7 +296,9 @@ fn external_subcommand_optional() {
 fn enum_in_enum_subsubcommand() {
     #[derive(Parser, Debug, PartialEq)]
     pub enum Opt {
-        #[clap(subcommand)]
+        #[clap(alias = "l")]
+        List,
+        #[clap(subcommand, alias = "d")]
         Daemon(DaemonCommand),
     }
 
@@ -309,10 +311,19 @@ fn enum_in_enum_subsubcommand() {
     let result = Opt::try_parse_from(&["test"]);
     assert!(result.is_err());
 
+    let result = Opt::try_parse_from(&["test", "list"]).unwrap();
+    assert_eq!(Opt::List, result);
+
+    let result = Opt::try_parse_from(&["test", "l"]).unwrap();
+    assert_eq!(Opt::List, result);
+
     let result = Opt::try_parse_from(&["test", "daemon"]);
     assert!(result.is_err());
 
     let result = Opt::try_parse_from(&["test", "daemon", "start"]).unwrap();
+    assert_eq!(Opt::Daemon(DaemonCommand::Start), result);
+
+    let result = Opt::try_parse_from(&["test", "d", "start"]).unwrap();
     assert_eq!(Opt::Daemon(DaemonCommand::Start), result);
 }
 
