@@ -9,6 +9,7 @@
     4. [Arg Enum Attributes](#arg-enum-attributes)
     5. [Possible Value Attributes](#possible-value-attributes)
     6. [Doc Comments](#doc-comments)
+4. [Tips](#tips)
 
 ## Overview
 
@@ -359,3 +360,8 @@ them.
 - Remove one leading space from each line, even if this attribute is present,
   to allow for a space between `///` and the content.
 - Remove leading and trailing blank lines
+
+## Tips
+
+- To get access to a `Command` call `CommandFactory::command` (implemented when deriving `Parser`)
+- Proactively check for bad `Command` configurations by calling `Command::debug_assert` in a test ([example](../tutorial_derive/05_01_assert.rs))
