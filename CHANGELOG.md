@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Allow other attribute with a subcommand that has subcommands
+
+### Documentation
+
+- *(examples)* List example topics
+- *(derive)* Clarify syntax and relation to builder API
+
 ## [3.1.1] - 2022-02-21
 
 ### Fixes
