@@ -32,4 +32,4 @@ New examples:
 - Testing: Ensure there is a markdown file with [trycmd](https://docs.rs/trycmd) syntax
 - Link the `.md` file from here
 
-See also the general [CONTRIBUTING](../../CONTRIBUTING.md).
+See also the general [CONTRIBUTING](../CONTRIBUTING.md).
