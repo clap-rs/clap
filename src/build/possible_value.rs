@@ -161,6 +161,11 @@ impl<'help> PossibleValue<'help> {
         self.hide
     }
 
+    /// Report if PossibleValue is not hidden and has a help message
+    pub fn should_show_help(&self) -> bool {
+        !self.hide && self.help.is_some()
+    }
+
     /// Get the name if argument value is not hidden, `None` otherwise
     pub fn get_visible_name(&self) -> Option<&'help str> {
         if self.hide {

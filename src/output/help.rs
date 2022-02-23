@@ -11,6 +11,7 @@ use std::{
 use crate::{
     build::{display_arg_val, Arg, Command},
     output::{fmt::Colorizer, Usage},
+    PossibleValue,
 };
 
 // Third party
@@ -385,7 +386,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
     /// Writes argument's help to the wrapped stream.
     fn help(
         &mut self,
-        is_not_positional: bool,
+        arg: Option<&Arg<'help>>,
         about: &str,
         spec_vals: &str,
         next_line_help: bool,
@@ -401,7 +402,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             longest + 12
         };
 
-        let too_long = spaces + display_width(about) + display_width(spec_vals) >= self.term_w;
+        let too_long = spaces + display_width(&help) >= self.term_w;
 
         // Is help on next line, if so then indent
         if next_line_help {
@@ -423,16 +424,95 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         if let Some(part) = help.lines().next() {
             self.none(part)?;
         }
+
+        // indent of help
+        let spaces = if next_line_help {
+            TAB_WIDTH * 3
+        } else if let Some(true) = arg.map(|a| a.is_positional()) {
+            longest + TAB_WIDTH * 2
+        } else {
+            longest + TAB_WIDTH * 3
+        };
+
         for part in help.lines().skip(1) {
             self.none("\n")?;
-            if next_line_help {
-                self.none(format!("{}{}{}", TAB, TAB, TAB))?;
-            } else if is_not_positional {
-                self.spaces(longest + 12)?;
-            } else {
-                self.spaces(longest + 8)?;
-            }
+            self.spaces(spaces)?;
             self.none(part)?;
+        }
+
+        #[cfg(feature = "unstable-v4")]
+        if let Some(arg) = arg {
+            if self.use_long
+                && arg
+                    .possible_vals
+                    .iter()
+                    .any(PossibleValue::should_show_help)
+            {
+                debug!("Help::help: Found possible vals...{:?}", arg.possible_vals);
+                if !help.is_empty() {
+                    self.none("\n\n")?;
+                    self.spaces(spaces)?;
+                }
+                self.none("Possible values:")?;
+                let longest = arg
+                    .possible_vals
+                    .iter()
+                    .filter_map(|f| f.get_visible_name().map(display_width))
+                    .max()
+                    .expect("Only called with possible value");
+                let help_longest = arg
+                    .possible_vals
+                    .iter()
+                    .filter_map(|f| f.get_help().map(display_width))
+                    .max()
+                    .expect("Only called with possible value with help");
+                // should new line
+                let taken = longest + spaces + 2; // 2 = "- "
+                let possible_value_new_line = self.term_w >= taken
+                    && (taken as f32 / self.term_w as f32) > 0.60
+                    && help_longest + 2 // 2 = ": "
+                    > (self.term_w - taken);
+
+                let spaces = spaces + TAB_WIDTH;
+                let spaces_help = if possible_value_new_line {
+                    spaces + TAB_WIDTH
+                } else {
+                    spaces + longest + 4 // 2 = "- " + ": "
+                };
+
+                for pv in arg.possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
+                    self.none("\n")?;
+                    self.spaces(spaces)?;
+                    self.none("- ")?;
+                    self.good(pv.get_name())?;
+                    if let Some(help) = pv.get_help() {
+                        debug!("Help::help: Possible Value help");
+
+                        if possible_value_new_line {
+                            self.none(":\n")?;
+                            self.spaces(spaces_help)?;
+                        } else {
+                            self.none(": ")?;
+                        }
+
+                        let avail_chars = if self.term_w > spaces_help {
+                            self.term_w - spaces_help
+                        } else {
+                            usize::MAX
+                        };
+
+                        let help = text_wrapper(help, avail_chars);
+                        let mut help = help.lines();
+
+                        self.none(help.next().unwrap_or_default())?;
+                        for part in help {
+                            self.none("\n")?;
+                            self.spaces(spaces_help)?;
+                            self.none(part)?;
+                        }
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -456,13 +536,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             arg.help.or(arg.long_help).unwrap_or("")
         };
 
-        self.help(
-            !arg.is_positional(),
-            about,
-            spec_vals,
-            next_line_help,
-            longest,
-        )?;
+        self.help(Some(arg), about, spec_vals, next_line_help, longest)?;
         Ok(())
     }
 
@@ -572,7 +646,12 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             }
         }
 
-        if !a.is_hide_possible_values_set() && !a.possible_vals.is_empty() {
+        if !(a.is_hide_possible_values_set()
+            || a.possible_vals.is_empty()
+            || cfg!(feature = "unstable-v4")
+                && self.use_long
+                && a.possible_vals.iter().any(PossibleValue::should_show_help))
+        {
             debug!(
                 "Help::spec_vals: Found possible vals...{:?}",
                 a.possible_vals
@@ -670,7 +749,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             .unwrap_or("");
 
         self.subcmd(sc_str, next_line_help, longest)?;
-        self.help(false, about, spec_vals, next_line_help, longest)
+        self.help(None, about, spec_vals, next_line_help, longest)
     }
 
     fn sc_spec_vals(&self, a: &Command) -> String {
@@ -1011,6 +1090,7 @@ pub(crate) fn dimensions() -> Option<(usize, usize)> {
 }
 
 const TAB: &str = "    ";
+const TAB_WIDTH: usize = 4;
 
 pub(crate) enum HelpWriter<'writer> {
     Normal(&'writer mut dyn Write),
