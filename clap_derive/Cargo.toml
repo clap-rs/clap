@@ -24,6 +24,7 @@ readme = "README.md"
 
 [package.metadata.release]
 shared-version = true
+dependent-version = "upgrade"
 tag-name = "v{{version}}"
 pre-release-replacements = [
   {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=2, prerelease = true},
