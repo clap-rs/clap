@@ -3,7 +3,7 @@
 1. [Overview](#overview)
 2. [Raw Attributes](#raw-attributes)
 3. [Magic Attributes](#magic-attributes)
-    1. [Command Attributes](#cmd-attributes)
+    1. [Command Attributes](#command-attributes)
     2. [Arg Attributes](#arg-attributes)
     3. [Arg Types](#arg-types)
     4. [Arg Enum Attributes](#arg-enum-attributes)
