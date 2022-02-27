@@ -7,7 +7,7 @@ struct DerivedArgs {
 }
 
 fn main() {
-    let cli = Command::new("CLI").arg(arg!(-b --built));
+    let cli = Command::new("CLI").arg(arg!(-b - -built));
     // Augment built args with derived args
     let cli = DerivedArgs::augment_args(cli);
 

@@ -1,4 +1,4 @@
-use clap::error::{Error, ErrorKind};
+use clap::error::Error;
 use clap::{Arg, ArgMatches, Args, Command, FromArgMatches, Parser};
 
 #[derive(Debug)]
@@ -23,13 +23,11 @@ impl FromArgMatches for CliArgs {
 
 impl Args for CliArgs {
     fn augment_args(cmd: Command<'_>) -> Command<'_> {
-        cmd
-            .arg(Arg::new("foo").short('f').long("foo"))
+        cmd.arg(Arg::new("foo").short('f').long("foo"))
             .arg(Arg::new("bar").short('b').long("bar"))
     }
     fn augment_args_for_update(cmd: Command<'_>) -> Command<'_> {
-        cmd
-            .arg(Arg::new("foo").short('f').long("foo"))
+        cmd.arg(Arg::new("foo").short('f').long("foo"))
             .arg(Arg::new("bar").short('b').long("bar"))
     }
 }

@@ -1,5 +1,5 @@
 use clap::error::{Error, ErrorKind};
-use clap::{Arg, ArgMatches, Command, FromArgMatches, Parser, Subcommand};
+use clap::{ArgMatches, Command, FromArgMatches, Parser, Subcommand};
 
 #[derive(Debug)]
 enum CliSub {
@@ -48,10 +48,7 @@ impl Subcommand for CliSub {
             .subcommand(Command::new("remove"))
     }
     fn has_subcommand(name: &str) -> bool {
-        match name {
-            "add" | "remove" => true,
-            _ => false,
-        }
+        matches!(name, "add" | "remove")
     }
 }
 
