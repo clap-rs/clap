@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't panic when validating delimited defaults (#3514)
+
 ## [3.1.2] - 2022-02-23
 
 ### Fixes
