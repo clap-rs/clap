@@ -648,15 +648,47 @@ fn default_values_are_possible_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=value failed validation: invalid digit found in string"]
-fn default_values_are_valid() {
+#[should_panic = "Argument `arg`'s default_value=one failed validation: invalid digit found in string"]
+fn invalid_default_values() {
     use clap::{Arg, Command};
 
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
                 .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
-                .default_value("value"),
+                .default_value("one"),
+        )
+        .try_get_matches();
+}
+
+#[test]
+fn valid_delimited_default_values() {
+    use clap::{Arg, Command};
+
+    let _ = Command::new("test")
+        .arg(
+            Arg::new("arg")
+                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .use_value_delimiter(true)
+                .require_value_delimiter(true)
+                .default_value("1,2,3"),
+        )
+        .try_get_matches();
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument `arg`'s default_value=one failed validation: invalid digit found in string"]
+fn invalid_delimited_default_values() {
+    use clap::{Arg, Command};
+
+    let _ = Command::new("test")
+        .arg(
+            Arg::new("arg")
+                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .use_value_delimiter(true)
+                .require_value_delimiter(true)
+                .default_value("one,two"),
         )
         .try_get_matches();
 }

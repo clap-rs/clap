@@ -4633,6 +4633,12 @@ impl<'help> Arg<'help> {
         self.num_vals
     }
 
+    /// Get the delimiter between multiple values
+    #[inline]
+    pub fn get_value_delimiter(&self) -> Option<char> {
+        self.val_delim
+    }
+
     /// Get the index of this argument, if any
     #[inline]
     pub fn get_index(&self) -> Option<usize> {
