@@ -25,7 +25,7 @@ where
         .enumerate()
         .filter_map(|(line, (left, right))| {
             if left != right {
-                Some(format!("Line {line}:\n{left}\n{right}"))
+                Some(format!("Line {}:\n{}\n{}", line, left, right))
             } else {
                 None
             }
@@ -42,10 +42,10 @@ where
         println!("--> right");
         println!("{}", right);
         println!("--> diff");
-        println!("{line_diff}");
+        println!("{}", line_diff);
         println!("--");
         if line_count_diff != 0 {
-            println!("left line count - right line count = {line_count_diff}");
+            println!("left line count - right line count = {}", line_count_diff);
         }
     }
     b
