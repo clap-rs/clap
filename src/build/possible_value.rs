@@ -191,7 +191,7 @@ impl<'help> PossibleValue<'help> {
     pub fn get_visible_quoted_name(&self) -> Option<Cow<'help, str>> {
         self.get_visible_name().map(|name| {
             if name.contains(char::is_whitespace) {
-                format!("{name:?}").into()
+                format!("{:?}", name).into()
             } else {
                 name.into()
             }

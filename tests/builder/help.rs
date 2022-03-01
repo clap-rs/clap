@@ -1025,8 +1025,9 @@ OPTIONS:
             Arg::new("possible_values_with_new_line")
                 .long("possible-values-with-new-line")
                 .possible_value(
-                    PossibleValue::new("long enough name to trigger new line")
-                        .help("Really long enough help message to clearly warrant wrapping believe me"),
+                    PossibleValue::new("long enough name to trigger new line").help(
+                        "Really long enough help message to clearly warrant wrapping believe me",
+                    ),
                 )
                 .possible_value("second"),
         )
