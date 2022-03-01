@@ -362,7 +362,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
     if let Some(values) = &arg.get_possible_values() {
         if values
             .iter()
-            .any(|value| !value.is_hide_set() && value.get_help().is_some())
+            .any(|value| value.should_show_help())
         {
             Some(format!(
                 "(({}))",

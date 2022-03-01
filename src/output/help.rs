@@ -443,6 +443,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         #[cfg(feature = "unstable-v4")]
         if let Some(arg) = arg {
             if self.use_long
+                && !arg.is_hide_possible_values_set()
                 && arg
                     .possible_vals
                     .iter()
@@ -457,27 +458,26 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                 let longest = arg
                     .possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_name().map(display_width))
+                    .filter_map(|f| f.get_visible_quoted_name().map(|name| display_width(&name)))
                     .max()
                     .expect("Only called with possible value");
                 let help_longest = arg
                     .possible_vals
                     .iter()
-                    .filter_map(|f| f.get_help().map(display_width))
+                    .filter_map(|f| f.get_visible_help().map(display_width))
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
                 let taken = longest + spaces + 2; // 2 = "- "
-                let possible_value_new_line = self.term_w >= taken
-                    && (taken as f32 / self.term_w as f32) > 0.60
-                    && help_longest + 2 // 2 = ": "
-                    > (self.term_w - taken);
 
-                let spaces = spaces + TAB_WIDTH;
+                let possible_value_new_line =
+                    self.term_w >= taken && self.term_w < taken + 2 + help_longest; // 2 = ": "
+
+                let spaces = spaces + TAB_WIDTH - 2; // 2 = "- "
                 let spaces_help = if possible_value_new_line {
-                    spaces + TAB_WIDTH
+                    spaces + 2 // 2 = "- "
                 } else {
-                    spaces + longest + 4 // 2 = "- " + ": "
+                    spaces + longest + 4 // 4 = "- " + ": "
                 };
 
                 for pv in arg.possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
@@ -493,6 +493,8 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                             self.spaces(spaces_help)?;
                         } else {
                             self.none(": ")?;
+                            // To align help messages
+                            self.spaces(longest - display_width(pv.get_name()))?;
                         }
 
                         let avail_chars = if self.term_w > spaces_help {
@@ -660,15 +662,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             let pvs = a
                 .possible_vals
                 .iter()
-                .filter_map(|value| {
-                    if value.is_hide_set() {
-                        None
-                    } else if value.get_name().contains(char::is_whitespace) {
-                        Some(format!("{:?}", value.get_name()))
-                    } else {
-                        Some(value.get_name().to_string())
-                    }
-                })
+                .filter_map(PossibleValue::get_visible_quoted_name)
                 .collect::<Vec<_>>()
                 .join(", ");
 

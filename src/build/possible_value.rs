@@ -1,4 +1,4 @@
-use std::iter;
+use std::{borrow::Cow, iter};
 
 use crate::util::eq_ignore_case;
 
@@ -148,6 +148,17 @@ impl<'help> PossibleValue<'help> {
         self.help
     }
 
+    /// Get the help specified for this argument, if any and the argument
+    /// value is not hidden
+    #[inline]
+    pub fn get_visible_help(&self) -> Option<&'help str> {
+        if !self.hide {
+            self.help
+        } else {
+            None
+        }
+    }
+
     /// Deprecated, replaced with [`PossibleValue::is_hide_set`]
     #[inline]
     #[deprecated(since = "3.1.0", note = "Replaced with `PossibleValue::is_hide_set`")]
@@ -173,6 +184,18 @@ impl<'help> PossibleValue<'help> {
         } else {
             Some(self.name)
         }
+    }
+
+    /// Get the name if argument value is not hidden, `None` otherwise,
+    /// but wrapped in quotes if it contains whitespace
+    pub fn get_visible_quoted_name(&self) -> Option<Cow<'help, str>> {
+        self.get_visible_name().map(|name| {
+            if name.contains(char::is_whitespace) {
+                format!("{name:?}").into()
+            } else {
+                name.into()
+            }
+        })
     }
 
     /// Returns all valid values of the argument value.
