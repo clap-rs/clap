@@ -7,7 +7,7 @@ jobs:
     name: Test
     strategy:
       matrix:
-        build: [stable, linux, windows, mac, nightly, minimal, default]
+        build: [stable, linux, windows, mac, nightly, minimal, default, next]
         include:
         - build: stable
           os: ubuntu-latest
@@ -37,6 +37,10 @@ jobs:
           os: ubuntu-latest
           rust: "stable"
           features: "default"
+        - build: next
+          os: ubuntu-latest
+          rust: "stable"
+          features: "next"
     continue-on-error: ${{ matrix.rust != 'stable' }}
     runs-on: ${{ matrix.os }}
     steps:

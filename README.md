@@ -153,6 +153,7 @@ Why use the procedural [Builder API](https://github.com/clap-rs/clap/blob/v3.1.3
 * **unstable-replace**: Enable [`Command::replace`](https://github.com/clap-rs/clap/issues/2836)
 * **unstable-multicall**: Enable [`Command::multicall`](https://github.com/clap-rs/clap/issues/2861)
 * **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
+* **unstable-v4**: Preview features which will be stable on the v4.0 release
 
 ## Sponsors
 

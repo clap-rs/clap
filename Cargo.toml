@@ -81,6 +81,7 @@ unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode character
 unstable-replace = []
 unstable-multicall = []
 unstable-grouped = []
+unstable-v4 = []
 
 [lib]
 bench = false
