@@ -577,7 +577,7 @@ OPTIONS:
 
 $ 04_04_custom_derive
 ? failed
-error: Cam only modify one version field
+error: Can only modify one version field
 
 USAGE:
     clap [OPTIONS] [INPUT_FILE]
@@ -589,7 +589,7 @@ Version: 2.2.3
 
 $ 04_04_custom_derive --major --minor
 ? failed
-error: Cam only modify one version field
+error: Can only modify one version field
 
 USAGE:
     clap [OPTIONS] [INPUT_FILE]
