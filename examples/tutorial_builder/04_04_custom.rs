@@ -47,7 +47,7 @@ fn main() {
             _ => {
                 cmd.error(
                     ErrorKind::ArgumentConflict,
-                    "Cam only modify one version field",
+                    "Can only modify one version field",
                 )
                 .exit();
             }
