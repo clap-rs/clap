@@ -119,7 +119,7 @@ path = "benches/06_rustup.rs"
 [dependencies]
 clap_derive = { path = "./clap_derive", version = "3.1.4", optional = true }
 bitflags = "1.2"
-textwrap = { version = "0.14.0", default-features = false, features = [] }
+textwrap = { version = "0.15.0", default-features = false, features = [] }
 unicase = { version = "2.6", optional = true }
 indexmap = "1.0"
 os_str_bytes = "6.0"
