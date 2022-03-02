@@ -151,7 +151,8 @@ impl<'help> PossibleValue<'help> {
     /// Get the help specified for this argument, if any and the argument
     /// value is not hidden
     #[inline]
-    pub fn get_visible_help(&self) -> Option<&'help str> {
+    #[cfg(feature = "unstable-v4")]
+    pub(crate) fn get_visible_help(&self) -> Option<&'help str> {
         if !self.hide {
             self.help
         } else {
@@ -173,11 +174,15 @@ impl<'help> PossibleValue<'help> {
     }
 
     /// Report if PossibleValue is not hidden and has a help message
-    pub fn should_show_help(&self) -> bool {
+    pub(crate) fn should_show_help(&self) -> bool {
         !self.hide && self.help.is_some()
     }
 
     /// Get the name if argument value is not hidden, `None` otherwise
+    #[deprecated(
+        since = "3.1.4",
+        note = "Use `PossibleValue::is_hide_set` and `PossibleValue::get_name`"
+    )]
     pub fn get_visible_name(&self) -> Option<&'help str> {
         if self.hide {
             None
@@ -188,14 +193,16 @@ impl<'help> PossibleValue<'help> {
 
     /// Get the name if argument value is not hidden, `None` otherwise,
     /// but wrapped in quotes if it contains whitespace
-    pub fn get_visible_quoted_name(&self) -> Option<Cow<'help, str>> {
-        self.get_visible_name().map(|name| {
-            if name.contains(char::is_whitespace) {
-                format!("{:?}", name).into()
+    pub(crate) fn get_visible_quoted_name(&self) -> Option<Cow<'help, str>> {
+        if !self.hide {
+            Some(if self.name.contains(char::is_whitespace) {
+                format!("{:?}", self.name).into()
             } else {
-                name.into()
-            }
-        })
+                self.name.into()
+            })
+        } else {
+            None
+        }
     }
 
     /// Returns all valid values of the argument value.

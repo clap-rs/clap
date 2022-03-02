@@ -360,7 +360,10 @@ fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
 // Uses either `possible_vals` or `value_hint` to give hints about possible argument values
 fn value_completion(arg: &Arg) -> Option<String> {
     if let Some(values) = &arg.get_possible_values() {
-        if values.iter().any(|value| value.should_show_help()) {
+        if values
+            .iter()
+            .any(|value| !value.is_hide_set() && value.get_help().is_some())
+        {
             Some(format!(
                 "(({}))",
                 values
@@ -384,7 +387,8 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 "({})",
                 values
                     .iter()
-                    .filter_map(PossibleValue::get_visible_name)
+                    .filter(|pv| !pv.is_hide_set())
+                    .map(PossibleValue::get_name)
                     .collect::<Vec<_>>()
                     .join(" ")
             ))

@@ -442,6 +442,8 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
 
         #[cfg(feature = "unstable-v4")]
         if let Some(arg) = arg {
+            const DASH_SPACE: usize = "- ".len();
+            const COLON_SPACE: usize = ": ".len();
             if self.use_long
                 && !arg.is_hide_possible_values_set()
                 && arg
@@ -468,16 +470,16 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
-                let taken = longest + spaces + 2; // 2 = "- "
+                let taken = longest + spaces + DASH_SPACE;
 
                 let possible_value_new_line =
-                    self.term_w >= taken && self.term_w < taken + 2 + help_longest; // 2 = ": "
+                    self.term_w >= taken && self.term_w < taken + COLON_SPACE + help_longest;
 
-                let spaces = spaces + TAB_WIDTH - 2; // 2 = "- "
+                let spaces = spaces + TAB_WIDTH - DASH_SPACE;
                 let spaces_help = if possible_value_new_line {
-                    spaces + 2 // 2 = "- "
+                    spaces + DASH_SPACE
                 } else {
-                    spaces + longest + 4 // 4 = "- " + ": "
+                    spaces + longest + DASH_SPACE + COLON_SPACE
                 };
 
                 for pv in arg.possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
