@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(help)* Show `PossibleValue::help` in long help (`--help`)  **(gated behind `unstable-v4`)** (#3312)
+
 ## [3.1.3] - 2022-02-28
 
 ### Fixes
