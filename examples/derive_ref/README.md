@@ -109,12 +109,20 @@ translated into a mere method call.
 - Providing of defaults
 - Special behavior is triggered off of it
 
+## List of attributes
+
 ### Command Attributes
 
 These correspond to a `clap::Command` which is used for both top-level parsers and
 when defining subcommands.
 
-In addition to the raw attributes, the following magic attributes are supported:
+#### Raw attributes
+
+- command attributes are forwarded to all setters on [clap::App](https://docs.rs/clap/latest/clap/struct.App.html#application-wide-settings)
+  - e.g. `arg_required_else_help = true` would perform `.arg_required_else_help(true)` on [App::arg_required_else_help](https://docs.rs/clap/latest/clap/struct.App.html#method.arg_required_else_help)
+
+#### Magic attributes
+
 - `name  = <expr>`: `clap::Command::name`
   - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (`Parser` container), variant name (`Subcommand` variant)
 - `version [= <expr>]`: `clap::Command::version`
@@ -153,7 +161,13 @@ And for `Subcommand` variants:
 
 These correspond to a `clap::Arg`.
 
-In addition to the raw attributes, the following magic attributes are supported:
+#### Raw attributes
+
+- arg attributes are forwarded to all setters on [clap::Arg](https://docs.rs/clap/latest/clap/struct.Arg.html#value-handling)
+  - e.g. `max_values = 3` would perform `.max_values(3)` on [Arg::max_values](https://docs.rs/clap/latest/clap/struct.Arg.html#method.max_values)
+
+#### Magic attributes
+
 - `name = <expr>`: `clap::Arg::new`
   - When not present: case-converted field name is used
 - `help = <expr>`: `clap::Arg::help`
@@ -179,7 +193,7 @@ In addition to the raw attributes, the following magic attributes are supported:
     or on the flattened field.
 - `subcommand`: Delegates definition of subcommands to the field (must implement `Subcommand`)
   - When `Option<T>`, the subcommand becomes optional
-- `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in 
+- `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in
 - `parse(<kind> [= <function>])`: `clap::Arg::validator` and `clap::ArgMatches::values_of_t`
   - Default: `try_from_str`
   - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
