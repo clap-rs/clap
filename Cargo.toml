@@ -187,7 +187,6 @@ required-features = ["cargo"]
 [[example]]
 name = "02_apps"
 path = "examples/tutorial_builder/02_apps.rs"
-required-features = ["cargo"]
 
 [[example]]
 name = "02_crate"

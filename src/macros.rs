@@ -322,6 +322,18 @@ macro_rules! command {
     }};
 }
 
+/// Requires `cargo` feature flag to be enabled.
+#[cfg(not(feature = "cargo"))]
+#[macro_export]
+macro_rules! command {
+    () => {{
+        compile_error!("`cargo` feature flag is required");
+    }};
+    ($name:expr) => {{
+        compile_error!("`cargo` feature flag is required");
+    }};
+}
+
 /// Deprecated, replaced with [`clap::command!`][crate::command]
 #[cfg(feature = "cargo")]
 #[deprecated(since = "3.1.0", note = "Replaced with `clap::command!")]
