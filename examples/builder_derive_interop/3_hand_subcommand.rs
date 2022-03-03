@@ -42,10 +42,12 @@ impl Subcommand for CliSub {
     fn augment_subcommands(cmd: Command<'_>) -> Command<'_> {
         cmd.subcommand(Command::new("add"))
             .subcommand(Command::new("remove"))
+            .subcommand_required(true)
     }
     fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_> {
         cmd.subcommand(Command::new("add"))
             .subcommand(Command::new("remove"))
+            .subcommand_required(true)
     }
     fn has_subcommand(name: &str) -> bool {
         matches!(name, "add" | "remove")
