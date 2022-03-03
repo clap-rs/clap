@@ -1,15 +1,15 @@
 # Derive Reference
 
 1. [Overview](#overview)
-2. [Raw Attributes](#raw-attributes)
-3. [Magic Attributes](#magic-attributes)
-    1. [Command Attributes](#command-attributes)
-    2. [Arg Attributes](#arg-attributes)
-    3. [Arg Types](#arg-types)
+2. [Attributes](#attributes)
+    1. [Terminology](#terminology)
+    2. [Command Attributes](#command-attributes)
+    3. [Arg Attributes](#arg-attributes)
     4. [Arg Enum Attributes](#arg-enum-attributes)
     5. [Possible Value Attributes](#possible-value-attributes)
-    6. [Doc Comments](#doc-comments)
-4. [Tips](#tips)
+3. [Arg Types](#arg-types)
+4. [Doc Comments](#doc-comments)
+5. [Tips](#tips)
 
 ## Overview
 
@@ -84,7 +84,9 @@ fn main() {
 
 See also the [tutorial](../tutorial_derive/README.md) and [examples](../README.md).
 
-## Raw Attributes
+## Attributes
+
+### Terminology
 
 **Raw attributes** are forwarded directly to the underlying `clap` builder.  Any
 `Command`, `Arg`, or `PossibleValue` method can be used as an attribute.
@@ -103,18 +105,25 @@ Raw attributes come in two different syntaxes:
 As long as `method_name` is not one of the magical methods - it will be
 translated into a mere method call.
 
-## Magic Attributes
-
 **Magic attributes** have post-processing done to them, whether that is
 - Providing of defaults
 - Special behavior is triggered off of it
+
+Magic attributes are more constrained in the syntax they support, usually just
+`<attr> = <value>` though some use `<attr>(<value>)` instead.  See the specific
+magic attributes documentation for details.  This allows users to access the
+raw behavior of an attribute via `<attr>(<value>)` syntax.
+
+**NOTE:** Some attributes are inferred from [Arg Types](#arg-types) and [Doc
+Comments](#doc-comments).  Explicit attributes take precedence over inferred
+attributes.
 
 ### Command Attributes
 
 These correspond to a `clap::Command` which is used for both top-level parsers and
 when defining subcommands.
 
-In addition to the raw attributes, the following magic attributes are supported:
+**Magic attributes:**
 - `name  = <expr>`: `clap::Command::name`
   - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (`Parser` container), variant name (`Subcommand` variant)
 - `version [= <expr>]`: `clap::Command::version`
@@ -149,11 +158,14 @@ And for `Subcommand` variants:
 - `external_subcommand`: `clap::Command::allow_external_subcommand(true)`
   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 
+**Raw attributes:**  Any [`Command` method](https://docs.rs/clap/latest/clap/type.Command.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
+- e.g. `#[clap(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
+
 ### Arg Attributes
 
 These correspond to a `clap::Arg`.
 
-In addition to the raw attributes, the following magic attributes are supported:
+**Magic attributes**:
 - `name = <expr>`: `clap::Arg::new`
   - When not present: case-converted field name is used
 - `help = <expr>`: `clap::Arg::help`
@@ -179,7 +191,7 @@ In addition to the raw attributes, the following magic attributes are supported:
     or on the flattened field.
 - `subcommand`: Delegates definition of subcommands to the field (must implement `Subcommand`)
   - When `Option<T>`, the subcommand becomes optional
-- `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in 
+- `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in
 - `parse(<kind> [= <function>])`: `clap::Arg::validator` and `clap::ArgMatches::values_of_t`
   - Default: `try_from_str`
   - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
@@ -195,7 +207,29 @@ In addition to the raw attributes, the following magic attributes are supported:
   - Requires `std::convert::Into<OsString>` or `#[clap(arg_enum)]`
   - Without `<expr>`, relies on `Default::default()`
 
-### Arg Types
+**Raw attributes:**  Any [`Arg` method](https://docs.rs/clap/latest/clap/struct.Arg.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
+- e.g. `#[clap(max_values(3))]` would translate to `arg.max_values(3)`
+
+### Arg Enum Attributes
+
+- `rename_all = <expr>`: Override default field / variant name case conversion for `PossibleValue::new`
+  - When not present: `kebab-case`
+  - Available values: `camelCase`, `kebab-case`, `PascalCase`, `SCREAMING_SNAKE_CASE`, `snake_case`, `lower`, `UPPER`, `verbatim`
+
+### Possible Value Attributes
+
+These correspond to a `clap::PossibleValue`.
+
+**Magic attributes**:
+- `name = <expr>`: `clap::PossibleValue::new`
+  - When not present: case-converted field name is used
+- `help = <expr>`: `clap::PossibleValue::help`
+  - When not present: [Doc comment summary](#doc-comments)
+
+**Raw attributes:**  Any [`PossibleValue` method](https://docs.rs/clap/latest/clap/struct.PossibleValue.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
+- e.g. `#[clap(alias("foo"))]` would translate to `pv.alias("foo")`
+
+## Arg Types
 
 `clap` assumes some intent based on the type used:
 
@@ -243,22 +277,7 @@ Notes:
 - To support non-UTF8 paths, you must use `parse(from_os_str)`, otherwise
   `clap` will use `clap::ArgMatches::value_of` with `PathBuf::FromStr`.
 
-### Arg Enum Attributes
-
-- `rename_all = <expr>`: Override default field / variant name case conversion for `PossibleValue::new`
-  - When not present: `kebab-case`
-  - Available values: `camelCase`, `kebab-case`, `PascalCase`, `SCREAMING_SNAKE_CASE`, `snake_case`, `lower`, `UPPER`, `verbatim`
-
-### Possible Value Attributes
-
-These correspond to a `clap::PossibleValue`.
-
-- `name = <expr>`: `clap::PossibleValue::new`
-  - When not present: case-converted field name is used
-- `help = <expr>`: `clap::PossibleValue::help`
-  - When not present: [Doc comment summary](#doc-comments)
-
-### Doc Comments
+## Doc Comments
 
 In clap, help messages for the whole binary can be specified
 via [`Command::about`] and [`Command::long_about`] while help messages
@@ -302,7 +321,7 @@ the doc comment.  To clear `long_about`, you can use
 
 **TIP:** Set `#![deny(missing_docs)]` to catch missing `--help` documentation at compile time.
 
-#### Pre-processing
+### Pre-processing
 
 ```rust
 # use clap::Parser;
