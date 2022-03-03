@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 use clap::{arg, command, ArgEnum, PossibleValue};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
