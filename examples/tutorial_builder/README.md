@@ -22,6 +22,8 @@
 
 You can create an application with several arguments using usage strings.
 
+Note: This example uses the `command!()` macro. This requires the `cargo` feature flag.
+
 [Example:](01_quick.rs)
 ```console
 $ 01_quick --help
@@ -87,7 +89,7 @@ MyApp 1.0
 ```
 
 You can use `command!()` to fill these fields in from your `Cargo.toml`
-file.  **This requires the `cargo` feature flag.**
+file.  This requires the `cargo` feature flag.
 
 [Example:](02_crate.rs)
 ```console
