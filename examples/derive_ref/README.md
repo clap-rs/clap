@@ -179,7 +179,7 @@ These correspond to a `clap::Arg`.
 - `long [= <str>]`: `clap::Arg::long`
   - When not present: no long set
   - Without `<str>`: defaults to the case-converted field name
-- `env [= <str>]`: `clap::Arg::env`
+- `env [= <str>]`: `clap::Arg::env` (needs `env` feature enabled)
   - When not present: no env set
   - Without `<str>`: defaults to the case-converted field name
 - `flatten`: Delegates to the field for more arguments (must implement `Args`)
