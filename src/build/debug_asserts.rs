@@ -675,15 +675,29 @@ fn assert_defaults<'d>(
     for default_os in defaults {
         if let Some(default_s) = default_os.to_str() {
             if !arg.possible_vals.is_empty() {
-                assert!(
-                    arg.possible_vals.iter().any(|possible_val| {
-                        possible_val.matches(default_s, arg.is_ignore_case_set())
-                    }),
-                    "Argument `{}`'s {}={} doesn't match possible values",
-                    arg.name,
-                    field,
-                    default_s
-                );
+                if let Some(delim) = arg.get_value_delimiter() {
+                    for part in default_s.split(delim) {
+                        assert!(
+                            arg.possible_vals.iter().any(|possible_val| {
+                                possible_val.matches(part, arg.is_ignore_case_set())
+                            }),
+                            "Argument `{}`'s {}={} doesn't match possible values",
+                            arg.name,
+                            field,
+                            part
+                        )
+                    }
+                } else {
+                    assert!(
+                        arg.possible_vals.iter().any(|possible_val| {
+                            possible_val.matches(default_s, arg.is_ignore_case_set())
+                        }),
+                        "Argument `{}`'s {}={} doesn't match possible values",
+                        arg.name,
+                        field,
+                        default_s
+                    );
+                }
             }
 
             if let Some(validator) = arg.validator.as_ref() {
