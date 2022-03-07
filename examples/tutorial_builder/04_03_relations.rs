@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 use clap::{arg, command, ArgGroup};
 
 fn main() {

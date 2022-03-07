@@ -605,7 +605,7 @@ OPTIONS:
 
 $ 04_04_custom
 ? failed
-error: Cam only modify one version field
+error: Can only modify one version field
 
 USAGE:
     04_04_custom[EXE] [OPTIONS] [INPUT_FILE]
@@ -617,7 +617,7 @@ Version: 2.2.3
 
 $ 04_04_custom --major --minor
 ? failed
-error: Cam only modify one version field
+error: Can only modify one version field
 
 USAGE:
     04_04_custom[EXE] [OPTIONS] [INPUT_FILE]

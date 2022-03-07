@@ -8,7 +8,6 @@ use std::{
 use os_str_bytes::RawOsStr;
 
 // Internal
-use crate::build::AppSettings as AS;
 use crate::build::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -18,6 +17,7 @@ use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
 use crate::util::{color::ColorChoice, Id};
+use crate::{build::AppSettings as AS, PossibleValue};
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
@@ -786,7 +786,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         // specified by the user is sent through. If hide_short_help is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some() || v.is_hide_long_help_set() || v.is_hide_short_help_set()
+            v.long_help.is_some()
+                || v.is_hide_long_help_set()
+                || v.is_hide_short_help_set()
+                || cfg!(feature = "unstable-v4")
+                    && v.possible_vals.iter().any(PossibleValue::should_show_help)
         };
 
         // Subcommands aren't checked because we prefer short help for them, deferring to

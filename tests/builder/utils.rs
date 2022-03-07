@@ -1,6 +1,6 @@
 #![allow(unused_imports, dead_code)]
 
-use std::io::{Cursor, Write};
+use std::io::{BufRead, Cursor, Write};
 use std::str;
 
 use regex::Regex;
@@ -19,6 +19,20 @@ where
     let left_ = re.replace_all(&*ls, "");
     let right = re.replace_all(&*rs, "");
     let b = left_ == right;
+    let line_diff = left_
+        .lines()
+        .zip(right.lines())
+        .enumerate()
+        .filter_map(|(line, (left, right))| {
+            if left != right {
+                Some(format!("Line {}:\n{}\n{}", line, left, right))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let line_count_diff = (left_.lines().count() as isize) - right.lines().count() as isize;
     if !b {
         dbg!(&left_);
         dbg!(&right);
@@ -27,7 +41,12 @@ where
         println!("{}", left_);
         println!("--> right");
         println!("{}", right);
-        println!("--")
+        println!("--> diff");
+        println!("{}", line_diff);
+        println!("--");
+        if line_count_diff != 0 {
+            println!("left line count - right line count = {}", line_count_diff);
+        }
     }
     b
 }

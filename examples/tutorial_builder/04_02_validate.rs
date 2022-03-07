@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 use clap::{arg, command};
 use std::ops::RangeInclusive;
 use std::str::FromStr;

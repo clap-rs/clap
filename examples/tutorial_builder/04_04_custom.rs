@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 use clap::{arg, command, ErrorKind};
 
 fn main() {
@@ -47,7 +49,7 @@ fn main() {
             _ => {
                 cmd.error(
                     ErrorKind::ArgumentConflict,
-                    "Cam only modify one version field",
+                    "Can only modify one version field",
                 )
                 .exit();
             }

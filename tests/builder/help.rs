@@ -965,6 +965,89 @@ OPTIONS:
 }
 
 #[test]
+#[cfg(all(feature = "wrap_help"))]
+fn possible_value_wrapped_help() {
+    #[cfg(feature = "unstable-v4")]
+    static WRAPPED_HELP: &str = "test 
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+    -h, --help
+            Print help information
+
+        --possible-values <possible_values>
+            Possible values:
+              - short_name:
+                Long enough help message, barely warrant wrapping
+              - second:
+                Short help gets handled the same
+
+        --possible-values-with-new-line <possible_values_with_new_line>
+            Possible values:
+              - long enough name to trigger new line:
+                Really long enough help message to clearly warrant
+                wrapping believe me
+              - second
+
+        --possible-values-without-new-line <possible_values_without_new_line>
+            Possible values:
+              - name:   Short enough help message with no wrapping
+              - second: short help
+";
+    #[cfg(not(feature = "unstable-v4"))]
+    static WRAPPED_HELP: &str = r#"test 
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+    -h, --help                                                                   Print help information
+        --possible-values <possible_values>                                      [possible values: short_name, second]
+        --possible-values-with-new-line <possible_values_with_new_line>          [possible values: "long enough name to trigger new line", second]
+        --possible-values-without-new-line <possible_values_without_new_line>    [possible values: name, second]
+"#;
+    let cmd = Command::new("test")
+        .term_width(67)
+        .arg(
+            Arg::new("possible_values")
+                .long("possible-values")
+                .possible_value(
+                    PossibleValue::new("short_name")
+                        .help("Long enough help message, barely warrant wrapping"),
+                )
+                .possible_value(
+                    PossibleValue::new("second").help("Short help gets handled the same"),
+                ),
+        )
+        .arg(
+            Arg::new("possible_values_with_new_line")
+                .long("possible-values-with-new-line")
+                .possible_value(
+                    PossibleValue::new("long enough name to trigger new line").help(
+                        "Really long enough help message to clearly warrant wrapping believe me",
+                    ),
+                )
+                .possible_value("second"),
+        )
+        .arg(
+            Arg::new("possible_values_without_new_line")
+                .long("possible-values-without-new-line")
+                .possible_value(
+                    PossibleValue::new("name").help("Short enough help message with no wrapping"),
+                )
+                .possible_value(PossibleValue::new("second").help("short help")),
+        );
+    assert!(utils::compare_output(
+        cmd,
+        "test --help",
+        WRAPPED_HELP,
+        false
+    ));
+}
+
+#[test]
 fn complex_subcommand_help_output() {
     let a = utils::complex_app();
     assert!(utils::compare_output(
@@ -1057,6 +1140,72 @@ fn hide_single_possible_val() {
         cmd,
         "ctest --help",
         HIDE_POS_VALS,
+        false
+    ));
+}
+
+#[test]
+fn possible_vals_with_help() {
+    #[cfg(feature = "unstable-v4")]
+    static POS_VALS_HELP: &str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+OPTIONS:
+    -c, --cafe <FILE>
+            A coffeehouse, coffee shop, or café.
+
+    -h, --help
+            Print help information
+
+    -p, --pos <VAL>
+            Some vals
+
+            Possible values:
+              - fast
+              - slow: not as fast
+
+    -V, --version
+            Print version information
+";
+    #[cfg(not(feature = "unstable-v4"))]
+    static POS_VALS_HELP: &str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
+    -h, --help           Print help information
+    -p, --pos <VAL>      Some vals [possible values: fast, slow]
+    -V, --version        Print version information
+";
+    let app = Command::new("ctest")
+        .version("0.1")
+        .arg(
+            Arg::new("pos")
+                .short('p')
+                .long("pos")
+                .value_name("VAL")
+                .possible_value("fast")
+                .possible_value(PossibleValue::new("slow").help("not as fast"))
+                .possible_value(PossibleValue::new("secret speed").hide(true))
+                .help("Some vals")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::new("cafe")
+                .short('c')
+                .long("cafe")
+                .value_name("FILE")
+                .help("A coffeehouse, coffee shop, or café.")
+                .takes_value(true),
+        );
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        POS_VALS_HELP,
         false
     ));
 }

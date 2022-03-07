@@ -308,7 +308,7 @@ $ 03_04_subcommands_derive add bob
 
 Above, we used a struct-variant to define the `add` subcommand.  Alternatively,
 you can
-[use a struct for your subcommand's arguments](03_04_subcommands_alt_derive.rs).
+[use a struct for your subcommand's arguments](03_04_subcommands_alt.rs).
 
 Because we used `command: Commands` instead of `command: Option<Commands>`:
 ```console
@@ -577,7 +577,7 @@ OPTIONS:
 
 $ 04_04_custom_derive
 ? failed
-error: Cam only modify one version field
+error: Can only modify one version field
 
 USAGE:
     clap [OPTIONS] [INPUT_FILE]
@@ -589,7 +589,7 @@ Version: 2.2.3
 
 $ 04_04_custom_derive --major --minor
 ? failed
-error: Cam only modify one version field
+error: Can only modify one version field
 
 USAGE:
     clap [OPTIONS] [INPUT_FILE]
