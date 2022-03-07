@@ -20,6 +20,8 @@ fn main() {
 
     // Since DerivedArgs implements FromArgMatches, we can extract it from the unstructured ArgMatches.
     // This is the main benefit of using derived arguments.
-    let derived_matches = DerivedArgs::from_arg_matches(&matches).unwrap();
+    let derived_matches = DerivedArgs::from_arg_matches(&matches)
+        .map_err(|err| err.exit())
+        .unwrap();
     println!("Value of derived: {:#?}", derived_matches);
 }

@@ -3,14 +3,14 @@ use clap::{ArgMatches, Command, FromArgMatches, Parser, Subcommand};
 
 #[derive(Debug)]
 enum CliSub {
-    Add,
-    Remove,
+    Add { name: String },
+    Remove { force: bool, name: String },
 }
 
 impl FromArgMatches for CliSub {
     fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error> {
         match matches.subcommand() {
-            Some(("add", _)) => Ok(Self::Add),
+            Some(("add", args)) => Ok(Self::Add),
             Some(("remove", _)) => Ok(Self::Remove),
             Some((_, _)) => Err(Error::raw(
                 ErrorKind::UnrecognizedSubcommand,
