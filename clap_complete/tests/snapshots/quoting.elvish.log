@@ -1,0 +1,67 @@
+
+use builtin;
+use str;
+
+set edit:completion:arg-completer[my-app] = {|@words|
+    fn spaces {|n|
+        builtin:repeat $n ' ' | str:join ''
+    }
+    fn cand {|text desc|
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
+    }
+    var command = 'my-app'
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
+            break
+        }
+        set command = $command';'$word
+    }
+    var completions = [
+        &'my-app'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
+            cand --single-quotes 'Can be ''always'', ''auto'', or ''never'''
+            cand --double-quotes 'Can be "always", "auto", or "never"'
+            cand --backticks 'For more information see `echo test`'
+            cand --backslash 'Avoid ''/n'''
+            cand --brackets 'List packages [filter]'
+            cand --expansions 'Execute the shell command with $SHELL'
+            cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
+            cand cmd-double-quotes 'Can be "always", "auto", or "never"'
+            cand cmd-backticks 'For more information see `echo test`'
+            cand cmd-backslash 'Avoid ''/n'''
+            cand cmd-brackets 'List packages [filter]'
+            cand cmd-expansions 'Execute the shell command with $SHELL'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'my-app;cmd-single-quotes'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+        }
+        &'my-app;cmd-double-quotes'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+        }
+        &'my-app;cmd-backticks'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+        }
+        &'my-app;cmd-backslash'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+        }
+        &'my-app;cmd-brackets'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+        }
+        &'my-app;cmd-expansions'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+        }
+        &'my-app;help'= {
+        }
+    ]
+    $completions[$command]
+}
