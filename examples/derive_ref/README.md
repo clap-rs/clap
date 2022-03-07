@@ -10,6 +10,7 @@
     5. [Possible Value Attributes](#possible-value-attributes)
     6. [Doc Comments](#doc-comments)
 4. [Tips](#tips)
+5. [Mixing Builder and Derive APIS](#mixing-builder-and-derive-apis)
 
 ## Overview
 
@@ -365,3 +366,41 @@ them.
 
 - To get access to a `Command` call `CommandFactory::command` (implemented when deriving `Parser`)
 - Proactively check for bad `Command` configurations by calling `Command::debug_assert` in a test ([example](../tutorial_derive/05_01_assert.rs))
+
+## Mixing Builder and Derive APIs
+
+The builder and derive APIs do not live in isolation. They can work together, which is especially helpful if some arguments can be specified at compile-time while others must be specified at runtime.
+
+### Using derived arguments in a builder application
+
+*[Jump to source](augment_args.rs)*
+
+When using the derive API, you can `#[clap(flatten)]` a struct deriving `Args` into a struct deriving `Args` or `Parser`. This example shows how you can augment a `Command` instance created using the builder API with `Args` created using the derive API.
+
+It uses the `Args::augment_args` method to add the arguments to the `Command` instance.
+
+Crates such as [clap-verbosity-flag](https://github.com/rust-cli/clap-verbosity-flag) provide structs that implement `Args` or `Parser`. Without the technique shown in this example, it would not be possible to use such crates with the builder API. `augment_args` to the rescue!
+
+### Using derived subcommands in a builder application
+
+*[Jump to source](augment_subcommands.rs)*
+
+When using the derive API, you can use `#[clap(subcommand)]` inside the struct to add subcommands. The type of the field is usually an enum that derived `Parser`. However, you can also add the subcommands in that enum to a `Command` instance created with the builder API.
+
+It uses the `Subcommand::augment_subcommands` method to add the subcommands to the `Command` instance.
+
+### Adding hand-implemented subcommands to a derived application
+
+*[Jump to source](hand_subcommand.rs)*
+
+When using the derive API, you can use `#[clap(subcommand)]` inside the struct to add subcommands. The type of the field is usually an enum that derived `Parser`. However, you can also implement the `Subcommand` trait manually on this enum (or any other type) and it can still be used inside the struct created with the derive API. The implementation of the `Subcommand` trait will use the builder API to add the subcommands to the `Command` instance created behind the scenes for you by the derive API.
+
+Notice how in the previous example we used `augment_subcommands` on an enum that derived `Parser`, whereas now we implement `augment_subcommands` ourselves, but the derive API calls it automatically since we used the `#[clap(subcommand)]` attribute.
+
+### Flattening hand-implemented args into a derived application
+
+*[Jump to source](flatten_hand_args.rs)*
+
+When using the derive API, you can use `#[clap(flatten)]` inside the struct to add arguments as if they were added directly to the containing struct. The type of the field is usually an struct that derived `Args`. However, you can also implement the `Args` trait manually on this struct (or any other type) and it can still be used inside the struct created with the derive API. The implementation of the `Args` trait will use the builder API to add the arguments to the `Command` instance created behind the scenes for you by the derive API.
+
+Notice how in the example 1 we used `augment_args` on the struct that derived `Parser`, whereas now we implement `augment_args` ourselves, but the derive API calls it automatically since we used the `#[clap(flatten)]` attribute.

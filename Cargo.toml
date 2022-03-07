@@ -357,22 +357,22 @@ required-features = ["derive"]
 
 [[example]]
 name = "interop_augment_args"
-path = "examples/derive_ref/1_augment_args.rs"
+path = "examples/derive_ref/augment_args.rs"
 required-features = ["derive"]
 
 [[example]]
 name = "interop_augment_subcommands"
-path = "examples/derive_ref/2_augment_subcommands.rs"
+path = "examples/derive_ref/augment_subcommands.rs"
 required-features = ["derive"]
 
 [[example]]
 name = "interop_hand_subcommand"
-path = "examples/derive_ref/3_hand_subcommand.rs"
+path = "examples/derive_ref/hand_subcommand.rs"
 required-features = ["derive"]
 
 [[example]]
 name = "interop_flatten_hand_args"
-path = "examples/derive_ref/4_flatten_hand_args.rs"
+path = "examples/derive_ref/flatten_hand_args.rs"
 required-features = ["derive"]
 
 [profile.test]
