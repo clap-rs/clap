@@ -355,10 +355,29 @@ name = "custom-bool"
 path = "examples/derive_ref/custom-bool.rs"
 required-features = ["derive"]
 
+[[example]]
+name = "interop_augment_args"
+path = "examples/derive_ref/augment_args.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "interop_augment_subcommands"
+path = "examples/derive_ref/augment_subcommands.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "interop_hand_subcommand"
+path = "examples/derive_ref/hand_subcommand.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "interop_flatten_hand_args"
+path = "examples/derive_ref/flatten_hand_args.rs"
+required-features = ["derive"]
+
 [profile.test]
 opt-level = 1
 
 [profile.bench]
 lto = true
 codegen-units = 1
-
