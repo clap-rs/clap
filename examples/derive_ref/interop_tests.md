@@ -101,7 +101,7 @@ For more information try --help
 ```console
 $ interop_hand_subcommand
 ? failed
-error: 'interop_hand_subcommand' requires a subcommand but one was not provided
+error: 'interop_hand_subcommand[EXE]' requires a subcommand but one was not provided
 
 USAGE:
     interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
