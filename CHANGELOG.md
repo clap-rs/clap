@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't panic when validating delimited defaults (#3541)
+- Make it clearer that `cargo` feature is needed
+- Documentation improvements
+
 ## [3.1.5] - 2022-03-02
 
 ### Fixes
