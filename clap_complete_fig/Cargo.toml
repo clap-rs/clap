@@ -42,4 +42,4 @@ clap = { path = "../", version = "3.1.0", default-features = false, features = [
 clap_complete = { path = "../clap_complete", version = "3.1.0" }
 
 [dev-dependencies]
-pretty_assertions = "1.0"
+snapbox = { version = "0.2", features = ["diff"] }
