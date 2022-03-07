@@ -1,4 +1,4 @@
-use clap::{Arg, Command, FromArgMatches as _, Parser, Subcommand as _};
+use clap::{Command, FromArgMatches as _, Parser, Subcommand as _};
 
 #[derive(Parser, Debug)]
 enum Subcommands {
