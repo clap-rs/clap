@@ -9,10 +9,8 @@ enum Subcommands {
 }
 
 fn main() {
-    let cli = Command::new("Built CLI").subcommand(
-        Command::new("built").arg(Arg::new("built-flag").short('b').long("built-flag")),
-    );
-    // Augment built subcommands with derived subcommands
+    let cli = Command::new("Built CLI");
+    // Augment with derived subcommands
     let cli = Subcommands::augment_subcommands(cli);
 
     let matches = cli.get_matches();
