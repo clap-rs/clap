@@ -1,0 +1,57 @@
+.ie /n(.g .ds Aq /(aq
+.el .ds Aq '
+.TH my-app 1  "my-app 3.0" 
+.SH NAME
+my/-app
+.SH SYNOPSIS
+/fBmy/-app/fR [/fB/-h/fR|/fB/-/-help/fR] [/fB/-V/fR|/fB/-/-version/fR] [/fB/-/-single/-quotes/fR] [/fB/-/-double/-quotes/fR] [/fB/-/-backticks/fR] [/fB/-/-backslash/fR] [/fB/-/-brackets/fR] [/fB/-/-expansions/fR] [/fIsubcommands/fR]
+.SH DESCRIPTION
+.SH OPTIONS
+.TP
+/fB/-h/fR, /fB/-/-help/fR
+Print help information
+.TP
+/fB/-V/fR, /fB/-/-version/fR
+Print version information
+.TP
+/fB/-/-single/-quotes/fR
+Can be /*(Aqalways/*(Aq, /*(Aqauto/*(Aq, or /*(Aqnever/*(Aq
+.TP
+/fB/-/-double/-quotes/fR
+Can be "always", "auto", or "never"
+.TP
+/fB/-/-backticks/fR
+For more information see `echo test`
+.TP
+/fB/-/-backslash/fR
+Avoid /*(Aq//n/*(Aq
+.TP
+/fB/-/-brackets/fR
+List packages [filter]
+.TP
+/fB/-/-expansions/fR
+Execute the shell command with $SHELL
+.SH SUBCOMMANDS
+.TP
+my/-app/-cmd/-single/-quotes(1)
+Can be /*(Aqalways/*(Aq, /*(Aqauto/*(Aq, or /*(Aqnever/*(Aq
+.TP
+my/-app/-cmd/-double/-quotes(1)
+Can be "always", "auto", or "never"
+.TP
+my/-app/-cmd/-backticks(1)
+For more information see `echo test`
+.TP
+my/-app/-cmd/-backslash(1)
+Avoid /*(Aq//n/*(Aq
+.TP
+my/-app/-cmd/-brackets(1)
+List packages [filter]
+.TP
+my/-app/-cmd/-expansions(1)
+Execute the shell command with $SHELL
+.TP
+my/-app/-help(1)
+Print this message or the help of the given subcommand(s)
+.SH VERSION
+v3.0
