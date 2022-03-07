@@ -40,7 +40,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 	If you tried to supply `--unknown` as a value rather than a flag, use `-- --unknown`
 
 USAGE:
-    interop_augment_args [OPTIONS]
+    interop_augment_args[EXE] [OPTIONS]
 
 For more information try --help
 
@@ -78,7 +78,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 	If you tried to supply `--unknown` as a value rather than a flag, use `-- --unknown`
 
 USAGE:
-    interop_augment_subcommands derived [OPTIONS]
+    interop_augment_subcommands[EXE] derived [OPTIONS]
 
 For more information try --help
 
@@ -90,7 +90,7 @@ $ interop_augment_subcommands unknown
 error: Found argument 'unknown' which wasn't expected, or isn't valid in this context
 
 USAGE:
-    interop_augment_subcommands [SUBCOMMAND]
+    interop_augment_subcommands[EXE] [SUBCOMMAND]
 
 For more information try --help
 
@@ -104,7 +104,7 @@ $ interop_hand_subcommand
 error: 'interop_hand_subcommand' requires a subcommand but one was not provided
 
 USAGE:
-    interop_hand_subcommand [OPTIONS] <SUBCOMMAND>
+    interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
 
 For more information try --help
 
@@ -148,7 +148,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 	If you tried to supply `--unknown` as a value rather than a flag, use `-- --unknown`
 
 USAGE:
-    interop_hand_subcommand add [NAME]...
+    interop_hand_subcommand[EXE] add [NAME]...
 
 For more information try --help
 
@@ -192,7 +192,7 @@ $ interop_hand_subcommand unknown
 error: Found argument 'unknown' which wasn't expected, or isn't valid in this context
 
 USAGE:
-    interop_hand_subcommand [OPTIONS] <SUBCOMMAND>
+    interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
 
 For more information try --help
 
@@ -249,7 +249,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 	If you tried to supply `--unknown` as a value rather than a flag, use `-- --unknown`
 
 USAGE:
-    interop_flatten_hand_args [OPTIONS]
+    interop_flatten_hand_args[EXE] [OPTIONS]
 
 For more information try --help
 
