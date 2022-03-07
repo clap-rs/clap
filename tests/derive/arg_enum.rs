@@ -457,3 +457,39 @@ fn option_vec_type() {
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
 }
+
+#[test]
+fn vec_type_default_value() {
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+        Bar,
+        Baz,
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(
+            arg_enum,
+            short,
+            long,
+            default_value = "foo,bar",
+            value_delimiter = ','
+        )]
+        arg: Vec<ArgChoice>,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: vec![ArgChoice::Foo, ArgChoice::Bar]
+        },
+        Opt::try_parse_from(&[""]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: vec![ArgChoice::Foo, ArgChoice::Baz]
+        },
+        Opt::try_parse_from(&["", "-a", "foo,baz"]).unwrap()
+    );
+}
