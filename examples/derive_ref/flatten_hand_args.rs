@@ -30,12 +30,12 @@ impl Args for CliArgs {
     fn augment_args(cmd: Command<'_>) -> Command<'_> {
         cmd.arg(Arg::new("foo").short('f').long("foo"))
             .arg(Arg::new("bar").short('b').long("bar"))
-            .arg(Arg::new("quuz").short('B').long("quuz").takes_value(true))
+            .arg(Arg::new("quuz").short('q').long("quuz").takes_value(true))
     }
     fn augment_args_for_update(cmd: Command<'_>) -> Command<'_> {
         cmd.arg(Arg::new("foo").short('f').long("foo"))
             .arg(Arg::new("bar").short('b').long("bar"))
-            .arg(Arg::new("quuz").short('B').long("quuz").takes_value(true))
+            .arg(Arg::new("quuz").short('q').long("quuz").takes_value(true))
     }
 }
 
