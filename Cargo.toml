@@ -129,11 +129,11 @@ atty = { version = "0.2",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.1.12", optional = true }
 lazy_static = { version = "1", optional = true }
-regex = { version = "1.0", optional = true }
+regex = { version = "1.5.5", optional = true }
 backtrace = { version = "0.3", optional = true }
 
 [dev-dependencies]
-regex = "1.0"
+regex = "1.5.5"
 lazy_static = "1"
 criterion = "0.3.2"
 trybuild = "1.0.18"
