@@ -293,7 +293,39 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Placeholder documentation.
+    /// Get an [`Iterator`] over groups of values of a specific option.
+    ///
+    /// specifically grouped by the occurrences of the options.
+    ///
+    /// Each group is a `Vec<&str>` containing the arguments passed to a single occurrence
+    /// of the option.
+    ///
+    /// If the option doesn't support multiple occurrences, or there was only a single occurrence,
+    /// the iterator will only contain a single item.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Panics
+    ///
+    /// If the value is invalid UTF-8.
+    ///
+    /// If `id` is not a valid argument or group name.
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use clap::{Command,Arg};
+    /// let m = Command::new("myprog")
+    ///     .arg(Arg::new("exec")
+    ///         .short('x')
+    ///         .min_values(1)
+    ///         .multiple_occurrences(true)
+    ///         .value_terminator(";"))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-x", "echo", "hi", ";", "-x", "echo", "bye"]);
+    /// let vals: Vec<Vec<&str>> = m.grouped_values_of("exec").unwrap().collect();
+    /// assert_eq!(vals, [["echo", "hi"], ["echo", "bye"]]);
+    /// ```
+    /// [`Iterator`]: std::iter::Iterator
     #[cfg(feature = "unstable-grouped")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
