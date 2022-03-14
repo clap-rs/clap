@@ -4288,7 +4288,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
             debug!("App::_check_help_and_version: Removing generated version");
 
             // This is the check mentioned above that only checks for Generated, not
-            // GeneratedMuated args by design.
+            // GeneratedMutated args by design.
             let generated_version_pos = self
                 .args
                 .args()
