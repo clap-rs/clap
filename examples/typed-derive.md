@@ -13,6 +13,7 @@ USAGE:
 OPTIONS:
     -D <DEFINES>             Hand-written parser for tuples
     -h, --help               Print help information
+    -I <DIR>                 Allow invalid UTF-8 paths
     -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
 
 ```
@@ -20,7 +21,7 @@ OPTIONS:
 Optimization-level (number)
 ```console
 $ typed-derive -O 1
-Args { optimization: Some(1), defines: [] }
+Args { optimization: Some(1), include: None, defines: [] }
 
 $ typed-derive -O plaid
 ? failed
@@ -30,10 +31,17 @@ For more information try --help
 
 ```
 
+Include (path)
+```console
+$ typed-derive -I../hello
+Args { optimization: None, include: Some("../hello"), defines: [] }
+
+```
+
 Defines (key-value pairs)
 ```console
 $ typed-derive -D Foo=10 -D Alice=30
-Args { optimization: None, defines: [("Foo", 10), ("Alice", 30)] }
+Args { optimization: None, include: None, defines: [("Foo", 10), ("Alice", 30)] }
 
 $ typed-derive -D Foo
 ? failed
