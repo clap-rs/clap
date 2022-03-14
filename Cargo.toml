@@ -166,7 +166,7 @@ name = "git-derive"
 required-features = ["derive"]
 
 [[example]]
-name = "keyvalue-derive"
+name = "typed-derive"
 required-features = ["derive"]
 
 [[example]]

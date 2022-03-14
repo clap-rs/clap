@@ -1,28 +1,28 @@
-*Jump to [source](keyvalue-derive.rs)*
+*Jump to [source](typed-derive.rs)*
 
 **This requires enabling the `derive` feature flag.**
 
 ```console
-$ keyvalue-derive --help
+$ typed-derive --help
 clap 
 
 USAGE:
-    keyvalue-derive[EXE] [OPTIONS]
+    typed-derive[EXE] [OPTIONS]
 
 OPTIONS:
     -D <DEFINES>        
     -h, --help          Print help information
 
-$ keyvalue-derive -D Foo=10 -D Alice=30
+$ typed-derive -D Foo=10 -D Alice=30
 Args { defines: [("Foo", 10), ("Alice", 30)] }
 
-$ keyvalue-derive -D Foo
+$ typed-derive -D Foo
 ? failed
 error: Invalid value "Foo" for '-D <DEFINES>': invalid KEY=value: no `=` found in `Foo`
 
 For more information try --help
 
-$ keyvalue-derive -D Foo=Bar
+$ typed-derive -D Foo=Bar
 ? failed
 error: Invalid value "Foo=Bar" for '-D <DEFINES>': invalid digit found in string
 

@@ -1,7 +1,7 @@
 # Examples
 
 - Basic demo: [derive](demo.md)
-- Key-value pair arguments: [derive](keyvalue-derive.md)
+- Typed arguments: [derive](typed-derive.md)
   - Topics:
     - Custom `parse()`
 - Custom cargo command: [builder](cargo-example.md), [derive](cargo-example-derive.md)
