@@ -5,6 +5,11 @@ use std::error::Error;
 
 #[derive(Parser, Debug)]
 struct Args {
+    /// Implicitly using `std::str::FromStr`
+    #[clap(short = 'O')]
+    optimization: Option<usize>,
+
+    /// Hand-written parser for tuples
     #[clap(short = 'D', parse(try_from_str = parse_key_val), multiple_occurrences(true))]
     defines: Vec<(String, i32)>,
 }

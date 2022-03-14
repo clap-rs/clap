@@ -2,6 +2,7 @@
 
 **This requires enabling the `derive` feature flag.**
 
+Help:
 ```console
 $ typed-derive --help
 clap 
@@ -10,11 +11,29 @@ USAGE:
     typed-derive[EXE] [OPTIONS]
 
 OPTIONS:
-    -D <DEFINES>        
-    -h, --help          Print help information
+    -D <DEFINES>             Hand-written parser for tuples
+    -h, --help               Print help information
+    -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
 
+```
+
+Optimization-level (number)
+```console
+$ typed-derive -O 1
+Args { optimization: Some(1), defines: [] }
+
+$ typed-derive -O plaid
+? failed
+error: Invalid value "plaid" for '-O <OPTIMIZATION>': invalid digit found in string
+
+For more information try --help
+
+```
+
+Defines (key-value pairs)
+```console
 $ typed-derive -D Foo=10 -D Alice=30
-Args { defines: [("Foo", 10), ("Alice", 30)] }
+Args { optimization: None, defines: [("Foo", 10), ("Alice", 30)] }
 
 $ typed-derive -D Foo
 ? failed
