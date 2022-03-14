@@ -11,6 +11,7 @@ USAGE:
     typed-derive[EXE] [OPTIONS]
 
 OPTIONS:
+        --bind <BIND>        Handle IP addresses
     -D <DEFINES>             Hand-written parser for tuples
     -h, --help               Print help information
     -I <DIR>                 Allow invalid UTF-8 paths
@@ -22,7 +23,7 @@ OPTIONS:
 Optimization-level (number)
 ```console
 $ typed-derive -O 1
-Args { optimization: Some(1), include: None, sleep: None, defines: [] }
+Args { optimization: Some(1), include: None, bind: None, sleep: None, defines: [] }
 
 $ typed-derive -O plaid
 ? failed
@@ -35,14 +36,27 @@ For more information try --help
 Include (path)
 ```console
 $ typed-derive -I../hello
-Args { optimization: None, include: Some("../hello"), sleep: None, defines: [] }
+Args { optimization: None, include: Some("../hello"), bind: None, sleep: None, defines: [] }
+
+```
+
+IP Address
+```console
+$ typed-derive --bind 192.0.0.1
+Args { optimization: None, include: None, bind: Some(192.0.0.1), sleep: None, defines: [] }
+
+$ typed-derive --bind localhost
+? failed
+error: Invalid value "localhost" for '--bind <BIND>': invalid IP address syntax
+
+For more information try --help
 
 ```
 
 Time
 ```console
 $ typed-derive --sleep 10s
-Args { optimization: None, include: None, sleep: Some(Duration(10s)), defines: [] }
+Args { optimization: None, include: None, bind: None, sleep: Some(Duration(10s)), defines: [] }
 
 $ typed-derive --sleep forever
 ? failed
@@ -55,7 +69,7 @@ For more information try --help
 Defines (key-value pairs)
 ```console
 $ typed-derive -D Foo=10 -D Alice=30
-Args { optimization: None, include: None, sleep: None, defines: [("Foo", 10), ("Alice", 30)] }
+Args { optimization: None, include: None, bind: None, sleep: None, defines: [("Foo", 10), ("Alice", 30)] }
 
 $ typed-derive -D Foo
 ? failed

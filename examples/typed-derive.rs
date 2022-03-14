@@ -13,6 +13,10 @@ struct Args {
     #[clap(short = 'I', parse(from_os_str), value_name = "DIR", value_hint = clap::ValueHint::DirPath)]
     include: Option<std::path::PathBuf>,
 
+    /// Handle IP addresses
+    #[clap(long)]
+    bind: Option<std::net::IpAddr>,
+
     /// Allow human-readable durations
     #[clap(long)]
     sleep: Option<humantime::Duration>,
