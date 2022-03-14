@@ -419,8 +419,6 @@ For more information try --help
 
 More generally, you can validate and parse into any data type.
 
-More generally, you can parse into any data type.
-
 [Example:](04_02_parse.rs)
 ```console
 $ 04_02_parse_derive --help
@@ -448,7 +446,7 @@ For more information try --help
 
 ```
 
-A custom validator can be used to improve the error messages or provide additional validation:
+A custom parser can be used to improve the error messages or provide additional validation:
 
 [Example:](04_02_validate.rs)
 ```console
@@ -468,6 +466,12 @@ OPTIONS:
 
 $ 04_02_validate_derive 22
 PORT = 22
+
+$ 04_02_validate_derive foobar
+? failed
+error: Invalid value "foobar" for '<PORT>': `foobar` isn't a port number
+
+For more information try --help
 
 $ 04_02_validate_derive 0
 ? failed

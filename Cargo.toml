@@ -140,6 +140,7 @@ trybuild = "1.0.18"
 rustversion = "1"
 # Cutting out `filesystem` feature
 trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
+humantime = "2"
 
 [[example]]
 name = "demo"
@@ -166,7 +167,7 @@ name = "git-derive"
 required-features = ["derive"]
 
 [[example]]
-name = "keyvalue-derive"
+name = "typed-derive"
 required-features = ["derive"]
 
 [[example]]
