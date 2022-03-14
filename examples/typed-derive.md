@@ -15,13 +15,14 @@ OPTIONS:
     -h, --help               Print help information
     -I <DIR>                 Allow invalid UTF-8 paths
     -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
+        --sleep <SLEEP>      Allow human-readable durations
 
 ```
 
 Optimization-level (number)
 ```console
 $ typed-derive -O 1
-Args { optimization: Some(1), include: None, defines: [] }
+Args { optimization: Some(1), include: None, sleep: None, defines: [] }
 
 $ typed-derive -O plaid
 ? failed
@@ -34,14 +35,27 @@ For more information try --help
 Include (path)
 ```console
 $ typed-derive -I../hello
-Args { optimization: None, include: Some("../hello"), defines: [] }
+Args { optimization: None, include: Some("../hello"), sleep: None, defines: [] }
+
+```
+
+Time
+```console
+$ typed-derive --sleep 10s
+Args { optimization: None, include: None, sleep: Some(Duration(10s)), defines: [] }
+
+$ typed-derive --sleep forever
+? failed
+error: Invalid value "forever" for '--sleep <SLEEP>': expected number at 0
+
+For more information try --help
 
 ```
 
 Defines (key-value pairs)
 ```console
 $ typed-derive -D Foo=10 -D Alice=30
-Args { optimization: None, include: None, defines: [("Foo", 10), ("Alice", 30)] }
+Args { optimization: None, include: None, sleep: None, defines: [("Foo", 10), ("Alice", 30)] }
 
 $ typed-derive -D Foo
 ? failed

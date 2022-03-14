@@ -13,6 +13,10 @@ struct Args {
     #[clap(short = 'I', parse(from_os_str), value_name = "DIR", value_hint = clap::ValueHint::DirPath)]
     include: Option<std::path::PathBuf>,
 
+    /// Allow human-readable durations
+    #[clap(long)]
+    sleep: Option<humantime::Duration>,
+
     /// Hand-written parser for tuples
     #[clap(short = 'D', parse(try_from_str = parse_key_val), multiple_occurrences(true))]
     defines: Vec<(String, i32)>,
