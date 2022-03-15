@@ -10,6 +10,7 @@ struct Cli {
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
 enum Mode {
+    #[clap(name="f")]
     Fast,
     Slow,
 }
