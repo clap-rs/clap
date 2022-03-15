@@ -391,13 +391,13 @@ USAGE:
     04_01_enum_derive[EXE] <MODE>
 
 ARGS:
-    <MODE>    What mode to run the program in [possible values: fast, slow]
+    <MODE>    What mode to run the program in [possible values: f, slow]
 
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
-$ 04_01_enum_derive fast
+$ 04_01_enum_derive f
 Hare
 
 $ 04_01_enum_derive slow
