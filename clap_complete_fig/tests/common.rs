@@ -46,11 +46,17 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                 .arg(
                     clap::Arg::new("config")
                         .long("--config")
+                        .hide(true)
                         .takes_value(true)
                         .help("the other case to test"),
-                ),
+                )
+                .arg(clap::Arg::new("path")
+                    .takes_value(true)
+                    .require_equals(true)
+                )
         )
         .subcommand(clap::Command::new("some-cmd-with-hyphens").alias("hyphen"))
+        .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
 }
 
 pub fn quoting_command(name: &'static str) -> clap::Command<'static> {

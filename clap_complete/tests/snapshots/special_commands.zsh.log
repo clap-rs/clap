@@ -50,9 +50,18 @@ _arguments "${_arguments_options[@]}" /
 '--help[Print help information]' /
 '-V[Print version information]' /
 '--version[Print version information]' /
+'::path:' /
 && ret=0
 ;;
 (some-cmd-with-hyphens)
+_arguments "${_arguments_options[@]}" /
+'-h[Print help information]' /
+'--help[Print help information]' /
+'-V[Print version information]' /
+'--version[Print version information]' /
+&& ret=0
+;;
+(some-hidden-cmd)
 _arguments "${_arguments_options[@]}" /
 '-h[Print help information]' /
 '--help[Print help information]' /
@@ -76,6 +85,7 @@ _my-app_commands() {
 'test:tests things' /
 'some_cmd:tests other things' /
 'some-cmd-with-hyphens:' /
+'some-hidden-cmd:' /
 'help:Print this message or the help of the given subcommand(s)' /
     )
     _describe -t commands 'my-app commands' commands "$@"
@@ -89,6 +99,11 @@ _my-app__help_commands() {
 _my-app__some-cmd-with-hyphens_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some-cmd-with-hyphens commands' commands "$@"
+}
+(( $+functions[_my-app__some-hidden-cmd_commands] )) ||
+_my-app__some-hidden-cmd_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app some-hidden-cmd commands' commands "$@"
 }
 (( $+functions[_my-app__some_cmd_commands] )) ||
 _my-app__some_cmd_commands() {

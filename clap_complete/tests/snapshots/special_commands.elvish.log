@@ -29,6 +29,7 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand test 'tests things'
             cand some_cmd 'tests other things'
             cand some-cmd-with-hyphens 'some-cmd-with-hyphens'
+            cand some-hidden-cmd 'some-hidden-cmd'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;test'= {
@@ -46,6 +47,12 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --version 'Print version information'
         }
         &'my-app;some-cmd-with-hyphens'= {
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
+        }
+        &'my-app;some-hidden-cmd'= {
             cand -h 'Print help information'
             cand --help 'Print help information'
             cand -V 'Print version information'

@@ -69,6 +69,14 @@ fn gen_fig_inner(
                 ));
             }
 
+            if subcommand.is_hide_set() {
+                buffer.push_str(&format!(
+                    "{:indent$}hidden: true,\n",
+                    "",
+                    indent = indent + 4
+                ))
+            }
+
             let mut parent_commands: Vec<_> = parent_commands.into();
             parent_commands.push(subcommand.get_name());
             gen_fig_inner(
@@ -87,6 +95,14 @@ fn gen_fig_inner(
     buffer.push_str(&gen_options(cmd, indent));
 
     let args = cmd.get_positionals().collect::<Vec<_>>();
+
+    if args.iter().any(|&x| x.is_require_equals_set()) {
+        buffer.push_str(&format!(
+            "{:indent$}requireEquals: true,\n",
+            "",
+            indent = indent
+        ));
+    }
 
     match args.len() {
         0 => {}
@@ -152,6 +168,14 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                 indent = indent + 4
             ));
         }
+
+        if option.is_hide_set() {
+          buffer.push_str(&format!(
+              "{:indent$}hidden: true,\n",
+              "",
+              indent = indent + 4
+          ))
+      }
 
         buffer.push_str(&format!("{:indent$}args: ", "", indent = indent + 4));
 
