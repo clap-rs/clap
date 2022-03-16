@@ -50,10 +50,11 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                         .takes_value(true)
                         .help("the other case to test"),
                 )
-                .arg(clap::Arg::new("path")
-                    .takes_value(true)
-                    .require_equals(true)
-                )
+                .arg(
+                    clap::Arg::new("path")
+                        .takes_value(true)
+                        .require_equals(true),
+                ),
         )
         .subcommand(clap::Command::new("some-cmd-with-hyphens").alias("hyphen"))
         .subcommand(clap::Command::new("some-hidden-cmd").hide(true))

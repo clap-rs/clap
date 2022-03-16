@@ -170,12 +170,12 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
         }
 
         if option.is_hide_set() {
-          buffer.push_str(&format!(
-              "{:indent$}hidden: true,\n",
-              "",
-              indent = indent + 4
-          ))
-      }
+            buffer.push_str(&format!(
+                "{:indent$}hidden: true,\n",
+                "",
+                indent = indent + 4
+            ))
+        }
 
         buffer.push_str(&format!("{:indent$}args: ", "", indent = indent + 4));
 
