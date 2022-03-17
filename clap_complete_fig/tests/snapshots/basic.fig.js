@@ -8,6 +8,7 @@ const completion: Fig.Spec = {
       options: [
         {
           name: "-d",
+          isRepeatable: true,
         },
         {
           name: ["-h", "--help"],
@@ -42,6 +43,9 @@ const completion: Fig.Spec = {
     },
     {
       name: "-v",
+      exclusiveOn: [
+        "-c",
+      ],
     },
   ],
 };

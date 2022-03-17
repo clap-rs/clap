@@ -19,10 +19,10 @@ _my-app() {
 '--help[Print help information]' /
 '-V[Print version information]' /
 '--version[Print version information]' /
-'-c[some config file]' /
-'-C[some config file]' /
-'--config[some config file]' /
-'--conf[some config file]' /
+'*-c[some config file]' /
+'*-C[some config file]' /
+'*--config[some config file]' /
+'*--conf[some config file]' /
 '::file -- some input file:_files' /
 '::choice:(first second)' /
 ":: :_my-app_commands" /
