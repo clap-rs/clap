@@ -39,10 +39,8 @@ const completion: Fig.Spec = {
                 name: "config",
                 isOptional: true,
                 suggestions: [
-                  {
-                    name: "Lest quotes aren't escaped.",
-                  },
-                ]
+                  "Lest quotes aren't escaped.",
+                ],
               },
             },
             {
@@ -88,8 +86,6 @@ const completion: Fig.Spec = {
     {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
-      options: [
-      ],
       args: {
         name: "subcommand",
         isOptional: true,
@@ -112,23 +108,19 @@ const completion: Fig.Spec = {
     },
   ],
   args: [
-{
-    name: "file",
-    isOptional: true,
-    template: "filepaths",
-  },
-{
-    name: "choice",
-    isOptional: true,
-    suggestions: [
-      {
-        name: "first",
-      },
-      {
-        name: "second",
-      },
-    ]
-  },
+    {
+      name: "file",
+      isOptional: true,
+      template: "filepaths",
+    },
+    {
+      name: "choice",
+      isOptional: true,
+      suggestions: [
+        "first",
+        "second",
+      ],
+    },
   ]
 };
 
