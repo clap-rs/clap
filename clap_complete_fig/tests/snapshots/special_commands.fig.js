@@ -31,6 +31,7 @@ const completion: Fig.Spec = {
         {
           name: "--config",
           description: "the other case to test",
+          hidden: true,
           args: {
             name: "config",
             isOptional: true,
@@ -45,9 +46,28 @@ const completion: Fig.Spec = {
           description: "Print version information",
         },
       ],
+      requireEquals: true,
+      args: {
+        name: "path",
+        isOptional: true,
+      },
     },
     {
       name: "some-cmd-with-hyphens",
+      options: [
+        {
+          name: ["-h", "--help"],
+          description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
+        },
+      ],
+    },
+    {
+      name: "some-hidden-cmd",
+      hidden: true,
       options: [
         {
           name: ["-h", "--help"],
