@@ -30,7 +30,7 @@ _my-app() {
         case $line[1] in
             (test)
 _arguments "${_arguments_options[@]}" /
-'-d[]' /
+'*-d[]' /
 '-h[Print help information]' /
 '--help[Print help information]' /
 '-c[]' /

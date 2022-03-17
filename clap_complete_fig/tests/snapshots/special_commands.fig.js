@@ -102,6 +102,7 @@ const completion: Fig.Spec = {
     {
       name: ["-c", "-C", "--config", "--conf"],
       description: "some config file",
+      isRepeatable: true,
     },
   ],
   args: [

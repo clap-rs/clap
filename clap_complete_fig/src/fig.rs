@@ -177,6 +177,35 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             ))
         }
 
+        let conflicts = arg_conflicts(cmd, option);
+
+        if !conflicts.is_empty() {
+            buffer.push_str(&format!(
+                "{:indent$}exclusiveOn: [\n",
+                "",
+                indent = indent + 4
+            ));
+
+            for conflict in conflicts {
+                buffer.push_str(&format!(
+                    "{:indent$}\"{}\",\n",
+                    "",
+                    conflict,
+                    indent = indent + 6
+                ));
+            }
+
+            buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 4));
+        }
+
+        if option.is_multiple_occurrences_set() {
+            buffer.push_str(&format!(
+                "{:indent$}isRepeatable: true,\n",
+                "",
+                indent = indent + 4
+            ));
+        }
+
         buffer.push_str(&format!("{:indent$}args: ", "", indent = indent + 4));
 
         buffer.push_str(&gen_args(option, indent + 4));
@@ -223,6 +252,35 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                 "{:indent$}description: \"{}\",\n",
                 "",
                 escape_string(data).as_str(),
+                indent = indent + 4
+            ));
+        }
+
+        let conflicts = arg_conflicts(cmd, &flag);
+
+        if !conflicts.is_empty() {
+            buffer.push_str(&format!(
+                "{:indent$}exclusiveOn: [\n",
+                "",
+                indent = indent + 4
+            ));
+
+            for conflict in conflicts {
+                buffer.push_str(&format!(
+                    "{:indent$}\"{}\",\n",
+                    "",
+                    conflict,
+                    indent = indent + 6
+                ));
+            }
+
+            buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 4));
+        }
+
+        if flag.is_multiple_occurrences_set() {
+            buffer.push_str(&format!(
+                "{:indent$}isRepeatable: true,\n",
+                "",
                 indent = indent + 4
             ));
         }
@@ -325,4 +383,20 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
     buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent));
 
     buffer
+}
+
+fn arg_conflicts(cmd: &Command, arg: &Arg) -> Vec<String> {
+    let mut res = vec![];
+
+    for conflict in cmd.get_arg_conflicts_with(arg) {
+        if let Some(s) = conflict.get_short() {
+            res.push(format!("-{}", s));
+        }
+
+        if let Some(l) = conflict.get_long() {
+            res.push(format!("--{}", l));
+        }
+    }
+
+    res
 }

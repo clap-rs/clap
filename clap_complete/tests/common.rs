@@ -3,9 +3,11 @@ pub fn basic_command(name: &'static str) -> clap::Command<'static> {
         .arg(clap::Arg::new("config").short('c').global(true))
         .arg(clap::Arg::new("v").short('v').conflicts_with("config"))
         .subcommand(
-            clap::Command::new("test")
-                .about("Subcommand")
-                .arg(clap::Arg::new("debug").short('d')),
+            clap::Command::new("test").about("Subcommand").arg(
+                clap::Arg::new("debug")
+                    .short('d')
+                    .multiple_occurrences(true),
+            ),
         )
 }
 
@@ -21,6 +23,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
         )
         .arg(
             clap::Arg::new("config")
+                .multiple_occurrences(true)
                 .help("some config file")
                 .short('c')
                 .visible_short_alias('C')
