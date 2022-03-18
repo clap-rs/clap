@@ -32,6 +32,7 @@ const completion: Fig.Spec = {
           name: "--config",
           description: "the other case to test",
           hidden: true,
+          requiresEquals: true,
           args: {
             name: "config",
             isOptional: true,
@@ -46,7 +47,6 @@ const completion: Fig.Spec = {
           description: "Print version information",
         },
       ],
-      requireEquals: true,
       args: {
         name: "path",
         isOptional: true,
