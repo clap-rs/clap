@@ -50,7 +50,7 @@ _arguments "${_arguments_options[@]}" /
 '--help[Print help information]' /
 '-V[Print version information]' /
 '--version[Print version information]' /
-'::path:' /
+'*::path:' /
 && ret=0
 ;;
 (some-cmd-with-hyphens)

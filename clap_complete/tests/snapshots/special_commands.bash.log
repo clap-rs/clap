@@ -90,7 +90,7 @@ _my-app() {
             return 0
             ;;
         my__app__some_cmd)
-            opts="-h -V --config --help --version <path>"
+            opts="-h -V --config --help --version <path>..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

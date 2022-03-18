@@ -96,14 +96,6 @@ fn gen_fig_inner(
 
     let args = cmd.get_positionals().collect::<Vec<_>>();
 
-    if args.iter().any(|&x| x.is_require_equals_set()) {
-        buffer.push_str(&format!(
-            "{:indent$}requireEquals: true,\n",
-            "",
-            indent = indent
-        ));
-    }
-
     match args.len() {
         0 => {}
         1 => {
@@ -205,6 +197,14 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             if option.is_multiple_occurrences_set() {
                 buffer.push_str(&format!(
                     "{:indent$}isRepeatable: true,\n",
+                    "",
+                    indent = indent + 4
+                ));
+            }
+
+            if option.is_require_equals_set() {
+                buffer.push_str(&format!(
+                    "{:indent$}requiresEquals: true,\n",
                     "",
                     indent = indent + 4
                 ));

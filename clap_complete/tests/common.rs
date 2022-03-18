@@ -51,12 +51,13 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                         .long("--config")
                         .hide(true)
                         .takes_value(true)
+                        .require_equals(true)
                         .help("the other case to test"),
                 )
                 .arg(
                     clap::Arg::new("path")
                         .takes_value(true)
-                        .require_equals(true),
+                        .multiple_occurrences(true),
                 ),
         )
         .subcommand(clap::Command::new("some-cmd-with-hyphens").alias("hyphen"))
