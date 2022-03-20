@@ -52,13 +52,35 @@ fn gen_fig_inner(
         buffer.push_str(&format!("{:indent$}subcommands: [\n", "", indent = indent));
         // generate subcommands
         for subcommand in cmd.get_subcommands() {
-            buffer.push_str(&format!(
-                "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
-                "",
-                "",
-                subcommand.get_name(),
-                indent = indent + 2
-            ));
+            let mut aliases: Vec<&str> = subcommand.get_all_aliases().collect();
+            if !aliases.is_empty() {
+                aliases.insert(0, subcommand.get_name());
+
+                buffer.push_str(&format!(
+                    "{:indent$}{{\n{:indent$}  name: [",
+                    "",
+                    "",
+                    indent = indent + 2
+                ));
+
+                buffer.push_str(
+                    &aliases
+                        .iter()
+                        .map(|name| format!("\"{}\"", name))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
+
+                buffer.push_str("],\n");
+            } else {
+                buffer.push_str(&format!(
+                    "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
+                    "",
+                    "",
+                    subcommand.get_name(),
+                    indent = indent + 2
+                ));
+            }
 
             if let Some(data) = subcommand.get_about() {
                 buffer.push_str(&format!(

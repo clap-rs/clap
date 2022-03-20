@@ -53,7 +53,7 @@ const completion: Fig.Spec = {
       },
     },
     {
-      name: "some-cmd-with-hyphens",
+      name: ["some-cmd-with-hyphens", "hyphen"],
       options: [
         {
           name: ["-h", "--help"],
