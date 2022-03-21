@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.1.4] - 2022-03-21
+
 - Subcommand alias support
 
 ## [3.1.3] - 2022-03-18
@@ -33,7 +35,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.1.3...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.1.4...HEAD
+[3.1.4]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.1.3...clap_complete_fig-v3.1.4
 [3.1.3]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.1.2...clap_complete_fig-v3.1.3
 [3.1.2]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.1.1...clap_complete_fig-v3.1.2
 [3.1.1]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.1.0...clap_complete_fig-v3.1.1
