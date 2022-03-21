@@ -7,11 +7,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- Subcommand alias support
+
 ## [3.1.3] - 2022-03-18
+
+### Fixes
+
+- `require_equals` fix
 
 ## [3.1.2] - 2022-03-18
 
 ## [3.1.1] - 2022-03-17
+
+### Features
+
+- `hide` support
+- `require_equals` support
+- Exclude support
+- `multiple_occurrences` support
 
 ## [3.1.0] - 2022-02-16
 
