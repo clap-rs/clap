@@ -81,8 +81,8 @@ $ git stash -h
 git[EXE]-stash 
 
 USAGE:
-    git stash [OPTIONS]
-    git stash <SUBCOMMAND>
+    git stash[EXE] [OPTIONS]
+    git stash[EXE] <SUBCOMMAND>
 
 OPTIONS:
     -h, --help                 Print help information
@@ -98,7 +98,7 @@ $ git stash push -h
 git[EXE]-stash-push 
 
 USAGE:
-    git stash push [OPTIONS]
+    git stash[EXE] push [OPTIONS]
 
 OPTIONS:
     -h, --help                 Print help information
@@ -108,7 +108,7 @@ $ git stash pop -h
 git[EXE]-stash-pop 
 
 USAGE:
-    git stash pop [STASH]
+    git stash[EXE] pop [STASH]
 
 ARGS:
     <STASH>    
