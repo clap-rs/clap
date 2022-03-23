@@ -83,8 +83,8 @@ $ git-derive stash -h
 git-derive[EXE]-stash 
 
 USAGE:
-    git-derive stash [OPTIONS]
-    git-derive stash <SUBCOMMAND>
+    git-derive[EXE] stash [OPTIONS]
+    git-derive[EXE] stash <SUBCOMMAND>
 
 OPTIONS:
     -h, --help                 Print help information
@@ -100,7 +100,7 @@ $ git-derive stash push -h
 git-derive[EXE]-stash-push 
 
 USAGE:
-    git-derive stash push [OPTIONS]
+    git-derive[EXE] stash push [OPTIONS]
 
 OPTIONS:
     -h, --help                 Print help information
@@ -110,7 +110,7 @@ $ git-derive stash pop -h
 git-derive[EXE]-stash-pop 
 
 USAGE:
-    git-derive stash pop [STASH]
+    git-derive[EXE] stash pop [STASH]
 
 ARGS:
     <STASH>    

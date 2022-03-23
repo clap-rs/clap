@@ -1,19 +1,8 @@
 name: CI
 on:
   pull_request:
-    paths:
-    - '**'
-    - '!/*.md'
-    - '!/docs/**'
-    - "!/LICENSE-*"
   push:
-    branches:
-    - master
-    paths:
-    - '**'
-    - '!/*.md'
-    - '!/docs/**'
-    - "!/LICENSE-*"
+    branches: [master]
   schedule:
   - cron: '3 3 3 * *'
 jobs:
