@@ -633,7 +633,7 @@ macro_rules! arg_impl {
 ///
 /// ### Help String
 ///
-/// The help string is denoted between a pair of single quotes `''` and may contain any
+/// The help string is denoted between a pair of double quotes `""` and may contain any
 /// characters.
 ///
 /// # Examples
