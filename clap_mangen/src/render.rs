@@ -80,6 +80,36 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     roff.text(line);
 }
 
+pub(crate) fn positionals(roff: &mut Roff, cmd: &clap::Command) {
+    let items: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
+
+    for pos in items.iter().filter(|a| a.is_positional()) {
+        let name = pos
+            .get_value_names()
+            .map_or(pos.get_id(), |value_names| value_names[0]);
+
+        let mut header = vec![italic(name)];
+
+        let mut body = vec![];
+
+        if let Some(defs) = option_default_values(pos) {
+            header.push(roman(&format!(" {}", defs)));
+        }
+
+        if let Some(help) = pos.get_long_help().or_else(|| pos.get_help()) {
+            body.push(roman(&help.to_string()));
+        }
+
+        if let Some(mut env) = option_environment(pos) {
+            body.append(&mut env);
+        }
+
+        roff.control("TP", []);
+        roff.text(header);
+        roff.text(body);
+    }
+}
+
 pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
     let items: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
 
@@ -115,30 +145,6 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
 
         roff.control("TP", []);
         roff.text(header);
-        roff.text(body);
-    }
-
-    for pos in items.iter().filter(|a| a.is_positional()) {
-        let (lhs, rhs) = option_markers(pos);
-        let name = format!("{}{}{}", lhs, pos.get_id(), rhs);
-
-        let mut header = vec![bold(&name)];
-
-        let mut body = vec![];
-
-        if let Some(defs) = option_default_values(pos) {
-            header.push(roman(&format!(" {}", defs)));
-        }
-
-        if let Some(help) = pos.get_long_help().or_else(|| pos.get_help()) {
-            body.push(roman(&help.to_string()));
-        }
-
-        if let Some(mut env) = option_environment(pos) {
-            body.append(&mut env);
-        }
-
-        roff.control("TP", []);
         roff.text(body);
     }
 }

@@ -105,7 +105,11 @@ impl<'a> Man<'a> {
         self._render_synopsis_section(&mut roff);
         self._render_description_section(&mut roff);
 
-        if app_has_arguments(&self.cmd) {
+        if app_has_positionals(&self.cmd) {
+            self._render_positionals_section(&mut roff);
+        }
+
+        if app_has_options(&self.cmd) {
             self._render_options_section(&mut roff);
         }
 
@@ -186,6 +190,18 @@ impl<'a> Man<'a> {
         render::description(roff, &self.cmd);
     }
 
+    /// Render the POSITIONAL ARGUMENTS section into the writer.
+    pub fn render_positionals_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_positionals_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_positionals_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["POSITIONAL ARGUMENTS"]);
+        render::positionals(roff, &self.cmd);
+    }
+
     /// Render the OPTIONS section into the writer.
     pub fn render_options_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
         let mut roff = Roff::default();
@@ -257,9 +273,16 @@ fn app_has_version(cmd: &clap::Command) -> bool {
         .is_some()
 }
 
-// Does the application have any command line arguments?
-fn app_has_arguments(cmd: &clap::Command) -> bool {
-    cmd.get_arguments().any(|i| !i.is_hide_set())
+// Does the application have any option arguments?
+fn app_has_options(cmd: &clap::Command) -> bool {
+    cmd.get_arguments()
+        .any(|i| !i.is_hide_set() && !i.is_positional())
+}
+
+// Does the application have any positional arguments?
+fn app_has_positionals(cmd: &clap::Command) -> bool {
+    cmd.get_arguments()
+        .any(|i| !i.is_hide_set() && i.is_positional())
 }
 
 // Does the application have any subcommands?
