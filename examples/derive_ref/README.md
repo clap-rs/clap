@@ -82,6 +82,7 @@ fn main() {
 - `Subcommand` defines available subcommands.
   - Subcommand arguments can be defined in a struct-variant or automatically flattened with a tuple-variant.
 - `ArgEnum` allows parsing a value directly into an `enum`, erroring on unsupported values.
+  - The derive doesn't work on enums that contain non-unit variants
 
 See also the [tutorial](../tutorial_derive/README.md) and [examples](../README.md).
 

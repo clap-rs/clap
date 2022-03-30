@@ -35,7 +35,7 @@ pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     if !e.variants.iter().all(|v| matches!(v.fields, Fields::Unit)) {
-        return quote!();
+        abort_call_site!("`#[derive(ArgEnum)]` only supports non-unit variants");
     };
 
     let attrs = Attrs::from_struct(

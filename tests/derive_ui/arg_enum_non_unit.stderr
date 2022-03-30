@@ -1,0 +1,7 @@
+error: `#[derive(ArgEnum)]` only supports non-unit variants
+ --> tests/derive_ui/arg_enum_non_unit.rs:3:10
+  |
+3 | #[derive(ArgEnum, Clone, Debug)]
+  |          ^^^^^^^
+  |
+  = note: this error originates in the derive macro `ArgEnum` (in Nightly builds, run with -Z macro-backtrace for more info)
