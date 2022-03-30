@@ -322,6 +322,37 @@ fn skip_variant() {
 }
 
 #[test]
+fn skip_non_unit_variant() {
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[allow(dead_code)] // silence warning about `Baz` being unused
+    enum ArgChoice {
+        Foo,
+        Bar,
+        #[clap(skip)]
+        Baz(usize),
+    }
+
+    assert_eq!(
+        <ArgChoice as clap::ArgEnum>::value_variants()
+            .iter()
+            .map(clap::ArgEnum::to_possible_value)
+            .map(Option::unwrap)
+            .collect::<Vec<_>>(),
+        vec![
+            clap::PossibleValue::new("foo"),
+            clap::PossibleValue::new("bar")
+        ]
+    );
+
+    {
+        use clap::ArgEnum;
+        assert!(ArgChoice::from_str("foo", true).is_ok());
+        assert!(ArgChoice::from_str("bar", true).is_ok());
+        assert!(ArgChoice::from_str("baz", true).is_err());
+    }
+}
+
+#[test]
 fn from_str_invalid() {
     #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {

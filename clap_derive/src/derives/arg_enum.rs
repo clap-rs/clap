@@ -15,11 +15,11 @@ use crate::{
 };
 
 use proc_macro2::{Span, TokenStream};
-use proc_macro_error::abort_call_site;
+use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
 use syn::{
-    punctuated::Punctuated, token::Comma, Attribute, Data, DataEnum, DeriveInput, Fields, Ident,
-    Variant,
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataEnum, DeriveInput,
+    Fields, Ident, Variant,
 };
 
 pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
@@ -34,10 +34,6 @@ pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    if !e.variants.iter().all(|v| matches!(v.fields, Fields::Unit)) {
-        abort_call_site!("`#[derive(ArgEnum)]` only supports non-unit variants");
-    };
-
     let attrs = Attrs::from_struct(
         Span::call_site(),
         attrs,
@@ -86,6 +82,9 @@ fn lits(
             if let Kind::Skip(_) = &*attrs.kind() {
                 None
             } else {
+                if !matches!(variant.fields, Fields::Unit) {
+                    abort!(variant.span(), "`#[derive(ArgEnum)]` only supports non-unit variants, unless they are skipped");
+                }
                 let fields = attrs.field_methods(false);
                 let name = attrs.cased_name();
                 Some((
