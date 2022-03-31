@@ -1,0 +1,5 @@
+error: `#[derive(ArgEnum)]` only supports non-unit variants, unless they are skipped
+ --> tests/derive_ui/arg_enum_non_unit.rs:5:5
+  |
+5 |     Foo(usize),
+  |     ^^^
