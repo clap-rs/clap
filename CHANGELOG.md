@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.1.7] - 2022-03-31
+
 ### Fixes
 
 - `*(derive)* Abort, rather than ignore, when deriving `ArgEnum` with non-unit unskipped variants
@@ -3239,7 +3241,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.1.6...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.1.7...HEAD
+[3.1.7]: https://github.com/clap-rs/clap/compare/v3.1.6...v3.1.7
 [3.1.6]: https://github.com/clap-rs/clap/compare/v3.1.5...v3.1.6
 [3.1.5]: https://github.com/clap-rs/clap/compare/v3.1.4...v3.1.5
 [3.1.4]: https://github.com/clap-rs/clap/compare/v3.1.3...v3.1.4
