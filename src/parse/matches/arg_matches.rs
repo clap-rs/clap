@@ -1214,8 +1214,7 @@ pub(crate) struct SubCommand {
 /// assert_eq!(values.next(), None);
 /// ```
 /// [`ArgMatches::values_of`]: ArgMatches::values_of()
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Clone, Debug)]
 pub struct Values<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Flatten<Iter<'a, Vec<OsString>>>, for<'r> fn(&'r OsString) -> &'r str>,
@@ -1309,8 +1308,7 @@ impl<'a> Default for GroupedValues<'a> {
 /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
 /// ```
 /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Clone, Debug)]
 pub struct OsValues<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
@@ -1367,8 +1365,7 @@ impl Default for OsValues<'_> {
 /// assert_eq!(indices.next(), None);
 /// ```
 /// [`ArgMatches::indices_of`]: ArgMatches::indices_of()
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Clone, Debug)]
 pub struct Indices<'a> {
     iter: Cloned<Iter<'a, usize>>,
     len: usize,
