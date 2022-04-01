@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Add `Debug` impls to more types
+
 ## [3.1.7] - 2022-03-31
 
 ### Fixes
