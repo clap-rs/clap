@@ -12,6 +12,7 @@
   - Topics:
     - Subcommands
     - External subcommands
+    - Optional subcommands
     - Default subcommands
 - pacman-like interface: [builder](pacman.md)
   - Topics:
