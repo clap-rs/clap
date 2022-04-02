@@ -220,6 +220,17 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         )
 }
 
+pub fn hidden_option_command(name: &'static str) -> clap::Command<'static> {
+    clap::Command::new(name)
+        .arg(clap::Arg::new("config").long("--config").takes_value(true))
+        .arg(
+            clap::Arg::new("no-config")
+                .long("--no-config")
+                .hide(true)
+                .overrides_with("config"),
+        )
+}
+
 pub fn assert_matches_path(expected_path: impl AsRef<std::path::Path>, cmd: clap::Command) {
     let mut buf = vec![];
     clap_mangen::Man::new(cmd).render(&mut buf).unwrap();
