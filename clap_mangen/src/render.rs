@@ -62,9 +62,9 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         let (lhs, rhs) = option_markers(arg);
         line.push(roman(lhs));
         if let Some(value) = arg.get_value_names() {
-            line.push(bold(value.join(" ")));
+            line.push(italic(value.join(" ")));
         } else {
-            line.push(bold(arg.get_id()));
+            line.push(italic(arg.get_id()));
         }
         line.push(roman(rhs));
         line.push(roman(" "));
@@ -126,9 +126,9 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         let (lhs, rhs) = option_markers(pos);
         header.push(roman(lhs));
         if let Some(value) = pos.get_value_names() {
-            header.push(bold(value.join(" ")));
+            header.push(italic(value.join(" ")));
         } else {
-            header.push(bold(pos.get_id()));
+            header.push(italic(pos.get_id()));
         };
         header.push(roman(rhs));
 
