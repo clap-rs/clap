@@ -48,3 +48,10 @@ fn value_hint() {
     let cmd = common::value_hint_command(name);
     common::assert_matches_path("tests/snapshots/value_hint.bash.roff", cmd);
 }
+
+#[test]
+fn hidden_options() {
+    let name = "my-app";
+    let cmd = common::hidden_option_command(name);
+    common::assert_matches_path("tests/snapshots/hidden_option.bash.roff", cmd);
+}
