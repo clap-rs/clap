@@ -58,7 +58,7 @@ use crate::build::debug_asserts::assert_app;
 ///     .version("1.0.2")
 ///     .about("Explains in brief what the program does")
 ///     .arg(
-///         Arg::new("in_file").index(1)
+///         Arg::new("in_file")
 ///     )
 ///     .after_help("Longer explanation to appear after the options when \
 ///                  displaying the help information from --help or -h")
@@ -202,7 +202,7 @@ impl<'help> App<'help> {
     /// Command::new("myprog")
     ///     .args(&[
     ///         arg!("[debug] -d 'turns on debugging info'"),
-    ///         Arg::new("input").index(1).help("the input file to use")
+    ///         Arg::new("input").help("the input file to use")
     ///     ])
     /// # ;
     /// ```
@@ -378,7 +378,7 @@ impl<'help> App<'help> {
     /// # Command::new("myprog")
     /// .subcommands( vec![
     ///        Command::new("config").about("Controls configuration functionality")
-    ///                                 .arg(Arg::new("config_file").index(1)),
+    ///                                 .arg(Arg::new("config_file")),
     ///        Command::new("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
@@ -2347,7 +2347,6 @@ impl<'help> App<'help> {
     ///         .aliases(&["do-stuff", "do-tests", "tests"]))
     ///         .arg(Arg::new("input")
     ///             .help("the file to add")
-    ///             .index(1)
     ///             .required(false))
     ///     .get_matches_from(vec!["myprog", "do-tests"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
@@ -2374,7 +2373,6 @@ impl<'help> App<'help> {
     ///         .short_flag_aliases(&['a', 'b', 'c']))
     ///         .arg(Arg::new("input")
     ///             .help("the file to add")
-    ///             .index(1)
     ///             .required(false))
     ///     .get_matches_from(vec!["myprog", "-a"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
@@ -2403,7 +2401,6 @@ impl<'help> App<'help> {
     ///                 .long_flag_aliases(&["testing", "testall", "test_all"]))
     ///                 .arg(Arg::new("input")
     ///                             .help("the file to add")
-    ///                             .index(1)
     ///                             .required(false))
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));

@@ -648,8 +648,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .requires("input")
     ///         .long("config"))
-    ///     .arg(Arg::new("input")
-    ///         .index(1))
+    ///     .arg(Arg::new("input"))
     ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -666,8 +665,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .requires("input")
     ///         .long("config"))
-    ///     .arg(Arg::new("input")
-    ///         .index(1))
+    ///     .arg(Arg::new("input"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf"
     ///     ]);
@@ -707,8 +705,7 @@ impl<'help> Arg<'help> {
     ///         .long("exclusive"))
     ///     .arg(Arg::new("debug")
     ///         .long("debug"))
-    ///     .arg(Arg::new("input")
-    ///         .index(1))
+    ///     .arg(Arg::new("input"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--exclusive", "file.conf", "file.txt"
     ///     ]);
@@ -1097,8 +1094,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .multiple_values(true)
     ///         .short('F'))
-    ///     .arg(Arg::new("word")
-    ///         .index(1))
+    ///     .arg(Arg::new("word"))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3", "word"
     ///     ]);
@@ -1123,8 +1119,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .multiple_occurrences(true)
     ///         .short('F'))
-    ///     .arg(Arg::new("word")
-    ///         .index(1))
+    ///     .arg(Arg::new("word"))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
     ///     ]);
@@ -1145,8 +1140,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .multiple_occurrences(true)
     ///         .short('F'))
-    ///     .arg(Arg::new("word")
-    ///         .index(1))
+    ///     .arg(Arg::new("word"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3", "word"
     ///     ]);
@@ -1518,7 +1512,6 @@ impl<'help> Arg<'help> {
     /// }
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .index(1)
     ///         .validator(has_at))
     ///     .try_get_matches_from(vec![
     ///         "prog", "some@file"
@@ -1558,7 +1551,6 @@ impl<'help> Arg<'help> {
     /// }
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .index(1)
     ///         .validator_os(has_ampersand))
     ///     .try_get_matches_from(vec![
     ///         "prog", "Fish & chips"
@@ -1610,7 +1602,6 @@ impl<'help> Arg<'help> {
     ///
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("digits")
-    ///         .index(1)
     ///         .validator_regex(&digits, "only digits are allowed"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "12345"
@@ -1629,7 +1620,6 @@ impl<'help> Arg<'help> {
     ///
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("priority")
-    ///         .index(1)
     ///         .validator_regex(priority, "only priorities A, B or C are allowed"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "12345"
@@ -4203,10 +4193,8 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .requires("input")
     ///         .long("config"))
-    ///     .arg(Arg::new("input")
-    ///         .index(1))
-    ///     .arg(Arg::new("output")
-    ///         .index(2))
+    ///     .arg(Arg::new("input"))
+    ///     .arg(Arg::new("output"))
     ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -4224,10 +4212,8 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .requires_all(&["input", "output"])
     ///         .long("config"))
-    ///     .arg(Arg::new("input")
-    ///         .index(1))
-    ///     .arg(Arg::new("output")
-    ///         .index(2))
+    ///     .arg(Arg::new("input"))
+    ///     .arg(Arg::new("output"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf", "in.txt"
     ///     ]);
@@ -4328,8 +4314,7 @@ impl<'help> Arg<'help> {
     ///         .long("config"))
     ///     .arg(Arg::new("debug")
     ///         .long("debug"))
-    ///     .arg(Arg::new("input")
-    ///         .index(1))
+    ///     .arg(Arg::new("input"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf", "file.txt"
     ///     ]);
