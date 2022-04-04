@@ -61,7 +61,11 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     for arg in cmd.get_positionals() {
         let (lhs, rhs) = option_markers(arg);
         line.push(roman(lhs));
-        line.push(italic(arg.get_id()));
+        if let Some(value) = arg.get_value_names() {
+            line.push(italic(value.join(" ")));
+        } else {
+            line.push(italic(arg.get_id()));
+        }
         line.push(roman(rhs));
         line.push(roman(" "));
     }
@@ -84,8 +88,6 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
     let items: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
 
     for opt in items.iter().filter(|a| !a.is_positional()) {
-        let mut body = vec![];
-
         let mut header = match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
                 vec![short_option(short), roman(", "), long_option(long)]
@@ -105,6 +107,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             header.push(roman(&defs));
         }
 
+        let mut body = vec![];
         if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
             body.push(roman(help));
         }
@@ -119,17 +122,21 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
     }
 
     for pos in items.iter().filter(|a| a.is_positional()) {
+        let mut header = vec![];
         let (lhs, rhs) = option_markers(pos);
-        let name = format!("{}{}{}", lhs, pos.get_id(), rhs);
-
-        let mut header = vec![bold(&name)];
-
-        let mut body = vec![];
+        header.push(roman(lhs));
+        if let Some(value) = pos.get_value_names() {
+            header.push(italic(value.join(" ")));
+        } else {
+            header.push(italic(pos.get_id()));
+        };
+        header.push(roman(rhs));
 
         if let Some(defs) = option_default_values(pos) {
             header.push(roman(&format!(" {}", defs)));
         }
 
+        let mut body = vec![];
         if let Some(help) = pos.get_long_help().or_else(|| pos.get_help()) {
             body.push(roman(&help.to_string()));
         }
@@ -139,6 +146,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         }
 
         roff.control("TP", []);
+        roff.text(header);
         roff.text(body);
     }
 }
