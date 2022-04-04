@@ -47,8 +47,7 @@ pub enum ErrorKind {
     ///     .subcommand(Command::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .help("The configuration file to use")
-    ///             .index(1)))
+    ///             .help("The configuration file to use")))
     ///     .try_get_matches_from(vec!["prog", "confi"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
@@ -74,8 +73,7 @@ pub enum ErrorKind {
     ///     .subcommand(Command::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .help("The configuration file to use")
-    ///             .index(1)))
+    ///             .help("The configuration file to use")))
     ///     .try_get_matches_from(vec!["prog", "help", "nothing"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
