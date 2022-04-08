@@ -10,7 +10,7 @@ pub(crate) struct Input {
 impl<I, T> From<I> for Input
 where
     I: Iterator<Item = T>,
-    T: Into<OsString> + Clone,
+    T: Into<OsString>,
 {
     fn from(val: I) -> Self {
         Self {
