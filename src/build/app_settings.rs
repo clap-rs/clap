@@ -337,10 +337,11 @@ pub enum AppSettings {
     /// ```
     NoAutoVersion,
 
-    /// Deprecated, replaced with [`AppSettings::AllowHyphenValues`]
+    /// Deprecated, replaced with [`Command::allow_hyphen_values`] and
+    /// [`Arg::is_allow_hyphen_values_set`]
     #[deprecated(
         since = "3.0.0",
-        note = "Replaced with `AppSettings::AllowHyphenValues`"
+        note = "Replaced with `Command::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
     )]
     #[doc(hidden)]
     AllowLeadingHyphen,
@@ -378,31 +379,36 @@ pub enum AppSettings {
     #[doc(hidden)]
     ColorNever,
 
-    /// Deprecated, replaced with [`AppSettings::DisableHelpFlag`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")]
+    /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
+    )]
     #[doc(hidden)]
     DisableHelpFlags,
 
-    /// Deprecated, replaced with [`AppSettings::DisableVersionFlag`]
+    /// Deprecated, replaced with [`Command::disable_version_flag`] and
+    /// [`Command::is_disable_version_flag_set`]
     #[deprecated(
         since = "3.0.0",
-        note = "Replaced with `AppSettings::DisableVersionFlag`"
+        note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
     )]
     #[doc(hidden)]
     DisableVersion,
 
-    /// Deprecated, replaced with [`AppSettings::PropagateVersion`]
+    /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
     #[deprecated(
         since = "3.0.0",
-        note = "Replaced with `AppSettings::PropagateVersion`"
+        note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
     )]
     #[doc(hidden)]
     GlobalVersion,
 
-    /// Deprecated, replaced with [`AppSettings::HidePossibleValues`]
+    /// Deprecated, replaced with [`Command::hide_possible_values`] and
+    /// [`Arg::is_hide_possible_values_set`]
     #[deprecated(
         since = "3.0.0",
-        note = "Replaced with AppSettings::HidePossibleValues"
+        note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
     )]
     #[doc(hidden)]
     HidePossibleValuesInHelp,
