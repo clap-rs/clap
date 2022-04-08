@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixes
 
-- `*(derive)* Abort, rather than ignore, when deriving `ArgEnum` with non-unit unskipped variants
+- *(derive)* Abort, rather than ignore, when deriving `ArgEnum` with non-unit unskipped variants
 
 ## [3.1.6] - 2022-03-07
 
