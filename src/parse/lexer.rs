@@ -1,6 +1,8 @@
 use std::ffi::OsStr;
 use std::ffi::OsString;
 
+pub use std::io::SeekFrom;
+
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub(crate) struct RawArgs {
     items: Vec<OsString>,
@@ -27,8 +29,14 @@ impl RawArgs {
         remaining
     }
 
-    pub fn previous(&self, cursor: &mut ArgCursor) {
-        cursor.cursor = cursor.cursor.saturating_sub(1);
+    pub fn seek(&self, cursor: &mut ArgCursor, pos: SeekFrom) {
+        let pos = match pos {
+            SeekFrom::Start(pos) => pos,
+            SeekFrom::End(pos) => (self.items.len() as i64).saturating_add(pos).max(0) as u64,
+            SeekFrom::Current(pos) => (cursor.cursor as i64).saturating_add(pos).max(0) as u64,
+        };
+        let pos = (pos as usize).min(self.items.len());
+        cursor.cursor = pos;
     }
 
     /// Inject arguments before the [`RawArgs::next`]

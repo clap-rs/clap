@@ -304,7 +304,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             keep_state = self
                                 .flag_subcmd_at
                                 .map(|at| {
-                                    raw_args.previous(&mut args_cursor);
+                                    raw_args.seek(&mut args_cursor, lexer::SeekFrom::Current(-1));
                                     // Since we are now saving the current state, the number of flags to skip during state recovery should
                                     // be the current index (`cur_idx`) minus ONE UNIT TO THE LEFT of the starting position.
                                     self.flag_subcmd_skip = self.cur_idx.get() - at + 1;
