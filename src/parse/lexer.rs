@@ -1,13 +1,46 @@
 use std::ffi::OsStr;
 use std::ffi::OsString;
 
-#[derive(Debug)]
-pub(crate) struct Input {
+#[derive(Default, Clone, Debug, PartialEq, Eq)]
+pub(crate) struct RawArgs {
     items: Vec<OsString>,
-    cursor: usize,
 }
 
-impl<I, T> From<I> for Input
+impl RawArgs {
+    pub fn cursor(&self) -> ArgCursor {
+        ArgCursor::new()
+    }
+
+    pub fn next(&self, cursor: &mut ArgCursor) -> Option<&OsStr> {
+        let next = self.items.get(cursor.cursor).map(|s| s.as_os_str());
+        cursor.cursor = cursor.cursor.saturating_add(1);
+        next
+    }
+
+    pub fn peek(&self, cursor: &ArgCursor) -> Option<&OsStr> {
+        self.items.get(cursor.cursor).map(|s| s.as_os_str())
+    }
+
+    pub fn remaining(&self, cursor: &mut ArgCursor) -> impl Iterator<Item = &OsStr> {
+        let remaining = self.items[cursor.cursor..].iter().map(|s| s.as_os_str());
+        cursor.cursor = self.items.len();
+        remaining
+    }
+
+    pub fn previous(&self, cursor: &mut ArgCursor) {
+        cursor.cursor = cursor.cursor.saturating_sub(1);
+    }
+
+    /// Inject arguments before the [`RawArgs::next`]
+    pub fn insert(&mut self, cursor: &ArgCursor, insert_items: &[&str]) {
+        self.items.splice(
+            cursor.cursor..cursor.cursor,
+            insert_items.iter().map(OsString::from),
+        );
+    }
+}
+
+impl<I, T> From<I> for RawArgs
 where
     I: Iterator<Item = T>,
     T: Into<OsString>,
@@ -15,35 +48,17 @@ where
     fn from(val: I) -> Self {
         Self {
             items: val.map(|x| x.into()).collect(),
-            cursor: 0,
         }
     }
 }
 
-impl Input {
-    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
-        if self.cursor >= self.items.len() {
-            None
-        } else {
-            let current = &self.items[self.cursor];
-            self.cursor += 1;
-            let remaining = &self.items[self.cursor..];
-            Some((current, remaining))
-        }
-    }
+#[derive(Default, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct ArgCursor {
+    cursor: usize,
+}
 
-    pub(crate) fn previous(&mut self) {
-        self.cursor -= 1;
-    }
-
-    /// Insert some items to the Input items just after current parsing cursor.
-    /// Usually used by replaced items recovering.
-    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
-        self.items = insert_items
-            .iter()
-            .map(OsString::from)
-            .chain(self.items.drain(self.cursor..))
-            .collect();
-        self.cursor = 0;
+impl ArgCursor {
+    fn new() -> Self {
+        Default::default()
     }
 }

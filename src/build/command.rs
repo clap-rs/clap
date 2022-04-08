@@ -23,7 +23,7 @@ use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
-use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
+use crate::parse::{lexer, ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
@@ -633,11 +633,12 @@ impl<'help> App<'help> {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let mut it = Input::from(itr.into_iter());
+        let mut raw_args = lexer::RawArgs::from(itr.into_iter());
+        let mut cursor = raw_args.cursor();
 
         #[cfg(feature = "unstable-multicall")]
         if self.settings.is_set(AppSettings::Multicall) {
-            if let Some((argv0, _)) = it.next() {
+            if let Some(argv0) = raw_args.next(&mut cursor) {
                 let argv0 = Path::new(&argv0);
                 if let Some(command) = argv0.file_stem().and_then(|f| f.to_str()) {
                     // Stop borrowing command so we can get another mut ref to it.
@@ -648,11 +649,11 @@ impl<'help> App<'help> {
                     );
 
                     debug!("App::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
-                    it.insert(&[&command]);
+                    raw_args.insert(&cursor, &[&command]);
                     debug!("App::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
                     self.name.clear();
                     self.bin_name = None;
-                    return self._do_parse(&mut it);
+                    return self._do_parse(&mut raw_args, cursor);
                 }
             }
         };
@@ -665,7 +666,7 @@ impl<'help> App<'help> {
         // to display
         // the full path when displaying help messages and such
         if !self.settings.is_set(AppSettings::NoBinaryName) {
-            if let Some((name, _)) = it.next() {
+            if let Some(name) = raw_args.next(&mut cursor) {
                 let p = Path::new(name);
 
                 if let Some(f) = p.file_name() {
@@ -678,7 +679,7 @@ impl<'help> App<'help> {
             }
         }
 
-        self._do_parse(&mut it)
+        self._do_parse(&mut raw_args, cursor)
     }
 
     /// Prints the short help message (`-h`) to [`io::stdout()`].
@@ -3954,7 +3955,11 @@ impl<'help> App<'help> {
         }
     }
 
-    fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
+    fn _do_parse(
+        &mut self,
+        raw_args: &mut lexer::RawArgs,
+        args_cursor: lexer::ArgCursor,
+    ) -> ClapResult<ArgMatches> {
         debug!("App::_do_parse");
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
@@ -3965,7 +3970,7 @@ impl<'help> App<'help> {
 
         // do the real parsing
         let mut parser = Parser::new(self);
-        if let Err(error) = parser.get_matches_with(&mut matcher, it) {
+        if let Err(error) = parser.get_matches_with(&mut matcher, raw_args, args_cursor) {
             if self.is_set(AppSettings::IgnoreErrors) {
                 debug!("App::_do_parse: ignoring error: {}", error);
             } else {
