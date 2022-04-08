@@ -14,6 +14,7 @@ use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::features::suggestions;
+use crate::parse::Input;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
 use crate::util::{color::ColorChoice, Id};
@@ -302,7 +303,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             keep_state = self
                                 .flag_subcmd_at
                                 .map(|at| {
-                                    it.cursor -= 1;
+                                    it.previous();
                                     // Since we are now saving the current state, the number of flags to skip during state recovery should
                                     // be the current index (`cur_idx`) minus ONE UNIT TO THE LEFT of the starting position.
                                     self.flag_subcmd_skip = self.cur_idx.get() - at + 1;
@@ -1528,49 +1529,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 impl<'help, 'cmd> Parser<'help, 'cmd> {
     pub(crate) fn is_set(&self, s: AS) -> bool {
         self.cmd.is_set(s)
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct Input {
-    items: Vec<OsString>,
-    cursor: usize,
-}
-
-impl<I, T> From<I> for Input
-where
-    I: Iterator<Item = T>,
-    T: Into<OsString> + Clone,
-{
-    fn from(val: I) -> Self {
-        Self {
-            items: val.map(|x| x.into()).collect(),
-            cursor: 0,
-        }
-    }
-}
-
-impl Input {
-    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
-        if self.cursor >= self.items.len() {
-            None
-        } else {
-            let current = &self.items[self.cursor];
-            self.cursor += 1;
-            let remaining = &self.items[self.cursor..];
-            Some((current, remaining))
-        }
-    }
-
-    /// Insert some items to the Input items just after current parsing cursor.
-    /// Usually used by replaced items recovering.
-    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
-        self.items = insert_items
-            .iter()
-            .map(OsString::from)
-            .chain(self.items.drain(self.cursor..))
-            .collect();
-        self.cursor = 0;
     }
 }
 
