@@ -226,7 +226,7 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 }
 
-/// Create an [`Command`] relevant for a user-defined container.
+/// Create a [`Command`] relevant for a user-defined container.
 ///
 /// Derived as part of [`Parser`].
 pub trait CommandFactory: Sized {
