@@ -226,11 +226,11 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 }
 
-/// Create an [`Command`] relevant for a user-defined container.
+/// Create a [`Command`] relevant for a user-defined container.
 ///
 /// Derived as part of [`Parser`].
 pub trait CommandFactory: Sized {
-    /// Build an [`Command`] that can instantiate `Self`.
+    /// Build a [`Command`] that can instantiate `Self`.
     ///
     /// See [`FromArgMatches::from_arg_matches`] for instantiating `Self`.
     fn command<'help>() -> Command<'help> {
@@ -240,7 +240,7 @@ pub trait CommandFactory: Sized {
     /// Deprecated, replaced with `CommandFactory::command`
     #[deprecated(since = "3.1.0", note = "Replaced with `CommandFactory::command")]
     fn into_app<'help>() -> Command<'help>;
-    /// Build an [`Command`] that can update `self`.
+    /// Build a [`Command`] that can update `self`.
     ///
     /// See [`FromArgMatches::update_from_arg_matches`] for updating `self`.
     fn command_for_update<'help>() -> Command<'help> {
