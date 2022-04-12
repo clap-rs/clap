@@ -92,7 +92,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         while let Some(arg_os) = raw_args.next(&mut args_cursor) {
             // Recover the replaced items if any.
-            if let Some(replaced_items) = self.cmd.get_replacement(arg_os) {
+            if let Some(replaced_items) = arg_os.to_str().and_then(|a| self.cmd.get_replacement(a))
+            {
                 debug!(
                     "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
                     arg_os, replaced_items

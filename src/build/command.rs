@@ -3,7 +3,6 @@
 // Std
 use std::collections::HashMap;
 use std::env;
-use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::fmt;
 use std::io;
@@ -101,7 +100,7 @@ pub struct App<'help> {
     g_settings: AppFlags,
     args: MKeyMap<'help>,
     subcommands: Vec<App<'help>>,
-    replacers: HashMap<&'help OsStr, &'help [&'help str]>,
+    replacers: HashMap<&'help str, &'help [&'help str]>,
     groups: Vec<ArgGroup<'help>>,
     current_help_heading: Option<&'help str>,
     current_disp_ord: Option<usize>,
@@ -1945,7 +1944,7 @@ impl<'help> App<'help> {
     #[cfg(feature = "unstable-replace")]
     #[must_use]
     pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
-        self.replacers.insert(OsStr::new(name), target);
+        self.replacers.insert(name, target);
         self
     }
 
@@ -3933,7 +3932,7 @@ impl<'help> App<'help> {
         self.max_w
     }
 
-    pub(crate) fn get_replacement(&self, key: &OsStr) -> Option<&[&str]> {
+    pub(crate) fn get_replacement(&self, key: &str) -> Option<&[&str]> {
         self.replacers.get(key).copied()
     }
 
