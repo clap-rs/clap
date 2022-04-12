@@ -665,7 +665,7 @@ impl<'help> App<'help> {
         // to display
         // the full path when displaying help messages and such
         if !self.settings.is_set(AppSettings::NoBinaryName) {
-            if let Some(name) = raw_args.next(&mut cursor) {
+            if let Some(name) = raw_args.next_os(&mut cursor) {
                 let p = Path::new(name);
 
                 if let Some(f) = p.file_name() {

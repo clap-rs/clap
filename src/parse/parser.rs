@@ -90,7 +90,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         // If any arg sets .last(true)
         let contains_last = self.cmd.get_arguments().any(|x| x.is_last_set());
 
-        while let Some(arg_os) = raw_args.next(&mut args_cursor) {
+        while let Some(arg_os) = raw_args.next_os(&mut args_cursor) {
             // Recover the replaced items if any.
             if let Some(replaced_items) = arg_os.to_str().and_then(|a| self.cmd.get_replacement(a))
             {
@@ -140,7 +140,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 );
 
                 if low_index_mults || missing_pos {
-                    let skip_current = if let Some(n) = raw_args.peek(&args_cursor) {
+                    let skip_current = if let Some(n) = raw_args.peek_os(&args_cursor) {
                         if let Some(p) = self
                             .cmd
                             .get_positionals()
