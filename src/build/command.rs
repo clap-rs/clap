@@ -637,7 +637,7 @@ impl<'help> App<'help> {
 
         #[cfg(feature = "unstable-multicall")]
         if self.settings.is_set(AppSettings::Multicall) {
-            if let Some(argv0) = raw_args.next(&mut cursor) {
+            if let Some(argv0) = raw_args.next_os(&mut cursor) {
                 let argv0 = Path::new(&argv0);
                 if let Some(command) = argv0.file_stem().and_then(|f| f.to_str()) {
                     // Stop borrowing command so we can get another mut ref to it.

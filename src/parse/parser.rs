@@ -90,9 +90,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         // If any arg sets .last(true)
         let contains_last = self.cmd.get_arguments().any(|x| x.is_last_set());
 
-        while let Some(arg_os) = raw_args.next_os(&mut args_cursor) {
+        while let Some(arg_os) = raw_args.next(&mut args_cursor) {
             // Recover the replaced items if any.
-            if let Some(replaced_items) = arg_os.to_str().and_then(|a| self.cmd.get_replacement(a))
+            if let Some(replaced_items) =
+                arg_os.to_value().and_then(|a| self.cmd.get_replacement(a))
             {
                 debug!(
                     "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
@@ -102,11 +103,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 continue;
             }
 
-            let arg_os = RawOsStr::new(arg_os);
             debug!(
                 "Parser::get_matches_with: Begin parsing '{:?}' ({:?})",
-                arg_os,
-                arg_os.as_raw_bytes()
+                arg_os.to_value_os(),
+                arg_os.to_value_os().as_raw_bytes()
             );
 
             // Correct pos_counter.
@@ -140,7 +140,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 );
 
                 if low_index_mults || missing_pos {
-                    let skip_current = if let Some(n) = raw_args.peek_os(&args_cursor) {
+                    let skip_current = if let Some(n) = raw_args.peek(&args_cursor) {
                         if let Some(p) = self
                             .cmd
                             .get_positionals()
@@ -151,9 +151,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             // pos_counter(which means current value cannot be a
                             // positional argument with a value next to it), assume
                             // current value matches the next arg.
-                            let n = RawOsStr::new(n);
                             self.is_new_arg(&n, p)
-                                || self.possible_subcommand(&n, valid_arg_found).is_some()
+                                || self
+                                    .possible_subcommand(n.to_value(), valid_arg_found)
+                                    .is_some()
                         } else {
                             true
                         }
@@ -185,7 +186,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     || !matches!(parse_state, ParseState::Opt(_) | ParseState::Pos(_))
                 {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
-                    let sc_name = self.possible_subcommand(&arg_os, valid_arg_found);
+                    let sc_name = self.possible_subcommand(arg_os.to_value(), valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
                     if let Some(sc_name) = sc_name {
                         if sc_name == "help"
@@ -199,10 +200,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                 }
 
-                if let Some(long_arg) = arg_os.strip_prefix("--") {
+                if let Some((long_arg, long_value)) = arg_os.to_long() {
                     let parse_result = self.parse_long_arg(
                         matcher,
                         long_arg,
+                        long_value,
                         &parse_state,
                         &mut valid_arg_found,
                         trailing_values,
@@ -268,7 +270,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             unreachable!()
                         }
                     }
-                } else if let Some(short_arg) = arg_os.strip_prefix("-") {
+                } else if let Some(short_arg) = arg_os.to_short() {
                     // Arg looks like a short flag, and not a possible number
 
                     // Try to parse short args like normal, if allow_hyphen_values or
@@ -357,7 +359,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // get the option so we can check the settings
                     let parse_result = self.add_val_to_arg(
                         &self.cmd[id],
-                        &arg_os,
+                        arg_os.to_value_os(),
                         matcher,
                         ValueSource::CommandLine,
                         true,
@@ -377,7 +379,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 if p.is_last_set() && !trailing_values {
                     return Err(ClapError::unknown_argument(
                         self.cmd,
-                        arg_os.to_str_lossy().into_owned(),
+                        arg_os.display().to_string(),
                         None,
                         Usage::new(self.cmd).create_usage_with_title(&[]),
                     ));
@@ -398,7 +400,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let append = self.has_val_groups(matcher, p);
                 self.add_val_to_arg(
                     p,
-                    &arg_os,
+                    arg_os.to_value_os(),
                     matcher,
                     ValueSource::CommandLine,
                     append,
@@ -415,7 +417,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 valid_arg_found = true;
             } else if self.cmd.is_allow_external_subcommands_set() {
                 // Get external subcommand name
-                let sc_name = match arg_os.to_str() {
+                let sc_name = match arg_os.to_value() {
                     Some(s) => s.to_string(),
                     None => {
                         return Err(ClapError::invalid_utf8(
@@ -477,23 +479,28 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     fn match_arg_error(
         &self,
-        arg_os: &RawOsStr,
+        arg_os: &lexer::ParsedArg<'_>,
         valid_arg_found: bool,
         trailing_values: bool,
     ) -> ClapError {
         // If argument follows a `--`
         if trailing_values {
             // If the arg matches a subcommand name, or any of its aliases (if defined)
-            if self.possible_subcommand(arg_os, valid_arg_found).is_some() {
+            if self
+                .possible_subcommand(arg_os.to_value(), valid_arg_found)
+                .is_some()
+            {
                 return ClapError::unnecessary_double_dash(
                     self.cmd,
-                    arg_os.to_str_lossy().into_owned(),
+                    arg_os.display().to_string(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 );
             }
         }
-        let candidates =
-            suggestions::did_you_mean(&arg_os.to_str_lossy(), self.cmd.all_subcommand_names());
+        let candidates = suggestions::did_you_mean(
+            &arg_os.display().to_string(),
+            self.cmd.all_subcommand_names(),
+        );
         // If the argument looks like a subcommand.
         if !candidates.is_empty() {
             let candidates: Vec<_> = candidates
@@ -502,7 +509,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 .collect();
             return ClapError::invalid_subcommand(
                 self.cmd,
-                arg_os.to_str_lossy().into_owned(),
+                arg_os.display().to_string(),
                 candidates.join(" or "),
                 self.cmd
                     .get_bin_name()
@@ -516,7 +523,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         {
             return ClapError::unrecognized_subcommand(
                 self.cmd,
-                arg_os.to_str_lossy().into_owned(),
+                arg_os.display().to_string(),
                 self.cmd
                     .get_bin_name()
                     .unwrap_or_else(|| self.cmd.get_name())
@@ -525,15 +532,16 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
         ClapError::unknown_argument(
             self.cmd,
-            arg_os.to_str_lossy().into_owned(),
+            arg_os.display().to_string(),
             None,
             Usage::new(self.cmd).create_usage_with_title(&[]),
         )
     }
 
     // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &RawOsStr, valid_arg_found: bool) -> Option<&str> {
-        debug!("Parser::possible_subcommand: arg={:?}", arg_os);
+    fn possible_subcommand(&self, arg: Option<&str>, valid_arg_found: bool) -> Option<&str> {
+        debug!("Parser::possible_subcommand: arg={:?}", arg);
+        let arg = arg?;
 
         if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
             if self.cmd.is_infer_subcommands_set() {
@@ -542,7 +550,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let v = self
                     .cmd
                     .all_subcommand_names()
-                    .filter(|s| RawOsStr::from_str(s).starts_with_os(arg_os))
+                    .filter(|s| s.starts_with(arg))
                     .collect::<Vec<_>>();
 
                 if v.len() == 1 {
@@ -552,7 +560,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // If there is any ambiguity, fallback to non-infer subcommand
                 // search.
             }
-            if let Some(sc) = self.cmd.find_subcommand(arg_os) {
+            if let Some(sc) = self.cmd.find_subcommand(arg) {
                 return Some(sc.get_name());
             }
         }
@@ -639,32 +647,40 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Err(parser.help_err(true))
     }
 
-    fn is_new_arg(&self, next: &RawOsStr, current_positional: &Arg) -> bool {
+    fn is_new_arg(&self, next: &lexer::ParsedArg<'_>, current_positional: &Arg) -> bool {
         debug!(
             "Parser::is_new_arg: {:?}:{:?}",
-            next, current_positional.name
+            next.to_value_os(),
+            current_positional.name
         );
 
         if self.cmd.is_allow_hyphen_values_set()
             || self.cmd[&current_positional.id].is_allow_hyphen_values_set()
-            || (self.cmd.is_allow_negative_numbers_set()
-                && next.to_str_lossy().parse::<f64>().is_ok())
+            || (self.cmd.is_allow_negative_numbers_set() && next.is_number())
         {
             // If allow hyphen, this isn't a new arg.
             debug!("Parser::is_new_arg: Allow hyphen");
             false
-        } else if next.starts_with("--") {
-            // If this is a long flag, this is a new arg.
+        } else if next.is_escape() {
+            // Ensure we don't assuming escapes are long args
             debug!("Parser::is_new_arg: -- found");
-            true
-        } else if next.starts_with("-") {
+            false
+        } else if next.is_stdio() {
+            // Ensure we don't assume stdio is a short arg
             debug!("Parser::is_new_arg: - found");
+            false
+        } else if next.is_long() {
+            // If this is a long flag, this is a new arg.
+            debug!("Parser::is_new_arg: --<something> found");
+            true
+        } else if next.is_short() {
             // If this is a short flag, this is a new arg. But a singe '-' by
             // itself is a value and typically means "stdin" on unix systems.
-            next.raw_len() != 1
+            debug!("Parser::is_new_arg: -<something> found");
+            true
         } else {
-            debug!("Parser::is_new_arg: value");
             // Nothing special, this is a value.
+            debug!("Parser::is_new_arg: value");
             false
         }
     }
@@ -812,6 +828,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         &mut self,
         matcher: &mut ArgMatcher,
         long_arg: &RawOsStr,
+        long_value: Option<&RawOsStr>,
         parse_state: &ParseState,
         valid_arg_found: &mut bool,
         trailing_values: bool,
@@ -831,25 +848,18 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
         if long_arg.is_empty() {
+            debug_assert!(long_value.is_none(), "{:?}", long_value);
             return ParseResult::NoArg;
         }
-        let (arg, val) = if let Some(index) = long_arg.find("=") {
-            let (p0, p1) = long_arg.split_at(index);
-            debug!("Yes '{:?}'", p1);
-            (p0, Some(p1))
-        } else {
-            debug!("No");
-            (long_arg, None)
-        };
 
-        let opt = if let Some(opt) = self.cmd.get_keymap().get(&*arg.to_os_str()) {
+        let opt = if let Some(opt) = self.cmd.get_keymap().get(&*long_arg.to_os_str()) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
             );
             Some(opt)
         } else if self.cmd.is_infer_long_args_set() {
-            let arg_str = arg.to_str_lossy();
+            let arg_str = long_arg.to_str_lossy();
             self.cmd.get_arguments().find(|a| {
                 a.long.map_or(false, |long| long.starts_with(&*arg_str))
                     || a.aliases
@@ -866,10 +876,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             if opt.is_takes_value_set() {
                 debug!(
                     "Parser::parse_long_arg: Found an opt with value '{:?}'",
-                    &val
+                    &long_value
                 );
-                self.parse_opt(val, opt, matcher, trailing_values)
-            } else if let Some(rest) = val {
+                let has_eq = long_value.is_some();
+                self.parse_opt(long_value, opt, matcher, trailing_values, has_eq)
+            } else if let Some(rest) = long_value {
                 let required = self.cmd.required_graph();
                 debug!("Parser::parse_long_arg: Got invalid literal `{:?}`", rest);
                 let used: Vec<Id> = matcher
@@ -887,19 +898,19 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     used,
                     arg: opt.to_string(),
                 }
-            } else if let Some(parse_result) = self.check_for_help_and_version_str(arg) {
+            } else if let Some(parse_result) = self.check_for_help_and_version_str(long_arg) {
                 parse_result
             } else {
                 debug!("Parser::parse_long_arg: Presence validated");
                 self.parse_flag(opt, matcher)
             }
-        } else if let Some(sc_name) = self.possible_long_flag_subcommand(arg) {
+        } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             ParseResult::FlagSubCommand(sc_name.to_string())
         } else if self.cmd.is_allow_hyphen_values_set() {
             ParseResult::MaybeHyphenValue
         } else {
             ParseResult::NoMatchingArg {
-                arg: arg.to_str_lossy().into_owned(),
+                arg: long_arg.to_str_lossy().into_owned(),
             }
         }
     }
@@ -907,7 +918,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        short_arg: &RawOsStr,
+        mut short_arg: lexer::ShortFlags<'_>,
         parse_state: &ParseState,
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,
@@ -915,14 +926,15 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         trailing_values: bool,
     ) -> ParseResult {
         debug!("Parser::parse_short_arg: short_arg={:?}", short_arg);
-        let arg = short_arg.to_str_lossy();
 
         #[allow(clippy::blocks_in_if_conditions)]
-        if self.cmd.is_allow_negative_numbers_set() && arg.parse::<f64>().is_ok() {
+        if self.cmd.is_allow_negative_numbers_set() && short_arg.is_number() {
             debug!("Parser::parse_short_arg: negative number");
             return ParseResult::MaybeHyphenValue;
         } else if self.cmd.is_allow_hyphen_values_set()
-            && arg.chars().any(|c| !self.cmd.contains_short(c))
+            && short_arg
+                .clone()
+                .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
         {
             debug!("Parser::parse_short_args: contains non-short flag");
             return ParseResult::MaybeHyphenValue;
@@ -950,7 +962,22 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         let skip = self.flag_subcmd_skip;
         self.flag_subcmd_skip = 0;
-        for c in arg.chars().skip(skip) {
+        let res = short_arg.advance_by(skip);
+        debug_assert_eq!(
+            res,
+            Ok(()),
+            "tracking of `flag_subcmd_skip` is off for `{:?}`",
+            short_arg
+        );
+        while let Some(c) = short_arg.next() {
+            let c = match c {
+                Ok(c) => c,
+                Err(rest) => {
+                    return ParseResult::NoMatchingArg {
+                        arg: format!("-{}", rest.to_str_lossy()),
+                    };
+                }
+            };
             debug!("Parser::parse_short_arg:iter:{}", c);
 
             // update each index because `-abcd` is four indices to clap
@@ -981,7 +1008,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
 
                 // Check for trailing concatenated value
-                let val = short_arg.split_once(c).expect(INTERNAL_ERROR_MSG).1;
+                //
+                // Cloning the iterator, so we rollback if it isn't there.
+                let val = short_arg.clone().value_os().unwrap_or_default();
                 debug!(
                     "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii), short_arg={:?}",
                     c, val, val.as_raw_bytes(), short_arg
@@ -995,7 +1024,12 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 //
                 // e.g. `-xvf`, when require_equals && x.min_vals == 0, we don't
                 // consume the `vf`, even if it's provided as value.
-                match self.parse_opt(val, opt, matcher, trailing_values) {
+                let (val, has_eq) = if let Some(val) = val.and_then(|v| v.strip_prefix('=')) {
+                    (Some(val), true)
+                } else {
+                    (val, false)
+                };
+                match self.parse_opt(val, opt, matcher, trailing_values, has_eq) {
                     ParseResult::AttachedValueNotConsumed => continue,
                     x => return x,
                 }
@@ -1004,17 +1038,12 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             return if let Some(sc_name) = self.cmd.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
-                let done_short_args = {
-                    let cur_idx = self.cur_idx.get();
-                    // Get the index of the previously saved flag subcommand in the group of flags (if exists).
-                    // If it is a new flag subcommand, then the formentioned index should be the current one
-                    // (ie. `cur_idx`), and should be registered.
-                    let at = *self.flag_subcmd_at.get_or_insert(cur_idx);
-                    // If we are done, then the difference of indices (cur_idx - at) should be (end - at) which
-                    // should equal to (arg.len() - 1),
-                    // where `end` is the index of the end of the group.
-                    cur_idx - at == arg.len() - 1
-                };
+                // Get the index of the previously saved flag subcommand in the group of flags (if exists).
+                // If it is a new flag subcommand, then the formentioned index should be the current one
+                // (ie. `cur_idx`), and should be registered.
+                let cur_idx = self.cur_idx.get();
+                self.flag_subcmd_at.get_or_insert(cur_idx);
+                let done_short_args = short_arg.is_empty();
                 if done_short_args {
                     self.flag_subcmd_at = None;
                 }
@@ -1034,14 +1063,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         opt: &Arg<'help>,
         matcher: &mut ArgMatcher,
         trailing_values: bool,
+        has_eq: bool,
     ) -> ParseResult {
         debug!(
-            "Parser::parse_opt; opt={}, val={:?}",
-            opt.name, attached_value
+            "Parser::parse_opt; opt={}, val={:?}, has_eq={:?}",
+            opt.name, attached_value, has_eq
         );
         debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
-        // has_eq: --flag=value
-        let has_eq = matches!(attached_value, Some(fv) if fv.starts_with("="));
 
         debug!("Parser::parse_opt; Checking for val...");
         // require_equals is set, but no '=' is provided, try throwing error.
@@ -1071,14 +1099,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     arg: opt.to_string(),
                 }
             }
-        } else if let Some(fv) = attached_value {
-            let v = fv.strip_prefix("=").unwrap_or(fv);
-            debug!("Found - {:?}, len: {}", v, v.raw_len());
-            debug!(
-                "Parser::parse_opt: {:?} contains '='...{:?}",
-                fv,
-                fv.starts_with("=")
-            );
+        } else if let Some(v) = attached_value {
             self.inc_occurrence_of_arg(matcher, opt);
             self.add_val_to_arg(
                 opt,
