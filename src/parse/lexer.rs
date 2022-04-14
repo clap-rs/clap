@@ -212,7 +212,7 @@ impl<'s> ShortFlags<'s> {
         self.invalid_suffix.is_none() && self.utf8_prefix.as_str().parse::<f64>().is_ok()
     }
 
-    pub fn next(&mut self) -> Option<Result<char, &'s RawOsStr>> {
+    pub fn next_flag(&mut self) -> Option<Result<char, &'s RawOsStr>> {
         if let Some((_, flag)) = self.utf8_prefix.next() {
             return Some(Ok(flag));
         }
@@ -225,7 +225,7 @@ impl<'s> ShortFlags<'s> {
         None
     }
 
-    pub fn value_os(&mut self) -> Option<&'s RawOsStr> {
+    pub fn next_value_os(&mut self) -> Option<&'s RawOsStr> {
         if let Some((index, _)) = self.utf8_prefix.next() {
             self.utf8_prefix = "".char_indices();
             self.invalid_suffix = None;
@@ -245,7 +245,7 @@ impl<'s> Iterator for ShortFlags<'s> {
     type Item = Result<char, &'s RawOsStr>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.next()
+        self.next_flag()
     }
 }
 

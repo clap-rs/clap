@@ -969,7 +969,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             "tracking of `flag_subcmd_skip` is off for `{:?}`",
             short_arg
         );
-        while let Some(c) = short_arg.next() {
+        while let Some(c) = short_arg.next_flag() {
             let c = match c {
                 Ok(c) => c,
                 Err(rest) => {
@@ -1010,7 +1010,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // Check for trailing concatenated value
                 //
                 // Cloning the iterator, so we rollback if it isn't there.
-                let val = short_arg.clone().value_os().unwrap_or_default();
+                let val = short_arg.clone().next_value_os().unwrap_or_default();
                 debug!(
                     "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii), short_arg={:?}",
                     c, val, val.as_raw_bytes(), short_arg
