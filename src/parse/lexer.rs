@@ -5,40 +5,48 @@ pub use std::io::SeekFrom;
 
 use os_str_bytes::RawOsStr;
 
+/// Command-line arguments
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub(crate) struct RawArgs {
     items: Vec<OsString>,
 }
 
 impl RawArgs {
+    /// Create a cursor for walking the arguments
     pub fn cursor(&self) -> ArgCursor {
         ArgCursor::new()
     }
 
+    /// Advance the cursor, returning the next [`ParsedArgs`]
     pub fn next(&self, cursor: &mut ArgCursor) -> Option<ParsedArg<'_>> {
         self.next_os(cursor).map(ParsedArg::new)
     }
 
+    /// Advance the cursor, returning a raw argument value.
     pub fn next_os(&self, cursor: &mut ArgCursor) -> Option<&OsStr> {
         let next = self.items.get(cursor.cursor).map(|s| s.as_os_str());
         cursor.cursor = cursor.cursor.saturating_add(1);
         next
     }
 
+    /// Return the next [`ParsedArgs`]
     pub fn peek(&self, cursor: &ArgCursor) -> Option<ParsedArg<'_>> {
         self.peek_os(cursor).map(ParsedArg::new)
     }
 
+    /// Return a raw argument value.
     pub fn peek_os(&self, cursor: &ArgCursor) -> Option<&OsStr> {
         self.items.get(cursor.cursor).map(|s| s.as_os_str())
     }
 
+    /// Return all remaining raw arguments, advancing the cursor to the end
     pub fn remaining(&self, cursor: &mut ArgCursor) -> impl Iterator<Item = &OsStr> {
         let remaining = self.items[cursor.cursor..].iter().map(|s| s.as_os_str());
         cursor.cursor = self.items.len();
         remaining
     }
 
+    /// Adjust the cursor's position
     pub fn seek(&self, cursor: &mut ArgCursor, pos: SeekFrom) {
         let pos = match pos {
             SeekFrom::Start(pos) => pos,
@@ -70,17 +78,19 @@ where
     }
 }
 
-#[derive(Default, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+/// Position within [`RawArgs`]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct ArgCursor {
     cursor: usize,
 }
 
 impl ArgCursor {
     fn new() -> Self {
-        Default::default()
+        Self { cursor: 0 }
     }
 }
 
+/// Command-line Argument
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct ParsedArg<'s> {
     inner: std::borrow::Cow<'s, RawOsStr>,
@@ -94,14 +104,17 @@ impl<'s> ParsedArg<'s> {
         Self { inner, utf8 }
     }
 
+    /// Does the argument look like a stdio argument (`-`)
     pub fn is_stdio(&self) -> bool {
         self.inner.as_ref() == "-"
     }
 
+    /// Does the argument look like an argument escape (`--`)
     pub fn is_escape(&self) -> bool {
         self.inner.as_ref() == "--"
     }
 
+    /// Does the argument look like a number
     pub fn is_number(&self) -> bool {
         self.to_value()
             .map(|s| s.parse::<f64>().is_ok())
@@ -175,6 +188,7 @@ impl<'s> ParsedArg<'s> {
     }
 }
 
+/// Walk through short flags within a [`ParsedArg`]
 #[derive(Clone, Debug)]
 pub(crate) struct ShortFlags<'s> {
     inner: &'s RawOsStr,
@@ -197,6 +211,7 @@ impl<'s> ShortFlags<'s> {
         }
     }
 
+    /// Move the iterator forward by `n` short flags
     pub fn advance_by(&mut self, n: usize) -> Result<(), usize> {
         for i in 0..n {
             self.next().ok_or(i)?.map_err(|_| i)?;
@@ -204,14 +219,21 @@ impl<'s> ShortFlags<'s> {
         Ok(())
     }
 
+    /// No short flags left
     pub fn is_empty(&self) -> bool {
         self.invalid_suffix.is_none() && self.utf8_prefix.as_str().is_empty()
     }
 
+    /// Does the short flag look like a number
+    ///
+    /// Ideally call this before doing any iterator
     pub fn is_number(&self) -> bool {
         self.invalid_suffix.is_none() && self.utf8_prefix.as_str().parse::<f64>().is_ok()
     }
 
+    /// Advance the iterator, returning the next short flag on success
+    ///
+    /// On error, returns the invalid-UTF8 value
     pub fn next_flag(&mut self) -> Option<Result<char, &'s RawOsStr>> {
         if let Some((_, flag)) = self.utf8_prefix.next() {
             return Some(Ok(flag));
@@ -225,6 +247,7 @@ impl<'s> ShortFlags<'s> {
         None
     }
 
+    /// Advance the iterator, returning everything left as a value
     pub fn next_value_os(&mut self) -> Option<&'s RawOsStr> {
         if let Some((index, _)) = self.utf8_prefix.next() {
             self.utf8_prefix = "".char_indices();
