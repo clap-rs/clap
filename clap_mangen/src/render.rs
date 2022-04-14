@@ -113,6 +113,9 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         }
 
         if let Some(mut env) = option_environment(opt) {
+            if !body.is_empty() {
+                body.push(roman(". "));
+            }
             body.append(&mut env);
         }
 
@@ -142,6 +145,9 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         }
 
         if let Some(mut env) = option_environment(pos) {
+            if !body.is_empty() {
+                body.push(roman(". "));
+            }
             body.append(&mut env);
         }
 
