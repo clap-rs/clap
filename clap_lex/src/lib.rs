@@ -174,7 +174,7 @@ impl RawArgs {
         ArgCursor::new()
     }
 
-    /// Advance the cursor, returning the next [`ParsedArgs`]
+    /// Advance the cursor, returning the next [`ParsedArg`]
     pub fn next(&self, cursor: &mut ArgCursor) -> Option<ParsedArg<'_>> {
         self.next_os(cursor).map(ParsedArg::new)
     }
@@ -186,7 +186,7 @@ impl RawArgs {
         next
     }
 
-    /// Return the next [`ParsedArgs`]
+    /// Return the next [`ParsedArg`]
     pub fn peek(&self, cursor: &ArgCursor) -> Option<ParsedArg<'_>> {
         self.peek_os(cursor).map(ParsedArg::new)
     }
