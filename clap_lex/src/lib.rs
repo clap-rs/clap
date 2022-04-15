@@ -292,6 +292,9 @@ impl<'s> ParsedArg<'s> {
     /// Treat as a long-flag
     ///
     /// **NOTE:** May return an empty flag.  Check [`ParsedArg::is_escape`] to separately detect `--`.
+    ///
+    /// **NOTE:** Will not match [`ParsedArg::is_stdio`], completion engines will need to check
+    /// that case.
     pub fn to_long(&self) -> Option<(Result<&str, &RawOsStr>, Option<&RawOsStr>)> {
         if let Some(raw) = self.utf8 {
             let remainder = raw.strip_prefix("--")?;

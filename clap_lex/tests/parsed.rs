@@ -1,16 +1,15 @@
+// Despite our design philosophy being to support completion generation, we aren't considering `-`
+// the start of a long because there is no valid value to return.
 #[test]
-#[should_panic] // Our design philosophy is to match X if it can be completed as X which we break here
 fn to_long_stdio() {
     let raw = clap_lex::RawArgs::from_iter(["bin", "-"]);
     let mut cursor = raw.cursor();
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
 
-    assert!(next.is_long());
+    assert!(!next.is_long());
 
-    let (key, value) = next.to_long().unwrap();
-    assert_eq!(key, Ok(""));
-    assert_eq!(value, None);
+    assert_eq!(next.to_long(), None);
 }
 
 #[test]
