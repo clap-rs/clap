@@ -5,8 +5,13 @@ on:
     branches: [master]
   schedule:
   - cron: '3 3 3 * *'
+permissions:
+  contents: read
+
 jobs:
   ci:
+    permissions:
+      contents: none
     name: CI
     needs: [test, check, docs, rustfmt, clippy]
     runs-on: ubuntu-latest

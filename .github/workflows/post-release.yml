@@ -3,8 +3,13 @@ on:
   push:
     tags:
     - "v*"
+permissions:
+  contents: read
+
 jobs:
   create-release:
+    permissions:
+      contents: write  # for actions/create-release to create a release
     name: create-release
     runs-on: ubuntu-latest
     outputs:
