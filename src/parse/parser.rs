@@ -568,21 +568,18 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     // Checks if the arg matches a long flag subcommand name, or any of its aliases (if defined)
-    fn possible_long_flag_subcommand(&self, arg_os: &RawOsStr) -> Option<&str> {
-        debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
+    fn possible_long_flag_subcommand(&self, arg: &str) -> Option<&str> {
+        debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg);
         if self.cmd.is_infer_subcommands_set() {
             let options = self
                 .cmd
                 .get_subcommands()
                 .fold(Vec::new(), |mut options, sc| {
                     if let Some(long) = sc.get_long_flag() {
-                        if RawOsStr::from_str(long).starts_with_os(arg_os) {
+                        if long.starts_with(arg) {
                             options.push(long);
                         }
-                        options.extend(
-                            sc.get_all_aliases()
-                                .filter(|alias| RawOsStr::from_str(alias).starts_with_os(arg_os)),
-                        )
+                        options.extend(sc.get_all_aliases().filter(|alias| alias.starts_with(arg)))
                     }
                     options
                 });
@@ -591,11 +588,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             }
 
             for sc in options {
-                if sc == arg_os {
+                if sc == arg {
                     return Some(sc);
                 }
             }
-        } else if let Some(sc_name) = self.cmd.find_long_subcmd(arg_os) {
+        } else if let Some(sc_name) = self.cmd.find_long_subcmd(arg) {
             return Some(sc_name);
         }
         None
@@ -827,7 +824,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        long_arg: &RawOsStr,
+        long_arg: Result<&str, &RawOsStr>,
         long_value: Option<&RawOsStr>,
         parse_state: &ParseState,
         valid_arg_found: &mut bool,
@@ -847,24 +844,31 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::parse_long_arg: cur_idx:={}", self.cur_idx.get());
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
+        let long_arg = match long_arg {
+            Ok(long_arg) => long_arg,
+            Err(long_arg) => {
+                return ParseResult::NoMatchingArg {
+                    arg: long_arg.to_str_lossy().into_owned(),
+                };
+            }
+        };
         if long_arg.is_empty() {
             debug_assert!(long_value.is_none(), "{:?}", long_value);
             return ParseResult::NoArg;
         }
 
-        let opt = if let Some(opt) = self.cmd.get_keymap().get(&*long_arg.to_os_str()) {
+        let opt = if let Some(opt) = self.cmd.get_keymap().get(long_arg) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
             );
             Some(opt)
         } else if self.cmd.is_infer_long_args_set() {
-            let arg_str = long_arg.to_str_lossy();
             self.cmd.get_arguments().find(|a| {
-                a.long.map_or(false, |long| long.starts_with(&*arg_str))
+                a.long.map_or(false, |long| long.starts_with(long_arg))
                     || a.aliases
                         .iter()
-                        .any(|(alias, _)| alias.starts_with(&*arg_str))
+                        .any(|(alias, _)| alias.starts_with(long_arg))
             })
         } else {
             None
@@ -898,7 +902,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     used,
                     arg: opt.to_string(),
                 }
-            } else if let Some(parse_result) = self.check_for_help_and_version_str(long_arg) {
+            } else if let Some(parse_result) =
+                self.check_for_help_and_version_str(RawOsStr::from_str(long_arg))
+            {
                 parse_result
             } else {
                 debug!("Parser::parse_long_arg: Presence validated");
@@ -910,7 +916,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             ParseResult::MaybeHyphenValue
         } else {
             ParseResult::NoMatchingArg {
-                arg: long_arg.to_str_lossy().into_owned(),
+                arg: long_arg.to_owned(),
             }
         }
     }

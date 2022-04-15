@@ -124,14 +124,28 @@ impl<'s> ParsedArg<'s> {
     /// Treat as a long-flag
     ///
     /// **NOTE:** May return an empty flag.  Check [`ParsedArg::is_escape`] to separately detect `--`.
-    pub fn to_long(&self) -> Option<(&RawOsStr, Option<&RawOsStr>)> {
-        let remainder = self.inner.as_ref().strip_prefix("--")?;
-        let parts = if let Some((p0, p1)) = remainder.split_once("=") {
-            (p0, Some(p1))
+    pub fn to_long(&self) -> Option<(Result<&str, &RawOsStr>, Option<&RawOsStr>)> {
+        if let Some(raw) = self.utf8 {
+            let remainder = raw.strip_prefix("--")?;
+            let (flag, value) = if let Some((p0, p1)) = remainder.split_once("=") {
+                (p0, Some(p1))
+            } else {
+                (remainder, None)
+            };
+            let flag = Ok(flag);
+            let value = value.map(RawOsStr::from_str);
+            Some((flag, value))
         } else {
-            (remainder, None)
-        };
-        Some(parts)
+            let raw = self.inner.as_ref();
+            let remainder = raw.strip_prefix("--")?;
+            let (flag, value) = if let Some((p0, p1)) = remainder.split_once("=") {
+                (p0, Some(p1))
+            } else {
+                (remainder, None)
+            };
+            let flag = flag.to_str().ok_or_else(|| flag);
+            Some((flag, value))
+        }
     }
 
     /// Can treat as a long-flag

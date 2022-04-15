@@ -10,7 +10,6 @@ use std::ops::Index;
 use std::path::Path;
 
 // Third Party
-use os_str_bytes::RawOsStr;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -4655,7 +4654,7 @@ impl<'help> App<'help> {
     }
 
     /// Find a flag subcommand name by long flag or an alias
-    pub(crate) fn find_long_subcmd(&self, long: &RawOsStr) -> Option<&str> {
+    pub(crate) fn find_long_subcmd(&self, long: &str) -> Option<&str> {
         self.get_subcommands()
             .find(|sc| sc.long_flag_aliases_to(long))
             .map(|sc| sc.get_name())
