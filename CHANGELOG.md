@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Pin the `clap_derive` version so a compatible version is always used with `clap`
+
 ## [3.1.8] - 2022-04-01
 
 ### Fixes
