@@ -68,3 +68,6 @@ pub use generator::generate;
 pub use generator::generate_to;
 pub use generator::Generator;
 pub use shells::Shell;
+
+#[cfg(feature = "unstable-dynamic")]
+pub mod dynamic;
