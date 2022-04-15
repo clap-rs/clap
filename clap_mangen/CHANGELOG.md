@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- Use value names for positionals
+- Hide hidden flags in synopsis
+- Use italics for replaceable args
+
 ## [0.1.2] - 2022-02-16
 
 ## [0.1.1] - 2022-02-08
