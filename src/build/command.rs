@@ -631,7 +631,7 @@ impl<'help> App<'help> {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let mut raw_args = clap_lex::RawArgs::from(itr.into_iter());
+        let mut raw_args = clap_lex::RawArgs::new(itr.into_iter());
         let mut cursor = raw_args.cursor();
 
         #[cfg(feature = "unstable-multicall")]

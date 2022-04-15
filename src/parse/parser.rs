@@ -651,6 +651,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     fn is_new_arg(&self, next: &clap_lex::ParsedArg<'_>, current_positional: &Arg) -> bool {
+        #![allow(clippy::needless_bool)] // Prefer consistent if/else-if ladder
+
         debug!(
             "Parser::is_new_arg: {:?}:{:?}",
             next.to_value_os(),

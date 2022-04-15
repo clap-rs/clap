@@ -1,11 +1,11 @@
 #[test]
 fn insert() {
-    let mut raw = clap_lex::RawArgs::from_iter(["bin", "a", "b", "c"]);
+    let mut raw = clap_lex::RawArgs::new(["bin", "a", "b", "c"]);
     let mut cursor = raw.cursor();
 
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("a")));
-    raw.insert(&mut cursor, &["1", "2", "3"]);
+    raw.insert(&cursor, &["1", "2", "3"]);
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("1")));
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("2")));
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("3")));

@@ -52,7 +52,7 @@
 //!         verbosity: 0,
 //!     };
 //!
-//!     let raw = clap_lex::RawArgs::from_iter(raw);
+//!     let raw = clap_lex::RawArgs::new(raw);
 //!     let mut cursor = raw.cursor();
 //!     raw.next(&mut cursor);  // Skip the bin
 //!     while let Some(arg) = raw.next(&mut cursor) {
@@ -124,6 +124,8 @@ pub struct RawArgs {
 impl RawArgs {
     //// Create an argument list to parse
     ///
+    /// **NOTE:** The argument returned will be the current binary.
+    ///
     /// # Example
     ///
     /// ```rust,no_run
@@ -136,7 +138,7 @@ impl RawArgs {
     /// println!("{:?}", paths);
     /// ```
     pub fn from_args() -> Self {
-        Self::from_iter(std::env::args_os())
+        Self::new(std::env::args_os())
     }
 
     //// Create an argument list to parse
@@ -145,14 +147,14 @@ impl RawArgs {
     ///
     /// ```rust,no_run
     /// # use std::path::PathBuf;
-    /// let raw = clap_lex::RawArgs::from_iter(["bin", "foo.txt"]);
+    /// let raw = clap_lex::RawArgs::new(["bin", "foo.txt"]);
     /// let mut cursor = raw.cursor();
     /// let _bin = raw.next_os(&mut cursor);
     ///
     /// let mut paths = raw.remaining(&mut cursor).map(PathBuf::from).collect::<Vec<_>>();
     /// println!("{:?}", paths);
     /// ```
-    pub fn from_iter(iter: impl IntoIterator<Item = impl Into<std::ffi::OsString>>) -> Self {
+    pub fn new(iter: impl IntoIterator<Item = impl Into<std::ffi::OsString>>) -> Self {
         let iter = iter.into_iter();
         Self::from(iter)
     }
@@ -163,7 +165,7 @@ impl RawArgs {
     ///
     /// ```rust,no_run
     /// # use std::path::PathBuf;
-    /// let raw = clap_lex::RawArgs::from_iter(["bin", "foo.txt"]);
+    /// let raw = clap_lex::RawArgs::new(["bin", "foo.txt"]);
     /// let mut cursor = raw.cursor();
     /// let _bin = raw.next_os(&mut cursor);
     ///
@@ -202,7 +204,7 @@ impl RawArgs {
     ///
     /// ```rust,no_run
     /// # use std::path::PathBuf;
-    /// let raw = clap_lex::RawArgs::from_iter(["bin", "foo.txt"]);
+    /// let raw = clap_lex::RawArgs::new(["bin", "foo.txt"]);
     /// let mut cursor = raw.cursor();
     /// let _bin = raw.next_os(&mut cursor);
     ///
@@ -299,7 +301,7 @@ impl<'s> ParsedArg<'s> {
     pub fn to_long(&self) -> Option<(Result<&str, &RawOsStr>, Option<&RawOsStr>)> {
         if let Some(raw) = self.utf8 {
             let remainder = raw.strip_prefix("--")?;
-            let (flag, value) = if let Some((p0, p1)) = remainder.split_once("=") {
+            let (flag, value) = if let Some((p0, p1)) = remainder.split_once('=') {
                 (p0, Some(p1))
             } else {
                 (remainder, None)
@@ -310,12 +312,12 @@ impl<'s> ParsedArg<'s> {
         } else {
             let raw = self.inner.as_ref();
             let remainder = raw.strip_prefix("--")?;
-            let (flag, value) = if let Some((p0, p1)) = remainder.split_once("=") {
+            let (flag, value) = if let Some((p0, p1)) = remainder.split_once('=') {
                 (p0, Some(p1))
             } else {
                 (remainder, None)
             };
-            let flag = flag.to_str().ok_or_else(|| flag);
+            let flag = flag.to_str().ok_or(flag);
             Some((flag, value))
         }
     }
@@ -363,7 +365,7 @@ impl<'s> ParsedArg<'s> {
     ///
     /// **NOTE:** May return a flag or an escape.
     pub fn to_value(&self) -> Result<&str, &RawOsStr> {
-        self.utf8.ok_or(self.inner.as_ref())
+        self.utf8.ok_or_else(|| self.inner.as_ref())
     }
 
     /// Safely print an argument that may contain non-UTF8 content
