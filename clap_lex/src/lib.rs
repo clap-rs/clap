@@ -358,8 +358,8 @@ impl<'s> ParsedArg<'s> {
     /// Treat as a value
     ///
     /// **NOTE:** May return a flag or an escape.
-    pub fn to_value(&self) -> Option<&str> {
-        self.utf8
+    pub fn to_value(&self) -> Result<&str, &RawOsStr> {
+        self.utf8.ok_or(self.inner.as_ref())
     }
 
     /// Safely print an argument that may contain non-UTF8 content

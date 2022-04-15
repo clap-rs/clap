@@ -91,8 +91,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         while let Some(arg_os) = raw_args.next(&mut args_cursor) {
             // Recover the replaced items if any.
-            if let Some(replaced_items) =
-                arg_os.to_value().and_then(|a| self.cmd.get_replacement(a))
+            if let Some(replaced_items) = arg_os
+                .to_value()
+                .ok()
+                .and_then(|a| self.cmd.get_replacement(a))
             {
                 debug!(
                     "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
@@ -418,8 +420,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             } else if self.cmd.is_allow_external_subcommands_set() {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_value() {
-                    Some(s) => s.to_string(),
-                    None => {
+                    Ok(s) => s.to_string(),
+                    Err(_) => {
                         return Err(ClapError::invalid_utf8(
                             self.cmd,
                             Usage::new(self.cmd).create_usage_with_title(&[]),
@@ -539,9 +541,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
-    fn possible_subcommand(&self, arg: Option<&str>, valid_arg_found: bool) -> Option<&str> {
+    fn possible_subcommand(
+        &self,
+        arg: Result<&str, &RawOsStr>,
+        valid_arg_found: bool,
+    ) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg);
-        let arg = arg?;
+        let arg = arg.ok()?;
 
         if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
             if self.cmd.is_infer_subcommands_set() {
