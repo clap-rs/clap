@@ -1,7 +1,8 @@
 //! Minimal, flexible command-line parser
 //!
-//! As opposed to a declarative parser, this processes arguments as a stream.  The caller
-//! decides when to treat an argument as a flag or value.
+//! As opposed to a declarative parser, this processes arguments as a stream of tokens.  As lexing
+//! a command-line is not context-free, we rely on the caller to decide how to interpret the
+//! arguments.
 //!
 //! # Examples
 //!
