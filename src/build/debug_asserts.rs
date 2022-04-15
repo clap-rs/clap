@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use os_str_bytes::RawOsStr;
+use clap_lex::RawOsStr;
 
 use crate::build::arg::ArgProvider;
 use crate::mkeymap::KeyType;
