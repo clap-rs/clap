@@ -1,6 +1,9 @@
 name: Spelling
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   spelling:
     name: Spell Check with Typos

@@ -2,6 +2,9 @@ name: rust-next
 on:
   schedule:
   - cron: '3 3 3 * *'
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test
