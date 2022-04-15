@@ -3,7 +3,6 @@ mod parser;
 mod validator;
 
 pub mod features;
-pub(crate) mod lexer;
 pub mod matches;
 
 pub(crate) use self::arg_matcher::ArgMatcher;

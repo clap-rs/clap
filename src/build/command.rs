@@ -21,7 +21,7 @@ use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
-use crate::parse::{lexer, ArgMatcher, ArgMatches, Parser};
+use crate::parse::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
@@ -631,7 +631,7 @@ impl<'help> App<'help> {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let mut raw_args = lexer::RawArgs::from(itr.into_iter());
+        let mut raw_args = clap_lex::RawArgs::from(itr.into_iter());
         let mut cursor = raw_args.cursor();
 
         #[cfg(feature = "unstable-multicall")]
@@ -3955,8 +3955,8 @@ impl<'help> App<'help> {
 
     fn _do_parse(
         &mut self,
-        raw_args: &mut lexer::RawArgs,
-        args_cursor: lexer::ArgCursor,
+        raw_args: &mut clap_lex::RawArgs,
+        args_cursor: clap_lex::ArgCursor,
     ) -> ClapResult<ArgMatches> {
         debug!("App::_do_parse");
 

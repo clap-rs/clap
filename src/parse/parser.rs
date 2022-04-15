@@ -5,7 +5,7 @@ use std::{
 };
 
 // Third Party
-use os_str_bytes::RawOsStr;
+use clap_lex::RawOsStr;
 
 // Internal
 use crate::build::{Arg, Command};
@@ -14,7 +14,6 @@ use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::features::suggestions;
-use crate::parse::lexer;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
 use crate::util::{color::ColorChoice, Id};
@@ -64,8 +63,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     pub(crate) fn get_matches_with(
         &mut self,
         matcher: &mut ArgMatcher,
-        raw_args: &mut lexer::RawArgs,
-        mut args_cursor: lexer::ArgCursor,
+        raw_args: &mut clap_lex::RawArgs,
+        mut args_cursor: clap_lex::ArgCursor,
     ) -> ClapResult<()> {
         debug!("Parser::get_matches_with");
         // Verify all positional assertions pass
@@ -307,7 +306,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             keep_state = self
                                 .flag_subcmd_at
                                 .map(|at| {
-                                    raw_args.seek(&mut args_cursor, lexer::SeekFrom::Current(-1));
+                                    raw_args
+                                        .seek(&mut args_cursor, clap_lex::SeekFrom::Current(-1));
                                     // Since we are now saving the current state, the number of flags to skip during state recovery should
                                     // be the current index (`cur_idx`) minus ONE UNIT TO THE LEFT of the starting position.
                                     self.flag_subcmd_skip = self.cur_idx.get() - at + 1;
@@ -479,7 +479,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     fn match_arg_error(
         &self,
-        arg_os: &lexer::ParsedArg<'_>,
+        arg_os: &clap_lex::ParsedArg<'_>,
         valid_arg_found: bool,
         trailing_values: bool,
     ) -> ClapError {
@@ -644,7 +644,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Err(parser.help_err(true))
     }
 
-    fn is_new_arg(&self, next: &lexer::ParsedArg<'_>, current_positional: &Arg) -> bool {
+    fn is_new_arg(&self, next: &clap_lex::ParsedArg<'_>, current_positional: &Arg) -> bool {
         debug!(
             "Parser::is_new_arg: {:?}:{:?}",
             next.to_value_os(),
@@ -686,8 +686,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         &mut self,
         sc_name: &str,
         matcher: &mut ArgMatcher,
-        raw_args: &mut lexer::RawArgs,
-        args_cursor: lexer::ArgCursor,
+        raw_args: &mut clap_lex::RawArgs,
+        args_cursor: clap_lex::ArgCursor,
         keep_state: bool,
     ) -> ClapResult<()> {
         debug!("Parser::parse_subcommand");
@@ -924,7 +924,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        mut short_arg: lexer::ShortFlags<'_>,
+        mut short_arg: clap_lex::ShortFlags<'_>,
         parse_state: &ParseState,
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,

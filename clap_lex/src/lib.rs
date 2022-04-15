@@ -3,11 +3,12 @@ use std::ffi::OsString;
 
 pub use std::io::SeekFrom;
 
-use os_str_bytes::RawOsStr;
+pub use os_str_bytes::RawOsStr;
+pub use os_str_bytes::RawOsString;
 
 /// Command-line arguments
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
-pub(crate) struct RawArgs {
+pub struct RawArgs {
     items: Vec<OsString>,
 }
 
@@ -80,7 +81,7 @@ where
 
 /// Position within [`RawArgs`]
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct ArgCursor {
+pub struct ArgCursor {
     cursor: usize,
 }
 
@@ -92,7 +93,7 @@ impl ArgCursor {
 
 /// Command-line Argument
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct ParsedArg<'s> {
+pub struct ParsedArg<'s> {
     inner: std::borrow::Cow<'s, RawOsStr>,
     utf8: Option<&'s str>,
 }
@@ -204,7 +205,7 @@ impl<'s> ParsedArg<'s> {
 
 /// Walk through short flags within a [`ParsedArg`]
 #[derive(Clone, Debug)]
-pub(crate) struct ShortFlags<'s> {
+pub struct ShortFlags<'s> {
     inner: &'s RawOsStr,
     utf8_prefix: std::str::CharIndices<'s>,
     invalid_suffix: Option<&'s RawOsStr>,
