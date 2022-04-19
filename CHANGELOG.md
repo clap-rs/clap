@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Featues
+
+- Expose `Command::build` for custom help generation or other command introspection needs
+
 ## [3.1.9] - 2022-04-15
 
 ### Fixes
