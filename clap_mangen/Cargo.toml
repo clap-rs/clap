@@ -1,6 +1,6 @@
 [package]
 name = "clap_mangen"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2018"
 include = [
 	"src/**/*",

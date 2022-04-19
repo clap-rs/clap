@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete"
-version = "3.1.1"
+version = "3.1.2"
 edition = "2018"
 include = [
 	"src/**/*",
@@ -35,12 +35,12 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "3.1.0", default-features = false, features = ["std"] }
+clap = { path = "../", version = "3.1.10", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 pretty_assertions = "1.0"
 snapbox = { version = "0.2", features = ["diff"] }
-clap = { path = "../", version = "3.1.0", default-features = false, features = ["std", "derive"] }
+clap = { path = "../", version = "3.1.10", default-features = false, features = ["std", "derive"] }
 
 [features]
 default = []

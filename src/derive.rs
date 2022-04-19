@@ -20,7 +20,7 @@ use std::ffi::OsString;
 /// See also [`Subcommand`] and [`Args`].
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.9/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.10/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
@@ -306,7 +306,7 @@ pub trait FromArgMatches: Sized {
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.9/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.10/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
@@ -350,7 +350,7 @@ pub trait Args: FromArgMatches + Sized {
 ///   `Subcommand`.
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.9/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.10/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
@@ -394,7 +394,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.9/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.10/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
