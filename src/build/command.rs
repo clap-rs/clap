@@ -3984,9 +3984,17 @@ impl<'help> App<'help> {
         Ok(matcher.into_inner())
     }
 
-    // used in clap_complete (https://github.com/clap-rs/clap_complete)
     #[doc(hidden)]
+    #[deprecated(since = "3.1.10", note = "Replaced with `Command::build`")]
     pub fn _build_all(&mut self) {
+        self.build();
+    }
+
+    /// Prepare for introspecting on all included [`Command`]s
+    ///
+    /// Call this on the top-level [`Command`] when done building and before reading state for
+    /// cases like completions, custom help output, etc.
+    pub fn build(&mut self) {
         self._build();
         for subcmd in self.get_subcommands_mut() {
             subcmd._build();
@@ -4047,9 +4055,13 @@ impl<'help> App<'help> {
         Some(sc)
     }
 
-    // used in clap_complete (https://github.com/clap-rs/clap_complete)
     #[doc(hidden)]
+    #[deprecated(since = "3.1.10", note = "Replaced with `Command::build`")]
     pub fn _build(&mut self) {
+        self._build_self()
+    }
+
+    pub(crate) fn _build_self(&mut self) {
         debug!("App::_build");
         if !self.settings.is_set(AppSettings::Built) {
             // Make sure all the globally set flags apply to us as well

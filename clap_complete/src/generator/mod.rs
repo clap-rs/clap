@@ -236,7 +236,7 @@ where
     G: Generator,
     S: Into<String>,
 {
-    cmd._build_all();
+    cmd.build();
 
     gen.generate(cmd, buf)
 }
