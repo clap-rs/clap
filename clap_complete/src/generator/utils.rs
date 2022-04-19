@@ -151,14 +151,14 @@ mod tests {
     fn built() -> Command<'static> {
         let mut cmd = common_app();
 
-        cmd._build_all();
+        cmd.build();
         cmd
     }
 
     fn built_with_version() -> Command<'static> {
         let mut cmd = common_app().version("3.0");
 
-        cmd._build_all();
+        cmd.build();
         cmd
     }
 

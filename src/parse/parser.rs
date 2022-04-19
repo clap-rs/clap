@@ -636,7 +636,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 .clone();
 
-                sc._build();
+                sc._build_self();
                 bin_name.push(' ');
                 bin_name.push_str(sc.get_name());
             }

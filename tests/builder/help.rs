@@ -2872,7 +2872,7 @@ fn disable_help_flag_affects_help_subcommand() {
     let mut cmd = Command::new("test_app")
         .disable_help_flag(true)
         .subcommand(Command::new("test").about("Subcommand"));
-    cmd._build_all();
+    cmd.build();
 
     let args = cmd
         .find_subcommand("help")
@@ -2918,7 +2918,7 @@ fn help_without_short() {
         .arg(arg!(-h --hex <NUM>))
         .arg(arg!(--help));
 
-    cmd._build_all();
+    cmd.build();
     let help = cmd.get_arguments().find(|a| a.get_id() == "help").unwrap();
     assert_eq!(help.get_short(), None);
 

@@ -26,7 +26,7 @@ pub struct Man<'a> {
 impl<'a> Man<'a> {
     /// Create a new manual page.
     pub fn new(mut cmd: clap::Command<'a>) -> Self {
-        cmd._build_all();
+        cmd.build();
         let title = cmd.get_name().to_owned();
         let section = "1".to_owned();
         let date = "".to_owned();

@@ -39,7 +39,7 @@ fn issue_2090() {
     let mut cmd = Command::new("cmd")
         .disable_version_flag(true)
         .subcommand(Command::new("sub"));
-    cmd._build();
+    cmd._build_self();
 
     assert!(cmd
         .get_subcommands()

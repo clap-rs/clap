@@ -1176,7 +1176,7 @@ fn color_is_global() {
     let mut cmd = Command::new("myprog")
         .color(clap::ColorChoice::Never)
         .subcommand(Command::new("foo"));
-    cmd._build_all();
+    cmd.build();
     assert_eq!(cmd.get_color(), clap::ColorChoice::Never);
 
     let sub = cmd.get_subcommands().collect::<Vec<_>>()[0];
