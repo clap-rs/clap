@@ -231,6 +231,18 @@ pub fn hidden_option_command(name: &'static str) -> clap::Command<'static> {
         )
 }
 
+pub fn env_value_command(name: &'static str) -> clap::Command<'static> {
+    clap::Command::new(name).arg(
+        clap::Arg::new("config")
+            .short('c')
+            .long_help("Set configuration file path")
+            .required(false)
+            .takes_value(true)
+            .default_value("config.toml")
+            .env("CONFIG_FILE"),
+    )
+}
+
 pub fn assert_matches_path(expected_path: impl AsRef<std::path::Path>, cmd: clap::Command) {
     let mut buf = vec![];
     clap_mangen::Man::new(cmd).render(&mut buf).unwrap();

@@ -55,3 +55,10 @@ fn hidden_options() {
     let cmd = common::hidden_option_command(name);
     common::assert_matches_path("tests/snapshots/hidden_option.bash.roff", cmd);
 }
+
+#[test]
+fn value_env() {
+    let name = "my-app";
+    let cmd = common::env_value_command(name);
+    common::assert_matches_path("tests/snapshots/value_env.bash.roff", cmd);
+}
