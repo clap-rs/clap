@@ -112,16 +112,15 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             body.push(roman(help));
         }
 
-        if let Some(mut env) = option_environment(opt) {
-            if !body.is_empty() {
-                body.push(roman(". "));
-            }
-            body.append(&mut env);
-        }
-
         roff.control("TP", []);
         roff.text(header);
         roff.text(body);
+
+        if let Some(env) = option_environment(opt) {
+            roff.control("RS", []);
+            roff.text(env);
+            roff.control("RE", []);
+        }
     }
 
     for pos in items.iter().filter(|a| a.is_positional()) {
@@ -144,16 +143,15 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             body.push(roman(&help.to_string()));
         }
 
-        if let Some(mut env) = option_environment(pos) {
-            if !body.is_empty() {
-                body.push(roman(". "));
-            }
-            body.append(&mut env);
-        }
-
         roff.control("TP", []);
         roff.text(header);
         roff.text(body);
+
+        if let Some(env) = option_environment(pos) {
+            roff.control("RS", []);
+            roff.text(env);
+            roff.control("RE", []);
+        }
     }
 }
 
