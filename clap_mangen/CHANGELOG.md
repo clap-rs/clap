@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Split environment variables into separate paragraph
+
 ## [0.1.5] - 2022-04-19
 
 ## [0.1.4] - 2022-04-19
