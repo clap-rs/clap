@@ -25,6 +25,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
+        let mut conflicts = Conflicts::new();
         let has_subcmd = matcher.subcommand_name().is_some();
 
         #[cfg(feature = "env")]
@@ -87,9 +88,9 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             return Err(Error::display_help_error(self.p.cmd, message));
         }
 
-        self.validate_conflicts(matcher)?;
+        self.validate_conflicts(matcher, &mut conflicts)?;
         if !(self.p.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
-            self.validate_required(matcher)?;
+            self.validate_required(matcher, &mut conflicts)?;
         }
         self.validate_matched_args(matcher)?;
 
@@ -202,12 +203,15 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         Ok(())
     }
 
-    fn validate_conflicts(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+    fn validate_conflicts(
+        &mut self,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
 
         self.validate_exclusive(matcher)?;
 
-        let mut conflicts = Conflicts::new();
         for arg_id in matcher
             .arg_names()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
@@ -469,7 +473,11 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         Ok(())
     }
 
-    fn validate_required(&mut self, matcher: &ArgMatcher) -> ClapResult<()> {
+    fn validate_required(
+        &mut self,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> ClapResult<()> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
@@ -477,7 +485,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
             if let Some(arg) = self.p.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
-                if !self.is_missing_required_ok(arg, matcher) {
+                if !self.is_missing_required_ok(arg, matcher, conflicts) {
                     return self.missing_required_error(matcher, vec![]);
                 }
             } else if let Some(group) = self.p.cmd.find_group(arg_or_group) {
@@ -517,21 +525,25 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         Ok(())
     }
 
-    fn is_missing_required_ok(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
+    fn is_missing_required_ok(
+        &self,
+        a: &Arg<'help>,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.name);
-        self.validate_arg_conflicts(a, matcher) || self.p.overridden.borrow().contains(&a.id)
+        self.arg_has_conflicts(a, matcher, conflicts) || self.p.overridden.borrow().contains(&a.id)
     }
 
-    fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
-        debug!("Validator::validate_arg_conflicts: a={:?}", a.name);
-        a.blacklist.iter().any(|conf| {
-            matcher.contains(conf)
-                || self
-                    .p
-                    .cmd
-                    .find_group(conf)
-                    .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
-        })
+    fn arg_has_conflicts(
+        &self,
+        a: &Arg<'help>,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> bool {
+        debug!("Validator::arg_has_conflicts: a={:?}", a.name);
+        let conflicts = conflicts.gather_conflicts(self.p.cmd, matcher, &a.id);
+        !conflicts.is_empty()
     }
 
     fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
