@@ -5,9 +5,15 @@ use std::{
     io::{self, Write},
 };
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub(crate) enum Stream {
+    Stdout,
+    Stderr,
+}
+
 #[derive(Clone, Debug)]
 pub(crate) struct Colorizer {
-    use_stderr: bool,
+    stream: Stream,
     #[allow(unused)]
     color_when: ColorChoice,
     pieces: Vec<(String, Style)>,
@@ -15,9 +21,9 @@ pub(crate) struct Colorizer {
 
 impl Colorizer {
     #[inline(never)]
-    pub(crate) fn new(use_stderr: bool, color_when: ColorChoice) -> Self {
+    pub(crate) fn new(stream: Stream, color_when: ColorChoice) -> Self {
         Colorizer {
-            use_stderr,
+            stream,
             color_when,
             pieces: vec![],
         }
@@ -58,14 +64,13 @@ impl Colorizer {
 
         let color_when = match self.color_when {
             ColorChoice::Always => DepColorChoice::Always,
-            ColorChoice::Auto if is_a_tty(self.use_stderr) => DepColorChoice::Auto,
+            ColorChoice::Auto if is_a_tty(self.stream) => DepColorChoice::Auto,
             _ => DepColorChoice::Never,
         };
 
-        let writer = if self.use_stderr {
-            BufferWriter::stderr(color_when)
-        } else {
-            BufferWriter::stdout(color_when)
+        let writer = match self.stream {
+            Stream::Stdout => BufferWriter::stderr(color_when),
+            Stream::Stderr => BufferWriter::stdout(color_when),
         };
 
         let mut buffer = writer.buffer();
@@ -101,14 +106,17 @@ impl Colorizer {
     pub(crate) fn print(&self) -> io::Result<()> {
         // [e]println can't be used here because it panics
         // if something went wrong. We don't want that.
-        if self.use_stderr {
-            let stderr = std::io::stderr();
-            let mut stderr = stderr.lock();
-            write!(stderr, "{}", self)
-        } else {
-            let stdout = std::io::stdout();
-            let mut stdout = stdout.lock();
-            write!(stdout, "{}", self)
+        match self.stream {
+            Stream::Stdout => {
+                let stdout = std::io::stdout();
+                let mut stdout = stdout.lock();
+                write!(stdout, "{}", self)
+            }
+            Stream::Stderr => {
+                let stderr = std::io::stderr();
+                let mut stderr = stderr.lock();
+                write!(stderr, "{}", self)
+            }
         }
     }
 }
@@ -140,11 +148,10 @@ impl Default for Style {
 }
 
 #[cfg(feature = "color")]
-fn is_a_tty(stderr: bool) -> bool {
-    let stream = if stderr {
-        atty::Stream::Stderr
-    } else {
-        atty::Stream::Stdout
+fn is_a_tty(stream: Stream) -> bool {
+    let stream = match stream {
+        Stream::Stdout => atty::Stream::Stdout,
+        Stream::Stderr => atty::Stream::Stderr,
     };
 
     atty::is(stream)

@@ -20,6 +20,7 @@ use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
+use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
@@ -697,7 +698,7 @@ impl<'help> App<'help> {
         self._build();
         let color = self.get_color();
 
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
         Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help()?;
         c.print()
@@ -722,7 +723,7 @@ impl<'help> App<'help> {
         self._build();
         let color = self.get_color();
 
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
         Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help()?;
         c.print()

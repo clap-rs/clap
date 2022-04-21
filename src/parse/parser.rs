@@ -13,6 +13,7 @@ use crate::build::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
+use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
@@ -1509,7 +1510,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
         let usage = Usage::new(self.cmd);
-        let mut c = Colorizer::new(true, self.color_help());
+        let mut c = Colorizer::new(Stream::Stderr, self.color_help());
         Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, false).write_help()?;
         Ok(c)
     }
@@ -1522,7 +1523,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         use_long = use_long && self.cmd.use_long_help();
         let usage = Usage::new(self.cmd);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(Stream::Stdout, self.color_help());
 
         match Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, use_long).write_help() {
             Err(e) => e.into(),
@@ -1534,7 +1535,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::version_err");
 
         let msg = self.cmd._render_version(use_long);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(Stream::Stdout, self.color_help());
         c.none(msg);
         ClapError::display_version(self.cmd, c)
     }
