@@ -448,7 +448,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     matches: sc_m.into_inner(),
                 });
 
-                return Validator::new(self).validate(parse_state, matcher, trailing_values);
+                #[cfg(feature = "env")]
+                self.add_env(matcher, trailing_values)?;
+                self.add_defaults(matcher, trailing_values);
+                return Validator::new(self).validate(parse_state, matcher);
             } else {
                 // Start error processing
                 return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
@@ -465,7 +468,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             self.parse_subcommand(&sc_name, matcher, raw_args, args_cursor, keep_state)?;
         }
 
-        Validator::new(self).validate(parse_state, matcher, trailing_values)
+        #[cfg(feature = "env")]
+        self.add_env(matcher, trailing_values)?;
+        self.add_defaults(matcher, trailing_values);
+        Validator::new(self).validate(parse_state, matcher)
     }
 
     fn match_arg_error(

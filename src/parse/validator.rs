@@ -23,16 +23,10 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         &mut self,
         parse_state: ParseState,
         matcher: &mut ArgMatcher,
-        trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
         let mut conflicts = Conflicts::new();
         let has_subcmd = matcher.subcommand_name().is_some();
-
-        #[cfg(feature = "env")]
-        self.p.add_env(matcher, trailing_values)?;
-
-        self.p.add_defaults(matcher, trailing_values);
 
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
