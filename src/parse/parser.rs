@@ -451,7 +451,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 #[cfg(feature = "env")]
                 self.add_env(matcher, trailing_values)?;
                 self.add_defaults(matcher, trailing_values);
-                return Validator::new(self).validate(parse_state, matcher);
+                return Validator::new(self.cmd).validate(parse_state, matcher);
             } else {
                 // Start error processing
                 return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
@@ -471,7 +471,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         #[cfg(feature = "env")]
         self.add_env(matcher, trailing_values)?;
         self.add_defaults(matcher, trailing_values);
-        Validator::new(self).validate(parse_state, matcher)
+        Validator::new(self.cmd).validate(parse_state, matcher)
     }
 
     fn match_arg_error(
