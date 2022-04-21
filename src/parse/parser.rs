@@ -8,6 +8,7 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
+use crate::build::AppSettings as AS;
 use crate::build::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -17,7 +18,6 @@ use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
 use crate::util::{color::ColorChoice, Id};
-use crate::{build::AppSettings as AS, PossibleValue};
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
@@ -805,28 +805,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         None
     }
 
-    fn use_long_help(&self) -> bool {
-        debug!("Parser::use_long_help");
-        // In this case, both must be checked. This allows the retention of
-        // original formatting, but also ensures that the actual -h or --help
-        // specified by the user is sent through. If hide_short_help is not included,
-        // then items specified with hidden_short_help will also be hidden.
-        let should_long = |v: &Arg| {
-            v.long_help.is_some()
-                || v.is_hide_long_help_set()
-                || v.is_hide_short_help_set()
-                || cfg!(feature = "unstable-v4")
-                    && v.possible_vals.iter().any(PossibleValue::should_show_help)
-        };
-
-        // Subcommands aren't checked because we prefer short help for them, deferring to
-        // `cmd subcmd --help` for more.
-        self.cmd.get_long_about().is_some()
-            || self.cmd.get_before_long_help().is_some()
-            || self.cmd.get_after_long_help().is_some()
-            || self.cmd.get_arguments().any(should_long)
-    }
-
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -1539,10 +1517,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn help_err(&self, mut use_long: bool) -> ClapError {
         debug!(
             "Parser::help_err: use_long={:?}",
-            use_long && self.use_long_help()
+            use_long && self.cmd.use_long_help()
         );
 
-        use_long = use_long && self.use_long_help();
+        use_long = use_long && self.cmd.use_long_help();
         let usage = Usage::new(self.cmd);
         let mut c = Colorizer::new(false, self.color_help());
 

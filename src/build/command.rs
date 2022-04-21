@@ -24,6 +24,7 @@ use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
+use crate::PossibleValue;
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]
@@ -4674,6 +4675,28 @@ impl<'help> App<'help> {
 
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
+    }
+
+    pub(crate) fn use_long_help(&self) -> bool {
+        debug!("Command::use_long_help");
+        // In this case, both must be checked. This allows the retention of
+        // original formatting, but also ensures that the actual -h or --help
+        // specified by the user is sent through. If hide_short_help is not included,
+        // then items specified with hidden_short_help will also be hidden.
+        let should_long = |v: &Arg| {
+            v.long_help.is_some()
+                || v.is_hide_long_help_set()
+                || v.is_hide_short_help_set()
+                || cfg!(feature = "unstable-v4")
+                    && v.possible_vals.iter().any(PossibleValue::should_show_help)
+        };
+
+        // Subcommands aren't checked because we prefer short help for them, deferring to
+        // `cmd subcmd --help` for more.
+        self.get_long_about().is_some()
+            || self.get_before_long_help().is_some()
+            || self.get_after_long_help().is_some()
+            || self.get_arguments().any(should_long)
     }
 }
 
