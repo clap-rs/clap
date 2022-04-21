@@ -1,41 +1,37 @@
 // Internal
 use crate::build::{AppSettings, Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
+use crate::output::fmt::Stream;
 use crate::output::Usage;
-use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
+use crate::parse::{ArgMatcher, MatchedArg, ParseState};
 use crate::util::ChildGraph;
 use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
-pub(crate) struct Validator<'help, 'cmd, 'parser> {
-    p: &'parser mut Parser<'help, 'cmd>,
+pub(crate) struct Validator<'help, 'cmd> {
+    cmd: &'cmd Command<'help>,
     required: ChildGraph<Id>,
 }
 
-impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
-    pub(crate) fn new(p: &'parser mut Parser<'help, 'cmd>) -> Self {
-        let required = p.cmd.required_graph();
-        Validator { p, required }
+impl<'help, 'cmd> Validator<'help, 'cmd> {
+    pub(crate) fn new(cmd: &'cmd Command<'help>) -> Self {
+        let required = cmd.required_graph();
+        Validator { cmd, required }
     }
 
     pub(crate) fn validate(
         &mut self,
         parse_state: ParseState,
         matcher: &mut ArgMatcher,
-        trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
+        let mut conflicts = Conflicts::new();
         let has_subcmd = matcher.subcommand_name().is_some();
-
-        #[cfg(feature = "env")]
-        self.p.add_env(matcher, trailing_values)?;
-
-        self.p.add_defaults(matcher, trailing_values);
 
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
 
-            let o = &self.p.cmd[&a];
+            let o = &self.cmd[&a];
             let should_err = if let Some(v) = matcher.args.get(&o.id) {
                 v.all_val_groups_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
             } else {
@@ -43,53 +39,52 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             };
             if should_err {
                 return Err(Error::empty_value(
-                    self.p.cmd,
+                    self.cmd,
                     &o.possible_vals
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
                     o,
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
             }
         }
 
-        if !has_subcmd && self.p.cmd.is_arg_required_else_help_set() {
+        if !has_subcmd && self.cmd.is_arg_required_else_help_set() {
             let num_user_values = matcher
                 .arg_names()
                 .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
-                let message = self.p.write_help_err()?;
-                return Err(Error::display_help_error(self.p.cmd, message));
+                let message = self.cmd.write_help_err(false, Stream::Stderr)?;
+                return Err(Error::display_help_error(self.cmd, message));
             }
         }
         #[allow(deprecated)]
-        if !has_subcmd && self.p.cmd.is_subcommand_required_set() {
+        if !has_subcmd && self.cmd.is_subcommand_required_set() {
             let bn = self
-                .p
                 .cmd
                 .get_bin_name()
-                .unwrap_or_else(|| self.p.cmd.get_name());
+                .unwrap_or_else(|| self.cmd.get_name());
             return Err(Error::missing_subcommand(
-                self.p.cmd,
+                self.cmd,
                 bn.to_string(),
-                Usage::new(self.p.cmd)
+                Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),
             ));
-        } else if !has_subcmd && self.p.cmd.is_set(AppSettings::SubcommandRequiredElseHelp) {
+        } else if !has_subcmd && self.cmd.is_set(AppSettings::SubcommandRequiredElseHelp) {
             debug!("Validator::new::get_matches_with: SubcommandRequiredElseHelp=true");
-            let message = self.p.write_help_err()?;
-            return Err(Error::display_help_error(self.p.cmd, message));
+            let message = self.cmd.write_help_err(false, Stream::Stderr)?;
+            return Err(Error::display_help_error(self.cmd, message));
         }
 
-        self.validate_conflicts(matcher)?;
-        if !(self.p.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
-            self.validate_required(matcher)?;
+        self.validate_conflicts(matcher, &mut conflicts)?;
+        if !(self.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
+            self.validate_required(matcher, &mut conflicts)?;
         }
         self.validate_matched_args(matcher)?;
 
@@ -110,8 +105,8 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                     val
                 );
                 return Err(Error::invalid_utf8(
-                    self.p.cmd,
-                    Usage::new(self.p.cmd)
+                    self.cmd,
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
@@ -131,14 +126,14 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                         .arg_names()
                         .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                         .filter(|&n| {
-                            self.p.cmd.find(n).map_or(true, |a| {
+                            self.cmd.find(n).map_or(true, |a| {
                                 !(a.is_hide_set() || self.required.contains(&a.id))
                             })
                         })
                         .cloned()
                         .collect();
                     return Err(Error::invalid_value(
-                        self.p.cmd,
+                        self.cmd,
                         val_str.into_owned(),
                         &arg.possible_vals
                             .iter()
@@ -146,7 +141,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                             .map(PossibleValue::get_name)
                             .collect::<Vec<_>>(),
                         arg,
-                        Usage::new(self.p.cmd)
+                        Usage::new(self.cmd)
                             .required(&self.required)
                             .create_usage_with_title(&used),
                     ));
@@ -155,14 +150,14 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             if arg.is_forbid_empty_values_set() && val.is_empty() && matcher.contains(&arg.id) {
                 debug!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
-                    self.p.cmd,
+                    self.cmd,
                     &arg.possible_vals
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
                     arg,
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
@@ -178,7 +173,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                         val.to_string_lossy().into_owned(),
                         e,
                     )
-                    .with_cmd(self.p.cmd));
+                    .with_cmd(self.cmd));
                 } else {
                     debug!("good");
                 }
@@ -193,7 +188,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                         val.to_string_lossy().into(),
                         e,
                     )
-                    .with_cmd(self.p.cmd));
+                    .with_cmd(self.cmd));
                 } else {
                     debug!("good");
                 }
@@ -202,19 +197,22 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         Ok(())
     }
 
-    fn validate_conflicts(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+    fn validate_conflicts(
+        &mut self,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
 
         self.validate_exclusive(matcher)?;
 
-        let mut conflicts = Conflicts::new();
         for arg_id in matcher
             .arg_names()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
-            .filter(|arg_id| self.p.cmd.find(arg_id).is_some())
+            .filter(|arg_id| self.cmd.find(arg_id).is_some())
         {
             debug!("Validator::validate_conflicts::iter: id={:?}", arg_id);
-            let conflicts = conflicts.gather_conflicts(self.p.cmd, matcher, arg_id);
+            let conflicts = conflicts.gather_conflicts(self.cmd, matcher, arg_id);
             self.build_conflict_err(arg_id, &conflicts, matcher)?;
         }
 
@@ -229,8 +227,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             .arg_names()
             .filter_map(|name| {
                 debug!("Validator::validate_exclusive:iter:{:?}", name);
-                self.p
-                    .cmd
+                self.cmd
                     .find(name)
                     // Find `arg`s which are exclusive but also appear with other args.
                     .filter(|&arg| arg.is_exclusive_set() && args_count > 1)
@@ -238,10 +235,10 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             // Throw an error for the first conflict found.
             .try_for_each(|arg| {
                 Err(Error::argument_conflict(
-                    self.p.cmd,
+                    self.cmd,
                     arg,
                     Vec::new(),
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ))
@@ -263,24 +260,24 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         let conflicts = conflict_ids
             .iter()
             .flat_map(|c_id| {
-                if self.p.cmd.find_group(c_id).is_some() {
-                    self.p.cmd.unroll_args_in_group(c_id)
+                if self.cmd.find_group(c_id).is_some() {
+                    self.cmd.unroll_args_in_group(c_id)
                 } else {
                     vec![c_id.clone()]
                 }
             })
             .filter_map(|c_id| {
                 seen.insert(c_id.clone()).then(|| {
-                    let c_arg = self.p.cmd.find(&c_id).expect(INTERNAL_ERROR_MSG);
+                    let c_arg = self.cmd.find(&c_id).expect(INTERNAL_ERROR_MSG);
                     c_arg.to_string()
                 })
             })
             .collect();
 
-        let former_arg = self.p.cmd.find(name).expect(INTERNAL_ERROR_MSG);
+        let former_arg = self.cmd.find(name).expect(INTERNAL_ERROR_MSG);
         let usg = self.build_conflict_err_usage(matcher, conflict_ids);
         Err(Error::argument_conflict(
-            self.p.cmd, former_arg, conflicts, usg,
+            self.cmd, former_arg, conflicts, usg,
         ))
     }
 
@@ -293,13 +290,13 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             .collect();
         let required: Vec<Id> = used_filtered
             .iter()
-            .filter_map(|key| self.p.cmd.find(key))
+            .filter_map(|key| self.cmd.find(key))
             .flat_map(|arg| arg.requires.iter().map(|item| &item.1))
             .filter(|key| !used_filtered.contains(key) && !conflicting_keys.contains(key))
             .chain(used_filtered.iter())
             .cloned()
             .collect();
-        Usage::new(self.p.cmd)
+        Usage::new(self.cmd)
             .required(&self.required)
             .create_usage_with_title(&required)
     }
@@ -311,16 +308,16 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
         {
             debug!("Validator::gather_requires:iter:{:?}", name);
-            if let Some(arg) = self.p.cmd.find(name) {
+            if let Some(arg) = self.cmd.find(name) {
                 let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
                     let required = matcher.check_explicit(&arg.id, *val);
                     required.then(|| req_arg.clone())
                 };
 
-                for req in self.p.cmd.unroll_arg_requires(is_relevant, &arg.id) {
+                for req in self.cmd.unroll_arg_requires(is_relevant, &arg.id) {
                     self.required.insert(req);
                 }
-            } else if let Some(g) = self.p.cmd.find_group(name) {
+            } else if let Some(g) = self.cmd.find_group(name) {
                 debug!("Validator::gather_requires:iter:{:?}:group", name);
                 for r in &g.requires {
                     self.required.insert(r.clone());
@@ -337,7 +334,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                 name,
                 ma.vals_flatten()
             );
-            if let Some(arg) = self.p.cmd.find(name) {
+            if let Some(arg) = self.cmd.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
                 self.validate_arg_values(arg, ma, matcher)?;
                 self.validate_arg_num_occurs(arg, ma)?;
@@ -357,9 +354,9 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         if ma.get_occurrences() > 1 && !a.is_multiple_occurrences_set() && !a.is_positional() {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
-                self.p.cmd,
+                self.cmd,
                 a,
-                Usage::new(self.p.cmd)
+                Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),
             ));
@@ -372,11 +369,11 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             let occurs = ma.get_occurrences() as usize;
             if occurs > max_occurs {
                 return Err(Error::too_many_occurrences(
-                    self.p.cmd,
+                    self.cmd,
                     a,
                     max_occurs,
                     occurs,
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
@@ -399,7 +396,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             if should_err {
                 debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
                 return Err(Error::wrong_number_of_values(
-                    self.p.cmd,
+                    self.cmd,
                     a,
                     num,
                     if a.is_multiple_occurrences_set() {
@@ -407,7 +404,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                     } else {
                         total_num
                     },
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
@@ -418,7 +415,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             if ma.num_vals() > num {
                 debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
                 return Err(Error::too_many_values(
-                    self.p.cmd,
+                    self.cmd,
                     ma.vals_flatten()
                         .last()
                         .expect(INTERNAL_ERROR_MSG)
@@ -426,7 +423,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                         .expect(INVALID_UTF8)
                         .to_string(),
                     a.to_string(),
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
@@ -437,11 +434,11 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             if ma.num_vals() < num && num != 0 {
                 debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");
                 return Err(Error::too_few_values(
-                    self.p.cmd,
+                    self.cmd,
                     a,
                     num,
                     ma.num_vals(),
-                    Usage::new(self.p.cmd)
+                    Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
                 ));
@@ -454,14 +451,14 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
         if a.is_takes_value_set() && !min_vals_zero && ma.all_val_groups_empty() {
             return Err(Error::empty_value(
-                self.p.cmd,
+                self.cmd,
                 &a.possible_vals
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
                     .map(PossibleValue::get_name)
                     .collect::<Vec<_>>(),
                 a,
-                Usage::new(self.p.cmd)
+                Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),
             ));
@@ -469,21 +466,24 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         Ok(())
     }
 
-    fn validate_required(&mut self, matcher: &ArgMatcher) -> ClapResult<()> {
+    fn validate_required(
+        &mut self,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> ClapResult<()> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
         for arg_or_group in self.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
-            if let Some(arg) = self.p.cmd.find(arg_or_group) {
+            if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
-                if !self.is_missing_required_ok(arg, matcher) {
+                if !self.is_missing_required_ok(arg, matcher, conflicts) {
                     return self.missing_required_error(matcher, vec![]);
                 }
-            } else if let Some(group) = self.p.cmd.find_group(arg_or_group) {
+            } else if let Some(group) = self.cmd.find_group(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
                 if !self
-                    .p
                     .cmd
                     .unroll_args_in_group(&group.id)
                     .iter()
@@ -495,7 +495,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         }
 
         // Validate the conditionally required args
-        for a in self.p.cmd.get_arguments() {
+        for a in self.cmd.get_arguments() {
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
                     && !matcher.contains(&a.id)
@@ -517,27 +517,20 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         Ok(())
     }
 
-    fn is_missing_required_ok(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
+    fn is_missing_required_ok(
+        &self,
+        a: &Arg<'help>,
+        matcher: &ArgMatcher,
+        conflicts: &mut Conflicts,
+    ) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.name);
-        self.validate_arg_conflicts(a, matcher) || self.p.overridden.borrow().contains(&a.id)
-    }
-
-    fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
-        debug!("Validator::validate_arg_conflicts: a={:?}", a.name);
-        a.blacklist.iter().any(|conf| {
-            matcher.contains(conf)
-                || self
-                    .p
-                    .cmd
-                    .find_group(conf)
-                    .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
-        })
+        let conflicts = conflicts.gather_conflicts(self.cmd, matcher, &a.id);
+        !conflicts.is_empty()
     }
 
     fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_required_unless");
         let failed_args: Vec<_> = self
-            .p
             .cmd
             .get_arguments()
             .filter(|&a| {
@@ -571,7 +564,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             self.required
         );
 
-        let usg = Usage::new(self.p.cmd).required(&self.required);
+        let usg = Usage::new(self.cmd).required(&self.required);
 
         let req_args = usg.get_required_usage_from(&incl, Some(matcher), true);
 
@@ -585,8 +578,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
-                self.p
-                    .cmd
+                self.cmd
                     .find(n)
                     .map_or(true, |a| !a.is_hide_set() && !self.required.contains(&a.id))
             })
@@ -595,7 +587,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             .collect();
 
         Err(Error::missing_required_argument(
-            self.p.cmd,
+            self.cmd,
             req_args,
             usg.create_usage_with_title(&used),
         ))
@@ -654,6 +646,10 @@ impl Conflicts {
                         }
                     }
                 }
+
+                // Overrides are implicitly conflicts
+                conf.extend(arg.overrides.iter().cloned());
+
                 conf
             } else if let Some(group) = cmd.find_group(arg_id) {
                 group.conflicts.clone()

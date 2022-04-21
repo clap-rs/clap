@@ -15,6 +15,7 @@ use std::{
 use crate::{
     build::Arg,
     output::fmt::Colorizer,
+    output::fmt::Stream,
     parse::features::suggestions,
     util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE},
     AppSettings, Command,
@@ -97,10 +98,14 @@ impl Error {
     /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
-        !matches!(
-            self.kind(),
-            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
-        )
+        self.stream() == Stream::Stderr
+    }
+
+    pub(crate) fn stream(&self) -> Stream {
+        match self.kind() {
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion => Stream::Stdout,
+            _ => Stream::Stderr,
+        }
     }
 
     /// Prints the error and exits.
@@ -608,7 +613,7 @@ impl Error {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted()
         } else {
-            let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
+            let mut c = Colorizer::new(self.stream(), self.inner.color_when);
 
             start_error(&mut c);
 
@@ -1090,7 +1095,7 @@ impl Message {
     fn format(&mut self, cmd: &Command, usage: String) {
         match self {
             Message::Raw(s) => {
-                let mut c = Colorizer::new(true, cmd.get_color());
+                let mut c = Colorizer::new(Stream::Stderr, cmd.get_color());
 
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
@@ -1107,7 +1112,7 @@ impl Message {
     fn formatted(&self) -> Cow<Colorizer> {
         match self {
             Message::Raw(s) => {
-                let mut c = Colorizer::new(true, ColorChoice::Never);
+                let mut c = Colorizer::new(Stream::Stderr, ColorChoice::Never);
                 start_error(&mut c);
                 c.none(s);
                 Cow::Owned(c)

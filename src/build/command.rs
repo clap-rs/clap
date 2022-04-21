@@ -20,10 +20,12 @@ use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
+use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
+use crate::PossibleValue;
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]
@@ -696,7 +698,7 @@ impl<'help> App<'help> {
         self._build();
         let color = self.get_color();
 
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
         Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help()?;
         c.print()
@@ -721,7 +723,7 @@ impl<'help> App<'help> {
         self._build();
         let color = self.get_color();
 
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
         Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help()?;
         c.print()
@@ -4674,6 +4676,57 @@ impl<'help> App<'help> {
 
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
+    }
+
+    pub(crate) fn write_help_err(
+        &self,
+        mut use_long: bool,
+        stream: Stream,
+    ) -> ClapResult<Colorizer> {
+        debug!(
+            "Parser::write_help_err: use_long={:?}, stream={:?}",
+            use_long && self.use_long_help(),
+            stream
+        );
+
+        use_long = use_long && self.use_long_help();
+        let usage = Usage::new(self);
+
+        let mut c = Colorizer::new(stream, self.color_help());
+        Help::new(HelpWriter::Buffer(&mut c), self, &usage, use_long).write_help()?;
+        Ok(c)
+    }
+
+    pub(crate) fn use_long_help(&self) -> bool {
+        debug!("Command::use_long_help");
+        // In this case, both must be checked. This allows the retention of
+        // original formatting, but also ensures that the actual -h or --help
+        // specified by the user is sent through. If hide_short_help is not included,
+        // then items specified with hidden_short_help will also be hidden.
+        let should_long = |v: &Arg| {
+            v.long_help.is_some()
+                || v.is_hide_long_help_set()
+                || v.is_hide_short_help_set()
+                || cfg!(feature = "unstable-v4")
+                    && v.possible_vals.iter().any(PossibleValue::should_show_help)
+        };
+
+        // Subcommands aren't checked because we prefer short help for them, deferring to
+        // `cmd subcmd --help` for more.
+        self.get_long_about().is_some()
+            || self.get_before_long_help().is_some()
+            || self.get_after_long_help().is_some()
+            || self.get_arguments().any(should_long)
+    }
+
+    // Should we color the help?
+    pub(crate) fn color_help(&self) -> ColorChoice {
+        #[cfg(feature = "color")]
+        if self.is_disable_colored_help_set() {
+            return ColorChoice::Never;
+        }
+
+        self.get_color()
     }
 }
 

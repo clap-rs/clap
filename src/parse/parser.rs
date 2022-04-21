@@ -1,6 +1,6 @@
 // Std
 use std::{
-    cell::{Cell, RefCell},
+    cell::Cell,
     ffi::{OsStr, OsString},
 };
 
@@ -8,21 +8,21 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
+use crate::build::AppSettings as AS;
 use crate::build::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::fmt::Stream;
+use crate::output::{fmt::Colorizer, Usage};
 use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
-use crate::util::{color::ColorChoice, Id};
-use crate::{build::AppSettings as AS, PossibleValue};
+use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
     pub(crate) cmd: &'cmd mut Command<'help>,
-    pub(crate) overridden: RefCell<Vec<Id>>,
     seen: Vec<Id>,
     cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
@@ -37,22 +37,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     pub(crate) fn new(cmd: &'cmd mut Command<'help>) -> Self {
         Parser {
             cmd,
-            overridden: Default::default(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
             flag_subcmd_skip: 0,
         }
-    }
-
-    // Should we color the help?
-    pub(crate) fn color_help(&self) -> ColorChoice {
-        #[cfg(feature = "color")]
-        if self.cmd.is_disable_colored_help_set() {
-            return ColorChoice::Never;
-        }
-
-        self.cmd.get_color()
     }
 }
 
@@ -259,7 +248,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             ))
                         }
                         ParseResult::HelpFlag => {
-                            return Err(self.help_err(true));
+                            return Err(self.help_err(true, Stream::Stdout));
                         }
                         ParseResult::VersionFlag => {
                             return Err(self.version_err(true));
@@ -342,7 +331,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             ));
                         }
                         ParseResult::HelpFlag => {
-                            return Err(self.help_err(false));
+                            return Err(self.help_err(false, Stream::Stdout));
                         }
                         ParseResult::VersionFlag => {
                             return Err(self.version_err(false));
@@ -459,7 +448,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     matches: sc_m.into_inner(),
                 });
 
-                return Validator::new(self).validate(parse_state, matcher, trailing_values);
+                #[cfg(feature = "env")]
+                self.add_env(matcher, trailing_values)?;
+                self.add_defaults(matcher, trailing_values);
+                return Validator::new(self.cmd).validate(parse_state, matcher);
             } else {
                 // Start error processing
                 return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
@@ -476,7 +468,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             self.parse_subcommand(&sc_name, matcher, raw_args, args_cursor, keep_state)?;
         }
 
-        Validator::new(self).validate(parse_state, matcher, trailing_values)
+        #[cfg(feature = "env")]
+        self.add_env(matcher, trailing_values)?;
+        self.add_defaults(matcher, trailing_values);
+        Validator::new(self.cmd).validate(parse_state, matcher)
     }
 
     fn match_arg_error(
@@ -647,7 +642,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         let parser = Parser::new(&mut sc);
 
-        Err(parser.help_err(true))
+        Err(parser.help_err(true, Stream::Stdout))
     }
 
     fn is_new_arg(&self, next: &clap_lex::ParsedArg<'_>, current_positional: &Arg) -> bool {
@@ -805,28 +800,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         debug!("Neither");
         None
-    }
-
-    fn use_long_help(&self) -> bool {
-        debug!("Parser::use_long_help");
-        // In this case, both must be checked. This allows the retention of
-        // original formatting, but also ensures that the actual -h or --help
-        // specified by the user is sent through. If hide_short_help is not included,
-        // then items specified with hidden_short_help will also be hidden.
-        let should_long = |v: &Arg| {
-            v.long_help.is_some()
-                || v.is_hide_long_help_set()
-                || v.is_hide_short_help_set()
-                || cfg!(feature = "unstable-v4")
-                    && v.possible_vals.iter().any(PossibleValue::should_show_help)
-        };
-
-        // Subcommands aren't checked because we prefer short help for them, deferring to
-        // `cmd subcmd --help` for more.
-        self.cmd.get_long_about().is_some()
-            || self.cmd.get_before_long_help().is_some()
-            || self.cmd.get_after_long_help().is_some()
-            || self.cmd.get_arguments().any(should_long)
     }
 
     fn parse_long_arg(
@@ -1248,7 +1221,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         for override_id in &arg.overrides {
             debug!("Parser::remove_overrides:iter:{:?}: removing", override_id);
             matcher.remove(override_id);
-            self.overridden.borrow_mut().push(override_id.clone());
         }
 
         // Override anything that can override us
@@ -1263,7 +1235,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         for overrider_id in transitive {
             debug!("Parser::remove_overrides:iter:{:?}: removing", overrider_id);
             matcher.remove(overrider_id);
-            self.overridden.borrow_mut().push(overrider_id.clone());
         }
     }
 
@@ -1443,7 +1414,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // Early return on `HelpFlag` or `VersionFlag`.
                 match self.check_for_help_and_version_str(&val) {
                     Some(ParseResult::HelpFlag) => {
-                        return Err(self.help_err(true));
+                        return Err(self.help_err(true, Stream::Stdout));
                     }
                     Some(ParseResult::VersionFlag) => {
                         return Err(self.version_err(true));
@@ -1533,26 +1504,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         )
     }
 
-    pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let usage = Usage::new(self.cmd);
-        let mut c = Colorizer::new(true, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, false).write_help()?;
-        Ok(c)
-    }
-
-    fn help_err(&self, mut use_long: bool) -> ClapError {
-        debug!(
-            "Parser::help_err: use_long={:?}",
-            use_long && self.use_long_help()
-        );
-
-        use_long = use_long && self.use_long_help();
-        let usage = Usage::new(self.cmd);
-        let mut c = Colorizer::new(false, self.color_help());
-
-        match Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, use_long).write_help() {
-            Err(e) => e.into(),
-            _ => ClapError::display_help(self.cmd, c),
+    fn help_err(&self, use_long: bool, stream: Stream) -> ClapError {
+        match self.cmd.write_help_err(use_long, stream) {
+            Ok(c) => ClapError::display_help(self.cmd, c),
+            Err(e) => e,
         }
     }
 
@@ -1560,7 +1515,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::version_err");
 
         let msg = self.cmd._render_version(use_long);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(Stream::Stdout, self.cmd.color_help());
         c.none(msg);
         ClapError::display_version(self.cmd, c)
     }
