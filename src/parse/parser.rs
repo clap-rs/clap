@@ -258,7 +258,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             ))
                         }
                         ParseResult::HelpFlag => {
-                            return Err(self.help_err(true));
+                            return Err(self.help_err(true, Stream::Stdout));
                         }
                         ParseResult::VersionFlag => {
                             return Err(self.version_err(true));
@@ -341,7 +341,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             ));
                         }
                         ParseResult::HelpFlag => {
-                            return Err(self.help_err(false));
+                            return Err(self.help_err(false, Stream::Stdout));
                         }
                         ParseResult::VersionFlag => {
                             return Err(self.version_err(false));
@@ -646,7 +646,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         let parser = Parser::new(&mut sc);
 
-        Err(parser.help_err(true))
+        Err(parser.help_err(true, Stream::Stdout))
     }
 
     fn is_new_arg(&self, next: &clap_lex::ParsedArg<'_>, current_positional: &Arg) -> bool {
@@ -1418,7 +1418,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // Early return on `HelpFlag` or `VersionFlag`.
                 match self.check_for_help_and_version_str(&val) {
                     Some(ParseResult::HelpFlag) => {
-                        return Err(self.help_err(true));
+                        return Err(self.help_err(true, Stream::Stdout));
                     }
                     Some(ParseResult::VersionFlag) => {
                         return Err(self.version_err(true));
@@ -1508,26 +1508,29 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         )
     }
 
-    pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let usage = Usage::new(self.cmd);
-        let mut c = Colorizer::new(Stream::Stderr, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, false).write_help()?;
-        Ok(c)
-    }
-
-    fn help_err(&self, mut use_long: bool) -> ClapError {
+    pub(crate) fn write_help_err(
+        &self,
+        mut use_long: bool,
+        stream: Stream,
+    ) -> ClapResult<Colorizer> {
         debug!(
-            "Parser::help_err: use_long={:?}",
-            use_long && self.cmd.use_long_help()
+            "Parser::write_help_err: use_long={:?}, stream={:?}",
+            use_long && self.cmd.use_long_help(),
+            stream
         );
 
         use_long = use_long && self.cmd.use_long_help();
         let usage = Usage::new(self.cmd);
-        let mut c = Colorizer::new(Stream::Stdout, self.color_help());
 
-        match Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, use_long).write_help() {
-            Err(e) => e.into(),
-            _ => ClapError::display_help(self.cmd, c),
+        let mut c = Colorizer::new(stream, self.color_help());
+        Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, use_long).write_help()?;
+        Ok(c)
+    }
+
+    fn help_err(&self, use_long: bool, stream: Stream) -> ClapError {
+        match self.write_help_err(use_long, stream) {
+            Ok(c) => ClapError::display_help(self.cmd, c),
+            Err(e) => e,
         }
     }
 

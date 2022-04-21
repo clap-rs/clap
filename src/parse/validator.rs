@@ -1,6 +1,7 @@
 // Internal
 use crate::build::{AppSettings, Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
+use crate::output::fmt::Stream;
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
 use crate::util::ChildGraph;
@@ -64,7 +65,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
                 .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
-                let message = self.p.write_help_err()?;
+                let message = self.p.write_help_err(false, Stream::Stderr)?;
                 return Err(Error::display_help_error(self.p.cmd, message));
             }
         }
@@ -84,7 +85,7 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
             ));
         } else if !has_subcmd && self.p.cmd.is_set(AppSettings::SubcommandRequiredElseHelp) {
             debug!("Validator::new::get_matches_with: SubcommandRequiredElseHelp=true");
-            let message = self.p.write_help_err()?;
+            let message = self.p.write_help_err(false, Stream::Stderr)?;
             return Err(Error::display_help_error(self.p.cmd, message));
         }
 
