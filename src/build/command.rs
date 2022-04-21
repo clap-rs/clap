@@ -4678,6 +4678,25 @@ impl<'help> App<'help> {
         self.disp_ord.unwrap_or(999)
     }
 
+    pub(crate) fn write_help_err(
+        &self,
+        mut use_long: bool,
+        stream: Stream,
+    ) -> ClapResult<Colorizer> {
+        debug!(
+            "Parser::write_help_err: use_long={:?}, stream={:?}",
+            use_long && self.use_long_help(),
+            stream
+        );
+
+        use_long = use_long && self.use_long_help();
+        let usage = Usage::new(self);
+
+        let mut c = Colorizer::new(stream, self.color_help());
+        Help::new(HelpWriter::Buffer(&mut c), self, &usage, use_long).write_help()?;
+        Ok(c)
+    }
+
     pub(crate) fn use_long_help(&self) -> bool {
         debug!("Command::use_long_help");
         // In this case, both must be checked. This allows the retention of
@@ -4698,6 +4717,16 @@ impl<'help> App<'help> {
             || self.get_before_long_help().is_some()
             || self.get_after_long_help().is_some()
             || self.get_arguments().any(should_long)
+    }
+
+    // Should we color the help?
+    pub(crate) fn color_help(&self) -> ColorChoice {
+        #[cfg(feature = "color")]
+        if self.is_disable_colored_help_set() {
+            return ColorChoice::Never;
+        }
+
+        self.get_color()
     }
 }
 

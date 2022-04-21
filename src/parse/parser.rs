@@ -14,11 +14,11 @@ use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
 use crate::output::fmt::Stream;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::{fmt::Colorizer, Usage};
 use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueSource};
-use crate::util::{color::ColorChoice, Id};
+use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
@@ -42,16 +42,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             flag_subcmd_at: None,
             flag_subcmd_skip: 0,
         }
-    }
-
-    // Should we color the help?
-    pub(crate) fn color_help(&self) -> ColorChoice {
-        #[cfg(feature = "color")]
-        if self.cmd.is_disable_colored_help_set() {
-            return ColorChoice::Never;
-        }
-
-        self.cmd.get_color()
     }
 }
 
@@ -1508,27 +1498,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         )
     }
 
-    pub(crate) fn write_help_err(
-        &self,
-        mut use_long: bool,
-        stream: Stream,
-    ) -> ClapResult<Colorizer> {
-        debug!(
-            "Parser::write_help_err: use_long={:?}, stream={:?}",
-            use_long && self.cmd.use_long_help(),
-            stream
-        );
-
-        use_long = use_long && self.cmd.use_long_help();
-        let usage = Usage::new(self.cmd);
-
-        let mut c = Colorizer::new(stream, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), self.cmd, &usage, use_long).write_help()?;
-        Ok(c)
-    }
-
     fn help_err(&self, use_long: bool, stream: Stream) -> ClapError {
-        match self.write_help_err(use_long, stream) {
+        match self.cmd.write_help_err(use_long, stream) {
             Ok(c) => ClapError::display_help(self.cmd, c),
             Err(e) => e,
         }
@@ -1538,7 +1509,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::version_err");
 
         let msg = self.cmd._render_version(use_long);
-        let mut c = Colorizer::new(Stream::Stdout, self.color_help());
+        let mut c = Colorizer::new(Stream::Stdout, self.cmd.color_help());
         c.none(msg);
         ClapError::display_version(self.cmd, c)
     }
