@@ -1,6 +1,6 @@
 // Std
 use std::{
-    cell::{Cell, RefCell},
+    cell::Cell,
     ffi::{OsStr, OsString},
 };
 
@@ -22,7 +22,6 @@ use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
     pub(crate) cmd: &'cmd mut Command<'help>,
-    pub(crate) overridden: RefCell<Vec<Id>>,
     seen: Vec<Id>,
     cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
@@ -37,7 +36,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     pub(crate) fn new(cmd: &'cmd mut Command<'help>) -> Self {
         Parser {
             cmd,
-            overridden: Default::default(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
@@ -1248,7 +1246,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         for override_id in &arg.overrides {
             debug!("Parser::remove_overrides:iter:{:?}: removing", override_id);
             matcher.remove(override_id);
-            self.overridden.borrow_mut().push(override_id.clone());
         }
 
         // Override anything that can override us
@@ -1263,7 +1260,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         for overrider_id in transitive {
             debug!("Parser::remove_overrides:iter:{:?}: removing", overrider_id);
             matcher.remove(overrider_id);
-            self.overridden.borrow_mut().push(overrider_id.clone());
         }
     }
 

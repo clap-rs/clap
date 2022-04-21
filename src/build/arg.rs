@@ -4339,6 +4339,8 @@ impl<'help> Arg<'help> {
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
+    /// **NOTE:** Overriding an argument implies they [conflict][Arg::conflicts_with`].
+    ///
     /// **WARNING:** Positional arguments and options which accept
     /// [`Arg::multiple_occurrences`] cannot override themselves (or we
     /// would never be able to advance to the next positional). If a positional
@@ -4453,6 +4455,8 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
+    ///
+    /// **NOTE:** Overriding an argument implies they [conflict][Arg::conflicts_with_all`].
     ///
     /// # Examples
     ///

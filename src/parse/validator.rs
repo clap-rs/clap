@@ -532,16 +532,6 @@ impl<'help, 'cmd, 'parser> Validator<'help, 'cmd, 'parser> {
         conflicts: &mut Conflicts,
     ) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.name);
-        self.arg_has_conflicts(a, matcher, conflicts) || self.p.overridden.borrow().contains(&a.id)
-    }
-
-    fn arg_has_conflicts(
-        &self,
-        a: &Arg<'help>,
-        matcher: &ArgMatcher,
-        conflicts: &mut Conflicts,
-    ) -> bool {
-        debug!("Validator::arg_has_conflicts: a={:?}", a.name);
         let conflicts = conflicts.gather_conflicts(self.p.cmd, matcher, &a.id);
         !conflicts.is_empty()
     }
@@ -666,6 +656,10 @@ impl Conflicts {
                         }
                     }
                 }
+
+                // Overrides are implicitly conflicts
+                conf.extend(arg.overrides.iter().cloned());
+
                 conf
             } else if let Some(group) = cmd.find_group(arg_id) {
                 group.conflicts.clone()

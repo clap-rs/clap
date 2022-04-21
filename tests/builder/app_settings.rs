@@ -1029,6 +1029,44 @@ fn aaos_opts_w_other_overrides_rev_2() {
 }
 
 #[test]
+fn aaos_opts_w_override_as_conflict_1() {
+    // opts with other overrides, rev
+    let res = Command::new("posix")
+        .args_override_self(true)
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(true)
+                .overrides_with("other"),
+        )
+        .arg(arg!(--other <val> "some other option").required(true))
+        .try_get_matches_from(vec!["", "--opt=some"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert!(!m.is_present("other"));
+    assert_eq!(m.value_of("opt"), Some("some"));
+}
+
+#[test]
+fn aaos_opts_w_override_as_conflict_2() {
+    // opts with other overrides, rev
+    let res = Command::new("posix")
+        .args_override_self(true)
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(true)
+                .overrides_with("other"),
+        )
+        .arg(arg!(--other <val> "some other option").required(true))
+        .try_get_matches_from(vec!["", "--other=some"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.is_present("opt"));
+    assert!(m.is_present("other"));
+    assert_eq!(m.value_of("other"), Some("some"));
+}
+
+#[test]
 fn aaos_opts_mult() {
     // opts with multiple
     let res = Command::new("posix")
