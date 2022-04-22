@@ -34,6 +34,9 @@ pub use crate::error::Error;
 pub use crate::parse::{ArgMatches, Indices, OsValues, ValueSource, Values};
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
+#[cfg(not(feature = "color"))]
+#[allow(unused_imports)]
+pub(crate) use crate::util::color::ColorChoice;
 
 pub use crate::derive::{ArgEnum, Args, CommandFactory, FromArgMatches, Parser, Subcommand};
 
