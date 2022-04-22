@@ -258,6 +258,19 @@ fn group_multiple_args_error() {
 }
 
 #[test]
+fn group_overrides_required() {
+    let command = Command::new("group")
+        .arg(arg!(--foo <FOO>))
+        .arg(arg!(--bar <BAR>))
+        .group(ArgGroup::new("group").args(&["foo", "bar"]).required(true));
+    let result = command.try_get_matches_from(vec!["group", "--foo", "value"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+    let m = result.unwrap();
+    assert!(m.is_present("foo"));
+    assert!(!m.is_present("bar"));
+}
+
+#[test]
 fn group_usage_use_val_name() {
     static GROUP_USAGE_USE_VAL_NAME: &str = "prog 
 
