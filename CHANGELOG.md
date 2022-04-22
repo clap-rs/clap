@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Regression in 3.1.11 where the (output) streams were crossed
+
 ## [3.1.11] - 2022-04-22
 
 ### Fixes
