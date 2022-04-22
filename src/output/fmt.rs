@@ -69,8 +69,8 @@ impl Colorizer {
         };
 
         let writer = match self.stream {
-            Stream::Stdout => BufferWriter::stderr(color_when),
-            Stream::Stderr => BufferWriter::stdout(color_when),
+            Stream::Stderr => BufferWriter::stderr(color_when),
+            Stream::Stdout => BufferWriter::stdout(color_when),
         };
 
         let mut buffer = writer.buffer();
