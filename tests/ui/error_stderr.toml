@@ -1,0 +1,14 @@
+bin.name = "stdio-fixture"
+args = ["--unknown-argument"]
+status.code = 2
+stdout = ""
+stderr = """
+error: Found argument '--unknown-argument' which wasn't expected, or isn't valid in this context
+
+\tIf you tried to supply `--unknown-argument` as a value rather than a flag, use `-- --unknown-argument`
+
+USAGE:
+    stdio-fixture[EXE] [OPTIONS] [SUBCOMMAND]
+
+For more information try --help
+"""
