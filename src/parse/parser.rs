@@ -22,7 +22,7 @@ use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
-    pub(crate) cmd: &'cmd mut Command<'help>,
+    cmd: &'cmd mut Command<'help>,
     seen: Vec<Id>,
     cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
