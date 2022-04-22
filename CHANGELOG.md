@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Implied conflicts override `Arg::required`, making the behavior consistent with how we calculate conflicts for error reporting
+- Members of a mutually exclusive `ArgGroup`  override `Arg::required`, making the behavior consistent with how we calculate conflicts for error reporting
+- `Arg::overrides_with` always override `Arg::required`, not just when the parser processes an override
+
 ## [3.1.10] - 2022-04-19
 
-### Featues
+### Features
 
 - Expose `Command::build` for custom help generation or other command introspection needs
 
