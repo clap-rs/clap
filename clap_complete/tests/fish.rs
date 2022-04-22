@@ -5,7 +5,7 @@ fn basic() {
     let name = "my-app";
     let cmd = common::basic_command(name);
     common::assert_matches_path(
-        "tests/snapshots/basic.fish.log",
+        "tests/snapshots/basic.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
@@ -17,7 +17,7 @@ fn feature_sample() {
     let name = "my-app";
     let cmd = common::feature_sample_command(name);
     common::assert_matches_path(
-        "tests/snapshots/feature_sample.fish.log",
+        "tests/snapshots/feature_sample.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
@@ -29,7 +29,7 @@ fn special_commands() {
     let name = "my-app";
     let cmd = common::special_commands_command(name);
     common::assert_matches_path(
-        "tests/snapshots/special_commands.fish.log",
+        "tests/snapshots/special_commands.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
@@ -41,7 +41,7 @@ fn quoting() {
     let name = "my-app";
     let cmd = common::quoting_command(name);
     common::assert_matches_path(
-        "tests/snapshots/quoting.fish.log",
+        "tests/snapshots/quoting.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
@@ -53,7 +53,7 @@ fn aliases() {
     let name = "my-app";
     let cmd = common::aliases_command(name);
     common::assert_matches_path(
-        "tests/snapshots/aliases.fish.log",
+        "tests/snapshots/aliases.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
@@ -65,7 +65,7 @@ fn sub_subcommands() {
     let name = "my-app";
     let cmd = common::sub_subcommands_command(name);
     common::assert_matches_path(
-        "tests/snapshots/sub_subcommands.fish.log",
+        "tests/snapshots/sub_subcommands.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
@@ -77,7 +77,7 @@ fn value_hint() {
     let name = "my-app";
     let cmd = common::value_hint_command(name);
     common::assert_matches_path(
-        "tests/snapshots/value_hint.fish.log",
+        "tests/snapshots/value_hint.fish",
         clap_complete::shells::Fish,
         cmd,
         name,
