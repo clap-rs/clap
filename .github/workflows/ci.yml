@@ -112,6 +112,10 @@ jobs:
   ui:
     name: UI Tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        features: [default, next]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -123,7 +127,7 @@ jobs:
         override: true
     - uses: Swatinem/rust-cache@v1
     - name: UI Tests
-      run: make test-ui
+      run: make test-ui-${{ matrix.features }}
   docs:
     name: Docs
     runs-on: ubuntu-latest

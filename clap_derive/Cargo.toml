@@ -44,6 +44,7 @@ proc-macro-error = "1"
 [features]
 default = []
 debug = []
+unstable-v4 = []
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
