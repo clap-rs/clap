@@ -3,6 +3,8 @@
 mod app_name;
 mod arg_enum;
 mod arguments;
+#[cfg(feature = "unstable-v4")]
+mod array;
 mod author_version_about;
 mod basic;
 mod boxed;

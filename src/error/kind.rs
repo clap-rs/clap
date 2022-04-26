@@ -393,6 +393,11 @@ pub enum ErrorKind {
     /// [`Display`]: std::fmt::Display
     /// [Format error]: std::fmt::Error
     Format,
+
+    /// Represents Clap's internal error.
+    ///
+    /// Please file a bug report at https://github.com/clap-rs/clap/issues.
+    Internal,
 }
 
 impl ErrorKind {
@@ -429,6 +434,7 @@ impl ErrorKind {
             Self::ArgumentNotFound => Some("An argument wasn't found"),
             Self::Io => None,
             Self::Format => None,
+            Self::Internal => Some(crate::INTERNAL_ERROR_MSG),
         }
     }
 }

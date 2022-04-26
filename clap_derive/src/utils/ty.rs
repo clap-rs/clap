@@ -3,17 +3,19 @@
 use super::spanned::Sp;
 
 use syn::{
-    spanned::Spanned, GenericArgument, Path, PathArguments, PathArguments::AngleBracketed,
-    PathSegment, Type, TypePath,
+    spanned::Spanned, Expr, GenericArgument, Path, PathArguments, PathArguments::AngleBracketed,
+    PathSegment, Type, TypeArray, TypePath,
 };
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Ty {
     Bool,
     Vec,
+    Array,
     Option,
     OptionOption,
     OptionVec,
+    OptionArray,
     Other,
 }
 
@@ -26,11 +28,15 @@ impl Ty {
             t(Bool)
         } else if is_generic_ty(ty, "Vec") {
             t(Vec)
+        } else if cfg!(feature = "unstable-array") && is_array_ty(ty) {
+            t(Array)
         } else if let Some(subty) = subty_if_name(ty, "Option") {
             if is_generic_ty(subty, "Option") {
                 t(OptionOption)
             } else if is_generic_ty(subty, "Vec") {
                 t(OptionVec)
+            } else if cfg!(feature = "unstable-array") && is_array_ty(subty) {
+                t(OptionArray)
             } else {
                 t(Option)
             }
@@ -43,9 +49,13 @@ impl Ty {
 pub fn inner_type(ty: Ty, field_ty: &syn::Type) -> &syn::Type {
     match ty {
         Ty::Vec | Ty::Option => sub_type(field_ty).unwrap_or(field_ty),
+        Ty::Array => array_ty_type(field_ty).unwrap_or(field_ty),
         Ty::OptionOption | Ty::OptionVec => {
             sub_type(field_ty).and_then(sub_type).unwrap_or(field_ty)
         }
+        Ty::OptionArray => sub_type(field_ty)
+            .and_then(array_ty_type)
+            .unwrap_or(field_ty),
         _ => field_ty,
     }
 }
@@ -111,6 +121,25 @@ pub fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
 
 fn is_generic_ty(ty: &syn::Type, name: &str) -> bool {
     subty_if_name(ty, name).is_some()
+}
+
+fn is_array_ty(ty: &Type) -> bool {
+    matches!(ty, Type::Array(TypeArray { .. }))
+}
+
+fn array_ty_type(ty: &syn::Type) -> Option<&syn::Type> {
+    if let Type::Array(TypeArray { elem, .. }) = ty {
+        Some(&*elem)
+    } else {
+        None
+    }
+}
+
+pub fn array_ty_len(ty: &Type) -> Option<&Expr> {
+    match ty {
+        Type::Array(TypeArray { len, .. }) => Some(len),
+        _ => None,
+    }
 }
 
 fn only_one<I, T>(mut iter: I) -> Option<T>

@@ -961,6 +961,7 @@ impl Error {
             ErrorKind::DisplayHelp
             | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
             | ErrorKind::DisplayVersion
+            | ErrorKind::Internal
             | ErrorKind::Io
             | ErrorKind::Format => false,
         }

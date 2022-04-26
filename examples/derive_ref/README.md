@@ -244,12 +244,14 @@ These correspond to a `clap::PossibleValue`.
 
 | Type                | Effect                               | Implies                                                          |
 |---------------------|--------------------------------------|------------------------------------------------------------------|
-| `bool`              | flag                                 | `#[clap(parse(from_flag))]`                                     |
+| `bool`              | flag                                 | `#[clap(parse(from_flag))]`                                      |
 | `Option<T>`         | optional argument                    | `.takes_value(true).required(false)`                             |
 | `Option<Option<T>>` | optional value for optional argument | `.takes_value(true).required(false).min_values(0).max_values(1)` |
 | `T`                 | required argument                    | `.takes_value(true).required(!has_default)`                      |
 | `Vec<T>`            | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
+| `[T; N]`            | `N` occurrences of argument          | `.takes_value(true).required(true).number_of_values(N)`          |
 | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
+| `Option<[T; N]>`    | `0` or `N` occurrences of argument   | `.takes_value(true).required(false).number_of_values(N)`         |
 
 Notes:
 - For custom type behavior, you can override the implied attributes/settings and/or set additional ones

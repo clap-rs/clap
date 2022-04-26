@@ -1,0 +1,7 @@
+error[E0277]: the trait bound `Foo: FromStr` is not satisfied
+ --> $DIR/fixed_array.rs:8:5
+  |
+8 |     #[clap(long)]
+  |     ^ the trait `FromStr` is not implemented for `Foo`
+  |
+  = note: required by `std::str::FromStr::from_str`

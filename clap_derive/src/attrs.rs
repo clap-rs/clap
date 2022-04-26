@@ -178,6 +178,12 @@ impl Attrs {
                             "Option<Vec<T>> type is not allowed for subcommand"
                         );
                     }
+                    Ty::OptionArray => {
+                        abort!(
+                            field_ty,
+                            "Option<[T; N]> type is not allowed for subcommand"
+                        );
+                    }
                     _ => (),
                 }
 
@@ -314,6 +320,12 @@ impl Attrs {
                             "Option<Vec<T>> type is not allowed for subcommand"
                         );
                     }
+                    Ty::OptionArray => {
+                        abort!(
+                            field.ty,
+                            "Option<[T; N]> type is not allowed for subcommand"
+                        );
+                    }
                     _ => (),
                 }
 
@@ -341,7 +353,7 @@ impl Attrs {
                         );
                     }
                     match *ty {
-                        Ty::Option | Ty::Vec | Ty::OptionVec => (),
+                        Ty::Option | Ty::Vec | Ty::Array | Ty::OptionVec | Ty::OptionArray => (),
                         _ => ty = Sp::new(Ty::Other, ty.span()),
                     }
                 }
@@ -388,7 +400,14 @@ impl Attrs {
                             )
                         }
                     }
-
+                    Ty::OptionArray => {
+                        if res.is_positional() {
+                            abort!(
+                                field.ty,
+                                "Option<[T; N]> type is meaningless for positional argument"
+                            )
+                        }
+                    }
                     _ => (),
                 }
                 res.kind = Sp::new(Kind::Arg(ty), orig_ty.span());

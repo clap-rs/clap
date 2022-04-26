@@ -15,7 +15,7 @@
 use crate::{
     attrs::{Attrs, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
     dummies,
-    utils::{inner_type, sub_type, Sp, Ty},
+    utils::{array_ty_len, inner_type, sub_type, Sp, Ty},
 };
 
 use proc_macro2::{Ident, Span, TokenStream};
@@ -307,11 +307,36 @@ pub fn gen_augment(
                         #value_parser
                     },
 
+                    Ty::OptionArray => {
+                        let len = array_ty_len(sub_type(&field.ty).unwrap()).unwrap();
+                        quote_spanned! { ty.span()=>
+                            .takes_value(true)
+                            .value_name(#value_name)
+                            .number_of_values(#len)
+                            #possible_values
+                            #validator
+                            #value_parser
+                        }
+                    }
+
                     Ty::Vec => {
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)
                             .multiple_occurrences(true)
+                            #possible_values
+                            #validator
+                            #value_parser
+                        }
+                    }
+
+                    Ty::Array => {
+                        let len = array_ty_len(&field.ty).unwrap();
+                        quote_spanned! { ty.span()=>
+                            .takes_value(true)
+                            .value_name(#value_name)
+                            .required(true)
+                            .number_of_values(#len)
                             #possible_values
                             #validator
                             #value_parser
@@ -630,12 +655,40 @@ fn gen_parsers(
             }
         },
 
+        Ty::OptionArray => quote_spanned! { ty.span()=>
+            if #arg_matches.is_present(#id) {
+                Some(
+                    std::convert::TryInto::try_into(
+                        #arg_matches.#get_many(#id)
+                            .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
+                            .transpose()?
+                            .unwrap_or_else(Vec::new)
+                    )
+                    .map_err(|arr| clap::Error::raw(clap::ErrorKind::Internal, format!("Get value array with wrong length: {}", arr.len())))?
+                )
+            } else {
+                None
+            }
+        },
+
         Ty::Vec => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_many(#id)
                     .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new)
+            }
+        }
+
+        Ty::Array => {
+            quote_spanned! { ty.span()=>
+                std::convert::TryInto::try_into(
+                    #arg_matches.#get_many(#id)
+                        .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
+                        .transpose()?
+                        .unwrap_or_else(Vec::new)
+                )
+                .map_err(|arr| clap::Error::raw(clap::ErrorKind::Internal, format!("Get value array with wrong length: {}", arr.len())))?
             }
         }
 
