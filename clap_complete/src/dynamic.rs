@@ -116,9 +116,11 @@ pub mod bash {
                 )?;
 
                 let mut buf = Vec::new();
-                for completion in &completions {
+                for (i, completion) in completions.iter().enumerate() {
+                    if i != 0 {
+                        write!(&mut buf, "{}", args.ifs.as_deref().unwrap_or("\n"))?;
+                    }
                     write!(&mut buf, "{}", completion.to_string_lossy())?;
-                    write!(&mut buf, "{}", args.ifs.as_deref().unwrap_or("\n"))?;
                 }
                 std::io::stdout().write(&buf)?;
             }
