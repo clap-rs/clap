@@ -395,7 +395,8 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 completions.extend(
                     crate::generator::utils::shorts_and_visible_aliases(cmd)
                         .into_iter()
-                        .map(|f| format!("-{}", f).into()),
+                        // HACK: Need better `OsStr` manipulation
+                        .map(|f| format!("{}{}", arg.to_value_os().to_str_lossy(), f).into()),
                 );
             }
         }
