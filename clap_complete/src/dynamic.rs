@@ -34,12 +34,7 @@ pub mod bash {
         )]
         index: Option<usize>,
 
-        #[clap(
-            long,
-            value_name = "COMP_CWORD",
-            hide_short_help = true,
-            group = "complete"
-        )]
+        #[clap(long, hide_short_help = true, group = "complete")]
         ifs: Option<String>,
 
         #[clap(
