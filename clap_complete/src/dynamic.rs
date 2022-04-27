@@ -324,7 +324,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         let mut is_escaped = false;
         while let Some(arg) = raw_args.next(&mut cursor) {
             if cursor == target_cursor {
-                return complete_new(current_cmd, current_dir, pos_index, is_escaped);
+                return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
             }
             if let Ok(value) = arg.to_value() {
                 if let Some(next_cmd) = current_cmd.find_subcommand(value) {
@@ -351,7 +351,8 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         ))
     }
 
-    fn complete_new(
+    fn complete_arg(
+        arg: &clap_lex::ParsedArg<'_>,
         cmd: &clap::Command,
         current_dir: Option<&std::path::Path>,
         pos_index: usize,
@@ -360,57 +361,100 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         let mut completions = Vec::new();
 
         if !is_escaped {
-            completions.extend(
-                crate::generator::utils::longs_and_visible_aliases(cmd)
-                    .into_iter()
-                    .map(|f| format!("--{}", f).into()),
-            );
-            completions.extend(
-                crate::generator::utils::shorts_and_visible_aliases(cmd)
-                    .into_iter()
-                    .map(|f| format!("-{}", f).into()),
-            );
+            if let Some((flag, value)) = arg.to_long() {
+                if let Ok(flag) = flag {
+                    if let Some(value) = value {
+                        if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag))
+                        {
+                            completions.extend(
+                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                                    .into_iter()
+                                    .map(|os| {
+                                        // HACK: Need better `OsStr` manipulation
+                                        format!("--{}={}", flag, os.to_string_lossy()).into()
+                                    }),
+                            )
+                        }
+                    } else {
+                        completions.extend(
+                            crate::generator::utils::longs_and_visible_aliases(cmd)
+                                .into_iter()
+                                .filter_map(|f| {
+                                    f.starts_with(flag).then(|| format!("--{}", f).into())
+                                }),
+                        );
+                    }
+                }
+            } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
+                // HACK: Assuming knowledge of is_escape / is_stdio
+                completions.extend(
+                    crate::generator::utils::longs_and_visible_aliases(cmd)
+                        .into_iter()
+                        .map(|f| format!("--{}", f).into()),
+                );
+            }
+
+            if arg.is_empty() || arg.is_stdio() || arg.is_short() {
+                // HACK: Assuming knowledge of is_stdio
+                completions.extend(
+                    crate::generator::utils::shorts_and_visible_aliases(cmd)
+                        .into_iter()
+                        .map(|f| format!("-{}", f).into()),
+                );
+            }
         }
 
         if let Some(positional) = cmd
             .get_positionals()
             .find(|p| p.get_index() == Some(pos_index))
         {
-            completions.extend(complete_arg_value(positional, current_dir));
+            completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
         }
 
         if !is_escaped {
-            completions.extend(all_subcommands(cmd).into_iter().map(|s| s));
+            if let Ok(value) = arg.to_value() {
+                completions.extend(complete_subcommand(value, cmd));
+            }
         }
 
         Ok(completions)
     }
 
     fn complete_arg_value(
+        value: Result<&str, &clap_lex::RawOsStr>,
         arg: &clap::Arg<'_>,
         current_dir: Option<&std::path::Path>,
     ) -> Vec<OsString> {
         let mut values = Vec::new();
 
         if let Some(possible_values) = arg.get_possible_values() {
-            values.extend(possible_values.into_iter().map(|p| p.get_name().into()));
+            if let Ok(value) = value {
+                values.extend(possible_values.into_iter().filter_map(|p| {
+                    let name = p.get_name();
+                    name.starts_with(value).then(|| name.into())
+                }));
+            }
         } else {
+            let value_os = match value {
+                Ok(value) => clap_lex::RawOsStr::from_str(value),
+                Err(value_os) => value_os,
+            };
             match arg.get_value_hint() {
                 clap::ValueHint::Other => {
                     // Should not complete
                 }
                 clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
-                    values.extend(complete_path(current_dir, |_| true));
+                    values.extend(complete_path(value_os, current_dir, |_| true));
                 }
                 clap::ValueHint::FilePath => {
-                    values.extend(complete_path(current_dir, |p| p.is_file()));
+                    values.extend(complete_path(value_os, current_dir, |p| p.is_file()));
                 }
                 clap::ValueHint::DirPath => {
-                    values.extend(complete_path(current_dir, |p| p.is_dir()));
+                    values.extend(complete_path(value_os, current_dir, |p| p.is_dir()));
                 }
                 clap::ValueHint::ExecutablePath => {
                     use is_executable::IsExecutable;
-                    values.extend(complete_path(current_dir, |p| p.is_executable()));
+                    values.extend(complete_path(value_os, current_dir, |p| p.is_executable()));
                 }
                 clap::ValueHint::CommandName
                 | clap::ValueHint::CommandString
@@ -423,7 +467,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 }
                 _ => {
                     // Safe-ish fallback
-                    values.extend(complete_path(current_dir, |_| true));
+                    values.extend(complete_path(value_os, current_dir, |_| true));
                 }
             }
             values.sort();
@@ -433,6 +477,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
     }
 
     fn complete_path(
+        value_os: &clap_lex::RawOsStr,
         current_dir: Option<&std::path::Path>,
         is_wanted: impl Fn(&std::path::Path) -> bool,
     ) -> Vec<OsString> {
@@ -441,23 +486,35 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         let current_dir = match current_dir {
             Some(current_dir) => current_dir,
             None => {
+                // Can't complete without a `current_dir`
                 return Vec::new();
             }
         };
-        for entry in std::fs::read_dir(current_dir)
+        let (existing, prefix) = value_os
+            .split_once('\\')
+            .unwrap_or((clap_lex::RawOsStr::from_str(""), value_os));
+        let root = current_dir.join(existing.to_os_str());
+
+        for entry in std::fs::read_dir(&root)
             .ok()
             .into_iter()
             .flatten()
             .filter_map(Result::ok)
         {
-            let mut path = entry.path();
+            let raw_file_name = clap_lex::RawOsString::new(entry.file_name());
+            if !raw_file_name.starts_with_os(prefix) {
+                continue;
+            }
+
             if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) {
-                path.push(""); // Ensure trailing `/`
-                let suggestion = path.strip_prefix(current_dir).unwrap();
+                let path = entry.path();
+                let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
+                suggestion.push(""); // Ensure trailing `/`
                 completions.push(suggestion.as_os_str().to_owned());
             } else {
+                let path = entry.path();
                 if is_wanted(&path) {
-                    let suggestion = path.strip_prefix(current_dir).unwrap();
+                    let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
                     completions.push(suggestion.as_os_str().to_owned());
                 }
             }
@@ -466,11 +523,12 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         completions
     }
 
-    fn all_subcommands(cmd: &clap::Command) -> Vec<OsString> {
-        debug!("all_subcommands");
+    fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<OsString> {
+        debug!("complete_subcommand");
 
         let mut scs = crate::generator::utils::all_subcommands(cmd)
-            .iter()
+            .into_iter()
+            .filter(|x| x.0.starts_with(value))
             .map(|x| OsString::from(&x.0))
             .collect::<Vec<_>>();
         scs.sort();

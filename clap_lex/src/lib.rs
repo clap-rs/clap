@@ -275,6 +275,11 @@ impl<'s> ParsedArg<'s> {
         Self { inner, utf8 }
     }
 
+    /// Argument is length of 0
+    pub fn is_empty(&self) -> bool {
+        self.inner.as_ref().is_empty()
+    }
+
     /// Does the argument look like a stdio argument (`-`)
     pub fn is_stdio(&self) -> bool {
         self.inner.as_ref() == "-"
