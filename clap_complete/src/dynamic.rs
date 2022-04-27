@@ -316,7 +316,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         }
 
         let mut current_cmd = &*cmd;
-        let mut pos_index = 0;
+        let mut pos_index = 1;
         let mut is_escaped = false;
         while let Some(arg) = raw_args.next(&mut cursor) {
             if cursor == target_cursor {
