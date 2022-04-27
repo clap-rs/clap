@@ -3510,8 +3510,7 @@ impl<'help> App<'help> {
     }
 
     /// Report whether [`Command::no_binary_name`] is set
-    #[allow(unused)]
-    pub(crate) fn is_no_binary_name_set(&self) -> bool {
+    pub fn is_no_binary_name_set(&self) -> bool {
         self.is_set(AppSettings::NoBinaryName)
     }
 

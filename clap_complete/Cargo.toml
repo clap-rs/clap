@@ -36,14 +36,27 @@ bench = false
 
 [dependencies]
 clap = { path = "../", version = "3.1.10", default-features = false, features = ["std"] }
+clap_lex = { path = "../clap_lex", version = "0.1.0", optional = true }
+is_executable = { version = "1.0.1", optional = true }
+os_str_bytes = { version = "6.0", default-features = false, features = ["raw_os_str"], optional = true }
+pathdiff = { version = "0.2.1", optional = true }
+shlex = { version = "1.1.0", optional = true }
+unicode-xid = { version = "0.2.2", optional = true }
 
 [dev-dependencies]
 pretty_assertions = "1.0"
 snapbox = { version = "0.2", features = ["diff"] }
+# Cutting out `filesystem` feature
+trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
 clap = { path = "../", version = "3.1.10", default-features = false, features = ["std", "derive"] }
+
+[[example]]
+name = "dynamic"
+required-features = ["unstable-dynamic"]
 
 [features]
 default = []
+unstable-dynamic = ["clap_lex", "shlex", "unicode-xid", "os_str_bytes", "clap/derive", "is_executable", "pathdiff"]
 debug = ["clap/debug"]
 
 [package.metadata.docs.rs]

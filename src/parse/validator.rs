@@ -605,7 +605,7 @@ impl Conflicts {
     }
 
     fn gather_conflicts(&mut self, cmd: &Command, matcher: &ArgMatcher, arg_id: &Id) -> Vec<Id> {
-        debug!("Conflicts::gather_conflicts");
+        debug!("Conflicts::gather_conflicts: arg={:?}", arg_id);
         let mut conflicts = Vec::new();
         for other_arg_id in matcher
             .arg_names()
@@ -628,6 +628,7 @@ impl Conflicts {
                 conflicts.push(other_arg_id.clone());
             }
         }
+        debug!("Conflicts::gather_conflicts: conflicts={:?}", conflicts);
         conflicts
     }
 

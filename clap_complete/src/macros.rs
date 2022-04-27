@@ -10,8 +10,8 @@ macro_rules! w {
 #[cfg(feature = "debug")]
 macro_rules! debug {
     ($($arg:tt)*) => {
-        print!("[{:>w$}] \t", module_path!(), w = 28);
-        println!($($arg)*)
+        eprint!("[{:>w$}] \t", module_path!(), w = 28);
+        eprintln!($($arg)*)
     }
 }
 
