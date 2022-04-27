@@ -352,6 +352,12 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         );
 
         let mut positionals = Vec::new();
+        positionals.extend(
+            cmd.get_positionals()
+                .flat_map(|p| p.get_possible_values())
+                .flatten()
+                .map(|p| p.get_name().into()),
+        );
         let hints = cmd
             .get_positionals()
             .map(|p| p.get_value_hint())
