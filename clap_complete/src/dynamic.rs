@@ -322,6 +322,13 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             if cursor == target_cursor {
                 return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
             }
+
+            debug!(
+                "complete::next: Begin parsing '{:?}' ({:?})",
+                arg.to_value_os(),
+                arg.to_value_os().as_raw_bytes()
+            );
+
             if let Ok(value) = arg.to_value() {
                 if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                     current_cmd = next_cmd;
@@ -354,6 +361,14 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         pos_index: usize,
         is_escaped: bool,
     ) -> Result<Vec<std::ffi::OsString>, std::io::Error> {
+        debug!(
+            "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
+            arg,
+            cmd.get_name(),
+            current_dir,
+            pos_index,
+            is_escaped
+        );
         let mut completions = Vec::new();
 
         if !is_escaped {
@@ -421,6 +436,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         current_dir: Option<&std::path::Path>,
     ) -> Vec<OsString> {
         let mut values = Vec::new();
+        debug!("complete_arg_value: arg={:?}, value={:?}", arg, value);
 
         if let Some(possible_values) = arg.get_possible_values() {
             if let Ok(value) = value {
@@ -489,6 +505,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             .split_once('\\')
             .unwrap_or((clap_lex::RawOsStr::from_str(""), value_os));
         let root = current_dir.join(existing.to_os_str());
+        debug!("complete_path: root={:?}, prefix={:?}", root, prefix);
 
         for entry in std::fs::read_dir(&root)
             .ok()
@@ -519,7 +536,11 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
     }
 
     fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<OsString> {
-        debug!("complete_subcommand");
+        debug!(
+            "complete_subcommand: cmd={:?}, value={:?}",
+            cmd.get_name(),
+            value
+        );
 
         let mut scs = crate::generator::utils::all_subcommands(cmd)
             .into_iter()
