@@ -320,15 +320,20 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         }
 
         let mut current_cmd = &*cmd;
+        let mut pos_index = 0;
         while let Some(arg) = raw_args.next(&mut cursor) {
             if cursor == target_cursor {
-                return complete_new(current_cmd, current_dir);
+                return complete_new(current_cmd, current_dir, pos_index);
             }
             if let Ok(value) = arg.to_value() {
                 if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                     current_cmd = next_cmd;
+                    pos_index = 0;
+                    continue;
                 }
             }
+
+            pos_index += 1;
         }
 
         Err(std::io::Error::new(
@@ -340,6 +345,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
     fn complete_new(
         cmd: &clap::Command,
         current_dir: Option<&std::path::Path>,
+        pos_index: usize,
     ) -> Result<Vec<std::ffi::OsString>, std::io::Error> {
         let mut completions = Vec::new();
 
@@ -355,60 +361,48 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         );
 
         let mut positionals = Vec::new();
-        positionals.extend(
-            cmd.get_positionals()
-                .flat_map(|p| p.get_possible_values())
-                .flatten()
-                .map(|p| p.get_name().into()),
-        );
-        let hints = cmd
+        if let Some(positional) = cmd
             .get_positionals()
-            .map(|p| p.get_value_hint())
-            .map(|h| {
-                if h == clap::ValueHint::Unknown {
-                    clap::ValueHint::AnyPath
-                } else {
-                    h
+            .find(|p| p.get_index() == Some(pos_index))
+        {
+            if let Some(possible_values) = positional.get_possible_values() {
+                positionals.extend(possible_values.into_iter().map(|p| p.get_name().into()));
+            } else {
+                match positional.get_value_hint() {
+                    clap::ValueHint::Other => {
+                        // Should not complete
+                    }
+                    clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
+                        positionals.extend(complete_path(current_dir, |_| true));
+                    }
+                    clap::ValueHint::FilePath => {
+                        positionals.extend(complete_path(current_dir, |p| p.is_file()));
+                    }
+                    clap::ValueHint::DirPath => {
+                        positionals.extend(complete_path(current_dir, |p| p.is_dir()));
+                    }
+                    clap::ValueHint::ExecutablePath => {
+                        use is_executable::IsExecutable;
+                        positionals.extend(complete_path(current_dir, |p| p.is_executable()));
+                    }
+                    clap::ValueHint::CommandName
+                    | clap::ValueHint::CommandString
+                    | clap::ValueHint::CommandWithArguments
+                    | clap::ValueHint::Username
+                    | clap::ValueHint::Hostname
+                    | clap::ValueHint::Url
+                    | clap::ValueHint::EmailAddress => {
+                        // No completion implementation
+                    }
+                    _ => {
+                        // Safe-ish fallback
+                        positionals.extend(complete_path(current_dir, |_| true));
+                    }
                 }
-            })
-            .collect::<std::collections::HashSet<_>>();
-        for hint in hints {
-            match hint {
-                clap::ValueHint::Unknown => unreachable!("Filtered out"),
-                clap::ValueHint::Other => {
-                    // Should not complete
-                }
-                clap::ValueHint::AnyPath => {
-                    positionals.extend(complete_path(current_dir, |_| true));
-                }
-                clap::ValueHint::FilePath => {
-                    positionals.extend(complete_path(current_dir, |p| p.is_file()));
-                }
-                clap::ValueHint::DirPath => {
-                    positionals.extend(complete_path(current_dir, |p| p.is_dir()));
-                }
-                clap::ValueHint::ExecutablePath => {
-                    use is_executable::IsExecutable;
-                    positionals.extend(complete_path(current_dir, |p| p.is_executable()));
-                }
-                clap::ValueHint::CommandName
-                | clap::ValueHint::CommandString
-                | clap::ValueHint::CommandWithArguments
-                | clap::ValueHint::Username
-                | clap::ValueHint::Hostname
-                | clap::ValueHint::Url
-                | clap::ValueHint::EmailAddress => {
-                    // No completion implementation
-                }
-                _ => {
-                    // Safe-ish fallback
-                    positionals.extend(complete_path(current_dir, |_| true));
-                }
+                positionals.sort();
             }
+            completions.extend(positionals);
         }
-        positionals.sort();
-        positionals.dedup();
-        completions.extend(positionals);
 
         completions.extend(all_subcommands(cmd).into_iter().map(|s| s));
 
