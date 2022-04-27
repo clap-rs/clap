@@ -334,8 +334,12 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 }
             }
 
-            if arg.is_escape() {
+            if is_escaped {
+                pos_index += 1;
+            } else if arg.is_escape() {
                 is_escaped = true;
+            } else if let Some(_long) = arg.to_long() {
+            } else if let Some(_short) = arg.to_short() {
             } else {
                 pos_index += 1;
             }
