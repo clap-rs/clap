@@ -407,10 +407,8 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
         }
 
-        if !is_escaped {
-            if let Ok(value) = arg.to_value() {
-                completions.extend(complete_subcommand(value, cmd));
-            }
+        if let Ok(value) = arg.to_value() {
+            completions.extend(complete_subcommand(value, cmd));
         }
 
         Ok(completions)
