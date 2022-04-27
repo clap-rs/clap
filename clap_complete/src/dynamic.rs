@@ -321,9 +321,10 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
         let mut current_cmd = &*cmd;
         let mut pos_index = 0;
+        let mut is_escaped = false;
         while let Some(arg) = raw_args.next(&mut cursor) {
             if cursor == target_cursor {
-                return complete_new(current_cmd, current_dir, pos_index);
+                return complete_new(current_cmd, current_dir, pos_index, is_escaped);
             }
             if let Ok(value) = arg.to_value() {
                 if let Some(next_cmd) = current_cmd.find_subcommand(value) {
@@ -333,7 +334,11 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 }
             }
 
-            pos_index += 1;
+            if arg.is_escape() {
+                is_escaped = true;
+            } else {
+                pos_index += 1;
+            }
         }
 
         Err(std::io::Error::new(
@@ -346,19 +351,22 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         cmd: &clap::Command,
         current_dir: Option<&std::path::Path>,
         pos_index: usize,
+        is_escaped: bool,
     ) -> Result<Vec<std::ffi::OsString>, std::io::Error> {
         let mut completions = Vec::new();
 
-        completions.extend(
-            crate::generator::utils::longs_and_visible_aliases(cmd)
-                .into_iter()
-                .map(|f| format!("--{}", f).into()),
-        );
-        completions.extend(
-            crate::generator::utils::shorts_and_visible_aliases(cmd)
-                .into_iter()
-                .map(|f| format!("-{}", f).into()),
-        );
+        if !is_escaped {
+            completions.extend(
+                crate::generator::utils::longs_and_visible_aliases(cmd)
+                    .into_iter()
+                    .map(|f| format!("--{}", f).into()),
+            );
+            completions.extend(
+                crate::generator::utils::shorts_and_visible_aliases(cmd)
+                    .into_iter()
+                    .map(|f| format!("-{}", f).into()),
+            );
+        }
 
         let mut positionals = Vec::new();
         if let Some(positional) = cmd
@@ -404,7 +412,9 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             completions.extend(positionals);
         }
 
-        completions.extend(all_subcommands(cmd).into_iter().map(|s| s));
+        if !is_escaped {
+            completions.extend(all_subcommands(cmd).into_iter().map(|s| s));
+        }
 
         Ok(completions)
     }
