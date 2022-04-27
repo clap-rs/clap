@@ -36,7 +36,6 @@ pub mod bash {
 
         #[clap(
             long,
-            required = true,
             value_name = "COMP_CWORD",
             hide_short_help = true,
             group = "complete"
