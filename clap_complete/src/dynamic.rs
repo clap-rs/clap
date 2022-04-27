@@ -311,6 +311,8 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             &mut target_cursor,
             clap_lex::SeekFrom::Start(arg_index as u64),
         );
+        // As we loop, `cursor` will always be pointing to the next item
+        raw_args.next_os(&mut target_cursor);
 
         // TODO: Multicall support
         if !cmd.is_no_binary_name_set() {
@@ -319,19 +321,20 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
         let mut current_cmd = &*cmd;
         while let Some(arg) = raw_args.next(&mut cursor) {
+            if cursor == target_cursor {
+                return complete_new(current_cmd, current_dir);
+            }
             if let Ok(value) = arg.to_value() {
                 if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                     current_cmd = next_cmd;
                 }
             }
-            if cursor == target_cursor {
-                break;
-            }
         }
 
-        let completions = complete_new(current_cmd, current_dir)?;
-
-        Ok(completions)
+        Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "No completion generated",
+        ))
     }
 
     fn complete_new(
