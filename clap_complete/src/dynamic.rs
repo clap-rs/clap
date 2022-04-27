@@ -296,15 +296,39 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
     /// Complete the command specified
     pub fn complete(
         cmd: &mut clap::Command,
-        _args: Vec<std::ffi::OsString>,
-        _arg_index: usize,
+        args: Vec<std::ffi::OsString>,
+        arg_index: usize,
         _comp_type: CompType,
         _trailing_space: bool,
         current_dir: Option<&std::path::Path>,
     ) -> Result<Vec<std::ffi::OsString>, std::io::Error> {
         cmd.build();
 
-        let current_cmd = &*cmd;
+        let raw_args = clap_lex::RawArgs::new(args.into_iter());
+        let mut cursor = raw_args.cursor();
+        let mut target_cursor = raw_args.cursor();
+        raw_args.seek(
+            &mut target_cursor,
+            clap_lex::SeekFrom::Start(arg_index as u64),
+        );
+
+        // TODO: Multicall support
+        if !cmd.is_no_binary_name_set() {
+            raw_args.next_os(&mut cursor);
+        }
+
+        let mut current_cmd = &*cmd;
+        while let Some(arg) = raw_args.next(&mut cursor) {
+            if let Ok(value) = arg.to_value() {
+                if let Some(next_cmd) = current_cmd.find_subcommand(value) {
+                    current_cmd = next_cmd;
+                }
+            }
+            if cursor == target_cursor {
+                break;
+            }
+        }
+
         let completions = complete_new(current_cmd, current_dir)?;
 
         Ok(completions)
