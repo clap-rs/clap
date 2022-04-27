@@ -368,48 +368,11 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             );
         }
 
-        let mut positionals = Vec::new();
         if let Some(positional) = cmd
             .get_positionals()
             .find(|p| p.get_index() == Some(pos_index))
         {
-            if let Some(possible_values) = positional.get_possible_values() {
-                positionals.extend(possible_values.into_iter().map(|p| p.get_name().into()));
-            } else {
-                match positional.get_value_hint() {
-                    clap::ValueHint::Other => {
-                        // Should not complete
-                    }
-                    clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
-                        positionals.extend(complete_path(current_dir, |_| true));
-                    }
-                    clap::ValueHint::FilePath => {
-                        positionals.extend(complete_path(current_dir, |p| p.is_file()));
-                    }
-                    clap::ValueHint::DirPath => {
-                        positionals.extend(complete_path(current_dir, |p| p.is_dir()));
-                    }
-                    clap::ValueHint::ExecutablePath => {
-                        use is_executable::IsExecutable;
-                        positionals.extend(complete_path(current_dir, |p| p.is_executable()));
-                    }
-                    clap::ValueHint::CommandName
-                    | clap::ValueHint::CommandString
-                    | clap::ValueHint::CommandWithArguments
-                    | clap::ValueHint::Username
-                    | clap::ValueHint::Hostname
-                    | clap::ValueHint::Url
-                    | clap::ValueHint::EmailAddress => {
-                        // No completion implementation
-                    }
-                    _ => {
-                        // Safe-ish fallback
-                        positionals.extend(complete_path(current_dir, |_| true));
-                    }
-                }
-                positionals.sort();
-            }
-            completions.extend(positionals);
+            completions.extend(complete_arg_value(positional, current_dir));
         }
 
         if !is_escaped {
@@ -417,6 +380,52 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         }
 
         Ok(completions)
+    }
+
+    fn complete_arg_value(
+        arg: &clap::Arg<'_>,
+        current_dir: Option<&std::path::Path>,
+    ) -> Vec<OsString> {
+        let mut values = Vec::new();
+
+        if let Some(possible_values) = arg.get_possible_values() {
+            values.extend(possible_values.into_iter().map(|p| p.get_name().into()));
+        } else {
+            match arg.get_value_hint() {
+                clap::ValueHint::Other => {
+                    // Should not complete
+                }
+                clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
+                    values.extend(complete_path(current_dir, |_| true));
+                }
+                clap::ValueHint::FilePath => {
+                    values.extend(complete_path(current_dir, |p| p.is_file()));
+                }
+                clap::ValueHint::DirPath => {
+                    values.extend(complete_path(current_dir, |p| p.is_dir()));
+                }
+                clap::ValueHint::ExecutablePath => {
+                    use is_executable::IsExecutable;
+                    values.extend(complete_path(current_dir, |p| p.is_executable()));
+                }
+                clap::ValueHint::CommandName
+                | clap::ValueHint::CommandString
+                | clap::ValueHint::CommandWithArguments
+                | clap::ValueHint::Username
+                | clap::ValueHint::Hostname
+                | clap::ValueHint::Url
+                | clap::ValueHint::EmailAddress => {
+                    // No completion implementation
+                }
+                _ => {
+                    // Safe-ish fallback
+                    values.extend(complete_path(current_dir, |_| true));
+                }
+            }
+            values.sort();
+        }
+
+        values
     }
 
     fn complete_path(
