@@ -293,14 +293,14 @@ impl<'s> ParsedArg<'s> {
     }
 
     /// Treat as a long-flag
-    ///
-    /// **NOTE:** May return an empty flag.  Check [`ParsedArg::is_escape`] to separately detect `--`.
-    ///
-    /// **NOTE:** Will not match [`ParsedArg::is_stdio`], completion engines will need to check
-    /// that case.
     pub fn to_long(&self) -> Option<(Result<&str, &RawOsStr>, Option<&RawOsStr>)> {
         if let Some(raw) = self.utf8 {
             let remainder = raw.strip_prefix("--")?;
+            if remainder.is_empty() {
+                debug_assert!(self.is_escape());
+                return None;
+            }
+
             let (flag, value) = if let Some((p0, p1)) = remainder.split_once('=') {
                 (p0, Some(p1))
             } else {
@@ -312,6 +312,11 @@ impl<'s> ParsedArg<'s> {
         } else {
             let raw = self.inner.as_ref();
             let remainder = raw.strip_prefix("--")?;
+            if remainder.is_empty() {
+                debug_assert!(self.is_escape());
+                return None;
+            }
+
             let (flag, value) = if let Some((p0, p1)) = remainder.split_once('=') {
                 (p0, Some(p1))
             } else {
@@ -323,19 +328,17 @@ impl<'s> ParsedArg<'s> {
     }
 
     /// Can treat as a long-flag
-    ///
-    /// **NOTE:** May return an empty flag.  Check [`ParsedArg::is_escape`] to separately detect `--`.
     pub fn is_long(&self) -> bool {
-        self.inner.as_ref().starts_with("--")
+        self.inner.as_ref().starts_with("--") && !self.is_escape()
     }
 
     /// Treat as a short-flag
-    ///
-    /// **NOTE:** Maybe return an empty flag.  Check [`ParsedArg::is_stdio`] to separately detect
-    /// `-`.
     pub fn to_short(&self) -> Option<ShortFlags<'_>> {
         if let Some(remainder_os) = self.inner.as_ref().strip_prefix('-') {
             if remainder_os.starts_with('-') {
+                None
+            } else if remainder_os.is_empty() {
+                debug_assert!(self.is_stdio());
                 None
             } else {
                 let remainder = self.utf8.map(|s| &s[1..]);
@@ -347,11 +350,10 @@ impl<'s> ParsedArg<'s> {
     }
 
     /// Can treat as a short-flag
-    ///
-    /// **NOTE:** Maybe return an empty flag.  Check [`ParsedArg::is_stdio`] to separately detect
-    /// `-`.
     pub fn is_short(&self) -> bool {
-        self.inner.as_ref().starts_with('-') && !self.is_long()
+        self.inner.as_ref().starts_with('-')
+            && !self.is_stdio()
+            && !self.inner.as_ref().starts_with("--")
     }
 
     /// Treat as a value

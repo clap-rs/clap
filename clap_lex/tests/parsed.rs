@@ -13,17 +13,15 @@ fn to_long_stdio() {
 }
 
 #[test]
-fn to_long_escape() {
+fn to_long_no_escape() {
     let raw = clap_lex::RawArgs::new(["bin", "--"]);
     let mut cursor = raw.cursor();
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
 
-    assert!(next.is_long());
+    assert!(!next.is_long());
 
-    let (key, value) = next.to_long().unwrap();
-    assert_eq!(key, Ok(""));
-    assert_eq!(value, None);
+    assert_eq!(next.to_long(), None);
 }
 
 #[test]
@@ -75,10 +73,9 @@ fn to_short_stdio() {
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
 
-    assert!(next.is_short());
+    assert!(!next.is_short());
 
-    let mut shorts = next.to_short().unwrap();
-    assert_eq!(shorts.next_value_os(), None);
+    assert!(next.to_short().is_none());
 }
 
 #[test]

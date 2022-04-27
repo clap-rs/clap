@@ -190,7 +190,17 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                 }
 
-                if let Some((long_arg, long_value)) = arg_os.to_long() {
+                if arg_os.is_escape() {
+                    if matches!(&parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
+                        self.cmd[opt].is_allow_hyphen_values_set())
+                    {
+                        // ParseResult::MaybeHyphenValue, do nothing
+                    } else {
+                        debug!("Parser::get_matches_with: setting TrailingVals=true");
+                        trailing_values = true;
+                        continue;
+                    }
+                } else if let Some((long_arg, long_value)) = arg_os.to_long() {
                     let parse_result = self.parse_long_arg(
                         matcher,
                         long_arg,
@@ -205,9 +215,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     );
                     match parse_result {
                         ParseResult::NoArg => {
-                            debug!("Parser::get_matches_with: setting TrailingVals=true");
-                            trailing_values = true;
-                            continue;
+                            unreachable!("`to_long` always has the flag specified")
                         }
                         ParseResult::ValuesDone => {
                             parse_state = ParseState::ValuesDone;
@@ -660,14 +668,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         {
             // If allow hyphen, this isn't a new arg.
             debug!("Parser::is_new_arg: Allow hyphen");
-            false
-        } else if next.is_escape() {
-            // Ensure we don't assuming escapes are long args
-            debug!("Parser::is_new_arg: -- found");
-            false
-        } else if next.is_stdio() {
-            // Ensure we don't assume stdio is a short arg
-            debug!("Parser::is_new_arg: - found");
             false
         } else if next.is_long() {
             // If this is a long flag, this is a new arg.

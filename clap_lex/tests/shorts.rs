@@ -88,20 +88,6 @@ fn advance_by_nothing() {
 }
 
 #[test]
-fn advance_by_nothing_with_nothing() {
-    let raw = clap_lex::RawArgs::new(["bin", "-"]);
-    let mut cursor = raw.cursor();
-    assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
-    let next = raw.next(&mut cursor).unwrap();
-    let mut shorts = next.to_short().unwrap();
-
-    assert_eq!(shorts.advance_by(0), Ok(()));
-
-    let actual: String = shorts.map(|s| s.unwrap()).collect();
-    assert_eq!(actual, "");
-}
-
-#[test]
 fn advance_by_something() {
     let raw = clap_lex::RawArgs::new(["bin", "-short"]);
     let mut cursor = raw.cursor();
@@ -130,17 +116,6 @@ fn advance_by_out_of_bounds() {
 }
 
 #[test]
-fn is_empty() {
-    let raw = clap_lex::RawArgs::new(["bin", "-"]);
-    let mut cursor = raw.cursor();
-    assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
-    let next = raw.next(&mut cursor).unwrap();
-    let shorts = next.to_short().unwrap();
-
-    assert!(shorts.is_empty());
-}
-
-#[test]
 fn is_not_empty() {
     let raw = clap_lex::RawArgs::new(["bin", "-hello"]);
     let mut cursor = raw.cursor();
@@ -165,7 +140,7 @@ fn is_partial_not_empty() {
 
 #[test]
 fn is_exhausted_empty() {
-    let raw = clap_lex::RawArgs::new(["bin", "-"]);
+    let raw = clap_lex::RawArgs::new(["bin", "-hello"]);
     let mut cursor = raw.cursor();
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
