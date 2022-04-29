@@ -4000,7 +4000,7 @@ impl<'help> App<'help> {
         for subcmd in self.get_subcommands_mut() {
             subcmd._build_self();
         }
-        self._build_bin_names();
+        self._build_bin_names_internal();
     }
 
     pub(crate) fn _build_subcommand(&mut self, name: &str) -> Option<&mut Self> {
@@ -4385,9 +4385,13 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
         }
     }
 
-    // used in clap_complete (https://github.com/clap-rs/clap_complete)
     #[doc(hidden)]
+    #[deprecated(since = "3.1.13", note = "Replaced with `Command::build`")]
     pub fn _build_bin_names(&mut self) {
+        self._build_bin_names_internal();
+    }
+
+    fn _build_bin_names_internal(&mut self) {
         debug!("App::_build_bin_names");
 
         if !self.is_set(AppSettings::BinNameBuilt) {
