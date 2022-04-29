@@ -644,13 +644,13 @@ impl<'help> App<'help> {
                     // Stop borrowing command so we can get another mut ref to it.
                     let command = command.to_owned();
                     debug!(
-                        "App::try_get_matches_from_mut: Parsed command {} from argv",
+                        "Command::try_get_matches_from_mut: Parsed command {} from argv",
                         command
                     );
 
-                    debug!("App::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
+                    debug!("Command::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
                     raw_args.insert(&cursor, &[&command]);
-                    debug!("App::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
+                    debug!("Command::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
                     self.name.clear();
                     self.bin_name = None;
                     return self._do_parse(&mut raw_args, cursor);
@@ -3299,7 +3299,7 @@ impl<'help> App<'help> {
     /// Should we color the output?
     #[inline(never)]
     pub fn get_color(&self) -> ColorChoice {
-        debug!("App::color: Color setting...");
+        debug!("Command::color: Color setting...");
 
         if cfg!(feature = "color") {
             #[allow(deprecated)]
@@ -3447,7 +3447,7 @@ impl<'help> App<'help> {
                 .iter()
                 .map(|id| {
                     self.args.args().find(|arg| arg.id == *id).expect(
-                        "App::get_arg_conflicts_with: \
+                        "Command::get_arg_conflicts_with: \
                     The passed arg conflicts with an arg unknown to the cmd",
                     )
                 })
@@ -3478,7 +3478,7 @@ impl<'help> App<'help> {
                     )
                     .find(|arg| arg.id == *id)
                     .expect(
-                        "App::get_arg_conflicts_with: \
+                        "Command::get_arg_conflicts_with: \
                     The passed arg conflicts with an arg unknown to the cmd",
                     )
             })
@@ -3959,7 +3959,7 @@ impl<'help> App<'help> {
         raw_args: &mut clap_lex::RawArgs,
         args_cursor: clap_lex::ArgCursor,
     ) -> ClapResult<ArgMatches> {
-        debug!("App::_do_parse");
+        debug!("Command::_do_parse");
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing in case we run into a subcommand
@@ -3971,7 +3971,7 @@ impl<'help> App<'help> {
         let mut parser = Parser::new(self);
         if let Err(error) = parser.get_matches_with(&mut matcher, raw_args, args_cursor) {
             if self.is_set(AppSettings::IgnoreErrors) {
-                debug!("App::_do_parse: ignoring error: {}", error);
+                debug!("Command::_do_parse: ignoring error: {}", error);
             } else {
                 return Err(error);
             }
@@ -4016,7 +4016,7 @@ impl<'help> App<'help> {
     }
 
     pub(crate) fn _build_self(&mut self) {
-        debug!("App::_build");
+        debug!("Command::_build");
         if !self.settings.is_set(AppSettings::Built) {
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;
@@ -4067,7 +4067,7 @@ impl<'help> App<'help> {
             assert_app(self);
             self.settings.set(AppSettings::Built);
         } else {
-            debug!("App::_build: already built");
+            debug!("Command::_build: already built");
         }
     }
 
@@ -4125,11 +4125,11 @@ impl<'help> App<'help> {
     }
 
     fn _build_bin_names_internal(&mut self) {
-        debug!("App::_build_bin_names");
+        debug!("Command::_build_bin_names");
 
         if !self.is_set(AppSettings::BinNameBuilt) {
             for mut sc in &mut self.subcommands {
-                debug!("App::_build_bin_names:iter: bin_name set...");
+                debug!("Command::_build_bin_names:iter: bin_name set...");
 
                 if sc.bin_name.is_none() {
                     debug!("No");
@@ -4140,7 +4140,7 @@ impl<'help> App<'help> {
                         &*sc.name
                     );
                     debug!(
-                        "App::_build_bin_names:iter: Setting bin_name of {} to {}",
+                        "Command::_build_bin_names:iter: Setting bin_name of {} to {}",
                         self.name, bin_name
                     );
                     sc.bin_name = Some(bin_name);
@@ -4148,14 +4148,14 @@ impl<'help> App<'help> {
                     debug!("yes ({:?})", sc.bin_name);
                 }
                 debug!(
-                    "App::_build_bin_names:iter: Calling build_bin_names from...{}",
+                    "Command::_build_bin_names:iter: Calling build_bin_names from...{}",
                     sc.name
                 );
                 sc._build_bin_names_internal();
             }
             self.set(AppSettings::BinNameBuilt);
         } else {
-            debug!("App::_build_bin_names: already built");
+            debug!("Command::_build_bin_names: already built");
         }
     }
 
@@ -4199,7 +4199,7 @@ impl<'help> App<'help> {
 
     /// Propagate global args
     pub(crate) fn _propagate_global_args(&mut self) {
-        debug!("App::_propagate_global_args:{}", self.name);
+        debug!("Command::_propagate_global_args:{}", self.name);
 
         for sc in &mut self.subcommands {
             for a in self.args.args().filter(|a| a.is_global_set()) {
@@ -4233,7 +4233,7 @@ impl<'help> App<'help> {
 
     /// Propagate settings
     pub(crate) fn _propagate(&mut self) {
-        debug!("App::_propagate:{}", self.name);
+        debug!("Command::_propagate:{}", self.name);
         let mut subcommands = std::mem::take(&mut self.subcommands);
         for sc in &mut subcommands {
             self._propagate_subcommand(sc);
@@ -4263,7 +4263,7 @@ impl<'help> App<'help> {
 
     #[allow(clippy::blocks_in_if_conditions)]
     pub(crate) fn _check_help_and_version(&mut self) {
-        debug!("App::_check_help_and_version: {}", self.name);
+        debug!("Command::_check_help_and_version: {}", self.name);
 
         if self.is_set(AppSettings::DisableHelpFlag)
             || self.args.args().any(|x| {
@@ -4275,7 +4275,7 @@ impl<'help> App<'help> {
                 .iter()
                 .any(|sc| sc.long_flag == Some("help"))
         {
-            debug!("App::_check_help_and_version: Removing generated help");
+            debug!("Command::_check_help_and_version: Removing generated help");
 
             let generated_help_pos = self
                 .args
@@ -4318,7 +4318,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                     .expect(INTERNAL_ERROR_MSG);
                 help.short = Some('h');
             } else {
-                debug!("App::_check_help_and_version: Removing `-h` from help");
+                debug!("Command::_check_help_and_version: Removing `-h` from help");
             }
         }
 
@@ -4339,7 +4339,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                 .iter()
                 .any(|sc| sc.long_flag == Some("version"))
         {
-            debug!("App::_check_help_and_version: Removing generated version");
+            debug!("Command::_check_help_and_version: Removing generated version");
 
             // This is the check mentioned above that only checks for Generated, not
             // GeneratedMutated args by design.
@@ -4380,7 +4380,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
             && self.has_subcommands()
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
-            debug!("App::_check_help_and_version: Building help subcommand");
+            debug!("Command::_check_help_and_version: Building help subcommand");
             let mut help_subcmd = App::new("help")
                 .about("Print this message or the help of the given subcommand(s)")
                 .arg(
@@ -4406,7 +4406,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
     }
 
     pub(crate) fn _derive_display_order(&mut self) {
-        debug!("App::_derive_display_order:{}", self.name);
+        debug!("Command::_derive_display_order:{}", self.name);
 
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             for a in self
@@ -4427,7 +4427,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
     }
 
     pub(crate) fn _render_version(&self, use_long: bool) -> String {
-        debug!("App::_render_version");
+        debug!("Command::_render_version");
 
         let ver = if use_long {
             self.long_version.or(self.version).unwrap_or("")
@@ -4564,7 +4564,7 @@ impl<'help> App<'help> {
 
     /// Iterate through the groups this arg is member of.
     pub(crate) fn groups_for_arg<'a>(&'a self, arg: &Id) -> impl Iterator<Item = Id> + 'a {
-        debug!("App::groups_for_arg: id={:?}", arg);
+        debug!("Command::groups_for_arg: id={:?}", arg);
         let arg = arg.clone();
         self.groups
             .iter()
@@ -4604,7 +4604,7 @@ impl<'help> App<'help> {
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
-        debug!("App::unroll_args_in_group: group={:?}", group);
+        debug!("Command::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
         let mut args = vec![];
 
@@ -4617,13 +4617,13 @@ impl<'help> App<'help> {
                 .args
                 .iter()
             {
-                debug!("App::unroll_args_in_group:iter: entity={:?}", n);
+                debug!("Command::unroll_args_in_group:iter: entity={:?}", n);
                 if !args.contains(n) {
                     if self.find(n).is_some() {
-                        debug!("App::unroll_args_in_group:iter: this is an arg");
+                        debug!("Command::unroll_args_in_group:iter: this is an arg");
                         args.push(n.clone())
                     } else {
-                        debug!("App::unroll_args_in_group:iter: this is a group");
+                        debug!("Command::unroll_args_in_group:iter: this is a group");
                         g_vec.push(n);
                     }
                 }
