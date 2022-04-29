@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## 4.0.0 - Upcoming
+
+_gated behind `unstable-v4`_
+
+### Features
+
+- *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
+
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
