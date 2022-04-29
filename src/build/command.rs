@@ -4102,12 +4102,12 @@ impl<'help> App<'help> {
             sc_names = format!("{{{}}}", sc_names);
         }
 
-        sc.usage_name = Some(
-            self.bin_name
-                .as_ref()
-                .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
-                .unwrap_or(sc_names),
-        );
+        let usage_name = self
+            .bin_name
+            .as_ref()
+            .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
+            .unwrap_or(sc_names);
+        sc.usage_name = Some(usage_name);
 
         // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
         // a space
@@ -4132,7 +4132,6 @@ impl<'help> App<'help> {
                 debug!("Command::_build_bin_names:iter: bin_name set...");
 
                 if sc.bin_name.is_none() {
-                    debug!("No");
                     let bin_name = format!(
                         "{}{}{}",
                         self.bin_name.as_ref().unwrap_or(&self.name),
@@ -4140,17 +4139,16 @@ impl<'help> App<'help> {
                         &*sc.name
                     );
                     debug!(
-                        "Command::_build_bin_names:iter: Setting bin_name of {} to {}",
-                        self.name, bin_name
+                        "Command::_build_bin_names:iter: Setting bin_name of {} to {:?}",
+                        sc.name, bin_name
                     );
                     sc.bin_name = Some(bin_name);
                 } else {
-                    debug!("yes ({:?})", sc.bin_name);
+                    debug!(
+                        "Command::_build_bin_names::iter: Using existing bin_name of {} ({:?})",
+                        sc.name, sc.bin_name
+                    );
                 }
-                debug!(
-                    "Command::_build_bin_names:iter: Calling build_bin_names from...{}",
-                    sc.name
-                );
                 sc._build_bin_names_internal();
             }
             self.set(AppSettings::BinNameBuilt);
