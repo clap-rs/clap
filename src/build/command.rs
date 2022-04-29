@@ -695,7 +695,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
     pub fn print_help(&mut self) -> io::Result<()> {
-        self._build();
+        self._build_self();
         let color = self.get_color();
 
         let mut c = Colorizer::new(Stream::Stdout, color);
@@ -720,7 +720,7 @@ impl<'help> App<'help> {
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn print_long_help(&mut self) -> io::Result<()> {
-        self._build();
+        self._build_self();
         let color = self.get_color();
 
         let mut c = Colorizer::new(Stream::Stdout, color);
@@ -746,7 +746,7 @@ impl<'help> App<'help> {
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
-        self._build();
+        self._build_self();
 
         let usage = Usage::new(self);
         Help::new(HelpWriter::Normal(w), self, &usage, false).write_help()?;
@@ -770,7 +770,7 @@ impl<'help> App<'help> {
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
-        self._build();
+        self._build_self();
 
         let usage = Usage::new(self);
         Help::new(HelpWriter::Normal(w), self, &usage, true).write_help()?;
@@ -838,7 +838,7 @@ impl<'help> App<'help> {
     pub fn render_usage(&mut self) -> String {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
-        self._build();
+        self._build_self();
 
         Usage::new(self).create_usage_with_title(&[])
     }
@@ -3963,7 +3963,7 @@ impl<'help> App<'help> {
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing in case we run into a subcommand
-        self._build();
+        self._build_self();
 
         let mut matcher = ArgMatcher::new(self);
 
@@ -3996,9 +3996,9 @@ impl<'help> App<'help> {
     /// Call this on the top-level [`Command`] when done building and before reading state for
     /// cases like completions, custom help output, etc.
     pub fn build(&mut self) {
-        self._build();
+        self._build_self();
         for subcmd in self.get_subcommands_mut() {
-            subcmd._build();
+            subcmd._build_self();
         }
         self._build_bin_names();
     }
@@ -4051,7 +4051,7 @@ impl<'help> App<'help> {
         ));
 
         // Ensure all args are built and ready to parse
-        sc._build();
+        sc._build_self();
 
         Some(sc)
     }
