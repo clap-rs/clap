@@ -3991,6 +3991,18 @@ impl<'help> App<'help> {
         self.build();
     }
 
+    #[doc(hidden)]
+    #[deprecated(since = "3.1.10", note = "Replaced with `Command::build`")]
+    pub fn _build(&mut self) {
+        self._build_self()
+    }
+
+    #[doc(hidden)]
+    #[deprecated(since = "3.1.13", note = "Replaced with `Command::build`")]
+    pub fn _build_bin_names(&mut self) {
+        self._build_bin_names_internal();
+    }
+
     /// Prepare for introspecting on all included [`Command`]s
     ///
     /// Call this on the top-level [`Command`] when done building and before reading state for
@@ -4001,65 +4013,6 @@ impl<'help> App<'help> {
             subcmd._build_self();
         }
         self._build_bin_names_internal();
-    }
-
-    pub(crate) fn _build_subcommand(&mut self, name: &str) -> Option<&mut Self> {
-        use std::fmt::Write;
-
-        let mut mid_string = String::from(" ");
-        if !self.is_subcommand_negates_reqs_set() {
-            let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
-
-            for s in &reqs {
-                mid_string.push_str(s);
-                mid_string.push(' ');
-            }
-        }
-
-        let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
-
-        // Display subcommand name, short and long in usage
-        let mut sc_names = sc.name.clone();
-        let mut flag_subcmd = false;
-        if let Some(l) = sc.long_flag {
-            write!(sc_names, "|--{}", l).unwrap();
-            flag_subcmd = true;
-        }
-        if let Some(s) = sc.short_flag {
-            write!(sc_names, "|-{}", s).unwrap();
-            flag_subcmd = true;
-        }
-
-        if flag_subcmd {
-            sc_names = format!("{{{}}}", sc_names);
-        }
-
-        sc.usage_name = Some(
-            self.bin_name
-                .as_ref()
-                .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
-                .unwrap_or(sc_names),
-        );
-
-        // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
-        // a space
-        sc.bin_name = Some(format!(
-            "{}{}{}",
-            self.bin_name.as_ref().unwrap_or(&String::new()),
-            if self.bin_name.is_some() { " " } else { "" },
-            &*sc.name
-        ));
-
-        // Ensure all args are built and ready to parse
-        sc._build_self();
-
-        Some(sc)
-    }
-
-    #[doc(hidden)]
-    #[deprecated(since = "3.1.10", note = "Replaced with `Command::build`")]
-    pub fn _build(&mut self) {
-        self._build_self()
     }
 
     pub(crate) fn _build_self(&mut self) {
@@ -4115,6 +4068,94 @@ impl<'help> App<'help> {
             self.settings.set(AppSettings::Built);
         } else {
             debug!("App::_build: already built");
+        }
+    }
+
+    pub(crate) fn _build_subcommand(&mut self, name: &str) -> Option<&mut Self> {
+        use std::fmt::Write;
+
+        let mut mid_string = String::from(" ");
+        if !self.is_subcommand_negates_reqs_set() {
+            let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
+
+            for s in &reqs {
+                mid_string.push_str(s);
+                mid_string.push(' ');
+            }
+        }
+
+        let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
+
+        // Display subcommand name, short and long in usage
+        let mut sc_names = sc.name.clone();
+        let mut flag_subcmd = false;
+        if let Some(l) = sc.long_flag {
+            write!(sc_names, "|--{}", l).unwrap();
+            flag_subcmd = true;
+        }
+        if let Some(s) = sc.short_flag {
+            write!(sc_names, "|-{}", s).unwrap();
+            flag_subcmd = true;
+        }
+
+        if flag_subcmd {
+            sc_names = format!("{{{}}}", sc_names);
+        }
+
+        sc.usage_name = Some(
+            self.bin_name
+                .as_ref()
+                .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
+                .unwrap_or(sc_names),
+        );
+
+        // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
+        // a space
+        sc.bin_name = Some(format!(
+            "{}{}{}",
+            self.bin_name.as_ref().unwrap_or(&String::new()),
+            if self.bin_name.is_some() { " " } else { "" },
+            &*sc.name
+        ));
+
+        // Ensure all args are built and ready to parse
+        sc._build_self();
+
+        Some(sc)
+    }
+
+    fn _build_bin_names_internal(&mut self) {
+        debug!("App::_build_bin_names");
+
+        if !self.is_set(AppSettings::BinNameBuilt) {
+            for mut sc in &mut self.subcommands {
+                debug!("App::_build_bin_names:iter: bin_name set...");
+
+                if sc.bin_name.is_none() {
+                    debug!("No");
+                    let bin_name = format!(
+                        "{}{}{}",
+                        self.bin_name.as_ref().unwrap_or(&self.name),
+                        if self.bin_name.is_some() { " " } else { "" },
+                        &*sc.name
+                    );
+                    debug!(
+                        "App::_build_bin_names:iter: Setting bin_name of {} to {}",
+                        self.name, bin_name
+                    );
+                    sc.bin_name = Some(bin_name);
+                } else {
+                    debug!("yes ({:?})", sc.bin_name);
+                }
+                debug!(
+                    "App::_build_bin_names:iter: Calling build_bin_names from...{}",
+                    sc.name
+                );
+                sc._build_bin_names_internal();
+            }
+            self.set(AppSettings::BinNameBuilt);
+        } else {
+            debug!("App::_build_bin_names: already built");
         }
     }
 
@@ -4382,47 +4423,6 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
         }
         for sc in &mut self.subcommands {
             sc._derive_display_order();
-        }
-    }
-
-    #[doc(hidden)]
-    #[deprecated(since = "3.1.13", note = "Replaced with `Command::build`")]
-    pub fn _build_bin_names(&mut self) {
-        self._build_bin_names_internal();
-    }
-
-    fn _build_bin_names_internal(&mut self) {
-        debug!("App::_build_bin_names");
-
-        if !self.is_set(AppSettings::BinNameBuilt) {
-            for mut sc in &mut self.subcommands {
-                debug!("App::_build_bin_names:iter: bin_name set...");
-
-                if sc.bin_name.is_none() {
-                    debug!("No");
-                    let bin_name = format!(
-                        "{}{}{}",
-                        self.bin_name.as_ref().unwrap_or(&self.name),
-                        if self.bin_name.is_some() { " " } else { "" },
-                        &*sc.name
-                    );
-                    debug!(
-                        "App::_build_bin_names:iter: Setting bin_name of {} to {}",
-                        self.name, bin_name
-                    );
-                    sc.bin_name = Some(bin_name);
-                } else {
-                    debug!("yes ({:?})", sc.bin_name);
-                }
-                debug!(
-                    "App::_build_bin_names:iter: Calling build_bin_names from...{}",
-                    sc.name
-                );
-                sc._build_bin_names();
-            }
-            self.set(AppSettings::BinNameBuilt);
-        } else {
-            debug!("App::_build_bin_names: already built");
         }
     }
 
