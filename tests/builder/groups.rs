@@ -178,12 +178,7 @@ fn req_group_usage_string() {
                 .required(true),
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test",
-        REQ_GROUP_USAGE,
-        true
-    ));
+    utils::assert_output(cmd, "clap-test", REQ_GROUP_USAGE, true);
 }
 
 #[test]
@@ -199,12 +194,12 @@ fn req_group_with_conflict_usage_string() {
                 .required(true),
         );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "clap-test --delete base",
         REQ_GROUP_CONFLICT_USAGE,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
@@ -219,12 +214,12 @@ fn req_group_with_conflict_usage_string_only_options() {
                 .args(&["all", "delete"])
                 .required(true),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "clap-test --delete --all",
         REQ_GROUP_CONFLICT_ONLY_OPTIONS,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
@@ -286,12 +281,7 @@ OPTIONS:
     let cmd = Command::new("prog")
         .arg(Arg::new("a").value_name("A"))
         .group(ArgGroup::new("group").arg("a").required(true));
-    assert!(utils::compare_output(
-        cmd,
-        "prog --help",
-        GROUP_USAGE_USE_VAL_NAME,
-        false,
-    ));
+    utils::assert_output(cmd, "prog --help", GROUP_USAGE_USE_VAL_NAME, false);
 }
 
 #[test]

@@ -672,12 +672,7 @@ fn req_last_arg_usage() {
                 .required(true)
                 .last(true),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "example --help",
-        LAST_ARG_REQ_MULT,
-        false
-    ));
+    utils::assert_output(cmd, "example --help", LAST_ARG_REQ_MULT, false);
 }
 
 #[test]
@@ -719,12 +714,7 @@ fn args_with_last_usage() {
                 .last(true)
                 .value_name("ARGS"),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "flamegraph --help",
-        LAST_ARG_USAGE,
-        false
-    ));
+    utils::assert_output(cmd, "flamegraph --help", LAST_ARG_USAGE, false);
 }
 
 #[test]
@@ -753,12 +743,7 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    assert!(utils::compare_output(
-        utils::complex_app(),
-        "clap-test --help",
-        HELP,
-        false
-    ));
+    utils::assert_output(utils::complex_app(), "clap-test --help", HELP, false);
 }
 
 #[test]
@@ -768,18 +753,8 @@ fn after_and_before_help_output() {
         .about("tests clap library")
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
-    assert!(utils::compare_output(
-        cmd.clone(),
-        "clap-test -h",
-        AFTER_HELP,
-        false
-    ));
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test --help",
-        AFTER_HELP,
-        false
-    ));
+    utils::assert_output(cmd.clone(), "clap-test -h", AFTER_HELP, false);
+    utils::assert_output(cmd, "clap-test --help", AFTER_HELP, false);
 }
 
 #[test]
@@ -791,18 +766,8 @@ fn after_and_before_long_help_output() {
         .after_help("some text that comes after the help")
         .before_long_help("some longer text that comes before the help")
         .after_long_help("some longer text that comes after the help");
-    assert!(utils::compare_output(
-        cmd.clone(),
-        "clap-test --help",
-        AFTER_LONG_HELP,
-        false
-    ));
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test -h",
-        AFTER_HELP,
-        false
-    ));
+    utils::assert_output(cmd.clone(), "clap-test --help", AFTER_LONG_HELP, false);
+    utils::assert_output(cmd, "clap-test -h", AFTER_HELP, false);
 }
 
 #[test]
@@ -826,12 +791,7 @@ fn multi_level_sc_help() {
                 ),
         ),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest help subcmd multi",
-        MULTI_SC_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "ctest help subcmd multi", MULTI_SC_HELP, false);
 }
 
 #[test]
@@ -839,23 +799,13 @@ fn no_wrap_help() {
     let cmd = Command::new("ctest")
         .term_width(0)
         .override_help(MULTI_SC_HELP);
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        &format!("{}\n", MULTI_SC_HELP),
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", &format!("{}\n", MULTI_SC_HELP), false);
 }
 
 #[test]
 fn no_wrap_default_help() {
     let cmd = Command::new("ctest").version("1.0").term_width(0);
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        DEFAULT_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", DEFAULT_HELP, false);
 }
 
 #[test]
@@ -907,12 +857,7 @@ OPTIONS:
                 .long("no-git-push")
                 .help("Do not push generated commit and tags to git remote"),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        WRAPPED_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", WRAPPED_HELP, false);
 }
 
 #[test]
@@ -956,12 +901,7 @@ OPTIONS:
                 .long("no-git-push")
                 .help("Do not push generated commit and tags to git remote"),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        UNWRAPPED_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", UNWRAPPED_HELP, false);
 }
 
 #[test]
@@ -1039,23 +979,13 @@ OPTIONS:
                 )
                 .possible_value(PossibleValue::new("second").help("short help")),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        WRAPPED_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", WRAPPED_HELP, false);
 }
 
 #[test]
 fn complex_subcommand_help_output() {
     let a = utils::complex_app();
-    assert!(utils::compare_output(
-        a,
-        "clap-test subcmd --help",
-        SC_HELP,
-        false
-    ));
+    utils::assert_output(a, "clap-test subcmd --help", SC_HELP, false);
 }
 
 #[test]
@@ -1075,12 +1005,7 @@ fn issue_626_unicode_cutoff() {
             )
             .takes_value(true),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        ISSUE_626_CUTOFF,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", ISSUE_626_CUTOFF, false);
 }
 
 #[test]
@@ -1106,12 +1031,7 @@ fn hide_possible_vals() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        HIDE_POS_VALS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", HIDE_POS_VALS, false);
 }
 
 #[test]
@@ -1136,12 +1056,7 @@ fn hide_single_possible_val() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        HIDE_POS_VALS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", HIDE_POS_VALS, false);
 }
 
 #[test]
@@ -1202,12 +1117,7 @@ OPTIONS:
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
-    assert!(utils::compare_output(
-        app,
-        "ctest --help",
-        POS_VALS_HELP,
-        false
-    ));
+    utils::assert_output(app, "ctest --help", POS_VALS_HELP, false);
 }
 
 #[test]
@@ -1223,12 +1133,7 @@ fn issue_626_panic() {
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .takes_value(true));
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        ISSUE_626_PANIC,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", ISSUE_626_PANIC, false);
 }
 
 #[test]
@@ -1252,12 +1157,7 @@ fn issue_626_variable_panic() {
 #[test]
 fn final_word_wrapping() {
     let cmd = Command::new("ctest").version("0.1").term_width(24);
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        FINAL_WORD_WRAPPING,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", FINAL_WORD_WRAPPING, false);
 }
 
 #[test]
@@ -1270,12 +1170,7 @@ fn wrapping_newline_chars() {
              l, long           Copy-friendly, 14 characters, contains symbols.\n\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.\n",
         ));
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        WRAPPING_NEWLINE_CHARS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", WRAPPING_NEWLINE_CHARS, false);
 }
 
 #[test]
@@ -1288,12 +1183,7 @@ fn wrapping_newline_variables() {
              l, long           Copy-friendly, 14 characters, contains symbols.{n}\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
         ));
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        WRAPPING_NEWLINE_CHARS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", WRAPPING_NEWLINE_CHARS, false);
 }
 
 #[test]
@@ -1303,12 +1193,7 @@ fn old_newline_chars() {
             .short('m')
             .help("Some help with some wrapping\n(Defaults to something)"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        OLD_NEWLINE_CHARS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", OLD_NEWLINE_CHARS, false);
 }
 
 #[test]
@@ -1318,12 +1203,7 @@ fn old_newline_variables() {
             .short('m')
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        OLD_NEWLINE_CHARS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", OLD_NEWLINE_CHARS, false);
 }
 
 #[test]
@@ -1340,12 +1220,7 @@ fn issue_688_hide_pos_vals() {
 				.long("filter")
 				.possible_values(filter_values)
 				.takes_value(true));
-    assert!(utils::compare_output(
-        app1,
-        "ctest --help",
-        ISSUE_688,
-        false
-    ));
+    utils::assert_output(app1, "ctest --help", ISSUE_688, false);
 
     let app2 = Command::new("ctest")
             .version("0.1")
@@ -1356,12 +1231,7 @@ fn issue_688_hide_pos_vals() {
 				.long("filter")
 				.possible_values(filter_values)
 				.takes_value(true));
-    assert!(utils::compare_output(
-        app2,
-        "ctest --help",
-        ISSUE_688,
-        false
-    ));
+    utils::assert_output(app2, "ctest --help", ISSUE_688, false);
 
     let app3 = Command::new("ctest")
             .version("0.1")
@@ -1371,12 +1241,7 @@ fn issue_688_hide_pos_vals() {
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.takes_value(true));
-    assert!(utils::compare_output(
-        app3,
-        "ctest --help",
-        ISSUE_688,
-        false
-    ));
+    utils::assert_output(app3, "ctest --help", ISSUE_688, false);
 }
 
 #[test]
@@ -1414,7 +1279,7 @@ fn issue_702_multiple_values() {
                 .multiple_values(true)
                 .takes_value(true),
         );
-    assert!(utils::compare_output(cmd, "myapp --help", ISSUE_702, false));
+    utils::assert_output(cmd, "myapp --help", ISSUE_702, false);
 }
 
 #[test]
@@ -1427,12 +1292,7 @@ fn long_about() {
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
         )
         .arg(Arg::new("arg1").help("some option"));
-    assert!(utils::compare_output(
-        cmd,
-        "myapp --help",
-        LONG_ABOUT,
-        false
-    ));
+    utils::assert_output(cmd, "myapp --help", LONG_ABOUT, false);
 }
 
 #[test]
@@ -1455,7 +1315,7 @@ fn issue_760() {
                 .long("opt")
                 .takes_value(true),
         );
-    assert!(utils::compare_output(cmd, "ctest --help", ISSUE_760, false));
+    utils::assert_output(cmd, "ctest --help", ISSUE_760, false);
 }
 
 #[test]
@@ -1468,7 +1328,7 @@ fn issue_1571() {
             .takes_value(true)
             .multiple_values(true),
     );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "hello --help",
         "hello 
@@ -1480,8 +1340,8 @@ OPTIONS:
     -h, --help              Print help information
     -p, --package <name>    
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -1493,12 +1353,7 @@ fn ripgrep_usage() {
     rg [OPTIONS] --type-list",
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "rg --help",
-        RIPGREP_USAGE,
-        false
-    ));
+    utils::assert_output(cmd, "rg --help", RIPGREP_USAGE, false);
 }
 
 #[test]
@@ -1522,12 +1377,7 @@ OPTIONS:
 {options}",
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "rg --help",
-        RIPGREP_USAGE,
-        false
-    ));
+    utils::assert_output(cmd, "rg --help", RIPGREP_USAGE, false);
 }
 
 #[test]
@@ -1538,12 +1388,7 @@ fn sc_negates_reqs() {
         .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(Command::new("test"));
-    assert!(utils::compare_output(
-        cmd,
-        "prog --help",
-        SC_NEGATES_REQS,
-        false
-    ));
+    utils::assert_output(cmd, "prog --help", SC_NEGATES_REQS, false);
 }
 
 #[test]
@@ -1553,12 +1398,7 @@ fn hide_args() {
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("pos").hide(true));
-    assert!(utils::compare_output(
-        cmd,
-        "prog --help",
-        HIDDEN_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "prog --help", HIDDEN_ARGS, false);
 }
 
 #[test]
@@ -1570,12 +1410,7 @@ fn args_negate_sc() {
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(Command::new("test"));
-    assert!(utils::compare_output(
-        cmd,
-        "prog --help",
-        ARGS_NEGATE_SC,
-        false
-    ));
+    utils::assert_output(cmd, "prog --help", ARGS_NEGATE_SC, false);
 }
 
 #[test]
@@ -1586,12 +1421,7 @@ fn issue_1046_hide_scs() {
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("some"))
         .subcommand(Command::new("test").hide(true));
-    assert!(utils::compare_output(
-        cmd,
-        "prog --help",
-        ISSUE_1046_HIDDEN_SCS,
-        false
-    ));
+    utils::assert_output(cmd, "prog --help", ISSUE_1046_HIDDEN_SCS, false);
 }
 
 #[test]
@@ -1601,7 +1431,7 @@ fn issue_777_wrap_all_things() {
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
         .term_width(35);
-    assert!(utils::compare_output(cmd, "ctest --help", ISSUE_777, false));
+    utils::assert_output(cmd, "ctest --help", ISSUE_777, false);
 }
 
 static OVERRIDE_HELP_SHORT: &str = "test 0.1
@@ -1620,18 +1450,8 @@ fn override_help_short() {
         .version("0.1")
         .mut_arg("help", |h| h.short('H'));
 
-    assert!(utils::compare_output(
-        cmd.clone(),
-        "test --help",
-        OVERRIDE_HELP_SHORT,
-        false
-    ));
-    assert!(utils::compare_output(
-        cmd,
-        "test -H",
-        OVERRIDE_HELP_SHORT,
-        false
-    ));
+    utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_SHORT, false);
+    utils::assert_output(cmd, "test -H", OVERRIDE_HELP_SHORT, false);
 }
 
 static OVERRIDE_HELP_LONG: &str = "test 0.1
@@ -1650,18 +1470,8 @@ fn override_help_long() {
         .version("0.1")
         .mut_arg("help", |h| h.long("hell"));
 
-    assert!(utils::compare_output(
-        cmd.clone(),
-        "test --hell",
-        OVERRIDE_HELP_LONG,
-        false
-    ));
-    assert!(utils::compare_output(
-        cmd,
-        "test -h",
-        OVERRIDE_HELP_LONG,
-        false
-    ));
+    utils::assert_output(cmd.clone(), "test --hell", OVERRIDE_HELP_LONG, false);
+    utils::assert_output(cmd, "test -h", OVERRIDE_HELP_LONG, false);
 }
 
 static OVERRIDE_HELP_ABOUT: &str = "test 0.1
@@ -1680,30 +1490,15 @@ fn override_help_about() {
         .version("0.1")
         .mut_arg("help", |h| h.help("Print help information"));
 
-    assert!(utils::compare_output(
-        cmd.clone(),
-        "test --help",
-        OVERRIDE_HELP_ABOUT,
-        false
-    ));
-    assert!(utils::compare_output(
-        cmd,
-        "test -h",
-        OVERRIDE_HELP_ABOUT,
-        false
-    ));
+    utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_ABOUT, false);
+    utils::assert_output(cmd, "test -h", OVERRIDE_HELP_ABOUT, false);
 }
 
 #[test]
 fn arg_short_conflict_with_help() {
     let cmd = Command::new("conflict").arg(Arg::new("home").short('h'));
 
-    assert!(utils::compare_output(
-        cmd,
-        "conflict --help",
-        HELP_CONFLICT,
-        false
-    ));
+    utils::assert_output(cmd, "conflict --help", HELP_CONFLICT, false);
 }
 
 #[cfg(debug_assertions)]
@@ -1729,7 +1524,7 @@ fn last_arg_mult_usage() {
                 .last(true)
                 .help("some"),
         );
-    assert!(utils::compare_output(cmd, "last --help", LAST_ARG, false));
+    utils::assert_output(cmd, "last --help", LAST_ARG, false);
 }
 
 #[test]
@@ -1746,12 +1541,7 @@ fn last_arg_mult_usage_req() {
                 .required(true)
                 .help("some"),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "last --help",
-        LAST_ARG_REQ,
-        false
-    ));
+    utils::assert_output(cmd, "last --help", LAST_ARG_REQ, false);
 }
 
 #[test]
@@ -1770,12 +1560,7 @@ fn last_arg_mult_usage_req_with_sc() {
                 .help("some"),
         )
         .subcommand(Command::new("test").about("some"));
-    assert!(utils::compare_output(
-        cmd,
-        "last --help",
-        LAST_ARG_REQ_SC,
-        false
-    ));
+    utils::assert_output(cmd, "last --help", LAST_ARG_REQ_SC, false);
 }
 
 #[test]
@@ -1793,12 +1578,7 @@ fn last_arg_mult_usage_with_sc() {
                 .help("some"),
         )
         .subcommand(Command::new("test").about("some"));
-    assert!(utils::compare_output(
-        cmd,
-        "last --help",
-        LAST_ARG_SC,
-        false
-    ));
+    utils::assert_output(cmd, "last --help", LAST_ARG_SC, false);
 }
 
 #[test]
@@ -1810,12 +1590,7 @@ fn hide_default_val() {
             .default_value("default-argument")
             .hide_default_value(true),
     );
-    assert!(utils::compare_output(
-        app1,
-        "default --help",
-        HIDE_DEFAULT_VAL,
-        false
-    ));
+    utils::assert_output(app1, "default --help", HIDE_DEFAULT_VAL, false);
 
     let app2 = Command::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
@@ -1823,12 +1598,7 @@ fn hide_default_val() {
             .long("arg")
             .default_value("default-argument"),
     );
-    assert!(utils::compare_output(
-        app2,
-        "default --help",
-        HIDE_DEFAULT_VAL,
-        false
-    ));
+    utils::assert_output(app2, "default --help", HIDE_DEFAULT_VAL, false);
 }
 
 #[test]
@@ -1840,12 +1610,7 @@ fn escaped_whitespace_values() {
             .default_value("\n")
             .possible_values(["normal", " ", "\n", "\t", "other"]),
     );
-    assert!(utils::compare_output(
-        app1,
-        "default --help",
-        ESCAPED_DEFAULT_VAL,
-        false
-    ));
+    utils::assert_output(app1, "default --help", ESCAPED_DEFAULT_VAL, false);
 }
 
 fn issue_1112_setup() -> Command<'static> {
@@ -1913,12 +1678,7 @@ fn issue_1052_require_delim_help() {
                 .value_delimiter(':'),
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        REQUIRE_DELIM_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", REQUIRE_DELIM_HELP, false);
 }
 
 #[test]
@@ -1945,12 +1705,7 @@ fn custom_headers_headers() {
         )
         .args(&[Arg::new("port").long("port")]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        CUSTOM_HELP_SECTION,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", CUSTOM_HELP_SECTION, false);
 }
 
 static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "blorp 1.4
@@ -2031,12 +1786,7 @@ fn multiple_custom_help_headers() {
                 .takes_value(true),
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        MULTIPLE_CUSTOM_HELP_SECTIONS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", MULTIPLE_CUSTOM_HELP_SECTIONS, false);
 }
 
 static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "blorp 1.4
@@ -2089,12 +1839,7 @@ fn custom_help_headers_hide_args() {
                 .hide_short_help(true),
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "test -h",
-        CUSTOM_HELP_SECTION_HIDDEN_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test -h", CUSTOM_HELP_SECTION_HIDDEN_ARGS, false);
 }
 
 static ISSUE_897: &str = "ctest-foo 0.1
@@ -2119,12 +1864,7 @@ fn show_long_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest foo --help",
-        ISSUE_897,
-        false
-    ));
+    utils::assert_output(cmd, "ctest foo --help", ISSUE_897, false);
 }
 
 static ISSUE_897_SHORT: &str = "ctest-foo 0.1
@@ -2146,12 +1886,7 @@ fn show_short_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ctest foo -h",
-        ISSUE_897_SHORT,
-        false
-    ));
+    utils::assert_output(cmd, "ctest foo -h", ISSUE_897_SHORT, false);
 }
 
 #[test]
@@ -2171,7 +1906,7 @@ fn issue_1364_no_short_options() {
                 .multiple_values(true),
         );
 
-    assert!(utils::compare_output(cmd, "demo -h", ISSUE_1364, false));
+    utils::assert_output(cmd, "demo -h", ISSUE_1364, false);
 }
 
 #[rustfmt::skip]
@@ -2185,7 +1920,7 @@ fn issue_1487() {
         .group(ArgGroup::new("group1")
             .args(&["arg1", "arg2"])
             .required(true));
-    assert!(utils::compare_output(cmd, "ctest -h", ISSUE_1487, false));
+    utils::assert_output(cmd, "ctest -h", ISSUE_1487, false);
 }
 
 #[cfg(debug_assertions)]
@@ -2292,7 +2027,7 @@ with only valid keys and may not contain other nonsense
 that cannot be read by this program. Obviously I'm going on
 and on, so I'll stop now.",
     ));
-    assert!(utils::compare_output(cmd, "prog --help", ISSUE_1642, false));
+    utils::assert_output(cmd, "prog --help", ISSUE_1642, false);
 }
 
 const AFTER_HELP_NO_ARGS: &str = "myapp 1.0
@@ -2339,12 +2074,7 @@ fn help_subcmd_help() {
         .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
-    assert!(utils::compare_output(
-        cmd.clone(),
-        "myapp help help",
-        HELP_SUBCMD_HELP,
-        false
-    ));
+    utils::assert_output(cmd.clone(), "myapp help help", HELP_SUBCMD_HELP, false);
 }
 
 static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
@@ -2366,12 +2096,12 @@ fn subcmd_help_subcmd_help() {
         .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd.clone(),
         "myapp subcmd help help",
         SUBCMD_HELP_SUBCMD_HELP,
-        false
-    ));
+        false,
+    );
 }
 
 static HELP_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
@@ -2400,24 +2130,19 @@ fn help_about_multi_subcmd() {
         .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd.clone(),
         "myapp help subcmd multi",
         HELP_ABOUT_MULTI_SC,
-        false
-    ));
-    assert!(utils::compare_output(
+        false,
+    );
+    utils::assert_output(
         cmd.clone(),
         "myapp subcmd multi -h",
         HELP_ABOUT_MULTI_SC,
-        false
-    ));
-    assert!(utils::compare_output(
-        cmd,
-        "myapp subcmd multi --help",
-        HELP_ABOUT_MULTI_SC,
-        false
-    ));
+        false,
+    );
+    utils::assert_output(cmd, "myapp subcmd multi --help", HELP_ABOUT_MULTI_SC, false);
 }
 
 #[test]
@@ -2432,24 +2157,24 @@ fn help_about_multi_subcmd_override() {
             ),
         );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd.clone(),
         "myapp help subcmd multi",
         HELP_ABOUT_MULTI_SC_OVERRIDE,
-        false
-    ));
-    assert!(utils::compare_output(
+        false,
+    );
+    utils::assert_output(
         cmd.clone(),
         "myapp subcmd multi -h",
         HELP_ABOUT_MULTI_SC_OVERRIDE,
-        false
-    ));
-    assert!(utils::compare_output(
+        false,
+    );
+    utils::assert_output(
         cmd,
         "myapp subcmd multi --help",
         HELP_ABOUT_MULTI_SC_OVERRIDE,
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2464,12 +2189,7 @@ fn option_usage_order() {
         Arg::new("x").short('x'),
     ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "order --help",
-        OPTION_USAGE_ORDER,
-        false
-    ));
+    utils::assert_output(cmd, "order --help", OPTION_USAGE_ORDER, false);
 }
 
 #[test]
@@ -2480,12 +2200,12 @@ fn prefer_about_over_long_about_in_subcommands_list() {
             .about("short about sub"),
     );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "about-in-subcommands-list --help",
         ABOUT_IN_SUBCOMMANDS_LIST,
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2515,12 +2235,7 @@ OPTIONS:
         )
         .arg(Arg::new("pos2").takes_value(true));
 
-    assert!(utils::compare_output(
-        cmd,
-        "deno --help",
-        USAGE_WITH_GROUP,
-        false
-    ));
+    utils::assert_output(cmd, "deno --help", USAGE_WITH_GROUP, false);
 }
 
 static CUSTOM_HEADING_POS: &str = "test 1.4
@@ -2547,12 +2262,7 @@ fn custom_heading_pos() {
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        CUSTOM_HEADING_POS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", CUSTOM_HEADING_POS, false);
 }
 
 static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "test 1.4
@@ -2573,12 +2283,7 @@ fn only_custom_heading_opts_no_args() {
         .next_help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        ONLY_CUSTOM_HEADING_OPTS_NO_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", ONLY_CUSTOM_HEADING_OPTS_NO_ARGS, false);
 }
 
 static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "test 1.4
@@ -2599,12 +2304,7 @@ fn only_custom_heading_pos_no_args() {
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        ONLY_CUSTOM_HEADING_POS_NO_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", ONLY_CUSTOM_HEADING_POS_NO_ARGS, false);
 }
 
 #[test]
@@ -2617,7 +2317,7 @@ fn issue_2508_number_of_values_with_single_value_name() {
                 .number_of_values(2)
                 .value_name("ARG"),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "my_app --help",
         "my_app 
@@ -2630,8 +2330,8 @@ OPTIONS:
         --some_arg <some_arg> <some_arg>    
         --some_arg_issue <ARG> <ARG>        
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2640,7 +2340,7 @@ fn missing_positional_final_required() {
         .allow_missing_positional(true)
         .arg(Arg::new("arg1"))
         .arg(Arg::new("arg2").required(true));
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -2655,8 +2355,8 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2666,7 +2366,7 @@ fn missing_positional_final_multiple() {
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
         .arg(Arg::new("baz").takes_value(true).multiple_values(true));
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -2682,8 +2382,8 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2694,7 +2394,7 @@ fn positional_multiple_values_is_dotted() {
             .takes_value(true)
             .multiple_values(true),
     );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -2708,8 +2408,8 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ",
-        false
-    ));
+        false,
+    );
 
     let cmd = Command::new("test").arg(
         Arg::new("foo")
@@ -2718,7 +2418,7 @@ OPTIONS:
             .value_name("BAR")
             .multiple_values(true),
     );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -2732,8 +2432,8 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2744,7 +2444,7 @@ fn positional_multiple_occurrences_is_dotted() {
             .takes_value(true)
             .multiple_occurrences(true),
     );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -2758,8 +2458,8 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ",
-        false
-    ));
+        false,
+    );
 
     let cmd = Command::new("test").arg(
         Arg::new("foo")
@@ -2768,7 +2468,7 @@ OPTIONS:
             .value_name("BAR")
             .multiple_occurrences(true),
     );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -2782,8 +2482,8 @@ ARGS:
 OPTIONS:
     -h, --help    Print help information
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2851,7 +2551,7 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
     // currently ignores the `--help` flag, the output shouldn't have it.
     let cmd = Command::new("test_app").subcommand(Command::new("test").about("Subcommand"));
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "example help help",
         "example-help 
@@ -2863,8 +2563,8 @@ USAGE:
 ARGS:
     <SUBCOMMAND>...    The subcommand whose help message to display
 ",
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -2894,7 +2594,7 @@ fn dont_propagate_version_to_help_subcommand() {
         .propagate_version(true)
         .subcommand(clap::Command::new("subcommand"));
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd.clone(),
         "example help help",
         "example-help 
@@ -2906,8 +2606,8 @@ USAGE:
 ARGS:
     <SUBCOMMAND>...    The subcommand whose help message to display
 ",
-        false
-    ));
+        false,
+    );
 
     cmd.debug_assert();
 }

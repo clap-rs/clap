@@ -61,12 +61,7 @@ For more information try --help
             .takes_value(true)
             .long("config"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "prog --config file.conf",
-        NO_EQUALS,
-        true
-    ));
+    utils::assert_output(cmd, "prog --config file.conf", NO_EQUALS, true);
 }
 
 #[test]
@@ -427,12 +422,7 @@ fn leading_hyphen_with_only_pos_follows() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn did_you_mean() {
-    assert!(utils::compare_output(
-        utils::complex_app(),
-        "clap-test --optio=foo",
-        DYM,
-        true
-    ));
+    utils::assert_output(utils::complex_app(), "clap-test --optio=foo", DYM, true);
 }
 
 #[test]
@@ -520,12 +510,12 @@ fn issue_1073_suboptimal_flag_suggestion() {
     let cmd = Command::new("ripgrep-616")
         .arg(Arg::new("files-with-matches").long("files-with-matches"))
         .arg(Arg::new("files-without-match").long("files-without-match"));
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "ripgrep-616 --files-without-matches",
         DYM_ISSUE_1073,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]

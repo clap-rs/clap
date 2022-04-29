@@ -2,12 +2,7 @@ use crate::utils;
 
 use clap::{arg, error::ErrorKind, Arg, Command, Error};
 
-fn compare_error(
-    err: Error,
-    expected_kind: ErrorKind,
-    expected_output: &str,
-    stderr: bool,
-) -> bool {
+fn assert_error(err: Error, expected_kind: ErrorKind, expected_output: &str, stderr: bool) {
     let actual_output = err.to_string();
     assert_eq!(
         stderr,
@@ -17,7 +12,7 @@ fn compare_error(
         err.use_stderr()
     );
     assert_eq!(expected_kind, err.kind());
-    utils::compare(expected_output, actual_output)
+    utils::assert_eq(expected_output, actual_output)
 }
 
 #[test]
@@ -55,7 +50,7 @@ For more information try --help
     let mut cmd = cmd;
     let expected_kind = ErrorKind::InvalidValue;
     let err = cmd.error(expected_kind, "Failed for mysterious reasons");
-    assert!(compare_error(err, expected_kind, MESSAGE, true));
+    assert_error(err, expected_kind, MESSAGE, true);
 }
 
 #[test]

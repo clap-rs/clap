@@ -68,23 +68,13 @@ SUBCOMMANDS:
 #[test]
 fn with_template() {
     let cmd = get_app().help_template(EXAMPLE1_TMPL_S);
-    assert!(utils::compare_output(
-        cmd,
-        "MyApp --help",
-        SIMPLE_TEMPLATE,
-        false
-    ));
+    utils::assert_output(cmd, "MyApp --help", SIMPLE_TEMPLATE, false);
 }
 
 #[test]
 fn custom_template() {
     let cmd = get_app().help_template(EXAMPLE1_TMPS_F);
-    assert!(utils::compare_output(
-        cmd,
-        "MyApp --help",
-        CUSTOM_TEMPL_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "MyApp --help", CUSTOM_TEMPL_HELP, false);
 }
 
 #[test]
@@ -94,7 +84,7 @@ fn template_empty() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("");
-    assert!(utils::compare_output(cmd, "MyApp --help", "\n", false));
+    utils::assert_output(cmd, "MyApp --help", "\n", false);
 }
 
 #[test]
@@ -104,12 +94,7 @@ fn template_notag() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("test no tag test");
-    assert!(utils::compare_output(
-        cmd,
-        "MyApp --help",
-        "test no tag test\n",
-        false
-    ));
+    utils::assert_output(cmd, "MyApp --help", "test no tag test\n", false);
 }
 
 #[test]
@@ -119,12 +104,7 @@ fn template_unknowntag() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("test {unknown_tag} test");
-    assert!(utils::compare_output(
-        cmd,
-        "MyApp --help",
-        "test {unknown_tag} test\n",
-        false
-    ));
+    utils::assert_output(cmd, "MyApp --help", "test {unknown_tag} test\n", false);
 }
 
 #[test]
@@ -134,12 +114,12 @@ fn template_author_version() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("{author}\n{version}\n{about}\n{bin}");
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "MyApp --help",
         "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp\n",
-        false
-    ));
+        false,
+    );
 }
 
 // ----------

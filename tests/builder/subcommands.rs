@@ -174,12 +174,12 @@ fn subcommand_display_order() {
             .arg(Arg::new("roster").short('r')),
     ]);
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         app_subcmd_alpha_order,
         "test --help",
         SUBCMD_ALPHA_ORDER,
         false,
-    ));
+    );
 
     let app_subcmd_decl_order = Command::new("test")
         .version("1")
@@ -193,12 +193,12 @@ fn subcommand_display_order() {
                 .arg(Arg::new("roster").short('r')),
         ]);
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         app_subcmd_decl_order,
         "test --help",
         SUBCMD_DECL_ORDER,
         false,
-    ));
+    );
 }
 
 #[test]
@@ -223,7 +223,7 @@ fn multiple_aliases() {
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output() {
     let cmd = Command::new("dym").subcommand(Command::new("subcmd"));
-    assert!(utils::compare_output(cmd, "dym subcm", DYM_SUBCMD, true));
+    utils::assert_output(cmd, "dym subcm", DYM_SUBCMD, true);
 }
 
 #[test]
@@ -232,12 +232,7 @@ fn subcmd_did_you_mean_output_ambiguous() {
     let cmd = Command::new("dym")
         .subcommand(Command::new("test"))
         .subcommand(Command::new("temp"));
-    assert!(utils::compare_output(
-        cmd,
-        "dym te",
-        DYM_SUBCMD_AMBIGUOUS,
-        true
-    ));
+    utils::assert_output(cmd, "dym te", DYM_SUBCMD_AMBIGUOUS, true);
 }
 
 #[test]
@@ -260,12 +255,7 @@ For more information try --help
         Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "dym --subcmarg subcmd",
-        EXPECTED,
-        true
-    ));
+    utils::assert_output(cmd, "dym --subcmarg subcmd", EXPECTED, true);
 }
 
 #[test]
@@ -286,12 +276,7 @@ For more information try --help
         Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "dym --subcmarg foo",
-        EXPECTED,
-        true
-    ));
+    utils::assert_output(cmd, "dym --subcmarg foo", EXPECTED, true);
 }
 
 #[test]
@@ -312,12 +297,7 @@ fn visible_aliases_help_output() {
             .visible_alias("dongle")
             .visible_alias("done"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test --help",
-        VISIBLE_ALIAS_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
 }
 
 #[test]
@@ -325,12 +305,7 @@ fn invisible_aliases_help_output() {
     let cmd = Command::new("clap-test")
         .version("2.6")
         .subcommand(Command::new("test").about("Some help").alias("invisible"));
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test --help",
-        INVISIBLE_ALIAS_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "clap-test --help", INVISIBLE_ALIAS_HELP, false);
 }
 
 #[test]
@@ -449,12 +424,7 @@ fn subcommand_placeholder_test() {
 fn subcommand_used_after_double_dash() {
     let cmd = Command::new("cmd").subcommand(Command::new("subcmd"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "cmd -- subcmd",
-        SUBCMD_AFTER_DOUBLE_DASH,
-        true
-    ));
+    utils::assert_output(cmd, "cmd -- subcmd", SUBCMD_AFTER_DOUBLE_DASH, true);
 }
 
 #[test]
@@ -510,7 +480,7 @@ fn subcommand_not_recognized() {
         .subcommand(Command::new("sub"))
         .disable_help_subcommand(true)
         .infer_subcommands(true);
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "fake help",
         "error: The subcommand 'help' wasn't recognized
@@ -520,8 +490,8 @@ USAGE:
 
 For more information try --help
 ",
-        true
-    ));
+        true,
+    );
 }
 
 #[cfg(feature = "unstable-multicall")]

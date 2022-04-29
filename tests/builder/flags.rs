@@ -160,12 +160,7 @@ fn issue_1284_argument_in_flag_style() {
         .unwrap();
     assert_eq!(m.value_of("filename"), Some("--a-flag"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "mycat --another-flag",
-        USE_FLAG_AS_ARGUMENT,
-        true
-    ));
+    utils::assert_output(cmd, "mycat --another-flag", USE_FLAG_AS_ARGUMENT, true);
 }
 
 #[test]
@@ -182,10 +177,5 @@ For more information try --help
 ";
     let cmd = Command::new("test").arg(Arg::new("arg").takes_value(true).required(true));
 
-    assert!(utils::compare_output(
-        cmd,
-        "test -----",
-        MULTIPLE_DASHES,
-        true
-    ));
+    utils::assert_output(cmd, "test -----", MULTIPLE_DASHES, true);
 }

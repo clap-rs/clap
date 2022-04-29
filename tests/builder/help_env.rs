@@ -109,7 +109,7 @@ fn hide_env() {
             .takes_value(true),
     );
 
-    assert!(utils::compare_output(cmd, "ctest --help", HIDE_ENV, false));
+    utils::assert_output(cmd, "ctest --help", HIDE_ENV, false);
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn show_env() {
             .takes_value(true),
     );
 
-    assert!(utils::compare_output(cmd, "ctest --help", SHOW_ENV, false));
+    utils::assert_output(cmd, "ctest --help", SHOW_ENV, false);
 }
 
 #[test]
@@ -144,12 +144,7 @@ fn hide_env_vals() {
             .takes_value(true),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        HIDE_ENV_VALS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", HIDE_ENV_VALS, false);
 }
 
 #[test]
@@ -166,12 +161,7 @@ fn show_env_vals() {
             .takes_value(true),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        SHOW_ENV_VALS,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", SHOW_ENV_VALS, false);
 }
 
 #[test]
@@ -187,12 +177,7 @@ fn hide_env_flag() {
             .help("A coffeehouse, coffee shop, or café."),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        HIDE_ENV_FLAG,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", HIDE_ENV_FLAG, false);
 }
 
 #[test]
@@ -207,12 +192,7 @@ fn show_env_flag() {
             .help("A coffeehouse, coffee shop, or café."),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        SHOW_ENV_FLAG,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", SHOW_ENV_FLAG, false);
 }
 
 #[test]
@@ -228,12 +208,7 @@ fn hide_env_vals_flag() {
             .help("A coffeehouse, coffee shop, or café."),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        HIDE_ENV_VALS_FLAG,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", HIDE_ENV_VALS_FLAG, false);
 }
 
 #[test]
@@ -248,10 +223,5 @@ fn show_env_vals_flag() {
             .help("A coffeehouse, coffee shop, or café."),
     );
 
-    assert!(utils::compare_output(
-        cmd,
-        "ctest --help",
-        SHOW_ENV_VALS_FLAG,
-        false
-    ));
+    utils::assert_output(cmd, "ctest --help", SHOW_ENV_VALS_FLAG, false);
 }

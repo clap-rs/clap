@@ -124,10 +124,5 @@ USAGE:
 For more information try --help
 ";
 
-    assert!(utils::compare_output(
-        cmd,
-        "config --config",
-        NO_EUQALS_ERROR,
-        true
-    ));
+    utils::assert_output(cmd, "config --config", NO_EUQALS_ERROR, true);
 }

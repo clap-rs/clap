@@ -7,57 +7,25 @@ use regex::Regex;
 
 use clap::{arg, Arg, ArgGroup, Command};
 
-pub fn compare<S, S2>(l: S, r: S2) -> bool
+#[track_caller]
+pub fn assert_eq<S, S2>(expected: S, actual: S2)
 where
     S: AsRef<str>,
     S2: AsRef<str>,
 {
-    let re = Regex::new("\x1b[^m]*m").unwrap();
-    // Strip out any mismatching \r character on windows that might sneak in on either side
-    let ls = l.as_ref().replace('\r', "");
-    let rs = r.as_ref().replace('\r', "");
-    let left_ = re.replace_all(&*ls, "");
-    let right = re.replace_all(&*rs, "");
-    let b = left_ == right;
-    let line_diff = left_
-        .lines()
-        .zip(right.lines())
-        .enumerate()
-        .filter_map(|(line, (left, right))| {
-            if left != right {
-                Some(format!("Line {}:\n{}\n{}", line, left, right))
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    let line_count_diff = (left_.lines().count() as isize) - right.lines().count() as isize;
-    if !b {
-        dbg!(&left_);
-        dbg!(&right);
-        println!();
-        println!("--> left");
-        println!("{}", left_);
-        println!("--> right");
-        println!("{}", right);
-        println!("--> diff");
-        println!("{}", line_diff);
-        println!("--");
-        if line_count_diff != 0 {
-            println!("left line count - right line count = {}", line_count_diff);
-        }
-    }
-    b
+    let expected = expected.as_ref();
+    let actual = actual.as_ref();
+    snapbox::assert_eq(expected, actual);
 }
 
-pub fn compare_output(l: Command, args: &str, right: &str, stderr: bool) -> bool {
+#[track_caller]
+pub fn assert_output(l: Command, args: &str, expected: &str, stderr: bool) {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
     write!(&mut buf, "{}", err).unwrap();
-    let content = buf.into_inner();
-    let left = String::from_utf8(content).unwrap();
+    let actual = buf.into_inner();
+    let actual = String::from_utf8(actual).unwrap();
     assert_eq!(
         stderr,
         err.use_stderr(),
@@ -65,7 +33,7 @@ pub fn compare_output(l: Command, args: &str, right: &str, stderr: bool) -> bool
         stderr,
         err.use_stderr()
     );
-    compare(left, right)
+    assert_eq(actual, expected)
 }
 
 // Legacy tests from the python script days

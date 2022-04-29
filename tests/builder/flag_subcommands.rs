@@ -503,12 +503,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                         .multiple_values(true),
                 ),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "pacman -Qh",
-        FLAG_SUBCOMMAND_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "pacman -Qh", FLAG_SUBCOMMAND_HELP, false);
 }
 
 static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "pacman-query 
@@ -556,12 +551,12 @@ fn flag_subcommand_long_normal_usage_string() {
                         .multiple_values(true),
                 ),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "pacman query --help",
         FLAG_SUBCOMMAND_NO_SHORT_HELP,
-        false
-    ));
+        false,
+    );
 }
 
 static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "pacman-query 
@@ -609,10 +604,10 @@ fn flag_subcommand_short_normal_usage_string() {
                         .multiple_values(true),
                 ),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "pacman query --help",
         FLAG_SUBCOMMAND_NO_LONG_HELP,
-        false
-    ));
+        false,
+    );
 }

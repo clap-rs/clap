@@ -99,12 +99,7 @@ fn no_derive_order() {
             .help("second option"),
     ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        NO_DERIVE_ORDER,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", NO_DERIVE_ORDER, false);
 }
 
 #[test]
@@ -125,12 +120,7 @@ fn derive_order() {
                 .help("second option"),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        UNIFIED_HELP_AND_DERIVE,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", UNIFIED_HELP_AND_DERIVE, false);
 }
 
 #[test]
@@ -169,7 +159,7 @@ OPTIONS:
                 .help("first option"),
         );
 
-    assert!(utils::compare_output(cmd, "test --help", HELP, false));
+    utils::assert_output(cmd, "test --help", HELP, false);
 }
 
 #[test]
@@ -207,7 +197,7 @@ OPTIONS:
                 .help("second option"),
         );
 
-    assert!(utils::compare_output(cmd, "test --help", HELP, false));
+    utils::assert_output(cmd, "test --help", HELP, false);
 }
 
 #[test]
@@ -229,12 +219,7 @@ fn derive_order_subcommand_propagate() {
             ]),
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "test sub --help",
-        UNIFIED_DERIVE_SC_PROP,
-        false
-    ));
+    utils::assert_output(cmd, "test sub --help", UNIFIED_DERIVE_SC_PROP, false);
 }
 
 #[test]
@@ -259,12 +244,12 @@ fn derive_order_subcommand_propagate_with_explicit_display_order() {
             ]),
         );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test sub --help",
         UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER,
-        false
-    ));
+        false,
+    );
 }
 
 #[test]
@@ -281,12 +266,7 @@ fn prefer_user_help_with_derive_order() {
             Arg::new("flag_a").long("flag_a").help("second flag"),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        PREFER_USER_HELP_DERIVE_ORDER,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", PREFER_USER_HELP_DERIVE_ORDER, false);
 }
 
 #[test]
@@ -304,10 +284,10 @@ fn prefer_user_help_in_subcommand_with_derive_order() {
             ]),
         );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test sub --help",
         PREFER_USER_HELP_SUBCMD_DERIVE_ORDER,
-        false
-    ));
+        false,
+    );
 }
