@@ -4128,14 +4128,59 @@ impl<'help> App<'help> {
         debug!("Command::_build_bin_names");
 
         if !self.is_set(AppSettings::BinNameBuilt) {
+            let mut mid_string = String::from(" ");
+            if !self.is_subcommand_negates_reqs_set() {
+                let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
+
+                for s in &reqs {
+                    mid_string.push_str(s);
+                    mid_string.push(' ');
+                }
+            }
+
             for mut sc in &mut self.subcommands {
                 debug!("Command::_build_bin_names:iter: bin_name set...");
 
-                if sc.bin_name.is_none() {
-                    let bin_name = format!(
+                if sc.usage_name.is_none() {
+                    use std::fmt::Write;
+                    // Display subcommand name, short and long in usage
+                    let mut sc_names = sc.name.clone();
+                    let mut flag_subcmd = false;
+                    if let Some(l) = sc.long_flag {
+                        write!(sc_names, "|--{}", l).unwrap();
+                        flag_subcmd = true;
+                    }
+                    if let Some(s) = sc.short_flag {
+                        write!(sc_names, "|-{}", s).unwrap();
+                        flag_subcmd = true;
+                    }
+
+                    if flag_subcmd {
+                        sc_names = format!("{{{}}}", sc_names);
+                    }
+
+                    let usage_name = format!(
                         "{}{}{}",
                         self.bin_name.as_ref().unwrap_or(&self.name),
-                        if self.bin_name.is_some() { " " } else { "" },
+                        mid_string,
+                        sc_names
+                    );
+                    debug!(
+                        "Command::_build_bin_names:iter: Setting usage_name of {} to {:?}",
+                        sc.name, usage_name
+                    );
+                    sc.usage_name = Some(usage_name);
+                } else {
+                    debug!(
+                        "Command::_build_bin_names::iter: Using existing usage_name of {} ({:?})",
+                        sc.name, sc.usage_name
+                    );
+                }
+
+                if sc.bin_name.is_none() {
+                    let bin_name = format!(
+                        "{} {}",
+                        self.bin_name.as_ref().unwrap_or(&self.name),
                         &*sc.name
                     );
                     debug!(

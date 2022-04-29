@@ -2673,3 +2673,32 @@ OPTIONS:
         .subcommand(Command::new("test").about("some"));
     utils::assert_output(cmd, "parent help test", EXPECTED, false);
 }
+
+#[test]
+fn parent_cmd_req_in_usage_with_render_help() {
+    static EXPECTED: &str = "parent-test 
+some
+
+USAGE:
+    parent <TARGET> <ARGS> test
+
+OPTIONS:
+    -h, --help    Print help information
+";
+    let mut cmd = Command::new("parent")
+        .version("0.1")
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(
+            Arg::new("ARGS")
+                .takes_value(true)
+                .required(true)
+                .help("some"),
+        )
+        .subcommand(Command::new("test").about("some"));
+    cmd.build();
+    let subcmd = cmd.find_subcommand_mut("test").unwrap();
+
+    let mut buf = Vec::new();
+    subcmd.write_help(&mut buf).unwrap();
+    utils::assert_eq(EXPECTED, String::from_utf8(buf).unwrap());
+}
