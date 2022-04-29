@@ -2625,3 +2625,51 @@ fn help_without_short() {
     let m = cmd.try_get_matches_from(["test", "-h", "0x100"]).unwrap();
     assert_eq!(m.value_of("hex"), Some("0x100"));
 }
+
+#[test]
+fn parent_cmd_req_in_usage_with_help_flag() {
+    static EXPECTED: &str = "parent-test 
+some
+
+USAGE:
+    parent <TARGET> <ARGS> test
+
+OPTIONS:
+    -h, --help    Print help information
+";
+    let cmd = Command::new("parent")
+        .version("0.1")
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(
+            Arg::new("ARGS")
+                .takes_value(true)
+                .required(true)
+                .help("some"),
+        )
+        .subcommand(Command::new("test").about("some"));
+    utils::assert_output(cmd, "parent test --help", EXPECTED, false);
+}
+
+#[test]
+fn parent_cmd_req_in_usage_with_help_subcommand() {
+    static EXPECTED: &str = "parent-test 
+some
+
+USAGE:
+    parent test
+
+OPTIONS:
+    -h, --help    Print help information
+";
+    let cmd = Command::new("parent")
+        .version("0.1")
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(
+            Arg::new("ARGS")
+                .takes_value(true)
+                .required(true)
+                .help("some"),
+        )
+        .subcommand(Command::new("test").about("some"));
+    utils::assert_output(cmd, "parent help test", EXPECTED, false);
+}

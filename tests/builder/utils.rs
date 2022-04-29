@@ -33,7 +33,7 @@ pub fn assert_output(l: Command, args: &str, expected: &str, stderr: bool) {
         stderr,
         err.use_stderr()
     );
-    assert_eq(actual, expected)
+    assert_eq(expected, actual)
 }
 
 // Legacy tests from the python script days
