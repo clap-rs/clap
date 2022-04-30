@@ -28,7 +28,10 @@ use clap::{Parser, Args, Subcommand, ArgEnum};
 struct Cli {
     /// Doc comment
     #[clap(ARG ATTRIBUTE)]
-    field: Type,
+    field: UserType,
+
+    #[clap(arg_enum, ARG ATTRIBUTE...)]
+    field: EnumValues,
 
     #[clap(flatten)]
     delegate: Struct,
@@ -43,7 +46,7 @@ struct Cli {
 struct Struct { 
     /// Doc comment
     #[clap(ARG ATTRIBUTE)]
-    field: Type,
+    field: UserType,
 }
 
 /// Doc comment
@@ -59,14 +62,14 @@ enum Command {
     Variant2 {
         /// Doc comment
         #[clap(ARG ATTRIBUTE)]
-        field: Type,
+        field: UserType,
     }
 }
 
 /// Doc comment
 #[derive(ArgEnum)]
 #[clap(ARG ENUM ATTRIBUTE)]
-enum Mode {
+enum EnumValues {
     /// Doc comment
     #[clap(POSSIBLE VALUE ATTRIBUTE)]
     Variant1,
