@@ -3,10 +3,13 @@ name = "clap_complete"
 version = "3.1.3"
 edition = "2018"
 include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
 ]
 description = "Generate shell completion scripts for your clap::Command"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
