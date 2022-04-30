@@ -168,12 +168,7 @@ fn invisible_arg_aliases_help_output() {
             )
             .arg(arg!(-f - -flag).aliases(&["unseeable", "flg1", "anyway"])),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ct test --help",
-        SC_INVISIBLE_ALIAS_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false);
 }
 
 #[test]
@@ -197,10 +192,5 @@ fn visible_arg_aliases_help_output() {
                     .visible_aliases(&["v_flg", "flag2", "flg3"]),
             ),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ct test --help",
-        SC_VISIBLE_ALIAS_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "ct test --help", SC_VISIBLE_ALIAS_HELP, false);
 }

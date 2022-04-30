@@ -248,42 +248,42 @@ fn required_group_conflicts_with_arg() {
 
 #[test]
 fn conflict_output() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         utils::complex_app(),
         "clap-test val1 fa --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
-    ));
+    );
 }
 
 #[test]
 fn conflict_output_rev() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         utils::complex_app(),
         "clap-test val1 fa -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,
-    ));
+    );
 }
 
 #[test]
 fn conflict_output_with_required() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         utils::complex_app(),
         "clap-test val1 --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
-    ));
+    );
 }
 
 #[test]
 fn conflict_output_rev_with_required() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         utils::complex_app(),
         "clap-test val1 -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,
-    ));
+    );
 }
 
 #[test]
@@ -304,12 +304,12 @@ fn conflict_output_three_conflicting() {
                 .long("three")
                 .conflicts_with_all(&["one", "two"]),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "three_conflicting_arguments --one --two --three",
         CONFLICT_ERR_THREE,
         true,
-    ));
+    );
 }
 
 #[test]

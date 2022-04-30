@@ -122,12 +122,7 @@ fn positional_required_with_requires() {
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test",
-        POSITIONAL_REQ,
-        true
-    ));
+    utils::assert_output(cmd, "clap-test", POSITIONAL_REQ, true);
 }
 
 static POSITIONAL_REQ: &str = "error: The following required arguments were not provided:
@@ -147,12 +142,7 @@ fn positional_required_with_requires_if_no_value() {
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test",
-        POSITIONAL_REQ_IF_NO_VAL,
-        true
-    ));
+    utils::assert_output(cmd, "clap-test", POSITIONAL_REQ_IF_NO_VAL, true);
 }
 
 static POSITIONAL_REQ_IF_NO_VAL: &str = "error: The following required arguments were not provided:
@@ -172,12 +162,7 @@ fn positional_required_with_requires_if_value() {
         .arg(Arg::new("opt"))
         .arg(Arg::new("bar"));
 
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test val",
-        POSITIONAL_REQ_IF_VAL,
-        true
-    ));
+    utils::assert_output(cmd, "clap-test val", POSITIONAL_REQ_IF_VAL, true);
 }
 
 static POSITIONAL_REQ_IF_VAL: &str = "error: The following required arguments were not provided:
@@ -532,12 +517,7 @@ fn required_unless_any_err() {
 
 #[test]
 fn missing_required_output() {
-    assert!(utils::compare_output(
-        utils::complex_app(),
-        "clap-test -F",
-        MISSING_REQ,
-        true
-    ));
+    utils::assert_output(utils::complex_app(), "clap-test -F", MISSING_REQ, true);
 }
 
 // Conditional external requirements
@@ -794,12 +774,12 @@ fn list_correct_required_args() {
                 .long("output"),
         );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --input somepath --target file",
         COND_REQ_IN_USAGE,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
@@ -828,12 +808,12 @@ fn required_if_val_present_fail_error_output() {
                 .long("output"),
         );
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --input somepath --target file",
         COND_REQ_IN_USAGE,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
@@ -928,12 +908,7 @@ fn require_eq() {
             .value_name("FILE")
             .help("some"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test",
-        REQUIRE_EQUALS,
-        true
-    ));
+    utils::assert_output(cmd, "clap-test", REQUIRE_EQUALS, true);
 }
 
 #[test]
@@ -958,12 +933,7 @@ fn require_eq_filtered() {
                 .value_name("FILE")
                 .help("some other arg"),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test -f=blah",
-        REQUIRE_EQUALS_FILTERED,
-        true
-    ));
+    utils::assert_output(cmd, "clap-test -f=blah", REQUIRE_EQUALS_FILTERED, true);
 }
 
 #[test]
@@ -1005,12 +975,12 @@ fn require_eq_filtered_group() {
                 .args(&["g1", "g2"])
                 .required(true),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "clap-test -f=blah --g1=blah",
         REQUIRE_EQUALS_FILTERED_GROUP,
-        true
-    ));
+        true,
+    );
 }
 
 static ISSUE_1158: &str = "error: The following required arguments were not provided:
@@ -1084,19 +1054,14 @@ For more information try --help
                 .required_unless_present("c")
                 .conflicts_with("c"),
         );
-    assert!(utils::compare_output(
-        cmd,
-        "test --c asd",
-        MULTIPLE_REQUIRED_UNLESS_USAGE,
-        true
-    ));
+    utils::assert_output(cmd, "test --c asd", MULTIPLE_REQUIRED_UNLESS_USAGE, true);
 }
 
 #[test]
 fn issue_1158_conflicting_requirements() {
     let cmd = issue_1158_app();
 
-    assert!(utils::compare_output(cmd, "example id", ISSUE_1158, true));
+    utils::assert_output(cmd, "example id", ISSUE_1158, true);
 }
 
 #[test]

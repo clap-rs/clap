@@ -160,12 +160,7 @@ fn version_about_multi_subcmd() {
         .mut_arg("version", |a| a.help("Print custom version about text"))
         .propagate_version(true);
 
-    assert!(utils::compare_output(
-        cmd,
-        "foo bar baz -h",
-        VERSION_ABOUT_MULTI_SC,
-        false
-    ));
+    utils::assert_output(cmd, "foo bar baz -h", VERSION_ABOUT_MULTI_SC, false);
 }
 
 #[test]

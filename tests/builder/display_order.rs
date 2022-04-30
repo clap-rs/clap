@@ -6,7 +6,7 @@ use clap::Command;
 fn very_large_display_order() {
     let cmd = Command::new("test").subcommand(Command::new("sub").display_order(usize::MAX));
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test --help",
         "test 
@@ -21,6 +21,6 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
     sub     
 ",
-        false
-    ));
+        false,
+    );
 }

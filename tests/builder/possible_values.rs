@@ -207,79 +207,79 @@ fn possible_values_of_option_multiple_fail() {
 
 #[test]
 fn possible_values_output() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         Command::new("test").arg(Arg::new("option").short('O').possible_values([
             "slow",
             "fast",
-            "ludicrous speed"
+            "ludicrous speed",
         ])),
         "clap-test -O slo",
         PV_ERROR,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
 fn possible_values_alias_output() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
                 .possible_value("slow")
                 .possible_value(PossibleValue::new("fast").alias("fost"))
-                .possible_value(PossibleValue::new("ludicrous speed").aliases(["ls", "lcs"]))
+                .possible_value(PossibleValue::new("ludicrous speed").aliases(["ls", "lcs"])),
         ),
         "clap-test -O slo",
         PV_ERROR,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
 fn possible_values_hidden_output() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
                 .possible_values(["slow", "fast"])
                 .possible_value(PossibleValue::new("ludicrous speed"))
-                .possible_value(PossibleValue::new("forbidden speed").hide(true))
+                .possible_value(PossibleValue::new("forbidden speed").hide(true)),
         ),
         "clap-test -O slo",
         PV_ERROR,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
 fn escaped_possible_values_output() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         Command::new("test").arg(Arg::new("option").short('O').possible_values([
             "slow",
             "fast",
-            "ludicrous speed"
+            "ludicrous speed",
         ])),
         "clap-test -O ludicrous",
         PV_ERROR_ESCAPED,
-        true
-    ));
+        true,
+    );
 }
 
 #[test]
 fn missing_possible_value_error() {
-    assert!(utils::compare_output(
+    utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
                 .possible_value("slow")
                 .possible_value(PossibleValue::new("fast").alias("fost"))
                 .possible_value(PossibleValue::new("ludicrous speed"))
-                .possible_value(PossibleValue::new("forbidden speed").hide(true))
+                .possible_value(PossibleValue::new("forbidden speed").hide(true)),
         ),
         "clap-test -O",
         MISSING_PV_ERROR,
-        true
-    ));
+        true,
+    );
 }
 
 static MISSING_PV_ERROR: &str =

@@ -250,12 +250,12 @@ fn arg_required_else_help_error_message() {
                 .short('i')
                 .long("info"),
         );
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test",
         ARG_REQUIRED_ELSE_HELP,
-        true // Unlike normal displaying of help, we should provide a fatal exit code
-    ));
+        true, // Unlike normal displaying of help, we should provide a fatal exit code
+    );
 }
 
 #[test]
@@ -281,12 +281,12 @@ fn subcommand_required_else_help_error_message() {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version("1.0")
         .subcommand(Command::new("info").arg(Arg::new("filename")));
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "test",
         SUBCOMMAND_REQUIRED_ELSE_HELP,
-        true // Unlike normal displaying of help, we should provide a fatal exit code
-    ));
+        true, // Unlike normal displaying of help, we should provide a fatal exit code
+    );
 }
 
 #[cfg(not(feature = "suggestions"))]
@@ -419,12 +419,7 @@ fn skip_possible_values() {
             arg!([arg1] "some pos arg").possible_values(["three", "four"]),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        SKIP_POS_VALS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", SKIP_POS_VALS, false);
 }
 
 #[test]
@@ -624,12 +619,7 @@ fn dont_collapse_args() {
             Arg::new("arg2").help("some"),
             Arg::new("arg3").help("some"),
         ]);
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test --help",
-        DONT_COLLAPSE_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "clap-test --help", DONT_COLLAPSE_ARGS, false);
 }
 
 #[test]
@@ -643,12 +633,7 @@ fn require_eq() {
             .value_name("FILE")
             .help("some"),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test --help",
-        REQUIRE_EQUALS,
-        false
-    ));
+    utils::assert_output(cmd, "clap-test --help", REQUIRE_EQUALS, false);
 }
 
 #[test]
@@ -863,12 +848,7 @@ fn issue_1093_allow_ext_sc() {
     let cmd = Command::new("clap-test")
         .version("v1.4.8")
         .allow_external_subcommands(true);
-    assert!(utils::compare_output(
-        cmd,
-        "clap-test --help",
-        ALLOW_EXT_SC,
-        false
-    ));
+    utils::assert_output(cmd, "clap-test --help", ALLOW_EXT_SC, false);
 }
 
 #[test]

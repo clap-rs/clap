@@ -577,7 +577,7 @@ fn default_vals_donnot_show_in_smart_usage() {
         )
         .arg(Arg::new("input").required(true));
 
-    assert!(utils::compare_output(
+    utils::assert_output(
         cmd,
         "bug",
         "error: The following required arguments were not provided:
@@ -589,7 +589,7 @@ USAGE:
 For more information try --help
 ",
         true,
-    ));
+    );
 }
 
 #[test]

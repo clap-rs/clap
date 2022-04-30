@@ -28,12 +28,7 @@ fn hide_args() {
             arg!(--option <opt> "some option").required(false),
             Arg::new("DUMMY").hide(true),
         ]);
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_ARGS, false);
 }
 
 static HIDDEN_SHORT_ARGS: &str = "test 2.31.2
@@ -89,12 +84,7 @@ fn hide_short_args() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test -h",
-        HIDDEN_SHORT_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test -h", HIDDEN_SHORT_ARGS, false);
 }
 
 /// Ensure visible with opposite option
@@ -116,12 +106,7 @@ fn hide_short_args_long_help() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_SHORT_ARGS_LONG_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_SHORT_ARGS_LONG_HELP, false);
 }
 
 static HIDDEN_LONG_ARGS: &str = "test 2.31.2
@@ -160,12 +145,7 @@ fn hide_long_args() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_LONG_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_LONG_ARGS, false);
 }
 
 static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "test 2.31.2
@@ -200,12 +180,7 @@ fn hide_long_args_short_help() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test -h",
-        HIDDEN_LONG_ARGS_SHORT_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "test -h", HIDDEN_LONG_ARGS_SHORT_HELP, false);
 }
 
 static HIDDEN_POS_ARGS: &str = "test 1.4
@@ -228,12 +203,7 @@ fn hide_pos_args() {
         Arg::new("another").help("another pos"),
     ]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_POS_ARGS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_POS_ARGS, false);
 }
 
 static HIDDEN_SUBCMDS: &str = "test 1.4
@@ -252,12 +222,7 @@ fn hide_subcmds() {
         .version("1.4")
         .subcommand(Command::new("sub").hide(true));
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_SUBCMDS,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_SUBCMDS, false);
 }
 
 static HIDDEN_OPT_ARGS_ONLY: &str = "test 1.4
@@ -281,12 +246,7 @@ fn hide_opt_args_only() {
                 .hide(true),
         );
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_OPT_ARGS_ONLY,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_OPT_ARGS_ONLY, false);
 }
 
 static HIDDEN_POS_ARGS_ONLY: &str = "test 1.4
@@ -306,12 +266,7 @@ fn hide_pos_args_only() {
         .mut_arg("version", |a| a.hide(true))
         .args(&[Arg::new("pos").help("some pos").hide(true)]);
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_POS_ARGS_ONLY,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_POS_ARGS_ONLY, false);
 }
 
 static HIDDEN_SUBCMDS_ONLY: &str = "test 1.4
@@ -331,10 +286,5 @@ fn hide_subcmds_only() {
         .mut_arg("version", |a| a.hide(true))
         .subcommand(Command::new("sub").hide(true));
 
-    assert!(utils::compare_output(
-        cmd,
-        "test --help",
-        HIDDEN_SUBCMDS_ONLY,
-        false
-    ));
+    utils::assert_output(cmd, "test --help", HIDDEN_SUBCMDS_ONLY, false);
 }

@@ -164,12 +164,7 @@ fn invisible_short_arg_aliases_help_output() {
             )
             .arg(arg!(-f - -flag).short_aliases(&['x', 'y', 'z'])),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ct test --help",
-        SC_INVISIBLE_ALIAS_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false);
 }
 
 #[test]
@@ -194,10 +189,5 @@ fn visible_short_arg_aliases_help_output() {
                     .visible_short_aliases(&['a', 'b', '🦆']),
             ),
     );
-    assert!(utils::compare_output(
-        cmd,
-        "ct test --help",
-        SC_VISIBLE_ALIAS_HELP,
-        false
-    ));
+    utils::assert_output(cmd, "ct test --help", SC_VISIBLE_ALIAS_HELP, false);
 }
