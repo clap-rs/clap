@@ -2656,7 +2656,7 @@ fn parent_cmd_req_in_usage_with_help_subcommand() {
 some
 
 USAGE:
-    parent test
+    parent <TARGET> <ARGS> test
 
 OPTIONS:
     -h, --help    Print help information

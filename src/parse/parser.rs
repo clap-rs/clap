@@ -613,20 +613,15 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_help_subcommand");
 
-        let mut bin_name = self
-            .cmd
-            .get_bin_name()
-            .unwrap_or_else(|| self.cmd.get_name())
-            .to_owned();
-
+        let mut cmd = self.cmd.clone();
         let mut sc = {
-            let mut sc = self.cmd.clone();
+            let mut sc = &mut cmd;
 
             for cmd in cmds {
-                sc = if let Some(c) = sc.find_subcommand(cmd) {
-                    c
-                } else if let Some(c) = sc.find_subcommand(&cmd.to_string_lossy()) {
-                    c
+                sc = if let Some(sc_name) =
+                    sc.find_subcommand(cmd).map(|sc| sc.get_name().to_owned())
+                {
+                    sc._build_subcommand(&sc_name).unwrap()
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
                         self.cmd,
@@ -636,18 +631,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             .unwrap_or_else(|| self.cmd.get_name())
                             .to_owned(),
                     ));
-                }
-                .clone();
-
-                sc._build_self();
-                bin_name.push(' ');
-                bin_name.push_str(sc.get_name());
+                };
             }
 
             sc
         };
-        sc = sc.bin_name(bin_name);
-
         let parser = Parser::new(&mut sc);
 
         Err(parser.help_err(true, Stream::Stdout))
