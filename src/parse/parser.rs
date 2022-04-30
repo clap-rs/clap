@@ -614,7 +614,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::parse_help_subcommand");
 
         let mut cmd = self.cmd.clone();
-        let mut sc = {
+        let sc = {
             let mut sc = &mut cmd;
 
             for cmd in cmds {
@@ -624,7 +624,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     sc._build_subcommand(&sc_name).unwrap()
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
-                        &sc,
+                        sc,
                         cmd.to_string_lossy().into_owned(),
                         sc.get_bin_name()
                             .unwrap_or_else(|| sc.get_name())
@@ -635,7 +635,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
             sc
         };
-        let parser = Parser::new(&mut sc);
+        let parser = Parser::new(sc);
 
         Err(parser.help_err(true, Stream::Stdout))
     }
