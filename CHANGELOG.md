@@ -16,6 +16,13 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Help subcommand and `Command::write_help` now report required arguments in usage in more circumstances
+- Unknown subcommand for help subcommand flag now reports an error with more context
+- More details reported when using `debug` feature
+- Allow disabling `color` feature with `debug` feature enabled
+
 ## [3.1.12] - 2022-04-22
 
 ### Fixes

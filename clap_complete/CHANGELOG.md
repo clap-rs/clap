@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Minimal rust-implemented clap completion engine, behind `unstable-dynamic` feature flag
+
 ## [3.1.2] - 2022-04-19
 
 ## [3.1.1] - 2022-03-02

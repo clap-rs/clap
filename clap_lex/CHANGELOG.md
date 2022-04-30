@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking Changes
+
+- Don't do prefix matching by default
+
 ## [0.1.1] - 2022-04-15
 
 - Drop `memchr` dependency
