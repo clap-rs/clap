@@ -656,6 +656,41 @@ fn help_subcommand() {
 }
 
 #[test]
+fn help_multi_subcommand_error() {
+    let cmd = Command::new("ctest").subcommand(
+        Command::new("subcmd").subcommand(
+            Command::new("multi")
+                .about("tests subcommands")
+                .author("Kevin K. <kbknapp@gmail.com>")
+                .version("0.1")
+                .arg(arg!(
+                    -f --flag                    "tests flags"
+                ))
+                .arg(
+                    arg!(
+                        -o --option <scoption>    "tests options"
+                    )
+                    .required(false)
+                    .multiple_values(true)
+                    .multiple_occurrences(true),
+                ),
+        ),
+    );
+    let err = cmd
+        .try_get_matches_from(["ctest", "help", "subcmd", "multi", "foo"])
+        .unwrap_err();
+
+    static EXPECTED: &str = "error: The subcommand 'foo' wasn't recognized
+
+USAGE:
+    ctest subcmd multi <subcommands>
+
+For more information try --help
+";
+    utils::assert_eq(EXPECTED, err.to_string());
+}
+
+#[test]
 fn req_last_arg_usage() {
     let cmd = Command::new("example")
         .version("1.0")

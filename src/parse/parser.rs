@@ -624,11 +624,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     sc._build_subcommand(&sc_name).unwrap()
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
-                        self.cmd,
+                        &sc,
                         cmd.to_string_lossy().into_owned(),
-                        self.cmd
-                            .get_bin_name()
-                            .unwrap_or_else(|| self.cmd.get_name())
+                        sc.get_bin_name()
+                            .unwrap_or_else(|| sc.get_name())
                             .to_owned(),
                     ));
                 };
