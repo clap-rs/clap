@@ -408,3 +408,19 @@ fn mut_arg_all() {
         cmd = cmd.mut_arg(arg_name, |arg| arg.hide_possible_values(true));
     }
 }
+
+#[test]
+fn issue_3669_command_build_recurses() {
+    let mut cmd = Command::new("ctest").subcommand(
+        Command::new("subcmd").subcommand(
+            Command::new("multi")
+                .about("tests subcommands")
+                .author("Kevin K. <kbknapp@gmail.com>")
+                .version("0.1")
+                .arg(clap::arg!(
+                    <FLAG>                    "tests flags"
+                )),
+        ),
+    );
+    cmd.build();
+}

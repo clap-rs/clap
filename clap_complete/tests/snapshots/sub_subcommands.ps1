@@ -60,10 +60,6 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             break
         }
         'my-app;some_cmd;help' {
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             break
         }
         'my-app;help' {

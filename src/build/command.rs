@@ -4008,11 +4008,15 @@ impl<'help> App<'help> {
     /// Call this on the top-level [`Command`] when done building and before reading state for
     /// cases like completions, custom help output, etc.
     pub fn build(&mut self) {
+        self._build_recursive();
+        self._build_bin_names_internal();
+    }
+
+    pub(crate) fn _build_recursive(&mut self) {
         self._build_self();
         for subcmd in self.get_subcommands_mut() {
-            subcmd._build_self();
+            subcmd._build_recursive();
         }
-        self._build_bin_names_internal();
     }
 
     pub(crate) fn _build_self(&mut self) {

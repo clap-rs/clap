@@ -56,16 +56,6 @@ const completion: Fig.Spec = {
         {
           name: "help",
           description: "Print this message or the help of the given subcommand(s)",
-          options: [
-            {
-              name: ["-h", "--help"],
-              description: "Print help information",
-            },
-            {
-              name: ["-V", "--version"],
-              description: "Print version information",
-            },
-          ],
           args: {
             name: "subcommand",
             isOptional: true,
