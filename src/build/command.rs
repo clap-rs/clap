@@ -4016,7 +4016,7 @@ impl<'help> App<'help> {
     }
 
     pub(crate) fn _build_self(&mut self) {
-        debug!("Command::_build");
+        debug!("Command::_build: name={:?}", self.get_name());
         if !self.settings.is_set(AppSettings::Built) {
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;
