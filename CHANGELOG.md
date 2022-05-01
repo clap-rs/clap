@@ -16,6 +16,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Panic when calling `Command::build` with a required positional argument nested several layers in subcommands
+
 ## [3.1.13] - 2022-04-30
 
 ### Fixes
