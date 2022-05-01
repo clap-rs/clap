@@ -53,10 +53,6 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --version 'Print version information'
         }
         &'my-app;some_cmd;help'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
         }
         &'my-app;help'= {
         }

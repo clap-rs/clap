@@ -70,10 +70,6 @@ _arguments "${_arguments_options[@]}" /
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'-h[Print help information]' /
-'--help[Print help information]' /
-'-V[Print version information]' /
-'--version[Print version information]' /
 '*::subcommand -- The subcommand whose help message to display:' /
 && ret=0
 ;;

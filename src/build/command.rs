@@ -4008,15 +4008,19 @@ impl<'help> App<'help> {
     /// Call this on the top-level [`Command`] when done building and before reading state for
     /// cases like completions, custom help output, etc.
     pub fn build(&mut self) {
-        self._build_self();
-        for subcmd in self.get_subcommands_mut() {
-            subcmd._build_self();
-        }
+        self._build_recursive();
         self._build_bin_names_internal();
     }
 
+    pub(crate) fn _build_recursive(&mut self) {
+        self._build_self();
+        for subcmd in self.get_subcommands_mut() {
+            subcmd._build_recursive();
+        }
+    }
+
     pub(crate) fn _build_self(&mut self) {
-        debug!("Command::_build");
+        debug!("Command::_build: name={:?}", self.get_name());
         if !self.settings.is_set(AppSettings::Built) {
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;

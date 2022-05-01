@@ -14,5 +14,3 @@ complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "{Lest quotes aren/'t escaped.	}"
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help information'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version information'
-complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
-complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help" -s V -l version -d 'Print version information'

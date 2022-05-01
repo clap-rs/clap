@@ -73,7 +73,7 @@ _my-app() {
             return 0
             ;;
         my__app__some_cmd__help)
-            opts="-h -V --help --version <SUBCOMMAND>..."
+            opts="<SUBCOMMAND>..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
