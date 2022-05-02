@@ -616,3 +616,81 @@ fn cant_have_args_with_multicall() {
         .arg(Arg::new("oh-no"));
     cmd.build();
 }
+
+#[cfg(feature = "unstable-multicall")]
+#[test]
+fn multicall_help_flag() {
+    static EXPECTED: &str = "\
+foo-bar 1.0.0
+
+USAGE:
+    foo bar [value]
+
+ARGS:
+    <value>    
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+";
+    let cmd = Command::new("repl")
+        .version("1.0.0")
+        .propagate_version(true)
+        .multicall(true)
+        .subcommand(Command::new("foo").subcommand(Command::new("bar").arg(Arg::new("value"))));
+    utils::assert_output(cmd, "foo bar --help", EXPECTED, false);
+}
+
+#[cfg(feature = "unstable-multicall")]
+#[test]
+fn multicall_help_subcommand() {
+    static EXPECTED: &str = "\
+foo-bar 1.0.0
+
+USAGE:
+    foo bar [value]
+
+ARGS:
+    <value>    
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+";
+    let cmd = Command::new("repl")
+        .version("1.0.0")
+        .propagate_version(true)
+        .multicall(true)
+        .subcommand(Command::new("foo").subcommand(Command::new("bar").arg(Arg::new("value"))));
+    utils::assert_output(cmd, "help foo bar", EXPECTED, false);
+}
+
+#[cfg(feature = "unstable-multicall")]
+#[test]
+fn multicall_render_help() {
+    static EXPECTED: &str = "\
+foo-bar 1.0.0
+
+USAGE:
+    foo bar [value]
+
+ARGS:
+    <value>    
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+";
+    let mut cmd = Command::new("repl")
+        .version("1.0.0")
+        .propagate_version(true)
+        .multicall(true)
+        .subcommand(Command::new("foo").subcommand(Command::new("bar").arg(Arg::new("value"))));
+    cmd.build();
+    let subcmd = cmd.find_subcommand_mut("foo").unwrap();
+    let subcmd = subcmd.find_subcommand_mut("bar").unwrap();
+
+    let mut buf = Vec::new();
+    subcmd.write_help(&mut buf).unwrap();
+    utils::assert_eq(EXPECTED, String::from_utf8(buf).unwrap());
+}

@@ -3640,6 +3640,11 @@ impl<'help> App<'help> {
     pub fn is_multicall_set(&self) -> bool {
         self.is_set(AppSettings::Multicall)
     }
+
+    #[cfg(not(feature = "unstable-multicall"))]
+    fn is_multicall_set(&self) -> bool {
+        false
+    }
 }
 
 /// Deprecated
@@ -4151,6 +4156,14 @@ impl<'help> App<'help> {
                 }
             }
 
+            let self_bin_name =
+                if cfg!(feature = "unstable-multicall") && self.is_multicall_set() {
+                    self.bin_name.as_deref().unwrap_or("")
+                } else {
+                    self.bin_name.as_deref().unwrap_or(&self.name)
+                }
+                .to_owned();
+
             for mut sc in &mut self.subcommands {
                 debug!("Command::_build_bin_names:iter: bin_name set...");
 
@@ -4172,12 +4185,7 @@ impl<'help> App<'help> {
                         sc_names = format!("{{{}}}", sc_names);
                     }
 
-                    let usage_name = format!(
-                        "{}{}{}",
-                        self.bin_name.as_ref().unwrap_or(&self.name),
-                        mid_string,
-                        sc_names
-                    );
+                    let usage_name = format!("{}{}{}", self_bin_name, mid_string, sc_names);
                     debug!(
                         "Command::_build_bin_names:iter: Setting usage_name of {} to {:?}",
                         sc.name, usage_name
@@ -4192,8 +4200,9 @@ impl<'help> App<'help> {
 
                 if sc.bin_name.is_none() {
                     let bin_name = format!(
-                        "{} {}",
-                        self.bin_name.as_ref().unwrap_or(&self.name),
+                        "{}{}{}",
+                        self_bin_name,
+                        if !self_bin_name.is_empty() { " " } else { "" },
                         &*sc.name
                     );
                     debug!(
