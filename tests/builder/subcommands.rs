@@ -602,3 +602,17 @@ For more information try help
         .unwrap_err();
     assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
+
+#[cfg(feature = "unstable-multicall")]
+#[test]
+#[should_panic = "Command repl: Arguments like oh-no cannot be set on a multicall command"]
+fn cant_have_args_with_multicall() {
+    let mut cmd = Command::new("repl")
+        .version("1.0.0")
+        .propagate_version(true)
+        .multicall(true)
+        .subcommand(Command::new("foo"))
+        .subcommand(Command::new("bar"))
+        .arg(Arg::new("oh-no"));
+    cmd.build();
+}

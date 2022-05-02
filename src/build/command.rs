@@ -4027,7 +4027,7 @@ impl<'help> App<'help> {
 
             #[cfg(feature = "unstable-multicall")]
             {
-                if self.is_set(AppSettings::Multicall) {
+                if self.is_multicall_set() {
                     self.settings.insert(AppSettings::SubcommandRequired.into());
                     self.settings.insert(AppSettings::DisableHelpFlag.into());
                     self.settings.insert(AppSettings::DisableVersionFlag.into());
