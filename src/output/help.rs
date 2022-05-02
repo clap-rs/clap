@@ -953,6 +953,22 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
     }
 
     /// Writes binary name of a Parser Object to the wrapped stream.
+    fn write_display_name(&mut self) -> io::Result<()> {
+        debug!("Help::write_display_name");
+
+        let display_name = text_wrapper(
+            &self
+                .cmd
+                .get_display_name()
+                .unwrap_or_else(|| self.cmd.get_name())
+                .replace("{n}", "\n"),
+            self.term_w,
+        );
+        self.good(&display_name)?;
+        Ok(())
+    }
+
+    /// Writes binary name of a Parser Object to the wrapped stream.
     fn write_bin_name(&mut self) -> io::Result<()> {
         debug!("Help::write_bin_name");
 
@@ -1019,6 +1035,9 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         for part in parts {
             tags! {
                 match part {
+                    "name" => {
+                        self.write_display_name()?;
+                    }
                     "bin" => {
                         self.write_bin_name()?;
                     }

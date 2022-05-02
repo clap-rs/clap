@@ -2737,3 +2737,43 @@ OPTIONS:
     subcmd.write_help(&mut buf).unwrap();
     utils::assert_eq(EXPECTED, String::from_utf8(buf).unwrap());
 }
+
+#[test]
+fn display_name_default() {
+    let mut cmd = Command::new("app").bin_name("app.exe");
+    cmd.build();
+    assert_eq!(cmd.get_display_name(), None);
+}
+
+#[test]
+fn display_name_explicit() {
+    let mut cmd = Command::new("app")
+        .bin_name("app.exe")
+        .display_name("app.display");
+    cmd.build();
+    assert_eq!(cmd.get_display_name(), Some("app.display"));
+}
+
+#[test]
+fn display_name_subcommand_default() {
+    let mut cmd = Command::new("parent").subcommand(Command::new("child").bin_name("child.exe"));
+    cmd.build();
+    assert_eq!(
+        cmd.find_subcommand("child").unwrap().get_display_name(),
+        Some("parent-child")
+    );
+}
+
+#[test]
+fn display_name_subcommand_explicit() {
+    let mut cmd = Command::new("parent").subcommand(
+        Command::new("child")
+            .bin_name("child.exe")
+            .display_name("child.display"),
+    );
+    cmd.build();
+    assert_eq!(
+        cmd.find_subcommand("child").unwrap().get_display_name(),
+        Some("child.display")
+    );
+}
