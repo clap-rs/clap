@@ -30,9 +30,4 @@ fn example_tests() {
     .join(" ");
     t.register_bins(trycmd::cargo::compile_examples(["--features", &features]).unwrap());
     t.case("examples/**/*.md");
-    #[cfg(not(feature = "unstable-multicall"))]
-    {
-        t.skip("examples/24a_multicall_busybox.md");
-        t.skip("examples/24b_multicall_hostname.md");
-    }
 }
