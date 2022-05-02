@@ -66,7 +66,6 @@ fn cli() -> Command<'static> {
     Command::new("repl")
         .multicall(true)
         .arg_required_else_help(true)
-        .disable_help_flag(true)
         .subcommand_required(true)
         .subcommand_value_name("APPLET")
         .subcommand_help_heading("APPLETS")

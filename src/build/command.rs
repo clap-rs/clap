@@ -4025,6 +4025,14 @@ impl<'help> App<'help> {
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;
 
+            #[cfg(feature = "unstable-multicall")]
+            {
+                if self.is_set(AppSettings::Multicall) {
+                    self.settings.insert(AppSettings::DisableHelpFlag.into());
+                    self.settings.insert(AppSettings::DisableVersionFlag.into());
+                }
+            }
+
             self._propagate();
             self._check_help_and_version();
             self._propagate_global_args();
