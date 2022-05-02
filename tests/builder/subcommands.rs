@@ -486,7 +486,7 @@ fn subcommand_not_recognized() {
         "error: The subcommand 'help' wasn't recognized
 
 USAGE:
-    fake <subcommands>
+    fake [SUBCOMMAND]
 
 For more information try --help
 ",
@@ -566,7 +566,7 @@ fn bad_multicall_command_error() {
 error: The subcommand 'world' wasn't recognized
 
 USAGE:
-     <subcommands>
+     <SUBCOMMAND>
 
 For more information try help
 ";

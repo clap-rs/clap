@@ -386,9 +386,8 @@ impl Error {
             ])
     }
 
-    pub(crate) fn unrecognized_subcommand(cmd: &Command, subcmd: String, name: String) -> Self {
+    pub(crate) fn unrecognized_subcommand(cmd: &Command, subcmd: String, usage: String) -> Self {
         let info = vec![subcmd.clone()];
-        let usage = format!("USAGE:\n    {} <subcommands>", name);
         Self::new(ErrorKind::UnrecognizedSubcommand)
             .with_cmd(cmd)
             .set_info(info)

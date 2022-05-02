@@ -683,7 +683,7 @@ fn help_multi_subcommand_error() {
     static EXPECTED: &str = "error: The subcommand 'foo' wasn't recognized
 
 USAGE:
-    ctest subcmd multi <subcommands>
+    ctest subcmd multi [OPTIONS]
 
 For more information try --help
 ";
