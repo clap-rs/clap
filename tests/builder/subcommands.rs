@@ -582,7 +582,7 @@ error: The subcommand 'baz' wasn't recognized
 If you believe you received this message in error, try re-running with ' -- baz'
 
 USAGE:
-     [SUBCOMMAND]
+     <SUBCOMMAND>
 
 For more information try help
 ";
