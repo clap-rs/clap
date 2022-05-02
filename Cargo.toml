@@ -143,6 +143,7 @@ rustversion = "1"
 trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
 humantime = "2"
 snapbox = "0.2.9"
+shlex = "1.1.0"
 
 [[example]]
 name = "demo"
@@ -180,6 +181,11 @@ required-features = ["unstable-multicall"]
 [[example]]
 name = "hostname"
 path = "examples/multicall-hostname.rs"
+required-features = ["unstable-multicall"]
+
+[[example]]
+name = "repl"
+path = "examples/repl.rs"
 required-features = ["unstable-multicall"]
 
 [[example]]
