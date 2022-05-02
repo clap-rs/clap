@@ -529,10 +529,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             return ClapError::unrecognized_subcommand(
                 self.cmd,
                 arg_os.display().to_string(),
-                self.cmd
-                    .get_bin_name()
-                    .unwrap_or_else(|| self.cmd.get_name())
-                    .to_owned(),
+                Usage::new(self.cmd).create_usage_with_title(&[]),
             );
         }
         ClapError::unknown_argument(
@@ -626,9 +623,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     return Err(ClapError::unrecognized_subcommand(
                         sc,
                         cmd.to_string_lossy().into_owned(),
-                        sc.get_bin_name()
-                            .unwrap_or_else(|| sc.get_name())
-                            .to_owned(),
+                        Usage::new(sc).create_usage_with_title(&[]),
                     ));
                 };
             }

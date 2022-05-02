@@ -154,7 +154,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                 usage.push(']');
             }
         }
-        usage.shrink_to_fit();
+        let usage = usage.trim().to_owned();
         debug!("Usage::create_help_usage: usage={}", usage);
         usage
     }
