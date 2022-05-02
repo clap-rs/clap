@@ -26,6 +26,9 @@
   - hostname: [builder](multicall-hostname.md)
     - Topics:
       - Subcommands
+- repl: [builder](repl.rs)
+  - Topics:
+    - Read-Eval-Print Loops / Custom command lines
 
 ## Contributing
 
