@@ -16,6 +16,15 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Render actual usage for unrecognized subcommands
+- *(multicall)* Improve bad command error
+- *(multicall)* Always require a multicall command
+- *(multicall)* Disallow arguments on multicall parent command
+- *(multicall)* More consistent with rest of clap errors
+
+
 ## [3.1.14] - 2022-05-01
 
 ### Fixes
