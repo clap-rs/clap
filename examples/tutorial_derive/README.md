@@ -266,7 +266,7 @@ name: Some("bob")
 
 ### Subcommands
 
-Subcommands are derived with `Subcommand` that get added via `#[clap(subcommand)]` attribute. Each
+Subcommands are derived with `#[derive(Subcommand)]` and be added via `#[clap(subcommand)]` attribute. Each
 instance of a Subcommand can have its own version, author(s), Args, and even its own
 subcommands.
 
