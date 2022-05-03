@@ -852,8 +852,8 @@ impl<'help> App<'help> {
 impl<'help> App<'help> {
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     ///
-    /// This is normally the case when using a "daemon" style mode, or an interactive CLI where
-    /// one would not normally type the binary or program name for each command.
+    /// This is normally the case when using a "daemon" style mode.  For shells / REPLs, see
+    /// [`Command::multicall`][App::multicall].
     ///
     /// # Examples
     ///
@@ -2933,7 +2933,7 @@ impl<'help> App<'help> {
         }
     }
 
-    /// Strip directory path from argv\[0\] and use as an argument.
+    /// Multiple-personality program dispatched on the binary name (`argv[0]`)
     ///
     /// A "multicall" executable is a single executable
     /// that contains a variety of applets,
@@ -2941,13 +2941,39 @@ impl<'help> App<'help> {
     /// The executable can be called from different names by creating hard links
     /// or symbolic links to it.
     ///
-    /// This is desirable when it is convenient to store code
-    /// for many programs in the same file,
-    /// such as deduplicating code across multiple programs
-    /// without loading a shared library at runtime.
+    /// This is desirable for:
+    /// - Easy distribution, a single binary that can install hardlinks to access the different
+    ///   personalities.
+    /// - Minimal binary size by sharing common code (e.g. standard library, clap)
+    /// - Custom shells or REPLs where there isn't a single top-level command
     ///
-    /// Multicall can't be used with [`no_binary_name`] since they interpret
+    /// Setting `multicall` will cause
+    /// - `argv[0]` to be stripped to the base name and parsed as the first argument, as if
+    ///   [`Command::no_binary_name`][App::no_binary_name] was set.
+    /// - Help and errors to report subcommands as if they were the top-level command
+    ///
+    /// When the subcommand is not present, there are several strategies you may employ, depending
+    /// on your needs:
+    /// - Let the error percolate up normally
+    /// - Print a specialized error message using the
+    ///   [`Error::context`][crate::Error::context]
+    /// - Print the [help][App::write_help] but this might be ambiguous
+    /// - Disable `multicall` and re-parse it
+    /// - Disable `multicall` and re-parse it with a specific subcommand
+    ///
+    /// When detecting the error condition, the [`ErrorKind`] isn't sufficient as a sub-subcommand
+    /// might report the same error.  Enable
+    /// [`allow_external_subcommands`][App::allow_external_subcommands] if you want to specifically
+    /// get the unrecognized binary name.
+    ///
+    /// **NOTE:** Multicall can't be used with [`no_binary_name`] since they interpret
     /// the command name in incompatible ways.
+    ///
+    /// **NOTE:** The multicall command cannot have arguments.
+    ///
+    /// **NOTE:** Applets are slightly semantically different from subcommands,
+    /// so it's recommended to use [`Command::subcommand_help_heading`] and
+    /// [`Command::subcommand_value_name`] to change the descriptive text as above.
     ///
     /// # Examples
     ///
@@ -2956,8 +2982,8 @@ impl<'help> App<'help> {
     /// and which behaviour to use is based on the executable file name.
     ///
     /// This is desirable when the executable has a primary purpose
-    /// but there is other related functionality that would be convenient to provide
-    /// and it is convenient for the code to implement it to be in the same executable.
+    /// but there is related functionality that would be convenient to provide
+    /// and implement it to be in the same executable.
     ///
     /// The name of the cmd is essentially unused
     /// and may be the same as the name of a subcommand.
@@ -3018,10 +3044,6 @@ impl<'help> App<'help> {
     /// let m = cmd.get_matches_from(&["/usr/bin/true"]);
     /// assert_eq!(m.subcommand_name(), Some("true"));
     /// ```
-    ///
-    /// **NOTE:** Applets are slightly semantically different from subcommands,
-    /// so it's recommended to use [`Command::subcommand_help_heading`] and
-    /// [`Command::subcommand_value_name`] to change the descriptive text as above.
     ///
     /// [`no_binary_name`]: crate::Command::no_binary_name
     /// [`App::subcommand_value_name`]: crate::Command::subcommand_value_name
