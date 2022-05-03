@@ -1,5 +1,3 @@
-// Note: this requires the `unstable-multicall` feature
-
 use std::io::Write;
 
 use clap::Command;

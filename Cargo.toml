@@ -64,7 +64,7 @@ default = [
   "suggestions",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
-unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
+unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-grouped"] # for docs.rs
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
@@ -81,7 +81,6 @@ unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode character
 
 # In-work features
 unstable-replace = []
-unstable-multicall = []
 unstable-grouped = []
 # note: this will always enable clap_derive, change this to `clap_derive?/unstable-v4` when MSRV is bigger than 1.60
 unstable-v4 = ["clap_derive/unstable-v4"]
@@ -178,17 +177,14 @@ required-features = ["derive"]
 [[example]]
 name = "busybox"
 path = "examples/multicall-busybox.rs"
-required-features = ["unstable-multicall"]
 
 [[example]]
 name = "hostname"
 path = "examples/multicall-hostname.rs"
-required-features = ["unstable-multicall"]
 
 [[example]]
 name = "repl"
 path = "examples/repl.rs"
-required-features = ["unstable-multicall"]
 
 [[example]]
 name = "01_quick"
