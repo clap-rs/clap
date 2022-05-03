@@ -5,9 +5,9 @@
 1. [Quick Start](#quick-start)
 2. [Configuring the Parser](#configuring-the-parser)
 3. [Adding Arguments](#adding-arguments)
-    1. [Flags](#flags)
+    1. [Positionals](#positionals)
     2. [Options](#options)
-    3. [Positionals](#positionals)
+    3. [Flags](#flags)
     4. [Subcommands](#subcommands)
     5. [Defaults](#defaults)
 4. Validation
@@ -111,7 +111,7 @@ clap [..]
 
 ```
 
-You can use derive attributes to change the application level behavior of clap.
+You can use attributes to change the application level behavior of clap.  Any `Command` builder function can be used as an attribute.
 
 [Example:](02_app_settings.rs)
 ```console
@@ -136,71 +136,44 @@ one: "-3"
 
 ## Adding Arguments
 
-### Flags
+### Positionals
 
-Flags are switches that can be on/off:
+You can have users specify values by their position on the command-line:
 
-[Example:](03_01_flag_bool.rs)
+[Example:](03_03_positional.rs)
 ```console
-$ 03_01_flag_bool_derive --help
+$ 03_03_positional_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    03_01_flag_bool_derive[EXE] [OPTIONS]
+    03_03_positional_derive[EXE] [NAME]
+
+ARGS:
+    <NAME>    
 
 OPTIONS:
     -h, --help       Print help information
-    -v, --verbose    
     -V, --version    Print version information
 
-$ 03_01_flag_bool_derive
-verbose: false
+$ 03_03_positional_derive
+name: None
 
-$ 03_01_flag_bool_derive --verbose
-verbose: true
-
-$ 03_01_flag_bool_derive --verbose --verbose
-? failed
-error: The argument '--verbose' was provided more than once, but cannot be used multiple times
-
-USAGE:
-    03_01_flag_bool_derive[EXE] [OPTIONS]
-
-For more information try --help
-
-```
-
-Or counted.
-
-[Example:](03_01_flag_count.rs)
-```console
-$ 03_01_flag_count_derive --help
-clap [..]
-A simple to use, efficient, and full-featured Command Line Argument Parser
-
-USAGE:
-    03_01_flag_count_derive[EXE] [OPTIONS]
-
-OPTIONS:
-    -h, --help       Print help information
-    -v, --verbose    
-    -V, --version    Print version information
-
-$ 03_01_flag_count_derive
-verbose: 0
-
-$ 03_01_flag_count_derive --verbose
-verbose: 1
-
-$ 03_01_flag_count_derive --verbose --verbose
-verbose: 2
+$ 03_03_positional_derive bob
+name: Some("bob")
 
 ```
 
 ### Options
 
-Flags can also accept a value.
+You can name your arguments with a flag:
+- Order doesn't matter
+- They can be optional
+- Intent is clearer
+
+The `#[clap(short = 'c')]` and `#[clap(long = "name")]` attributes that define
+the flags are `Arg` methods that are derived from the field name when no value
+is specified (`#[clap(short)]` and `#[clap(long)]`).
 
 [Example:](03_02_option.rs)
 ```console
@@ -236,37 +209,73 @@ name: Some("bob")
 
 ```
 
-### Positionals
+### Flags
 
-Or you can have users specify values by their position on the command-line:
+Flags can also be switches that can be on/off.  This is enabled via the
+`#[clap(parse(from_flag)]` attribute though this is implied when the field is a
+`bool`.
 
-[Example:](03_03_positional.rs)
+[Example:](03_01_flag_bool.rs)
 ```console
-$ 03_03_positional_derive --help
+$ 03_01_flag_bool_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    03_03_positional_derive[EXE] [NAME]
-
-ARGS:
-    <NAME>    
+    03_01_flag_bool_derive[EXE] [OPTIONS]
 
 OPTIONS:
     -h, --help       Print help information
+    -v, --verbose    
     -V, --version    Print version information
 
-$ 03_03_positional_derive
-name: None
+$ 03_01_flag_bool_derive
+verbose: false
 
-$ 03_03_positional_derive bob
-name: Some("bob")
+$ 03_01_flag_bool_derive --verbose
+verbose: true
+
+$ 03_01_flag_bool_derive --verbose --verbose
+? failed
+error: The argument '--verbose' was provided more than once, but cannot be used multiple times
+
+USAGE:
+    03_01_flag_bool_derive[EXE] [OPTIONS]
+
+For more information try --help
+
+```
+
+Or counted with `#[clap(parse(from_occurrences))]`:
+
+[Example:](03_01_flag_count.rs)
+```console
+$ 03_01_flag_count_derive --help
+clap [..]
+A simple to use, efficient, and full-featured Command Line Argument Parser
+
+USAGE:
+    03_01_flag_count_derive[EXE] [OPTIONS]
+
+OPTIONS:
+    -h, --help       Print help information
+    -v, --verbose    
+    -V, --version    Print version information
+
+$ 03_01_flag_count_derive
+verbose: 0
+
+$ 03_01_flag_count_derive --verbose
+verbose: 1
+
+$ 03_01_flag_count_derive --verbose --verbose
+verbose: 2
 
 ```
 
 ### Subcommands
 
-Subcommands are derived with `Subcommand` that get added via `#[clap(subcommand)]` attribute. Each
+Subcommands are derived with `#[derive(Subcommand)]` and be added via `#[clap(subcommand)]` attribute. Each
 instance of a Subcommand can have its own version, author(s), Args, and even its own
 subcommands.
 
