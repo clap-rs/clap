@@ -5,9 +5,9 @@
 1. [Quick Start](#quick-start)
 2. [Configuring the Parser](#configuring-the-parser)
 3. [Adding Arguments](#adding-arguments)
-    1. [Flags](#flags)
+    1. [Positionals](#positionals)
     2. [Options](#options)
-    3. [Positionals](#positionals)
+    3. [Flags](#flags)
     4. [Subcommands](#subcommands)
     5. [Defaults](#defaults)
 4. Validation
@@ -136,9 +136,78 @@ one: "-3"
 
 ## Adding Arguments
 
+### Positionals
+
+You can have users specify values by their position on the command-line:
+
+[Example:](03_03_positional.rs)
+```console
+$ 03_03_positional_derive --help
+clap [..]
+A simple to use, efficient, and full-featured Command Line Argument Parser
+
+USAGE:
+    03_03_positional_derive[EXE] [NAME]
+
+ARGS:
+    <NAME>    
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+$ 03_03_positional_derive
+name: None
+
+$ 03_03_positional_derive bob
+name: Some("bob")
+
+```
+
+### Options
+
+You can name your arguments with a flag:
+- Order doesn't matter
+- They can be optional
+- Intent is clearer
+
+[Example:](03_02_option.rs)
+```console
+$ 03_02_option_derive --help
+clap [..]
+A simple to use, efficient, and full-featured Command Line Argument Parser
+
+USAGE:
+    03_02_option_derive[EXE] [OPTIONS]
+
+OPTIONS:
+    -h, --help           Print help information
+    -n, --name <NAME>    
+    -V, --version        Print version information
+
+$ 03_02_option_derive
+name: None
+
+$ 03_02_option_derive --name bob
+name: Some("bob")
+
+$ 03_02_option_derive --name=bob
+name: Some("bob")
+
+$ 03_02_option_derive -n bob
+name: Some("bob")
+
+$ 03_02_option_derive -n=bob
+name: Some("bob")
+
+$ 03_02_option_derive -nbob
+name: Some("bob")
+
+```
+
 ### Flags
 
-Flags are switches that can be on/off:
+Flags can also be switches that can be on/off:
 
 [Example:](03_01_flag_bool.rs)
 ```console
@@ -195,72 +264,6 @@ verbose: 1
 
 $ 03_01_flag_count_derive --verbose --verbose
 verbose: 2
-
-```
-
-### Options
-
-Flags can also accept a value.
-
-[Example:](03_02_option.rs)
-```console
-$ 03_02_option_derive --help
-clap [..]
-A simple to use, efficient, and full-featured Command Line Argument Parser
-
-USAGE:
-    03_02_option_derive[EXE] [OPTIONS]
-
-OPTIONS:
-    -h, --help           Print help information
-    -n, --name <NAME>    
-    -V, --version        Print version information
-
-$ 03_02_option_derive
-name: None
-
-$ 03_02_option_derive --name bob
-name: Some("bob")
-
-$ 03_02_option_derive --name=bob
-name: Some("bob")
-
-$ 03_02_option_derive -n bob
-name: Some("bob")
-
-$ 03_02_option_derive -n=bob
-name: Some("bob")
-
-$ 03_02_option_derive -nbob
-name: Some("bob")
-
-```
-
-### Positionals
-
-Or you can have users specify values by their position on the command-line:
-
-[Example:](03_03_positional.rs)
-```console
-$ 03_03_positional_derive --help
-clap [..]
-A simple to use, efficient, and full-featured Command Line Argument Parser
-
-USAGE:
-    03_03_positional_derive[EXE] [NAME]
-
-ARGS:
-    <NAME>    
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-$ 03_03_positional_derive
-name: None
-
-$ 03_03_positional_derive bob
-name: Some("bob")
 
 ```
 
