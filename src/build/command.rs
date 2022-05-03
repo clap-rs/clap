@@ -77,6 +77,7 @@ pub struct App<'help> {
     name: String,
     long_flag: Option<&'help str>,
     short_flag: Option<char>,
+    display_name: Option<String>,
     bin_name: Option<String>,
     author: Option<&'help str>,
     version: Option<&'help str>,
@@ -1377,6 +1378,22 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
         self.bin_name = Some(name.into());
+        self
+    }
+
+    /// Overrides the runtime-determined display name of the program for help and error messages.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::Command;
+    /// Command::new("My Program")
+    ///      .display_name("my_program")
+    /// # ;
+    /// ```
+    #[must_use]
+    pub fn display_name<S: Into<String>>(mut self, name: S) -> Self {
+        self.display_name = Some(name.into());
         self
     }
 
@@ -3167,6 +3184,12 @@ impl<'help> App<'help> {
 
     /// Get the name of the binary.
     #[inline]
+    pub fn get_display_name(&self) -> Option<&str> {
+        self.display_name.as_deref()
+    }
+
+    /// Get the name of the binary.
+    #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
         self.bin_name.as_deref()
     }
@@ -4101,6 +4124,7 @@ impl<'help> App<'help> {
                 mid_string.push(' ');
             }
         }
+        let is_multicall_set = cfg!(feature = "unstable-multicall") && self.is_multicall_set();
 
         let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
 
@@ -4129,12 +4153,40 @@ impl<'help> App<'help> {
 
         // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
         // a space
-        sc.bin_name = Some(format!(
+        let bin_name = format!(
             "{}{}{}",
             self.bin_name.as_ref().unwrap_or(&String::new()),
             if self.bin_name.is_some() { " " } else { "" },
             &*sc.name
-        ));
+        );
+        debug!(
+            "Command::_build_subcommand Setting bin_name of {} to {:?}",
+            sc.name, bin_name
+        );
+        sc.bin_name = Some(bin_name);
+
+        if sc.display_name.is_none() {
+            let self_display_name = if is_multicall_set {
+                self.display_name.as_deref().unwrap_or("")
+            } else {
+                self.display_name.as_deref().unwrap_or(&self.name)
+            };
+            let display_name = format!(
+                "{}{}{}",
+                self_display_name,
+                if !self_display_name.is_empty() {
+                    "-"
+                } else {
+                    ""
+                },
+                &*sc.name
+            );
+            debug!(
+                "Command::_build_subcommand Setting display_name of {} to {:?}",
+                sc.name, display_name
+            );
+            sc.display_name = Some(display_name);
+        }
 
         // Ensure all args are built and ready to parse
         sc._build_self();
@@ -4155,14 +4207,14 @@ impl<'help> App<'help> {
                     mid_string.push(' ');
                 }
             }
+            let is_multicall_set = cfg!(feature = "unstable-multicall") && self.is_multicall_set();
 
-            let self_bin_name =
-                if cfg!(feature = "unstable-multicall") && self.is_multicall_set() {
-                    self.bin_name.as_deref().unwrap_or("")
-                } else {
-                    self.bin_name.as_deref().unwrap_or(&self.name)
-                }
-                .to_owned();
+            let self_bin_name = if is_multicall_set {
+                self.bin_name.as_deref().unwrap_or("")
+            } else {
+                self.bin_name.as_deref().unwrap_or(&self.name)
+            }
+            .to_owned();
 
             for mut sc in &mut self.subcommands {
                 debug!("Command::_build_bin_names:iter: bin_name set...");
@@ -4216,6 +4268,35 @@ impl<'help> App<'help> {
                         sc.name, sc.bin_name
                     );
                 }
+
+                if sc.display_name.is_none() {
+                    let self_display_name = if is_multicall_set {
+                        self.display_name.as_deref().unwrap_or("")
+                    } else {
+                        self.display_name.as_deref().unwrap_or(&self.name)
+                    };
+                    let display_name = format!(
+                        "{}{}{}",
+                        self_display_name,
+                        if !self_display_name.is_empty() {
+                            "-"
+                        } else {
+                            ""
+                        },
+                        &*sc.name
+                    );
+                    debug!(
+                        "Command::_build_bin_names:iter: Setting display_name of {} to {:?}",
+                        sc.name, display_name
+                    );
+                    sc.display_name = Some(display_name);
+                } else {
+                    debug!(
+                        "Command::_build_bin_names::iter: Using existing display_name of {} ({:?})",
+                        sc.name, sc.display_name
+                    );
+                }
+
                 sc._build_bin_names_internal();
             }
             self.set(AppSettings::BinNameBuilt);
@@ -4805,6 +4886,7 @@ impl<'help> Default for App<'help> {
             name: Default::default(),
             long_flag: Default::default(),
             short_flag: Default::default(),
+            display_name: Default::default(),
             bin_name: Default::default(),
             author: Default::default(),
             version: Default::default(),
