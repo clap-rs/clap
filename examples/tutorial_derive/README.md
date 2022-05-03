@@ -111,7 +111,7 @@ clap [..]
 
 ```
 
-You can use derive attributes to change the application level behavior of clap.
+You can use attributes to change the application level behavior of clap.  Any `Command` builder function can be used as an attribute.
 
 [Example:](02_app_settings.rs)
 ```console
