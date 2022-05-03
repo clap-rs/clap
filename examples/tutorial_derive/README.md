@@ -171,6 +171,10 @@ You can name your arguments with a flag:
 - They can be optional
 - Intent is clearer
 
+The `#[clap(short = 'c')]` and `#[clap(long = "name")]` attributes that define
+the flags are `Arg` methods that are derived from the field name when no value
+is specified (`#[clap(short)]` and `#[clap(long)]`).
+
 [Example:](03_02_option.rs)
 ```console
 $ 03_02_option_derive --help
@@ -207,7 +211,9 @@ name: Some("bob")
 
 ### Flags
 
-Flags can also be switches that can be on/off:
+Flags can also be switches that can be on/off.  This is enabled via the
+`#[clap(parse(from_flag)]` attribute though this is implied when the field is a
+`bool`.
 
 [Example:](03_01_flag_bool.rs)
 ```console
@@ -240,7 +246,7 @@ For more information try --help
 
 ```
 
-Or counted.
+Or counted with `#[clap(parse(from_occurrences))]`:
 
 [Example:](03_01_flag_count.rs)
 ```console
