@@ -1222,6 +1222,37 @@ fn wrapping_newline_variables() {
 }
 
 #[test]
+fn dont_wrap_urls() {
+    let cmd = Command::new("Example")
+        .term_width(30)
+        .subcommand(Command::new("update").arg(
+            Arg::new("force-non-host")
+                .help("Install toolchains that require an emulator. See https://github.com/rust-lang/rustup/wiki/Non-host-toolchains")
+                .long("force-non-host")
+                .takes_value(false))
+    );
+
+    const EXPECTED: &str = "\
+Example-update 
+
+USAGE:
+    Example update [OPTIONS]
+
+OPTIONS:
+        --force-non-host
+            Install toolchains
+            that require an
+            emulator. See
+            https://github.com/rust-lang/rustup/wiki/Non-host-toolchains
+
+    -h, --help
+            Print help
+            information
+";
+    utils::assert_output(cmd, "Example update --help", EXPECTED, false);
+}
+
+#[test]
 fn old_newline_chars() {
     let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("mode")

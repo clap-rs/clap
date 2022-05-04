@@ -1127,7 +1127,9 @@ fn should_show_subcommand(subcommand: &Command) -> bool {
 }
 
 fn text_wrapper(help: &str, width: usize) -> String {
-    let wrapper = textwrap::Options::new(width).break_words(false);
+    let wrapper = textwrap::Options::new(width)
+        .break_words(false)
+        .word_splitter(textwrap::WordSplitter::NoHyphenation);
     help.lines()
         .map(|line| textwrap::fill(line, &wrapper))
         .collect::<Vec<String>>()
