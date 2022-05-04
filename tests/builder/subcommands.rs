@@ -572,9 +572,11 @@ For more information try help
 ";
     utils::assert_eq(HELLO_EXPECTED, err.to_string());
 
-    let err = cmd.clone().try_get_matches_from(&["baz"]).unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
-    static BAZ_EXPECTED: &str = "\
+    #[cfg(feature = "suggestions")]
+    {
+        let err = cmd.clone().try_get_matches_from(&["baz"]).unwrap_err();
+        assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
+        static BAZ_EXPECTED: &str = "\
 error: The subcommand 'baz' wasn't recognized
 
 \tDid you mean 'bar'?
@@ -586,7 +588,8 @@ USAGE:
 
 For more information try help
 ";
-    utils::assert_eq(BAZ_EXPECTED, err.to_string());
+        utils::assert_eq(BAZ_EXPECTED, err.to_string());
+    }
 
     // Verify whatever we did to get the above to work didn't disable `--help` and `--version`.
 
