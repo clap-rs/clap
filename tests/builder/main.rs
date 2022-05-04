@@ -42,6 +42,7 @@ mod tests;
 mod unicode;
 mod unique_args;
 mod utf16;
+mod usage;
 mod utf8;
 mod utils;
 mod validators;
