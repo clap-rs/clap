@@ -490,3 +490,20 @@ fn group_conflicts_with_default_arg() {
     assert_eq!(m.value_of("opt"), Some("default"));
     assert!(m.is_present("flag"));
 }
+
+#[test]
+fn exclusive_with_required() {
+    let cmd = Command::new("bug")
+        .arg(Arg::new("test").long("test").exclusive(true))
+        .arg(Arg::new("input").takes_value(true).required(true));
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--test", "required"])
+        .unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "required"])
+        .unwrap();
+
+    cmd.clone().try_get_matches_from(["bug", "--test"]).unwrap();
+}

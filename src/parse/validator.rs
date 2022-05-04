@@ -223,6 +223,11 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         debug!("Validator::validate_exclusive");
         // Not bothering to filter for `check_explicit` since defaults shouldn't play into this
         let args_count = matcher.arg_names().count();
+        if args_count <= 1 {
+            // Nothing present to conflict with
+            return Ok(());
+        }
+
         matcher
             .arg_names()
             .filter_map(|name| {
@@ -474,11 +479,22 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
+        let is_exclusive_present = matcher.arg_names().any(|name| {
+            self.cmd
+                .find(name)
+                .map(|arg| arg.is_exclusive_set())
+                .unwrap_or_default()
+        });
+        debug!(
+            "Validator::validate_required: is_exclusive_present={}",
+            is_exclusive_present
+        );
+
         for arg_or_group in self.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
             if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
-                if !self.is_missing_required_ok(arg, matcher, conflicts) {
+                if !is_exclusive_present && !self.is_missing_required_ok(arg, matcher, conflicts) {
                     return self.missing_required_error(matcher, vec![]);
                 }
             } else if let Some(group) = self.cmd.find_group(arg_or_group) {
