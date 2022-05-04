@@ -1668,6 +1668,7 @@ impl<'help> App<'help> {
     ///
     /// Valid tags are:
     ///
+    ///   * `{name}`                - Display name for the (sub-)command.
     ///   * `{bin}`                 - Binary name.
     ///   * `{version}`             - Version number.
     ///   * `{author}`              - Author information.
