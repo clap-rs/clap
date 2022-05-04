@@ -2263,7 +2263,14 @@ impl<'help> App<'help> {
     /// [`Arg::long`]: Arg::long()
     #[must_use]
     pub fn long_flag(mut self, long: &'help str) -> Self {
-        self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
+        #[cfg(feature = "unstable-v4")]
+        {
+            self.long_flag = Some(long);
+        }
+        #[cfg(not(feature = "unstable-v4"))]
+        {
+            self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
+        }
         self
     }
 

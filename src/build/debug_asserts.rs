@@ -45,6 +45,10 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         if let Some(l) = sc.get_long_flag().as_ref() {
+            #[cfg(feature = "unstable-v4")]
+            {
+                assert!(!l.starts_with('-'), "Command {}: long_flag {:?} must not start with a `-`, that will be handled by the parser", sc.get_name(), l);
+            }
             long_flags.push(Flag::Command(format!("--{}", l), sc.get_name()));
         }
 
@@ -75,6 +79,10 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         if let Some(l) = arg.long.as_ref() {
+            #[cfg(feature = "unstable-v4")]
+            {
+                assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.name, l);
+            }
             long_flags.push(Flag::Arg(format!("--{}", l), &*arg.name));
         }
 

@@ -45,7 +45,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                 .about("tests other things")
                 .arg(
                     clap::Arg::new("config")
-                        .long("--config")
+                        .long("config")
                         .takes_value(true)
                         .help("the other case to test"),
                 ),
@@ -128,7 +128,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
             .subcommand(
                 clap::Command::new("sub_cmd").about("sub-subcommand").arg(
                     clap::Arg::new("config")
-                        .long("--config")
+                        .long("config")
                         .takes_value(true)
                         .possible_values([clap::PossibleValue::new("Lest quotes aren't escaped.")])
                         .help("the other case to test"),
@@ -222,10 +222,10 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
 
 pub fn hidden_option_command(name: &'static str) -> clap::Command<'static> {
     clap::Command::new(name)
-        .arg(clap::Arg::new("config").long("--config").takes_value(true))
+        .arg(clap::Arg::new("config").long("config").takes_value(true))
         .arg(
             clap::Arg::new("no-config")
-                .long("--no-config")
+                .long("no-config")
                 .hide(true)
                 .overrides_with("config"),
         )
