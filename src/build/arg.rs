@@ -200,7 +200,14 @@ impl<'help> Arg<'help> {
     #[inline]
     #[must_use]
     pub fn long(mut self, l: &'help str) -> Self {
-        self.long = Some(l.trim_start_matches(|c| c == '-'));
+        #[cfg(feature = "unstable-v4")]
+        {
+            self.long = Some(l);
+        }
+        #[cfg(not(feature = "unstable-v4"))]
+        {
+            self.long = Some(l.trim_start_matches(|c| c == '-'));
+        }
         self
     }
 
@@ -1819,7 +1826,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("pv")
     ///     .arg(Arg::new("option")
-    ///         .long("--option")
+    ///         .long("option")
     ///         .takes_value(true)
     ///         .ignore_case(true)
     ///         .possible_value("test123"))
@@ -1837,7 +1844,7 @@ impl<'help> Arg<'help> {
     /// let m = Command::new("pv")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .long("--option")
+    ///         .long("option")
     ///         .takes_value(true)
     ///         .ignore_case(true)
     ///         .multiple_values(true)

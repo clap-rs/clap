@@ -134,7 +134,7 @@ fn possible_values_of_option() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123"),
         )
@@ -153,7 +153,7 @@ fn possible_values_of_option_fail() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123"),
         )
@@ -169,7 +169,7 @@ fn possible_values_of_option_multiple() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
@@ -193,7 +193,7 @@ fn possible_values_of_option_multiple_fail() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
@@ -298,7 +298,7 @@ fn alias() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value(PossibleValue::new("test123").alias("123"))
                 .possible_value("test321")
@@ -316,7 +316,7 @@ fn aliases() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value(PossibleValue::new("test123").aliases(["1", "2", "3"]))
                 .possible_value("test321")
@@ -334,7 +334,7 @@ fn ignore_case() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
@@ -356,7 +356,7 @@ fn ignore_case_fail() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321"),
@@ -373,7 +373,7 @@ fn ignore_case_multiple() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
@@ -395,7 +395,7 @@ fn ignore_case_multiple_fail() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .long("--option")
+                .long("option")
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")

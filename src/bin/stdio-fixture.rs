@@ -6,7 +6,7 @@ fn main() {
         .subcommand(clap::Command::new("more"))
         .arg(
             clap::Arg::new("verbose")
-                .long("--verbose")
+                .long("verbose")
                 .help("log")
                 .long_help("more log"),
         );

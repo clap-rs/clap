@@ -179,3 +179,20 @@ For more information try --help
 
     utils::assert_output(cmd, "test -----", MULTIPLE_DASHES, true);
 }
+
+#[test]
+#[cfg(not(feature = "unstable-v4"))]
+fn leading_dash_stripped() {
+    let cmd = Command::new("mycat").arg(Arg::new("filename").long("--filename"));
+    let matches = cmd.try_get_matches_from(["mycat", "--filename"]).unwrap();
+    assert!(matches.is_present("filename"));
+}
+
+#[test]
+#[cfg(feature = "unstable-v4")]
+#[cfg(debug_assertions)]
+#[should_panic = "Argument filename: long \"--filename\" must not start with a `-`, that will be handled by the parser"]
+fn leading_dash_stripped() {
+    let cmd = Command::new("mycat").arg(Arg::new("filename").long("--filename"));
+    cmd.debug_assert();
+}

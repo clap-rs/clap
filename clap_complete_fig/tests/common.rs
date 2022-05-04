@@ -48,7 +48,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                 .about("tests other things")
                 .arg(
                     clap::Arg::new("config")
-                        .long("--config")
+                        .long("config")
                         .hide(true)
                         .takes_value(true)
                         .require_equals(true)
@@ -139,7 +139,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
             .subcommand(
                 clap::Command::new("sub_cmd").about("sub-subcommand").arg(
                     clap::Arg::new("config")
-                        .long("--config")
+                        .long("config")
                         .takes_value(true)
                         .possible_values([clap::PossibleValue::new("Lest quotes aren't escaped.")])
                         .help("the other case to test"),
