@@ -223,6 +223,11 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         debug!("Validator::validate_exclusive");
         // Not bothering to filter for `check_explicit` since defaults shouldn't play into this
         let args_count = matcher.arg_names().count();
+        if args_count <= 1 {
+            // Nothing present to conflict with
+            return Ok(());
+        }
+
         matcher
             .arg_names()
             .filter_map(|name| {
