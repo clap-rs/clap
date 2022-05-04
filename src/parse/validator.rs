@@ -582,7 +582,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
         let usg = Usage::new(self.cmd).required(&self.required);
 
-        let req_args = usg.get_required_usage_from(&incl, Some(matcher), true);
+        let req_args = usg
+            .get_required_usage_from(&incl, Some(matcher), true)
+            .into_iter()
+            .collect::<Vec<_>>();
 
         debug!(
             "Validator::missing_required_error: req_args={:#?}",

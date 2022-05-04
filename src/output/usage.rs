@@ -333,14 +333,14 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         incls: &[Id],
         matcher: Option<&ArgMatcher>,
         incl_last: bool,
-    ) -> Vec<String> {
+    ) -> IndexSet<String> {
         debug!(
             "Usage::get_required_usage_from: incls={:?}, matcher={:?}, incl_last={:?}",
             incls,
             matcher.is_some(),
             incl_last
         );
-        let mut ret_val = Vec::new();
+        let mut ret_val = IndexSet::new();
 
         let mut unrolled_reqs = IndexSet::new();
 
@@ -399,7 +399,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         {
             debug!("Usage::get_required_usage_from:iter:{:?}", a);
             let arg = self.cmd.find(a).expect(INTERNAL_ERROR_MSG).to_string();
-            ret_val.push(arg);
+            ret_val.insert(arg);
         }
         let mut g_vec: Vec<String> = vec![];
         for g in unrolled_reqs
@@ -423,7 +423,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                 g_vec.push(elem);
             }
         }
-        ret_val.extend_from_slice(&g_vec);
+        ret_val.extend(g_vec);
 
         let mut pvec = unrolled_reqs
             .iter()
@@ -438,9 +438,9 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         pvec.sort_by_key(|(ind, _)| *ind); // sort by index
 
         for (_, p) in pvec {
-            debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
+            debug!("Usage::get_required_usage_from:push:{:?}", p.id);
             if !args_in_groups.contains(&p.id) {
-                ret_val.push(p.to_string());
+                ret_val.insert(p.to_string());
             }
         }
 

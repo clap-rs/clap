@@ -1345,3 +1345,30 @@ fn required_unless_all_on_default_value() {
 
     assert!(result.is_err(), "{:?}", result.unwrap());
 }
+
+#[test]
+fn required_error_doesnt_duplicate() {
+    let cmd = Command::new("Clap-created-USAGE-string-bug")
+        .arg(Arg::new("a").required(true))
+        .arg(
+            Arg::new("b")
+                .short('b')
+                .takes_value(true)
+                .conflicts_with("c"),
+        )
+        .arg(
+            Arg::new("c")
+                .short('c')
+                .takes_value(true)
+                .conflicts_with("b"),
+        );
+    const EXPECTED: &str = "\
+error: The argument '-b <b>' cannot be used with '-c <c>'
+
+USAGE:
+    clap-test -b <b> <a>
+
+For more information try --help
+";
+    utils::assert_output(cmd, "clap-test aaa -b bbb -c ccc", EXPECTED, true);
+}
