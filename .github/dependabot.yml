@@ -8,3 +8,10 @@ updates:
   open-pull-requests-limit: 10
   labels:
     - C-dependencies
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule: 
+    interval: monthly
+  open-pull-requests-limit: 10
+  labels: 
+   - "C-dependencies"
