@@ -38,9 +38,11 @@ OPTIONS:
         --multvalsmo <one> <two>     Tests multiple values, and mult occs
     -o, --option <opt>...            tests options
     -O, --option3 <option3>          specific vals [possible values: fast, slow]
-        --optvaleq[=<optval>]        Tests optional value, require = sign
-        --optvalnoeq [<optval>]      Tests optional value
+        --optvaleq=<optval>          Tests optional value, require = sign
+        --optvalnoeq <optval>        Tests optional value
     -V, --version                    Print version information
+        --valeq[=<optval>...]        Tests optional value, require = sign
+        --valnoeq [<optval>...]      Tests optional value
 
 SUBCOMMANDS:
     help      Print this message or the help of the given subcommand(s)

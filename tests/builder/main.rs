@@ -45,4 +45,5 @@ mod utf16;
 mod utf8;
 mod utils;
 mod validators;
+mod value_range;
 mod version;

@@ -83,13 +83,18 @@ pub fn complex_app() -> Command<'static> {
                 .max_values(3),
             arg!(--optvaleq <optval> "Tests optional value, require = sign")
                 .required(false)
-                .min_values(0)
                 .number_of_values(1)
                 .require_equals(true),
             arg!(--optvalnoeq <optval> "Tests optional value")
                 .required(false)
-                .min_values(0)
                 .number_of_values(1),
+            arg!(--valeq <optval> "Tests optional value, require = sign")
+                .required(false)
+                .min_values(0)
+                .require_equals(true),
+            arg!(--valnoeq <optval> "Tests optional value")
+                .required(false)
+                .min_values(0),
         ])
         .subcommand(
             Command::new("subcmd")

@@ -438,6 +438,33 @@ fn option_vec_type_structopt_behavior() {
 }
 
 #[test]
+fn value_range_option_vec_type_structopt_behavior() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short, long, multiple_values(true), takes_values(0..))]
+        arg: Option<Vec<i32>>,
+    }
+    assert_eq!(
+        Opt { arg: Some(vec![1]) },
+        Opt::try_parse_from(&["test", "-a", "1"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2])
+        },
+        Opt::try_parse_from(&["test", "-a", "1", "2"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt { arg: Some(vec![]) },
+        Opt::try_parse_from(&["test", "-a"]).unwrap()
+    );
+
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+}
+
+#[test]
 fn two_option_vec_types() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
