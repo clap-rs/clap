@@ -32,6 +32,15 @@ pub(crate) struct Help<'help, 'cmd, 'writer> {
 
 // Public Functions
 impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
+    #[cfg(feature = "unstable-v4")]
+    const DEFAULT_TEMPLATE: &'static str = "\
+        {before-help}{name} {version}\n\
+        {author-with-newline}{about-with-newline}\n\
+        {usage-heading}\n    {usage}\n\
+        \n\
+        {all-args}{after-help}\
+    ";
+    #[cfg(not(feature = "unstable-v4"))]
     const DEFAULT_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
@@ -40,6 +49,13 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         {all-args}{after-help}\
     ";
 
+    #[cfg(feature = "unstable-v4")]
+    const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
+        {before-help}{name} {version}\n\
+        {author-with-newline}{about-with-newline}\n\
+        {usage-heading}\n    {usage}{after-help}\
+    ";
+    #[cfg(not(feature = "unstable-v4"))]
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
