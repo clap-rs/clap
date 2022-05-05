@@ -2615,7 +2615,7 @@ fn override_help_flag_using_short() {
 fn subcommand_help_doesnt_have_useless_help_flag() {
     // The main care-about is that the docs and behavior match.  Since the `help` subcommand
     // currently ignores the `--help` flag, the output shouldn't have it.
-    let cmd = Command::new("test_app").subcommand(Command::new("test").about("Subcommand"));
+    let cmd = Command::new("example").subcommand(Command::new("test").about("Subcommand"));
 
     utils::assert_output(
         cmd,
@@ -2655,7 +2655,7 @@ fn disable_help_flag_affects_help_subcommand() {
 
 #[test]
 fn dont_propagate_version_to_help_subcommand() {
-    let cmd = clap::Command::new("test")
+    let cmd = clap::Command::new("example")
         .version("1.0")
         .propagate_version(true)
         .subcommand(clap::Command::new("subcommand"));
