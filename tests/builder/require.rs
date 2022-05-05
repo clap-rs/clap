@@ -170,7 +170,7 @@ static POSITIONAL_REQ_IF_VAL: &str = "error: The following required arguments we
     <opt>
 
 USAGE:
-    clap-test <flag> <foo> <opt> [ARGS]
+    clap-test <flag> <foo> <opt>
 
 For more information try --help
 ";
