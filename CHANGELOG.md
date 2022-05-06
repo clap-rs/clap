@@ -13,8 +13,25 @@ _gated behind `unstable-v4`_
 
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 
+### Fixes
+
+- Leading dashes in `Arg::long` are no longer allowed
+- *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
+
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+### Fixes
+
+- *(parser)* `Arg::exclusive` overrides `Arg::required`, like other conflicts
+- *(error)* Don't duplicate arguments in usage
+- *(error)* Don't show hidden arguments in conflict error usage
+- *(help)* New `help_template` variable `{name}` to fix problems with `{bin}`
+- *(help)* Don't wrap URLs
+
+**gated behind `unstable-v4`**
+- Leading dashes in `Arg::long` are no longer allowed
+- *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 
 ## [3.1.15] - 2022-05-02
 
