@@ -2,7 +2,6 @@
 
 mod app_name;
 mod arg_enum;
-mod argument_naming;
 mod arguments;
 mod author_version_about;
 mod basic;
@@ -18,6 +17,7 @@ mod generic;
 mod help;
 mod issues;
 mod macros;
+mod naming;
 mod nested_subcommands;
 mod non_literal_attributes;
 mod options;
