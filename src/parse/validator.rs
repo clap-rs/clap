@@ -125,11 +125,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     let used: Vec<Id> = matcher
                         .arg_names()
                         .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
-                        .filter(|&n| {
-                            self.cmd.find(n).map_or(true, |a| {
-                                !(a.is_hide_set() || self.required.contains(&a.id))
-                            })
-                        })
+                        .filter(|&n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
                         .cloned()
                         .collect();
                     return Err(Error::invalid_value(

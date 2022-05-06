@@ -1468,11 +1468,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         let required = self.cmd.required_graph();
         let used: Vec<Id> = matcher
             .arg_names()
-            .filter(|n| {
-                self.cmd
-                    .find(n)
-                    .map_or(true, |a| !(required.contains(&a.id) || a.is_hide_set()))
-            })
+            .filter(|n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
             .cloned()
             .collect();
 
