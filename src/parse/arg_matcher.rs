@@ -30,7 +30,11 @@ impl ArgMatcher {
             //
             // See clap-rs/clap#3263
             #[cfg(debug_assertions)]
+            #[cfg(not(feature = "unstable-v4"))]
             disable_asserts: _cmd.is_allow_external_subcommands_set(),
+            #[cfg(debug_assertions)]
+            #[cfg(feature = "unstable-v4")]
+            disable_asserts: false,
             ..Default::default()
         })
     }
