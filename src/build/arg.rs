@@ -5287,7 +5287,10 @@ where
                         write(&delim, false)?;
                     }
                 }
-                if (num_val_names == 1 && mult_val) || (arg.is_positional() && mult_occ) {
+                if (num_val_names == 1 && mult_val)
+                    || (arg.is_positional() && mult_occ)
+                    || num_val_names < arg.num_vals.unwrap_or(0)
+                {
                     write("...", true)?;
                 }
             }

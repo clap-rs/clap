@@ -636,6 +636,18 @@ fn assert_arg(arg: &Arg) {
         );
     }
 
+    #[cfg(feature = "unstable-v4")]
+    {
+        let num_vals = arg.get_num_vals().unwrap_or(usize::MAX);
+        let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
+        if num_vals < num_val_names {
+            panic!(
+                "Argument {}: Too many value names ({}) compared to number_of_values ({})",
+                arg.name, num_val_names, num_vals
+            );
+        }
+    }
+
     assert_arg_flags(arg);
 
     assert_defaults(arg, "default_value", arg.default_vals.iter().copied());
