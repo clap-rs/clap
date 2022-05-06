@@ -155,6 +155,14 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_ifs {
+            #[cfg(feature = "unstable-v4")]
+            {
+                assert!(
+                    !arg.is_required_set(),
+                    "Argument {}: `required` conflicts with `required_if_eq*`",
+                    arg.name
+                );
+            }
             assert!(
                 cmd.id_exists(&req.0),
                 "Command {}: Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
@@ -165,6 +173,14 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_ifs_all {
+            #[cfg(feature = "unstable-v4")]
+            {
+                assert!(
+                    !arg.is_required_set(),
+                    "Argument {}: `required` conflicts with `required_if_eq_all`",
+                    arg.name
+                );
+            }
             assert!(
                 cmd.id_exists(&req.0),
                 "Command {}: Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
@@ -175,6 +191,14 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_unless {
+            #[cfg(feature = "unstable-v4")]
+            {
+                assert!(
+                    !arg.is_required_set(),
+                    "Argument {}: `required` conflicts with `required_unless*`",
+                    arg.name
+                );
+            }
             assert!(
                 cmd.id_exists(req),
                 "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
@@ -185,6 +209,14 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_unless_all {
+            #[cfg(feature = "unstable-v4")]
+            {
+                assert!(
+                    !arg.is_required_set(),
+                    "Argument {}: `required` conflicts with `required_unless*`",
+                    arg.name
+                );
+            }
             assert!(
                 cmd.id_exists(req),
                 "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
