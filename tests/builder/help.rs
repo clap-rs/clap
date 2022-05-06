@@ -2579,6 +2579,37 @@ OPTIONS:
 }
 
 #[test]
+#[cfg(not(feature = "unstable-v4"))]
+fn too_many_value_names_panics() {
+    Command::new("test")
+        .arg(
+            Arg::new("foo")
+                .long("foo")
+                .required(true)
+                .takes_value(true)
+                .number_of_values(1)
+                .value_names(&["one", "two"]),
+        )
+        .debug_assert()
+}
+
+#[test]
+#[cfg(feature = "unstable-v4")]
+#[should_panic = "Argument foo: Too many value names (2) compared to number_of_values (1)"]
+fn too_many_value_names_panics() {
+    Command::new("test")
+        .arg(
+            Arg::new("foo")
+                .long("foo")
+                .required(true)
+                .takes_value(true)
+                .number_of_values(1)
+                .value_names(&["one", "two"]),
+        )
+        .debug_assert()
+}
+
+#[test]
 fn disabled_help_flag() {
     let res = Command::new("foo")
         .subcommand(Command::new("sub"))
