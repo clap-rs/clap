@@ -30,7 +30,11 @@ impl ArgMatcher {
             //
             // See clap-rs/clap#3263
             #[cfg(debug_assertions)]
+            #[cfg(not(feature = "unstable-v4"))]
             disable_asserts: _cmd.is_allow_external_subcommands_set(),
+            #[cfg(debug_assertions)]
+            #[cfg(feature = "unstable-v4")]
+            disable_asserts: false,
             ..Default::default()
         })
     }
@@ -85,6 +89,7 @@ impl ArgMatcher {
         }
     }
 
+    #[cfg(not(feature = "unstable-v4"))]
     pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
         self.0.args.get_mut(arg)
     }
@@ -139,6 +144,19 @@ impl ArgMatcher {
         debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.update_ty(ValueSource::CommandLine);
+        ma.inc_occurrences();
+    }
+
+    #[cfg(feature = "unstable-v4")]
+    pub(crate) fn inc_occurrence_of_external(&mut self, allow_invalid_utf8: bool) {
+        let id = &Id::empty_hash();
+        debug!(
+            "ArgMatcher::inc_occurrence_of_external: id={:?}, allow_invalid_utf8={}",
+            id, allow_invalid_utf8
+        );
+        let ma = self.entry(id).or_insert(MatchedArg::new());
+        ma.update_ty(ValueSource::CommandLine);
+        ma.invalid_utf8_allowed(allow_invalid_utf8);
         ma.inc_occurrences();
     }
 

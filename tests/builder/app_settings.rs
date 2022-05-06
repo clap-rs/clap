@@ -852,6 +852,46 @@ fn issue_1093_allow_ext_sc() {
 }
 
 #[test]
+#[cfg(not(feature = "unstable-v4"))]
+fn allow_ext_sc_empty_args() {
+    let res = Command::new("clap-test")
+        .version("v1.4.8")
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
+        .try_get_matches_from(vec!["clap-test", "external-cmd"]);
+
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+
+    match res.unwrap().subcommand() {
+        Some((name, args)) => {
+            assert_eq!(name, "external-cmd");
+            assert_eq!(args.values_of_lossy(""), None);
+        }
+        _ => unreachable!(),
+    }
+}
+
+#[test]
+#[cfg(feature = "unstable-v4")]
+fn allow_ext_sc_empty_args() {
+    let res = Command::new("clap-test")
+        .version("v1.4.8")
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
+        .try_get_matches_from(vec!["clap-test", "external-cmd"]);
+
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+
+    match res.unwrap().subcommand() {
+        Some((name, args)) => {
+            assert_eq!(name, "external-cmd");
+            assert_eq!(args.values_of_lossy(""), Some(vec![]));
+        }
+        _ => unreachable!(),
+    }
+}
+
+#[test]
 fn allow_ext_sc_when_sc_required() {
     let res = Command::new("clap-test")
         .version("v1.4.8")
@@ -884,6 +924,25 @@ fn external_subcommand_looks_like_built_in() {
     match m.subcommand() {
         Some((name, args)) => {
             assert_eq!(name, "install-update");
+            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+        }
+        _ => panic!("external_subcommand didn't work"),
+    }
+}
+
+#[test]
+fn built_in_subcommand_escaped() {
+    let res = Command::new("cargo")
+        .version("1.26.0")
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
+        .subcommand(Command::new("install"))
+        .try_get_matches_from(vec!["cargo", "--", "install", "foo"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    match m.subcommand() {
+        Some((name, args)) => {
+            assert_eq!(name, "install");
             assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
         }
         _ => panic!("external_subcommand didn't work"),

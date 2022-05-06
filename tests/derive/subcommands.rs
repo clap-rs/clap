@@ -547,3 +547,59 @@ fn skip_subcommand() {
     let res = Opt::try_parse_from(&["test", "skip"]);
     assert_eq!(res.unwrap_err().kind(), clap::ErrorKind::UnknownArgument,);
 }
+
+#[test]
+#[cfg(feature = "unstable-v4")]
+fn built_in_subcommand_escaped() {
+    #[derive(Debug, PartialEq, Parser)]
+    enum Command {
+        Install {
+            arg: Option<String>,
+        },
+        #[clap(external_subcommand)]
+        Custom(Vec<String>),
+    }
+
+    assert_eq!(
+        Command::try_parse_from(&["test", "install", "arg"]).unwrap(),
+        Command::Install {
+            arg: Some(String::from("arg"))
+        }
+    );
+    assert_eq!(
+        Command::try_parse_from(&["test", "--", "install"]).unwrap(),
+        Command::Custom(vec![String::from("install")])
+    );
+    assert_eq!(
+        Command::try_parse_from(&["test", "--", "install", "arg"]).unwrap(),
+        Command::Custom(vec![String::from("install"), String::from("arg")])
+    );
+}
+
+#[test]
+#[cfg(not(feature = "unstable-v4"))]
+fn built_in_subcommand_escaped() {
+    #[derive(Debug, PartialEq, Parser)]
+    enum Command {
+        Install {
+            arg: Option<String>,
+        },
+        #[clap(external_subcommand)]
+        Custom(Vec<String>),
+    }
+
+    assert_eq!(
+        Command::try_parse_from(&["test", "install", "arg"]).unwrap(),
+        Command::Install {
+            arg: Some(String::from("arg"))
+        }
+    );
+    assert_eq!(
+        Command::try_parse_from(&["test", "--", "install"]).unwrap(),
+        Command::Install { arg: None }
+    );
+    assert_eq!(
+        Command::try_parse_from(&["test", "--", "install", "arg"]).unwrap(),
+        Command::Install { arg: None }
+    );
+}
