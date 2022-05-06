@@ -2553,6 +2553,32 @@ OPTIONS:
 }
 
 #[test]
+fn too_few_value_names_is_dotted() {
+    let cmd = Command::new("test").arg(
+        Arg::new("foo")
+            .long("foo")
+            .required(true)
+            .takes_value(true)
+            .number_of_values(3)
+            .value_names(&["one", "two"]),
+    );
+    utils::assert_output(
+        cmd,
+        "test --help",
+        "test 
+
+USAGE:
+    test --foo <one> <two>...
+
+OPTIONS:
+        --foo <one> <two>...    
+    -h, --help                  Print help information
+",
+        false,
+    );
+}
+
+#[test]
 fn disabled_help_flag() {
     let res = Command::new("foo")
         .subcommand(Command::new("sub"))
