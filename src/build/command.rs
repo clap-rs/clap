@@ -2709,10 +2709,15 @@ impl<'help> App<'help> {
 
     /// Assume unexpected positional arguments are a [`subcommand`].
     ///
+    /// Arguments will be stored in the `""` argument in the [`ArgMatches`]
+    ///
     /// **NOTE:** Use this setting with caution,
     /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
     /// will **not** cause an error and instead be treated as a potential subcommand.
     /// One should check for such cases manually and inform the user appropriately.
+    ///
+    /// **NOTE:** A built-in subcommand will be parsed as an external subcommand when escaped with
+    /// `--`.
     ///
     /// # Examples
     ///

@@ -931,6 +931,25 @@ fn external_subcommand_looks_like_built_in() {
 }
 
 #[test]
+fn built_in_subcommand_escaped() {
+    let res = Command::new("cargo")
+        .version("1.26.0")
+        .allow_external_subcommands(true)
+        .allow_invalid_utf8_for_external_subcommands(true)
+        .subcommand(Command::new("install"))
+        .try_get_matches_from(vec!["cargo", "--", "install", "foo"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    match m.subcommand() {
+        Some((name, args)) => {
+            assert_eq!(name, "install");
+            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+        }
+        _ => panic!("external_subcommand didn't work"),
+    }
+}
+
+#[test]
 fn aaos_flags() {
     // flags
     let res = Command::new("posix")
