@@ -289,7 +289,7 @@ fn test_rename_all_is_not_propagated_from_struct_into_subcommand() {
 }
 
 #[test]
-fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
+fn test_rename_all_is_propagated_from_enum_to_variants() {
     #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     enum Opt {
@@ -304,6 +304,19 @@ fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
         Opt::FirstVariant,
         Opt::try_parse_from(&["test", "FIRST_VARIANT"]).unwrap()
     );
+}
+
+#[test]
+fn test_rename_all_is_propagated_from_enum_to_variant_fields() {
+    #[derive(Parser, Debug, PartialEq)]
+    #[clap(rename_all = "screaming_snake")]
+    enum Opt {
+        FirstVariant,
+        SecondVariant {
+            #[clap(long)]
+            foo: bool,
+        },
+    }
 
     assert_eq!(
         Opt::SecondVariant { foo: true },
