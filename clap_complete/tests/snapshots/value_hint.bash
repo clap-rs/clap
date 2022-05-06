@@ -26,7 +26,7 @@ _my-app() {
             fi
             case "${prev}" in
                 --choice)
-                    COMPREPLY=($(compgen -W "" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "bash fish zsh" -- "${cur}"))
                     return 0
                     ;;
                 --unknown)
