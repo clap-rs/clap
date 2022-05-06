@@ -428,26 +428,34 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 // Collect the external subcommand args
                 let mut sc_m = ArgMatcher::new(self.cmd);
+                let allow_invalid_utf8 = self
+                    .cmd
+                    .is_allow_invalid_utf8_for_external_subcommands_set();
+                #[cfg(feature = "unstable-v4")]
+                {
+                    sc_m.inc_occurrence_of_external(allow_invalid_utf8);
+                }
 
                 for v in raw_args.remaining(&mut args_cursor) {
-                    let allow_invalid_utf8 = self
-                        .cmd
-                        .is_allow_invalid_utf8_for_external_subcommands_set();
                     if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.cmd,
                             Usage::new(self.cmd).create_usage_with_title(&[]),
                         ));
                     }
+                    let external_id = &Id::empty_hash();
                     sc_m.add_val_to(
-                        &Id::empty_hash(),
+                        external_id,
                         v.to_os_string(),
                         ValueSource::CommandLine,
                         false,
                     );
-                    sc_m.get_mut(&Id::empty_hash())
-                        .expect("just inserted")
-                        .invalid_utf8_allowed(allow_invalid_utf8);
+                    #[cfg(not(feature = "unstable-v4"))]
+                    {
+                        sc_m.get_mut(external_id)
+                            .expect("just inserted")
+                            .invalid_utf8_allowed(allow_invalid_utf8);
+                    }
                 }
 
                 matcher.subcommand(SubCommand {
