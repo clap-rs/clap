@@ -484,9 +484,17 @@ fn gen_from_arg_matches(
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
         };
 
-        quote! {
-            if #sub_name == #subcommand_name_var {
-                return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
+        if cfg!(feature = "unstable-v4") {
+            quote! {
+                if #sub_name == #subcommand_name_var && !#sub_arg_matches_var.is_present("") {
+                    return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
+                }
+            }
+        } else {
+            quote! {
+                if #sub_name == #subcommand_name_var {
+                    return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
+                }
             }
         }
     });
