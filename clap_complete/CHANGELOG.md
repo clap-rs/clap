@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Complete visible `PossibleValue`s, rather than hidden
+
 ## [3.1.3] - 2022-04-30
 
 ### Fixes
