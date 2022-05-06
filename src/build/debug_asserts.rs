@@ -184,6 +184,16 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
         }
 
+        for req in &arg.r_unless_all {
+            assert!(
+                cmd.id_exists(req),
+                "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                    cmd.get_name(),
+                req,
+                arg.name,
+            );
+        }
+
         // blacklist
         for req in &arg.blacklist {
             assert!(
