@@ -11,4 +11,8 @@
 fn ui() {
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/derive_ui/*.rs");
+    #[cfg(feature = "unstable-v4")]
+    t.compile_fail("tests/derive_ui/next/*.rs");
+    #[cfg(not(feature = "unstable-v4"))]
+    t.compile_fail("tests/derive_ui/stable/*.rs");
 }

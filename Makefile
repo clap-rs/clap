@@ -33,5 +33,5 @@ test-%:
 clippy-%:
 	cargo clippy ${_FEATURES_${@:clippy-%=%}} ${ARGS} --all-targets -- -D warnings -A deprecated
 
-test-ui:
-	cargo +${MSRV} test --test derive_ui --features derive
+test-ui-%:
+	cargo +${MSRV} test --test derive_ui --features derive ${_FEATURES_${@:test-ui-%=%}}
