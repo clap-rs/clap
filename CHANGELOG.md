@@ -21,6 +21,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Allow value names for `arg!` macro to have dashes when quoted, like longs
+
 ## [3.1.16] - 2022-05-06
 
 ### Fixes
