@@ -290,6 +290,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         let used_filtered: Vec<Id> = matcher
             .arg_names()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+            .filter(|n| {
+                // Filter out the args we don't want to specify.
+                self.cmd.find(n).map_or(true, |a| !a.is_hide_set())
+            })
             .filter(|key| !conflicting_keys.contains(key))
             .cloned()
             .collect();
@@ -582,7 +586,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
         let usg = Usage::new(self.cmd).required(&self.required);
 
-        let req_args = usg.get_required_usage_from(&incl, Some(matcher), true);
+        let req_args = usg
+            .get_required_usage_from(&incl, Some(matcher), true)
+            .into_iter()
+            .collect::<Vec<_>>();
 
         debug!(
             "Validator::missing_required_error: req_args={:#?}",
@@ -594,9 +601,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
-                self.cmd
-                    .find(n)
-                    .map_or(true, |a| !a.is_hide_set() && !self.required.contains(&a.id))
+                self.cmd.find(n).map_or(true, |a| !a.is_hide_set())
             })
             .cloned()
             .chain(incl)
