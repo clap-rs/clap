@@ -178,7 +178,7 @@ fn vals_for(o: &Arg) -> String {
         format!(
             "$(compgen -W \"{}\" -- \"${{cur}}\")",
             vals.iter()
-                .filter(|pv| pv.is_hide_set())
+                .filter(|pv| !pv.is_hide_set())
                 .map(PossibleValue::get_name)
                 .collect::<Vec<_>>()
                 .join(" ")

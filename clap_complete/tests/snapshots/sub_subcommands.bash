@@ -94,7 +94,7 @@ _my-app() {
             fi
             case "${prev}" in
                 --config)
-                    COMPREPLY=($(compgen -W "" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "Lest quotes aren't escaped." -- "${cur}"))
                     return 0
                     ;;
                 *)
