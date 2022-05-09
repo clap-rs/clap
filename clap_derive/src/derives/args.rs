@@ -342,12 +342,12 @@ pub fn gen_augment(
                     }
                 };
 
-                let name = attrs.cased_name();
+                let id = attrs.id();
                 let methods = attrs.field_methods(true);
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg(
-                        clap::Arg::new(#name)
+                        clap::Arg::new(#id)
                             #modifier
                             #methods
                     );
@@ -528,7 +528,7 @@ fn gen_parsers(
     let func = &parser.func;
     let span = parser.kind.span();
     let convert_type = inner_type(**ty, &field.ty);
-    let name = attrs.cased_name();
+    let id = attrs.id();
     let (value_of, values_of, mut parse) = match *parser.kind {
         FromStr => (
             quote_spanned!(span=> value_of),
@@ -538,7 +538,7 @@ fn gen_parsers(
         TryFromStr => (
             quote_spanned!(span=> value_of),
             quote_spanned!(span=> values_of),
-            quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #name, err)))),
+            quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))),
         ),
         FromOsStr => (
             quote_spanned!(span=> value_of_os),
@@ -548,7 +548,7 @@ fn gen_parsers(
         TryFromOsStr => (
             quote_spanned!(span=> value_of_os),
             quote_spanned!(span=> values_of_os),
-            quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #name, err)))),
+            quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))),
         ),
         FromOccurrences => (
             quote_spanned!(span=> occurrences_of),
@@ -561,7 +561,7 @@ fn gen_parsers(
         let ci = attrs.ignore_case();
 
         parse = quote_spanned! { convert_type.span()=>
-            |s| <#convert_type as clap::ArgEnum>::from_str(s, #ci).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #name, err)))
+            |s| <#convert_type as clap::ArgEnum>::from_str(s, #ci).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))
         }
     }
 
@@ -576,34 +576,34 @@ fn gen_parsers(
         Ty::Bool => {
             if update.is_some() {
                 quote_spanned! { ty.span()=>
-                    *#field_name || #arg_matches.is_present(#name)
+                    *#field_name || #arg_matches.is_present(#id)
                 }
             } else {
                 quote_spanned! { ty.span()=>
-                    #arg_matches.is_present(#name)
+                    #arg_matches.is_present(#id)
                 }
             }
         }
 
         Ty::Option => {
             quote_spanned! { ty.span()=>
-                #arg_matches.#value_of(#name)
+                #arg_matches.#value_of(#id)
                     .map(#parse)
                     .transpose()?
             }
         }
 
         Ty::OptionOption => quote_spanned! { ty.span()=>
-            if #arg_matches.is_present(#name) {
-                Some(#arg_matches.#value_of(#name).map(#parse).transpose()?)
+            if #arg_matches.is_present(#id) {
+                Some(#arg_matches.#value_of(#id).map(#parse).transpose()?)
             } else {
                 None
             }
         },
 
         Ty::OptionVec => quote_spanned! { ty.span()=>
-            if #arg_matches.is_present(#name) {
-                Some(#arg_matches.#values_of(#name)
+            if #arg_matches.is_present(#id) {
+                Some(#arg_matches.#values_of(#id)
                     .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new))
@@ -614,7 +614,7 @@ fn gen_parsers(
 
         Ty::Vec => {
             quote_spanned! { ty.span()=>
-                #arg_matches.#values_of(#name)
+                #arg_matches.#values_of(#id)
                     .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new)
@@ -622,17 +622,17 @@ fn gen_parsers(
         }
 
         Ty::Other if occurrences => quote_spanned! { ty.span()=>
-            #parse(#arg_matches.#value_of(#name))
+            #parse(#arg_matches.#value_of(#id))
         },
 
         Ty::Other if flag => quote_spanned! { ty.span()=>
-            #parse(#arg_matches.is_present(#name))
+            #parse(#arg_matches.is_present(#id))
         },
 
         Ty::Other => {
             quote_spanned! { ty.span()=>
-                #arg_matches.#value_of(#name)
-                    .ok_or_else(|| clap::Error::raw(clap::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #name)))
+                #arg_matches.#value_of(#id)
+                    .ok_or_else(|| clap::Error::raw(clap::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
                     .and_then(#parse)?
             }
         }
@@ -640,7 +640,7 @@ fn gen_parsers(
 
     if let Some(access) = update {
         quote_spanned! { field.span()=>
-            if #arg_matches.is_present(#name) {
+            if #arg_matches.is_present(#id) {
                 #access
                 *#field_name = #field_value
             }

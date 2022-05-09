@@ -1,32 +1,6 @@
 use clap::Parser;
 
 #[test]
-fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
-    #[derive(Parser, Debug, PartialEq)]
-    enum Opt {
-        Command { foo: u32 },
-    }
-
-    assert_eq!(
-        Opt::Command { foo: 0 },
-        Opt::try_parse_from(&["test", "command", "0"]).unwrap()
-    );
-}
-
-#[test]
-fn test_multi_word_enum_variant_is_renamed() {
-    #[derive(Parser, Debug, PartialEq)]
-    enum Opt {
-        FirstCommand { foo: u32 },
-    }
-
-    assert_eq!(
-        Opt::FirstCommand { foo: 0 },
-        Opt::try_parse_from(&["test", "first-command", "0"]).unwrap()
-    );
-}
-
-#[test]
 fn test_standalone_long_generates_kebab_case() {
     #[derive(Parser, Debug, PartialEq)]
     #[allow(non_snake_case)]
@@ -236,6 +210,60 @@ fn test_rename_all_is_not_propagated_from_struct_into_flattened() {
 }
 
 #[test]
+fn test_lower_is_renamed() {
+    #[derive(Parser, Debug, PartialEq)]
+    struct Opt {
+        #[clap(rename_all = "lower", long)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "--foooption"]).unwrap()
+    );
+}
+
+#[test]
+fn test_upper_is_renamed() {
+    #[derive(Parser, Debug, PartialEq)]
+    struct Opt {
+        #[clap(rename_all = "upper", long)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "--FOOOPTION"]).unwrap()
+    );
+}
+
+#[test]
+fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
+    #[derive(Parser, Debug, PartialEq)]
+    enum Opt {
+        Command { foo: u32 },
+    }
+
+    assert_eq!(
+        Opt::Command { foo: 0 },
+        Opt::try_parse_from(&["test", "command", "0"]).unwrap()
+    );
+}
+
+#[test]
+fn test_multi_word_enum_variant_is_renamed() {
+    #[derive(Parser, Debug, PartialEq)]
+    enum Opt {
+        FirstCommand { foo: u32 },
+    }
+
+    assert_eq!(
+        Opt::FirstCommand { foo: 0 },
+        Opt::try_parse_from(&["test", "first-command", "0"]).unwrap()
+    );
+}
+
+#[test]
 fn test_rename_all_is_not_propagated_from_struct_into_subcommand() {
     #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
@@ -261,14 +289,14 @@ fn test_rename_all_is_not_propagated_from_struct_into_subcommand() {
 }
 
 #[test]
-fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
+fn test_rename_all_is_propagated_from_enum_to_variants() {
     #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     enum Opt {
         FirstVariant,
         SecondVariant {
             #[clap(long)]
-            foo: bool,
+            foo: String,
         },
     }
 
@@ -276,10 +304,25 @@ fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
         Opt::FirstVariant,
         Opt::try_parse_from(&["test", "FIRST_VARIANT"]).unwrap()
     );
+}
+
+#[test]
+fn test_rename_all_is_propagated_from_enum_to_variant_fields() {
+    #[derive(Parser, Debug, PartialEq)]
+    #[clap(rename_all = "screaming_snake")]
+    enum Opt {
+        FirstVariant,
+        SecondVariant {
+            #[clap(long)]
+            foo: String,
+        },
+    }
 
     assert_eq!(
-        Opt::SecondVariant { foo: true },
-        Opt::try_parse_from(&["test", "SECOND_VARIANT", "--FOO"]).unwrap()
+        Opt::SecondVariant {
+            foo: "value".into()
+        },
+        Opt::try_parse_from(&["test", "SECOND_VARIANT", "--FOO", "value"]).unwrap()
     );
 }
 
@@ -307,33 +350,5 @@ fn test_rename_all_is_propagation_can_be_overridden() {
     assert_eq!(
         Opt::SecondVariant { foo_option: true },
         Opt::try_parse_from(&["test", "SECOND_VARIANT", "--foo-option"]).unwrap()
-    );
-}
-
-#[test]
-fn test_lower_is_renamed() {
-    #[derive(Parser, Debug, PartialEq)]
-    struct Opt {
-        #[clap(rename_all = "lower", long)]
-        foo_option: bool,
-    }
-
-    assert_eq!(
-        Opt { foo_option: true },
-        Opt::try_parse_from(&["test", "--foooption"]).unwrap()
-    );
-}
-
-#[test]
-fn test_upper_is_renamed() {
-    #[derive(Parser, Debug, PartialEq)]
-    struct Opt {
-        #[clap(rename_all = "upper", long)]
-        foo_option: bool,
-    }
-
-    assert_eq!(
-        Opt { foo_option: true },
-        Opt::try_parse_from(&["test", "--FOOOPTION"]).unwrap()
     );
 }
