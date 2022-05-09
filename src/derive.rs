@@ -1,7 +1,7 @@
 //! This module contains traits that are usable with the `#[derive(...)].`
 //! macros in [`clap_derive`].
 
-use crate::{ArgMatches, Command, Error, PossibleValue};
+use crate::{ArgMatches, Command, Error, ErrorKind, PossibleValue};
 
 use std::ffi::OsString;
 
@@ -509,4 +509,37 @@ impl<T: Subcommand> Subcommand for Box<T> {
 fn format_error<I: CommandFactory>(err: crate::Error) -> crate::Error {
     let mut cmd = I::command();
     err.format(&mut cmd)
+}
+
+impl<T: FromArgMatches> FromArgMatches for Option<T> {
+    fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error> {
+        Ok(match T::from_arg_matches(matches) {
+            Ok(inner) => Some(inner),
+            Err(e) if e.kind() == ErrorKind::MissingRequiredArgument => None,
+            Err(e) => return Err(e),
+        })
+    }
+
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
+        match self {
+            Some(inner) => match inner.update_from_arg_matches(matches) {
+                Ok(_) => Ok(()),
+                Err(e) if e.kind() == ErrorKind::MissingRequiredArgument => Ok(()),
+                Err(e) => Err(e),
+            },
+            None => todo!(),
+        }
+    }
+}
+impl<T: Args> Args for Option<T> {
+    fn augment_args(cmd: Command<'_>) -> Command<'_> {
+        //intentionally call the for_update version as it marks args as optional
+        //which we catch later in the processing with the `FromArgMatches::from_arg_matches`
+        //impl above
+        T::augment_args_for_update(cmd)
+    }
+
+    fn augment_args_for_update(cmd: Command<'_>) -> Command<'_> {
+        T::augment_args_for_update(cmd)
+    }
 }
