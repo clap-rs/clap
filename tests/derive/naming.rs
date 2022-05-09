@@ -296,7 +296,7 @@ fn test_rename_all_is_propagated_from_enum_to_variants() {
         FirstVariant,
         SecondVariant {
             #[clap(long)]
-            foo: bool,
+            foo: String,
         },
     }
 
@@ -314,13 +314,15 @@ fn test_rename_all_is_propagated_from_enum_to_variant_fields() {
         FirstVariant,
         SecondVariant {
             #[clap(long)]
-            foo: bool,
+            foo: String,
         },
     }
 
     assert_eq!(
-        Opt::SecondVariant { foo: true },
-        Opt::try_parse_from(&["test", "SECOND_VARIANT", "--FOO"]).unwrap()
+        Opt::SecondVariant {
+            foo: "value".into()
+        },
+        Opt::try_parse_from(&["test", "SECOND_VARIANT", "--FOO", "value"]).unwrap()
     );
 }
 

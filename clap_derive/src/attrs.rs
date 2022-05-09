@@ -671,6 +671,16 @@ impl Attrs {
         quote!( #(#next_help_heading)*  #(#help_heading)* )
     }
 
+    #[cfg(feature = "unstable-v4")]
+    pub fn id(&self) -> TokenStream {
+        self.name.clone().raw()
+    }
+
+    #[cfg(not(feature = "unstable-v4"))]
+    pub fn id(&self) -> TokenStream {
+        self.cased_name()
+    }
+
     pub fn cased_name(&self) -> TokenStream {
         self.name.clone().translate(*self.casing)
     }
@@ -916,6 +926,17 @@ pub enum Name {
 }
 
 impl Name {
+    #[cfg(feature = "unstable-v4")]
+    pub fn raw(self) -> TokenStream {
+        match self {
+            Name::Assigned(tokens) => tokens,
+            Name::Derived(ident) => {
+                let s = ident.unraw().to_string();
+                quote_spanned!(ident.span()=> #s)
+            }
+        }
+    }
+
     pub fn translate(self, style: CasingStyle) -> TokenStream {
         use CasingStyle::*;
 

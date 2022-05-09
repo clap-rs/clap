@@ -14,16 +14,26 @@ fn arg_help_heading_applied() {
 
     let cmd = CliOptions::command();
 
-    let should_be_in_section_a = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-section-a")
-        .unwrap();
+    let should_be_in_section_a = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_section_a")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-section-a")
+            .unwrap()
+    };
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
-    let should_be_in_section_b = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "no-section")
-        .unwrap();
+    let should_be_in_section_b = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "no_section")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "no-section")
+            .unwrap()
+    };
     assert_eq!(should_be_in_section_b.get_help_heading(), None);
 }
 
@@ -42,16 +52,26 @@ fn app_help_heading_applied() {
 
     let cmd = CliOptions::command();
 
-    let should_be_in_section_a = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-section-a")
-        .unwrap();
+    let should_be_in_section_a = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_section_a")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-section-a")
+            .unwrap()
+    };
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
-    let should_be_in_default_section = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-default-section")
-        .unwrap();
+    let should_be_in_default_section = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_default_section")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-default-section")
+            .unwrap()
+    };
     assert_eq!(
         should_be_in_default_section.get_help_heading(),
         Some("DEFAULT")
@@ -119,47 +139,83 @@ fn app_help_heading_flattened() {
 
     let cmd = CliOptions::command();
 
-    let should_be_in_section_a = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-section-a")
-        .unwrap();
+    let should_be_in_section_a = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_section_a")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-section-a")
+            .unwrap()
+    };
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 
-    let should_be_in_section_b = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-section-b")
-        .unwrap();
+    let should_be_in_section_b = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_section_b")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-section-b")
+            .unwrap()
+    };
     assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
-    let should_be_in_default_section = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-default-section")
-        .unwrap();
+    let should_be_in_default_section = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_default_section")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-default-section")
+            .unwrap()
+    };
     assert_eq!(should_be_in_default_section.get_help_heading(), None);
 
     let sub_a_two = cmd.find_subcommand("sub-a-two").unwrap();
 
-    let should_be_in_sub_a = sub_a_two
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-sub-a")
-        .unwrap();
+    let should_be_in_sub_a = if cfg!(feature = "unstable-v4") {
+        sub_a_two
+            .get_arguments()
+            .find(|a| a.get_id() == "should_be_in_sub_a")
+            .unwrap()
+    } else {
+        sub_a_two
+            .get_arguments()
+            .find(|a| a.get_id() == "should-be-in-sub-a")
+            .unwrap()
+    };
     assert_eq!(should_be_in_sub_a.get_help_heading(), Some("SUB A"));
 
     let sub_b_one = cmd.find_subcommand("sub-b-one").unwrap();
 
-    let should_be_in_sub_b = sub_b_one
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-sub-b")
-        .unwrap();
+    let should_be_in_sub_b = if cfg!(feature = "unstable-v4") {
+        sub_b_one
+            .get_arguments()
+            .find(|a| a.get_id() == "should_be_in_sub_b")
+            .unwrap()
+    } else {
+        sub_b_one
+            .get_arguments()
+            .find(|a| a.get_id() == "should-be-in-sub-b")
+            .unwrap()
+    };
     assert_eq!(should_be_in_sub_b.get_help_heading(), Some("SUB B"));
 
     let sub_c = cmd.find_subcommand("sub-c").unwrap();
     let sub_c_one = sub_c.find_subcommand("sub-c-one").unwrap();
 
-    let should_be_in_sub_c = sub_c_one
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-sub-c")
-        .unwrap();
+    let should_be_in_sub_c = if cfg!(feature = "unstable-v4") {
+        sub_c_one
+            .get_arguments()
+            .find(|a| a.get_id() == "should_be_in_sub_c")
+            .unwrap()
+    } else {
+        sub_c_one
+            .get_arguments()
+            .find(|a| a.get_id() == "should-be-in-sub-c")
+            .unwrap()
+    };
     assert_eq!(should_be_in_sub_c.get_help_heading(), Some("SUB C"));
 }
 
@@ -180,10 +236,15 @@ fn flatten_field_with_help_heading() {
 
     let cmd = CliOptions::command();
 
-    let should_be_in_section_a = cmd
-        .get_arguments()
-        .find(|a| a.get_id() == "should-be-in-section-a")
-        .unwrap();
+    let should_be_in_section_a = if cfg!(feature = "unstable-v4") {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should_be_in_section_a")
+            .unwrap()
+    } else {
+        cmd.get_arguments()
+            .find(|a| a.get_id() == "should-be-in-section-a")
+            .unwrap()
+    };
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
 }
 
@@ -218,7 +279,8 @@ fn derive_generated_error_has_full_context() {
         result.unwrap()
     );
 
-    let expected = r#"error: The following required argument was not provided: req-str
+    if cfg!(feature = "unstable-v4") {
+        let expected = r#"error: The following required argument was not provided: req_str
 
 USAGE:
     clap --req-str <REQ_STR>
@@ -226,7 +288,18 @@ USAGE:
 
 For more information try --help
 "#;
-    assert_eq!(result.unwrap_err().to_string(), expected);
+        assert_eq!(result.unwrap_err().to_string(), expected);
+    } else {
+        let expected = r#"error: The following required argument was not provided: req-str
+
+USAGE:
+    clap --req-str <REQ_STR>
+    clap <SUBCOMMAND>
+
+For more information try --help
+"#;
+        assert_eq!(result.unwrap_err().to_string(), expected);
+    }
 }
 
 #[test]
