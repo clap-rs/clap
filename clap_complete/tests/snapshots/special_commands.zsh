@@ -50,7 +50,7 @@ _arguments "${_arguments_options[@]}" /
 '--help[Print help information]' /
 '-V[Print version information]' /
 '--version[Print version information]' /
-'*::path:' /
+'*:::path:' /
 && ret=0
 ;;
 (some-cmd-with-hyphens)
@@ -71,7 +71,7 @@ _arguments "${_arguments_options[@]}" /
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*::subcommand -- The subcommand whose help message to display:' /
+'*:::subcommand -- The subcommand whose help message to display:' /
 && ret=0
 ;;
         esac

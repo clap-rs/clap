@@ -202,6 +202,11 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
                 .value_hint(clap::ValueHint::CommandString),
         )
         .arg(
+            clap::Arg::new("positional")
+                .required(true)
+                .possible_values(["stable", "nightly"]),
+        )
+        .arg(
             clap::Arg::new("command_with_args")
                 .takes_value(true)
                 .multiple_values(true)

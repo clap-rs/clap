@@ -633,7 +633,7 @@ fn write_positionals_of(p: &Command) -> String {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
         let cardinality = if arg.is_multiple_values_set() || arg.is_multiple_occurrences_set() {
-            "*:"
+            "*::"
         } else if !arg.is_required_set() {
             ":"
         } else {

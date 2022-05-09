@@ -70,7 +70,7 @@ _arguments "${_arguments_options[@]}" /
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*::subcommand -- The subcommand whose help message to display:' /
+'*:::subcommand -- The subcommand whose help message to display:' /
 && ret=0
 ;;
         esac
@@ -79,7 +79,7 @@ esac
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*::subcommand -- The subcommand whose help message to display:' /
+'*:::subcommand -- The subcommand whose help message to display:' /
 && ret=0
 ;;
         esac

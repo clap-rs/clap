@@ -39,7 +39,7 @@ _arguments "${_arguments_options[@]}" /
 (help)
 _arguments "${_arguments_options[@]}" /
 '-c[]' /
-'*::subcommand -- The subcommand whose help message to display:' /
+'*:::subcommand -- The subcommand whose help message to display:' /
 && ret=0
 ;;
         esac
