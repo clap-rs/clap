@@ -71,6 +71,15 @@ macro_rules! values_t_or_exit {
     };
 }
 
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! _clap_count_exprs {
+    () => { 0 };
+    ($e:expr) => { 1 };
+    ($e:expr, $($es:expr),+) => { 1 + $crate::_clap_count_exprs!($($es),*) };
+}
+
 /// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
 #[doc(hidden)]
