@@ -301,6 +301,17 @@ pub(crate) fn assert_app(cmd: &Command) {
             group.name,
         );
 
+        for arg in &group.args {
+            // Args listed inside groups should exist
+            assert!(
+                cmd.get_arguments().any(|x| x.id == *arg),
+                "Command {}: Argument group '{}' contains non-existent argument '{:?}'",
+                cmd.get_name(),
+                group.name,
+                arg
+            );
+        }
+
         // Required groups should have at least one arg without default values
         if group.required && !group.args.is_empty() {
             assert!(
@@ -312,17 +323,6 @@ pub(crate) fn assert_app(cmd: &Command) {
                     cmd.get_name(),
                 group.name
             )
-        }
-
-        for arg in &group.args {
-            // Args listed inside groups should exist
-            assert!(
-                cmd.get_arguments().any(|x| x.id == *arg),
-                "Command {}: Argument group '{}' contains non-existent argument '{:?}'",
-                cmd.get_name(),
-                group.name,
-                arg
-            );
         }
     }
 
