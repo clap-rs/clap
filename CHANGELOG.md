@@ -15,11 +15,32 @@ _gated behind `unstable-v4`_
 
 ### Fixes
 
-- Leading dashes in `Arg::long` are no longer allowed
+- Leading dashes in `Arg::long` are no longer allowed (#3691)
+- Verify `required` is not used with conditional required settings (#3660)
+- Disallow more `value_names` than `number_of_values` (#2695)
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
+- *(parser)* Assert on unknown args when using external subcommands (#3703)
+- *(parser)* Always fill in `""` argument for external subcommands (#3263)
+- *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
+- *(derive)* Leave `Arg::id` as `verbatim` casing (#3282)
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+### Fixes
+
+- Fix deprecated `arg_enum!` for users migrating to clap3 (#3717)
+- Verify all `required_unless_present_all` arguments exist
+- Verify group members exist before processing group members (#3711)
+- *(help)* Use `...` when not enough `value_names` are supplied
+
+**gated behind `unstable-v4`**
+- Verify `required` is not used with conditional required settings (#3660)
+- Disallow more `value_names` than `number_of_values` (#2695)
+- *(parser)* Assert on unknown args when using external subcommands (#3703)
+- *(parser)* Always fill in `""` argument for external subcommands (#3263)
+- *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
+- *(derive)* Leave `Arg::id` as `verbatim` casing (#3282)
 
 ## [3.1.17] - 2022-05-06
 
