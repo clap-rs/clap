@@ -1,13 +1,10 @@
+cargo-features = ["workspace-inheritance"]
+
 [package]
 name = "clap_lex"
 version = "0.2.0"
-edition = "2018"
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
-]
+edition.workspace = true
+include.workspace = true
 description = "Minimal, flexible command line parser"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_lex"
 documentation = "https://docs.rs/clap_lex"
@@ -19,7 +16,7 @@ keywords = [
 	"parse"
 ]
 categories = ["command-line-interface"]
-license = "MIT OR Apache-2.0"
+license.workspace = true
 readme = "README.md"
 
 [package.metadata.release]
@@ -36,4 +33,4 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
-os_str_bytes = { version = "6.0", default-features = false, features = ["raw_os_str"] }
+os_str_bytes.workspace = true

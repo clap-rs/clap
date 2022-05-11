@@ -1,13 +1,10 @@
+cargo-features = ["workspace-inheritance"]
+
 [package]
 name = "clap_mangen"
 version = "0.1.6"
-edition = "2018"
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
-]
+edition.workspace = true
+include.workspace = true
 description = "A manpage generator for clap"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_mangen"
 documentation = "https://docs.rs/clap_mangen"
@@ -18,7 +15,7 @@ keywords = [
 	"manpage",
 ]
 categories = ["command-line-interface"]
-license = "MIT OR Apache-2.0"
+license.workspace = true
 readme = "README.md"
 
 [package.metadata.release]
@@ -39,7 +36,7 @@ roff = "0.2.1"
 clap = { path = "../", version = "3.1.10", default-features = false, features = ["std", "env"] }
 
 [dev-dependencies]
-snapbox = { version = "0.2", features = ["diff"] }
+snapbox = { workspace = true, features = ["diff"] }
 clap = { path = "../", version = "3.1.10", default-features = false, features = ["std"] }
 
 [features]

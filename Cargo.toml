@@ -1,3 +1,5 @@
+cargo-features = ["workspace-inheritance"]
+
 [workspace]
 members = [
 	"clap_derive",
@@ -7,9 +9,29 @@ members = [
 	"clap_mangen",
 ]
 
+[workspace.package]
+version = "3.1.18"
+edition = "2018"
+include = [
+    "build.rs",
+    "src/**/*",
+    "Cargo.toml",
+    "LICENSE*",
+    "README.md",
+    "benches/**/*",
+    "examples/**/*"
+]
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+os_str_bytes = { version = "6.0", default-features = false, features = ["raw_os_str"] }
+shlex = "1.1.0"
+snapbox = "0.2.9"
+trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
+
 [package]
 name = "clap"
-version = "3.1.18"
+version.workspace = true
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
@@ -21,18 +43,10 @@ keywords = [
 	"parser",
 	"parse"
 ]
-edition = "2018"
-license = "MIT OR Apache-2.0"
+edition.workspace = true
+license.workspace = true
 readme = "README.md"
-include = [
-  "build.rs",
-  "src/**/*",
-  "Cargo.toml",
-  "LICENSE*",
-  "README.md",
-  "benches/**/*",
-  "examples/**/*"
-]
+include.workspace = true
 
 [package.metadata.docs.rs]
 features = ["unstable-doc"]
@@ -141,10 +155,10 @@ criterion = "0.3.2"
 trybuild = "1.0.18"
 rustversion = "1"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd.workspace = true
 humantime = "2"
-snapbox = "0.2.9"
-shlex = "1.1.0"
+snapbox.workspace = true
+shlex.workspace = true
 
 [[example]]
 name = "demo"
