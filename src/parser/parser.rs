@@ -8,16 +8,16 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
-use crate::build::AppSettings as AS;
-use crate::build::{Arg, Command};
+use crate::builder::AppSettings as AS;
+use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
 use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Usage};
-use crate::parse::features::suggestions;
-use crate::parse::{ArgMatcher, SubCommand};
-use crate::parse::{Validator, ValueSource};
+use crate::parser::features::suggestions;
+use crate::parser::{ArgMatcher, SubCommand};
+use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
@@ -1255,10 +1255,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 for (id, val, default) in arg.default_vals_ifs.iter() {
                     let add = if let Some(a) = matcher.get(id) {
                         match val {
-                            crate::build::ArgPredicate::Equals(v) => {
+                            crate::builder::ArgPredicate::Equals(v) => {
                                 a.vals_flatten().any(|value| v == value)
                             }
-                            crate::build::ArgPredicate::IsPresent => true,
+                            crate::builder::ArgPredicate::IsPresent => true,
                         }
                     } else {
                         false

@@ -1,19 +1,17 @@
 // Std
-use std::{
-    borrow::Cow,
-    ffi::{OsStr, OsString},
-    fmt::{Debug, Display},
-    iter::{Cloned, Flatten, Map},
-    slice::Iter,
-    str::FromStr,
-};
+use std::borrow::Cow;
+use std::ffi::{OsStr, OsString};
+use std::fmt::{Debug, Display};
+use std::iter::{Cloned, Flatten, Map};
+use std::slice::Iter;
+use std::str::FromStr;
 
 // Third Party
 use indexmap::IndexMap;
 
 // Internal
-use crate::parse::MatchedArg;
-use crate::parse::ValueSource;
+use crate::parser::MatchedArg;
+use crate::parser::ValueSource;
 use crate::util::{Id, Key};
 use crate::{Error, INVALID_UTF8};
 

@@ -12,14 +12,13 @@ use std::{
 };
 
 // Internal
-use crate::{
-    build::Arg,
-    output::fmt::Colorizer,
-    output::fmt::Stream,
-    parse::features::suggestions,
-    util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE},
-    AppSettings, Command,
-};
+use crate::output::fmt::Colorizer;
+use crate::output::fmt::Stream;
+use crate::parser::features::suggestions;
+use crate::util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE};
+use crate::AppSettings;
+use crate::Arg;
+use crate::Command;
 
 mod context;
 mod kind;

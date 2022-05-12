@@ -2,7 +2,7 @@
 use std::cmp::Ordering;
 
 // Internal
-use crate::build::Command;
+use crate::builder::Command;
 
 /// Produces multiple strings from a given list of possible values which are similar
 /// to the passed in value `v` within a certain confidence by least confidence.

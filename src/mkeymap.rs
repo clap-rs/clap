@@ -1,6 +1,10 @@
-use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
+use std::iter::Iterator;
+use std::ops::Index;
+use std::{ffi::OsStr, ffi::OsString};
 
-use std::{ffi::OsStr, ffi::OsString, iter::Iterator, ops::Index};
+use crate::util::Id;
+use crate::Arg;
+use crate::INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) struct Key {

@@ -1,9 +1,9 @@
 use indexmap::IndexSet;
 
 // Internal
-use crate::build::AppSettings as AS;
-use crate::build::{Arg, ArgPredicate, Command};
-use crate::parse::ArgMatcher;
+use crate::builder::AppSettings as AS;
+use crate::builder::{Arg, ArgPredicate, Command};
+use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;

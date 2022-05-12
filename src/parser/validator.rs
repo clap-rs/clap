@@ -1,9 +1,9 @@
 // Internal
-use crate::build::{AppSettings, Arg, ArgPredicate, Command, PossibleValue};
+use crate::builder::{AppSettings, Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::fmt::Stream;
 use crate::output::Usage;
-use crate::parse::{ArgMatcher, MatchedArg, ParseState};
+use crate::parser::{ArgMatcher, MatchedArg, ParseState};
 use crate::util::ChildGraph;
 use crate::util::Id;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};

@@ -1,10 +1,9 @@
 #![allow(deprecated)]
 
 // Internal
-use crate::{
-    build::{Arg, ArgSettings},
-    INTERNAL_ERROR_MSG,
-};
+use crate::builder::Arg;
+use crate::builder::ArgSettings;
+use crate::INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -245,7 +244,7 @@ fn default_value_end(b: u8) -> bool {
 mod test {
     #![allow(deprecated)]
 
-    use crate::build::{Arg, ArgSettings};
+    use crate::builder::{Arg, ArgSettings};
 
     #[allow(clippy::cognitive_complexity)]
     #[test]
