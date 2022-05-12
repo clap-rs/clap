@@ -1417,8 +1417,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                 let predicate = str_to_bool(val.to_str_lossy());
-                debug!("Parser::add_env: Found boolean literal `{}`", predicate);
-                if predicate {
+                debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
+                if predicate.unwrap_or(true) {
                     matcher.add_index_to(&a.id, self.cur_idx.get(), ValueSource::EnvVariable);
                 }
             }
