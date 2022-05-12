@@ -3679,7 +3679,17 @@ impl<'help> App<'help> {
     }
 
     /// Configured parser for values passed to an external subcommand
-    pub(crate) fn get_external_subcommand_value_parser(&self) -> Option<&super::ValueParser> {
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let cmd = clap::Command::new("raw")
+    ///     .allow_external_subcommands(true)
+    ///     .allow_invalid_utf8_for_external_subcommands(true);
+    /// let value_parser = cmd.get_external_subcommand_value_parser();
+    /// println!("{:?}", value_parser);
+    /// ```
+    pub fn get_external_subcommand_value_parser(&self) -> Option<&super::ValueParser> {
         if !self.is_allow_external_subcommands_set() {
             None
         } else if self.is_allow_invalid_utf8_for_external_subcommands_set() {

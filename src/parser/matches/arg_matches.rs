@@ -78,6 +78,168 @@ pub struct ArgMatches {
 }
 
 impl ArgMatches {
+    /// Gets the value of a specific option or positional argument.
+    ///
+    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
+    ///
+    /// Returns an error if the wrong type was used.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    ///
+    /// # Panics
+    /// If `id` is is not a valid argument or group name.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg, value_parser};
+    /// let m = Command::new("myapp")
+    ///     .arg(Arg::new("port")
+    ///         .value_parser(value_parser!(usize))
+    ///         .takes_value(true)
+    ///         .required(true))
+    ///     .get_matches_from(vec!["myapp", "2020"]);
+    ///
+    /// let port: usize = *m
+    ///     .get_one("port")
+    ///     .expect("`port` is a `usize`")
+    ///     .expect("`port`is required");
+    /// assert_eq!(port, 2020);
+    /// ```
+    /// [option]: crate::Arg::takes_value()
+    /// [positional]: crate::Arg::index()
+    /// [`ArgMatches::values_of`]: ArgMatches::values_of()
+    /// [`default_value`]: crate::Arg::default_value()
+    /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
+    pub fn get_one<T: 'static>(&self, name: &str) -> Result<Option<&T>, Error> {
+        let id = Id::from(name);
+        let value = match self.get_arg(&id).and_then(|a| a.first()) {
+            Some(value) => value,
+            None => {
+                return Ok(None);
+            }
+        };
+        value.downcast_ref::<T>().map(Some).ok_or_else(|| {
+            Error::raw(
+                crate::error::ErrorKind::ValueValidation,
+                format!(
+                    "The argument `{}` is not of type `{}`",
+                    name,
+                    std::any::type_name::<T>()
+                ),
+            )
+        })
+    }
+
+    /// Iterate over [values] of a specific option or positional argument.
+    ///
+    /// i.e. an argument that takes multiple values at runtime.
+    ///
+    /// Returns an error if the wrong type was used.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Panics
+    ///
+    /// If `id` is is not a valid argument or group name.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg, value_parser};
+    /// let m = Command::new("myprog")
+    ///     .arg(Arg::new("ports")
+    ///         .multiple_occurrences(true)
+    ///         .value_parser(value_parser!(usize))
+    ///         .short('p')
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-p", "22", "-p", "80", "-p", "2020"
+    ///     ]);
+    /// let vals: Vec<usize> = m.get_many("ports")
+    ///     .expect("`port` is a `usize`")
+    ///     .expect("`port`is required")
+    ///     .copied()
+    ///     .collect();
+    /// assert_eq!(vals, [22, 80, 2020]);
+    /// ```
+    /// [values]: Values
+    pub fn get_many<T: 'static>(
+        &self,
+        name: &str,
+    ) -> Result<Option<impl Iterator<Item = &T>>, Error> {
+        let id = Id::from(name);
+        let values = match self.get_arg(&id) {
+            Some(values) => values.vals_flatten(),
+            None => {
+                return Ok(None);
+            }
+        };
+        // HACK: Track the type id and report errors even when there are no values
+        let values: Result<Vec<&T>, Error> = values
+            .map(|v| {
+                v.downcast_ref::<T>().ok_or_else(|| {
+                    Error::raw(
+                        crate::error::ErrorKind::ValueValidation,
+                        format!(
+                            "The argument `{}` is not of type `{}`",
+                            name,
+                            std::any::type_name::<T>()
+                        ),
+                    )
+                })
+            })
+            .collect();
+        Ok(Some(values?.into_iter()))
+    }
+
+    /// Iterate over the original argument values.
+    ///
+    /// An `OsStr` on Unix-like systems is any series of bytes, regardless of whether or not they
+    /// contain valid UTF-8. Since [`String`]s in Rust are guaranteed to be valid UTF-8, a valid
+    /// filename on a Unix system as an argument value may contain invalid UTF-8.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Panics
+    ///
+    /// If `id` is is not a valid argument or group name.
+    ///
+    /// # Examples
+    ///
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
+    /// # use clap::{Command, arg, value_parser};
+    /// # use std::ffi::{OsStr,OsString};
+    /// # use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    /// use std::path::PathBuf;
+    ///
+    /// let m = Command::new("utf8")
+    ///     .arg(arg!(<arg> ... "some arg").value_parser(value_parser!(PathBuf)))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                                 // "Hi"
+    ///                                 OsString::from_vec(vec![b'H', b'i']),
+    ///                                 // "{0xe9}!"
+    ///                                 OsString::from_vec(vec![0xe9, b'!'])]);
+    ///
+    /// let mut itr = m.get_raw("arg").unwrap().into_iter();
+    /// assert_eq!(itr.next(), Some(OsStr::new("Hi")));
+    /// assert_eq!(itr.next(), Some(OsStr::from_bytes(&[0xe9, b'!'])));
+    /// assert_eq!(itr.next(), None);
+    /// ```
+    /// [`Iterator`]: std::iter::Iterator
+    /// [`OsSt`]: std::ffi::OsStr
+    /// [values]: OsValues
+    /// [`String`]: std::string::String
+    pub fn get_raw<T: Key>(&self, id: T) -> Option<impl Iterator<Item = &OsStr>> {
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        Some(arg.raw_vals_flatten().map(|v| v.as_os_str()))
+    }
+
     /// Check if any args were present on the command line
     ///
     /// # Examples

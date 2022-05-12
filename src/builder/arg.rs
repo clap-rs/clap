@@ -1001,6 +1001,27 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Specify the type of the argument.
+    ///
+    /// This allows parsing and validating a value before storing it into
+    /// [`ArgMatches`][crate::ArgMatches].
+    ///
+    /// ```rust
+    /// let cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .value_parser(clap::value_parser!(usize))
+    ///     );
+    /// let value_parser = cmd.get_arguments()
+    ///     .find(|a| a.get_id() == "port").unwrap()
+    ///     .get_value_parser();
+    /// println!("{:?}", value_parser);
+    /// ```
+    pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {
+        self.value_parser = Some(parser.into());
+        self
+    }
+
     /// Specifies that the argument may have an unknown number of values
     ///
     /// Without any other settings, this argument may appear only *once*.
@@ -4739,7 +4760,21 @@ impl<'help> Arg<'help> {
     }
 
     /// Configured parser for argument values
-    pub(crate) fn get_value_parser(&self) -> &super::ValueParser {
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .value_parser(clap::value_parser!(usize))
+    ///     );
+    /// let value_parser = cmd.get_arguments()
+    ///     .find(|a| a.get_id() == "port").unwrap()
+    ///     .get_value_parser();
+    /// println!("{:?}", value_parser);
+    /// ```
+    pub fn get_value_parser(&self) -> &super::ValueParser {
         if let Some(value_parser) = self.value_parser.as_ref() {
             value_parser
         } else if self.is_allow_invalid_utf8_set() {
