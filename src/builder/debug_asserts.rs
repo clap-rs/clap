@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use clap_lex::RawOsStr;
 
-use crate::build::arg::ArgProvider;
+use crate::builder::arg::ArgProvider;
 use crate::mkeymap::KeyType;
 use crate::util::Id;
 use crate::{AppSettings, Arg, Command, ValueHint};

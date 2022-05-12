@@ -1,12 +1,13 @@
 // Std
-use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
+use std::collections::HashMap;
+use std::ffi::OsString;
+use std::mem;
+use std::ops::Deref;
 
 // Internal
-use crate::{
-    build::{Arg, ArgPredicate, Command},
-    parse::{ArgMatches, MatchedArg, SubCommand, ValueSource},
-    util::Id,
-};
+use crate::builder::{Arg, ArgPredicate, Command};
+use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
+use crate::util::Id;
 
 // Third party
 use indexmap::map::Entry;

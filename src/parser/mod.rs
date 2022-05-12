@@ -1,9 +1,12 @@
+//! [`Command`][crate::Command] line argument parser
+
 mod arg_matcher;
+mod matches;
+#[allow(clippy::module_inception)]
 mod parser;
 mod validator;
 
-pub mod features;
-pub mod matches;
+pub(crate) mod features;
 
 pub(crate) use self::arg_matcher::ArgMatcher;
 pub(crate) use self::matches::{MatchedArg, SubCommand};

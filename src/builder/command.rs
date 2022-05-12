@@ -14,22 +14,22 @@ use std::path::Path;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::app_settings::{AppFlags, AppSettings};
-use crate::build::arg_settings::ArgSettings;
-use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
+use crate::builder::app_settings::{AppFlags, AppSettings};
+use crate::builder::arg_settings::ArgSettings;
+use crate::builder::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
-use crate::parse::{ArgMatcher, ArgMatches, Parser};
+use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::PossibleValue;
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]
-use crate::build::debug_asserts::assert_app;
+use crate::builder::debug_asserts::assert_app;
 
 /// Build a command-line interface.
 ///

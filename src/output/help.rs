@@ -1,18 +1,14 @@
 // Std
-use std::{
-    borrow::Cow,
-    cmp,
-    fmt::Write as _,
-    io::{self, Write},
-    usize,
-};
+use std::borrow::Cow;
+use std::cmp;
+use std::fmt::Write as _;
+use std::io::{self, Write};
+use std::usize;
 
 // Internal
-use crate::{
-    build::{display_arg_val, Arg, Command},
-    output::{fmt::Colorizer, Usage},
-    PossibleValue,
-};
+use crate::builder::{display_arg_val, Arg, Command};
+use crate::output::{fmt::Colorizer, Usage};
+use crate::PossibleValue;
 
 // Third party
 use indexmap::IndexSet;

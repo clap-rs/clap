@@ -5,8 +5,8 @@ use std::{
     slice::Iter,
 };
 
-use crate::build::ArgPredicate;
-use crate::parse::ValueSource;
+use crate::builder::ArgPredicate;
+use crate::parser::ValueSource;
 use crate::util::eq_ignore_case;
 use crate::INTERNAL_ERROR_MSG;
 

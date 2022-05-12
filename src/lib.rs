@@ -26,12 +26,10 @@
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
 
-pub use crate::build::Command;
-pub use crate::build::{
-    AppFlags, AppSettings, Arg, ArgFlags, ArgGroup, ArgSettings, PossibleValue, ValueHint,
-};
+pub use crate::builder::Command;
+pub use crate::builder::{Arg, ArgGroup};
 pub use crate::error::Error;
-pub use crate::parse::{ArgMatches, Indices, OsValues, ValueSource, Values};
+pub use crate::parser::ArgMatches;
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
 #[cfg(not(feature = "color"))]
@@ -40,10 +38,11 @@ pub(crate) use crate::util::color::ColorChoice;
 
 pub use crate::derive::{ArgEnum, Args, CommandFactory, FromArgMatches, Parser, Subcommand};
 
-pub use crate::error::{ErrorKind, Result};
-
 #[allow(deprecated)]
-pub use crate::build::App;
+pub use crate::builder::App;
+pub use crate::builder::{AppFlags, AppSettings, ArgFlags, ArgSettings, PossibleValue, ValueHint};
+pub use crate::error::{ErrorKind, Result};
+pub use crate::parser::{Indices, OsValues, ValueSource, Values};
 
 #[cfg(feature = "yaml")]
 #[doc(hidden)]
@@ -77,14 +76,14 @@ mod macros;
 mod derive;
 
 #[cfg(feature = "regex")]
-pub use crate::build::RegexRef;
+pub use crate::builder::RegexRef;
 
+pub mod builder;
 pub mod error;
+pub mod parser;
 
-mod build;
 mod mkeymap;
 mod output;
-mod parse;
 mod util;
 
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \

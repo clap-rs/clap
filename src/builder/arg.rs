@@ -17,8 +17,8 @@ use std::{env, ffi::OsString};
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::usage_parser::UsageParser;
-use crate::build::ArgPredicate;
+use crate::builder::usage_parser::UsageParser;
+use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
 use crate::PossibleValue;
 use crate::ValueHint;
@@ -26,7 +26,7 @@ use crate::INTERNAL_ERROR_MSG;
 use crate::{ArgFlags, ArgSettings};
 
 #[cfg(feature = "regex")]
-use crate::build::RegexRef;
+use crate::builder::RegexRef;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.

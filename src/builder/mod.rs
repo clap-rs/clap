@@ -1,3 +1,5 @@
+//! Define [`Command`] line [arguments][`Arg`]
+
 #[macro_use]
 mod macros;
 
