@@ -272,6 +272,108 @@ where
     }
 }
 
+/// Parse false-like string values, everything else is `true`
+///
+/// # Example
+///
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+/// let value_parser = clap::builder::FalseyValueParser;
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("false")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("No")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oFF")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), false);
+/// ```
+#[derive(Copy, Clone, Debug)]
+pub struct FalseyValueParser;
+
+impl TypedValueParser for FalseyValueParser {
+    type Value = bool;
+
+    /// Parse the argument value
+    ///
+    /// When `arg` is `None`, an external subcommand value is being parsed.
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        _arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = value.to_str().ok_or_else(|| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        let value = if value.is_empty() {
+            false
+        } else {
+            crate::util::str_to_bool(value).unwrap_or(true)
+        };
+        Ok(value)
+    }
+}
+
+/// Parse bool-like string values, everything else is `true`
+///
+/// # Example
+///
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+/// let value_parser = clap::builder::BoolishValueParser;
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("true")).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("Yes")).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oN")).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("1")).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("false")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("No")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oFF")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), false);
+/// ```
+#[derive(Copy, Clone, Debug)]
+pub struct BoolishValueParser;
+
+impl TypedValueParser for BoolishValueParser {
+    type Value = bool;
+
+    /// Parse the argument value
+    ///
+    /// When `arg` is `None`, an external subcommand value is being parsed.
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = value.to_str().ok_or_else(|| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        let value = crate::util::str_to_bool(value).ok_or_else(|| {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(arg, value.to_owned(), "value was not a boolean".into())
+                .with_cmd(cmd)
+        })?;
+        Ok(value)
+    }
+}
+
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct AutoValueParser<T>(std::marker::PhantomData<T>);
