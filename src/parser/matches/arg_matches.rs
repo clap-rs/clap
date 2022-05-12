@@ -10,10 +10,11 @@ use std::str::FromStr;
 use indexmap::IndexMap;
 
 // Internal
+use crate::parser::AnyValue;
 use crate::parser::MatchedArg;
 use crate::parser::ValueSource;
 use crate::util::{Id, Key};
-use crate::{Error, INVALID_UTF8};
+use crate::Error;
 
 /// Container for parse results.
 ///
@@ -140,9 +141,8 @@ impl ArgMatches {
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_utf8_validation(arg, &id);
-        let v = arg.first()?;
-        Some(v.to_str().expect(INVALID_UTF8))
+        let v = unwrap_string_arg(&id, arg.first()?);
+        Some(v)
     }
 
     /// Gets the lossy value of a specific option or positional argument.
@@ -190,8 +190,7 @@ impl ArgMatches {
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_no_utf8_validation(arg, &id);
-        let v = arg.first()?;
+        let v = unwrap_os_string_arg(&id, arg.first()?);
         Some(v.to_string_lossy())
     }
 
@@ -241,9 +240,8 @@ impl ArgMatches {
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_no_utf8_validation(arg, &id);
-        let v = arg.first()?;
-        Some(v.as_os_str())
+        let v = unwrap_os_string_arg(&id, arg.first()?);
+        Some(v)
     }
 
     /// Get an [`Iterator`] over [values] of a specific option or positional argument.
@@ -280,12 +278,8 @@ impl ArgMatches {
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_utf8_validation(arg, &id);
-        fn to_str_slice(o: &OsString) -> &str {
-            o.to_str().expect(INVALID_UTF8)
-        }
         let v = Values {
-            iter: arg.vals_flatten().map(to_str_slice),
+            iter: arg.vals_flatten().map(unwrap_string),
             len: arg.num_vals(),
         };
         Some(v)
@@ -329,11 +323,8 @@ impl ArgMatches {
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_utf8_validation(arg, &id);
         let v = GroupedValues {
-            iter: arg
-                .vals()
-                .map(|g| g.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect()),
+            iter: arg.vals().map(|g| g.iter().map(unwrap_string).collect()),
             len: arg.vals().len(),
         };
         Some(v)
@@ -379,10 +370,9 @@ impl ArgMatches {
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_no_utf8_validation(arg, &id);
         let v = arg
             .vals_flatten()
-            .map(|v| v.to_string_lossy().into_owned())
+            .map(|v| unwrap_os_string_arg(&id, v).to_string_lossy().into_owned())
             .collect();
         Some(v)
     }
@@ -433,12 +423,8 @@ impl ArgMatches {
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
-        assert_no_utf8_validation(arg, &id);
-        fn to_str_slice(o: &OsString) -> &OsStr {
-            o
-        }
         let v = OsValues {
-            iter: arg.vals_flatten().map(to_str_slice),
+            iter: arg.vals_flatten().map(unwrap_os_string),
             len: arg.num_vals(),
         };
         Some(v)
@@ -1215,7 +1201,7 @@ pub(crate) struct SubCommand {
 #[derive(Clone, Debug)]
 pub struct Values<'a> {
     #[allow(clippy::type_complexity)]
-    iter: Map<Flatten<Iter<'a, Vec<OsString>>>, for<'r> fn(&'r OsString) -> &'r str>,
+    iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, for<'r> fn(&'r AnyValue) -> &'r str>,
     len: usize,
 }
 
@@ -1241,7 +1227,7 @@ impl<'a> ExactSizeIterator for Values<'a> {}
 /// Creates an empty iterator.
 impl<'a> Default for Values<'a> {
     fn default() -> Self {
-        static EMPTY: [Vec<OsString>; 0] = [];
+        static EMPTY: [Vec<AnyValue>; 0] = [];
         Values {
             iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
             len: 0,
@@ -1253,7 +1239,7 @@ impl<'a> Default for Values<'a> {
 #[allow(missing_debug_implementations)]
 pub struct GroupedValues<'a> {
     #[allow(clippy::type_complexity)]
-    iter: Map<Iter<'a, Vec<OsString>>, fn(&Vec<OsString>) -> Vec<&str>>,
+    iter: Map<Iter<'a, Vec<AnyValue>>, fn(&Vec<AnyValue>) -> Vec<&str>>,
     len: usize,
 }
 
@@ -1279,7 +1265,7 @@ impl<'a> ExactSizeIterator for GroupedValues<'a> {}
 /// Creates an empty iterator. Used for `unwrap_or_default()`.
 impl<'a> Default for GroupedValues<'a> {
     fn default() -> Self {
-        static EMPTY: [Vec<OsString>; 0] = [];
+        static EMPTY: [Vec<AnyValue>; 0] = [];
         GroupedValues {
             iter: EMPTY[..].iter().map(|_| unreachable!()),
             len: 0,
@@ -1309,7 +1295,7 @@ impl<'a> Default for GroupedValues<'a> {
 #[derive(Clone, Debug)]
 pub struct OsValues<'a> {
     #[allow(clippy::type_complexity)]
-    iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
+    iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, fn(&AnyValue) -> &OsStr>,
     len: usize,
 }
 
@@ -1335,7 +1321,7 @@ impl<'a> ExactSizeIterator for OsValues<'a> {}
 /// Creates an empty iterator.
 impl Default for OsValues<'_> {
     fn default() -> Self {
-        static EMPTY: [Vec<OsString>; 0] = [];
+        static EMPTY: [Vec<AnyValue>; 0] = [];
         OsValues {
             iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
             len: 0,
@@ -1402,22 +1388,52 @@ impl<'a> Default for Indices<'a> {
 
 #[cfg_attr(debug_assertions, track_caller)]
 #[inline]
-fn assert_utf8_validation(arg: &MatchedArg, id: &Id) {
-    debug_assert!(
-        matches!(arg.is_invalid_utf8_allowed(), None | Some(false)),
-        "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `{:?}`",
-        id
-    );
+fn unwrap_string(value: &AnyValue) -> &str {
+    match value.downcast_ref::<String>() {
+        Some(value) => value,
+        None => {
+            panic!("Must use `_os` lookups with `Arg::allow_invalid_utf8`",)
+        }
+    }
 }
 
 #[cfg_attr(debug_assertions, track_caller)]
 #[inline]
-fn assert_no_utf8_validation(arg: &MatchedArg, id: &Id) {
-    debug_assert!(
-        matches!(arg.is_invalid_utf8_allowed(), None | Some(true)),
-        "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `{:?}`",
-        id
-    );
+fn unwrap_string_arg<'v>(id: &Id, value: &'v AnyValue) -> &'v str {
+    match value.downcast_ref::<String>() {
+        Some(value) => value,
+        None => {
+            panic!(
+                "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `{:?}`",
+                id
+            )
+        }
+    }
+}
+
+#[cfg_attr(debug_assertions, track_caller)]
+#[inline]
+fn unwrap_os_string(value: &AnyValue) -> &OsStr {
+    match value.downcast_ref::<OsString>() {
+        Some(value) => value,
+        None => {
+            panic!("Must use `Arg::allow_invalid_utf8` with `_os` lookups",)
+        }
+    }
+}
+
+#[cfg_attr(debug_assertions, track_caller)]
+#[inline]
+fn unwrap_os_string_arg<'v>(id: &Id, value: &'v AnyValue) -> &'v OsStr {
+    match value.downcast_ref::<OsString>() {
+        Some(value) => value,
+        None => {
+            panic!(
+                "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `{:?}`",
+                id
+            )
+        }
+    }
 }
 
 #[cfg(test)]

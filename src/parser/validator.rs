@@ -98,19 +98,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         matcher: &ArgMatcher,
     ) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
-        for val in ma.vals_flatten() {
-            if !arg.is_allow_invalid_utf8_set() && val.to_str().is_none() {
-                debug!(
-                    "Validator::validate_arg_values: invalid UTF-8 found in val {:?}",
-                    val
-                );
-                return Err(Error::invalid_utf8(
-                    self.cmd,
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
-            }
+        for val in ma.raw_vals_flatten() {
             if !arg.possible_vals.is_empty() {
                 debug!(
                     "Validator::validate_arg_values: possible_vals={:?}",
@@ -421,7 +409,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
                 return Err(Error::too_many_values(
                     self.cmd,
-                    ma.vals_flatten()
+                    ma.raw_vals_flatten()
                         .last()
                         .expect(INTERNAL_ERROR_MSG)
                         .to_str()

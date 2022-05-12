@@ -3678,6 +3678,17 @@ impl<'help> App<'help> {
         self.is_set(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
     }
 
+    /// Configured parser for values passed to an external subcommand
+    pub(crate) fn get_external_subcommand_value_parser(&self) -> Option<&super::ValueParser> {
+        if !self.is_allow_external_subcommands_set() {
+            None
+        } else if self.is_allow_invalid_utf8_for_external_subcommands_set() {
+            Some(&super::ValueParser(super::ValueParserInner::OsString))
+        } else {
+            Some(&super::ValueParser(super::ValueParserInner::String))
+        }
+    }
+
     /// Report whether [`Command::args_conflicts_with_subcommands`] is set
     pub fn is_args_conflicts_with_subcommands_set(&self) -> bool {
         self.is_set(AppSettings::ArgsNegateSubcommands)

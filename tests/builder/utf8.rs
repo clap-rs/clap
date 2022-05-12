@@ -404,9 +404,8 @@ fn panic_validated_utf8_value_of_os() {
 }
 
 #[test]
-fn ignore_validated_utf8_with_defaults() {
-    // For now, we don't check the correct call is used with defaults (due to pain of piping it
-    // through the code) but we need to make sure we don't erroneously panic.
+#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `value`"]
+fn panic_validated_utf8_with_defaults() {
     let a = Command::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
     let m = a.try_get_matches_from(["test"]).unwrap();
     let _ = m.value_of("value");
@@ -429,9 +428,8 @@ fn panic_invalid_utf8_value_of() {
 }
 
 #[test]
-fn ignore_invalid_utf8_with_defaults() {
-    // For now, we don't check the correct call is used with defaults (due to pain of piping it
-    // through the code) but we need to make sure we don't erroneously panic.
+#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `value`"]
+fn panic_invalid_utf8_with_defaults() {
     let a = Command::new("test").arg(
         arg!(--value <VALUE>)
             .required(false)
@@ -439,8 +437,8 @@ fn ignore_invalid_utf8_with_defaults() {
             .allow_invalid_utf8(true),
     );
     let m = a.try_get_matches_from(["test"]).unwrap();
-    let _ = m.value_of("value");
     let _ = m.value_of_os("value");
+    let _ = m.value_of("value");
 }
 
 #[test]
@@ -448,16 +446,16 @@ fn allow_validated_utf8_external_subcommand_values_of() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    let _ = args.values_of("");
+    args.values_of("").unwrap_or_default().count();
 }
 
 #[test]
-#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at ``"]
+#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups"]
 fn panic_validated_utf8_external_subcommand_values_of_os() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    let _ = args.values_of_os("");
+    args.values_of_os("").unwrap_or_default().count();
 }
 
 #[test]
@@ -467,16 +465,16 @@ fn allow_invalid_utf8_external_subcommand_values_of_os() {
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    let _ = args.values_of_os("");
+    args.values_of_os("").unwrap_or_default().count();
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at ``"]
+#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8`"]
 fn panic_invalid_utf8_external_subcommand_values_of() {
     let a = Command::new("test")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    let _ = args.values_of("");
+    args.values_of("").unwrap_or_default().count();
 }

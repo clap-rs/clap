@@ -14,3 +14,5 @@ pub(crate) use self::parser::{ParseState, Parser};
 pub(crate) use self::validator::Validator;
 
 pub use self::matches::{ArgMatches, Indices, OsValues, ValueSource, Values};
+
+pub(crate) type AnyValue = std::sync::Arc<dyn std::any::Any + Send + Sync + 'static>;

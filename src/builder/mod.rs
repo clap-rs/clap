@@ -12,6 +12,7 @@ mod command;
 mod possible_value;
 mod usage_parser;
 mod value_hint;
+mod value_parser;
 
 #[cfg(feature = "regex")]
 mod regex;
@@ -29,6 +30,7 @@ pub use arg_settings::{ArgFlags, ArgSettings};
 pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
+pub(crate) use value_parser::ValueParser;
 
 #[allow(deprecated)]
 pub use command::App;
@@ -38,3 +40,4 @@ pub use self::regex::RegexRef;
 
 pub(crate) use arg::display_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;
+pub(crate) use value_parser::ValueParserInner;

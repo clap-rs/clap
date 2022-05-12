@@ -6,6 +6,7 @@ use std::ops::Deref;
 
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command};
+use crate::parser::AnyValue;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
 
@@ -90,11 +91,6 @@ impl ArgMatcher {
         }
     }
 
-    #[cfg(not(feature = "unstable-v4"))]
-    pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
-        self.0.args.get_mut(arg)
-    }
-
     pub(crate) fn get(&self, arg: &Id) -> Option<&MatchedArg> {
         self.0.args.get(arg)
     }
@@ -137,7 +133,6 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.update_ty(ValueSource::CommandLine);
         ma.set_ignore_case(arg.is_ignore_case_set());
-        ma.invalid_utf8_allowed(arg.is_allow_invalid_utf8_set());
         ma.inc_occurrences();
     }
 
@@ -149,39 +144,42 @@ impl ArgMatcher {
     }
 
     #[cfg(feature = "unstable-v4")]
-    pub(crate) fn inc_occurrence_of_external(&mut self, allow_invalid_utf8: bool) {
+    pub(crate) fn inc_occurrence_of_external(&mut self) {
         let id = &Id::empty_hash();
-        debug!(
-            "ArgMatcher::inc_occurrence_of_external: id={:?}, allow_invalid_utf8={}",
-            id, allow_invalid_utf8
-        );
+        debug!("ArgMatcher::inc_occurrence_of_external: id={:?}", id,);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.update_ty(ValueSource::CommandLine);
-        ma.invalid_utf8_allowed(allow_invalid_utf8);
         ma.inc_occurrences();
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource, append: bool) {
+    pub(crate) fn add_val_to(
+        &mut self,
+        arg: &Id,
+        val: AnyValue,
+        raw_val: OsString,
+        ty: ValueSource,
+        append: bool,
+    ) {
         if append {
-            self.append_val_to(arg, val, ty);
+            self.append_val_to(arg, val, raw_val, ty);
         } else {
-            self.push_val_to(arg, val, ty);
+            self.push_val_to(arg, val, raw_val, ty);
         }
     }
 
-    fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource) {
+    fn push_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString, ty: ValueSource) {
         // We will manually inc occurrences later(for flexibility under
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
         let ma = self.entry(arg).or_default();
         ma.update_ty(ty);
-        ma.push_val(val);
+        ma.push_val(val, raw_val);
     }
 
-    fn append_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource) {
+    fn append_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString, ty: ValueSource) {
         let ma = self.entry(arg).or_default();
         ma.update_ty(ty);
-        ma.append_val(val);
+        ma.append_val(val, raw_val);
     }
 
     pub(crate) fn new_val_group(&mut self, arg: &Id) {

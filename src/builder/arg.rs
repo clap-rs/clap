@@ -63,6 +63,7 @@ pub struct Arg<'help> {
     pub(crate) name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
+    pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Vec<Id>,
@@ -4737,6 +4738,17 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::AllowInvalidUtf8)
     }
 
+    /// Configured parser for argument values
+    pub(crate) fn get_value_parser(&self) -> &super::ValueParser {
+        if let Some(value_parser) = self.value_parser.as_ref() {
+            value_parser
+        } else if self.is_allow_invalid_utf8_set() {
+            &super::ValueParser(super::ValueParserInner::OsString)
+        } else {
+            &super::ValueParser(super::ValueParserInner::String)
+        }
+    }
+
     /// Report whether [`Arg::global`] is set
     pub fn is_global_set(&self) -> bool {
         self.is_set(ArgSettings::Global)
@@ -5037,6 +5049,14 @@ impl<'help> Arg<'help> {
     pub(crate) fn _build(&mut self) {
         if self.is_positional() {
             self.settings.set(ArgSettings::TakesValue);
+        }
+
+        if self.value_parser.is_none() {
+            if self.is_allow_invalid_utf8_set() {
+                self.value_parser = Some(super::ValueParser::os_string());
+            } else {
+                self.value_parser = Some(super::ValueParser::string());
+            }
         }
 
         if (self.is_use_value_delimiter_set() || self.is_require_value_delimiter_set())
