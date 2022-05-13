@@ -688,12 +688,15 @@ pub mod via_prelude {
 /// # Example
 ///
 /// ```rust
+/// // Built-in types
 /// let parser = clap::value_parser!(String);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::string");
 /// let parser = clap::value_parser!(std::ffi::OsString);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::os_string");
 /// let parser = clap::value_parser!(std::path::PathBuf);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::path_buf");
+///
+/// // FromStr types
 /// let parser = clap::value_parser!(usize);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::other(usize)");
 /// ```
@@ -707,24 +710,29 @@ macro_rules! value_parser {
 }
 
 mod private {
+    use super::*;
+
     pub trait AnyValueParserSealed {}
     impl<T, P> AnyValueParserSealed for P
     where
         T: std::any::Any + Send + Sync + 'static,
-        P: super::TypedValueParser<Value = T>,
+        P: TypedValueParser<Value = T>,
     {
     }
 
+    pub trait ValueParserViaSelfSealed {}
+    impl<P: Into<ValueParser>> ValueParserViaSelfSealed for &&&AutoValueParser<P> {}
+
     pub trait ValueParserViaBuiltInSealed {}
-    impl ValueParserViaBuiltInSealed for &&super::AutoValueParser<String> {}
-    impl ValueParserViaBuiltInSealed for &&super::AutoValueParser<std::ffi::OsString> {}
-    impl ValueParserViaBuiltInSealed for &&super::AutoValueParser<std::path::PathBuf> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<String> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::ffi::OsString> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::path::PathBuf> {}
 
     pub trait ValueParserViaArgEnumSealed {}
-    impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &super::AutoValueParser<E> {}
+    impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &AutoValueParser<E> {}
 
     pub trait ValueParserViaFromStrSealed {}
-    impl<FromStr> ValueParserViaFromStrSealed for super::AutoValueParser<FromStr>
+    impl<FromStr> ValueParserViaFromStrSealed for AutoValueParser<FromStr>
     where
         FromStr: std::str::FromStr + std::any::Any + Send + Sync + 'static,
         <FromStr as std::str::FromStr>::Err:
