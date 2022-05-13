@@ -190,33 +190,31 @@ impl Eq for MatchedArg {}
 mod tests {
     use super::*;
 
-    use std::sync::Arc;
-
     #[test]
     fn test_grouped_vals_first() {
         let mut m = MatchedArg::new();
         m.new_val_group();
         m.new_val_group();
-        m.append_val(Arc::new(String::from("bbb")), "bbb".into());
-        m.append_val(Arc::new(String::from("ccc")), "ccc".into());
+        m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
+        m.append_val(AnyValue::new(String::from("ccc")), "ccc".into());
         assert_eq!(m.first_raw(), Some(&OsString::from("bbb")));
     }
 
     #[test]
     fn test_grouped_vals_push_and_append() {
         let mut m = MatchedArg::new();
-        m.push_val(Arc::new(String::from("aaa")), "aaa".into());
+        m.push_val(AnyValue::new(String::from("aaa")), "aaa".into());
         m.new_val_group();
-        m.append_val(Arc::new(String::from("bbb")), "bbb".into());
-        m.append_val(Arc::new(String::from("ccc")), "ccc".into());
+        m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
+        m.append_val(AnyValue::new(String::from("ccc")), "ccc".into());
         m.new_val_group();
-        m.append_val(Arc::new(String::from("ddd")), "ddd".into());
-        m.push_val(Arc::new(String::from("eee")), "eee".into());
+        m.append_val(AnyValue::new(String::from("ddd")), "ddd".into());
+        m.push_val(AnyValue::new(String::from("eee")), "eee".into());
         m.new_val_group();
-        m.append_val(Arc::new(String::from("fff")), "fff".into());
-        m.append_val(Arc::new(String::from("ggg")), "ggg".into());
-        m.append_val(Arc::new(String::from("hhh")), "hhh".into());
-        m.append_val(Arc::new(String::from("iii")), "iii".into());
+        m.append_val(AnyValue::new(String::from("fff")), "fff".into());
+        m.append_val(AnyValue::new(String::from("ggg")), "ggg".into());
+        m.append_val(AnyValue::new(String::from("hhh")), "hhh".into());
+        m.append_val(AnyValue::new(String::from("iii")), "iii".into());
 
         let vals: Vec<&Vec<OsString>> = m.raw_vals().collect();
         assert_eq!(

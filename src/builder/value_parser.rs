@@ -279,7 +279,7 @@ where
         value: &std::ffi::OsStr,
     ) -> Result<AnyValue, crate::Error> {
         let value = TypedValueParser::parse_ref(self, cmd, arg, value)?;
-        Ok(Arc::new(value))
+        Ok(AnyValue::new(value))
     }
 
     fn parse(
@@ -289,7 +289,7 @@ where
         value: std::ffi::OsString,
     ) -> Result<AnyValue, crate::Error> {
         let value = TypedValueParser::parse(self, cmd, arg, value)?;
-        Ok(Arc::new(value))
+        Ok(AnyValue::new(value))
     }
 
     fn type_id(&self) -> TypeId {
