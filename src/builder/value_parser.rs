@@ -52,16 +52,14 @@ impl ValueParser {
     ) -> Result<AnyValue, crate::Error> {
         match &self.0 {
             ValueParserInner::String => {
-                let value = value.to_str().ok_or_else(|| {
-                    crate::Error::invalid_utf8(
-                        cmd,
-                        crate::output::Usage::new(cmd).create_usage_with_title(&[]),
-                    )
-                })?;
-                Ok(Arc::new(value.to_owned()))
+                AnyValueParser::parse_ref(&StringValueParser, cmd, arg, value)
             }
-            ValueParserInner::OsString => Ok(Arc::new(value.to_owned())),
-            ValueParserInner::PathBuf => Ok(Arc::new(std::path::PathBuf::from(value))),
+            ValueParserInner::OsString => {
+                AnyValueParser::parse_ref(&OsStringValueParser, cmd, arg, value)
+            }
+            ValueParserInner::PathBuf => {
+                AnyValueParser::parse_ref(&PathBufValueParser, cmd, arg, value)
+            }
             ValueParserInner::Other(o) => o.parse_ref(cmd, arg, value),
         }
     }
@@ -76,17 +74,13 @@ impl ValueParser {
         value: std::ffi::OsString,
     ) -> Result<AnyValue, crate::Error> {
         match &self.0 {
-            ValueParserInner::String => {
-                let value = value.into_string().map_err(|_| {
-                    crate::Error::invalid_utf8(
-                        cmd,
-                        crate::output::Usage::new(cmd).create_usage_with_title(&[]),
-                    )
-                })?;
-                Ok(Arc::new(value))
+            ValueParserInner::String => AnyValueParser::parse(&StringValueParser, cmd, arg, value),
+            ValueParserInner::OsString => {
+                AnyValueParser::parse(&OsStringValueParser, cmd, arg, value)
             }
-            ValueParserInner::OsString => Ok(Arc::new(value)),
-            ValueParserInner::PathBuf => Ok(Arc::new(std::path::PathBuf::from(value))),
+            ValueParserInner::PathBuf => {
+                AnyValueParser::parse(&PathBufValueParser, cmd, arg, value)
+            }
             ValueParserInner::Other(o) => o.parse(cmd, arg, value),
         }
     }
@@ -94,9 +88,9 @@ impl ValueParser {
     /// Describes the content of `Arc<Any>`
     pub fn type_id(&self) -> TypeId {
         match &self.0 {
-            ValueParserInner::String => TypeId::of::<String>(),
-            ValueParserInner::OsString => TypeId::of::<std::ffi::OsString>(),
-            ValueParserInner::PathBuf => TypeId::of::<std::path::PathBuf>(),
+            ValueParserInner::String => AnyValueParser::type_id(&StringValueParser),
+            ValueParserInner::OsString => AnyValueParser::type_id(&OsStringValueParser),
+            ValueParserInner::PathBuf => AnyValueParser::type_id(&PathBufValueParser),
             ValueParserInner::Other(o) => o.type_id(),
         }
     }
@@ -104,9 +98,9 @@ impl ValueParser {
     /// Describes the content of `Arc<Any>`
     pub fn type_name(&self) -> &'static str {
         match &self.0 {
-            ValueParserInner::String => std::any::type_name::<String>(),
-            ValueParserInner::OsString => std::any::type_name::<std::ffi::OsString>(),
-            ValueParserInner::PathBuf => std::any::type_name::<std::path::PathBuf>(),
+            ValueParserInner::String => AnyValueParser::type_name(&StringValueParser),
+            ValueParserInner::OsString => AnyValueParser::type_name(&OsStringValueParser),
+            ValueParserInner::PathBuf => AnyValueParser::type_name(&PathBufValueParser),
             ValueParserInner::Other(o) => o.type_name(),
         }
     }
@@ -272,6 +266,87 @@ where
                 .with_cmd(cmd)
         })?;
         Ok(value)
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+struct StringValueParser;
+
+impl TypedValueParser for StringValueParser {
+    type Value = String;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<String, crate::Error> {
+        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+    }
+
+    fn parse(
+        &self,
+        cmd: &crate::Command,
+        _arg: Option<&crate::Arg>,
+        value: std::ffi::OsString,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = value.into_string().map_err(|_| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        Ok(value)
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+struct OsStringValueParser;
+
+impl TypedValueParser for OsStringValueParser {
+    type Value = std::ffi::OsString;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+    }
+
+    fn parse(
+        &self,
+        _cmd: &crate::Command,
+        _arg: Option<&crate::Arg>,
+        value: std::ffi::OsString,
+    ) -> Result<Self::Value, crate::Error> {
+        Ok(value)
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+struct PathBufValueParser;
+
+impl TypedValueParser for PathBufValueParser {
+    type Value = std::path::PathBuf;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+    }
+
+    fn parse(
+        &self,
+        _cmd: &crate::Command,
+        _arg: Option<&crate::Arg>,
+        value: std::ffi::OsString,
+    ) -> Result<Self::Value, crate::Error> {
+        Ok(Self::Value::from(value))
     }
 }
 
