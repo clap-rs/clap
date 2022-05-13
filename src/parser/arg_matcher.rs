@@ -131,7 +131,7 @@ impl ArgMatcher {
         let id = &arg.id;
         debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueSource::CommandLine);
+        ma.set_source(ValueSource::CommandLine);
         ma.set_ignore_case(arg.is_ignore_case_set());
         ma.inc_occurrences();
     }
@@ -139,7 +139,7 @@ impl ArgMatcher {
     pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
         debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueSource::CommandLine);
+        ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
 
@@ -148,7 +148,7 @@ impl ArgMatcher {
         let id = &Id::empty_hash();
         debug!("ArgMatcher::inc_occurrence_of_external: id={:?}", id,);
         let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueSource::CommandLine);
+        ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
 
@@ -172,13 +172,13 @@ impl ArgMatcher {
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
         let ma = self.entry(arg).or_default();
-        ma.update_ty(ty);
+        ma.set_source(ty);
         ma.push_val(val, raw_val);
     }
 
     fn append_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString, ty: ValueSource) {
         let ma = self.entry(arg).or_default();
-        ma.update_ty(ty);
+        ma.set_source(ty);
         ma.append_val(val, raw_val);
     }
 
@@ -189,7 +189,7 @@ impl ArgMatcher {
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueSource) {
         let ma = self.entry(arg).or_default();
-        ma.update_ty(ty);
+        ma.set_source(ty);
         ma.push_index(idx);
     }
 

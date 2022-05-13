@@ -14,7 +14,7 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Debug, Clone)]
 pub(crate) struct MatchedArg {
     occurs: u64,
-    ty: Option<ValueSource>,
+    source: Option<ValueSource>,
     indices: Vec<usize>,
     vals: Vec<Vec<AnyValue>>,
     raw_vals: Vec<Vec<OsString>>,
@@ -25,7 +25,7 @@ impl MatchedArg {
     pub(crate) fn new() -> Self {
         MatchedArg {
             occurs: 0,
-            ty: None,
+            source: None,
             indices: Vec::new(),
             vals: Vec::new(),
             raw_vals: Vec::new(),
@@ -118,7 +118,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
-        if self.ty == Some(ValueSource::DefaultValue) {
+        if self.source == Some(ValueSource::DefaultValue) {
             return false;
         }
 
@@ -136,14 +136,14 @@ impl MatchedArg {
     }
 
     pub(crate) fn source(&self) -> Option<ValueSource> {
-        self.ty
+        self.source
     }
 
-    pub(crate) fn update_ty(&mut self, ty: ValueSource) {
-        if let Some(existing) = self.ty {
-            self.ty = Some(existing.max(ty));
+    pub(crate) fn set_source(&mut self, source: ValueSource) {
+        if let Some(existing) = self.source {
+            self.source = Some(existing.max(source));
         } else {
-            self.ty = Some(ty)
+            self.source = Some(source)
         }
     }
 
@@ -162,7 +162,7 @@ impl PartialEq for MatchedArg {
     fn eq(&self, other: &MatchedArg) -> bool {
         let MatchedArg {
             occurs: self_occurs,
-            ty: self_ty,
+            source: self_source,
             indices: self_indices,
             vals: _,
             raw_vals: self_raw_vals,
@@ -170,14 +170,14 @@ impl PartialEq for MatchedArg {
         } = self;
         let MatchedArg {
             occurs: other_occurs,
-            ty: other_ty,
+            source: other_source,
             indices: other_indices,
             vals: _,
             raw_vals: other_raw_vals,
             ignore_case: other_ignore_case,
         } = other;
         self_occurs == other_occurs
-            && self_ty == other_ty
+            && self_source == other_source
             && self_indices == other_indices
             && self_raw_vals == other_raw_vals
             && self_ignore_case == other_ignore_case
