@@ -1,7 +1,7 @@
-use std::any::TypeId;
 use std::sync::Arc;
 
 use crate::parser::AnyValue;
+use crate::parser::AnyValueId;
 
 /// Parse/validate argument values
 ///
@@ -174,13 +174,8 @@ impl ValueParser {
     }
 
     /// Describes the content of `Arc<Any>`
-    pub fn type_id(&self) -> TypeId {
+    pub fn type_id(&self) -> AnyValueId {
         self.any_value_parser().type_id()
-    }
-
-    /// Describes the content of `Arc<Any>`
-    pub fn type_name(&self) -> &'static str {
-        self.any_value_parser().type_name()
     }
 
     /// Reflect on enumerated value properties
@@ -217,7 +212,7 @@ impl<'help> std::fmt::Debug for ValueParser {
             ValueParserInner::String => f.debug_struct("ValueParser::string").finish(),
             ValueParserInner::OsString => f.debug_struct("ValueParser::os_string").finish(),
             ValueParserInner::PathBuf => f.debug_struct("ValueParser::path_buf").finish(),
-            ValueParserInner::Other(o) => write!(f, "ValueParser::other({})", o.type_name()),
+            ValueParserInner::Other(o) => write!(f, "ValueParser::other({:?})", o.type_id()),
         }
     }
 }
@@ -225,7 +220,7 @@ impl<'help> std::fmt::Debug for ValueParser {
 // Require people to implement `TypedValueParser` rather than `AnyValueParser`:
 // - Make implementing the user-facing trait easier
 // - Enforce in the type-system that a given `AnyValueParser::parse` always returns the same type
-//   on each call and that it matches `type_id` / `type_name`
+//   on each call and that it matches `type_id`
 /// Parse/validate argument values into a `Arc<Any>`
 ///
 /// This is a type-erased wrapper for [`TypedValueParser`].
@@ -251,10 +246,7 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
     ) -> Result<AnyValue, crate::Error>;
 
     /// Describes the content of `Arc<Any>`
-    fn type_id(&self) -> TypeId;
-
-    /// Describes the content of `Arc<Any>`
-    fn type_name(&self) -> &'static str;
+    fn type_id(&self) -> AnyValueId;
 
     /// Reflect on enumerated value properties
     ///
@@ -292,12 +284,8 @@ where
         Ok(AnyValue::new(value))
     }
 
-    fn type_id(&self) -> TypeId {
-        TypeId::of::<T>()
-    }
-
-    fn type_name(&self) -> &'static str {
-        std::any::type_name::<T>()
+    fn type_id(&self) -> AnyValueId {
+        AnyValueId::of::<T>()
     }
 
     fn possible_values(

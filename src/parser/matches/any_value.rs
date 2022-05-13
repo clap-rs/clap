@@ -25,7 +25,7 @@ impl std::fmt::Debug for AnyValue {
 }
 
 #[derive(Copy, Clone)]
-pub(crate) struct AnyValueId {
+pub struct AnyValueId {
     type_id: std::any::TypeId,
     #[cfg(debug_assertions)]
     type_name: &'static str,

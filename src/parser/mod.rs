@@ -10,6 +10,7 @@ pub(crate) mod features;
 
 pub(crate) use self::arg_matcher::ArgMatcher;
 pub(crate) use self::matches::AnyValue;
+pub(crate) use self::matches::AnyValueId;
 pub(crate) use self::matches::{MatchedArg, SubCommand};
 pub(crate) use self::parser::{ParseState, Parser};
 pub(crate) use self::validator::Validator;
