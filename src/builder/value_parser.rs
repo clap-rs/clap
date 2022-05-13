@@ -9,11 +9,13 @@ pub struct ValueParser(pub(crate) ValueParserInner);
 
 #[derive(Clone)]
 pub(crate) enum ValueParserInner {
-    // Common enough that we optimize it
+    // Common enough to optimize and for possible values
+    Bool,
+    // Common enough to optimize
     String,
-    // Common enough that we optimize it
+    // Common enough to optimize
     OsString,
-    // Common enough that we optimize it
+    // Common enough to optimize
     PathBuf,
     Other(Arc<dyn AnyValueParser + Send + Sync + 'static>),
 }
@@ -22,6 +24,15 @@ impl ValueParser {
     /// Custom parser for argument values
     pub fn new(other: impl AnyValueParser + Send + Sync + 'static) -> Self {
         Self(ValueParserInner::Other(Arc::new(other)))
+    }
+
+    /// `Bool` parser for argument values
+    ///
+    /// See also:
+    /// - [`BoolishValueParser`] for different human readable bool representations
+    /// - [`FalseyValueParser`] for assuming non-false is true
+    pub const fn bool() -> Self {
+        Self(ValueParserInner::Bool)
     }
 
     /// `String` parser for argument values
@@ -51,6 +62,7 @@ impl ValueParser {
         value: &std::ffi::OsStr,
     ) -> Result<AnyValue, crate::Error> {
         match &self.0 {
+            ValueParserInner::Bool => AnyValueParser::parse_ref(&BoolValueParser, cmd, arg, value),
             ValueParserInner::String => {
                 AnyValueParser::parse_ref(&StringValueParser, cmd, arg, value)
             }
@@ -74,6 +86,7 @@ impl ValueParser {
         value: std::ffi::OsString,
     ) -> Result<AnyValue, crate::Error> {
         match &self.0 {
+            ValueParserInner::Bool => AnyValueParser::parse(&BoolValueParser, cmd, arg, value),
             ValueParserInner::String => AnyValueParser::parse(&StringValueParser, cmd, arg, value),
             ValueParserInner::OsString => {
                 AnyValueParser::parse(&OsStringValueParser, cmd, arg, value)
@@ -88,6 +101,7 @@ impl ValueParser {
     /// Describes the content of `Arc<Any>`
     pub fn type_id(&self) -> TypeId {
         match &self.0 {
+            ValueParserInner::Bool => AnyValueParser::type_id(&BoolValueParser),
             ValueParserInner::String => AnyValueParser::type_id(&StringValueParser),
             ValueParserInner::OsString => AnyValueParser::type_id(&OsStringValueParser),
             ValueParserInner::PathBuf => AnyValueParser::type_id(&PathBufValueParser),
@@ -98,10 +112,27 @@ impl ValueParser {
     /// Describes the content of `Arc<Any>`
     pub fn type_name(&self) -> &'static str {
         match &self.0 {
+            ValueParserInner::Bool => AnyValueParser::type_name(&BoolValueParser),
             ValueParserInner::String => AnyValueParser::type_name(&StringValueParser),
             ValueParserInner::OsString => AnyValueParser::type_name(&OsStringValueParser),
             ValueParserInner::PathBuf => AnyValueParser::type_name(&PathBufValueParser),
             ValueParserInner::Other(o) => o.type_name(),
+        }
+    }
+
+    /// Reflect on enumerated value properties
+    ///
+    /// Error checking should not be done with this; it is mostly targeted at user-facing
+    /// applications like errors and completion.
+    pub fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        match &self.0 {
+            ValueParserInner::Bool => AnyValueParser::possible_values(&BoolValueParser),
+            ValueParserInner::String => AnyValueParser::possible_values(&StringValueParser),
+            ValueParserInner::OsString => AnyValueParser::possible_values(&OsStringValueParser),
+            ValueParserInner::PathBuf => AnyValueParser::possible_values(&PathBufValueParser),
+            ValueParserInner::Other(o) => o.possible_values(),
         }
     }
 }
@@ -115,6 +146,7 @@ impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
 impl<'help> std::fmt::Debug for ValueParser {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         match &self.0 {
+            ValueParserInner::Bool => f.debug_struct("ValueParser::bool").finish(),
             ValueParserInner::String => f.debug_struct("ValueParser::string").finish(),
             ValueParserInner::OsString => f.debug_struct("ValueParser::os_string").finish(),
             ValueParserInner::PathBuf => f.debug_struct("ValueParser::path_buf").finish(),
@@ -154,6 +186,16 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
 
     /// Describes the content of `Arc<Any>`
     fn type_name(&self) -> &'static str;
+
+    /// Reflect on enumerated value properties
+    ///
+    /// Error checking should not be done with this; it is mostly targeted at user-facing
+    /// applications like errors and completion.
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        None
+    }
 }
 
 impl<T, P> AnyValueParser for P
@@ -188,6 +230,12 @@ where
     fn type_name(&self) -> &'static str {
         std::any::type_name::<T>()
     }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        P::possible_values(self)
+    }
 }
 
 /// Parse/validate argument values
@@ -215,6 +263,16 @@ pub trait TypedValueParser {
         value: std::ffi::OsString,
     ) -> Result<Self::Value, crate::Error> {
         self.parse_ref(cmd, arg, &value)
+    }
+
+    /// Reflect on enumerated value properties
+    ///
+    /// Error checking should not be done with this; it is mostly targeted at user-facing
+    /// applications like errors and completion.
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        None
     }
 }
 
@@ -428,7 +486,7 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
                 .iter()
                 .filter_map(|v| v.to_possible_value())
                 .filter(|v| !v.is_hide_set())
-                .map(|v| crate::builder::PossibleValue::get_name(&v))
+                .map(|v| v.get_name())
                 .collect::<Vec<_>>()
         };
 
@@ -461,6 +519,16 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
             })?
             .clone();
         Ok(value)
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        Some(Box::new(
+            E::value_variants()
+                .iter()
+                .filter_map(|v| v.to_possible_value()),
+        ))
     }
 }
 
@@ -536,6 +604,12 @@ impl TypedValueParser for PossibleValuesParser {
             ))
         }
     }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        Some(Box::new(self.0.iter().cloned()))
+    }
 }
 
 impl<I, T> From<I> for PossibleValuesParser
@@ -548,7 +622,61 @@ where
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+struct BoolValueParser;
+
+impl BoolValueParser {
+    fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {
+        ["true", "false"]
+            .iter()
+            .copied()
+            .map(|l| crate::PossibleValue::new(l).hide(true))
+    }
+}
+
+impl TypedValueParser for BoolValueParser {
+    type Value = bool;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = if value == std::ffi::OsStr::new("true") {
+            true
+        } else if value == std::ffi::OsStr::new("false") {
+            false
+        } else {
+            // Intentionally showing hidden as we hide all of them
+            let possible_vals = Self::possible_values()
+                .map(|v| v.get_name())
+                .collect::<Vec<_>>();
+
+            return Err(crate::Error::invalid_value(
+                cmd,
+                value.to_string_lossy().into_owned(),
+                &possible_vals,
+                arg.map(ToString::to_string)
+                    .unwrap_or_else(|| "...".to_owned()),
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            ));
+        };
+        Ok(value)
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        Some(Box::new(Self::possible_values()))
+    }
+}
+
 /// Parse false-like string values, everything else is `true`
+///
+/// See also:
+/// - [`ValueParser::bool`] for assuming non-false is true
+/// - [`BoolishValueParser`] for different human readable bool representations
 ///
 /// # Example
 ///
@@ -568,6 +696,16 @@ where
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct FalseyValueParser;
+
+impl FalseyValueParser {
+    fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {
+        crate::util::TRUE_LITERALS
+            .iter()
+            .chain(crate::util::FALSE_LITERALS.iter())
+            .copied()
+            .map(|l| crate::PossibleValue::new(l).hide(true))
+    }
+}
 
 impl TypedValueParser for FalseyValueParser {
     type Value = bool;
@@ -594,9 +732,19 @@ impl TypedValueParser for FalseyValueParser {
         };
         Ok(value)
     }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        Some(Box::new(Self::possible_values()))
+    }
 }
 
 /// Parse bool-like string values, everything else is `true`
+///
+/// See also:
+/// - [`ValueParser::bool`] for different human readable bool representations
+/// - [`FalseyValueParser`] for assuming non-false is true
 ///
 /// # Example
 ///
@@ -620,6 +768,16 @@ impl TypedValueParser for FalseyValueParser {
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct BoolishValueParser;
+
+impl BoolishValueParser {
+    fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {
+        crate::util::TRUE_LITERALS
+            .iter()
+            .chain(crate::util::FALSE_LITERALS.iter())
+            .copied()
+            .map(|l| crate::PossibleValue::new(l).hide(true))
+    }
+}
 
 impl TypedValueParser for BoolishValueParser {
     type Value = bool;
@@ -647,6 +805,12 @@ impl TypedValueParser for BoolishValueParser {
                 .with_cmd(cmd)
         })?;
         Ok(value)
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        Some(Box::new(Self::possible_values()))
     }
 }
 
