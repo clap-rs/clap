@@ -31,6 +31,7 @@ pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
 pub use value_parser::AnyValueParser;
+pub use value_parser::ArgEnumValueParser;
 pub use value_parser::AutoValueParser;
 pub use value_parser::BoolishValueParser;
 pub use value_parser::FalseyValueParser;

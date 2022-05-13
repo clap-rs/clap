@@ -21,12 +21,6 @@ impl ValueParser {
         Self(ValueParserInner::Other(Arc::new(other)))
     }
 
-    /// Parse an [`ArgEnum`][crate::ArgEnum]
-    pub fn arg_enum<E: crate::ArgEnum + Clone + Send + Sync + 'static>() -> Self {
-        let phantom: std::marker::PhantomData<E> = Default::default();
-        Self::new(ArgEnumValueParser(phantom))
-    }
-
     /// `String` parser for argument values
     pub const fn string() -> Self {
         Self(ValueParserInner::String)
@@ -278,9 +272,60 @@ where
     }
 }
 
-struct ArgEnumValueParser<E: crate::ArgEnum + Clone + Send + Sync + 'static>(
+/// Parse an [`ArgEnum`][crate::ArgEnum] value.
+///
+/// # Example
+///
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+///
+/// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+/// enum ColorChoice {
+///     Always,
+///     Auto,
+///     Never,
+/// }
+///
+/// impl clap::ArgEnum for ColorChoice {
+///     fn value_variants<'a>() -> &'a [Self] {
+///         &[Self::Always, Self::Auto, Self::Never]
+///     }
+///
+///     fn to_possible_value<'a>(&self) -> Option<clap::PossibleValue<'a>> {
+///         match self {
+///             Self::Always => Some(clap::PossibleValue::new("always")),
+///             Self::Auto => Some(clap::PossibleValue::new("auto")),
+///             Self::Never => Some(clap::PossibleValue::new("never")),
+///         }
+///     }
+/// }
+///
+/// let value_parser = clap::builder::ArgEnumValueParser::<ColorChoice>::new();
+/// // or
+/// let value_parser = clap::value_parser!(ColorChoice);
+///
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always")).unwrap(), ColorChoice::Always);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("auto")).unwrap(), ColorChoice::Auto);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never")).unwrap(), ColorChoice::Never);
+/// ```
+#[derive(Clone, Debug)]
+pub struct ArgEnumValueParser<E: crate::ArgEnum + Clone + Send + Sync + 'static>(
     std::marker::PhantomData<E>,
 );
+
+impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ArgEnumValueParser<E> {
+    /// Parse an [`ArgEnum`][crate::ArgEnum]
+    pub fn new() -> Self {
+        let phantom: std::marker::PhantomData<E> = Default::default();
+        Self(phantom)
+    }
+}
+
 impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for ArgEnumValueParser<E> {
     type Value = E;
 
@@ -579,13 +624,17 @@ impl<T> AutoValueParser<T> {
 
 #[doc(hidden)]
 pub trait ValueParserViaArgEnum: private::ValueParserViaArgEnumSealed {
-    fn value_parser(&self) -> ValueParser;
+    type Output;
+
+    fn value_parser(&self) -> Self::Output;
 }
 impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ValueParserViaArgEnum
     for &&AutoValueParser<E>
 {
-    fn value_parser(&self) -> ValueParser {
-        ValueParser::arg_enum::<E>()
+    type Output = ArgEnumValueParser<E>;
+
+    fn value_parser(&self) -> Self::Output {
+        ArgEnumValueParser::<E>::new().into()
     }
 }
 
