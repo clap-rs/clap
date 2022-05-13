@@ -332,6 +332,90 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
     }
 }
 
+/// Verify the value is from an enumerated set pf [`PossibleValue`][crate::PossibleValue].
+///
+/// # Example
+///
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+/// let value_parser = clap::builder::PossibleValuesParser::new(["always", "auto", "never"]);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always")).unwrap(), "always");
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("auto")).unwrap(), "auto");
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never")).unwrap(), "never");
+/// ```
+#[derive(Clone, Debug)]
+pub struct PossibleValuesParser(Vec<super::PossibleValue<'static>>);
+
+impl PossibleValuesParser {
+    /// Verify the value is from an enumerated set pf [`PossibleValue`][crate::PossibleValue].
+    pub fn new(values: impl Into<PossibleValuesParser>) -> Self {
+        values.into()
+    }
+}
+
+impl TypedValueParser for PossibleValuesParser {
+    type Value = String;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<String, crate::Error> {
+        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+    }
+
+    fn parse(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: std::ffi::OsString,
+    ) -> Result<String, crate::Error> {
+        let value = value.into_string().map_err(|_| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+
+        let ignore_case = arg.map(|a| a.is_ignore_case_set()).unwrap_or(false);
+        if self.0.iter().any(|v| v.matches(&value, ignore_case)) {
+            Ok(value)
+        } else {
+            let possible_vals = self
+                .0
+                .iter()
+                .filter(|v| !v.is_hide_set())
+                .map(crate::builder::PossibleValue::get_name)
+                .collect::<Vec<_>>();
+
+            Err(crate::Error::invalid_value(
+                cmd,
+                value.to_owned(),
+                &possible_vals,
+                arg.map(ToString::to_string)
+                    .unwrap_or_else(|| "...".to_owned()),
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            ))
+        }
+    }
+}
+
+impl<I, T> From<I> for PossibleValuesParser
+where
+    I: IntoIterator<Item = T>,
+    T: Into<super::PossibleValue<'static>>,
+{
+    fn from(values: I) -> Self {
+        Self(values.into_iter().map(|t| t.into()).collect())
+    }
+}
+
 /// Parse false-like string values, everything else is `true`
 ///
 /// # Example
