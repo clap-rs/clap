@@ -434,6 +434,53 @@ impl TypedValueParser for BoolishValueParser {
     }
 }
 
+/// Parse non-empty string values
+///
+/// # Example
+///
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+/// let value_parser = clap::builder::NonEmptyStringValueParser;
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), "random");
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// ```
+#[derive(Copy, Clone, Debug)]
+pub struct NonEmptyStringValueParser;
+
+impl TypedValueParser for NonEmptyStringValueParser {
+    type Value = String;
+
+    /// Parse the argument value
+    ///
+    /// When `arg` is `None`, an external subcommand value is being parsed.
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        if value.is_empty() {
+            return Err(crate::Error::empty_value(
+                cmd,
+                &[],
+                arg.map(ToString::to_string)
+                    .unwrap_or_else(|| "...".to_owned()),
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            ));
+        }
+        let value = value.to_str().ok_or_else(|| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        Ok(value.to_owned())
+    }
+}
+
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct AutoValueParser<T>(std::marker::PhantomData<T>);

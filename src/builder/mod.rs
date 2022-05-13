@@ -34,6 +34,7 @@ pub use value_parser::AnyValueParser;
 pub use value_parser::AutoValueParser;
 pub use value_parser::BoolishValueParser;
 pub use value_parser::FalseyValueParser;
+pub use value_parser::NonEmptyStringValueParser;
 pub use value_parser::TypedValueParser;
 pub use value_parser::ValueParser;
 pub use value_parser::ValueParserViaArgEnum;
