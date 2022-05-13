@@ -45,7 +45,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
-                    o,
+                    o.to_string(),
                     Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
@@ -124,7 +124,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                             .filter(|pv| !pv.is_hide_set())
                             .map(PossibleValue::get_name)
                             .collect::<Vec<_>>(),
-                        arg,
+                        arg.to_string(),
                         Usage::new(self.cmd)
                             .required(&self.required)
                             .create_usage_with_title(&used),
@@ -140,7 +140,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
-                    arg,
+                    arg.to_string(),
                     Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
@@ -225,7 +225,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             .try_for_each(|arg| {
                 Err(Error::argument_conflict(
                     self.cmd,
-                    arg,
+                    arg.to_string(),
                     Vec::new(),
                     Usage::new(self.cmd)
                         .required(&self.required)
@@ -266,7 +266,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         let former_arg = self.cmd.find(name).expect(INTERNAL_ERROR_MSG);
         let usg = self.build_conflict_err_usage(matcher, conflict_ids);
         Err(Error::argument_conflict(
-            self.cmd, former_arg, conflicts, usg,
+            self.cmd,
+            former_arg.to_string(),
+            conflicts,
+            usg,
         ))
     }
 
@@ -348,7 +351,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
                 self.cmd,
-                a,
+                a.to_string(),
                 Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),
@@ -363,7 +366,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             if occurs > max_occurs {
                 return Err(Error::too_many_occurrences(
                     self.cmd,
-                    a,
+                    a.to_string(),
                     max_occurs,
                     occurs,
                     Usage::new(self.cmd)
@@ -390,7 +393,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
                 return Err(Error::wrong_number_of_values(
                     self.cmd,
-                    a,
+                    a.to_string(),
                     num,
                     if a.is_multiple_occurrences_set() {
                         total_num % num
@@ -428,7 +431,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");
                 return Err(Error::too_few_values(
                     self.cmd,
-                    a,
+                    a.to_string(),
                     num,
                     ma.num_vals(),
                     Usage::new(self.cmd)
@@ -450,7 +453,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .filter(|pv| !pv.is_hide_set())
                     .map(PossibleValue::get_name)
                     .collect::<Vec<_>>(),
-                a,
+                a.to_string(),
                 Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),

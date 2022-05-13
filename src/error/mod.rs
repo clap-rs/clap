@@ -17,7 +17,6 @@ use crate::output::fmt::Stream;
 use crate::parser::features::suggestions;
 use crate::util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE};
 use crate::AppSettings;
-use crate::Arg;
 use crate::Command;
 
 mod context;
@@ -269,7 +268,7 @@ impl Error {
 
     pub(crate) fn argument_conflict(
         cmd: &Command,
-        arg: &Arg,
+        arg: String,
         mut others: Vec<String>,
         usage: String,
     ) -> Self {
@@ -283,25 +282,24 @@ impl Error {
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::PriorArg, others),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
-    pub(crate) fn empty_value(cmd: &Command, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
-        let info = vec![arg.to_string()];
+    pub(crate) fn empty_value(
+        cmd: &Command,
+        good_vals: &[&str],
+        arg: String,
+        usage: String,
+    ) -> Self {
+        let info = vec![arg.clone()];
         let mut err = Self::new(ErrorKind::EmptyValue)
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ]);
         if !good_vals.is_empty() {
@@ -314,7 +312,7 @@ impl Error {
     }
 
     pub(crate) fn no_equals(cmd: &Command, arg: String, usage: String) -> Self {
-        let info = vec![arg.to_string()];
+        let info = vec![arg.clone()];
         Self::new(ErrorKind::NoEquals)
             .with_cmd(cmd)
             .set_info(info)
@@ -328,10 +326,10 @@ impl Error {
         cmd: &Command,
         bad_val: String,
         good_vals: &[&str],
-        arg: &Arg,
+        arg: String,
         usage: String,
     ) -> Self {
-        let mut info = vec![arg.to_string(), bad_val.clone()];
+        let mut info = vec![arg.clone(), bad_val.clone()];
         info.extend(good_vals.iter().map(|s| (*s).to_owned()));
 
         let suggestion = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
@@ -339,10 +337,7 @@ impl Error {
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::InvalidValue, ContextValue::String(bad_val)),
                 (
                     ContextKind::ValidValue,
@@ -432,24 +427,17 @@ impl Error {
 
     pub(crate) fn too_many_occurrences(
         cmd: &Command,
-        arg: &Arg,
+        arg: String,
         max_occurs: usize,
         curr_occurs: usize,
         usage: String,
     ) -> Self {
-        let info = vec![
-            arg.to_string(),
-            curr_occurs.to_string(),
-            max_occurs.to_string(),
-        ];
+        let info = vec![arg.clone(), curr_occurs.to_string(), max_occurs.to_string()];
         Self::new(ErrorKind::TooManyOccurrences)
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (
                     ContextKind::MaxOccurrences,
                     ContextValue::Number(max_occurs as isize),
@@ -463,7 +451,7 @@ impl Error {
     }
 
     pub(crate) fn too_many_values(cmd: &Command, val: String, arg: String, usage: String) -> Self {
-        let info = vec![arg.to_string(), val.clone()];
+        let info = vec![arg.clone(), val.clone()];
         Self::new(ErrorKind::TooManyValues)
             .with_cmd(cmd)
             .set_info(info)
@@ -476,20 +464,17 @@ impl Error {
 
     pub(crate) fn too_few_values(
         cmd: &Command,
-        arg: &Arg,
+        arg: String,
         min_vals: usize,
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let info = vec![arg.to_string(), curr_vals.to_string(), min_vals.to_string()];
+        let info = vec![arg.clone(), curr_vals.to_string(), min_vals.to_string()];
         Self::new(ErrorKind::TooFewValues)
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (
                     ContextKind::MinValues,
                     ContextValue::Number(min_vals as isize),
@@ -507,7 +492,7 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let info = vec![arg.to_string(), val.to_string(), err.to_string()];
+        let info = vec![arg.clone(), val.to_string(), err.to_string()];
         Self::new(ErrorKind::ValueValidation)
             .set_info(info)
             .set_source(err)
@@ -519,20 +504,17 @@ impl Error {
 
     pub(crate) fn wrong_number_of_values(
         cmd: &Command,
-        arg: &Arg,
+        arg: String,
         num_vals: usize,
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let info = vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()];
+        let info = vec![arg.clone(), curr_vals.to_string(), num_vals.to_string()];
         Self::new(ErrorKind::WrongNumberOfValues)
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (
                     ContextKind::ExpectedNumValues,
                     ContextValue::Number(num_vals as isize),
@@ -545,16 +527,13 @@ impl Error {
             ])
     }
 
-    pub(crate) fn unexpected_multiple_usage(cmd: &Command, arg: &Arg, usage: String) -> Self {
-        let info = vec![arg.to_string()];
+    pub(crate) fn unexpected_multiple_usage(cmd: &Command, arg: String, usage: String) -> Self {
+        let info = vec![arg.clone()];
         Self::new(ErrorKind::UnexpectedMultipleUsage)
             .with_cmd(cmd)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
@@ -565,7 +544,7 @@ impl Error {
         did_you_mean: Option<(String, Option<String>)>,
         usage: String,
     ) -> Self {
-        let info = vec![arg.to_string()];
+        let info = vec![arg.clone()];
         let mut err = Self::new(ErrorKind::UnknownArgument)
             .with_cmd(cmd)
             .set_info(info)
@@ -589,7 +568,7 @@ impl Error {
     }
 
     pub(crate) fn unnecessary_double_dash(cmd: &Command, arg: String, usage: String) -> Self {
-        let info = vec![arg.to_string()];
+        let info = vec![arg.clone()];
         Self::new(ErrorKind::UnknownArgument)
             .with_cmd(cmd)
             .set_info(info)
@@ -601,7 +580,7 @@ impl Error {
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        let info = vec![arg.to_string()];
+        let info = vec![arg.clone()];
         Self::new(ErrorKind::ArgumentNotFound)
             .set_info(info)
             .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))])
