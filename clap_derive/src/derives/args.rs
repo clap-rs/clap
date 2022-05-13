@@ -529,25 +529,25 @@ fn gen_parsers(
     let span = parser.kind.span();
     let convert_type = inner_type(**ty, &field.ty);
     let id = attrs.id();
-    let (value_of, values_of, mut parse) = match *parser.kind {
+    let (get_one, get_many, mut parse) = match *parser.kind {
         FromStr => (
-            quote_spanned!(span=> value_of),
-            quote_spanned!(span=> values_of),
+            quote_spanned!(span=> get_one::<String>),
+            quote_spanned!(span=> get_many::<String>),
             quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(#func(s))),
         ),
         TryFromStr => (
-            quote_spanned!(span=> value_of),
-            quote_spanned!(span=> values_of),
+            quote_spanned!(span=> get_one::<String>),
+            quote_spanned!(span=> get_many::<String>),
             quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))),
         ),
         FromOsStr => (
-            quote_spanned!(span=> value_of_os),
-            quote_spanned!(span=> values_of_os),
+            quote_spanned!(span=> get_one::<::std::ffi::OsString>),
+            quote_spanned!(span=> get_many::<::std::ffi::OsString>),
             quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(#func(s))),
         ),
         TryFromOsStr => (
-            quote_spanned!(span=> value_of_os),
-            quote_spanned!(span=> values_of_os),
+            quote_spanned!(span=> get_one::<::std::ffi::OsString>),
+            quote_spanned!(span=> get_many::<::std::ffi::OsString>),
             quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))),
         ),
         FromOccurrences => (
@@ -587,7 +587,9 @@ fn gen_parsers(
 
         Ty::Option => {
             quote_spanned! { ty.span()=>
-                #arg_matches.#value_of(#id)
+                #arg_matches.#get_one(#id)
+                    .expect("unexpected type")
+                    .map(|s| ::std::ops::Deref::deref(s))
                     .map(#parse)
                     .transpose()?
             }
@@ -595,7 +597,12 @@ fn gen_parsers(
 
         Ty::OptionOption => quote_spanned! { ty.span()=>
             if #arg_matches.is_present(#id) {
-                Some(#arg_matches.#value_of(#id).map(#parse).transpose()?)
+                Some(
+                    #arg_matches.#get_one(#id)
+                        .expect("unexpected type")
+                        .map(|s| ::std::ops::Deref::deref(s))
+                        .map(#parse).transpose()?
+                )
             } else {
                 None
             }
@@ -603,8 +610,9 @@ fn gen_parsers(
 
         Ty::OptionVec => quote_spanned! { ty.span()=>
             if #arg_matches.is_present(#id) {
-                Some(#arg_matches.#values_of(#id)
-                    .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
+                Some(#arg_matches.#get_many(#id)
+                    .expect("unexpected type")
+                    .map(|v| v.map(|s| ::std::ops::Deref::deref(s)).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new))
             } else {
@@ -614,24 +622,31 @@ fn gen_parsers(
 
         Ty::Vec => {
             quote_spanned! { ty.span()=>
-                #arg_matches.#values_of(#id)
-                    .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
+                #arg_matches.#get_many(#id)
+                    .expect("unexpected type")
+                    .map(|v| v.map(|s| ::std::ops::Deref::deref(s)).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new)
             }
         }
 
         Ty::Other if occurrences => quote_spanned! { ty.span()=>
-            #parse(#arg_matches.#value_of(#id))
+            #parse(
+                #arg_matches.#get_one(#id)
+            )
         },
 
         Ty::Other if flag => quote_spanned! { ty.span()=>
-            #parse(#arg_matches.is_present(#id))
+            #parse(
+                #arg_matches.is_present(#id)
+            )
         },
 
         Ty::Other => {
             quote_spanned! { ty.span()=>
-                #arg_matches.#value_of(#id)
+                #arg_matches.#get_one(#id)
+                    .expect("unexpected type")
+                    .map(|s| ::std::ops::Deref::deref(s))
                     .ok_or_else(|| clap::Error::raw(clap::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
                     .and_then(#parse)?
             }
