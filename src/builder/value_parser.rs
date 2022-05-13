@@ -21,6 +21,12 @@ impl ValueParser {
         Self(ValueParserInner::Other(Arc::new(other)))
     }
 
+    /// Parse an [`ArgEnum`][crate::ArgEnum]
+    pub fn arg_enum<E: crate::ArgEnum + Clone + Send + Sync + 'static>() -> Self {
+        let phantom: std::marker::PhantomData<E> = Default::default();
+        Self::new(ArgEnumValueParser(phantom))
+    }
+
     /// `String` parser for argument values
     pub const fn string() -> Self {
         Self(ValueParserInner::String)
@@ -272,6 +278,60 @@ where
     }
 }
 
+struct ArgEnumValueParser<E: crate::ArgEnum + Clone + Send + Sync + 'static>(
+    std::marker::PhantomData<E>,
+);
+impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for ArgEnumValueParser<E> {
+    type Value = E;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<E, crate::Error> {
+        let ignore_case = arg.map(|a| a.is_ignore_case_set()).unwrap_or(false);
+        let possible_vals = || {
+            E::value_variants()
+                .iter()
+                .filter_map(|v| v.to_possible_value())
+                .filter(|v| !v.is_hide_set())
+                .map(|v| crate::builder::PossibleValue::get_name(&v))
+                .collect::<Vec<_>>()
+        };
+
+        let value = value.to_str().ok_or_else(|| {
+            crate::Error::invalid_value(
+                cmd,
+                value.to_string_lossy().into_owned(),
+                &possible_vals(),
+                arg.map(ToString::to_string)
+                    .unwrap_or_else(|| "...".to_owned()),
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        let value = E::value_variants()
+            .iter()
+            .find(|v| {
+                v.to_possible_value()
+                    .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_possible_value")
+                    .matches(value, ignore_case)
+            })
+            .ok_or_else(|| {
+            crate::Error::invalid_value(
+                cmd,
+                value.to_owned(),
+                &possible_vals(),
+                arg.map(ToString::to_string)
+                    .unwrap_or_else(|| "...".to_owned()),
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+            })?
+            .clone();
+        Ok(value)
+    }
+}
+
 /// Parse false-like string values, everything else is `true`
 ///
 /// # Example
@@ -387,6 +447,18 @@ impl<T> AutoValueParser<T> {
 }
 
 #[doc(hidden)]
+pub trait ValueParserViaArgEnum: private::ValueParserViaArgEnumSealed {
+    fn value_parser(&self) -> ValueParser;
+}
+impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ValueParserViaArgEnum
+    for &&AutoValueParser<E>
+{
+    fn value_parser(&self) -> ValueParser {
+        ValueParser::arg_enum::<E>()
+    }
+}
+
+#[doc(hidden)]
 pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
     fn value_parser(&self) -> ValueParser;
 }
@@ -439,10 +511,11 @@ where
 #[macro_export]
 macro_rules! value_parser {
     ($name:ty) => {{
+        use $crate::builder::ValueParserViaArgEnum;
         use $crate::builder::ValueParserViaBuiltIn;
         use $crate::builder::ValueParserViaFromStr;
         let auto = $crate::builder::AutoValueParser::<$name>::new();
-        (&&auto).value_parser()
+        (&&&auto).value_parser()
     }};
 }
 
@@ -454,6 +527,9 @@ mod private {
         P: super::TypedValueParser<Value = T>,
     {
     }
+
+    pub trait ValueParserViaArgEnumSealed {}
+    impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &&super::AutoValueParser<E> {}
 
     pub trait ValueParserViaBuiltInSealed {}
     impl ValueParserViaBuiltInSealed for &super::AutoValueParser<String> {}
