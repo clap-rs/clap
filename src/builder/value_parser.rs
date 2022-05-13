@@ -630,38 +630,38 @@ pub mod via_prelude {
     use super::*;
 
     #[doc(hidden)]
+    pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
+        fn value_parser(&self) -> ValueParser;
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<String> {
+        fn value_parser(&self) -> ValueParser {
+            ValueParser::string()
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<std::ffi::OsString> {
+        fn value_parser(&self) -> ValueParser {
+            ValueParser::os_string()
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<std::path::PathBuf> {
+        fn value_parser(&self) -> ValueParser {
+            ValueParser::path_buf()
+        }
+    }
+
+    #[doc(hidden)]
     pub trait ValueParserViaArgEnum: private::ValueParserViaArgEnumSealed {
         type Output;
 
         fn value_parser(&self) -> Self::Output;
     }
     impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ValueParserViaArgEnum
-        for &&AutoValueParser<E>
+        for &AutoValueParser<E>
     {
         type Output = ArgEnumValueParser<E>;
 
         fn value_parser(&self) -> Self::Output {
             ArgEnumValueParser::<E>::new().into()
-        }
-    }
-
-    #[doc(hidden)]
-    pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
-        fn value_parser(&self) -> ValueParser;
-    }
-    impl ValueParserViaBuiltIn for &AutoValueParser<String> {
-        fn value_parser(&self) -> ValueParser {
-            ValueParser::string()
-        }
-    }
-    impl ValueParserViaBuiltIn for &AutoValueParser<std::ffi::OsString> {
-        fn value_parser(&self) -> ValueParser {
-            ValueParser::os_string()
-        }
-    }
-    impl ValueParserViaBuiltIn for &AutoValueParser<std::path::PathBuf> {
-        fn value_parser(&self) -> ValueParser {
-            ValueParser::path_buf()
         }
     }
 
@@ -715,13 +715,13 @@ mod private {
     {
     }
 
-    pub trait ValueParserViaArgEnumSealed {}
-    impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &&super::AutoValueParser<E> {}
-
     pub trait ValueParserViaBuiltInSealed {}
-    impl ValueParserViaBuiltInSealed for &super::AutoValueParser<String> {}
-    impl ValueParserViaBuiltInSealed for &super::AutoValueParser<std::ffi::OsString> {}
-    impl ValueParserViaBuiltInSealed for &super::AutoValueParser<std::path::PathBuf> {}
+    impl ValueParserViaBuiltInSealed for &&super::AutoValueParser<String> {}
+    impl ValueParserViaBuiltInSealed for &&super::AutoValueParser<std::ffi::OsString> {}
+    impl ValueParserViaBuiltInSealed for &&super::AutoValueParser<std::path::PathBuf> {}
+
+    pub trait ValueParserViaArgEnumSealed {}
+    impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &super::AutoValueParser<E> {}
 
     pub trait ValueParserViaFromStrSealed {}
     impl<FromStr> ValueParserViaFromStrSealed for super::AutoValueParser<FromStr>
