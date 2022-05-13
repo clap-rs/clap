@@ -350,7 +350,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         ));
     }
 
-    if let Some(data) = arg.get_possible_values() {
+    if let Some(data) = generator::utils::possible_values(arg) {
         buffer.push_str(&format!(
             "{:indent$}suggestions: [\n",
             "",

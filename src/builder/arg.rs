@@ -4633,7 +4633,7 @@ impl<'help> Arg<'help> {
 
     /// Get the list of the possible values for this argument, if any
     #[inline]
-    pub fn get_possible_values(&self) -> Option<&[PossibleValue]> {
+    pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
         if self.possible_vals.is_empty() {
             None
         } else {
