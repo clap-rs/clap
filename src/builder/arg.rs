@@ -1006,16 +1006,25 @@ impl<'help> Arg<'help> {
     /// This allows parsing and validating a value before storing it into
     /// [`ArgMatches`][crate::ArgMatches].
     ///
+    /// See also
+    /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
+    ///   - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
+    ///   - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
+    /// - [`ArgEnumValueParser`][crate::builder::ArgEnumValueParser] and  [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
+    /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
+    ///
     /// ```rust
-    /// let cmd = clap::Command::new("raw")
+    /// let mut cmd = clap::Command::new("raw")
     ///     .arg(
     ///         clap::Arg::new("port")
     ///             .value_parser(clap::value_parser!(usize))
     ///     );
-    /// let value_parser = cmd.get_arguments()
-    ///     .find(|a| a.get_id() == "port").unwrap()
-    ///     .get_value_parser();
-    /// println!("{:?}", value_parser);
+    ///
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "80"]).unwrap();
+    /// let port: usize = *m.get_one("port").unwrap().unwrap();
+    /// assert_eq!(port, 80);
+    ///
+    /// assert!(cmd.try_get_matches_from_mut(["cmd", "-30"]).is_err());
     /// ```
     pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {
         self.value_parser = Some(parser.into());

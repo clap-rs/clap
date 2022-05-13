@@ -4,6 +4,22 @@ use std::sync::Arc;
 use crate::parser::AnyValue;
 
 /// Parse/validate argument values
+///
+/// # Example
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .value_parser(clap::value_parser!(usize))
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "80"]).unwrap();
+/// let port: usize = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 80);
+///
+/// assert!(cmd.try_get_matches_from_mut(["cmd", "-30"]).is_err());
+/// ```
 #[derive(Clone)]
 pub struct ValueParser(pub(crate) ValueParserInner);
 
@@ -22,6 +38,36 @@ pub(crate) enum ValueParserInner {
 
 impl ValueParser {
     /// Custom parser for argument values
+    ///
+    /// To create a custom parser, see [`TypedValueParser`]
+    ///
+    /// Pre-existing implementations include:
+    /// - [`ArgEnumValueParser`] and  [`PossibleValuesParser`] for static enumerated values
+    /// - [`BoolishValueParser`] and [`FalseyValueParser`] for alternative `bool` implementations
+    /// - [`NonEmptyStringValueParser`]
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// type EnvVar = (String, Option<String>);
+    /// fn parse_env_var(env: &str) -> Result<EnvVar, std::io::Error> {
+    ///     if let Some((var, value)) = env.split_once('=') {
+    ///         Ok((var.to_owned(), Some(value.to_owned())))
+    ///     } else {
+    ///         Ok((env.to_owned(), None))
+    ///     }
+    /// }
+    ///
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("env")
+    ///             .value_parser(clap::builder::ValueParser::new(parse_env_var))
+    ///     );
+    ///
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "key=value"]).unwrap();
+    /// let port: &EnvVar = m.get_one("env").unwrap().unwrap();
+    /// assert_eq!(*port, ("key".into(), Some("value".into())));
+    /// ```
     pub fn new(other: impl AnyValueParser + Send + Sync + 'static) -> Self {
         Self(ValueParserInner::Other(Arc::new(other)))
     }
@@ -31,11 +77,44 @@ impl ValueParser {
     /// See also:
     /// - [`BoolishValueParser`] for different human readable bool representations
     /// - [`FalseyValueParser`] for assuming non-false is true
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("download")
+    ///             .value_parser(clap::value_parser!(bool))
+    ///     );
+    ///
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
+    /// let port: bool = *m.get_one("download").unwrap().unwrap();
+    /// assert_eq!(port, true);
+    ///
+    /// assert!(cmd.try_get_matches_from_mut(["cmd", "forever"]).is_err());
+    /// ```
     pub const fn bool() -> Self {
         Self(ValueParserInner::Bool)
     }
 
     /// `String` parser for argument values
+    ///
+    /// See also:
+    /// - [`NonEmptyStringValueParser`]
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .value_parser(clap::value_parser!(String))
+    ///     );
+    ///
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "80"]).unwrap();
+    /// let port: &String = m.get_one("port").unwrap().unwrap();
+    /// assert_eq!(port, "80");
+    /// ```
     pub const fn string() -> Self {
         Self(ValueParserInner::String)
     }
@@ -46,6 +125,24 @@ impl ValueParser {
     }
 
     /// `PathBuf` parser for argument values
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use std::path::PathBuf;
+    /// # use std::path::Path;
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("output")
+    ///             .value_parser(clap::value_parser!(PathBuf))
+    ///     );
+    ///
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "hello.txt"]).unwrap();
+    /// let port: &PathBuf = m.get_one("output").unwrap().unwrap();
+    /// assert_eq!(port, Path::new("hello.txt"));
+    ///
+    /// assert!(cmd.try_get_matches_from_mut(["cmd", ""]).is_err());
+    /// ```
     pub const fn path_buf() -> Self {
         Self(ValueParserInner::PathBuf)
     }
@@ -130,6 +227,8 @@ impl<'help> std::fmt::Debug for ValueParser {
 // - Enforce in the type-system that a given `AnyValueParser::parse` always returns the same type
 //   on each call and that it matches `type_id` / `type_name`
 /// Parse/validate argument values into a `Arc<Any>`
+///
+/// This is a type-erased wrapper for [`TypedValueParser`].
 pub trait AnyValueParser: private::AnyValueParserSealed {
     /// Parse into a `Arc<Any>`
     ///
@@ -246,8 +345,9 @@ pub trait TypedValueParser {
     }
 }
 
-impl<T, E> TypedValueParser for fn(&str) -> Result<T, E>
+impl<F, T, E> TypedValueParser for F
 where
+    F: Fn(&str) -> Result<T, E>,
     E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
 {
     type Value = T;
@@ -269,29 +369,6 @@ where
                 .map(|a| a.to_string())
                 .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(arg, value.to_owned(), e.into()).with_cmd(cmd)
-        })?;
-        Ok(value)
-    }
-}
-
-impl<T, E> TypedValueParser for fn(&std::ffi::OsStr) -> Result<T, E>
-where
-    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
-{
-    type Value = T;
-
-    fn parse_ref(
-        &self,
-        cmd: &crate::Command,
-        arg: Option<&crate::Arg>,
-        value: &std::ffi::OsStr,
-    ) -> Result<Self::Value, crate::Error> {
-        let value = (self)(value).map_err(|e| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(arg, value.to_string_lossy().into_owned(), e.into())
-                .with_cmd(cmd)
         })?;
         Ok(value)
     }
@@ -418,10 +495,21 @@ impl TypedValueParser for PathBufValueParser {
 ///     }
 /// }
 ///
+/// // Usage
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("color")
+///             .value_parser(clap::builder::ArgEnumValueParser::<ColorChoice>::new())
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "always"]).unwrap();
+/// let port: ColorChoice = *m.get_one("color").unwrap().unwrap();
+/// assert_eq!(port, ColorChoice::Always);
+///
+/// // Semantics
 /// let value_parser = clap::builder::ArgEnumValueParser::<ColorChoice>::new();
 /// // or
 /// let value_parser = clap::value_parser!(ColorChoice);
-///
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always")).unwrap(), ColorChoice::Always);
@@ -511,6 +599,19 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
+///
+/// // Usage
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("color")
+///             .value_parser(clap::builder::PossibleValuesParser::new(["always", "auto", "never"]))
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "always"]).unwrap();
+/// let port: &String = m.get_one("color").unwrap().unwrap();
+/// assert_eq!(port, "always");
+///
+/// // Semantics
 /// let value_parser = clap::builder::PossibleValuesParser::new(["always", "auto", "never"]);
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
@@ -655,6 +756,19 @@ impl TypedValueParser for BoolValueParser {
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
+///
+/// // Usage
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("append")
+///             .value_parser(clap::builder::FalseyValueParser)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
+/// let port: bool = *m.get_one("append").unwrap().unwrap();
+/// assert_eq!(port, true);
+///
+/// // Semantics
 /// let value_parser = clap::builder::FalseyValueParser;
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), true);
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).unwrap(), true);
@@ -720,6 +834,19 @@ impl TypedValueParser for FalseyValueParser {
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
+///
+/// // Usage
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("append")
+///             .value_parser(clap::builder::FalseyValueParser)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
+/// let port: bool = *m.get_one("append").unwrap().unwrap();
+/// assert_eq!(port, true);
+///
+/// // Semantics
 /// let value_parser = clap::builder::BoolishValueParser;
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
@@ -780,6 +907,9 @@ impl TypedValueParser for BoolishValueParser {
 
 /// Parse non-empty string values
 ///
+/// See also:
+/// - [`ValueParser::string`]
+///
 /// # Example
 ///
 /// ```rust
@@ -787,6 +917,19 @@ impl TypedValueParser for BoolishValueParser {
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
+///
+/// // Usage
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("append")
+///             .value_parser(clap::builder::NonEmptyStringValueParser)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
+/// let port: &String = m.get_one("append").unwrap().unwrap();
+/// assert_eq!(port, "true");
+///
+/// // Semantics
 /// let value_parser = clap::builder::NonEmptyStringValueParser;
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), "random");
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
@@ -896,6 +1039,22 @@ pub mod via_prelude {
 ///
 /// # Example
 ///
+/// Usage:
+/// ```rust
+/// # use std::path::PathBuf;
+/// # use std::path::Path;
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("output")
+///             .value_parser(clap::value_parser!(PathBuf))
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "file.txt"]).unwrap();
+/// let port: &PathBuf = m.get_one("output").unwrap().unwrap();
+/// assert_eq!(port, Path::new("file.txt"));
+/// ```
+///
+/// Supported types:
 /// ```rust
 /// // Built-in types
 /// let parser = clap::value_parser!(String);
@@ -947,5 +1106,23 @@ mod private {
         <FromStr as std::str::FromStr>::Err:
             Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
     {
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn ensure_typed_applies_to_parse() {
+        fn parse(_: &str) -> Result<usize, std::io::Error> {
+            Ok(10)
+        }
+        let cmd = crate::Command::new("cmd");
+        let arg = None;
+        assert_eq!(
+            TypedValueParser::parse_ref(&parse, &cmd, arg, std::ffi::OsStr::new("foo")).unwrap(),
+            10
+        );
     }
 }
