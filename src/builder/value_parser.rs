@@ -626,54 +626,60 @@ impl<T> AutoValueParser<T> {
 }
 
 #[doc(hidden)]
-pub trait ValueParserViaArgEnum: private::ValueParserViaArgEnumSealed {
-    type Output;
+pub mod via_prelude {
+    use super::*;
 
-    fn value_parser(&self) -> Self::Output;
-}
-impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ValueParserViaArgEnum
-    for &&AutoValueParser<E>
-{
-    type Output = ArgEnumValueParser<E>;
+    #[doc(hidden)]
+    pub trait ValueParserViaArgEnum: private::ValueParserViaArgEnumSealed {
+        type Output;
 
-    fn value_parser(&self) -> Self::Output {
-        ArgEnumValueParser::<E>::new().into()
+        fn value_parser(&self) -> Self::Output;
     }
-}
+    impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ValueParserViaArgEnum
+        for &&AutoValueParser<E>
+    {
+        type Output = ArgEnumValueParser<E>;
 
-#[doc(hidden)]
-pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
-    fn value_parser(&self) -> ValueParser;
-}
-impl ValueParserViaBuiltIn for &AutoValueParser<String> {
-    fn value_parser(&self) -> ValueParser {
-        ValueParser::string()
+        fn value_parser(&self) -> Self::Output {
+            ArgEnumValueParser::<E>::new().into()
+        }
     }
-}
-impl ValueParserViaBuiltIn for &AutoValueParser<std::ffi::OsString> {
-    fn value_parser(&self) -> ValueParser {
-        ValueParser::os_string()
-    }
-}
-impl ValueParserViaBuiltIn for &AutoValueParser<std::path::PathBuf> {
-    fn value_parser(&self) -> ValueParser {
-        ValueParser::path_buf()
-    }
-}
 
-#[doc(hidden)]
-pub trait ValueParserViaFromStr: private::ValueParserViaFromStrSealed {
-    fn value_parser(&self) -> ValueParser;
-}
-impl<FromStr> ValueParserViaFromStr for AutoValueParser<FromStr>
-where
-    FromStr: std::str::FromStr + std::any::Any + Send + Sync + 'static,
-    <FromStr as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
-{
-    fn value_parser(&self) -> ValueParser {
-        let func: fn(&str) -> Result<FromStr, <FromStr as std::str::FromStr>::Err> =
-            FromStr::from_str;
-        ValueParser::new(func)
+    #[doc(hidden)]
+    pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
+        fn value_parser(&self) -> ValueParser;
+    }
+    impl ValueParserViaBuiltIn for &AutoValueParser<String> {
+        fn value_parser(&self) -> ValueParser {
+            ValueParser::string()
+        }
+    }
+    impl ValueParserViaBuiltIn for &AutoValueParser<std::ffi::OsString> {
+        fn value_parser(&self) -> ValueParser {
+            ValueParser::os_string()
+        }
+    }
+    impl ValueParserViaBuiltIn for &AutoValueParser<std::path::PathBuf> {
+        fn value_parser(&self) -> ValueParser {
+            ValueParser::path_buf()
+        }
+    }
+
+    #[doc(hidden)]
+    pub trait ValueParserViaFromStr: private::ValueParserViaFromStrSealed {
+        fn value_parser(&self) -> ValueParser;
+    }
+    impl<FromStr> ValueParserViaFromStr for AutoValueParser<FromStr>
+    where
+        FromStr: std::str::FromStr + std::any::Any + Send + Sync + 'static,
+        <FromStr as std::str::FromStr>::Err:
+            Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+    {
+        fn value_parser(&self) -> ValueParser {
+            let func: fn(&str) -> Result<FromStr, <FromStr as std::str::FromStr>::Err> =
+                FromStr::from_str;
+            ValueParser::new(func)
+        }
     }
 }
 
@@ -694,9 +700,7 @@ where
 #[macro_export]
 macro_rules! value_parser {
     ($name:ty) => {{
-        use $crate::builder::ValueParserViaArgEnum;
-        use $crate::builder::ValueParserViaBuiltIn;
-        use $crate::builder::ValueParserViaFromStr;
+        use $crate::builder::via_prelude::*;
         let auto = $crate::builder::AutoValueParser::<$name>::new();
         (&&&auto).value_parser()
     }};

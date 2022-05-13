@@ -30,6 +30,7 @@ pub use arg_settings::{ArgFlags, ArgSettings};
 pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
+pub use value_parser::via_prelude;
 pub use value_parser::AnyValueParser;
 pub use value_parser::ArgEnumValueParser;
 pub use value_parser::AutoValueParser;
@@ -39,9 +40,6 @@ pub use value_parser::NonEmptyStringValueParser;
 pub use value_parser::PossibleValuesParser;
 pub use value_parser::TypedValueParser;
 pub use value_parser::ValueParser;
-pub use value_parser::ValueParserViaArgEnum;
-pub use value_parser::ValueParserViaBuiltIn;
-pub use value_parser::ValueParserViaFromStr;
 
 #[allow(deprecated)]
 pub use command::App;
