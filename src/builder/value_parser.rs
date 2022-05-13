@@ -61,19 +61,7 @@ impl ValueParser {
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<AnyValue, crate::Error> {
-        match &self.0 {
-            ValueParserInner::Bool => AnyValueParser::parse_ref(&BoolValueParser, cmd, arg, value),
-            ValueParserInner::String => {
-                AnyValueParser::parse_ref(&StringValueParser, cmd, arg, value)
-            }
-            ValueParserInner::OsString => {
-                AnyValueParser::parse_ref(&OsStringValueParser, cmd, arg, value)
-            }
-            ValueParserInner::PathBuf => {
-                AnyValueParser::parse_ref(&PathBufValueParser, cmd, arg, value)
-            }
-            ValueParserInner::Other(o) => o.parse_ref(cmd, arg, value),
-        }
+        self.any_value_parser().parse_ref(cmd, arg, value)
     }
 
     /// Parse into a `Arc<Any>`
@@ -85,39 +73,17 @@ impl ValueParser {
         arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
     ) -> Result<AnyValue, crate::Error> {
-        match &self.0 {
-            ValueParserInner::Bool => AnyValueParser::parse(&BoolValueParser, cmd, arg, value),
-            ValueParserInner::String => AnyValueParser::parse(&StringValueParser, cmd, arg, value),
-            ValueParserInner::OsString => {
-                AnyValueParser::parse(&OsStringValueParser, cmd, arg, value)
-            }
-            ValueParserInner::PathBuf => {
-                AnyValueParser::parse(&PathBufValueParser, cmd, arg, value)
-            }
-            ValueParserInner::Other(o) => o.parse(cmd, arg, value),
-        }
+        self.any_value_parser().parse(cmd, arg, value)
     }
 
     /// Describes the content of `Arc<Any>`
     pub fn type_id(&self) -> TypeId {
-        match &self.0 {
-            ValueParserInner::Bool => AnyValueParser::type_id(&BoolValueParser),
-            ValueParserInner::String => AnyValueParser::type_id(&StringValueParser),
-            ValueParserInner::OsString => AnyValueParser::type_id(&OsStringValueParser),
-            ValueParserInner::PathBuf => AnyValueParser::type_id(&PathBufValueParser),
-            ValueParserInner::Other(o) => o.type_id(),
-        }
+        self.any_value_parser().type_id()
     }
 
     /// Describes the content of `Arc<Any>`
     pub fn type_name(&self) -> &'static str {
-        match &self.0 {
-            ValueParserInner::Bool => AnyValueParser::type_name(&BoolValueParser),
-            ValueParserInner::String => AnyValueParser::type_name(&StringValueParser),
-            ValueParserInner::OsString => AnyValueParser::type_name(&OsStringValueParser),
-            ValueParserInner::PathBuf => AnyValueParser::type_name(&PathBufValueParser),
-            ValueParserInner::Other(o) => o.type_name(),
-        }
+        self.any_value_parser().type_name()
     }
 
     /// Reflect on enumerated value properties
@@ -127,12 +93,16 @@ impl ValueParser {
     pub fn possible_values(
         &self,
     ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
+        self.any_value_parser().possible_values()
+    }
+
+    fn any_value_parser(&self) -> &dyn AnyValueParser {
         match &self.0 {
-            ValueParserInner::Bool => AnyValueParser::possible_values(&BoolValueParser),
-            ValueParserInner::String => AnyValueParser::possible_values(&StringValueParser),
-            ValueParserInner::OsString => AnyValueParser::possible_values(&OsStringValueParser),
-            ValueParserInner::PathBuf => AnyValueParser::possible_values(&PathBufValueParser),
-            ValueParserInner::Other(o) => o.possible_values(),
+            ValueParserInner::Bool => &BoolValueParser,
+            ValueParserInner::String => &StringValueParser,
+            ValueParserInner::OsString => &OsStringValueParser,
+            ValueParserInner::PathBuf => &PathBufValueParser,
+            ValueParserInner::Other(o) => o.as_ref(),
         }
     }
 }
@@ -287,7 +257,7 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
-    ) -> Result<T, crate::Error> {
+    ) -> Result<Self::Value, crate::Error> {
         let value = value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
@@ -315,7 +285,7 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
-    ) -> Result<T, crate::Error> {
+    ) -> Result<Self::Value, crate::Error> {
         let value = (self)(value).map_err(|e| {
             let arg = arg
                 .map(|a| a.to_string())
@@ -338,7 +308,7 @@ impl TypedValueParser for StringValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
-    ) -> Result<String, crate::Error> {
+    ) -> Result<Self::Value, crate::Error> {
         TypedValueParser::parse(self, cmd, arg, value.to_owned())
     }
 
@@ -479,7 +449,7 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
-    ) -> Result<E, crate::Error> {
+    ) -> Result<Self::Value, crate::Error> {
         let ignore_case = arg.map(|a| a.is_ignore_case_set()).unwrap_or(false);
         let possible_vals = || {
             E::value_variants()
@@ -566,7 +536,7 @@ impl TypedValueParser for PossibleValuesParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
-    ) -> Result<String, crate::Error> {
+    ) -> Result<Self::Value, crate::Error> {
         TypedValueParser::parse(self, cmd, arg, value.to_owned())
     }
 
@@ -710,9 +680,6 @@ impl FalseyValueParser {
 impl TypedValueParser for FalseyValueParser {
     type Value = bool;
 
-    /// Parse the argument value
-    ///
-    /// When `arg` is `None`, an external subcommand value is being parsed.
     fn parse_ref(
         &self,
         cmd: &crate::Command,
@@ -782,9 +749,6 @@ impl BoolishValueParser {
 impl TypedValueParser for BoolishValueParser {
     type Value = bool;
 
-    /// Parse the argument value
-    ///
-    /// When `arg` is `None`, an external subcommand value is being parsed.
     fn parse_ref(
         &self,
         cmd: &crate::Command,
@@ -833,9 +797,6 @@ pub struct NonEmptyStringValueParser;
 impl TypedValueParser for NonEmptyStringValueParser {
     type Value = String;
 
-    /// Parse the argument value
-    ///
-    /// When `arg` is `None`, an external subcommand value is being parsed.
     fn parse_ref(
         &self,
         cmd: &crate::Command,
