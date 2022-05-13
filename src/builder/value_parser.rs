@@ -342,10 +342,19 @@ impl TypedValueParser for PathBufValueParser {
 
     fn parse(
         &self,
-        _cmd: &crate::Command,
-        _arg: Option<&crate::Arg>,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
     ) -> Result<Self::Value, crate::Error> {
+        if value.is_empty() {
+            return Err(crate::Error::empty_value(
+                cmd,
+                &[],
+                arg.map(ToString::to_string)
+                    .unwrap_or_else(|| "...".to_owned()),
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            ));
+        }
         Ok(Self::Value::from(value))
     }
 }
