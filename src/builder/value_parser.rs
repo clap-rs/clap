@@ -9,8 +9,11 @@ pub struct ValueParser(pub(crate) ValueParserInner);
 
 #[derive(Clone)]
 pub(crate) enum ValueParserInner {
+    // Common enough that we optimize it
     String,
+    // Common enough that we optimize it
     OsString,
+    // Common enough that we optimize it
     PathBuf,
     Other(Arc<dyn AnyValueParser + Send + Sync + 'static>),
 }
