@@ -36,15 +36,21 @@ bench = false
 
 [dependencies]
 roff = "0.2.1"
-clap = { path = "../", version = "3.1.10", default-features = false, features = ["std", "env"] }
+clap = { path = "../", version = "3.1.10", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 snapbox = { version = "0.2", features = ["diff"] }
 clap = { path = "../", version = "3.1.10", default-features = false, features = ["std"] }
 
 [features]
-default = []
+default = ["env"]
+
 debug = ["clap/debug"]
+env = ["clap/env"]
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
+
+[[example]]
+name = "man"
+required-features = ["env"]
