@@ -1,4 +1,5 @@
 // Std
+use std::any::Any;
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
 use std::fmt::{Debug, Display};
@@ -114,7 +115,10 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
-    pub fn get_one<T: 'static>(&self, name: &str) -> Result<Option<&T>, MatchesError> {
+    pub fn get_one<T: Any + Send + Sync + 'static>(
+        &self,
+        name: &str,
+    ) -> Result<Option<&T>, MatchesError> {
         let id = Id::from(name);
         let arg = self.try_get_arg_t::<T>(&id)?;
         let value = match arg.and_then(|a| a.first()) {
@@ -158,7 +162,7 @@ impl ArgMatches {
     /// assert_eq!(vals, [22, 80, 2020]);
     /// ```
     /// [values]: Values
-    pub fn get_many<T: 'static>(
+    pub fn get_many<T: Any + Send + Sync + 'static>(
         &self,
         name: &str,
     ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
@@ -1281,7 +1285,10 @@ impl ArgMatches {
     }
 
     #[inline]
-    fn try_get_arg_t<T: 'static>(&self, arg: &Id) -> Result<Option<&MatchedArg>, MatchesError> {
+    fn try_get_arg_t<T: Any + Send + Sync + 'static>(
+        &self,
+        arg: &Id,
+    ) -> Result<Option<&MatchedArg>, MatchesError> {
         let expected = AnyValueId::of::<T>();
 
         let arg = match self.try_get_arg(arg)? {
