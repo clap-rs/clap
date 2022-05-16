@@ -1295,6 +1295,11 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple_occurrences(true)`] because there is no way to determine the difference between multiple
     /// occurrences and multiple values.
     ///
+    /// **NOTE:** Passing a non-zero value is not the same as specifying [`Arg::required(true)`].
+    /// This is due to min and max validation only being performed for present arguments,
+    /// marking them as required will thus perform validation and a min value of 1
+    /// is unnecessary, ignored if not required.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1340,6 +1345,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooFewValues);
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
+    /// [`Arg::required(true)`]: Arg::required()
     #[inline]
     #[must_use]
     pub fn min_values(mut self, qty: usize) -> Self {
