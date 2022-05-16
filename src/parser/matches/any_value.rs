@@ -16,6 +16,10 @@ impl AnyValue {
     pub(crate) fn downcast_ref<T: std::any::Any>(&self) -> Option<&T> {
         self.inner.downcast_ref::<T>()
     }
+
+    pub(crate) fn type_id(&self) -> AnyValueId {
+        self.id
+    }
 }
 
 impl std::fmt::Debug for AnyValue {

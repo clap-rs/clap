@@ -11,7 +11,9 @@ use indexmap::IndexMap;
 
 // Internal
 use crate::parser::AnyValue;
+use crate::parser::AnyValueId;
 use crate::parser::MatchedArg;
+use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::{Id, Key};
 use crate::Error;
@@ -114,7 +116,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
-    pub fn get_one<T: 'static>(&self, name: &str) -> Result<Option<&T>, Error> {
+    pub fn get_one<T: 'static>(&self, name: &str) -> Result<Option<&T>, MatchesError> {
         let id = Id::from(name);
         let value = match self.get_arg(&id).and_then(|a| a.first()) {
             Some(value) => value,
@@ -122,16 +124,13 @@ impl ArgMatches {
                 return Ok(None);
             }
         };
-        value.downcast_ref::<T>().map(Some).ok_or_else(|| {
-            Error::raw(
-                crate::error::ErrorKind::ValueValidation,
-                format!(
-                    "The argument `{}` is not of type `{}`",
-                    name,
-                    std::any::type_name::<T>()
-                ),
-            )
-        })
+        value
+            .downcast_ref::<T>()
+            .map(Some)
+            .ok_or_else(|| MatchesError::Downcast {
+                actual: value.type_id(),
+                expected: AnyValueId::of::<T>(),
+            })
     }
 
     /// Iterate over [values] of a specific option or positional argument.
@@ -170,7 +169,7 @@ impl ArgMatches {
     pub fn get_many<T: 'static>(
         &self,
         name: &str,
-    ) -> Result<Option<impl Iterator<Item = &T>>, Error> {
+    ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
         let id = Id::from(name);
         let values = match self.get_arg(&id) {
             Some(values) => values.vals_flatten(),
@@ -179,17 +178,11 @@ impl ArgMatches {
             }
         };
         // HACK: Track the type id and report errors even when there are no values
-        let values: Result<Vec<&T>, Error> = values
+        let values: Result<Vec<&T>, MatchesError> = values
             .map(|v| {
-                v.downcast_ref::<T>().ok_or_else(|| {
-                    Error::raw(
-                        crate::error::ErrorKind::ValueValidation,
-                        format!(
-                            "The argument `{}` is not of type `{}`",
-                            name,
-                            std::any::type_name::<T>()
-                        ),
-                    )
+                v.downcast_ref::<T>().ok_or_else(|| MatchesError::Downcast {
+                    actual: v.type_id(),
+                    expected: AnyValueId::of::<T>(),
                 })
             })
             .collect();
