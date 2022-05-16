@@ -235,6 +235,11 @@ impl RawArgs {
             insert_items.iter().map(OsString::from),
         );
     }
+
+    /// Any remaining args?
+    pub fn is_end(&self, cursor: &ArgCursor) -> bool {
+        self.peek_os(cursor).is_none()
+    }
 }
 
 impl<I, T> From<I> for RawArgs
