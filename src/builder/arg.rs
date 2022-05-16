@@ -95,7 +95,7 @@ pub struct Arg<'help> {
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<&'help str>>,
-    pub(crate) value_hint: ValueHint,
+    pub(crate) value_hint: Option<ValueHint>,
 }
 
 /// # Basic API
@@ -1526,7 +1526,7 @@ impl<'help> Arg<'help> {
     /// ```
     #[must_use]
     pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
-        self.value_hint = value_hint;
+        self.value_hint = Some(value_hint);
         self.takes_value(true)
     }
 
@@ -4680,7 +4680,18 @@ impl<'help> Arg<'help> {
 
     /// Get the value hint of this argument
     pub fn get_value_hint(&self) -> ValueHint {
-        self.value_hint
+        self.value_hint.unwrap_or_else(|| {
+            if self.is_takes_value_set() {
+                let type_id = self.get_value_parser().type_id();
+                if type_id == crate::parser::AnyValueId::of::<std::path::PathBuf>() {
+                    ValueHint::AnyPath
+                } else {
+                    ValueHint::default()
+                }
+            } else {
+                ValueHint::default()
+            }
+        })
     }
 
     /// Deprecated, replaced with [`Arg::is_global_set`]
