@@ -1227,59 +1227,61 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::add_env");
         use crate::util::str_to_bool;
 
-        self.cmd.get_arguments().try_for_each(|a| {
+        for arg in self.cmd.get_arguments() {
             // Use env only if the arg was absent among command line args,
             // early return if this is not the case.
             if matcher
-                .get(&a.id)
-                .map_or(false, |a| a.get_occurrences() != 0)
+                .get(&arg.id)
+                .map_or(false, |arg| arg.get_occurrences() != 0)
             {
-                debug!("Parser::add_env: Skipping existing arg `{}`", a);
-                return Ok(());
+                debug!("Parser::add_env: Skipping existing arg `{}`", arg);
+                continue;
             }
 
-            debug!("Parser::add_env: Checking arg `{}`", a);
-            if let Some((_, Some(ref val))) = a.env {
+            debug!("Parser::add_env: Checking arg `{}`", arg);
+            if let Some((_, Some(ref val))) = arg.env {
                 let val = RawOsStr::new(val);
 
-                if a.is_takes_value_set() {
+                if arg.is_takes_value_set() {
                     debug!(
                         "Parser::add_env: Found an opt with value={:?}, trailing={:?}",
                         val, trailing_values
                     );
                     self.add_val_to_arg(
-                        a,
+                        arg,
                         &val,
                         matcher,
                         ValueSource::EnvVariable,
                         false,
                         trailing_values,
                     )?;
-                    return Ok(());
-                }
-
-                debug!("Parser::add_env: Checking for help and version");
-                // Early return on `HelpFlag` or `VersionFlag`.
-                match self.check_for_help_and_version_str(&val) {
-                    Some(ParseResult::HelpFlag) => {
-                        return Err(self.help_err(true, Stream::Stdout));
+                } else {
+                    // Early return on `HelpFlag` or `VersionFlag`.
+                    match self.check_for_help_and_version_str(&val) {
+                        Some(ParseResult::HelpFlag) => {
+                            return Err(self.help_err(true, Stream::Stdout));
+                        }
+                        Some(ParseResult::VersionFlag) => {
+                            return Err(self.version_err(true));
+                        }
+                        _ => {
+                            debug!("Parser::add_env: Found a flag with value `{:?}`", val);
+                            let predicate = str_to_bool(val.to_str_lossy());
+                            debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
+                            if predicate.unwrap_or(true) {
+                                matcher.add_index_to(
+                                    &arg.id,
+                                    self.cur_idx.get(),
+                                    ValueSource::EnvVariable,
+                                );
+                            }
+                        }
                     }
-                    Some(ParseResult::VersionFlag) => {
-                        return Err(self.version_err(true));
-                    }
-                    _ => (),
-                }
-
-                debug!("Parser::add_env: Found a flag with value `{:?}`", val);
-                let predicate = str_to_bool(val.to_str_lossy());
-                debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
-                if predicate.unwrap_or(true) {
-                    matcher.add_index_to(&a.id, self.cur_idx.get(), ValueSource::EnvVariable);
                 }
             }
+        }
 
-            Ok(())
-        })
+        Ok(())
     }
 
     fn add_defaults(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) -> ClapResult<()> {
