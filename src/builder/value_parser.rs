@@ -5,6 +5,8 @@ use crate::parser::AnyValueId;
 
 /// Parse/validate argument values
 ///
+/// Specified with [`Arg::value_parser`][crate::Arg::value_parser].
+///
 /// `ValueParser` defines how to convert a raw argument value into a validated and typed value for
 /// use within an application.
 ///
@@ -17,15 +19,38 @@ use crate::parser::AnyValueId;
 /// ```rust
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
+///         clap::Arg::new("color")
+///             .long("color")
+///             .value_parser(["always", "auto", "never"])
+///             .default_value("auto")
+///     )
+///     .arg(
+///         clap::Arg::new("hostname")
+///             .long("hostname")
+///             .value_parser(clap::builder::NonEmptyStringValueParser)
+///             .takes_value(true)
+///             .required(true)
+///     )
+///     .arg(
 ///         clap::Arg::new("port")
+///             .long("port")
 ///             .value_parser(clap::value_parser!(usize))
+///             .takes_value(true)
+///             .required(true)
 ///     );
 ///
-/// let m = cmd.try_get_matches_from_mut(["cmd", "80"]).unwrap();
+/// let m = cmd.try_get_matches_from_mut(
+///     ["cmd", "--hostname", "rust-lang.org", "--port", "80"]
+/// ).unwrap();
+///
+/// let color: &String = m.get_one("color").unwrap().unwrap();
+/// assert_eq!(color, "auto");
+///
+/// let hostname: &String = m.get_one("hostname").unwrap().unwrap();
+/// assert_eq!(hostname, "rust-lang.org");
+///
 /// let port: usize = *m.get_one("port").unwrap().unwrap();
 /// assert_eq!(port, 80);
-///
-/// assert!(cmd.try_get_matches_from_mut(["cmd", "-30"]).is_err());
 /// ```
 #[derive(Clone)]
 pub struct ValueParser(pub(crate) ValueParserInner);
@@ -209,6 +234,16 @@ impl ValueParser {
 impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
     fn from(p: P) -> Self {
         ValueParser(ValueParserInner::Other(Arc::new(p)))
+    }
+}
+
+impl<P, const C: usize> From<[P; C]> for ValueParser
+where
+    P: Into<super::PossibleValue<'static>>,
+{
+    fn from(values: [P; C]) -> Self {
+        let inner = PossibleValuesParser::from(values);
+        Self::from(inner)
     }
 }
 
