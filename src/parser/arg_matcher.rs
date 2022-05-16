@@ -127,6 +127,25 @@ impl ArgMatcher {
         self.get(arg).map_or(false, |a| a.check_explicit(predicate))
     }
 
+    pub(crate) fn start_custom_arg(&mut self, arg: &Arg, source: ValueSource) {
+        let id = &arg.id;
+        debug!(
+            "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
+            id, source
+        );
+        let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
+        ma.set_source(source);
+    }
+
+    pub(crate) fn start_custom_group(&mut self, id: &Id, source: ValueSource) {
+        debug!(
+            "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
+            id, source
+        );
+        let ma = self.entry(id).or_insert(MatchedArg::new_group());
+        ma.set_source(source);
+    }
+
     pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
         let id = &arg.id;
         debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);

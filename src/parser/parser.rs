@@ -1247,6 +1247,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         "Parser::add_env: Found an opt with value={:?}, trailing={:?}",
                         val, trailing_values
                     );
+                    self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
                     self.add_val_to_arg(
                         arg,
                         &val,
@@ -1269,6 +1270,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             let predicate = str_to_bool(val.to_str_lossy());
                             debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
                             if predicate.unwrap_or(true) {
+                                self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
                                 matcher.add_index_to(
                                     &arg.id,
                                     self.cur_idx.get(),
@@ -1323,6 +1325,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                     if add {
                         if let Some(default) = default {
+                            self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
                             self.add_val_to_arg(
                                 arg,
                                 &RawOsStr::new(default),
@@ -1366,6 +1369,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             } else {
                 debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
 
+                self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
                 self.add_multiple_vals_to_arg(
                     arg,
                     process_default_vals(arg, &arg.default_vals).into_iter(),
@@ -1394,6 +1398,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         "Parser::add_default_value:iter:{}: has no user defined vals",
                         arg.name
                     );
+                    self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
                     self.add_multiple_vals_to_arg(
                         arg,
                         process_default_vals(arg, &arg.default_missing_vals).into_iter(),
@@ -1424,6 +1429,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
 
         Ok(())
+    }
+
+    fn start_custom_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>, source: ValueSource) {
+        matcher.start_custom_arg(arg, source);
+        for group in self.cmd.groups_for_arg(&arg.id) {
+            matcher.start_custom_group(&group, source);
+        }
     }
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
