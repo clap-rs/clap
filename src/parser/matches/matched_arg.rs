@@ -101,6 +101,10 @@ impl MatchedArg {
         self.vals.iter().flatten()
     }
 
+    pub(crate) fn into_vals_flatten(self) -> impl Iterator<Item = AnyValue> {
+        self.vals.into_iter().flatten()
+    }
+
     pub(crate) fn raw_vals_flatten(&self) -> Flatten<Iter<Vec<OsString>>> {
         self.raw_vals.iter().flatten()
     }
@@ -183,6 +187,16 @@ impl MatchedArg {
 
     pub(crate) fn type_id(&self) -> Option<AnyValueId> {
         self.type_id
+    }
+
+    pub(crate) fn infer_type_id(&self, expected: AnyValueId) -> AnyValueId {
+        self.type_id()
+            .or_else(|| {
+                self.vals_flatten()
+                    .map(|v| v.type_id())
+                    .find(|actual| *actual != expected)
+            })
+            .unwrap_or(expected)
     }
 }
 

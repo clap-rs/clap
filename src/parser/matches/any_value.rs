@@ -17,6 +17,13 @@ impl AnyValue {
         self.inner.downcast_ref::<T>()
     }
 
+    pub(crate) fn downcast_into<T: std::any::Any + Send + Sync>(
+        self,
+    ) -> Result<std::sync::Arc<T>, Self> {
+        let id = self.id;
+        std::sync::Arc::downcast::<T>(self.inner).map_err(|inner| Self { inner, id })
+    }
+
     pub(crate) fn type_id(&self) -> AnyValueId {
         self.id
     }

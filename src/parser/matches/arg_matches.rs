@@ -133,7 +133,7 @@ impl ArgMatches {
             .expect(INTERNAL_ERROR_MSG)) // enforced by `try_get_arg_t`
     }
 
-    /// Iterate over [values] of a specific option or positional argument.
+    /// Iterate over values of a specific option or positional argument.
     ///
     /// i.e. an argument that takes multiple values at runtime.
     ///
@@ -150,7 +150,8 @@ impl ArgMatches {
     ///         .multiple_occurrences(true)
     ///         .value_parser(value_parser!(usize))
     ///         .short('p')
-    ///         .takes_value(true))
+    ///         .takes_value(true)
+    ///         .required(true))
     ///     .get_matches_from(vec![
     ///         "myprog", "-p", "22", "-p", "80", "-p", "2020"
     ///     ]);
@@ -161,7 +162,6 @@ impl ArgMatches {
     ///     .collect();
     /// assert_eq!(vals, [22, 80, 2020]);
     /// ```
-    /// [values]: Values
     pub fn get_many<T: Any + Send + Sync + 'static>(
         &self,
         name: &str,
@@ -222,6 +222,97 @@ impl ArgMatches {
         let id = Id::from(id);
         let arg = self.try_get_arg(&id)?;
         Ok(arg.map(|arg| arg.raw_vals_flatten().map(|v| v.as_os_str())))
+    }
+
+    /// Returns the value of a specific option or positional argument.
+    ///
+    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
+    ///
+    /// Returns an error if the wrong type was used.  No item will have been removed.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg, value_parser};
+    /// let mut m = Command::new("myprog")
+    ///     .arg(Arg::new("file")
+    ///         .required(true)
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "file.txt",
+    ///     ]);
+    /// let vals: String = m.remove_one("file")
+    ///     .expect("`file` is a `String`")
+    ///     .map(|f| std::sync::Arc::try_unwrap(f).expect("no clones made"))
+    ///     .expect("`file`is required");
+    /// assert_eq!(vals, "file.txt");
+    /// ```
+    /// [option]: crate::Arg::takes_value()
+    /// [positional]: crate::Arg::index()
+    /// [`ArgMatches::values_of`]: ArgMatches::values_of()
+    /// [`default_value`]: crate::Arg::default_value()
+    /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
+    pub fn remove_one<T: Any + Send + Sync + 'static>(
+        &mut self,
+        name: &str,
+    ) -> Result<Option<std::sync::Arc<T>>, MatchesError> {
+        let id = Id::from(name);
+        match self.try_remove_arg_t::<T>(&id)? {
+            Some(values) => Ok(values
+                .into_vals_flatten()
+                // enforced by `try_get_arg_t`
+                .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG))
+                .next()),
+            None => Ok(None),
+        }
+    }
+
+    /// Return values of a specific option or positional argument.
+    ///
+    /// i.e. an argument that takes multiple values at runtime.
+    ///
+    /// Returns an error if the wrong type was used.  No item will have been removed.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg, value_parser};
+    /// let mut m = Command::new("myprog")
+    ///     .arg(Arg::new("file")
+    ///         .multiple_occurrences(true)
+    ///         .required(true)
+    ///         .takes_value(true))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "file1.txt", "file2.txt", "file3.txt", "file4.txt",
+    ///     ]);
+    /// let vals: Vec<String> = m.remove_many("file")
+    ///     .expect("`file` is a `String`")
+    ///     .expect("`file`is required")
+    ///     .map(|f| std::sync::Arc::try_unwrap(f).expect("no clones made"))
+    ///     .collect();
+    /// assert_eq!(vals, ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]);
+    /// ```
+    pub fn remove_many<T: Any + Send + Sync + 'static>(
+        &mut self,
+        name: &str,
+    ) -> Result<Option<impl Iterator<Item = std::sync::Arc<T>>>, MatchesError> {
+        let id = Id::from(name);
+        match self.try_remove_arg_t::<T>(&id)? {
+            Some(values) => Ok(Some(
+                values
+                    .into_vals_flatten()
+                    // enforced by `try_get_arg_t`
+                    .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
+            )),
+            None => Ok(None),
+        }
     }
 
     /// Check if any args were present on the command line
@@ -1261,6 +1352,63 @@ impl ArgMatches {
 impl ArgMatches {
     #[inline]
     fn try_get_arg(&self, arg: &Id) -> Result<Option<&MatchedArg>, MatchesError> {
+        self.verify_arg(arg)?;
+        Ok(self.args.get(arg))
+    }
+
+    #[inline]
+    fn try_get_arg_t<T: Any + Send + Sync + 'static>(
+        &self,
+        arg: &Id,
+    ) -> Result<Option<&MatchedArg>, MatchesError> {
+        let arg = match self.try_get_arg(arg)? {
+            Some(arg) => arg,
+            None => {
+                return Ok(None);
+            }
+        };
+        self.verify_arg_t::<T>(arg)?;
+        Ok(Some(arg))
+    }
+
+    #[inline]
+    fn try_remove_arg_t<T: Any + Send + Sync + 'static>(
+        &mut self,
+        arg: &Id,
+    ) -> Result<Option<MatchedArg>, MatchesError> {
+        self.verify_arg(arg)?;
+        let matched = match self.args.remove(arg) {
+            Some(matched) => matched,
+            None => {
+                return Ok(None);
+            }
+        };
+
+        let expected = AnyValueId::of::<T>();
+        let actual = matched.infer_type_id(expected);
+        if actual == expected {
+            Ok(Some(matched))
+        } else {
+            self.args.insert(arg.clone(), matched);
+            Err(MatchesError::Downcast { actual, expected })
+        }
+    }
+
+    fn verify_arg_t<T: Any + Send + Sync + 'static>(
+        &self,
+        arg: &MatchedArg,
+    ) -> Result<(), MatchesError> {
+        let expected = AnyValueId::of::<T>();
+        let actual = arg.infer_type_id(expected);
+        if expected == actual {
+            Ok(())
+        } else {
+            Err(MatchesError::Downcast { actual, expected })
+        }
+    }
+
+    #[inline]
+    fn verify_arg(&self, arg: &Id) -> Result<(), MatchesError> {
         #[cfg(debug_assertions)]
         {
             if self.disable_asserts || *arg == Id::empty_hash() || self.valid_args.contains(arg) {
@@ -1280,36 +1428,7 @@ impl ArgMatches {
                 return Err(MatchesError::UnknownArgument {});
             }
         }
-
-        Ok(self.args.get(arg))
-    }
-
-    #[inline]
-    fn try_get_arg_t<T: Any + Send + Sync + 'static>(
-        &self,
-        arg: &Id,
-    ) -> Result<Option<&MatchedArg>, MatchesError> {
-        let expected = AnyValueId::of::<T>();
-
-        let arg = match self.try_get_arg(arg)? {
-            Some(arg) => arg,
-            None => {
-                return Ok(None);
-            }
-        };
-        let actual = arg
-            .type_id()
-            .or_else(|| {
-                arg.vals_flatten()
-                    .map(|v| v.type_id())
-                    .find(|actual| *actual != expected)
-            })
-            .unwrap_or(expected);
-        if expected == actual {
-            Ok(Some(arg))
-        } else {
-            Err(MatchesError::Downcast { actual, expected })
-        }
+        Ok(())
     }
 
     #[inline]
