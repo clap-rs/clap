@@ -404,8 +404,11 @@ where
     }
 }
 
+/// Implementation for [`ValueParser::string`]
+///
+/// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-struct StringValueParser;
+pub struct StringValueParser;
 
 impl TypedValueParser for StringValueParser {
     type Value = String;
@@ -435,8 +438,11 @@ impl TypedValueParser for StringValueParser {
     }
 }
 
+/// Implementation for [`ValueParser::os_string`]
+///
+/// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-struct OsStringValueParser;
+pub struct OsStringValueParser;
 
 impl TypedValueParser for OsStringValueParser {
     type Value = std::ffi::OsString;
@@ -460,8 +466,11 @@ impl TypedValueParser for OsStringValueParser {
     }
 }
 
+/// Implementation for [`ValueParser::path_buf`]
+///
+/// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-struct PathBufValueParser;
+pub struct PathBufValueParser;
 
 impl TypedValueParser for PathBufValueParser {
     type Value = std::path::PathBuf;
@@ -730,8 +739,11 @@ where
     }
 }
 
+/// Implementation for [`ValueParser::bool`]
+///
+/// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-struct BoolValueParser;
+pub struct BoolValueParser;
 
 impl BoolValueParser {
     fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {

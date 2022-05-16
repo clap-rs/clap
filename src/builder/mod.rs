@@ -34,10 +34,14 @@ pub use value_parser::via_prelude;
 pub use value_parser::AnyValueParser;
 pub use value_parser::ArgEnumValueParser;
 pub use value_parser::AutoValueParser;
+pub use value_parser::BoolValueParser;
 pub use value_parser::BoolishValueParser;
 pub use value_parser::FalseyValueParser;
 pub use value_parser::NonEmptyStringValueParser;
+pub use value_parser::OsStringValueParser;
+pub use value_parser::PathBufValueParser;
 pub use value_parser::PossibleValuesParser;
+pub use value_parser::StringValueParser;
 pub use value_parser::TypedValueParser;
 pub use value_parser::ValueParser;
 
