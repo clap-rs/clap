@@ -11,6 +11,11 @@ pub enum MatchesError {
         /// The target type to downcast to
         expected: super::AnyValueId,
     },
+    /// Argument not defined in [`Command`][crate::Command]
+    #[non_exhaustive]
+    UnknownArgument {
+        // Missing `id` but blocked on a public id type which will hopefully come with `unstable-v4`
+    },
 }
 
 impl std::error::Error for MatchesError {}
@@ -20,6 +25,9 @@ impl std::fmt::Display for MatchesError {
         match self {
             Self::Downcast { actual, expected } => {
                 writeln!(f, "Could not downcast from {:?} to {:?}", actual, expected)
+            }
+            Self::UnknownArgument {} => {
+                writeln!(f, "Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags")
             }
         }
     }

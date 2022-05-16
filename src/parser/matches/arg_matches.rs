@@ -91,9 +91,6 @@ impl ArgMatches {
     /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
     /// [`occurrences_of`] can be used to check if a value is present at runtime.
     ///
-    /// # Panics
-    /// If `id` is is not a valid argument or group name.
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -118,7 +115,7 @@ impl ArgMatches {
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn get_one<T: 'static>(&self, name: &str) -> Result<Option<&T>, MatchesError> {
         let id = Id::from(name);
-        let value = match self.get_arg(&id).and_then(|a| a.first()) {
+        let value = match self.try_get_arg(&id)?.and_then(|a| a.first()) {
             Some(value) => value,
             None => {
                 return Ok(None);
@@ -140,10 +137,6 @@ impl ArgMatches {
     /// Returns an error if the wrong type was used.
     ///
     /// Returns `None` if the option wasn't present.
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
     ///
     /// # Examples
     ///
@@ -171,7 +164,7 @@ impl ArgMatches {
         name: &str,
     ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
         let id = Id::from(name);
-        let values = match self.get_arg(&id) {
+        let values = match self.try_get_arg(&id)? {
             Some(values) => values.vals_flatten(),
             None => {
                 return Ok(None);
@@ -197,10 +190,6 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
     /// # Examples
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
@@ -218,7 +207,10 @@ impl ArgMatches {
     ///                                 // "{0xe9}!"
     ///                                 OsString::from_vec(vec![0xe9, b'!'])]);
     ///
-    /// let mut itr = m.get_raw("arg").unwrap().into_iter();
+    /// let mut itr = m.get_raw("arg")
+    ///     .expect("`port` is defined")
+    ///     .expect("`port`is required")
+    ///     .into_iter();
     /// assert_eq!(itr.next(), Some(OsStr::new("Hi")));
     /// assert_eq!(itr.next(), Some(OsStr::from_bytes(&[0xe9, b'!'])));
     /// assert_eq!(itr.next(), None);
@@ -227,10 +219,13 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
-    pub fn get_raw<T: Key>(&self, id: T) -> Option<impl Iterator<Item = &OsStr>> {
+    pub fn get_raw<T: Key>(
+        &self,
+        id: T,
+    ) -> Result<Option<impl Iterator<Item = &OsStr>>, MatchesError> {
         let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        Some(arg.raw_vals_flatten().map(|v| v.as_os_str()))
+        let arg = self.try_get_arg(&id)?;
+        Ok(arg.map(|arg| arg.raw_vals_flatten().map(|v| v.as_os_str())))
     }
 
     /// Check if any args were present on the command line
@@ -1268,6 +1263,31 @@ impl ArgMatches {
 
 // Private methods
 impl ArgMatches {
+    #[inline]
+    fn try_get_arg(&self, arg: &Id) -> Result<Option<&MatchedArg>, MatchesError> {
+        #[cfg(debug_assertions)]
+        {
+            if self.disable_asserts || *arg == Id::empty_hash() || self.valid_args.contains(arg) {
+            } else if self.valid_subcommands.contains(arg) {
+                debug!(
+                    "Subcommand `{:?}` used where an argument or group name was expected.",
+                    arg
+                );
+                return Err(MatchesError::UnknownArgument {});
+            } else {
+                debug!(
+                    "`{:?}` is not a name of an argument or a group.\n\
+                     Make sure you're using the name of the argument itself \
+                     and not the name of short or long flags.",
+                    arg
+                );
+                return Err(MatchesError::UnknownArgument {});
+            }
+        }
+
+        Ok(self.args.get(arg))
+    }
+
     #[inline]
     #[cfg_attr(debug_assertions, track_caller)]
     fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
