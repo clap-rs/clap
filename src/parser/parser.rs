@@ -1241,6 +1241,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     #[cfg(feature = "env")]
     fn add_env(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) -> ClapResult<()> {
+        debug!("Parser::add_env");
         use crate::util::str_to_bool;
 
         self.cmd.get_arguments().try_for_each(|a| {
