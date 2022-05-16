@@ -17,6 +17,7 @@ use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::{Id, Key};
 use crate::Error;
+use crate::INTERNAL_ERROR_MSG;
 
 /// Container for parse results.
 ///
@@ -115,19 +116,17 @@ impl ArgMatches {
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn get_one<T: 'static>(&self, name: &str) -> Result<Option<&T>, MatchesError> {
         let id = Id::from(name);
-        let value = match self.try_get_arg(&id)?.and_then(|a| a.first()) {
+        let arg = self.try_get_arg_t::<T>(&id)?;
+        let value = match arg.and_then(|a| a.first()) {
             Some(value) => value,
             None => {
                 return Ok(None);
             }
         };
-        value
+        Ok(value
             .downcast_ref::<T>()
             .map(Some)
-            .ok_or_else(|| MatchesError::Downcast {
-                actual: value.type_id(),
-                expected: AnyValueId::of::<T>(),
-            })
+            .expect(INTERNAL_ERROR_MSG)) // enforced by `try_get_arg_t`
     }
 
     /// Iterate over [values] of a specific option or positional argument.
@@ -164,22 +163,15 @@ impl ArgMatches {
         name: &str,
     ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
         let id = Id::from(name);
-        let values = match self.try_get_arg(&id)? {
-            Some(values) => values.vals_flatten(),
-            None => {
-                return Ok(None);
-            }
-        };
-        // HACK: Track the type id and report errors even when there are no values
-        let values: Result<Vec<&T>, MatchesError> = values
-            .map(|v| {
-                v.downcast_ref::<T>().ok_or_else(|| MatchesError::Downcast {
-                    actual: v.type_id(),
-                    expected: AnyValueId::of::<T>(),
-                })
-            })
-            .collect();
-        Ok(Some(values?.into_iter()))
+        match self.try_get_arg_t::<T>(&id)? {
+            Some(values) => Ok(Some(
+                values
+                    .vals_flatten()
+                    // enforced by `try_get_arg_t`
+                    .map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
+            )),
+            None => Ok(None),
+        }
     }
 
     /// Iterate over the original argument values.
@@ -1286,6 +1278,31 @@ impl ArgMatches {
         }
 
         Ok(self.args.get(arg))
+    }
+
+    #[inline]
+    fn try_get_arg_t<T: 'static>(&self, arg: &Id) -> Result<Option<&MatchedArg>, MatchesError> {
+        let expected = AnyValueId::of::<T>();
+
+        let arg = match self.try_get_arg(arg)? {
+            Some(arg) => arg,
+            None => {
+                return Ok(None);
+            }
+        };
+        let actual = arg
+            .type_id()
+            .or_else(|| {
+                arg.vals_flatten()
+                    .map(|v| v.type_id())
+                    .find(|actual| *actual != expected)
+            })
+            .unwrap_or(expected);
+        if expected == actual {
+            Ok(Some(arg))
+        } else {
+            Err(MatchesError::Downcast { actual, expected })
+        }
     }
 
     #[inline]

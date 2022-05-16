@@ -7,6 +7,7 @@ use std::{
 
 use crate::builder::ArgPredicate;
 use crate::parser::AnyValue;
+use crate::parser::AnyValueId;
 use crate::parser::ValueSource;
 use crate::util::eq_ignore_case;
 use crate::INTERNAL_ERROR_MSG;
@@ -16,6 +17,7 @@ pub(crate) struct MatchedArg {
     occurs: u64,
     source: Option<ValueSource>,
     indices: Vec<usize>,
+    type_id: Option<AnyValueId>,
     vals: Vec<Vec<AnyValue>>,
     raw_vals: Vec<Vec<OsString>>,
     ignore_case: bool,
@@ -28,6 +30,7 @@ impl MatchedArg {
             occurs: 0,
             source: None,
             indices: Vec::new(),
+            type_id: Some(arg.get_value_parser().type_id()),
             vals: Vec::new(),
             raw_vals: Vec::new(),
             ignore_case,
@@ -40,18 +43,24 @@ impl MatchedArg {
             occurs: 0,
             source: None,
             indices: Vec::new(),
+            type_id: None,
             vals: Vec::new(),
             raw_vals: Vec::new(),
             ignore_case,
         }
     }
 
-    pub(crate) fn new_external(_cmd: &crate::Command) -> Self {
+    pub(crate) fn new_external(cmd: &crate::Command) -> Self {
         let ignore_case = false;
         Self {
             occurs: 0,
             source: None,
             indices: Vec::new(),
+            type_id: Some(
+                cmd.get_external_subcommand_value_parser()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .type_id(),
+            ),
             vals: Vec::new(),
             raw_vals: Vec::new(),
             ignore_case,
@@ -171,6 +180,10 @@ impl MatchedArg {
             self.source = Some(source)
         }
     }
+
+    pub(crate) fn type_id(&self) -> Option<AnyValueId> {
+        self.type_id
+    }
 }
 
 impl PartialEq for MatchedArg {
@@ -179,6 +192,7 @@ impl PartialEq for MatchedArg {
             occurs: self_occurs,
             source: self_source,
             indices: self_indices,
+            type_id: self_type_id,
             vals: _,
             raw_vals: self_raw_vals,
             ignore_case: self_ignore_case,
@@ -187,6 +201,7 @@ impl PartialEq for MatchedArg {
             occurs: other_occurs,
             source: other_source,
             indices: other_indices,
+            type_id: other_type_id,
             vals: _,
             raw_vals: other_raw_vals,
             ignore_case: other_ignore_case,
@@ -194,6 +209,7 @@ impl PartialEq for MatchedArg {
         self_occurs == other_occurs
             && self_source == other_source
             && self_indices == other_indices
+            && self_type_id == other_type_id
             && self_raw_vals == other_raw_vals
             && self_ignore_case == other_ignore_case
     }

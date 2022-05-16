@@ -139,6 +139,7 @@ impl ArgMatcher {
             id, source
         );
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
+        debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(source);
     }
 
@@ -148,6 +149,7 @@ impl ArgMatcher {
             id, source
         );
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
+        debug_assert_eq!(ma.type_id(), None);
         ma.set_source(source);
     }
 
@@ -155,6 +157,7 @@ impl ArgMatcher {
         let id = &arg.id;
         debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
+        debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
@@ -162,6 +165,7 @@ impl ArgMatcher {
     pub(crate) fn start_occurrence_of_group(&mut self, id: &Id) {
         debug!("ArgMatcher::start_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
+        debug_assert_eq!(ma.type_id(), None);
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
@@ -170,6 +174,14 @@ impl ArgMatcher {
         let id = &Id::empty_hash();
         debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
         let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));
+        debug_assert_eq!(
+            ma.type_id(),
+            Some(
+                cmd.get_external_subcommand_value_parser()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .type_id()
+            )
+        );
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
