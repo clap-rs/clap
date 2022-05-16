@@ -127,26 +127,26 @@ impl ArgMatcher {
         self.get(arg).map_or(false, |a| a.check_explicit(predicate))
     }
 
-    pub(crate) fn inc_occurrence_of_arg(&mut self, arg: &Arg) {
+    pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
         let id = &arg.id;
-        debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
+        debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.set_source(ValueSource::CommandLine);
         ma.set_ignore_case(arg.is_ignore_case_set());
         ma.inc_occurrences();
     }
 
-    pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
-        debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
+    pub(crate) fn start_occurrence_of_group(&mut self, id: &Id) {
+        debug!("ArgMatcher::start_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
 
     #[cfg(feature = "unstable-v4")]
-    pub(crate) fn inc_occurrence_of_external(&mut self) {
+    pub(crate) fn start_occurrence_of_external(&mut self) {
         let id = &Id::empty_hash();
-        debug!("ArgMatcher::inc_occurrence_of_external: id={:?}", id,);
+        debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();

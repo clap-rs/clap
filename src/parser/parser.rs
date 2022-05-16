@@ -392,7 +392,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // Increase occurrence no matter if we are appending, occurrences
                 // of positional argument equals to number of values rather than
                 // the number of value groups.
-                self.inc_occurrence_of_arg(matcher, p);
+                self.start_occurrence_of_arg(matcher, p);
                 // Creating new value group rather than appending when the arg
                 // doesn't have any value. This behaviour is right because
                 // positional arguments are always present continuously.
@@ -432,7 +432,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let mut sc_m = ArgMatcher::new(self.cmd);
                 #[cfg(feature = "unstable-v4")]
                 {
-                    sc_m.inc_occurrence_of_external();
+                    sc_m.start_occurrence_of_external();
                 }
 
                 for raw_val in raw_args.remaining(&mut args_cursor) {
@@ -1042,7 +1042,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         if opt.is_require_equals_set() && !has_eq {
             if opt.min_vals == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
-                self.inc_occurrence_of_arg(matcher, opt);
+                self.start_occurrence_of_arg(matcher, opt);
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !opt.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt: has default_missing_vals");
@@ -1066,7 +1066,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 })
             }
         } else if let Some(v) = attached_value {
-            self.inc_occurrence_of_arg(matcher, opt);
+            self.start_occurrence_of_arg(matcher, opt);
             self.add_val_to_arg(
                 opt,
                 v,
@@ -1078,7 +1078,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             Ok(ParseResult::ValuesDone)
         } else {
             debug!("Parser::parse_opt: More arg vals required...");
-            self.inc_occurrence_of_arg(matcher, opt);
+            self.start_occurrence_of_arg(matcher, opt);
             matcher.new_val_group(&opt.id);
             for group in self.cmd.groups_for_arg(&opt.id) {
                 matcher.new_val_group(&group);
@@ -1195,7 +1195,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
-        self.inc_occurrence_of_arg(matcher, flag);
+        self.start_occurrence_of_arg(matcher, flag);
         matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueSource::CommandLine);
 
         ParseResult::ValuesDone
@@ -1428,14 +1428,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
-    fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
+    fn start_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
         // With each new occurrence, remove overrides from prior occurrences
         self.remove_overrides(arg, matcher);
 
-        matcher.inc_occurrence_of_arg(arg);
+        matcher.start_occurrence_of_arg(arg);
         // Increment or create the group "args"
         for group in self.cmd.groups_for_arg(&arg.id) {
-            matcher.inc_occurrence_of_group(&group);
+            matcher.start_occurrence_of_group(&group);
         }
     }
 }
@@ -1472,7 +1472,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         // Add the arg to the matches to build a proper usage string
         if let Some((name, _)) = did_you_mean.as_ref() {
             if let Some(opt) = self.cmd.get_keymap().get(&name.as_ref()) {
-                self.inc_occurrence_of_arg(matcher, opt);
+                self.start_occurrence_of_arg(matcher, opt);
             }
         }
 
