@@ -22,14 +22,39 @@ pub(crate) struct MatchedArg {
 }
 
 impl MatchedArg {
-    pub(crate) fn new() -> Self {
-        MatchedArg {
+    pub(crate) fn new_arg(arg: &crate::Arg) -> Self {
+        let ignore_case = arg.is_ignore_case_set();
+        Self {
             occurs: 0,
             source: None,
             indices: Vec::new(),
             vals: Vec::new(),
             raw_vals: Vec::new(),
-            ignore_case: false,
+            ignore_case,
+        }
+    }
+
+    pub(crate) fn new_group() -> Self {
+        let ignore_case = false;
+        Self {
+            occurs: 0,
+            source: None,
+            indices: Vec::new(),
+            vals: Vec::new(),
+            raw_vals: Vec::new(),
+            ignore_case,
+        }
+    }
+
+    pub(crate) fn new_external(_cmd: &crate::Command) -> Self {
+        let ignore_case = false;
+        Self {
+            occurs: 0,
+            source: None,
+            indices: Vec::new(),
+            vals: Vec::new(),
+            raw_vals: Vec::new(),
+            ignore_case,
         }
     }
 
@@ -146,15 +171,19 @@ impl MatchedArg {
             self.source = Some(source)
         }
     }
-
-    pub(crate) fn set_ignore_case(&mut self, yes: bool) {
-        self.ignore_case = yes;
-    }
 }
 
 impl Default for MatchedArg {
     fn default() -> Self {
-        Self::new()
+        let ignore_case = false;
+        Self {
+            occurs: 0,
+            source: None,
+            indices: Vec::new(),
+            vals: Vec::new(),
+            raw_vals: Vec::new(),
+            ignore_case,
+        }
     }
 }
 
@@ -192,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_grouped_vals_first() {
-        let mut m = MatchedArg::new();
+        let mut m = MatchedArg::new_group();
         m.new_val_group();
         m.new_val_group();
         m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
@@ -202,7 +231,7 @@ mod tests {
 
     #[test]
     fn test_grouped_vals_push_and_append() {
-        let mut m = MatchedArg::new();
+        let mut m = MatchedArg::new_group();
         m.push_val(AnyValue::new(String::from("aaa")), "aaa".into());
         m.new_val_group();
         m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());

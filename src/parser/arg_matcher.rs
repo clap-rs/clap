@@ -130,23 +130,22 @@ impl ArgMatcher {
     pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
         let id = &arg.id;
         debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);
-        let ma = self.entry(id).or_insert(MatchedArg::new());
+        let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
         ma.set_source(ValueSource::CommandLine);
-        ma.set_ignore_case(arg.is_ignore_case_set());
         ma.inc_occurrences();
     }
 
     pub(crate) fn start_occurrence_of_group(&mut self, id: &Id) {
         debug!("ArgMatcher::start_occurrence_of_group: id={:?}", id);
-        let ma = self.entry(id).or_insert(MatchedArg::new());
+        let ma = self.entry(id).or_insert(MatchedArg::new_group());
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
 
-    pub(crate) fn start_occurrence_of_external(&mut self) {
+    pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
         let id = &Id::empty_hash();
         debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
-        let ma = self.entry(id).or_insert(MatchedArg::new());
+        let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
