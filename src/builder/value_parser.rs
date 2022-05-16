@@ -5,6 +5,13 @@ use crate::parser::AnyValueId;
 
 /// Parse/validate argument values
 ///
+/// `ValueParser` defines how to convert a raw argument value into a validated and typed value for
+/// use within an application.
+///
+/// See
+/// - [`value_parser!`] for automatically selecting an implementation for a given type
+/// - [`ValueParser::new`] for additional [`TypedValueParser`] that can be used
+///
 /// # Example
 ///
 /// ```rust
@@ -72,7 +79,7 @@ impl ValueParser {
         Self(ValueParserInner::Other(Arc::new(other)))
     }
 
-    /// `Bool` parser for argument values
+    /// [`bool`] parser for argument values
     ///
     /// See also:
     /// - [`BoolishValueParser`] for different human readable bool representations
@@ -97,7 +104,7 @@ impl ValueParser {
         Self(ValueParserInner::Bool)
     }
 
-    /// `String` parser for argument values
+    /// [`String`] parser for argument values
     ///
     /// See also:
     /// - [`NonEmptyStringValueParser`]
@@ -119,12 +126,12 @@ impl ValueParser {
         Self(ValueParserInner::String)
     }
 
-    /// `OsString` parser for argument values
+    /// [`OsString`][std::ffi::OsString] parser for argument values
     pub const fn os_string() -> Self {
         Self(ValueParserInner::OsString)
     }
 
-    /// `PathBuf` parser for argument values
+    /// [`PathBuf`][std::path::PathBuf] parser for argument values
     ///
     /// # Example
     ///
@@ -149,7 +156,7 @@ impl ValueParser {
 }
 
 impl ValueParser {
-    /// Parse into a `Arc<Any>`
+    /// Parse into a `AnyValue`
     ///
     /// When `arg` is `None`, an external subcommand value is being parsed.
     pub fn parse_ref(
@@ -161,7 +168,7 @@ impl ValueParser {
         self.any_value_parser().parse_ref(cmd, arg, value)
     }
 
-    /// Parse into a `Arc<Any>`
+    /// Parse into a `AnyValue`
     ///
     /// When `arg` is `None`, an external subcommand value is being parsed.
     pub fn parse(
@@ -173,7 +180,7 @@ impl ValueParser {
         self.any_value_parser().parse(cmd, arg, value)
     }
 
-    /// Describes the content of `Arc<Any>`
+    /// Describes the content of `AnyValue`
     pub fn type_id(&self) -> AnyValueId {
         self.any_value_parser().type_id()
     }
@@ -221,11 +228,11 @@ impl<'help> std::fmt::Debug for ValueParser {
 // - Make implementing the user-facing trait easier
 // - Enforce in the type-system that a given `AnyValueParser::parse` always returns the same type
 //   on each call and that it matches `type_id`
-/// Parse/validate argument values into a `Arc<Any>`
+/// Parse/validate argument values into a `AnyValue`
 ///
 /// This is a type-erased wrapper for [`TypedValueParser`].
 pub trait AnyValueParser: private::AnyValueParserSealed {
-    /// Parse into a `Arc<Any>`
+    /// Parse into a `AnyValue`
     ///
     /// When `arg` is `None`, an external subcommand value is being parsed.
     fn parse_ref(
@@ -235,7 +242,7 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
         value: &std::ffi::OsStr,
     ) -> Result<AnyValue, crate::Error>;
 
-    /// Parse into a `Arc<Any>`
+    /// Parse into a `AnyValue`
     ///
     /// When `arg` is `None`, an external subcommand value is being parsed.
     fn parse(
@@ -245,7 +252,7 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
         value: std::ffi::OsString,
     ) -> Result<AnyValue, crate::Error>;
 
-    /// Describes the content of `Arc<Any>`
+    /// Describes the content of `AnyValue`
     fn type_id(&self) -> AnyValueId;
 
     /// Reflect on enumerated value properties
@@ -454,6 +461,9 @@ impl TypedValueParser for PathBufValueParser {
 
 /// Parse an [`ArgEnum`][crate::ArgEnum] value.
 ///
+/// See also:
+/// - [`PossibleValuesParser`]
+///
 /// # Example
 ///
 /// ```rust
@@ -578,17 +588,15 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
     }
 }
 
-/// Verify the value is from an enumerated set pf [`PossibleValue`][crate::PossibleValue].
+/// Verify the value is from an enumerated set of [`PossibleValue`][crate::PossibleValue].
+///
+/// See also:
+/// - [`ArgEnumValueParser`]
 ///
 /// # Example
 ///
+/// Usage:
 /// ```rust
-/// # use std::ffi::OsStr;
-/// # use clap::builder::TypedValueParser;
-/// # let cmd = clap::Command::new("test");
-/// # let arg = None;
-///
-/// // Usage
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("color")
@@ -598,8 +606,14 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
 /// let m = cmd.try_get_matches_from_mut(["cmd", "always"]).unwrap();
 /// let port: &String = m.get_one("color").unwrap().unwrap();
 /// assert_eq!(port, "always");
+/// ```
 ///
-/// // Semantics
+/// Semantics:
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
 /// let value_parser = clap::builder::PossibleValuesParser::new(["always", "auto", "never"]);
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
@@ -739,13 +753,8 @@ impl TypedValueParser for BoolValueParser {
 ///
 /// # Example
 ///
+/// Usage:
 /// ```rust
-/// # use std::ffi::OsStr;
-/// # use clap::builder::TypedValueParser;
-/// # let cmd = clap::Command::new("test");
-/// # let arg = None;
-///
-/// // Usage
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
@@ -755,8 +764,14 @@ impl TypedValueParser for BoolValueParser {
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
 /// let port: bool = *m.get_one("append").unwrap().unwrap();
 /// assert_eq!(port, true);
+/// ```
 ///
-/// // Semantics
+/// Semantics:
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
 /// let value_parser = clap::builder::FalseyValueParser;
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), true);
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).unwrap(), true);
@@ -817,13 +832,8 @@ impl TypedValueParser for FalseyValueParser {
 ///
 /// # Example
 ///
+/// Usage:
 /// ```rust
-/// # use std::ffi::OsStr;
-/// # use clap::builder::TypedValueParser;
-/// # let cmd = clap::Command::new("test");
-/// # let arg = None;
-///
-/// // Usage
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
@@ -833,8 +843,14 @@ impl TypedValueParser for FalseyValueParser {
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
 /// let port: bool = *m.get_one("append").unwrap().unwrap();
 /// assert_eq!(port, true);
+/// ```
 ///
-/// // Semantics
+/// Semantics:
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
 /// let value_parser = clap::builder::BoolishValueParser;
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
@@ -900,13 +916,8 @@ impl TypedValueParser for BoolishValueParser {
 ///
 /// # Example
 ///
+/// Usage:
 /// ```rust
-/// # use std::ffi::OsStr;
-/// # use clap::builder::TypedValueParser;
-/// # let cmd = clap::Command::new("test");
-/// # let arg = None;
-///
-/// // Usage
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
@@ -916,8 +927,14 @@ impl TypedValueParser for BoolishValueParser {
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
 /// let port: &String = m.get_one("append").unwrap().unwrap();
 /// assert_eq!(port, "true");
+/// ```
 ///
-/// // Semantics
+/// Semantics:
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
 /// let value_parser = clap::builder::NonEmptyStringValueParser;
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), "random");
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
@@ -1023,7 +1040,7 @@ pub mod via_prelude {
     }
 }
 
-/// Parse/validate argument values
+/// Select a [`ValueParser`] implementation from the intended type
 ///
 /// # Example
 ///
@@ -1055,6 +1072,29 @@ pub mod via_prelude {
 /// // FromStr types
 /// let parser = clap::value_parser!(usize);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::other(usize)");
+///
+/// // ArgEnum types
+/// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+/// enum ColorChoice {
+///     Always,
+///     Auto,
+///     Never,
+/// }
+/// impl clap::ArgEnum for ColorChoice {
+///     // ...
+/// #     fn value_variants<'a>() -> &'a [Self] {
+/// #         &[Self::Always, Self::Auto, Self::Never]
+/// #     }
+/// #     fn to_possible_value<'a>(&self) -> Option<clap::PossibleValue<'a>> {
+/// #         match self {
+/// #             Self::Always => Some(clap::PossibleValue::new("always")),
+/// #             Self::Auto => Some(clap::PossibleValue::new("auto")),
+/// #             Self::Never => Some(clap::PossibleValue::new("never")),
+/// #         }
+/// #     }
+/// }
+/// let parser = clap::value_parser!(ColorChoice);
+/// assert_eq!(format!("{:?}", parser), "ArgEnumValueParser(PhantomData)");
 /// ```
 #[macro_export]
 macro_rules! value_parser {
