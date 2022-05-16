@@ -1223,11 +1223,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    pub(crate) fn add_defaults(
-        &mut self,
-        matcher: &mut ArgMatcher,
-        trailing_values: bool,
-    ) -> ClapResult<()> {
+    fn add_defaults(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
         for o in self.cmd.get_opts() {
@@ -1244,11 +1240,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     #[cfg(feature = "env")]
-    pub(crate) fn add_env(
-        &mut self,
-        matcher: &mut ArgMatcher,
-        trailing_values: bool,
-    ) -> ClapResult<()> {
+    fn add_env(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) -> ClapResult<()> {
         use crate::util::str_to_bool;
 
         self.cmd.get_arguments().try_for_each(|a| {
