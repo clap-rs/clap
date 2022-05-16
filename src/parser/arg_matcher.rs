@@ -9,6 +9,7 @@ use crate::builder::{Arg, ArgPredicate, Command};
 use crate::parser::AnyValue;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
+use crate::INTERNAL_ERROR_MSG;
 
 // Third party
 use indexmap::map::Entry;
@@ -93,6 +94,10 @@ impl ArgMatcher {
 
     pub(crate) fn get(&self, arg: &Id) -> Option<&MatchedArg> {
         self.0.args.get(arg)
+    }
+
+    pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
+        self.0.args.get_mut(arg)
     }
 
     pub(crate) fn remove(&mut self, arg: &Id) {
@@ -188,24 +193,24 @@ impl ArgMatcher {
         // We will manually inc occurrences later(for flexibility under
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
-        let ma = self.entry(arg).or_default();
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.set_source(ty);
         ma.push_val(val, raw_val);
     }
 
     fn append_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString, ty: ValueSource) {
-        let ma = self.entry(arg).or_default();
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.set_source(ty);
         ma.append_val(val, raw_val);
     }
 
     pub(crate) fn new_val_group(&mut self, arg: &Id) {
-        let ma = self.entry(arg).or_default();
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.new_val_group();
     }
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueSource) {
-        let ma = self.entry(arg).or_default();
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.set_source(ty);
         ma.push_index(idx);
     }

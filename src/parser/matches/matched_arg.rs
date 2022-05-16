@@ -173,20 +173,6 @@ impl MatchedArg {
     }
 }
 
-impl Default for MatchedArg {
-    fn default() -> Self {
-        let ignore_case = false;
-        Self {
-            occurs: 0,
-            source: None,
-            indices: Vec::new(),
-            vals: Vec::new(),
-            raw_vals: Vec::new(),
-            ignore_case,
-        }
-    }
-}
-
 impl PartialEq for MatchedArg {
     fn eq(&self, other: &MatchedArg) -> bool {
         let MatchedArg {
