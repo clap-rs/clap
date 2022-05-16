@@ -430,8 +430,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 // Collect the external subcommand args
                 let mut sc_m = ArgMatcher::new(self.cmd);
-                #[cfg(feature = "unstable-v4")]
-                {
+                if cfg!(feature = "unstable-v4") || !raw_args.is_end(&args_cursor) {
                     sc_m.start_occurrence_of_external();
                 }
 

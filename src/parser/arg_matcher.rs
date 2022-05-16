@@ -152,6 +152,13 @@ impl ArgMatcher {
         ma.inc_occurrences();
     }
 
+    #[cfg(not(feature = "unstable-v4"))]
+    pub(crate) fn start_occurrence_of_external(&mut self) {
+        let id = &Id::empty_hash();
+        debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
+        self.entry(id).or_insert(MatchedArg::new());
+    }
+
     pub(crate) fn add_val_to(
         &mut self,
         arg: &Id,
