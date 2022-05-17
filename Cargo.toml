@@ -10,6 +10,7 @@ members = [
 [package]
 name = "clap"
 version = "3.1.18"
+rust-version = "1.56.0"  # MSRV
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"

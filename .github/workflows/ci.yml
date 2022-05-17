@@ -78,7 +78,7 @@ jobs:
         build: [msrv, wasm, wasm-wasi, debug, release]
         include:
           - build: msrv
-            rust: 1.54.0  # MSRV
+            rust: 1.56.0  # MSRV
             target: x86_64-unknown-linux-gnu
             features: full
           - build: wasm
@@ -122,7 +122,7 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: 1.54.0  # MSRV
+        toolchain: 1.56.0  # MSRV
         profile: minimal
         override: true
     - uses: Swatinem/rust-cache@v1
@@ -172,7 +172,7 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: 1.54.0  # MSRV
+        toolchain: 1.56.0  # MSRV
         profile: minimal
         override: true
         components: clippy
