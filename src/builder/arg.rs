@@ -1010,6 +1010,7 @@ impl<'help> Arg<'help> {
     /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
     ///   - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
     ///   - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
+    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] for numeric ranges
     /// - [`ArgEnumValueParser`][crate::builder::ArgEnumValueParser] and  [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
     /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
     ///
@@ -1031,13 +1032,13 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         clap::Arg::new("port")
     ///             .long("port")
-    ///             .value_parser(clap::value_parser!(usize))
+    ///             .value_parser(clap::value_parser!(u16).range(3000..))
     ///             .takes_value(true)
     ///             .required(true)
     ///     );
     ///
     /// let m = cmd.try_get_matches_from_mut(
-    ///     ["cmd", "--hostname", "rust-lang.org", "--port", "80"]
+    ///     ["cmd", "--hostname", "rust-lang.org", "--port", "3001"]
     /// ).unwrap();
     ///
     /// let color: &String = m.get_one("color").unwrap().unwrap();
@@ -1046,8 +1047,8 @@ impl<'help> Arg<'help> {
     /// let hostname: &String = m.get_one("hostname").unwrap().unwrap();
     /// assert_eq!(hostname, "rust-lang.org");
     ///
-    /// let port: usize = *m.get_one("port").unwrap().unwrap();
-    /// assert_eq!(port, 80);
+    /// let port: u16 = *m.get_one("port").unwrap().unwrap();
+    /// assert_eq!(port, 3001);
     /// ```
     pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {
         self.value_parser = Some(parser.into());

@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+use std::ops::RangeBounds;
 use std::sync::Arc;
 
 use crate::parser::AnyValue;
@@ -34,13 +36,13 @@ use crate::parser::AnyValueId;
 ///     .arg(
 ///         clap::Arg::new("port")
 ///             .long("port")
-///             .value_parser(clap::value_parser!(usize))
+///             .value_parser(clap::value_parser!(u16).range(3000..))
 ///             .takes_value(true)
 ///             .required(true)
 ///     );
 ///
 /// let m = cmd.try_get_matches_from_mut(
-///     ["cmd", "--hostname", "rust-lang.org", "--port", "80"]
+///     ["cmd", "--hostname", "rust-lang.org", "--port", "3001"]
 /// ).unwrap();
 ///
 /// let color: &String = m.get_one("color").unwrap().unwrap();
@@ -49,8 +51,8 @@ use crate::parser::AnyValueId;
 /// let hostname: &String = m.get_one("hostname").unwrap().unwrap();
 /// assert_eq!(hostname, "rust-lang.org");
 ///
-/// let port: usize = *m.get_one("port").unwrap().unwrap();
-/// assert_eq!(port, 80);
+/// let port: u16 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 3001);
 /// ```
 #[derive(Clone)]
 pub struct ValueParser(pub(crate) ValueParserInner);
@@ -76,6 +78,7 @@ impl ValueParser {
     /// Pre-existing implementations include:
     /// - [`ArgEnumValueParser`] and  [`PossibleValuesParser`] for static enumerated values
     /// - [`BoolishValueParser`] and [`FalseyValueParser`] for alternative `bool` implementations
+    /// - [`RangedI64ValueParser`]
     /// - [`NonEmptyStringValueParser`]
     ///
     /// # Example
@@ -231,12 +234,218 @@ impl ValueParser {
     }
 }
 
+/// Convert a [`TypedValueParser`] to [`ValueParser`]
+///
+/// # Example
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("hostname")
+///             .long("hostname")
+///             .value_parser(clap::builder::NonEmptyStringValueParser)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(
+///     ["cmd", "--hostname", "rust-lang.org"]
+/// ).unwrap();
+///
+/// let hostname: &String = m.get_one("hostname").unwrap().unwrap();
+/// assert_eq!(hostname, "rust-lang.org");
+/// ```
 impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
     fn from(p: P) -> Self {
         ValueParser(ValueParserInner::Other(Arc::new(p)))
     }
 }
 
+/// Create an `i64` [`ValueParser`] from a `N..M` range
+///
+/// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(3000..4000)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+/// let port: i64 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 3001);
+/// ```
+impl From<std::ops::Range<i64>> for ValueParser {
+    fn from(value: std::ops::Range<i64>) -> Self {
+        let inner = RangedI64ValueParser::<i64>::new().range(value.start..value.end);
+        Self::from(inner)
+    }
+}
+
+/// Create an `i64` [`ValueParser`] from a `N..=M` range
+///
+/// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(3000..=4000)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+/// let port: i64 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 3001);
+/// ```
+impl From<std::ops::RangeInclusive<i64>> for ValueParser {
+    fn from(value: std::ops::RangeInclusive<i64>) -> Self {
+        let inner = RangedI64ValueParser::<i64>::new().range(value.start()..=value.end());
+        Self::from(inner)
+    }
+}
+
+/// Create an `i64` [`ValueParser`] from a `N..` range
+///
+/// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(3000..)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+/// let port: i64 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 3001);
+/// ```
+impl From<std::ops::RangeFrom<i64>> for ValueParser {
+    fn from(value: std::ops::RangeFrom<i64>) -> Self {
+        let inner = RangedI64ValueParser::<i64>::new().range(value.start..);
+        Self::from(inner)
+    }
+}
+
+/// Create an `i64` [`ValueParser`] from a `..M` range
+///
+/// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(..3000)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "80"]).unwrap();
+/// let port: i64 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 80);
+/// ```
+impl From<std::ops::RangeTo<i64>> for ValueParser {
+    fn from(value: std::ops::RangeTo<i64>) -> Self {
+        let inner = RangedI64ValueParser::<i64>::new().range(..value.end);
+        Self::from(inner)
+    }
+}
+
+/// Create an `i64` [`ValueParser`] from a `..=M` range
+///
+/// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(..=3000)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "80"]).unwrap();
+/// let port: i64 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 80);
+/// ```
+impl From<std::ops::RangeToInclusive<i64>> for ValueParser {
+    fn from(value: std::ops::RangeToInclusive<i64>) -> Self {
+        let inner = RangedI64ValueParser::<i64>::new().range(..=value.end);
+        Self::from(inner)
+    }
+}
+
+/// Create an `i64` [`ValueParser`] from a `..` range
+///
+/// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(..)
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+/// let port: i64 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 3001);
+/// ```
+impl From<std::ops::RangeFull> for ValueParser {
+    fn from(value: std::ops::RangeFull) -> Self {
+        let inner = RangedI64ValueParser::<i64>::new().range(value);
+        Self::from(inner)
+    }
+}
+
+/// Create a [`ValueParser`] with [`PossibleValuesParser`]
+///
+/// See [`PossibleValuesParser`] for more flexibility in creating the
+/// [`PossibleValue`][crate::PossibleValue]s.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("color")
+///             .long("color")
+///             .value_parser(["always", "auto", "never"])
+///             .default_value("auto")
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(
+///     ["cmd", "--color", "never"]
+/// ).unwrap();
+///
+/// let color: &String = m.get_one("color").unwrap().unwrap();
+/// assert_eq!(color, "never");
+/// ```
 impl<P, const C: usize> From<[P; C]> for ValueParser
 where
     P: Into<super::PossibleValue<'static>>,
@@ -739,6 +948,201 @@ where
     }
 }
 
+/// Parse number that fall within a range of values
+///
+/// # Example
+///
+/// Usage:
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(clap::value_parser!(u16).range(3000..))
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+/// let port: u16 = *m.get_one("port").unwrap().unwrap();
+/// assert_eq!(port, 3001);
+/// ```
+///
+/// Semantics:
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+/// let value_parser = clap::builder::RangedI64ValueParser::<i32>::new().range(-1..200);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-200")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("300")).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("-1")).unwrap(), -1);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), 0);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
+/// ```
+#[derive(Copy, Clone, Debug)]
+pub struct RangedI64ValueParser<T: std::convert::TryFrom<i64> = i64> {
+    bounds: (std::ops::Bound<i64>, std::ops::Bound<i64>),
+    target: std::marker::PhantomData<T>,
+}
+
+impl<T: std::convert::TryFrom<i64>> RangedI64ValueParser<T> {
+    /// Select full range of `i64`
+    pub fn new() -> Self {
+        Self::from(..)
+    }
+
+    /// Narrow the supported range
+    pub fn range<B: RangeBounds<i64>>(mut self, range: B) -> Self {
+        // Consideration: when the user does `value_parser!(u8).range()`
+        // - Avoid programming mistakes by accidentally expanding the range
+        // - Make it convenient to limit the range like with `..10`
+        let start = match range.start_bound() {
+            l @ std::ops::Bound::Included(i) => {
+                debug_assert!(
+                    self.bounds.contains(i),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            l @ std::ops::Bound::Excluded(i) => {
+                debug_assert!(
+                    self.bounds.contains(&i.saturating_add(1)),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            std::ops::Bound::Unbounded => self.bounds.start_bound().cloned(),
+        };
+        let end = match range.end_bound() {
+            l @ std::ops::Bound::Included(i) => {
+                debug_assert!(
+                    self.bounds.contains(i),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            l @ std::ops::Bound::Excluded(i) => {
+                debug_assert!(
+                    self.bounds.contains(&i.saturating_sub(1)),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            std::ops::Bound::Unbounded => self.bounds.end_bound().cloned(),
+        };
+        self.bounds = (start, end);
+        self
+    }
+
+    fn format_bounds(&self) -> String {
+        let mut result;
+        match self.bounds.0 {
+            std::ops::Bound::Included(i) => {
+                result = i.to_string();
+            }
+            std::ops::Bound::Excluded(i) => {
+                result = i.saturating_add(1).to_string();
+            }
+            std::ops::Bound::Unbounded => {
+                result = i64::MIN.to_string();
+            }
+        }
+        result.push_str("..");
+        match self.bounds.0 {
+            std::ops::Bound::Included(i) => {
+                result.push('=');
+                result.push_str(&i.to_string());
+            }
+            std::ops::Bound::Excluded(i) => {
+                result.push_str(&i.to_string());
+            }
+            std::ops::Bound::Unbounded => {
+                result.push_str(&i64::MAX.to_string());
+            }
+        }
+        result
+    }
+}
+
+impl<T: std::convert::TryFrom<i64>> TypedValueParser for RangedI64ValueParser<T>
+where
+    <T as std::convert::TryFrom<i64>>::Error: Send + Sync + 'static + std::error::Error + ToString,
+{
+    type Value = T;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        raw_value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = raw_value.to_str().ok_or_else(|| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        let value = value.parse::<i64>().map_err(|err| {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                err.into(),
+            )
+            .with_cmd(cmd)
+        })?;
+        if !self.bounds.contains(&value) {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            return Err(crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                format!("{} is not in {}", value, self.format_bounds()).into(),
+            )
+            .with_cmd(cmd));
+        }
+
+        let value: Result<Self::Value, _> = value.try_into();
+        let value = value.map_err(|err| {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                err.into(),
+            )
+            .with_cmd(cmd)
+        })?;
+
+        Ok(value)
+    }
+}
+
+impl<T: std::convert::TryFrom<i64>, B: RangeBounds<i64>> From<B> for RangedI64ValueParser<T> {
+    fn from(range: B) -> Self {
+        Self {
+            bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
+            target: Default::default(),
+        }
+    }
+}
+
 /// Implementation for [`ValueParser::bool`]
 ///
 /// Useful for composing new [`TypedValueParser`]s
@@ -1035,21 +1439,79 @@ pub mod via_prelude {
 
     #[doc(hidden)]
     pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
-        fn value_parser(&self) -> ValueParser;
+        type Parser;
+        fn value_parser(&self) -> Self::Parser;
     }
     impl ValueParserViaBuiltIn for &&AutoValueParser<String> {
-        fn value_parser(&self) -> ValueParser {
+        type Parser = ValueParser;
+        fn value_parser(&self) -> Self::Parser {
             ValueParser::string()
         }
     }
     impl ValueParserViaBuiltIn for &&AutoValueParser<std::ffi::OsString> {
-        fn value_parser(&self) -> ValueParser {
+        type Parser = ValueParser;
+        fn value_parser(&self) -> Self::Parser {
             ValueParser::os_string()
         }
     }
     impl ValueParserViaBuiltIn for &&AutoValueParser<std::path::PathBuf> {
-        fn value_parser(&self) -> ValueParser {
+        type Parser = ValueParser;
+        fn value_parser(&self) -> Self::Parser {
             ValueParser::path_buf()
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<u8> {
+        type Parser = RangedI64ValueParser<u8>;
+        fn value_parser(&self) -> Self::Parser {
+            let start: i64 = u8::MIN.into();
+            let end: i64 = u8::MAX.into();
+            RangedI64ValueParser::new().range(start..=end)
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<i8> {
+        type Parser = RangedI64ValueParser<i8>;
+        fn value_parser(&self) -> Self::Parser {
+            let start: i64 = i8::MIN.into();
+            let end: i64 = i8::MAX.into();
+            RangedI64ValueParser::new().range(start..=end)
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<u16> {
+        type Parser = RangedI64ValueParser<u16>;
+        fn value_parser(&self) -> Self::Parser {
+            let start: i64 = u16::MIN.into();
+            let end: i64 = u16::MAX.into();
+            RangedI64ValueParser::new().range(start..=end)
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<i16> {
+        type Parser = RangedI64ValueParser<i16>;
+        fn value_parser(&self) -> Self::Parser {
+            let start: i64 = i16::MIN.into();
+            let end: i64 = i16::MAX.into();
+            RangedI64ValueParser::new().range(start..=end)
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<u32> {
+        type Parser = RangedI64ValueParser<u32>;
+        fn value_parser(&self) -> Self::Parser {
+            let start: i64 = u32::MIN.into();
+            let end: i64 = u32::MAX.into();
+            RangedI64ValueParser::new().range(start..=end)
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<i32> {
+        type Parser = RangedI64ValueParser<i32>;
+        fn value_parser(&self) -> Self::Parser {
+            let start: i64 = i32::MIN.into();
+            let end: i64 = i32::MAX.into();
+            RangedI64ValueParser::new().range(start..=end)
+        }
+    }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<i64> {
+        type Parser = RangedI64ValueParser<i64>;
+        fn value_parser(&self) -> Self::Parser {
+            RangedI64ValueParser::new()
         }
     }
 
@@ -1115,6 +1577,8 @@ pub mod via_prelude {
 /// assert_eq!(format!("{:?}", parser), "ValueParser::os_string");
 /// let parser = clap::value_parser!(std::path::PathBuf);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::path_buf");
+/// let parser = clap::value_parser!(u16).range(3000..);
+/// assert_eq!(format!("{:?}", parser), "RangedI64ValueParser { bounds: (Included(3000), Included(65535)), target: PhantomData }");
 ///
 /// // FromStr types
 /// let parser = clap::value_parser!(usize);
@@ -1170,6 +1634,13 @@ mod private {
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<String> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::ffi::OsString> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::path::PathBuf> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<u8> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i8> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<u16> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i16> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<u32> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i32> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i64> {}
 
     pub trait ValueParserViaArgEnumSealed {}
     impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &AutoValueParser<E> {}
