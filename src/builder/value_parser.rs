@@ -674,6 +674,12 @@ impl TypedValueParser for StringValueParser {
     }
 }
 
+impl Default for StringValueParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Implementation for [`ValueParser::os_string`]
 ///
 /// Useful for composing new [`TypedValueParser`]s
@@ -707,6 +713,12 @@ impl TypedValueParser for OsStringValueParser {
         value: std::ffi::OsString,
     ) -> Result<Self::Value, crate::Error> {
         Ok(value)
+    }
+}
+
+impl Default for OsStringValueParser {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -752,6 +764,12 @@ impl TypedValueParser for PathBufValueParser {
             ));
         }
         Ok(Self::Value::from(value))
+    }
+}
+
+impl Default for PathBufValueParser {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -1255,6 +1273,12 @@ impl TypedValueParser for BoolValueParser {
     }
 }
 
+impl Default for BoolValueParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Parse false-like string values, everything else is `true`
 ///
 /// See also:
@@ -1339,6 +1363,12 @@ impl TypedValueParser for FalseyValueParser {
         &self,
     ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
         Some(Box::new(Self::possible_values()))
+    }
+}
+
+impl Default for FalseyValueParser {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -1435,6 +1465,12 @@ impl TypedValueParser for BoolishValueParser {
     }
 }
 
+impl Default for BoolishValueParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Parse non-empty string values
 ///
 /// See also:
@@ -1503,6 +1539,12 @@ impl TypedValueParser for NonEmptyStringValueParser {
             )
         })?;
         Ok(value.to_owned())
+    }
+}
+
+impl Default for NonEmptyStringValueParser {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

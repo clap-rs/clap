@@ -99,11 +99,11 @@ impl<'a, A: ?Sized + 'static> From<&'a A> for AnyValueId {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     #[test]
     #[cfg(debug_assertions)]
     fn debug_impl() {
+        use super::*;
+
         assert_eq!(format!("{:?}", AnyValue::new(5)), "AnyValue { inner: i32 }");
     }
 }

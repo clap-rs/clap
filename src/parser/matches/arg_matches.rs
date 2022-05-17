@@ -1467,14 +1467,14 @@ impl ArgMatches {
     }
 
     #[inline]
-    fn verify_arg(&self, arg: &Id) -> Result<(), MatchesError> {
+    fn verify_arg(&self, _arg: &Id) -> Result<(), MatchesError> {
         #[cfg(debug_assertions)]
         {
-            if self.disable_asserts || *arg == Id::empty_hash() || self.valid_args.contains(arg) {
-            } else if self.valid_subcommands.contains(arg) {
+            if self.disable_asserts || *_arg == Id::empty_hash() || self.valid_args.contains(_arg) {
+            } else if self.valid_subcommands.contains(_arg) {
                 debug!(
                     "Subcommand `{:?}` used where an argument or group name was expected.",
-                    arg
+                    _arg
                 );
                 return Err(MatchesError::UnknownArgument {});
             } else {
@@ -1482,7 +1482,7 @@ impl ArgMatches {
                     "`{:?}` is not a name of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
-                    arg
+                    _arg
                 );
                 return Err(MatchesError::UnknownArgument {});
             }
