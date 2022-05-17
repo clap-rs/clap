@@ -29,7 +29,7 @@ use crate::parser::AnyValueId;
 ///     .arg(
 ///         clap::Arg::new("hostname")
 ///             .long("hostname")
-///             .value_parser(clap::builder::NonEmptyStringValueParser)
+///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
 ///             .takes_value(true)
 ///             .required(true)
 ///     )
@@ -225,10 +225,10 @@ impl ValueParser {
 
     fn any_value_parser(&self) -> &dyn AnyValueParser {
         match &self.0 {
-            ValueParserInner::Bool => &BoolValueParser,
-            ValueParserInner::String => &StringValueParser,
-            ValueParserInner::OsString => &OsStringValueParser,
-            ValueParserInner::PathBuf => &PathBufValueParser,
+            ValueParserInner::Bool => &BoolValueParser {},
+            ValueParserInner::String => &StringValueParser {},
+            ValueParserInner::OsString => &OsStringValueParser {},
+            ValueParserInner::PathBuf => &PathBufValueParser {},
             ValueParserInner::Other(o) => o.as_ref(),
         }
     }
@@ -243,7 +243,7 @@ impl ValueParser {
 ///     .arg(
 ///         clap::Arg::new("hostname")
 ///             .long("hostname")
-///             .value_parser(clap::builder::NonEmptyStringValueParser)
+///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
 ///             .takes_value(true)
 ///             .required(true)
 ///     );
@@ -617,7 +617,15 @@ where
 ///
 /// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-pub struct StringValueParser;
+#[non_exhaustive]
+pub struct StringValueParser {}
+
+impl StringValueParser {
+    /// Implementation for [`ValueParser::string`]
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl TypedValueParser for StringValueParser {
     type Value = String;
@@ -651,7 +659,15 @@ impl TypedValueParser for StringValueParser {
 ///
 /// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-pub struct OsStringValueParser;
+#[non_exhaustive]
+pub struct OsStringValueParser {}
+
+impl OsStringValueParser {
+    /// Implementation for [`ValueParser::os_string`]
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl TypedValueParser for OsStringValueParser {
     type Value = std::ffi::OsString;
@@ -679,7 +695,15 @@ impl TypedValueParser for OsStringValueParser {
 ///
 /// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-pub struct PathBufValueParser;
+#[non_exhaustive]
+pub struct PathBufValueParser {}
+
+impl PathBufValueParser {
+    /// Implementation for [`ValueParser::path_buf`]
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl TypedValueParser for PathBufValueParser {
     type Value = std::path::PathBuf;
@@ -1152,9 +1176,15 @@ impl<T: std::convert::TryFrom<i64>> Default for RangedI64ValueParser<T> {
 ///
 /// Useful for composing new [`TypedValueParser`]s
 #[derive(Copy, Clone, Debug)]
-pub struct BoolValueParser;
+#[non_exhaustive]
+pub struct BoolValueParser {}
 
 impl BoolValueParser {
+    /// Implementation for [`ValueParser::bool`]
+    pub fn new() -> Self {
+        Self {}
+    }
+
     fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {
         ["true", "false"]
             .iter()
@@ -1214,7 +1244,7 @@ impl TypedValueParser for BoolValueParser {
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
-///             .value_parser(clap::builder::FalseyValueParser)
+///             .value_parser(clap::builder::FalseyValueParser::new())
 ///     );
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
@@ -1228,7 +1258,7 @@ impl TypedValueParser for BoolValueParser {
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
-/// let value_parser = clap::builder::FalseyValueParser;
+/// let value_parser = clap::builder::FalseyValueParser::new();
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), true);
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).unwrap(), true);
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).unwrap(), false);
@@ -1238,9 +1268,15 @@ impl TypedValueParser for BoolValueParser {
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), false);
 /// ```
 #[derive(Copy, Clone, Debug)]
-pub struct FalseyValueParser;
+#[non_exhaustive]
+pub struct FalseyValueParser {}
 
 impl FalseyValueParser {
+    /// Parse false-like string values, everything else is `true`
+    pub fn new() -> Self {
+        Self {}
+    }
+
     fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {
         crate::util::TRUE_LITERALS
             .iter()
@@ -1293,7 +1329,7 @@ impl TypedValueParser for FalseyValueParser {
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
-///             .value_parser(clap::builder::FalseyValueParser)
+///             .value_parser(clap::builder::BoolishValueParser::new())
 ///     );
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
@@ -1307,7 +1343,7 @@ impl TypedValueParser for FalseyValueParser {
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
-/// let value_parser = clap::builder::BoolishValueParser;
+/// let value_parser = clap::builder::BoolishValueParser::new();
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).is_err());
@@ -1321,9 +1357,15 @@ impl TypedValueParser for FalseyValueParser {
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), false);
 /// ```
 #[derive(Copy, Clone, Debug)]
-pub struct BoolishValueParser;
+#[non_exhaustive]
+pub struct BoolishValueParser {}
 
 impl BoolishValueParser {
+    /// Parse bool-like string values, everything else is `true`
+    pub fn new() -> Self {
+        Self {}
+    }
+
     fn possible_values() -> impl Iterator<Item = crate::PossibleValue<'static>> {
         crate::util::TRUE_LITERALS
             .iter()
@@ -1377,7 +1419,7 @@ impl TypedValueParser for BoolishValueParser {
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
-///             .value_parser(clap::builder::NonEmptyStringValueParser)
+///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
 ///     );
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
@@ -1391,12 +1433,20 @@ impl TypedValueParser for BoolishValueParser {
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
-/// let value_parser = clap::builder::NonEmptyStringValueParser;
+/// let value_parser = clap::builder::NonEmptyStringValueParser::new();
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), "random");
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
 /// ```
 #[derive(Copy, Clone, Debug)]
-pub struct NonEmptyStringValueParser;
+#[non_exhaustive]
+pub struct NonEmptyStringValueParser {}
+
+impl NonEmptyStringValueParser {
+    /// Parse non-empty string values
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl TypedValueParser for NonEmptyStringValueParser {
     type Value = String;

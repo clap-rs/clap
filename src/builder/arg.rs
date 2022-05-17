@@ -1025,7 +1025,7 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         clap::Arg::new("hostname")
     ///             .long("hostname")
-    ///             .value_parser(clap::builder::NonEmptyStringValueParser)
+    ///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
     ///             .takes_value(true)
     ///             .required(true)
     ///     )
