@@ -1240,6 +1240,65 @@ impl ArgMatches {
         self.subcommand.as_ref().map(|sc| (&*sc.name, &sc.matches))
     }
 
+    /// Return the name and `ArgMatches` of the current [subcommand].
+    ///
+    /// Subcommand values are put in a child [`ArgMatches`]
+    ///
+    /// Returns `None` if the subcommand wasn't present at runtime,
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{Command, Arg, };
+    ///  let mut app_m = Command::new("git")
+    ///      .subcommand(Command::new("clone"))
+    ///      .subcommand(Command::new("push"))
+    ///      .subcommand(Command::new("commit"))
+    ///      .subcommand_required(true)
+    ///      .get_matches();
+    ///
+    /// let (name, sub_m) = app_m.remove_subcommand().expect("required");
+    /// match (name.as_str(), sub_m) {
+    ///     ("clone",  sub_m) => {}, // clone was used
+    ///     ("push",   sub_m) => {}, // push was used
+    ///     ("commit", sub_m) => {}, // commit was used
+    ///     (name, _)         => unimplemented!("{}", name),
+    /// }
+    /// ```
+    ///
+    /// Another useful scenario is when you want to support third party, or external, subcommands.
+    /// In these cases you can't know the subcommand name ahead of time, so use a variable instead
+    /// with pattern matching!
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let mut app_m = Command::new("myprog")
+    ///     .allow_external_subcommands(true)
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///     ]);
+    ///
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
+    /// // string argument name
+    /// match app_m.remove_subcommand() {
+    ///     Some((external, mut sub_m)) => {
+    ///          let ext_args: Vec<String> = sub_m.remove_many("")
+    ///             .expect("`file` is a `String`")
+    ///             .expect("`file`is required")
+    ///             .map(|f| std::sync::Arc::try_unwrap(f).expect("no clones made"))
+    ///     .collect();
+    ///          assert_eq!(external, "subcmd");
+    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
+    ///     },
+    ///     _ => {},
+    /// }
+    /// ```
+    /// [subcommand]: crate::Command::subcommand
+    pub fn remove_subcommand(&mut self) -> Option<(String, ArgMatches)> {
+        self.subcommand.take().map(|sc| (sc.name, sc.matches))
+    }
+
     /// The `ArgMatches` for the current [subcommand].
     ///
     /// Subcommand values are put in a child [`ArgMatches`]
