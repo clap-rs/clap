@@ -131,11 +131,11 @@ pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::PossibleValue<
     if let Some(pvs) = a.get_possible_values() {
         // Check old first in case the user explicitly set possible values and the derive inferred
         // a `ValueParser` with some.
-        Some(pvs.iter().map(|pv| pv.clone()).collect())
-    } else if let Some(pvs) = a.get_value_parser().possible_values() {
-        Some(pvs.collect())
+        Some(pvs.to_vec())
     } else {
-        None
+        a.get_value_parser()
+            .possible_values()
+            .map(|pvs| pvs.collect())
     }
 }
 

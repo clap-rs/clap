@@ -841,6 +841,12 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
     }
 }
 
+impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> Default for ArgEnumValueParser<E> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Verify the value is from an enumerated set of [`PossibleValue`][crate::PossibleValue].
 ///
 /// See also:
@@ -922,7 +928,7 @@ impl TypedValueParser for PossibleValuesParser {
 
             Err(crate::Error::invalid_value(
                 cmd,
-                value.to_owned(),
+                value,
                 &possible_vals,
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
@@ -1047,18 +1053,11 @@ impl<T: std::convert::TryFrom<i64>> RangedI64ValueParser<T> {
     }
 
     fn format_bounds(&self) -> String {
-        let mut result;
-        match self.bounds.0 {
-            std::ops::Bound::Included(i) => {
-                result = i.to_string();
-            }
-            std::ops::Bound::Excluded(i) => {
-                result = i.saturating_add(1).to_string();
-            }
-            std::ops::Bound::Unbounded => {
-                result = i64::MIN.to_string();
-            }
-        }
+        let mut result = match self.bounds.0 {
+            std::ops::Bound::Included(i) => i.to_string(),
+            std::ops::Bound::Excluded(i) => i.saturating_add(1).to_string(),
+            std::ops::Bound::Unbounded => i64::MIN.to_string(),
+        };
         result.push_str("..");
         match self.bounds.0 {
             std::ops::Bound::Included(i) => {
@@ -1140,6 +1139,12 @@ impl<T: std::convert::TryFrom<i64>, B: RangeBounds<i64>> From<B> for RangedI64Va
             bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
             target: Default::default(),
         }
+    }
+}
+
+impl<T: std::convert::TryFrom<i64>> Default for RangedI64ValueParser<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -1527,7 +1532,7 @@ pub mod via_prelude {
         type Output = ArgEnumValueParser<E>;
 
         fn value_parser(&self) -> Self::Output {
-            ArgEnumValueParser::<E>::new().into()
+            ArgEnumValueParser::<E>::new()
         }
     }
 
