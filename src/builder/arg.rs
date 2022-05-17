@@ -1041,13 +1041,16 @@ impl<'help> Arg<'help> {
     ///     ["cmd", "--hostname", "rust-lang.org", "--port", "3001"]
     /// ).unwrap();
     ///
-    /// let color: &String = m.get_one("color").unwrap().unwrap();
+    /// let color: &String = m.get_one("color")
+    ///     .expect("matches definition").expect("default");
     /// assert_eq!(color, "auto");
     ///
-    /// let hostname: &String = m.get_one("hostname").unwrap().unwrap();
+    /// let hostname: &String = m.get_one("hostname")
+    ///     .expect("matches definition").expect("required");
     /// assert_eq!(hostname, "rust-lang.org");
     ///
-    /// let port: u16 = *m.get_one("port").unwrap().unwrap();
+    /// let port: u16 = *m.get_one("port")
+    ///     .expect("matches definition").expect("required");
     /// assert_eq!(port, 3001);
     /// ```
     pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {
