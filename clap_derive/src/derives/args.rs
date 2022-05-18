@@ -132,11 +132,19 @@ pub fn gen_from_arg_matches_for_struct(
         #[deny(clippy::correctness)]
         impl #impl_generics clap::FromArgMatches for #struct_name #ty_generics #where_clause {
             fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+
+            fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 let v = #struct_name #constructor;
                 ::std::result::Result::Ok(v)
             }
 
             fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+
+            fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
                 #updater
                 ::std::result::Result::Ok(())
             }
@@ -398,7 +406,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                         quote_spanned! { kind.span()=>
                             #field_name: {
                                 if #arg_matches.subcommand_name().map(<#subcmd_type as clap::Subcommand>::has_subcommand).unwrap_or(false) {
-                                    Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches(#arg_matches)?)
+                                    Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?)
                                 } else {
                                     None
                                 }
@@ -408,7 +416,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                     _ => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
-                                <#subcmd_type as clap::FromArgMatches>::from_arg_matches(#arg_matches)?
+                                <#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
                             }
                         }
                     },
@@ -416,7 +424,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
             }
 
             Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: clap::FromArgMatches::from_arg_matches(#arg_matches)?
+                #field_name: clap::FromArgMatches::from_arg_matches_mut(#arg_matches)?
             },
 
             Kind::Skip(val) => match val {
@@ -472,7 +480,7 @@ pub fn gen_updater(
                 };
 
                 let updater = quote_spanned! { ty.span()=>
-                    <#subcmd_type as clap::FromArgMatches>::update_from_arg_matches(#field_name, #arg_matches)?;
+                    <#subcmd_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
                 };
 
                 let updater = match **ty {
@@ -480,7 +488,7 @@ pub fn gen_updater(
                         if let Some(#field_name) = #field_name.as_mut() {
                             #updater
                         } else {
-                            *#field_name = Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches(
+                            *#field_name = Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(
                                 #arg_matches
                             )?);
                         }
@@ -500,7 +508,7 @@ pub fn gen_updater(
 
             Kind::Flatten => quote_spanned! { kind.span()=> {
                     #access
-                    clap::FromArgMatches::update_from_arg_matches(#field_name, #arg_matches)?;
+                    clap::FromArgMatches::update_from_arg_matches_mut(#field_name, #arg_matches)?;
                 }
             },
 

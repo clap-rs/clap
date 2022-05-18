@@ -122,7 +122,15 @@ fn gen_from_arg_matches_for_enum(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::FromArgMatches for #name #ty_generics #where_clause {
+            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+
             #from_arg_matches
+
+            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
             #update_from_arg_matches
         }
     }
@@ -471,7 +479,7 @@ fn gen_from_arg_matches(
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
-                quote!( ( <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)? ) )
+                quote!( ( <#ty as clap::FromArgMatches>::from_arg_matches_mut(__clap_arg_matches)? ) )
             }
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
         };
@@ -501,7 +509,7 @@ fn gen_from_arg_matches(
                         .map(|__clap_name| <#ty as clap::Subcommand>::has_subcommand(__clap_name))
                         .unwrap_or_default()
                     {
-                        let __clap_res = <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)?;
+                        let __clap_res = <#ty as clap::FromArgMatches>::from_arg_matches_mut(__clap_arg_matches)?;
                         return ::std::result::Result::Ok(#name :: #variant_name (__clap_res));
                     }
                 }
@@ -534,10 +542,11 @@ fn gen_from_arg_matches(
     };
 
     quote! {
-        fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+        fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
             #( #child_subcommands )else*
 
-            if let Some((#subcommand_name_var, #sub_arg_matches_var)) = __clap_arg_matches.subcommand() {
+            if let Some((#subcommand_name_var, mut __clap_arg_sub_matches)) = __clap_arg_matches.remove_subcommand() {
+                let #sub_arg_matches_var = &mut __clap_arg_sub_matches;
                 #( #subcommands )*
 
                 #wildcard
@@ -565,7 +574,7 @@ fn gen_update_from_arg_matches(
             );
 
             match &*attrs.kind() {
-                // Fallback to `from_arg_matches`
+                // Fallback to `from_arg_matches_mut`
                 Kind::ExternalSubcommand => None,
                 _ => Some((variant, attrs)),
             }
@@ -603,7 +612,7 @@ fn gen_update_from_arg_matches(
                 if fields.unnamed.len() == 1 {
                     (
                         quote!((ref mut __clap_arg)),
-                        quote!(clap::FromArgMatches::update_from_arg_matches(
+                        quote!(clap::FromArgMatches::update_from_arg_matches_mut(
                             __clap_arg,
                             __clap_arg_matches
                         )?),
@@ -616,7 +625,8 @@ fn gen_update_from_arg_matches(
 
         quote! {
             #name :: #variant_name #pattern if #sub_name == __clap_name => {
-                let (_, __clap_arg_matches) = __clap_arg_matches.subcommand().unwrap();
+                let (_, mut __clap_arg_sub_matches) = __clap_arg_matches.remove_subcommand().unwrap();
+                let __clap_arg_matches = &mut __clap_arg_sub_matches;
                 #updater
             }
         }
@@ -630,7 +640,7 @@ fn gen_update_from_arg_matches(
                 quote! {
                     if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
                         if let #name :: #variant_name (child) = s {
-                            <#ty as clap::FromArgMatches>::update_from_arg_matches(child, __clap_arg_matches)?;
+                            <#ty as clap::FromArgMatches>::update_from_arg_matches_mut(child, __clap_arg_matches)?;
                             return ::std::result::Result::Ok(());
                         }
                     }
@@ -644,16 +654,16 @@ fn gen_update_from_arg_matches(
     });
 
     quote! {
-        fn update_from_arg_matches<'b>(
+        fn update_from_arg_matches_mut<'b>(
             &mut self,
-            __clap_arg_matches: &clap::ArgMatches,
+            __clap_arg_matches: &mut clap::ArgMatches,
         ) -> ::std::result::Result<(), clap::Error> {
             if let Some(__clap_name) = __clap_arg_matches.subcommand_name() {
                 match self {
                     #( #subcommands ),*
                     s => {
                         #( #child_subcommands )*
-                        *s = <Self as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)?;
+                        *s = <Self as clap::FromArgMatches>::from_arg_matches_mut(__clap_arg_matches)?;
                     }
                 }
             }
