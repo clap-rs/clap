@@ -232,14 +232,21 @@ pub fn hidden_option_command(name: &'static str) -> clap::Command<'static> {
 }
 
 pub fn env_value_command(name: &'static str) -> clap::Command<'static> {
+    let arg = clap::Arg::new("config")
+        .short('c')
+        .long_help("Set configuration file path")
+        .required(false)
+        .takes_value(true)
+        .default_value("config.toml");
     clap::Command::new(name).arg(
-        clap::Arg::new("config")
-            .short('c')
-            .long_help("Set configuration file path")
-            .required(false)
-            .takes_value(true)
-            .default_value("config.toml")
-            .env("CONFIG_FILE"),
+        #[cfg(feature = "env")]
+        {
+            arg.env("CONFIG_FILE")
+        },
+        #[cfg(not(feature = "env"))]
+        {
+            arg
+        },
     )
 }
 

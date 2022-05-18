@@ -51,3 +51,10 @@ fn main() -> std::io::Result<()> {
 ```
 
 Tip: Consider a [cargo xtask](https://github.com/matklad/cargo-xtask) instead of a `build.rs` to reduce build costs.
+
+
+## Feature Flags
+
+#### Optional features
+
+* **env**: Enable Clap's `env` feature.

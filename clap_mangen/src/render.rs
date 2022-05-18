@@ -116,6 +116,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         roff.text(header);
         roff.text(body);
 
+        #[cfg(feature = "env")]
         if let Some(env) = option_environment(opt) {
             roff.control("RS", []);
             roff.text(env);
@@ -147,6 +148,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         roff.text(header);
         roff.text(body);
 
+        #[cfg(feature = "env")]
         if let Some(env) = option_environment(pos) {
             roff.control("RS", []);
             roff.text(env);
@@ -212,6 +214,7 @@ fn long_option(opt: &str) -> Inline {
     bold(&format!("--{}", opt))
 }
 
+#[cfg(feature = "env")]
 fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
     if opt.is_hide_env_set() {
         return None;
