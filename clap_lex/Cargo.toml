@@ -1,6 +1,7 @@
 [package]
 name = "clap_lex"
 version = "0.2.0"
+rust-version = "1.56.0"  # MSRV
 edition = "2018"
 include = [
 	"src/**/*",
