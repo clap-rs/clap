@@ -430,20 +430,12 @@ fn gen_from_arg_matches(
                     ),
                 };
 
-                let (span, str_ty, values_of) = match subty_if_name(ty, "Vec") {
+                let (span, str_ty) = match subty_if_name(ty, "Vec") {
                     Some(subty) => {
                         if is_simple_ty(subty, "String") {
-                            (
-                                subty.span(),
-                                quote!(::std::string::String),
-                                quote!(values_of),
-                            )
+                            (subty.span(), quote!(::std::string::String))
                         } else if is_simple_ty(subty, "OsString") {
-                            (
-                                subty.span(),
-                                quote!(::std::ffi::OsString),
-                                quote!(values_of_os),
-                            )
+                            (subty.span(), quote!(::std::ffi::OsString))
                         } else {
                             abort!(
                                 ty.span(),
@@ -460,7 +452,7 @@ fn gen_from_arg_matches(
                     ),
                 };
 
-                ext_subcmd = Some((span, &variant.ident, str_ty, values_of));
+                ext_subcmd = Some((span, &variant.ident, str_ty));
                 None
             } else {
                 Some((variant, attrs))
@@ -518,11 +510,15 @@ fn gen_from_arg_matches(
     });
 
     let wildcard = match ext_subcmd {
-        Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
+        Some((span, var_name, str_ty)) => quote_spanned! { span=>
                 ::std::result::Result::Ok(#name::#var_name(
                     ::std::iter::once(#str_ty::from(#subcommand_name_var))
                     .chain(
-                        #sub_arg_matches_var.#values_of("").into_iter().flatten().map(#str_ty::from)
+                        #sub_arg_matches_var
+                            .get_many::<#str_ty>("")
+                            .expect("unexpected type")
+                            .into_iter().flatten()  // `""` isn't present, bug in `unstable-v4`
+                            .map(#str_ty::from)
                     )
                     .collect::<::std::vec::Vec<_>>()
                 ))

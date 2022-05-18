@@ -359,7 +359,7 @@ fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
 
 // Uses either `possible_vals` or `value_hint` to give hints about possible argument values
 fn value_completion(arg: &Arg) -> Option<String> {
-    if let Some(values) = &arg.get_possible_values() {
+    if let Some(values) = crate::generator::utils::possible_values(arg) {
         if values
             .iter()
             .any(|value| !value.is_hide_set() && value.get_help().is_some())

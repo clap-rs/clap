@@ -92,9 +92,9 @@ jobs:
     strategy:
       matrix:
         rust:
-        - 1.54.0  # MSRV
+        - 1.56.0  # MSRV
         - stable
-    continue-on-error: ${{ matrix.rust != '1.54.0' }}  # MSRV
+    continue-on-error: ${{ matrix.rust != '1.56.0' }}  # MSRV
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository

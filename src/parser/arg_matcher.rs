@@ -6,8 +6,10 @@ use std::ops::Deref;
 
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command};
+use crate::parser::AnyValue;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
+use crate::INTERNAL_ERROR_MSG;
 
 // Third party
 use indexmap::map::Entry;
@@ -90,13 +92,12 @@ impl ArgMatcher {
         }
     }
 
-    #[cfg(not(feature = "unstable-v4"))]
-    pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
-        self.0.args.get_mut(arg)
-    }
-
     pub(crate) fn get(&self, arg: &Id) -> Option<&MatchedArg> {
         self.0.args.get(arg)
+    }
+
+    pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
+        self.0.args.get_mut(arg)
     }
 
     pub(crate) fn remove(&mut self, arg: &Id) {
@@ -131,67 +132,88 @@ impl ArgMatcher {
         self.get(arg).map_or(false, |a| a.check_explicit(predicate))
     }
 
-    pub(crate) fn inc_occurrence_of_arg(&mut self, arg: &Arg) {
+    pub(crate) fn start_custom_arg(&mut self, arg: &Arg, source: ValueSource) {
         let id = &arg.id;
-        debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
-        let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueSource::CommandLine);
-        ma.set_ignore_case(arg.is_ignore_case_set());
-        ma.invalid_utf8_allowed(arg.is_allow_invalid_utf8_set());
-        ma.inc_occurrences();
-    }
-
-    pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
-        debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
-        let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueSource::CommandLine);
-        ma.inc_occurrences();
-    }
-
-    #[cfg(feature = "unstable-v4")]
-    pub(crate) fn inc_occurrence_of_external(&mut self, allow_invalid_utf8: bool) {
-        let id = &Id::empty_hash();
         debug!(
-            "ArgMatcher::inc_occurrence_of_external: id={:?}, allow_invalid_utf8={}",
-            id, allow_invalid_utf8
+            "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
+            id, source
         );
-        let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueSource::CommandLine);
-        ma.invalid_utf8_allowed(allow_invalid_utf8);
+        let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
+        debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
+        ma.set_source(source);
+    }
+
+    pub(crate) fn start_custom_group(&mut self, id: &Id, source: ValueSource) {
+        debug!(
+            "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
+            id, source
+        );
+        let ma = self.entry(id).or_insert(MatchedArg::new_group());
+        debug_assert_eq!(ma.type_id(), None);
+        ma.set_source(source);
+    }
+
+    pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
+        let id = &arg.id;
+        debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);
+        let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
+        debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
+        ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource, append: bool) {
+    pub(crate) fn start_occurrence_of_group(&mut self, id: &Id) {
+        debug!("ArgMatcher::start_occurrence_of_group: id={:?}", id);
+        let ma = self.entry(id).or_insert(MatchedArg::new_group());
+        debug_assert_eq!(ma.type_id(), None);
+        ma.set_source(ValueSource::CommandLine);
+        ma.inc_occurrences();
+    }
+
+    pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
+        let id = &Id::empty_hash();
+        debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
+        let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));
+        debug_assert_eq!(
+            ma.type_id(),
+            Some(
+                cmd.get_external_subcommand_value_parser()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .type_id()
+            )
+        );
+        ma.set_source(ValueSource::CommandLine);
+        ma.inc_occurrences();
+    }
+
+    pub(crate) fn add_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString, append: bool) {
         if append {
-            self.append_val_to(arg, val, ty);
+            self.append_val_to(arg, val, raw_val);
         } else {
-            self.push_val_to(arg, val, ty);
+            self.push_val_to(arg, val, raw_val);
         }
     }
 
-    fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource) {
+    fn push_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString) {
         // We will manually inc occurrences later(for flexibility under
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
-        let ma = self.entry(arg).or_default();
-        ma.update_ty(ty);
-        ma.push_val(val);
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
+        ma.push_val(val, raw_val);
     }
 
-    fn append_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource) {
-        let ma = self.entry(arg).or_default();
-        ma.update_ty(ty);
-        ma.append_val(val);
+    fn append_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString) {
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
+        ma.append_val(val, raw_val);
     }
 
     pub(crate) fn new_val_group(&mut self, arg: &Id) {
-        let ma = self.entry(arg).or_default();
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.new_val_group();
     }
 
-    pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueSource) {
-        let ma = self.entry(arg).or_default();
-        ma.update_ty(ty);
+    pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize) {
+        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.push_index(idx);
     }
 

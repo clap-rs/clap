@@ -6,29 +6,64 @@ use std::{
 };
 
 use crate::builder::ArgPredicate;
+use crate::parser::AnyValue;
+use crate::parser::AnyValueId;
 use crate::parser::ValueSource;
 use crate::util::eq_ignore_case;
 use crate::INTERNAL_ERROR_MSG;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub(crate) struct MatchedArg {
     occurs: u64,
-    ty: Option<ValueSource>,
+    source: Option<ValueSource>,
     indices: Vec<usize>,
-    vals: Vec<Vec<OsString>>,
+    type_id: Option<AnyValueId>,
+    vals: Vec<Vec<AnyValue>>,
+    raw_vals: Vec<Vec<OsString>>,
     ignore_case: bool,
-    invalid_utf8_allowed: Option<bool>,
 }
 
 impl MatchedArg {
-    pub(crate) fn new() -> Self {
-        MatchedArg {
+    pub(crate) fn new_arg(arg: &crate::Arg) -> Self {
+        let ignore_case = arg.is_ignore_case_set();
+        Self {
             occurs: 0,
-            ty: None,
+            source: None,
             indices: Vec::new(),
+            type_id: Some(arg.get_value_parser().type_id()),
             vals: Vec::new(),
-            ignore_case: false,
-            invalid_utf8_allowed: None,
+            raw_vals: Vec::new(),
+            ignore_case,
+        }
+    }
+
+    pub(crate) fn new_group() -> Self {
+        let ignore_case = false;
+        Self {
+            occurs: 0,
+            source: None,
+            indices: Vec::new(),
+            type_id: None,
+            vals: Vec::new(),
+            raw_vals: Vec::new(),
+            ignore_case,
+        }
+    }
+
+    pub(crate) fn new_external(cmd: &crate::Command) -> Self {
+        let ignore_case = false;
+        Self {
+            occurs: 0,
+            source: None,
+            indices: Vec::new(),
+            type_id: Some(
+                cmd.get_external_subcommand_value_parser()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .type_id(),
+            ),
+            vals: Vec::new(),
+            raw_vals: Vec::new(),
+            ignore_case,
         }
     }
 
@@ -52,29 +87,54 @@ impl MatchedArg {
         self.indices.push(index)
     }
 
-    pub(crate) fn vals(&self) -> Iter<Vec<OsString>> {
+    #[cfg(test)]
+    pub(crate) fn raw_vals(&self) -> Iter<Vec<OsString>> {
+        self.raw_vals.iter()
+    }
+
+    #[cfg(feature = "unstable-grouped")]
+    pub(crate) fn vals(&self) -> Iter<Vec<AnyValue>> {
         self.vals.iter()
     }
 
-    pub(crate) fn vals_flatten(&self) -> Flatten<Iter<Vec<OsString>>> {
+    pub(crate) fn vals_flatten(&self) -> Flatten<Iter<Vec<AnyValue>>> {
         self.vals.iter().flatten()
     }
 
-    pub(crate) fn first(&self) -> Option<&OsString> {
+    pub(crate) fn into_vals_flatten(self) -> impl Iterator<Item = AnyValue> {
+        self.vals.into_iter().flatten()
+    }
+
+    pub(crate) fn raw_vals_flatten(&self) -> Flatten<Iter<Vec<OsString>>> {
+        self.raw_vals.iter().flatten()
+    }
+
+    pub(crate) fn first(&self) -> Option<&AnyValue> {
         self.vals_flatten().next()
     }
 
-    pub(crate) fn push_val(&mut self, val: OsString) {
-        self.vals.push(vec![val])
+    #[cfg(test)]
+    pub(crate) fn first_raw(&self) -> Option<&OsString> {
+        self.raw_vals_flatten().next()
+    }
+
+    pub(crate) fn push_val(&mut self, val: AnyValue, raw_val: OsString) {
+        self.vals.push(vec![val]);
+        self.raw_vals.push(vec![raw_val]);
     }
 
     pub(crate) fn new_val_group(&mut self) {
-        self.vals.push(vec![])
+        self.vals.push(vec![]);
+        self.raw_vals.push(vec![]);
     }
 
-    pub(crate) fn append_val(&mut self, val: OsString) {
+    pub(crate) fn append_val(&mut self, val: AnyValue, raw_val: OsString) {
         // We assume there is always a group created before.
-        self.vals.last_mut().expect(INTERNAL_ERROR_MSG).push(val)
+        self.vals.last_mut().expect(INTERNAL_ERROR_MSG).push(val);
+        self.raw_vals
+            .last_mut()
+            .expect(INTERNAL_ERROR_MSG)
+            .push(raw_val);
     }
 
     pub(crate) fn num_vals(&self) -> usize {
@@ -95,36 +155,13 @@ impl MatchedArg {
         !self.vals.is_empty()
     }
 
-    // Will be used later
-    #[allow(dead_code)]
-    pub(crate) fn remove_vals(&mut self, len: usize) {
-        let mut want_remove = len;
-        let mut remove_group = None;
-        let mut remove_val = None;
-        for (i, g) in self.vals().enumerate() {
-            if g.len() <= want_remove {
-                want_remove -= g.len();
-                remove_group = Some(i);
-            } else {
-                remove_val = Some(want_remove);
-                break;
-            }
-        }
-        if let Some(remove_group) = remove_group {
-            self.vals.drain(0..=remove_group);
-        }
-        if let Some(remove_val) = remove_val {
-            self.vals[0].drain(0..remove_val);
-        }
-    }
-
     pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
-        if self.ty == Some(ValueSource::DefaultValue) {
+        if self.source == Some(ValueSource::DefaultValue) {
             return false;
         }
 
         match predicate {
-            ArgPredicate::Equals(val) => self.vals_flatten().any(|v| {
+            ArgPredicate::Equals(val) => self.raw_vals_flatten().any(|v| {
                 if self.ignore_case {
                     // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
                     eq_ignore_case(&v.to_string_lossy(), &val.to_string_lossy())
@@ -137,35 +174,62 @@ impl MatchedArg {
     }
 
     pub(crate) fn source(&self) -> Option<ValueSource> {
-        self.ty
+        self.source
     }
 
-    pub(crate) fn update_ty(&mut self, ty: ValueSource) {
-        if let Some(existing) = self.ty {
-            self.ty = Some(existing.max(ty));
+    pub(crate) fn set_source(&mut self, source: ValueSource) {
+        if let Some(existing) = self.source {
+            self.source = Some(existing.max(source));
         } else {
-            self.ty = Some(ty)
+            self.source = Some(source)
         }
     }
 
-    pub(crate) fn set_ignore_case(&mut self, yes: bool) {
-        self.ignore_case = yes;
+    pub(crate) fn type_id(&self) -> Option<AnyValueId> {
+        self.type_id
     }
 
-    pub(crate) fn invalid_utf8_allowed(&mut self, yes: bool) {
-        self.invalid_utf8_allowed = Some(yes);
-    }
-
-    pub(crate) fn is_invalid_utf8_allowed(&self) -> Option<bool> {
-        self.invalid_utf8_allowed
+    pub(crate) fn infer_type_id(&self, expected: AnyValueId) -> AnyValueId {
+        self.type_id()
+            .or_else(|| {
+                self.vals_flatten()
+                    .map(|v| v.type_id())
+                    .find(|actual| *actual != expected)
+            })
+            .unwrap_or(expected)
     }
 }
 
-impl Default for MatchedArg {
-    fn default() -> Self {
-        Self::new()
+impl PartialEq for MatchedArg {
+    fn eq(&self, other: &MatchedArg) -> bool {
+        let MatchedArg {
+            occurs: self_occurs,
+            source: self_source,
+            indices: self_indices,
+            type_id: self_type_id,
+            vals: _,
+            raw_vals: self_raw_vals,
+            ignore_case: self_ignore_case,
+        } = self;
+        let MatchedArg {
+            occurs: other_occurs,
+            source: other_source,
+            indices: other_indices,
+            type_id: other_type_id,
+            vals: _,
+            raw_vals: other_raw_vals,
+            ignore_case: other_ignore_case,
+        } = other;
+        self_occurs == other_occurs
+            && self_source == other_source
+            && self_indices == other_indices
+            && self_type_id == other_type_id
+            && self_raw_vals == other_raw_vals
+            && self_ignore_case == other_ignore_case
     }
 }
+
+impl Eq for MatchedArg {}
 
 #[cfg(test)]
 mod tests {
@@ -173,31 +237,31 @@ mod tests {
 
     #[test]
     fn test_grouped_vals_first() {
-        let mut m = MatchedArg::new();
+        let mut m = MatchedArg::new_group();
         m.new_val_group();
         m.new_val_group();
-        m.append_val("bbb".into());
-        m.append_val("ccc".into());
-        assert_eq!(m.first(), Some(&OsString::from("bbb")));
+        m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
+        m.append_val(AnyValue::new(String::from("ccc")), "ccc".into());
+        assert_eq!(m.first_raw(), Some(&OsString::from("bbb")));
     }
 
     #[test]
     fn test_grouped_vals_push_and_append() {
-        let mut m = MatchedArg::new();
-        m.push_val("aaa".into());
+        let mut m = MatchedArg::new_group();
+        m.push_val(AnyValue::new(String::from("aaa")), "aaa".into());
         m.new_val_group();
-        m.append_val("bbb".into());
-        m.append_val("ccc".into());
+        m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
+        m.append_val(AnyValue::new(String::from("ccc")), "ccc".into());
         m.new_val_group();
-        m.append_val("ddd".into());
-        m.push_val("eee".into());
+        m.append_val(AnyValue::new(String::from("ddd")), "ddd".into());
+        m.push_val(AnyValue::new(String::from("eee")), "eee".into());
         m.new_val_group();
-        m.append_val("fff".into());
-        m.append_val("ggg".into());
-        m.append_val("hhh".into());
-        m.append_val("iii".into());
+        m.append_val(AnyValue::new(String::from("fff")), "fff".into());
+        m.append_val(AnyValue::new(String::from("ggg")), "ggg".into());
+        m.append_val(AnyValue::new(String::from("hhh")), "hhh".into());
+        m.append_val(AnyValue::new(String::from("iii")), "iii".into());
 
-        let vals: Vec<&Vec<OsString>> = m.vals().collect();
+        let vals: Vec<&Vec<OsString>> = m.raw_vals().collect();
         assert_eq!(
             vals,
             vec![
@@ -213,153 +277,5 @@ mod tests {
                 ]
             ]
         )
-    }
-
-    #[test]
-    fn test_grouped_vals_removal() {
-        let m = {
-            let mut m = MatchedArg::new();
-            m.push_val("aaa".into());
-            m.new_val_group();
-            m.append_val("bbb".into());
-            m.append_val("ccc".into());
-            m.new_val_group();
-            m.append_val("ddd".into());
-            m.push_val("eee".into());
-            m.new_val_group();
-            m.append_val("fff".into());
-            m.append_val("ggg".into());
-            m.append_val("hhh".into());
-            m.append_val("iii".into());
-            m
-        };
-        {
-            let mut m = m.clone();
-            m.remove_vals(0);
-            let vals1 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals1,
-                vec![
-                    &vec![OsString::from("aaa")],
-                    &vec![OsString::from("bbb"), OsString::from("ccc"),],
-                    &vec![OsString::from("ddd")],
-                    &vec![OsString::from("eee")],
-                    &vec![
-                        OsString::from("fff"),
-                        OsString::from("ggg"),
-                        OsString::from("hhh"),
-                        OsString::from("iii"),
-                    ]
-                ]
-            );
-        }
-
-        {
-            let mut m = m.clone();
-            m.remove_vals(1);
-            let vals0 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals0,
-                vec![
-                    &vec![OsString::from("bbb"), OsString::from("ccc"),],
-                    &vec![OsString::from("ddd")],
-                    &vec![OsString::from("eee")],
-                    &vec![
-                        OsString::from("fff"),
-                        OsString::from("ggg"),
-                        OsString::from("hhh"),
-                        OsString::from("iii"),
-                    ]
-                ]
-            );
-        }
-
-        {
-            let mut m = m.clone();
-            m.remove_vals(2);
-            let vals1 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals1,
-                vec![
-                    &vec![OsString::from("ccc"),],
-                    &vec![OsString::from("ddd")],
-                    &vec![OsString::from("eee")],
-                    &vec![
-                        OsString::from("fff"),
-                        OsString::from("ggg"),
-                        OsString::from("hhh"),
-                        OsString::from("iii"),
-                    ]
-                ]
-            );
-        }
-
-        {
-            let mut m = m.clone();
-            m.remove_vals(3);
-            let vals1 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals1,
-                vec![
-                    &vec![OsString::from("ddd")],
-                    &vec![OsString::from("eee")],
-                    &vec![
-                        OsString::from("fff"),
-                        OsString::from("ggg"),
-                        OsString::from("hhh"),
-                        OsString::from("iii"),
-                    ]
-                ]
-            );
-        }
-
-        {
-            let mut m = m.clone();
-            m.remove_vals(4);
-            let vals1 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals1,
-                vec![
-                    &vec![OsString::from("eee")],
-                    &vec![
-                        OsString::from("fff"),
-                        OsString::from("ggg"),
-                        OsString::from("hhh"),
-                        OsString::from("iii"),
-                    ]
-                ]
-            );
-        }
-
-        {
-            let mut m = m.clone();
-            m.remove_vals(5);
-            let vals1 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals1,
-                vec![&vec![
-                    OsString::from("fff"),
-                    OsString::from("ggg"),
-                    OsString::from("hhh"),
-                    OsString::from("iii"),
-                ]]
-            );
-        }
-
-        {
-            let mut m = m.clone();
-            m.remove_vals(7);
-            let vals1 = m.vals().collect::<Vec<_>>();
-            assert_eq!(
-                vals1,
-                vec![&vec![OsString::from("hhh"), OsString::from("iii"),]]
-            );
-        }
-
-        {
-            let mut m = m;
-            m.remove_vals(9);
-            assert_eq!(m.vals().next(), None);
-        }
     }
 }

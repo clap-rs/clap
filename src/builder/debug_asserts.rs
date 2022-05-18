@@ -267,7 +267,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             arg.name
         );
 
-        if arg.value_hint == ValueHint::CommandWithArguments {
+        if arg.get_value_hint() == ValueHint::CommandWithArguments {
             assert!(
                 arg.is_positional(),
                 "Command {}: Argument '{}' has hint CommandWithArguments and must be positional.",
@@ -646,14 +646,14 @@ fn assert_arg(arg: &Arg) {
         arg.name,
     );
 
-    if arg.value_hint != ValueHint::Unknown {
+    if arg.get_value_hint() != ValueHint::Unknown {
         assert!(
             arg.is_takes_value_set(),
             "Argument '{}' has value hint but takes no value",
             arg.name
         );
 
-        if arg.value_hint == ValueHint::CommandWithArguments {
+        if arg.get_value_hint() == ValueHint::CommandWithArguments {
             assert!(
                 arg.is_multiple_values_set(),
                 "Argument '{}' uses hint CommandWithArguments and must accept multiple values",

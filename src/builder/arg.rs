@@ -63,6 +63,7 @@ pub struct Arg<'help> {
     pub(crate) name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
+    pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Vec<Id>,
@@ -94,7 +95,7 @@ pub struct Arg<'help> {
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<&'help str>>,
-    pub(crate) value_hint: ValueHint,
+    pub(crate) value_hint: Option<ValueHint>,
 }
 
 /// # Basic API
@@ -1000,6 +1001,63 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Specify the type of the argument.
+    ///
+    /// This allows parsing and validating a value before storing it into
+    /// [`ArgMatches`][crate::ArgMatches].
+    ///
+    /// See also
+    /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
+    ///   - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
+    ///   - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
+    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] for numeric ranges
+    /// - [`ArgEnumValueParser`][crate::builder::ArgEnumValueParser] and  [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
+    /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
+    ///
+    /// ```rust
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("color")
+    ///             .long("color")
+    ///             .value_parser(["always", "auto", "never"])
+    ///             .default_value("auto")
+    ///     )
+    ///     .arg(
+    ///         clap::Arg::new("hostname")
+    ///             .long("hostname")
+    ///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
+    ///             .takes_value(true)
+    ///             .required(true)
+    ///     )
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .long("port")
+    ///             .value_parser(clap::value_parser!(u16).range(3000..))
+    ///             .takes_value(true)
+    ///             .required(true)
+    ///     );
+    ///
+    /// let m = cmd.try_get_matches_from_mut(
+    ///     ["cmd", "--hostname", "rust-lang.org", "--port", "3001"]
+    /// ).unwrap();
+    ///
+    /// let color: &String = m.get_one("color")
+    ///     .expect("matches definition").expect("default");
+    /// assert_eq!(color, "auto");
+    ///
+    /// let hostname: &String = m.get_one("hostname")
+    ///     .expect("matches definition").expect("required");
+    /// assert_eq!(hostname, "rust-lang.org");
+    ///
+    /// let port: u16 = *m.get_one("port")
+    ///     .expect("matches definition").expect("required");
+    /// assert_eq!(port, 3001);
+    /// ```
+    pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {
+        self.value_parser = Some(parser.into());
+        self
+    }
+
     /// Specifies that the argument may have an unknown number of values
     ///
     /// Without any other settings, this argument may appear only *once*.
@@ -1495,7 +1553,7 @@ impl<'help> Arg<'help> {
     /// ```
     #[must_use]
     pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
-        self.value_hint = value_hint;
+        self.value_hint = Some(value_hint);
         self.takes_value(true)
     }
 
@@ -4611,7 +4669,7 @@ impl<'help> Arg<'help> {
 
     /// Get the list of the possible values for this argument, if any
     #[inline]
-    pub fn get_possible_values(&self) -> Option<&[PossibleValue]> {
+    pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
         if self.possible_vals.is_empty() {
             None
         } else {
@@ -4649,7 +4707,18 @@ impl<'help> Arg<'help> {
 
     /// Get the value hint of this argument
     pub fn get_value_hint(&self) -> ValueHint {
-        self.value_hint
+        self.value_hint.unwrap_or_else(|| {
+            if self.is_takes_value_set() {
+                let type_id = self.get_value_parser().type_id();
+                if type_id == crate::parser::AnyValueId::of::<std::path::PathBuf>() {
+                    ValueHint::AnyPath
+                } else {
+                    ValueHint::default()
+                }
+            } else {
+                ValueHint::default()
+            }
+        })
     }
 
     /// Deprecated, replaced with [`Arg::is_global_set`]
@@ -4735,6 +4804,31 @@ impl<'help> Arg<'help> {
     /// Report whether [`Arg::is_allow_invalid_utf8_set`] is set
     pub fn is_allow_invalid_utf8_set(&self) -> bool {
         self.is_set(ArgSettings::AllowInvalidUtf8)
+    }
+
+    /// Configured parser for argument values
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .value_parser(clap::value_parser!(usize))
+    ///     );
+    /// let value_parser = cmd.get_arguments()
+    ///     .find(|a| a.get_id() == "port").unwrap()
+    ///     .get_value_parser();
+    /// println!("{:?}", value_parser);
+    /// ```
+    pub fn get_value_parser(&self) -> &super::ValueParser {
+        if let Some(value_parser) = self.value_parser.as_ref() {
+            value_parser
+        } else if self.is_allow_invalid_utf8_set() {
+            &super::ValueParser(super::ValueParserInner::OsString)
+        } else {
+            &super::ValueParser(super::ValueParserInner::String)
+        }
     }
 
     /// Report whether [`Arg::global`] is set
@@ -5037,6 +5131,14 @@ impl<'help> Arg<'help> {
     pub(crate) fn _build(&mut self) {
         if self.is_positional() {
             self.settings.set(ArgSettings::TakesValue);
+        }
+
+        if self.value_parser.is_none() {
+            if self.is_allow_invalid_utf8_set() {
+                self.value_parser = Some(super::ValueParser::os_string());
+            } else {
+                self.value_parser = Some(super::ValueParser::string());
+            }
         }
 
         if (self.is_use_value_delimiter_set() || self.is_require_value_delimiter_set())

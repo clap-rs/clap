@@ -174,7 +174,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
 fn vals_for(o: &Arg) -> String {
     debug!("vals_for: o={}", o.get_id());
 
-    if let Some(vals) = o.get_possible_values() {
+    if let Some(vals) = crate::generator::utils::possible_values(o) {
         format!(
             "$(compgen -W \"{}\" -- \"${{cur}}\")",
             vals.iter()

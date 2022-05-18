@@ -45,7 +45,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
-                    o,
+                    o.to_string(),
                     Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
@@ -98,19 +98,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         matcher: &ArgMatcher,
     ) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
-        for val in ma.vals_flatten() {
-            if !arg.is_allow_invalid_utf8_set() && val.to_str().is_none() {
-                debug!(
-                    "Validator::validate_arg_values: invalid UTF-8 found in val {:?}",
-                    val
-                );
-                return Err(Error::invalid_utf8(
-                    self.cmd,
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
-            }
+        for val in ma.raw_vals_flatten() {
             if !arg.possible_vals.is_empty() {
                 debug!(
                     "Validator::validate_arg_values: possible_vals={:?}",
@@ -136,7 +124,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                             .filter(|pv| !pv.is_hide_set())
                             .map(PossibleValue::get_name)
                             .collect::<Vec<_>>(),
-                        arg,
+                        arg.to_string(),
                         Usage::new(self.cmd)
                             .required(&self.required)
                             .create_usage_with_title(&used),
@@ -152,7 +140,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
-                    arg,
+                    arg.to_string(),
                     Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
@@ -237,7 +225,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             .try_for_each(|arg| {
                 Err(Error::argument_conflict(
                     self.cmd,
-                    arg,
+                    arg.to_string(),
                     Vec::new(),
                     Usage::new(self.cmd)
                         .required(&self.required)
@@ -278,7 +266,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         let former_arg = self.cmd.find(name).expect(INTERNAL_ERROR_MSG);
         let usg = self.build_conflict_err_usage(matcher, conflict_ids);
         Err(Error::argument_conflict(
-            self.cmd, former_arg, conflicts, usg,
+            self.cmd,
+            former_arg.to_string(),
+            conflicts,
+            usg,
         ))
     }
 
@@ -360,7 +351,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
                 self.cmd,
-                a,
+                a.to_string(),
                 Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),
@@ -375,7 +366,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             if occurs > max_occurs {
                 return Err(Error::too_many_occurrences(
                     self.cmd,
-                    a,
+                    a.to_string(),
                     max_occurs,
                     occurs,
                     Usage::new(self.cmd)
@@ -402,7 +393,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
                 return Err(Error::wrong_number_of_values(
                     self.cmd,
-                    a,
+                    a.to_string(),
                     num,
                     if a.is_multiple_occurrences_set() {
                         total_num % num
@@ -421,7 +412,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
                 return Err(Error::too_many_values(
                     self.cmd,
-                    ma.vals_flatten()
+                    ma.raw_vals_flatten()
                         .last()
                         .expect(INTERNAL_ERROR_MSG)
                         .to_str()
@@ -440,7 +431,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");
                 return Err(Error::too_few_values(
                     self.cmd,
-                    a,
+                    a.to_string(),
                     num,
                     ma.num_vals(),
                     Usage::new(self.cmd)
@@ -462,7 +453,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .filter(|pv| !pv.is_hide_set())
                     .map(PossibleValue::get_name)
                     .collect::<Vec<_>>(),
-                a,
+                a.to_string(),
                 Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),

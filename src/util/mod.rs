@@ -3,13 +3,13 @@
 mod fnv;
 mod graph;
 mod id;
-#[cfg(feature = "env")]
 mod str_to_bool;
 
 pub use self::fnv::Key;
 
-#[cfg(feature = "env")]
 pub(crate) use self::str_to_bool::str_to_bool;
+pub(crate) use self::str_to_bool::FALSE_LITERALS;
+pub(crate) use self::str_to_bool::TRUE_LITERALS;
 pub(crate) use self::{graph::ChildGraph, id::Id};
 
 pub(crate) mod color;

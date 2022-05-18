@@ -152,7 +152,7 @@ fn value_completion(option: &Arg) -> String {
         return "".to_string();
     }
 
-    if let Some(data) = option.get_possible_values() {
+    if let Some(data) = crate::generator::utils::possible_values(option) {
         // We return the possible values with their own empty description e.g. {a\t,b\t}
         // this makes sure that a and b don't get the description of the option or argument
         format!(
