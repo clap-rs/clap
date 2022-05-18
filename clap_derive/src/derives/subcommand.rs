@@ -604,7 +604,7 @@ fn gen_update_from_arg_matches(
                         quote!((ref mut __clap_arg)),
                         quote!(clap::FromArgMatches::update_from_arg_matches(
                             __clap_arg,
-                            __clap_sub_arg_matches
+                            __clap_arg_matches
                         )?),
                     )
                 } else {
@@ -615,7 +615,7 @@ fn gen_update_from_arg_matches(
 
         quote! {
             #name :: #variant_name #pattern if #sub_name == __clap_name => {
-                let __clap_arg_matches = __clap_sub_arg_matches;
+                let (_, __clap_arg_matches) = __clap_arg_matches.subcommand().unwrap();
                 #updater
             }
         }
@@ -647,7 +647,7 @@ fn gen_update_from_arg_matches(
             &mut self,
             __clap_arg_matches: &clap::ArgMatches,
         ) -> ::std::result::Result<(), clap::Error> {
-            if let Some((__clap_name, __clap_sub_arg_matches)) = __clap_arg_matches.subcommand() {
+            if let Some(__clap_name) = __clap_arg_matches.subcommand_name() {
                 match self {
                     #( #subcommands ),*
                     s => {
