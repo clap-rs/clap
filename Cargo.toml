@@ -1,30 +1,30 @@
 [workspace]
 members = [
-	"clap_derive",
-	"clap_lex",
-	"clap_complete",
-	"clap_complete_fig",
-	"clap_mangen",
+  "clap_derive",
+  "clap_lex",
+  "clap_complete",
+  "clap_complete_fig",
+  "clap_mangen",
 ]
 
 [package]
 name = "clap"
 version = "3.1.18"
-rust-version = "1.56.0"  # MSRV
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
 categories = ["command-line-interface"]
 keywords = [
-	"argument",
-	"cli",
-	"arg",
-	"parser",
-	"parse"
+  "argument",
+  "cli",
+  "arg",
+  "parser",
+  "parse"
 ]
-edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+edition = "2018"
+rust-version = "1.56.0"  # MSRV
 include = [
   "build.rs",
   "src/**/*",
@@ -59,9 +59,9 @@ pre-release-replacements = [
 
 [features]
 default = [
-	"std",
-	"color",
-	"suggestions",
+  "std",
+  "color",
+  "suggestions",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
 unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
