@@ -1,25 +1,32 @@
 [package]
 name = "clap_mangen"
 version = "0.1.6"
-edition = "2018"
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
-]
 description = "A manpage generator for clap"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_mangen"
 documentation = "https://docs.rs/clap_mangen"
-keywords = [
-	"clap",
-	"cli",
-	"generate",
-	"manpage",
-]
 categories = ["command-line-interface"]
+keywords = [
+  "clap",
+  "cli",
+  "generate",
+  "manpage",
+]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+edition = "2021"
+rust-version = "1.56.0"  # MSRV
+include = [
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
+]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
 
 [package.metadata.release]
 pre-release-replacements = [
@@ -45,6 +52,3 @@ clap = { path = "../", version = "3.1.10", default-features = false, features = 
 [features]
 default = []
 debug = ["clap/debug"]
-
-[package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]

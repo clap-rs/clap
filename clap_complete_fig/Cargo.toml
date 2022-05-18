@@ -1,26 +1,29 @@
 [package]
 name = "clap_complete_fig"
 version = "3.1.5"
-edition = "2018"
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
-]
 description = "A generator library used with clap for Fig completion scripts"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete_fig"
 documentation = "https://docs.rs/clap_complete_fig"
-keywords = [
-	"clap",
-	"cli",
-	"generate",
-	"completion",
-	"fig",
-]
 categories = ["command-line-interface"]
+keywords = [
+  "clap",
+  "cli",
+  "completion",
+  "fig",
+]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+edition = "2021"
+rust-version = "1.56.0"  # MSRV
+include = [
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
+]
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]

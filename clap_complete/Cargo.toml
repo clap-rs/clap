@@ -1,7 +1,20 @@
 [package]
 name = "clap_complete"
 version = "3.1.4"
-edition = "2018"
+description = "Generate shell completion scripts for your clap::Command"
+repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
+documentation = "https://docs.rs/clap_complete"
+categories = ["command-line-interface"]
+keywords = [
+  "clap",
+  "cli",
+  "completion",
+  "bash",
+]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+edition = "2021"
+rust-version = "1.56.0"  # MSRV
 include = [
   "build.rs",
   "src/**/*",
@@ -11,18 +24,9 @@ include = [
   "benches/**/*",
   "examples/**/*"
 ]
-description = "Generate shell completion scripts for your clap::Command"
-repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
-documentation = "https://docs.rs/clap_complete"
-keywords = [
-	"clap",
-	"cli",
-	"completion",
-	"bash",
-]
-categories = ["command-line-interface"]
-license = "MIT OR Apache-2.0"
-readme = "README.md"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
 
 [package.metadata.release]
 pre-release-replacements = [
@@ -61,6 +65,3 @@ required-features = ["unstable-dynamic"]
 default = []
 unstable-dynamic = ["clap_lex", "shlex", "unicode-xid", "os_str_bytes", "clap/derive", "is_executable", "pathdiff"]
 debug = ["clap/debug"]
-
-[package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
