@@ -637,7 +637,6 @@ impl<'help> App<'help> {
         let mut raw_args = clap_lex::RawArgs::new(itr.into_iter());
         let mut cursor = raw_args.cursor();
 
-        #[cfg(feature = "unstable-multicall")]
         if self.settings.is_set(AppSettings::Multicall) {
             if let Some(argv0) = raw_args.next_os(&mut cursor) {
                 let argv0 = Path::new(&argv0);
@@ -3062,7 +3061,6 @@ impl<'help> App<'help> {
     /// [`App::subcommand_value_name`]: crate::Command::subcommand_value_name
     /// [`App::subcommand_help_heading`]: crate::Command::subcommand_help_heading
     #[inline]
-    #[cfg(feature = "unstable-multicall")]
     pub fn multicall(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::Multicall)
@@ -3715,14 +3713,8 @@ impl<'help> App<'help> {
     }
 
     /// Report whether [`Command::multicall`] is set
-    #[cfg(feature = "unstable-multicall")]
     pub fn is_multicall_set(&self) -> bool {
         self.is_set(AppSettings::Multicall)
-    }
-
-    #[cfg(not(feature = "unstable-multicall"))]
-    fn is_multicall_set(&self) -> bool {
-        false
     }
 }
 
@@ -4109,13 +4101,10 @@ impl<'help> App<'help> {
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;
 
-            #[cfg(feature = "unstable-multicall")]
-            {
-                if self.is_multicall_set() {
-                    self.settings.insert(AppSettings::SubcommandRequired.into());
-                    self.settings.insert(AppSettings::DisableHelpFlag.into());
-                    self.settings.insert(AppSettings::DisableVersionFlag.into());
-                }
+            if self.is_multicall_set() {
+                self.settings.insert(AppSettings::SubcommandRequired.into());
+                self.settings.insert(AppSettings::DisableHelpFlag.into());
+                self.settings.insert(AppSettings::DisableVersionFlag.into());
             }
 
             self._propagate();
@@ -4180,7 +4169,7 @@ impl<'help> App<'help> {
                 mid_string.push(' ');
             }
         }
-        let is_multicall_set = cfg!(feature = "unstable-multicall") && self.is_multicall_set();
+        let is_multicall_set = self.is_multicall_set();
 
         let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
 
@@ -4263,7 +4252,7 @@ impl<'help> App<'help> {
                     mid_string.push(' ');
                 }
             }
-            let is_multicall_set = cfg!(feature = "unstable-multicall") && self.is_multicall_set();
+            let is_multicall_set = self.is_multicall_set();
 
             let self_bin_name = if is_multicall_set {
                 self.bin_name.as_deref().unwrap_or("")

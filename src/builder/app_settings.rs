@@ -153,7 +153,6 @@ pub enum AppSettings {
         since = "3.1.0",
         note = "Replaced with `Command::multicall` and `Command::is_multicall_set`"
     )]
-    #[cfg(feature = "unstable-multicall")]
     Multicall,
 
     /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
@@ -466,7 +465,6 @@ bitflags! {
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 42;
         const INFER_LONG_ARGS                = 1 << 43;
         const IGNORE_ERRORS                  = 1 << 44;
-        #[cfg(feature = "unstable-multicall")]
         const MULTICALL                      = 1 << 45;
         const NO_OP                          = 0;
     }
@@ -533,7 +531,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::HELP_REQUIRED,
     Hidden
         => Flags::HIDDEN,
-    #[cfg(feature = "unstable-multicall")]
     Multicall
         => Flags::MULTICALL,
     NoAutoHelp

@@ -494,7 +494,6 @@ For more information try --help
     );
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 fn busybox_like_multicall() {
     fn applet_commands() -> [Command<'static>; 2] {
@@ -520,7 +519,6 @@ fn busybox_like_multicall() {
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 fn hostname_like_multicall() {
     let mut cmd = Command::new("hostname")
@@ -550,7 +548,6 @@ fn hostname_like_multicall() {
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 fn bad_multicall_command_error() {
     let cmd = Command::new("repl")
@@ -572,9 +569,11 @@ For more information try help
 ";
     utils::assert_eq(HELLO_EXPECTED, err.to_string());
 
-    let err = cmd.clone().try_get_matches_from(&["baz"]).unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
-    static BAZ_EXPECTED: &str = "\
+    #[cfg(feature = "suggestions")]
+    {
+        let err = cmd.clone().try_get_matches_from(&["baz"]).unwrap_err();
+        assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
+        static BAZ_EXPECTED: &str = "\
 error: The subcommand 'baz' wasn't recognized
 
 \tDid you mean 'bar'?
@@ -586,7 +585,8 @@ USAGE:
 
 For more information try help
 ";
-    utils::assert_eq(BAZ_EXPECTED, err.to_string());
+        utils::assert_eq(BAZ_EXPECTED, err.to_string());
+    }
 
     // Verify whatever we did to get the above to work didn't disable `--help` and `--version`.
 
@@ -603,7 +603,6 @@ For more information try help
     assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 #[should_panic = "Command repl: Arguments like oh-no cannot be set on a multicall command"]
 fn cant_have_args_with_multicall() {
@@ -617,7 +616,6 @@ fn cant_have_args_with_multicall() {
     cmd.build();
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 fn multicall_help_flag() {
     static EXPECTED: &str = "\
@@ -641,7 +639,6 @@ OPTIONS:
     utils::assert_output(cmd, "foo bar --help", EXPECTED, false);
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 fn multicall_help_subcommand() {
     static EXPECTED: &str = "\
@@ -665,7 +662,6 @@ OPTIONS:
     utils::assert_output(cmd, "help foo bar", EXPECTED, false);
 }
 
-#[cfg(feature = "unstable-multicall")]
 #[test]
 fn multicall_render_help() {
     static EXPECTED: &str = "\

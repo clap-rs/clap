@@ -22,8 +22,6 @@ fn ui_tests() {
         "wrap_help",
         #[cfg(feature = "unstable-replace")]
         "unstable-replace",
-        #[cfg(feature = "unstable-multicall")]
-        "unstable-multicall",
         #[cfg(feature = "unstable-grouped")]
         "unstable-grouped",
     ]
