@@ -1,0 +1,5 @@
+error: `value_parse` attribute conflicts with `parse` attribute
+  --> tests/derive_ui/parse_with_value_parser.rs:14:29
+   |
+14 |     #[clap(parse(from_str), value_parser = clap::value_parser!(String))]
+   |                             ^^^^^^^^^^^^

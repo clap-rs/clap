@@ -471,3 +471,16 @@ fn two_option_vec_types() {
         Opt::try_parse_from(&["test"]).unwrap()
     );
 }
+
+#[test]
+fn explicit_value_parser() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(long, value_parser = clap::value_parser!(i32))]
+        arg: i32,
+    }
+    assert_eq!(
+        Opt { arg: 42 },
+        Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
+    );
+}
