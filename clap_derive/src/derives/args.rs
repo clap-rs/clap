@@ -540,10 +540,10 @@ fn gen_parsers(
             func.clone(),
         ),
         _ if attrs.custom_value_parser() => (
-            quote_spanned!(span=> get_one::<#convert_type>),
-            quote_spanned!(span=> get_many::<#convert_type>),
+            quote_spanned!(span=> remove_one::<#convert_type>),
+            quote_spanned!(span=> remove_many::<#convert_type>),
             quote!(|s| s),
-            quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(s.clone())),
+            quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(::std::sync::Arc::try_unwrap(s).unwrap_or_else(|arc| (*arc).clone()))),
         ),
         FromStr => (
             quote_spanned!(span=> get_one::<String>),
