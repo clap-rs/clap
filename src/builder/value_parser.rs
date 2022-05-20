@@ -1587,6 +1587,12 @@ pub mod via_prelude {
             ValueParser::path_buf()
         }
     }
+    impl ValueParserViaBuiltIn for &&AutoValueParser<bool> {
+        type Parser = ValueParser;
+        fn value_parser(&self) -> Self::Parser {
+            ValueParser::bool()
+        }
+    }
     impl ValueParserViaBuiltIn for &&AutoValueParser<u8> {
         type Parser = RangedI64ValueParser<u8>;
         fn value_parser(&self) -> Self::Parser {
@@ -1763,6 +1769,7 @@ mod private {
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<String> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::ffi::OsString> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::path::PathBuf> {}
+    impl ValueParserViaBuiltInSealed for &&AutoValueParser<bool> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<u8> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<i8> {}
     impl ValueParserViaBuiltInSealed for &&AutoValueParser<u16> {}
