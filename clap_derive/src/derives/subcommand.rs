@@ -527,9 +527,10 @@ fn gen_from_arg_matches(
                     ::std::iter::once(#str_ty::from(#subcommand_name_var))
                     .chain(
                         #sub_arg_matches_var
-                            .get_many::<#str_ty>("")
+                            .remove_many::<#str_ty>("")
                             .expect("unexpected type")
                             .into_iter().flatten()  // `""` isn't present, bug in `unstable-v4`
+                            .map(|f| ::std::sync::Arc::try_unwrap(f).unwrap_or_else(|arc| (*arc).clone()))
                             .map(#str_ty::from)
                     )
                     .collect::<::std::vec::Vec<_>>()
