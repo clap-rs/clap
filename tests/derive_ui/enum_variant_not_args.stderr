@@ -1,15 +1,23 @@
 error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
- --> $DIR/enum_variant_not_args.rs:3:9
-  |
-3 |     Sub(SubCmd),
-  |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
-  |
-  = note: required by `augment_args`
+   --> tests/derive_ui/enum_variant_not_args.rs:3:9
+    |
+3   |     Sub(SubCmd),
+    |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+    |
+note: required by `augment_args`
+   --> src/derive.rs
+    |
+    |     fn augment_args(cmd: Command<'_>) -> Command<'_>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
- --> $DIR/enum_variant_not_args.rs:3:9
-  |
-3 |     Sub(SubCmd),
-  |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
-  |
-  = note: required by `augment_args_for_update`
+   --> tests/derive_ui/enum_variant_not_args.rs:3:9
+    |
+3   |     Sub(SubCmd),
+    |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+    |
+note: required by `augment_args_for_update`
+   --> src/derive.rs
+    |
+    |     fn augment_args_for_update(cmd: Command<'_>) -> Command<'_>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
