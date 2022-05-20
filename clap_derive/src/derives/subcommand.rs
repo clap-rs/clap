@@ -400,7 +400,7 @@ fn gen_from_arg_matches(
     let mut ext_subcmd = None;
 
     let subcommand_name_var = format_ident!("__clap_name");
-    let sub_arg_matches_var = format_ident!("__clap_sub_arg_matches");
+    let sub_arg_matches_var = format_ident!("__clap_arg_matches");
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
@@ -538,10 +538,7 @@ fn gen_from_arg_matches(
             #( #child_subcommands )else*
 
             if let Some((#subcommand_name_var, #sub_arg_matches_var)) = __clap_arg_matches.subcommand() {
-                {
-                    let __clap_arg_matches = #sub_arg_matches_var;
-                    #( #subcommands )*
-                }
+                #( #subcommands )*
 
                 #wildcard
             } else {
