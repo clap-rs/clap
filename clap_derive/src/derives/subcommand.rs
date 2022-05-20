@@ -496,7 +496,11 @@ fn gen_from_arg_matches(
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
                 quote! {
-                    if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
+                    if __clap_arg_matches
+                        .subcommand_name()
+                        .map(|__clap_name| <#ty as clap::Subcommand>::has_subcommand(__clap_name))
+                        .unwrap_or_default()
+                    {
                         let __clap_res = <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)?;
                         return ::std::result::Result::Ok(#name :: #variant_name (__clap_res));
                     }
@@ -531,13 +535,13 @@ fn gen_from_arg_matches(
 
     quote! {
         fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+            #( #child_subcommands )else*
+
             if let Some((#subcommand_name_var, #sub_arg_matches_var)) = __clap_arg_matches.subcommand() {
                 {
                     let __clap_arg_matches = #sub_arg_matches_var;
                     #( #subcommands )*
                 }
-
-                #( #child_subcommands )else*
 
                 #wildcard
             } else {
