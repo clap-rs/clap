@@ -1,26 +1,38 @@
 error[E0277]: the trait bound `SubCmd: Subcommand` is not satisfied
- --> $DIR/flatten_struct_in_enum.rs:1:10
-  |
-1 | #[derive(clap::Parser)]
-  |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
-  |
-  = note: required by `has_subcommand`
-  = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
+   --> tests/derive_ui/flatten_struct_in_enum.rs:1:10
+    |
+1   | #[derive(clap::Parser)]
+    |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
+    |
+note: required by `has_subcommand`
+   --> src/derive.rs
+    |
+    |     fn has_subcommand(name: &str) -> bool;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `SubCmd: Subcommand` is not satisfied
- --> $DIR/flatten_struct_in_enum.rs:1:10
-  |
-1 | #[derive(clap::Parser)]
-  |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
-  |
-  = note: required by `augment_subcommands`
-  = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
+   --> tests/derive_ui/flatten_struct_in_enum.rs:1:10
+    |
+1   | #[derive(clap::Parser)]
+    |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
+    |
+note: required by `augment_subcommands`
+   --> src/derive.rs
+    |
+    |     fn augment_subcommands(cmd: Command<'_>) -> Command<'_>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `SubCmd: Subcommand` is not satisfied
- --> $DIR/flatten_struct_in_enum.rs:1:10
-  |
-1 | #[derive(clap::Parser)]
-  |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
-  |
-  = note: required by `augment_subcommands_for_update`
-  = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
+   --> tests/derive_ui/flatten_struct_in_enum.rs:1:10
+    |
+1   | #[derive(clap::Parser)]
+    |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
+    |
+note: required by `augment_subcommands_for_update`
+   --> src/derive.rs
+    |
+    |     fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)

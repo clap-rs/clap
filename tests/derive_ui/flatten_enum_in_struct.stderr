@@ -1,15 +1,23 @@
 error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
- --> $DIR/flatten_enum_in_struct.rs:3:12
-  |
-3 |     #[clap(flatten)]
-  |            ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
-  |
-  = note: required by `augment_args`
+   --> tests/derive_ui/flatten_enum_in_struct.rs:3:12
+    |
+3   |     #[clap(flatten)]
+    |            ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+    |
+note: required by `augment_args`
+   --> src/derive.rs
+    |
+    |     fn augment_args(cmd: Command<'_>) -> Command<'_>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
- --> $DIR/flatten_enum_in_struct.rs:3:12
-  |
-3 |     #[clap(flatten)]
-  |            ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
-  |
-  = note: required by `augment_args_for_update`
+   --> tests/derive_ui/flatten_enum_in_struct.rs:3:12
+    |
+3   |     #[clap(flatten)]
+    |            ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+    |
+note: required by `augment_args_for_update`
+   --> src/derive.rs
+    |
+    |     fn augment_args_for_update(cmd: Command<'_>) -> Command<'_>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
