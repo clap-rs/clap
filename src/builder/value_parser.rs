@@ -1125,7 +1125,7 @@ impl<T: std::convert::TryFrom<i64>> RangedI64ValueParser<T> {
             std::ops::Bound::Unbounded => i64::MIN.to_string(),
         };
         result.push_str("..");
-        match self.bounds.0 {
+        match self.bounds.1 {
             std::ops::Bound::Included(i) => {
                 result.push('=');
                 result.push_str(&i.to_string());
