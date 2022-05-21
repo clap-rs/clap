@@ -4,8 +4,8 @@ use clap::Parser;
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// Network port to use
-    #[clap(parse(try_from_str))]
-    port: usize,
+    #[clap(value_parser)]
+    port: u16,
 }
 
 fn main() {

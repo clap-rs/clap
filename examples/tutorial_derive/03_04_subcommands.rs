@@ -11,7 +11,10 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Adds files to myapp
-    Add { name: Option<String> },
+    Add {
+        #[clap(value_parser)]
+        name: Option<String>,
+    },
 }
 
 fn main() {

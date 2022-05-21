@@ -20,19 +20,21 @@ enum Commands {
     #[clap(arg_required_else_help = true)]
     Clone {
         /// The remote to clone
+        #[clap(value_parser)]
         remote: String,
     },
     /// pushes things
     #[clap(arg_required_else_help = true)]
     Push {
         /// The remote to target
+        #[clap(value_parser)]
         remote: String,
     },
     /// adds things
     #[clap(arg_required_else_help = true)]
     Add {
         /// Stuff to add
-        #[clap(required = true, parse(from_os_str))]
+        #[clap(required = true, value_parser)]
         path: Vec<PathBuf>,
     },
     Stash(Stash),
@@ -53,13 +55,19 @@ struct Stash {
 #[derive(Debug, Subcommand)]
 enum StashCommands {
     Push(StashPush),
-    Pop { stash: Option<String> },
-    Apply { stash: Option<String> },
+    Pop {
+        #[clap(value_parser)]
+        stash: Option<String>,
+    },
+    Apply {
+        #[clap(value_parser)]
+        stash: Option<String>,
+    },
 }
 
 #[derive(Debug, Args)]
 struct StashPush {
-    #[clap(short, long)]
+    #[clap(short, long, value_parser)]
     message: Option<String>,
 }
 

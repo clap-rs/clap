@@ -6,8 +6,8 @@ use clap::Parser;
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// Network port to use
-    #[clap(parse(try_from_str=port_in_range))]
-    port: usize,
+    #[clap(value_parser = port_in_range)]
+    port: u16,
 }
 
 fn main() {
@@ -18,12 +18,12 @@ fn main() {
 
 const PORT_RANGE: RangeInclusive<usize> = 1..=65535;
 
-fn port_in_range(s: &str) -> Result<usize, String> {
+fn port_in_range(s: &str) -> Result<u16, String> {
     let port: usize = s
         .parse()
         .map_err(|_| format!("`{}` isn't a port number", s))?;
     if PORT_RANGE.contains(&port) {
-        Ok(port)
+        Ok(port as u16)
     } else {
         Err(format!(
             "Port not in range {}-{}",

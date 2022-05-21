@@ -6,9 +6,9 @@ use clap::Parser;
 #[clap(version = "1.0")]
 #[clap(about = "Does awesome things", long_about = None)]
 struct Cli {
-    #[clap(long)]
+    #[clap(long, value_parser)]
     two: String,
-    #[clap(long)]
+    #[clap(long, value_parser)]
     one: String,
 }
 

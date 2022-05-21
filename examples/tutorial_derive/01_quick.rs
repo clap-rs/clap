@@ -6,10 +6,11 @@ use clap::{Parser, Subcommand};
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// Optional name to operate on
+    #[clap(value_parser)]
     name: Option<String>,
 
     /// Sets a custom config file
-    #[clap(short, long, parse(from_os_str), value_name = "FILE")]
+    #[clap(short, long, value_parser, value_name = "FILE")]
     config: Option<PathBuf>,
 
     /// Turn debugging information on
@@ -25,7 +26,7 @@ enum Commands {
     /// does testing things
     Test {
         /// lists test values
-        #[clap(short, long)]
+        #[clap(short, long, value_parser)]
         list: bool,
     },
 }

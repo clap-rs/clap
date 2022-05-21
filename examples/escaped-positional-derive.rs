@@ -8,10 +8,10 @@ struct Cli {
     #[clap(short = 'f')]
     eff: bool,
 
-    #[clap(short = 'p', value_name = "PEAR")]
+    #[clap(short = 'p', value_name = "PEAR", value_parser)]
     pea: Option<String>,
 
-    #[clap(last = true)]
+    #[clap(last = true, value_parser)]
     slop: Vec<String>,
 }
 
