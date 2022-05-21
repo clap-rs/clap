@@ -484,3 +484,16 @@ fn explicit_value_parser() {
         Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
     );
 }
+
+#[test]
+fn implicit_value_parser() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(long, value_parser)]
+        arg: i32,
+    }
+    assert_eq!(
+        Opt { arg: 42 },
+        Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
+    );
+}

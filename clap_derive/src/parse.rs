@@ -26,6 +26,7 @@ pub enum ClapAttr {
     // single-identifier attributes
     Short(Ident),
     Long(Ident),
+    ValueParser(Ident),
     Env(Ident),
     Flatten(Ident),
     ArgEnum(Ident),
@@ -182,6 +183,7 @@ impl Parse for ClapAttr {
             match name_str.as_ref() {
                 "long" => Ok(Long(name)),
                 "short" => Ok(Short(name)),
+                "value_parser" => Ok(ValueParser(name)),
                 "env" => Ok(Env(name)),
                 "flatten" => Ok(Flatten(name)),
                 "arg_enum" => Ok(ArgEnum(name)),

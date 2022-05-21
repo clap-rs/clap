@@ -42,7 +42,7 @@ pub struct Attrs {
     ty: Option<Type>,
     doc_comment: Vec<Method>,
     methods: Vec<Method>,
-    value_parser: Option<Method>,
+    value_parser: Option<ValueParser>,
     parser: Sp<Parser>,
     verbatim_doc_comment: Option<Ident>,
     next_display_order: Option<Method>,
@@ -336,7 +336,7 @@ impl Attrs {
                 if res.has_custom_parser {
                     if let Some(parser) = res.value_parser.as_ref() {
                         abort!(
-                            parser.name.span(),
+                            parser.span(),
                             "`value_parse` attribute conflicts with `parse` attribute"
                         );
                     }
@@ -428,7 +428,7 @@ impl Attrs {
         if name == "name" {
             self.name = Name::Assigned(quote!(#arg));
         } else if name == "value_parser" {
-            self.value_parser = Some(Method::new(name, quote!(#arg)));
+            self.value_parser = Some(ValueParser::Explicit(Method::new(name, quote!(#arg))));
         } else {
             self.methods.push(Method::new(name, quote!(#arg)));
         }
@@ -447,6 +447,11 @@ impl Attrs {
 
                 Long(ident) => {
                     self.push_method(ident, self.name.clone().translate(*self.casing));
+                }
+
+                ValueParser(ident) => {
+                    use crate::attrs::ValueParser;
+                    self.value_parser = Some(ValueParser::Implicit(ident));
                 }
 
                 Env(ident) => {
@@ -735,10 +740,10 @@ impl Attrs {
         self.name.clone().translate(CasingStyle::ScreamingSnake)
     }
 
-    pub fn value_parser(&self) -> Method {
+    pub fn value_parser(&self) -> ValueParser {
         self.value_parser
             .clone()
-            .unwrap_or_else(|| self.parser.value_parser())
+            .unwrap_or_else(|| ValueParser::Explicit(self.parser.value_parser()))
     }
 
     pub fn custom_value_parser(&self) -> bool {
@@ -785,6 +790,31 @@ impl Attrs {
         self.methods
             .iter()
             .any(|m| m.name != "help" && m.name != "long_help")
+    }
+}
+
+#[derive(Clone)]
+pub enum ValueParser {
+    Explicit(Method),
+    Implicit(Ident),
+}
+
+impl ValueParser {
+    pub fn resolve(self, inner_type: &Type) -> Method {
+        match self {
+            Self::Explicit(method) => method,
+            Self::Implicit(ident) => {
+                let func = Ident::new("value_parser", ident.span());
+                Method::new(func, quote!(clap::value_parser!(#inner_type)))
+            }
+        }
+    }
+
+    pub fn span(&self) -> Span {
+        match self {
+            Self::Explicit(method) => method.name.span(),
+            Self::Implicit(ident) => ident.span(),
+        }
     }
 }
 
