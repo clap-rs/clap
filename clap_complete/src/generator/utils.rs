@@ -128,7 +128,9 @@ pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
 
 /// Get the possible values for completion
 pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::PossibleValue<'help>>> {
-    if let Some(pvs) = a.get_possible_values() {
+    if !a.is_takes_value_set() {
+        None
+    } else if let Some(pvs) = a.get_possible_values() {
         // Check old first in case the user explicitly set possible values and the derive inferred
         // a `ValueParser` with some.
         Some(pvs.to_vec())
