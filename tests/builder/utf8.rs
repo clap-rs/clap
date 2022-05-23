@@ -1,6 +1,6 @@
 #![cfg(not(windows))]
 
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, value_parser, Arg, Command};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
@@ -77,6 +77,7 @@ fn invalid_utf8_strict_option_long_equals() {
 
 #[test]
 fn invalid_utf8_lossy_positional() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(Arg::new("arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
@@ -88,6 +89,7 @@ fn invalid_utf8_lossy_positional() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_space() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -109,6 +111,7 @@ fn invalid_utf8_lossy_option_short_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_equals() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -129,6 +132,7 @@ fn invalid_utf8_lossy_option_short_equals() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_no_space() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -149,6 +153,7 @@ fn invalid_utf8_lossy_option_short_no_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_long_space() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -170,6 +175,7 @@ fn invalid_utf8_lossy_option_long_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_long_equals() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -191,13 +197,13 @@ fn invalid_utf8_lossy_option_long_equals() {
 #[test]
 fn invalid_utf8_positional() {
     let r = Command::new("bad_utf8")
-        .arg(Arg::new("arg").allow_invalid_utf8(true))
+        .arg(Arg::new("arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -210,7 +216,7 @@ fn invalid_utf8_option_short_space() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -221,7 +227,7 @@ fn invalid_utf8_option_short_space() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -234,7 +240,7 @@ fn invalid_utf8_option_short_equals() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -244,7 +250,7 @@ fn invalid_utf8_option_short_equals() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -257,7 +263,7 @@ fn invalid_utf8_option_short_no_space() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -267,7 +273,7 @@ fn invalid_utf8_option_short_no_space() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -280,7 +286,7 @@ fn invalid_utf8_option_long_space() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -291,7 +297,7 @@ fn invalid_utf8_option_long_space() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -304,7 +310,7 @@ fn invalid_utf8_option_long_equals() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -314,7 +320,7 @@ fn invalid_utf8_option_long_equals() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -390,6 +396,7 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 
 #[test]
 fn allow_validated_utf8_value_of() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of("name");
@@ -398,6 +405,7 @@ fn allow_validated_utf8_value_of() {
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `name`"]
 fn panic_validated_utf8_value_of_os() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of_os("name");
@@ -406,6 +414,7 @@ fn panic_validated_utf8_value_of_os() {
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `value`"]
 fn panic_validated_utf8_with_defaults() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
     let m = a.try_get_matches_from(["test"]).unwrap();
     let _ = m.value_of("value");
@@ -414,6 +423,7 @@ fn panic_validated_utf8_with_defaults() {
 
 #[test]
 fn allow_invalid_utf8_value_of_os() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of_os("name");
@@ -422,6 +432,7 @@ fn allow_invalid_utf8_value_of_os() {
 #[test]
 #[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `name`"]
 fn panic_invalid_utf8_value_of() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of("name");
@@ -430,6 +441,7 @@ fn panic_invalid_utf8_value_of() {
 #[test]
 #[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `value`"]
 fn panic_invalid_utf8_with_defaults() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(
         arg!(--value <VALUE>)
             .required(false)

@@ -1990,39 +1990,14 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// The argument's values can be invalid UTF-8 and should *not* be treated as an error.
-    ///
-    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
-    /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
-    /// or [`ArgMatches::values_of_lossy`] for those particular arguments which may contain invalid
-    /// UTF-8 values.
-    ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```rust")]
-    /// # use clap::{Command, Arg};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-    /// let r = Command::new("myprog")
-    ///     .arg(Arg::new("arg").allow_invalid_utf8(true))
-    ///     .try_get_matches_from(vec![
-    ///         OsString::from("myprog"),
-    ///         OsString::from_vec(vec![0xe9])
-    ///     ]);
-    ///
-    /// assert!(r.is_ok());
-    /// let m = r.unwrap();
-    /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
-    /// ```
-    /// [`ArgMatches::value_of_os`]: crate::ArgMatches::value_of_os()
-    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
-    /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
-    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
+    /// Deprecated, replaced with [`Arg::value_parser(...)`] with either [`ValueParser::os_string()`][crate::builder::ValueParser::os_string]
+    /// or [`ValueParser::path_buf()`][crate::builder::ValueParser::path_buf]
     #[inline]
     #[must_use]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
+    )]
     pub fn allow_invalid_utf8(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::AllowInvalidUtf8)
@@ -4817,7 +4792,8 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::ForbidEmptyValues)
     }
 
-    /// Report whether [`Arg::is_allow_invalid_utf8_set`] is set
+    /// Deprecated, replaced with [`Arg::get_value_parser()`
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
     pub fn is_allow_invalid_utf8_set(&self) -> bool {
         self.is_set(ArgSettings::AllowInvalidUtf8)
     }

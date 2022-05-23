@@ -2138,14 +2138,14 @@ mod tests {
                 crate::Arg::new("POTATO")
                     .takes_value(true)
                     .multiple_values(true)
-                    .allow_invalid_utf8(true)
+                    .value_parser(crate::builder::ValueParser::os_string())
                     .required(true),
             )
             .try_get_matches_from(["test", "one"])
             .unwrap()
-            .values_of_os("POTATO")
+            .get_many::<std::ffi::OsString>("POTATO")
             .expect("present")
-            .len();
+            .count();
         assert_eq!(l, 1);
     }
 
