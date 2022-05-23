@@ -1,7 +1,8 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command, Command};
-use std::path::Path;
+use std::path::PathBuf;
+
+use clap::{arg, command, value_parser, Command};
 
 fn main() {
     let matches = command!()
@@ -12,8 +13,7 @@ fn main() {
             )
             // We don't have syntax yet for optional options, so manually calling `required`
             .required(false)
-            // Support non-UTF8 paths
-            .allow_invalid_utf8(true),
+            .value_parser(value_parser!(PathBuf)),
         )
         .arg(arg!(
             -d --debug ... "Turn debugging information on"
@@ -26,12 +26,17 @@ fn main() {
         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments
-    if let Some(name) = matches.value_of("name") {
+    if let Some(name) = matches
+        .get_one::<String>("name")
+        .expect("matches definition")
+    {
         println!("Value for name: {}", name);
     }
 
-    if let Some(raw_config) = matches.value_of_os("config") {
-        let config_path = Path::new(raw_config);
+    if let Some(config_path) = matches
+        .get_one::<PathBuf>("config")
+        .expect("matches definition")
+    {
         println!("Value for config: {}", config_path.display());
     }
 

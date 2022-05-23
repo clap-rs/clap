@@ -7,5 +7,10 @@ fn main() {
         .arg(arg!(-n --name <NAME>).required(false))
         .get_matches();
 
-    println!("name: {:?}", matches.value_of("name"));
+    println!(
+        "name: {:?}",
+        matches
+            .get_one::<String>("name")
+            .expect("matches definition")
+    );
 }

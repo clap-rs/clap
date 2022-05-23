@@ -444,7 +444,7 @@ For more information try --help
 
 ### Validated values
 
-More generally, you can parse into any data type.
+More generally, you can validate and parse into any data type.
 
 [Example:](04_02_parse.rs)
 ```console
@@ -471,9 +471,15 @@ error: Invalid value "foobar" for '<PORT>': invalid digit found in string
 
 For more information try --help
 
+$ 04_02_parse_derive 0
+? failed
+error: Invalid value "0" for '<PORT>': 0 is not in 1..=65535
+
+For more information try --help
+
 ```
 
-A custom validator can be used to improve the error messages or provide additional validation:
+A custom parser can be used to improve the error messages or provide additional validation:
 
 [Example:](04_02_validate.rs)
 ```console

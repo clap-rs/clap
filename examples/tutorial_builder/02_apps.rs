@@ -9,6 +9,18 @@ fn main() {
         .arg(arg!(--one <VALUE>))
         .get_matches();
 
-    println!("two: {:?}", matches.value_of("two").expect("required"));
-    println!("one: {:?}", matches.value_of("one").expect("required"));
+    println!(
+        "two: {:?}",
+        matches
+            .get_one::<String>("two")
+            .expect("matches definition")
+            .expect("required")
+    );
+    println!(
+        "one: {:?}",
+        matches
+            .get_one::<String>("one")
+            .expect("matches definition")
+            .expect("required")
+    );
 }

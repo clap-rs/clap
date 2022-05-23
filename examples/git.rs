@@ -1,5 +1,6 @@
 // Note: this requires the `cargo` feature
 
+use std::ffi::OsString;
 use std::path::PathBuf;
 
 use clap::{arg, Command};
@@ -27,7 +28,7 @@ fn cli() -> Command<'static> {
             Command::new("add")
                 .about("adds things")
                 .arg_required_else_help(true)
-                .arg(arg!(<PATH> ... "Stuff to add").allow_invalid_utf8(true)),
+                .arg(arg!(<PATH> ... "Stuff to add").value_parser(clap::value_parser!(PathBuf))),
         )
         .subcommand(
             Command::new("stash")
@@ -50,20 +51,27 @@ fn main() {
         Some(("clone", sub_matches)) => {
             println!(
                 "Cloning {}",
-                sub_matches.value_of("REMOTE").expect("required")
+                sub_matches
+                    .get_one::<String>("REMOTE")
+                    .expect("matches definition")
+                    .expect("required")
             );
         }
         Some(("push", sub_matches)) => {
             println!(
                 "Pushing to {}",
-                sub_matches.value_of("REMOTE").expect("required")
+                sub_matches
+                    .get_one::<String>("REMOTE")
+                    .expect("matches definition")
+                    .expect("required")
             );
         }
         Some(("add", sub_matches)) => {
             let paths = sub_matches
-                .values_of_os("PATH")
-                .unwrap_or_default()
-                .map(PathBuf::from)
+                .get_many::<PathBuf>("PATH")
+                .expect("matches definition")
+                .into_iter()
+                .flatten()
                 .collect::<Vec<_>>();
             println!("Adding {:?}", paths);
         }
@@ -71,15 +79,21 @@ fn main() {
             let stash_command = sub_matches.subcommand().unwrap_or(("push", sub_matches));
             match stash_command {
                 ("apply", sub_matches) => {
-                    let stash = sub_matches.value_of("STASH");
+                    let stash = sub_matches
+                        .get_one::<String>("STASH")
+                        .expect("matches definition");
                     println!("Applying {:?}", stash);
                 }
                 ("pop", sub_matches) => {
-                    let stash = sub_matches.value_of("STASH");
+                    let stash = sub_matches
+                        .get_one::<String>("STASH")
+                        .expect("matches definition");
                     println!("Popping {:?}", stash);
                 }
                 ("push", sub_matches) => {
-                    let message = sub_matches.value_of("message");
+                    let message = sub_matches
+                        .get_one::<String>("message")
+                        .expect("matches definition");
                     println!("Pushing {:?}", message);
                 }
                 (name, _) => {
@@ -89,8 +103,10 @@ fn main() {
         }
         Some((ext, sub_matches)) => {
             let args = sub_matches
-                .values_of_os("")
-                .unwrap_or_default()
+                .get_many::<OsString>("")
+                .expect("matches definition")
+                .into_iter()
+                .flatten()
                 .collect::<Vec<_>>();
             println!("Calling out to {:?} with {:?}", ext, args);
         }

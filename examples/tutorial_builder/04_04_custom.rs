@@ -1,6 +1,8 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command, ErrorKind};
+use std::path::PathBuf;
+
+use clap::{arg, command, value_parser, ErrorKind};
 
 fn main() {
     // Create application like normal
@@ -12,11 +14,19 @@ fn main() {
         .arg(arg!(--patch         "auto inc patch"))
         // Arguments can also be added to a group individually, these two arguments
         // are part of the "input" group which is not required
-        .arg(arg!([INPUT_FILE] "some regular input"))
-        .arg(arg!(--"spec-in" <SPEC_IN> "some special input argument").required(false))
+        .arg(arg!([INPUT_FILE] "some regular input").value_parser(value_parser!(PathBuf)))
+        .arg(
+            arg!(--"spec-in" <SPEC_IN> "some special input argument")
+                .required(false)
+                .value_parser(value_parser!(PathBuf)),
+        )
         // Now let's assume we have a -c [config] argument which requires one of
         // (but **not** both) the "input" arguments
-        .arg(arg!(config: -c <CONFIG>).required(false));
+        .arg(
+            arg!(config: -c <CONFIG>)
+                .required(false)
+                .value_parser(value_parser!(PathBuf)),
+        );
     let matches = cmd.get_matches_mut();
 
     // Let's assume the old version 1.2.3
@@ -25,7 +35,10 @@ fn main() {
     let mut patch = 3;
 
     // See if --set-ver was used to set the version manually
-    let version = if let Some(ver) = matches.value_of("set-ver") {
+    let version = if let Some(ver) = matches
+        .get_one::<String>("set-ver")
+        .expect("matches definition")
+    {
         if matches.is_present("major") || matches.is_present("minor") || matches.is_present("patch")
         {
             cmd.error(
@@ -62,19 +75,29 @@ fn main() {
     // Check for usage of -c
     if matches.is_present("config") {
         let input = matches
-            .value_of("INPUT_FILE")
-            .or_else(|| matches.value_of("spec-in"))
+            .get_one::<PathBuf>("INPUT_FILE")
+            .expect("matches definition")
+            .or_else(|| {
+                matches
+                    .get_one::<PathBuf>("spec-in")
+                    .expect("matches definition")
+            })
             .unwrap_or_else(|| {
                 cmd.error(
                     ErrorKind::MissingRequiredArgument,
                     "INPUT_FILE or --spec-in is required when using --config",
                 )
                 .exit()
-            });
+            })
+            .display();
         println!(
             "Doing work using input {} and config {}",
             input,
-            matches.value_of("config").unwrap()
+            matches
+                .get_one::<PathBuf>("config")
+                .expect("matches definition")
+                .unwrap()
+                .display()
         );
     }
 }

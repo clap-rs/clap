@@ -37,9 +37,9 @@ OPTIONS:
 Then to directly invoke the command, run:
 ```console
 $ cargo-example example
-None
+Ok(None)
 
 $ cargo-example example --manifest-path Cargo.toml
-Some("Cargo.toml")
+Ok(Some("Cargo.toml"))
 
 ```

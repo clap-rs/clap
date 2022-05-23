@@ -1,19 +1,20 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command};
+use clap::{arg, command, value_parser};
 
 fn main() {
     let matches = command!()
         .arg(
             arg!(<PORT>)
                 .help("Network port to use")
-                .validator(|s| s.parse::<usize>()),
+                .value_parser(value_parser!(u16).range(1..)),
         )
         .get_matches();
 
     // Note, it's safe to call unwrap() because the arg is required
-    let port: usize = matches
-        .value_of_t("PORT")
+    let port: u16 = *matches
+        .get_one::<u16>("PORT")
+        .expect("matches definition")
         .expect("'PORT' is required and parsing will fail if its missing");
     println!("PORT = {}", port);
 }
