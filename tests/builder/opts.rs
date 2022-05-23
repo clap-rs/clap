@@ -36,7 +36,7 @@ fn require_equals_fail() {
         .arg(
             Arg::new("cfg")
                 .require_equals(true)
-                .forbid_empty_values(true)
+                .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .takes_value(true)
                 .long("config"),
         )
@@ -103,7 +103,7 @@ fn require_equals_no_empty_values_fail() {
             Arg::new("cfg")
                 .takes_value(true)
                 .require_equals(true)
-                .forbid_empty_values(true)
+                .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .long("config"),
         )
         .arg(Arg::new("some"))

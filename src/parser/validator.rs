@@ -119,17 +119,20 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     ));
                 }
             }
-            if arg.is_forbid_empty_values_set() && val.is_empty() && matcher.contains(&arg.id) {
-                debug!("Validator::validate_arg_values: illegal empty val found");
-                return Err(Error::empty_value(
-                    self.cmd,
-                    &get_possible_values(arg)
-                        .iter()
-                        .filter(|pv| !pv.is_hide_set())
-                        .map(PossibleValue::get_name)
-                        .collect::<Vec<_>>(),
-                    arg.to_string(),
-                ));
+            {
+                #![allow(deprecated)]
+                if arg.is_forbid_empty_values_set() && val.is_empty() && matcher.contains(&arg.id) {
+                    debug!("Validator::validate_arg_values: illegal empty val found");
+                    return Err(Error::empty_value(
+                        self.cmd,
+                        &get_possible_values(arg)
+                            .iter()
+                            .filter(|pv| !pv.is_hide_set())
+                            .map(PossibleValue::get_name)
+                            .collect::<Vec<_>>(),
+                        arg.to_string(),
+                    ));
+                }
             }
 
             if let Some(ref vtor) = arg.validator {

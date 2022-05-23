@@ -1945,53 +1945,13 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Don't allow an argument to accept explicitly empty values.
-    ///
-    /// An empty value must be specified at the command line with an explicit `""`, `''`, or
-    /// `--option=`
-    ///
-    /// **NOTE:** By default empty values are allowed.
-    ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`].
-    ///
-    /// # Examples
-    ///
-    /// The default is allowing empty values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .takes_value(true))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("cfg"), Some(""));
-    /// ```
-    ///
-    /// By adding this setting, we can forbid empty values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .takes_value(true)
-    ///         .forbid_empty_values(true))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
-    /// ```
+    /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
     #[inline]
     #[must_use]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
+    )]
     pub fn forbid_empty_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::ForbidEmptyValues)
@@ -4726,7 +4686,8 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::AllowHyphenValues)
     }
 
-    /// Report whether [`Arg::forbid_empty_values`] is set
+    /// Deprecated, replaced with [`Arg::get_value_parser()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
     pub fn is_forbid_empty_values_set(&self) -> bool {
         self.is_set(ArgSettings::ForbidEmptyValues)
     }

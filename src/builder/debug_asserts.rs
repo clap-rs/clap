@@ -722,7 +722,6 @@ fn assert_arg_flags(arg: &Arg) {
         }
     }
 
-    checker!(is_forbid_empty_values_set requires is_takes_value_set);
     checker!(is_require_value_delimiter_set requires is_takes_value_set);
     checker!(is_require_value_delimiter_set requires is_use_value_delimiter_set);
     checker!(is_hide_possible_values_set requires is_takes_value_set);
@@ -734,6 +733,7 @@ fn assert_arg_flags(arg: &Arg) {
     checker!(is_ignore_case_set requires is_takes_value_set);
     {
         #![allow(deprecated)]
+        checker!(is_forbid_empty_values_set requires is_takes_value_set);
         checker!(is_allow_invalid_utf8_set requires is_takes_value_set);
     }
 }

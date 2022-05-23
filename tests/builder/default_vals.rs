@@ -23,7 +23,7 @@ fn opt_without_value_fail() {
             arg!(o: -o <opt> "some opt")
                 .required(false)
                 .default_value("default")
-                .forbid_empty_values(true),
+                .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(vec!["", "-o"]);
     assert!(r.is_err());
