@@ -453,6 +453,12 @@ error: Invalid value "foobar" for '<PORT>': invalid digit found in string
 
 For more information try --help
 
+$ 04_02_parse_derive 0
+? failed
+error: Invalid value "0" for '<PORT>': 0 is not in 1..=65535
+
+For more information try --help
+
 ```
 
 A custom parser can be used to improve the error messages or provide additional validation:

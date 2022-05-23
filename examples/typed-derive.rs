@@ -6,23 +6,23 @@ use std::error::Error;
 #[derive(Parser, Debug)]
 struct Args {
     /// Implicitly using `std::str::FromStr`
-    #[clap(short = 'O')]
+    #[clap(short = 'O', value_parser)]
     optimization: Option<usize>,
 
     /// Allow invalid UTF-8 paths
-    #[clap(short = 'I', parse(from_os_str), value_name = "DIR", value_hint = clap::ValueHint::DirPath)]
+    #[clap(short = 'I', value_parser, value_name = "DIR", value_hint = clap::ValueHint::DirPath)]
     include: Option<std::path::PathBuf>,
 
     /// Handle IP addresses
-    #[clap(long)]
+    #[clap(long, value_parser)]
     bind: Option<std::net::IpAddr>,
 
     /// Allow human-readable durations
-    #[clap(long)]
+    #[clap(long, value_parser)]
     sleep: Option<humantime::Duration>,
 
     /// Hand-written parser for tuples
-    #[clap(short = 'D', parse(try_from_str = parse_key_val), multiple_occurrences(true))]
+    #[clap(short = 'D', value_parser = parse_key_val::<String, i32>, multiple_occurrences(true))]
     defines: Vec<(String, i32)>,
 }
 

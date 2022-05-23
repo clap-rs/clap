@@ -7,11 +7,11 @@ use clap::Parser;
 #[clap(author, version, about, long_about = None)]
 struct Args {
     /// Name of the person to greet
-    #[clap(short, long)]
+    #[clap(short, long, value_parser)]
     name: String,
 
     /// Number of times to greet
-    #[clap(short, long, default_value_t = 1)]
+    #[clap(short, long, value_parser, default_value_t = 1)]
     count: u8,
 }
 

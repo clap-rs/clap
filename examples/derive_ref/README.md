@@ -173,6 +173,8 @@ These correspond to a `clap::Arg`.
 **Magic attributes**:
 - `name = <expr>`: `clap::Arg::new`
   - When not present: case-converted field name is used
+- `value_parser [= <expr>]`: `clap::Arg::value_parser`
+  - When not present: will auto-select an implementation based on the field type
 - `help = <expr>`: `clap::Arg::help`
   - When not present: [Doc comment summary](#doc-comments)
 - `long_help = <expr>`: `clap::Arg::long_help`
@@ -198,6 +200,7 @@ These correspond to a `clap::Arg`.
   - When `Option<T>`, the subcommand becomes optional
 - `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in
 - `parse(<kind> [= <function>])`: `clap::Arg::validator` and `clap::ArgMatches::values_of_t`
+  - **Deprecated:** except for `from_flag` or `from_occurrences`, instead use `value_parser`
   - Default: `try_from_str`
   - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
   - See [Arg Types](#arg-types) for more details

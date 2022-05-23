@@ -6,9 +6,9 @@ use clap::{AppSettings, Parser};
 #[clap(allow_negative_numbers = true)]
 #[clap(global_setting(AppSettings::DeriveDisplayOrder))]
 struct Cli {
-    #[clap(long)]
+    #[clap(long, value_parser)]
     two: String,
-    #[clap(long)]
+    #[clap(long, value_parser)]
     one: String,
 }
 

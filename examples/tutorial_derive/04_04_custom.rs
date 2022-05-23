@@ -4,7 +4,7 @@ use clap::{CommandFactory, ErrorKind, Parser};
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// set version manually
-    #[clap(long, value_name = "VER")]
+    #[clap(long, value_name = "VER", value_parser)]
     set_ver: Option<String>,
 
     /// auto inc major
@@ -20,13 +20,14 @@ struct Cli {
     patch: bool,
 
     /// some regular input
+    #[clap(value_parser)]
     input_file: Option<String>,
 
     /// some special input argument
-    #[clap(long)]
+    #[clap(long, value_parser)]
     spec_in: Option<String>,
 
-    #[clap(short)]
+    #[clap(short, value_parser)]
     config: Option<String>,
 }
 

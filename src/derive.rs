@@ -79,9 +79,9 @@ use std::ffi::OsString;
 pub trait Parser: FromArgMatches + CommandFactory + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
-        let matches = <Self as CommandFactory>::command().get_matches();
-        let res =
-            <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>);
+        let mut matches = <Self as CommandFactory>::command().get_matches();
+        let res = <Self as FromArgMatches>::from_arg_matches_mut(&mut matches)
+            .map_err(format_error::<Self>);
         match res {
             Ok(s) => s,
             Err(e) => {
@@ -94,8 +94,8 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
 
     /// Parse from `std::env::args_os()`, return Err on error.
     fn try_parse() -> Result<Self, Error> {
-        let matches = <Self as CommandFactory>::command().try_get_matches()?;
-        <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>)
+        let mut matches = <Self as CommandFactory>::command().try_get_matches()?;
+        <Self as FromArgMatches>::from_arg_matches_mut(&mut matches).map_err(format_error::<Self>)
     }
 
     /// Parse from iterator, exit on error
@@ -104,9 +104,9 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as CommandFactory>::command().get_matches_from(itr);
-        let res =
-            <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>);
+        let mut matches = <Self as CommandFactory>::command().get_matches_from(itr);
+        let res = <Self as FromArgMatches>::from_arg_matches_mut(&mut matches)
+            .map_err(format_error::<Self>);
         match res {
             Ok(s) => s,
             Err(e) => {
@@ -123,8 +123,8 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as CommandFactory>::command().try_get_matches_from(itr)?;
-        <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>)
+        let mut matches = <Self as CommandFactory>::command().try_get_matches_from(itr)?;
+        <Self as FromArgMatches>::from_arg_matches_mut(&mut matches).map_err(format_error::<Self>)
     }
 
     /// Update from iterator, exit on error
@@ -133,8 +133,8 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as CommandFactory>::command_for_update().get_matches_from(itr);
-        let res = <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
+        let mut matches = <Self as CommandFactory>::command_for_update().get_matches_from(itr);
+        let res = <Self as FromArgMatches>::update_from_arg_matches_mut(self, &mut matches)
             .map_err(format_error::<Self>);
         if let Err(e) = res {
             // Since this is more of a development-time error, we aren't doing as fancy of a quit
@@ -149,8 +149,9 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let matches = <Self as CommandFactory>::command_for_update().try_get_matches_from(itr)?;
-        <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
+        let mut matches =
+            <Self as CommandFactory>::command_for_update().try_get_matches_from(itr)?;
+        <Self as FromArgMatches>::update_from_arg_matches_mut(self, &mut matches)
             .map_err(format_error::<Self>)
     }
 
@@ -165,11 +166,11 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         <Self as CommandFactory>::command()
     }
 
-    /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches`] (derive as part of
+    /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches_mut`] (derive as part of
     /// [`Parser`])
     #[deprecated(
         since = "3.0.0",
-        note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches` (derived as part of `Parser`)"
+        note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches_mut` (derived as part of `Parser`)"
     )]
     #[doc(hidden)]
     fn from_clap(matches: &ArgMatches) -> Self {
@@ -232,7 +233,7 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
 pub trait CommandFactory: Sized {
     /// Build a [`Command`] that can instantiate `Self`.
     ///
-    /// See [`FromArgMatches::from_arg_matches`] for instantiating `Self`.
+    /// See [`FromArgMatches::from_arg_matches_mut`] for instantiating `Self`.
     fn command<'help>() -> Command<'help> {
         #[allow(deprecated)]
         Self::into_app()
@@ -242,7 +243,7 @@ pub trait CommandFactory: Sized {
     fn into_app<'help>() -> Command<'help>;
     /// Build a [`Command`] that can update `self`.
     ///
-    /// See [`FromArgMatches::update_from_arg_matches`] for updating `self`.
+    /// See [`FromArgMatches::update_from_arg_matches_mut`] for updating `self`.
     fn command_for_update<'help>() -> Command<'help> {
         #[allow(deprecated)]
         Self::into_app_for_update()
@@ -293,8 +294,49 @@ pub trait FromArgMatches: Sized {
     /// ```
     fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error>;
 
+    /// Instantiate `Self` from [`ArgMatches`], parsing the arguments as needed.
+    ///
+    /// Motivation: If our application had two CLI options, `--name
+    /// <STRING>` and the flag `--debug`, we may create a struct as follows:
+    ///
+    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+    #[cfg_attr(feature = "derive", doc = " ```no_run")]
+    /// struct Context {
+    ///     name: String,
+    ///     debug: bool
+    /// }
+    /// ```
+    ///
+    /// We then need to convert the `ArgMatches` that `clap` generated into our struct.
+    /// `from_arg_matches_mut` serves as the equivalent of:
+    ///
+    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+    #[cfg_attr(feature = "derive", doc = " ```no_run")]
+    /// # use clap::ArgMatches;
+    /// # struct Context {
+    /// #   name: String,
+    /// #   debug: bool
+    /// # }
+    /// impl From<ArgMatches> for Context {
+    ///    fn from(m: ArgMatches) -> Self {
+    ///        Context {
+    ///            name: m.value_of("name").unwrap().to_string(),
+    ///            debug: m.is_present("debug"),
+    ///        }
+    ///    }
+    /// }
+    /// ```
+    fn from_arg_matches_mut(matches: &mut ArgMatches) -> Result<Self, Error> {
+        Self::from_arg_matches(matches)
+    }
+
     /// Assign values from `ArgMatches` to `self`.
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error>;
+
+    /// Assign values from `ArgMatches` to `self`.
+    fn update_from_arg_matches_mut(&mut self, matches: &mut ArgMatches) -> Result<(), Error> {
+        self.update_from_arg_matches(matches)
+    }
 }
 
 /// Parse a set of arguments into a user-defined container.
@@ -480,8 +522,14 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
     fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error> {
         <T as FromArgMatches>::from_arg_matches(matches).map(Box::new)
     }
+    fn from_arg_matches_mut(matches: &mut ArgMatches) -> Result<Self, Error> {
+        <T as FromArgMatches>::from_arg_matches_mut(matches).map(Box::new)
+    }
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
         <T as FromArgMatches>::update_from_arg_matches(self, matches)
+    }
+    fn update_from_arg_matches_mut(&mut self, matches: &mut ArgMatches) -> Result<(), Error> {
+        <T as FromArgMatches>::update_from_arg_matches_mut(self, matches)
     }
 }
 

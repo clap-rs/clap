@@ -42,6 +42,7 @@ pub struct Attrs {
     ty: Option<Type>,
     doc_comment: Vec<Method>,
     methods: Vec<Method>,
+    value_parser: Option<ValueParser>,
     parser: Sp<Parser>,
     verbatim_doc_comment: Option<Ident>,
     next_display_order: Option<Method>,
@@ -64,6 +65,12 @@ impl Attrs {
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
+        if let Some(parser) = res.value_parser.as_ref() {
+            abort!(
+                parser.span(),
+                "`value_parse` attribute is only allowed on fields"
+            );
+        }
         if res.has_custom_parser {
             abort!(
                 res.parser.span(),
@@ -101,6 +108,12 @@ impl Attrs {
 
         match &*res.kind {
             Kind::Flatten => {
+                if let Some(parser) = res.value_parser.as_ref() {
+                    abort!(
+                        parser.span(),
+                        "`value_parse` attribute is only allowed flattened entry"
+                    );
+                }
                 if res.has_custom_parser {
                     abort!(
                         res.parser.span(),
@@ -121,6 +134,12 @@ impl Attrs {
             Kind::ExternalSubcommand => (),
 
             Kind::Subcommand(_) => {
+                if let Some(parser) = res.value_parser.as_ref() {
+                    abort!(
+                        parser.span(),
+                        "`value_parse` attribute is only allowed for subcommand"
+                    );
+                }
                 if res.has_custom_parser {
                     abort!(
                         res.parser.span(),
@@ -189,6 +208,12 @@ impl Attrs {
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "help");
 
+        if let Some(parser) = res.value_parser.as_ref() {
+            abort!(
+                parser.span(),
+                "`value_parse` attribute is only allowed on fields"
+            );
+        }
         if res.has_custom_parser {
             abort!(
                 res.parser.span(),
@@ -226,6 +251,12 @@ impl Attrs {
 
         match &*res.kind {
             Kind::Flatten => {
+                if let Some(parser) = res.value_parser.as_ref() {
+                    abort!(
+                        parser.span(),
+                        "`value_parse` attribute is not allowed for flattened entry"
+                    );
+                }
                 if res.has_custom_parser {
                     abort!(
                         res.parser.span(),
@@ -250,6 +281,12 @@ impl Attrs {
             }
 
             Kind::Subcommand(_) => {
+                if let Some(parser) = res.value_parser.as_ref() {
+                    abort!(
+                        parser.span(),
+                        "`value_parse` attribute is not allowed for subcommand"
+                    );
+                }
                 if res.has_custom_parser {
                     abort!(
                         res.parser.span(),
@@ -297,6 +334,12 @@ impl Attrs {
             Kind::Arg(orig_ty) => {
                 let mut ty = Ty::from_syn_ty(&field.ty);
                 if res.has_custom_parser {
+                    if let Some(parser) = res.value_parser.as_ref() {
+                        abort!(
+                            parser.span(),
+                            "`value_parse` attribute conflicts with `parse` attribute"
+                        );
+                    }
                     match *ty {
                         Ty::Option | Ty::Vec | Ty::OptionVec => (),
                         _ => ty = Sp::new(Ty::Other, ty.span()),
@@ -369,6 +412,7 @@ impl Attrs {
             env_casing,
             doc_comment: vec![],
             methods: vec![],
+            value_parser: None,
             parser: Parser::default_spanned(default_span),
             verbatim_doc_comment: None,
             next_display_order: None,
@@ -383,6 +427,8 @@ impl Attrs {
     fn push_method(&mut self, name: Ident, arg: impl ToTokens) {
         if name == "name" {
             self.name = Name::Assigned(quote!(#arg));
+        } else if name == "value_parser" {
+            self.value_parser = Some(ValueParser::Explicit(Method::new(name, quote!(#arg))));
         } else {
             self.methods.push(Method::new(name, quote!(#arg)));
         }
@@ -401,6 +447,11 @@ impl Attrs {
 
                 Long(ident) => {
                     self.push_method(ident, self.name.clone().translate(*self.casing));
+                }
+
+                ValueParser(ident) => {
+                    use crate::attrs::ValueParser;
+                    self.value_parser = Some(ValueParser::Implicit(ident));
                 }
 
                 Env(ident) => {
@@ -689,6 +740,16 @@ impl Attrs {
         self.name.clone().translate(CasingStyle::ScreamingSnake)
     }
 
+    pub fn value_parser(&self) -> ValueParser {
+        self.value_parser
+            .clone()
+            .unwrap_or_else(|| ValueParser::Explicit(self.parser.value_parser()))
+    }
+
+    pub fn custom_value_parser(&self) -> bool {
+        self.value_parser.is_some()
+    }
+
     pub fn parser(&self) -> &Sp<Parser> {
         &self.parser
     }
@@ -729,6 +790,31 @@ impl Attrs {
         self.methods
             .iter()
             .any(|m| m.name != "help" && m.name != "long_help")
+    }
+}
+
+#[derive(Clone)]
+pub enum ValueParser {
+    Explicit(Method),
+    Implicit(Ident),
+}
+
+impl ValueParser {
+    pub fn resolve(self, inner_type: &Type) -> Method {
+        match self {
+            Self::Explicit(method) => method,
+            Self::Implicit(ident) => {
+                let func = Ident::new("value_parser", ident.span());
+                Method::new(func, quote!(clap::value_parser!(#inner_type)))
+            }
+        }
+    }
+
+    pub fn span(&self) -> Span {
+        match self {
+            Self::Explicit(method) => method.name.span(),
+            Self::Implicit(ident) => ident.span(),
+        }
     }
 }
 
@@ -865,9 +951,23 @@ impl Parser {
         let parser = Parser { kind, func };
         Sp::new(parser, parse_ident.span())
     }
+
+    fn value_parser(&self) -> Method {
+        let func = Ident::new("value_parser", self.kind.span());
+        match *self.kind {
+            ParserKind::FromStr | ParserKind::TryFromStr => {
+                Method::new(func, quote!(clap::builder::ValueParser::string()))
+            }
+            ParserKind::FromOsStr | ParserKind::TryFromOsStr => {
+                Method::new(func, quote!(clap::builder::ValueParser::os_string()))
+            }
+            ParserKind::FromOccurrences => Method::new(func, quote!(clap::value_parser!(usize))),
+            ParserKind::FromFlag => Method::new(func, quote!(clap::ValueParser::bool())),
+        }
+    }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum ParserKind {
     FromStr,
     TryFromStr,
