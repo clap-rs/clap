@@ -810,5 +810,28 @@ fn assert_defaults<'d>(
                 );
             }
         }
+
+        let value_parser = arg.get_value_parser();
+        let assert_cmd = Command::new("assert");
+        if let Some(delim) = arg.get_value_delimiter() {
+            let default_os = RawOsStr::new(default_os);
+            for part in default_os.split(delim) {
+                if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), &part.to_os_str())
+                {
+                    panic!(
+                        "Argument `{}`'s {}={:?} failed validation: {}",
+                        arg.name,
+                        field,
+                        part.to_str_lossy(),
+                        err
+                    );
+                }
+            }
+        } else if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), default_os) {
+            panic!(
+                "Argument `{}`'s {}={:?} failed validation: {}",
+                arg.name, field, default_os, err
+            );
+        }
     }
 }

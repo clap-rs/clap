@@ -287,7 +287,7 @@ fn not_possible_value() {
 }
 
 #[test]
-fn validator() {
+fn value_parser() {
     env::set_var("CLP_TEST_ENV_VDOR", "env");
 
     let r = Command::new("df")
@@ -295,11 +295,11 @@ fn validator() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VDOR")
                 .takes_value(true)
-                .validator(|s| {
+                .value_parser(|s: &str| -> Result<String, String> {
                     if s == "env" {
-                        Ok(())
+                        Ok(s.to_owned())
                     } else {
-                        Err("not equal".to_string())
+                        Err("not equal".to_owned())
                     }
                 }),
         )
@@ -313,7 +313,7 @@ fn validator() {
 }
 
 #[test]
-fn validator_output() {
+fn value_parser_output() {
     env::set_var("CLP_TEST_ENV_VO", "42");
 
     let m = Command::new("df")
@@ -321,16 +321,16 @@ fn validator_output() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VO")
                 .takes_value(true)
-                .validator(|s| s.parse::<i32>()),
+                .value_parser(clap::value_parser!(i32)),
         )
         .try_get_matches_from(vec![""])
         .unwrap();
 
-    assert_eq!(m.value_of("arg").unwrap().parse(), Ok(42));
+    assert_eq!(*m.get_one::<i32>("arg").unwrap(), 42);
 }
 
 #[test]
-fn validator_invalid() {
+fn value_parser_invalid() {
     env::set_var("CLP_TEST_ENV_IV", "env");
 
     let r = Command::new("df")
@@ -338,9 +338,9 @@ fn validator_invalid() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_IV")
                 .takes_value(true)
-                .validator(|s| {
+                .value_parser(|s: &str| -> Result<String, String> {
                     if s != "env" {
-                        Ok(())
+                        Ok(s.to_owned())
                     } else {
                         Err("is equal".to_string())
                     }

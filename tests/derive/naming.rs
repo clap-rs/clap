@@ -241,7 +241,10 @@ fn test_upper_is_renamed() {
 fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
     #[derive(Parser, Debug, PartialEq)]
     enum Opt {
-        Command { foo: u32 },
+        Command {
+            #[clap(value_parser)]
+            foo: u32,
+        },
     }
 
     assert_eq!(
@@ -254,7 +257,10 @@ fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
 fn test_multi_word_enum_variant_is_renamed() {
     #[derive(Parser, Debug, PartialEq)]
     enum Opt {
-        FirstCommand { foo: u32 },
+        FirstCommand {
+            #[clap(value_parser)]
+            foo: u32,
+        },
     }
 
     assert_eq!(
@@ -295,7 +301,7 @@ fn test_rename_all_is_propagated_from_enum_to_variants() {
     enum Opt {
         FirstVariant,
         SecondVariant {
-            #[clap(long)]
+            #[clap(long, value_parser)]
             foo: String,
         },
     }
@@ -313,7 +319,7 @@ fn test_rename_all_is_propagated_from_enum_to_variant_fields() {
     enum Opt {
         FirstVariant,
         SecondVariant {
-            #[clap(long)]
+            #[clap(long, value_parser)]
             foo: String,
         },
     }

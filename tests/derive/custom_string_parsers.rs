@@ -12,27 +12,29 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+#![allow(deprecated)]
+
 use clap::Parser;
 
-use std::ffi::{CString, OsStr};
+use std::ffi::CString;
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
 #[derive(Parser, PartialEq, Debug)]
 struct PathOpt {
-    #[clap(short, long, parse(from_os_str))]
+    #[clap(short, long, value_parser)]
     path: PathBuf,
 
-    #[clap(short, default_value = "../", parse(from_os_str))]
+    #[clap(short, default_value = "../", value_parser)]
     default_path: PathBuf,
 
-    #[clap(short, parse(from_os_str), multiple_occurrences(true))]
+    #[clap(short, value_parser, multiple_occurrences(true))]
     vector_path: Vec<PathBuf>,
 
-    #[clap(short, parse(from_os_str))]
+    #[clap(short, value_parser)]
     option_path_1: Option<PathBuf>,
 
-    #[clap(short = 'q', parse(from_os_str))]
+    #[clap(short = 'q', value_parser)]
     option_path_2: Option<PathBuf>,
 }
 
@@ -64,7 +66,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
 
 #[derive(Parser, PartialEq, Debug)]
 struct HexOpt {
-    #[clap(short, parse(try_from_str = parse_hex))]
+    #[clap(short, value_parser = parse_hex)]
     number: u64,
 }
 
@@ -89,9 +91,6 @@ fn test_parse_hex() {
     );
 }
 
-fn custom_parser_1(_: &str) -> &'static str {
-    "A"
-}
 #[derive(Debug)]
 struct ErrCode(u32);
 impl std::error::Error for ErrCode {}
@@ -103,59 +102,28 @@ impl std::fmt::Display for ErrCode {
 fn custom_parser_2(_: &str) -> Result<&'static str, ErrCode> {
     Ok("B")
 }
-fn custom_parser_3(_: &OsStr) -> &'static str {
-    "C"
-}
-fn custom_parser_4(_: &OsStr) -> Result<&'static str, String> {
-    Ok("D")
-}
 
 #[derive(Parser, PartialEq, Debug)]
 struct NoOpOpt {
-    #[clap(short, parse(from_str = custom_parser_1))]
-    a: &'static str,
-    #[clap(short, parse(try_from_str = custom_parser_2))]
+    #[clap(short, value_parser = custom_parser_2)]
     b: &'static str,
-    #[clap(short, parse(from_os_str = custom_parser_3))]
-    c: &'static str,
-    #[clap(short, parse(try_from_os_str = custom_parser_4))]
-    d: &'static str,
 }
 
 #[test]
 fn test_every_custom_parser() {
     assert_eq!(
-        NoOpOpt {
-            a: "A",
-            b: "B",
-            c: "C",
-            d: "D"
-        },
-        NoOpOpt::try_parse_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"]).unwrap()
+        NoOpOpt { b: "B" },
+        NoOpOpt::try_parse_from(&["test", "-b=?"]).unwrap()
     );
 }
 
 #[test]
 fn update_every_custom_parser() {
-    let mut opt = NoOpOpt {
-        a: "0",
-        b: "0",
-        c: "0",
-        d: "D",
-    };
+    let mut opt = NoOpOpt { b: "0" };
 
-    opt.try_update_from(&["test", "-a=?", "-b=?", "-d=?"])
-        .unwrap();
+    opt.try_update_from(&["test", "-b=?"]).unwrap();
 
-    assert_eq!(
-        NoOpOpt {
-            a: "A",
-            b: "B",
-            c: "0",
-            d: "D"
-        },
-        opt
-    );
+    assert_eq!(NoOpOpt { b: "B" }, opt);
 }
 
 // Note: can't use `Vec<u8>` directly, as clap would instead look for
@@ -167,10 +135,10 @@ struct DefaultedOpt {
     #[clap(short, parse(from_str))]
     bytes: Bytes,
 
-    #[clap(short, parse(try_from_str))]
+    #[clap(short, value_parser)]
     integer: u64,
 
-    #[clap(short, parse(from_os_str))]
+    #[clap(short, value_parser)]
     path: PathBuf,
 }
 

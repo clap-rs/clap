@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 /// Regression test to ensure that type aliases do not cause compilation failures.
 use std::str::FromStr;
 
@@ -23,10 +25,11 @@ type Option<T> = std::option::Option<Wrapper<T>>;
 
 #[derive(Parser)]
 pub struct Opts {
+    #[clap(value_parser)]
     another_string: String,
     #[clap(subcommand)]
     command: Command,
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long, arg_enum, value_parser)]
     choice: ArgChoice,
 }
 

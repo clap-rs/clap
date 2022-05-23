@@ -6,12 +6,13 @@ use std::os::unix::ffi::OsStringExt;
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct Positional {
+    #[clap(value_parser)]
     arg: String,
 }
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct Named {
-    #[clap(short, long)]
+    #[clap(short, long, value_parser)]
     arg: String,
 }
 

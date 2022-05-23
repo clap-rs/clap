@@ -1557,43 +1557,10 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Perform a custom validation on the argument value.
-    ///
-    /// You provide a closure
-    /// which accepts a [`&str`] value, and return a [`Result`] where the [`Err(String)`] is a
-    /// message displayed to the user.
-    ///
-    /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
-    /// message as all errors will appear as
-    /// `error: Invalid value for '<arg>': <YOUR MESSAGE>` where `<arg>` is replaced by the actual
-    /// arg, and `<YOUR MESSAGE>` is the `String` you return as the error.
-    ///
-    /// **NOTE:** There is a small performance hit for using validators, as they are implemented
-    /// with [`Arc`] pointers. And the value to be checked will be allocated an extra time in order
-    /// to be passed to the closure. This performance hit is extremely minimal in the grand
-    /// scheme of things.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// fn has_at(v: &str) -> Result<(), String> {
-    ///     if v.contains("@") { return Ok(()); }
-    ///     Err(String::from("The value did not contain the required @ sigil"))
-    /// }
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .validator(has_at))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "some@file"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("file"), Some("some@file"));
-    /// ```
-    /// [`Result`]: std::result::Result
-    /// [`Err(String)`]: std::result::Result::Err
-    /// [`Arc`]: std::sync::Arc
+    /// Deprecated, replaced with [`Arg::value_parser(...)`]
+    #[inline]
     #[must_use]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")]
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&str) -> Result<O, E> + Send + 'help,
@@ -1605,37 +1572,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Perform a custom validation on the argument value.
-    ///
-    /// See [validator][Arg::validator].
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```rust")]
-    /// # use clap::{Command, Arg};
-    /// # use std::ffi::{OsStr, OsString};
-    /// # use std::os::unix::ffi::OsStrExt;
-    /// fn has_ampersand(v: &OsStr) -> Result<(), String> {
-    ///     if v.as_bytes().iter().any(|b| *b == b'&') { return Ok(()); }
-    ///     Err(String::from("The value did not contain the required & sigil"))
-    /// }
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .validator_os(has_ampersand))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "Fish & chips"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("file"), Some("Fish & chips"));
-    /// ```
-    /// [`String`]: std::string::String
-    /// [`OsStr`]: std::ffi::OsStr
-    /// [`OsString`]: std::ffi::OsString
-    /// [`Result`]: std::result::Result
-    /// [`Err(String)`]: std::result::Result::Err
-    /// [`Rc`]: std::rc::Rc
+    /// Deprecated, replaced with [`Arg::value_parser(...)`]
     #[must_use]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")]
     pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,

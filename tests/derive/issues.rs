@@ -89,6 +89,7 @@ fn issue_418() {
         #[clap(visible_alias = "ret")]
         Reticulate {
             /// How many splines
+            #[clap(value_parser)]
             num_splines: u8,
         },
         /// Frobnicate the rest
@@ -121,8 +122,9 @@ fn issue_490() {
 
     #[derive(Parser, Debug)]
     struct Opt {
+        #[clap(value_parser)]
         opt_vec: Vec<u16>,
-        #[clap(long)]
+        #[clap(long, value_parser)]
         opt_opt_vec: Option<Vec<u16>>,
     }
 

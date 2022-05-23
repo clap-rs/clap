@@ -25,6 +25,7 @@ enum Opt {
         #[clap(short, long)]
         /// Overwrite local branches.
         force: bool,
+        #[clap(value_parser)]
         repo: String,
     },
 
@@ -88,7 +89,10 @@ fn test_no_parse() {
 
 #[derive(Parser, PartialEq, Debug)]
 enum Opt2 {
-    DoSomething { arg: String },
+    DoSomething {
+        #[clap(value_parser)]
+        arg: String,
+    },
 }
 
 #[test]
@@ -123,11 +127,13 @@ fn test_null_commands() {
 #[derive(Parser, PartialEq, Debug)]
 #[clap(about = "Not shown")]
 struct Add {
+    #[clap(value_parser)]
     file: String,
 }
 /// Not shown
 #[derive(Parser, PartialEq, Debug)]
 struct Fetch {
+    #[clap(value_parser)]
     remote: String,
 }
 #[derive(Parser, PartialEq, Debug)]
@@ -337,12 +343,15 @@ fn update_subcommands() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Command1 {
+        #[clap(value_parser)]
         arg1: i32,
+        #[clap(value_parser)]
         arg2: i32,
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Command2 {
+        #[clap(value_parser)]
         arg2: i32,
     }
 
@@ -396,12 +405,15 @@ fn update_sub_subcommands() {
 
     #[derive(Args, PartialEq, Debug)]
     struct Command1 {
+        #[clap(value_parser)]
         arg1: i32,
+        #[clap(value_parser)]
         arg2: i32,
     }
 
     #[derive(Args, PartialEq, Debug)]
     struct Command2 {
+        #[clap(value_parser)]
         arg2: i32,
     }
 
@@ -454,12 +466,15 @@ fn update_ext_subcommand() {
 
     #[derive(Args, PartialEq, Debug)]
     struct Command1 {
+        #[clap(value_parser)]
         arg1: i32,
+        #[clap(value_parser)]
         arg2: i32,
     }
 
     #[derive(Args, PartialEq, Debug)]
     struct Command2 {
+        #[clap(value_parser)]
         arg2: i32,
     }
 
@@ -554,6 +569,7 @@ fn built_in_subcommand_escaped() {
     #[derive(Debug, PartialEq, Parser)]
     enum Command {
         Install {
+            #[clap(value_parser)]
             arg: Option<String>,
         },
         #[clap(external_subcommand)]
@@ -582,6 +598,7 @@ fn built_in_subcommand_escaped() {
     #[derive(Debug, PartialEq, Parser)]
     enum Command {
         Install {
+            #[clap(value_parser)]
             arg: Option<String>,
         },
         #[clap(external_subcommand)]

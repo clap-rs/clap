@@ -173,14 +173,14 @@ fn default_missing_values_are_possible_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_missing_value=value failed validation: invalid digit found in string"]
+#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: Invalid value \"value\" for '<arg>"]
 fn default_missing_values_are_valid() {
     use clap::{Arg, Command};
 
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
-                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .value_parser(clap::value_parser!(u32))
                 .default_missing_value("value"),
         )
         .try_get_matches();

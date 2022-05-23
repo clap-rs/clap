@@ -4,11 +4,11 @@ use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
 fn arg_help_heading_applied() {
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
-        #[clap(long)]
+        #[clap(long, value_parser)]
         #[clap(help_heading = Some("HEADING A"))]
         should_be_in_section_a: u32,
 
-        #[clap(long)]
+        #[clap(long, value_parser)]
         no_section: u32,
     }
 
@@ -42,11 +42,11 @@ fn app_help_heading_applied() {
     #[derive(Debug, Clone, Parser)]
     #[clap(next_help_heading = "DEFAULT")]
     struct CliOptions {
-        #[clap(long)]
+        #[clap(long, value_parser)]
         #[clap(help_heading = Some("HEADING A"))]
         should_be_in_section_a: u32,
 
-        #[clap(long)]
+        #[clap(long, value_parser)]
         should_be_in_default_section: u32,
     }
 
@@ -94,21 +94,21 @@ fn app_help_heading_flattened() {
         #[clap(subcommand)]
         sub_a: SubA,
 
-        #[clap(long)]
+        #[clap(long, value_parser)]
         should_be_in_default_section: u32,
     }
 
     #[derive(Debug, Clone, Args)]
     #[clap(next_help_heading = "HEADING A")]
     struct OptionsA {
-        #[clap(long)]
+        #[clap(long, value_parser)]
         should_be_in_section_a: u32,
     }
 
     #[derive(Debug, Clone, Args)]
     #[clap(next_help_heading = "HEADING B")]
     struct OptionsB {
-        #[clap(long)]
+        #[clap(long, value_parser)]
         should_be_in_section_b: u32,
     }
 
@@ -121,6 +121,7 @@ fn app_help_heading_flattened() {
         SubAOne,
         #[clap(next_help_heading = "SUB A")]
         SubATwo {
+            #[clap(value_parser)]
             should_be_in_sub_a: u32,
         },
     }
@@ -128,13 +129,19 @@ fn app_help_heading_flattened() {
     #[derive(Debug, Clone, Subcommand)]
     enum SubB {
         #[clap(next_help_heading = "SUB B")]
-        SubBOne { should_be_in_sub_b: u32 },
+        SubBOne {
+            #[clap(value_parser)]
+            should_be_in_sub_b: u32,
+        },
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubC {
         #[clap(next_help_heading = "SUB C")]
-        SubCOne { should_be_in_sub_c: u32 },
+        SubCOne {
+            #[clap(value_parser)]
+            should_be_in_sub_c: u32,
+        },
     }
 
     let cmd = CliOptions::command();
@@ -230,7 +237,7 @@ fn flatten_field_with_help_heading() {
 
     #[derive(Debug, Clone, Args)]
     struct OptionsA {
-        #[clap(long)]
+        #[clap(long, value_parser)]
         should_be_in_section_a: u32,
     }
 
@@ -257,7 +264,7 @@ fn derive_generated_error_has_full_context() {
     #[derive(Debug, Parser)]
     #[clap(subcommand_negates_reqs = true)]
     struct Opts {
-        #[clap(long)]
+        #[clap(long, value_parser)]
         req_str: String,
 
         #[clap(subcommand)]
@@ -335,7 +342,7 @@ OPTIONS:
         #[clap(long)]
         flag_a: bool,
         /// second option
-        #[clap(long)]
+        #[clap(long, value_parser)]
         option_a: Option<String>,
     }
 
@@ -346,7 +353,7 @@ OPTIONS:
         #[clap(long)]
         flag_b: bool,
         /// first option
-        #[clap(long)]
+        #[clap(long, value_parser)]
         option_b: Option<String>,
     }
 
@@ -393,7 +400,7 @@ OPTIONS:
         #[clap(long)]
         flag_a: bool,
         /// second option
-        #[clap(long)]
+        #[clap(long, value_parser)]
         option_a: Option<String>,
     }
 
@@ -403,7 +410,7 @@ OPTIONS:
         #[clap(long)]
         flag_b: bool,
         /// first option
-        #[clap(long)]
+        #[clap(long, value_parser)]
         option_b: Option<String>,
     }
 
@@ -449,7 +456,7 @@ OPTIONS:
         #[clap(long)]
         flag_a: bool,
         /// first option
-        #[clap(long)]
+        #[clap(long, value_parser)]
         option_a: Option<String>,
     }
 
@@ -459,7 +466,7 @@ OPTIONS:
         #[clap(long)]
         flag_b: bool,
         /// second option
-        #[clap(long)]
+        #[clap(long, value_parser)]
         option_b: Option<String>,
     }
 

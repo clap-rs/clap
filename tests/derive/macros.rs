@@ -22,7 +22,7 @@ fn use_option() {
         ($name:ident: $ty:ty) => {
             #[derive(Parser)]
             struct Outer {
-                #[clap(short, long)]
+                #[clap(short, long, value_parser)]
                 #[allow(dead_code)]
                 $name: $ty,
             }

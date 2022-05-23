@@ -30,6 +30,7 @@ mod subcommands {
         /// foo
         Foo {
             /// foo
+            #[clap(value_parser)]
             bars: String,
         },
     }

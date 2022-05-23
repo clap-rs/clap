@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use clap::{Arg, Command};
 
 #[cfg(debug_assertions)]
