@@ -1,3 +1,5 @@
+use std::ffi::OsString;
+
 use crate::utils;
 
 use clap::{arg, error::ErrorKind, AppSettings, Arg, Command};
@@ -322,7 +324,10 @@ fn infer_subcommands_fail_with_args() {
         .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "t"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
-    assert_eq!(m.unwrap().value_of("some"), Some("t"));
+    assert_eq!(
+        m.unwrap().get_one::<String>("some").map(|v| v.as_str()),
+        Some("t")
+    );
 }
 
 #[test]
@@ -334,7 +339,10 @@ fn infer_subcommands_fail_with_args2() {
         .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
-    assert_eq!(m.unwrap().value_of("some"), Some("te"));
+    assert_eq!(
+        m.unwrap().get_one::<String>("some").map(|v| v.as_str()),
+        Some("te")
+    );
 }
 
 #[test]
@@ -402,7 +410,13 @@ fn no_bin_name() {
         .try_get_matches_from(vec!["testing"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let matches = result.unwrap();
-    assert_eq!(matches.value_of("test").unwrap(), "testing");
+    assert_eq!(
+        matches
+            .get_one::<String>("test")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "testing"
+    );
 }
 
 #[test]
@@ -436,7 +450,10 @@ fn stop_delim_values_only_pos_follows() {
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
     assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("arg")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["-f", "-g,x"]
     );
 }
@@ -451,7 +468,10 @@ fn dont_delim_values_trailingvararg() {
         .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["test", "--foo", "-Wl,-bar"]
     );
 }
@@ -466,7 +486,10 @@ fn delim_values_only_pos_follows() {
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
     assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("arg")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["-f", "-g,x"]
     );
 }
@@ -480,7 +503,10 @@ fn delim_values_trailingvararg() {
         .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["test", "--foo", "-Wl,-bar"]
     );
 }
@@ -498,7 +524,10 @@ fn delim_values_only_pos_follows_with_delim() {
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
     assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("arg")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["-f", "-g", "x"]
     );
 }
@@ -512,7 +541,10 @@ fn delim_values_trailingvararg_with_delim() {
         .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["test", "--foo", "-Wl", "-bar"]
     );
 }
@@ -528,7 +560,10 @@ fn leading_hyphen_short() {
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(m.is_present("other"));
-    assert_eq!(m.value_of("some").unwrap(), "-bar");
+    assert_eq!(
+        m.get_one::<String>("some").map(|v| v.as_str()).unwrap(),
+        "-bar"
+    );
 }
 
 #[test]
@@ -542,7 +577,10 @@ fn leading_hyphen_long() {
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(m.is_present("other"));
-    assert_eq!(m.value_of("some").unwrap(), "--bar");
+    assert_eq!(
+        m.get_one::<String>("some").map(|v| v.as_str()).unwrap(),
+        "--bar"
+    );
 }
 
 #[test]
@@ -556,7 +594,10 @@ fn leading_hyphen_opt() {
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(m.is_present("other"));
-    assert_eq!(m.value_of("some").unwrap(), "--bar");
+    assert_eq!(
+        m.get_one::<String>("some").map(|v| v.as_str()).unwrap(),
+        "--bar"
+    );
 }
 
 #[test]
@@ -568,8 +609,14 @@ fn allow_negative_numbers() {
         .try_get_matches_from(vec!["negnum", "-20", "-o", "-1.2"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert_eq!(m.value_of("panum").unwrap(), "-20");
-    assert_eq!(m.value_of("onum").unwrap(), "-1.2");
+    assert_eq!(
+        m.get_one::<String>("panum").map(|v| v.as_str()).unwrap(),
+        "-20"
+    );
+    assert_eq!(
+        m.get_one::<String>("onum").map(|v| v.as_str()).unwrap(),
+        "-1.2"
+    );
 }
 
 #[test]
@@ -593,7 +640,10 @@ fn leading_double_hyphen_trailingvararg() {
         .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["--foo", "-Wl", "bar"]
     );
 }
@@ -649,7 +699,10 @@ fn args_negate_subcommands_one_level() {
         .try_get_matches_from(vec!["", "pickles", "sub1"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert_eq!(m.value_of("arg2"), Some("sub1"));
+    assert_eq!(
+        m.get_one::<String>("arg2").map(|v| v.as_str()),
+        Some("sub1")
+    );
 }
 
 #[test]
@@ -671,7 +724,10 @@ fn args_negate_subcommands_two_levels() {
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert_eq!(
-        m.subcommand_matches("sub1").unwrap().value_of("arg2"),
+        m.subcommand_matches("sub1")
+            .unwrap()
+            .get_one::<String>("arg2")
+            .map(|v| v.as_str()),
         Some("sub2")
     );
 }
@@ -684,9 +740,12 @@ fn propagate_vals_down() {
         .try_get_matches_from(vec!["myprog", "set", "foo"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
-    assert_eq!(m.value_of("cmd"), Some("set"));
+    assert_eq!(m.get_one::<String>("cmd").map(|v| v.as_str()), Some("set"));
     let sub_m = m.subcommand_matches("foo").unwrap();
-    assert_eq!(sub_m.value_of("cmd"), Some("set"));
+    assert_eq!(
+        sub_m.get_one::<String>("cmd").map(|v| v.as_str()),
+        Some("set")
+    );
 }
 
 #[test]
@@ -698,8 +757,11 @@ fn allow_missing_positional() {
         .try_get_matches_from(vec!["test", "file"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
-    assert_eq!(m.value_of("src"), Some("src"));
-    assert_eq!(m.value_of("dest"), Some("file"));
+    assert_eq!(m.get_one::<String>("src").map(|v| v.as_str()), Some("src"));
+    assert_eq!(
+        m.get_one::<String>("dest").map(|v| v.as_str()),
+        Some("file")
+    );
 }
 
 #[test]
@@ -711,8 +773,11 @@ fn allow_missing_positional_no_default() {
         .try_get_matches_from(vec!["test", "file"]);
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
-    assert_eq!(m.value_of("src"), None);
-    assert_eq!(m.value_of("dest"), Some("file"));
+    assert_eq!(m.get_one::<String>("src").map(|v| v.as_str()), None);
+    assert_eq!(
+        m.get_one::<String>("dest").map(|v| v.as_str()),
+        Some("file")
+    );
 }
 
 #[test]
@@ -729,9 +794,15 @@ fn missing_positional_no_hyphen() {
     let expected_bench = Some("foo");
     let expected_args = vec!["arg1", "arg2", "arg3"];
 
-    assert_eq!(m.value_of("BENCH"), expected_bench);
     assert_eq!(
-        m.values_of("ARGS").unwrap().collect::<Vec<_>>(),
+        m.get_one::<String>("BENCH").map(|v| v.as_str()),
+        expected_bench
+    );
+    assert_eq!(
+        m.get_many::<String>("ARGS")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &*expected_args
     );
 }
@@ -750,9 +821,15 @@ fn missing_positional_hyphen() {
     let expected_bench = None;
     let expected_args = vec!["arg1", "arg2", "arg3"];
 
-    assert_eq!(m.value_of("BENCH"), expected_bench);
     assert_eq!(
-        m.values_of("ARGS").unwrap().collect::<Vec<_>>(),
+        m.get_one::<String>("BENCH").map(|v| v.as_str()),
+        expected_bench
+    );
+    assert_eq!(
+        m.get_many::<String>("ARGS")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &*expected_args
     );
 }
@@ -775,11 +852,23 @@ fn missing_positional_hyphen_far_back() {
     let expected_bench3 = None;
     let expected_args = vec!["arg1", "arg2", "arg3"];
 
-    assert_eq!(m.value_of("BENCH1"), expected_bench1);
-    assert_eq!(m.value_of("BENCH2"), expected_bench2);
-    assert_eq!(m.value_of("BENCH3"), expected_bench3);
     assert_eq!(
-        m.values_of("ARGS").unwrap().collect::<Vec<_>>(),
+        m.get_one::<String>("BENCH1").map(|v| v.as_str()),
+        expected_bench1
+    );
+    assert_eq!(
+        m.get_one::<String>("BENCH2").map(|v| v.as_str()),
+        expected_bench2
+    );
+    assert_eq!(
+        m.get_one::<String>("BENCH3").map(|v| v.as_str()),
+        expected_bench3
+    );
+    assert_eq!(
+        m.get_many::<String>("ARGS")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &*expected_args
     );
 }
@@ -840,7 +929,10 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
         )
         .try_get_matches_from(["tmp", "-file"])
         .unwrap();
-    assert_eq!(m.value_of("pat"), Some("-file"));
+    assert_eq!(
+        m.get_one::<String>("pat").map(|v| v.as_str()),
+        Some("-file")
+    );
 }
 
 #[test]
@@ -865,7 +957,7 @@ fn allow_ext_sc_empty_args() {
     match res.unwrap().subcommand() {
         Some((name, args)) => {
             assert_eq!(name, "external-cmd");
-            assert_eq!(args.values_of_lossy(""), None);
+            assert!(args.get_many::<OsString>("").is_none());
         }
         _ => unreachable!(),
     }
@@ -905,7 +997,13 @@ fn allow_ext_sc_when_sc_required() {
     match res.unwrap().subcommand() {
         Some((name, args)) => {
             assert_eq!(name, "external-cmd");
-            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+            assert_eq!(
+                args.get_many::<OsString>("")
+                    .unwrap()
+                    .cloned()
+                    .collect::<Vec<_>>(),
+                vec![OsString::from("foo")]
+            );
         }
         _ => unreachable!(),
     }
@@ -924,7 +1022,13 @@ fn external_subcommand_looks_like_built_in() {
     match m.subcommand() {
         Some((name, args)) => {
             assert_eq!(name, "install-update");
-            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+            assert_eq!(
+                args.get_many::<OsString>("")
+                    .unwrap()
+                    .cloned()
+                    .collect::<Vec<_>>(),
+                vec![OsString::from("foo")]
+            );
         }
         _ => panic!("external_subcommand didn't work"),
     }
@@ -943,7 +1047,13 @@ fn built_in_subcommand_escaped() {
     match m.subcommand() {
         Some((name, args)) => {
             assert_eq!(name, "install");
-            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+            assert_eq!(
+                args.get_many::<OsString>("")
+                    .unwrap()
+                    .cloned()
+                    .collect::<Vec<_>>(),
+                vec![OsString::from("foo")]
+            );
         }
         _ => panic!("external_subcommand didn't work"),
     }
@@ -986,7 +1096,10 @@ fn aaos_opts() {
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
-    assert_eq!(m.value_of("opt"), Some("other"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("other")
+    );
 }
 
 #[test]
@@ -1006,7 +1119,10 @@ fn aaos_opts_w_other_overrides() {
     assert!(m.is_present("opt"));
     assert!(!m.is_present("other"));
     assert_eq!(m.occurrences_of("opt"), 1);
-    assert_eq!(m.value_of("opt"), Some("other"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("other")
+    );
 }
 
 #[test]
@@ -1025,7 +1141,10 @@ fn aaos_opts_w_other_overrides_rev() {
     let m = res.unwrap();
     assert!(!m.is_present("opt"));
     assert!(m.is_present("other"));
-    assert_eq!(m.value_of("other"), Some("val"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("val")
+    );
 }
 
 #[test]
@@ -1045,7 +1164,10 @@ fn aaos_opts_w_other_overrides_2() {
     assert!(m.is_present("opt"));
     assert!(!m.is_present("other"));
     assert_eq!(m.occurrences_of("opt"), 1);
-    assert_eq!(m.value_of("opt"), Some("other"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("other")
+    );
 }
 
 #[test]
@@ -1064,7 +1186,10 @@ fn aaos_opts_w_other_overrides_rev_2() {
     let m = res.unwrap();
     assert!(!m.is_present("opt"));
     assert!(m.is_present("other"));
-    assert_eq!(m.value_of("other"), Some("val"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("val")
+    );
 }
 
 #[test]
@@ -1083,7 +1208,7 @@ fn aaos_opts_w_override_as_conflict_1() {
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert!(!m.is_present("other"));
-    assert_eq!(m.value_of("opt"), Some("some"));
+    assert_eq!(m.get_one::<String>("opt").map(|v| v.as_str()), Some("some"));
 }
 
 #[test]
@@ -1102,7 +1227,10 @@ fn aaos_opts_w_override_as_conflict_2() {
     let m = res.unwrap();
     assert!(!m.is_present("opt"));
     assert!(m.is_present("other"));
-    assert_eq!(m.value_of("other"), Some("some"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("some")
+    );
 }
 
 #[test]
@@ -1123,7 +1251,10 @@ fn aaos_opts_mult() {
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 3);
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["some", "other", "one", "two"]
     );
 }
@@ -1149,7 +1280,10 @@ fn aaos_opts_mult_req_delims() {
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 2);
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["first", "overrides", "some", "other", "val"]
     );
 }
@@ -1166,7 +1300,10 @@ fn aaos_pos_mult() {
     assert!(m.is_present("val"));
     assert_eq!(m.occurrences_of("val"), 3);
     assert_eq!(
-        m.values_of("val").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("val")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["some", "other", "value"]
     );
 }
@@ -1181,7 +1318,10 @@ fn aaos_option_use_delim_false() {
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["one,two"]
     );
 }

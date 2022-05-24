@@ -8,7 +8,7 @@ fn empty_values() {
         .arg(Arg::new("config").long("config").takes_value(true))
         .try_get_matches_from(&["config", "--config", ""])
         .unwrap();
-    assert_eq!(m.value_of("config"), Some(""));
+    assert_eq!(m.get_one::<String>("config").map(|v| v.as_str()), Some(""));
 }
 
 #[test]
@@ -17,13 +17,13 @@ fn empty_values_with_equals() {
         .arg(Arg::new("config").long("config").takes_value(true))
         .try_get_matches_from(&["config", "--config="])
         .unwrap();
-    assert_eq!(m.value_of("config"), Some(""));
+    assert_eq!(m.get_one::<String>("config").map(|v| v.as_str()), Some(""));
 
     let m = Command::new("config")
         .arg(Arg::new("config").short('c').takes_value(true))
         .try_get_matches_from(&["config", "-c="])
         .unwrap();
-    assert_eq!(m.value_of("config"), Some(""))
+    assert_eq!(m.get_one::<String>("config").map(|v| v.as_str()), Some(""))
 }
 
 #[test]

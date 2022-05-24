@@ -188,13 +188,19 @@ fn issue_1374() {
         .clone()
         .try_get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"])
         .unwrap();
-    let vs = matches.values_of("input").unwrap();
+    let vs = matches
+        .get_many::<String>("input")
+        .unwrap()
+        .map(|v| v.as_str());
     assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
     let matches = cmd
         .clone()
         .try_get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"])
         .unwrap();
-    let vs = matches.values_of("input").unwrap();
+    let vs = matches
+        .get_many::<String>("input")
+        .unwrap()
+        .map(|v| v.as_str());
     assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
 }
 

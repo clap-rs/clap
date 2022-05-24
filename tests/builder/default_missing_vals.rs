@@ -15,7 +15,10 @@ fn opt_missing() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "auto");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "auto"
+    );
     assert_eq!(m.occurrences_of("color"), 0);
 }
 
@@ -34,7 +37,10 @@ fn opt_present_with_missing_value() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "always");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "always"
+    );
     assert_eq!(m.occurrences_of("color"), 1);
 }
 
@@ -53,7 +59,10 @@ fn opt_present_with_value() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "never");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "never"
+    );
     assert_eq!(m.occurrences_of("color"), 1);
 }
 
@@ -71,7 +80,10 @@ fn opt_present_with_empty_value() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        ""
+    );
     assert_eq!(m.occurrences_of("color"), 1);
 }
 
@@ -90,7 +102,10 @@ fn opt_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.value_of("o").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -106,7 +121,10 @@ fn opt_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.value_of("o").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 #[test]
@@ -120,7 +138,7 @@ fn default_missing_value_flag_value() {
     );
 
     fn flag_value(m: ArgMatches) -> bool {
-        match m.value_of("flag") {
+        match m.get_one::<String>("flag").map(|v| v.as_str()) {
             None => false,
             Some(x) => x.parse().expect("non boolean value"),
         }

@@ -44,16 +44,16 @@ use crate::INTERNAL_ERROR_MSG;
 ///     .get_matches(); // builds the instance of ArgMatches
 ///
 /// // to get information about the "cfg" argument we created, such as the value supplied we use
-/// // various ArgMatches methods, such as ArgMatches::value_of
-/// if let Some(c) = matches.value_of("cfg") {
+/// // various ArgMatches methods, such as [ArgMatches::get_one]
+/// if let Some(c) = matches.get_one::<String>("cfg") {
 ///     println!("Value for -c: {}", c);
 /// }
 ///
-/// // The ArgMatches::value_of method returns an Option because the user may not have supplied
+/// // The ArgMatches::get_one method returns an Option because the user may not have supplied
 /// // that argument at runtime. But if we specified that the argument was "required" as we did
 /// // with the "out" argument, we can safely unwrap because `clap` verifies that was actually
 /// // used at runtime.
-/// println!("Value for --output: {}", matches.value_of("out").unwrap());
+/// println!("Value for --output: {}", matches.get_one::<String>("out").unwrap());
 ///
 /// // You can check the presence of an argument
 /// if matches.is_present("out") {
@@ -117,7 +117,6 @@ impl ArgMatches {
     /// ```
     /// [option]: crate::Arg::takes_value()
     /// [positional]: crate::Arg::index()
-    /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     #[track_caller]
@@ -248,7 +247,6 @@ impl ArgMatches {
     /// ```
     /// [option]: crate::Arg::takes_value()
     /// [positional]: crate::Arg::index()
-    /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     #[track_caller]
@@ -319,42 +317,8 @@ impl ArgMatches {
         !self.args.is_empty()
     }
 
-    /// Gets the value of a specific option or positional argument.
-    ///
-    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// *NOTE:* Prefer [`ArgMatches::values_of`] if getting a value for an option or positional
-    /// argument that allows multiples as `ArgMatches::value_of` will only return the *first*
-    /// value.
-    ///
-    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.  See
-    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("myapp")
-    ///     .arg(Arg::new("output")
-    ///         .takes_value(true))
-    ///     .get_matches_from(vec!["myapp", "something"]);
-    ///
-    /// assert_eq!(m.value_of("output"), Some("something"));
-    /// ```
-    /// [option]: crate::Arg::takes_value()
-    /// [positional]: crate::Arg::index()
-    /// [`ArgMatches::values_of`]: ArgMatches::values_of()
-    /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
+    /// Deprecated, replaced with [`ArgMatches::get_one()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         let id = Id::from(id);
@@ -363,47 +327,8 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Gets the lossy value of a specific option or positional argument.
-    ///
-    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
-    ///
-    /// A lossy value is one which contains invalid UTF-8, those invalid points will be replaced
-    /// with `\u{FFFD}`
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// *NOTE:* Prefer [`ArgMatches::values_of_lossy`] if getting a value for an option or positional
-    /// argument that allows multiples as `ArgMatches::value_of_lossy` will only return the *first*
-    /// value.
-    ///
-    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{Command, arg};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-    ///
-    /// let m = Command::new("utf8")
-    ///     .arg(arg!(<arg> "some arg")
-    ///         .allow_invalid_utf8(true))
-    ///     .get_matches_from(vec![OsString::from("myprog"),
-    ///                             // "Hi {0xe9}!"
-    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
-    /// ```
-    /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: ArgMatches::occurrences_of()
-    /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
+    /// Deprecated, replaced with [`ArgMatches::get_one()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         let id = Id::from(id);
@@ -412,48 +337,8 @@ impl ArgMatches {
         Some(v.to_string_lossy())
     }
 
-    /// Get the `OsStr` value of a specific option or positional argument.
-    ///
-    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
-    ///
-    /// An `OsStr` on Unix-like systems is any series of bytes, regardless of whether or not they
-    /// contain valid UTF-8. Since [`String`]s in Rust are guaranteed to be valid UTF-8, a valid
-    /// filename on a Unix system as an argument value may contain invalid UTF-8.
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// *NOTE:* Prefer [`ArgMatches::values_of_os`] if getting a value for an option or positional
-    /// argument that allows multiples as `ArgMatches::value_of_os` will only return the *first*
-    /// value.
-    ///
-    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{Command, arg};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-    ///
-    /// let m = Command::new("utf8")
-    ///     .arg(arg!(<arg> "some arg")
-    ///         .allow_invalid_utf8(true))
-    ///     .get_matches_from(vec![OsString::from("myprog"),
-    ///                             // "Hi {0xe9}!"
-    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-    /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
-    /// ```
-    /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: ArgMatches::occurrences_of()
-    /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
+    /// Deprecated, replaced with [`ArgMatches::get_one()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         let id = Id::from(id);
@@ -462,38 +347,11 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Get an [`Iterator`] over [values] of a specific option or positional argument.
-    ///
-    /// i.e. an argument that takes multiple values at runtime.
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.  See
-    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("myprog")
-    ///     .arg(Arg::new("output")
-    ///         .multiple_occurrences(true)
-    ///         .short('o')
-    ///         .takes_value(true))
-    ///     .get_matches_from(vec![
-    ///         "myprog", "-o", "val1", "-o", "val2", "-o", "val3"
-    ///     ]);
-    /// let vals: Vec<&str> = m.values_of("output").unwrap().collect();
-    /// assert_eq!(vals, ["val1", "val2", "val3"]);
-    /// ```
-    /// [values]: Values
-    /// [`Iterator`]: std::iter::Iterator
+    /// Deprecated, replaced with [`ArgMatches::get_many()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
+        #![allow(deprecated)]
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
         let v = Values {
@@ -548,42 +406,8 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Get the lossy values of a specific option or positional argument.
-    ///
-    /// i.e. an argument that takes multiple values at runtime.
-    ///
-    /// A lossy value is one which contains invalid UTF-8, those invalid points will be replaced
-    /// with `\u{FFFD}`
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{Command, arg};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStringExt;
-    ///
-    /// let m = Command::new("utf8")
-    ///     .arg(arg!(<arg> ... "some arg")
-    ///         .allow_invalid_utf8(true))
-    ///     .get_matches_from(vec![OsString::from("myprog"),
-    ///                             // "Hi"
-    ///                             OsString::from_vec(vec![b'H', b'i']),
-    ///                             // "{0xe9}!"
-    ///                             OsString::from_vec(vec![0xe9, b'!'])]);
-    /// let mut itr = m.values_of_lossy("arg").unwrap().into_iter();
-    /// assert_eq!(&itr.next().unwrap()[..], "Hi");
-    /// assert_eq!(&itr.next().unwrap()[..], "\u{FFFD}!");
-    /// assert_eq!(itr.next(), None);
-    /// ```
+    /// Deprecated, replaced with [`ArgMatches::get_many()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
         let id = Id::from(id);
@@ -595,50 +419,11 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Get an [`Iterator`] over [`OsStr`] [values] of a specific option or positional argument.
-    ///
-    /// i.e. an argument that takes multiple values at runtime.
-    ///
-    /// An `OsStr` on Unix-like systems is any series of bytes, regardless of whether or not they
-    /// contain valid UTF-8. Since [`String`]s in Rust are guaranteed to be valid UTF-8, a valid
-    /// filename on a Unix system as an argument value may contain invalid UTF-8.
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{Command, arg};
-    /// use std::ffi::{OsStr,OsString};
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-    ///
-    /// let m = Command::new("utf8")
-    ///     .arg(arg!(<arg> ... "some arg")
-    ///         .allow_invalid_utf8(true))
-    ///     .get_matches_from(vec![OsString::from("myprog"),
-    ///                                 // "Hi"
-    ///                                 OsString::from_vec(vec![b'H', b'i']),
-    ///                                 // "{0xe9}!"
-    ///                                 OsString::from_vec(vec![0xe9, b'!'])]);
-    ///
-    /// let mut itr = m.values_of_os("arg").unwrap().into_iter();
-    /// assert_eq!(itr.next(), Some(OsStr::new("Hi")));
-    /// assert_eq!(itr.next(), Some(OsStr::from_bytes(&[0xe9, b'!'])));
-    /// assert_eq!(itr.next(), None);
-    /// ```
-    /// [`Iterator`]: std::iter::Iterator
-    /// [`OsSt`]: std::ffi::OsStr
-    /// [values]: OsValues
-    /// [`String`]: std::string::String
+    /// Deprecated, replaced with [`ArgMatches::get_many()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
+        #![allow(deprecated)]
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
         let v = OsValues {
@@ -648,48 +433,14 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Parse the value (with [`FromStr`]) of a specific option or positional argument.
-    ///
-    /// There are two types of errors, parse failures and those where the argument wasn't present
-    /// (such as a non-required argument). Check [`ErrorKind`] to distinguish them.
-    ///
-    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer [`ArgMatches::values_of_t`] as this method will only return the *first*
-    /// value.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.  See
-    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let matches = Command::new("myapp")
-    ///               .arg(arg!([length] "Set the length to use as a pos whole num i.e. 20"))
-    ///               .get_matches_from(&["test", "12"]);
-    ///
-    /// // Specify the type explicitly (or use turbofish)
-    /// let len: u32 = matches.value_of_t("length").unwrap_or_else(|e| e.exit());
-    /// assert_eq!(len, 12);
-    ///
-    /// // You can often leave the type for rustc to figure out
-    /// let also_len = matches.value_of_t("length").unwrap_or_else(|e| e.exit());
-    /// // Something that expects u32
-    /// let _: u32 = also_len;
-    /// ```
-    ///
-    /// [`FromStr]: std::str::FromStr
-    /// [`ArgMatches::values_of_t`]: ArgMatches::values_of_t()
-    /// [`ErrorKind`]: crate::ErrorKind
+    /// Deprecated, replaced with [`ArgMatches::get_one()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
     pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
     where
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
+        #![allow(deprecated)]
         let v = self
             .value_of(name)
             .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))?;
@@ -703,83 +454,25 @@ impl ArgMatches {
         })
     }
 
-    /// Parse the value (with [`FromStr`]) of a specific option or positional argument.
-    ///
-    /// If either the value is not present or parsing failed, exits the program.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.  See
-    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let matches = Command::new("myapp")
-    ///               .arg(arg!([length] "Set the length to use as a pos whole num i.e. 20"))
-    ///               .get_matches_from(&["test", "12"]);
-    ///
-    /// // Specify the type explicitly (or use turbofish)
-    /// let len: u32 = matches.value_of_t_or_exit("length");
-    /// assert_eq!(len, 12);
-    ///
-    /// // You can often leave the type for rustc to figure out
-    /// let also_len = matches.value_of_t_or_exit("length");
-    /// // Something that expects u32
-    /// let _: u32 = also_len;
-    /// ```
-    ///
-    /// [`FromStr][std::str::FromStr]
+    /// Deprecated, replaced with [`ArgMatches::get_one()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
     pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
     where
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
+        #![allow(deprecated)]
         self.value_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
-    /// Parse the values (with [`FromStr`]) of a specific option or positional argument.
-    ///
-    /// There are two types of errors, parse failures and those where the argument wasn't present
-    /// (such as a non-required argument). Check [`ErrorKind`] to distinguish them.
-    ///
-    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
-    /// prefer [`ArgMatches::values_of_t`] as this method will only return the *first*
-    /// value.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.  See
-    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let matches = Command::new("myapp")
-    ///               .arg(arg!([length] ... "A sequence of integers because integers are neat!"))
-    ///               .get_matches_from(&["test", "12", "77", "40"]);
-    ///
-    /// // Specify the type explicitly (or use turbofish)
-    /// let len: Vec<u32> = matches.values_of_t("length").unwrap_or_else(|e| e.exit());
-    /// assert_eq!(len, vec![12, 77, 40]);
-    ///
-    /// // You can often leave the type for rustc to figure out
-    /// let also_len = matches.values_of_t("length").unwrap_or_else(|e| e.exit());
-    /// // Something that expects Vec<u32>
-    /// let _: Vec<u32> = also_len;
-    /// ```
-    /// [`ErrorKind`]: crate::ErrorKind
+    /// Deprecated, replaced with [`ArgMatches::get_many()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
     pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
     where
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
+        #![allow(deprecated)]
         let v = self
             .values_of(name)
             .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))?;
@@ -793,39 +486,14 @@ impl ArgMatches {
         .collect()
     }
 
-    /// Parse the values (with [`FromStr`]) of a specific option or positional argument.
-    ///
-    /// If parsing (of any value) has failed, exits the program.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.  See
-    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let matches = Command::new("myapp")
-    ///               .arg(arg!([length] ... "A sequence of integers because integers are neat!"))
-    ///               .get_matches_from(&["test", "12", "77", "40"]);
-    ///
-    /// // Specify the type explicitly (or use turbofish)
-    /// let len: Vec<u32> = matches.values_of_t_or_exit("length");
-    /// assert_eq!(len, vec![12, 77, 40]);
-    ///
-    /// // You can often leave the type for rustc to figure out
-    /// let also_len = matches.values_of_t_or_exit("length");
-    /// // Something that expects Vec<u32>
-    /// let _: Vec<u32> = also_len;
-    /// ```
+    /// Deprecated, replaced with [`ArgMatches::get_many()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
     pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
     where
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
+        #![allow(deprecated)]
         self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
@@ -1230,7 +898,8 @@ impl ArgMatches {
     /// // string argument name
     /// match app_m.subcommand() {
     ///     Some((external, sub_m)) => {
-    ///          let ext_args: Vec<&str> = sub_m.values_of("").unwrap().collect();
+    ///          let ext_args: Vec<&str> = sub_m.get_many::<String>("")
+    ///             .unwrap().map(|s| s.as_str()).collect();
     ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
@@ -1331,7 +1000,7 @@ impl ArgMatches {
     /// // Get the subcommand's ArgMatches instance
     /// if let Some(sub_m) = app_m.subcommand_matches("test") {
     ///     // Use the struct like normal
-    ///     assert_eq!(sub_m.value_of("opt"), Some("val"));
+    ///     assert_eq!(sub_m.get_one::<String>("opt").map(|s| s.as_str()), Some("val"));
     /// }
     /// ```
     ///
@@ -1807,26 +1476,8 @@ impl Default for RawValues<'_> {
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
-/// Iterate over multiple values for an argument via [`ArgMatches::values_of`].
-///
-/// # Examples
-///
-/// ```rust
-/// # use clap::{Command, Arg};
-/// let m = Command::new("myapp")
-///     .arg(Arg::new("output")
-///         .short('o')
-///         .multiple_occurrences(true)
-///         .takes_value(true))
-///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
-///
-/// let mut values = m.values_of("output").unwrap();
-///
-/// assert_eq!(values.next(), Some("val1"));
-/// assert_eq!(values.next(), Some("val2"));
-/// assert_eq!(values.next(), None);
-/// ```
-/// [`ArgMatches::values_of`]: ArgMatches::values_of()
+/// Deprecated, replaced with [`ArgMatches::get_many()`]
+#[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
 #[derive(Clone, Debug)]
 pub struct Values<'a> {
     #[allow(clippy::type_complexity)]
@@ -1834,6 +1485,7 @@ pub struct Values<'a> {
     len: usize,
 }
 
+#[allow(deprecated)]
 impl<'a> Iterator for Values<'a> {
     type Item = &'a str;
 
@@ -1845,15 +1497,18 @@ impl<'a> Iterator for Values<'a> {
     }
 }
 
+#[allow(deprecated)]
 impl<'a> DoubleEndedIterator for Values<'a> {
     fn next_back(&mut self) -> Option<&'a str> {
         self.iter.next_back()
     }
 }
 
+#[allow(deprecated)]
 impl<'a> ExactSizeIterator for Values<'a> {}
 
 /// Creates an empty iterator.
+#[allow(deprecated)]
 impl<'a> Default for Values<'a> {
     fn default() -> Self {
         static EMPTY: [Vec<AnyValue>; 0] = [];
@@ -1894,6 +1549,7 @@ impl<'a> ExactSizeIterator for GroupedValues<'a> {}
 /// Creates an empty iterator. Used for `unwrap_or_default()`.
 impl<'a> Default for GroupedValues<'a> {
     fn default() -> Self {
+        #![allow(deprecated)]
         static EMPTY: [Vec<AnyValue>; 0] = [];
         GroupedValues {
             iter: EMPTY[..].iter().map(|_| unreachable!()),
@@ -1902,25 +1558,8 @@ impl<'a> Default for GroupedValues<'a> {
     }
 }
 
-/// Iterate over multiple values for an argument via [`ArgMatches::values_of_os`].
-///
-/// # Examples
-///
-#[cfg_attr(not(unix), doc = " ```ignore")]
-#[cfg_attr(unix, doc = " ```")]
-/// # use clap::{Command, arg};
-/// use std::ffi::OsString;
-/// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-///
-/// let m = Command::new("utf8")
-///     .arg(arg!(<arg> "some arg")
-///         .allow_invalid_utf8(true))
-///     .get_matches_from(vec![OsString::from("myprog"),
-///                             // "Hi {0xe9}!"
-///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
-/// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
-/// ```
-/// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
+/// Deprecated, replaced with [`ArgMatches::get_many()`]
+#[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
 #[derive(Clone, Debug)]
 pub struct OsValues<'a> {
     #[allow(clippy::type_complexity)]
@@ -1928,6 +1567,7 @@ pub struct OsValues<'a> {
     len: usize,
 }
 
+#[allow(deprecated)]
 impl<'a> Iterator for OsValues<'a> {
     type Item = &'a OsStr;
 
@@ -1939,15 +1579,18 @@ impl<'a> Iterator for OsValues<'a> {
     }
 }
 
+#[allow(deprecated)]
 impl<'a> DoubleEndedIterator for OsValues<'a> {
     fn next_back(&mut self) -> Option<&'a OsStr> {
         self.iter.next_back()
     }
 }
 
+#[allow(deprecated)]
 impl<'a> ExactSizeIterator for OsValues<'a> {}
 
 /// Creates an empty iterator.
+#[allow(deprecated)]
 impl Default for OsValues<'_> {
     fn default() -> Self {
         static EMPTY: [Vec<AnyValue>; 0] = [];
@@ -2071,19 +1714,14 @@ mod tests {
 
     #[test]
     fn test_default_values() {
+        #![allow(deprecated)]
         let mut values: Values = Values::default();
         assert_eq!(values.next(), None);
     }
 
     #[test]
-    fn test_default_values_with_shorter_lifetime() {
-        let matches = ArgMatches::default();
-        let mut values = matches.values_of("").unwrap_or_default();
-        assert_eq!(values.next(), None);
-    }
-
-    #[test]
     fn test_default_osvalues() {
+        #![allow(deprecated)]
         let mut values: OsValues = OsValues::default();
         assert_eq!(values.next(), None);
     }
@@ -2091,13 +1729,6 @@ mod tests {
     #[test]
     fn test_default_raw_values() {
         let mut values: RawValues = Default::default();
-        assert_eq!(values.next(), None);
-    }
-
-    #[test]
-    fn test_default_osvalues_with_shorter_lifetime() {
-        let matches = ArgMatches::default();
-        let mut values = matches.values_of_os("").unwrap_or_default();
         assert_eq!(values.next(), None);
     }
 
@@ -2125,9 +1756,9 @@ mod tests {
             )
             .try_get_matches_from(["test", "one"])
             .unwrap()
-            .values_of("POTATO")
+            .get_many::<String>("POTATO")
             .expect("present")
-            .len();
+            .count();
         assert_eq!(l, 1);
     }
 

@@ -44,9 +44,12 @@ fn multiple_args_and_final_arg_without_value() {
 
     assert!(r.is_ok(), "unexpected error: {:?}", r);
     let m = r.unwrap();
-    assert_eq!(m.value_of("config"), Some("file"));
+    assert_eq!(
+        m.get_one::<String>("config").map(|v| v.as_str()),
+        Some("file")
+    );
     assert!(m.is_present("f"));
-    assert_eq!(m.value_of("stuff"), None);
+    assert_eq!(m.get_one::<String>("stuff").map(|v| v.as_str()), None);
 }
 
 #[test]
@@ -68,9 +71,12 @@ fn multiple_args_and_intermittent_arg_without_value() {
 
     assert!(r.is_ok(), "unexpected error: {:?}", r);
     let m = r.unwrap();
-    assert_eq!(m.value_of("config"), Some("file"));
+    assert_eq!(
+        m.get_one::<String>("config").map(|v| v.as_str()),
+        Some("file")
+    );
     assert!(m.is_present("f"));
-    assert_eq!(m.value_of("stuff"), None);
+    assert_eq!(m.get_one::<String>("stuff").map(|v| v.as_str()), None);
 }
 
 #[test]
@@ -112,6 +118,9 @@ fn subcommand() {
         sub_m.is_present("test"),
         "expected subcommand to be present due to partial parsing"
     );
-    assert_eq!(sub_m.value_of("test"), None);
-    assert_eq!(sub_m.value_of("stuff"), Some("some other val"));
+    assert_eq!(sub_m.get_one::<String>("test").map(|v| v.as_str()), None);
+    assert_eq!(
+        sub_m.get_one::<String>("stuff").map(|v| v.as_str()),
+        Some("some other val")
+    );
 }

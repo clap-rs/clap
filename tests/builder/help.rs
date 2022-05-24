@@ -2651,7 +2651,11 @@ fn override_help_subcommand() {
         .disable_help_subcommand(true);
     let matches = cmd.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
     assert_eq!(
-        matches.subcommand_matches("help").unwrap().value_of("arg"),
+        matches
+            .subcommand_matches("help")
+            .unwrap()
+            .get_one::<String>("arg")
+            .map(|v| v.as_str()),
         Some("foo")
     );
 }
@@ -2752,7 +2756,10 @@ fn help_without_short() {
     assert_eq!(help.get_short(), None);
 
     let m = cmd.try_get_matches_from(["test", "-h", "0x100"]).unwrap();
-    assert_eq!(m.value_of("hex"), Some("0x100"));
+    assert_eq!(
+        m.get_one::<String>("hex").map(|v| v.as_str()),
+        Some("0x100")
+    );
 }
 
 #[test]

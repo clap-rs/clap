@@ -37,15 +37,21 @@ fn get_inner_matches(m: &ArgMatches) -> &ArgMatches {
 }
 
 fn top_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
-    m.value_of("GLOBAL_ARG") == val.into()
+    m.get_one::<String>("GLOBAL_ARG").map(|v| v.as_str()) == val.into()
 }
 
 fn inner_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
-    get_inner_matches(m).value_of("GLOBAL_ARG") == val.into()
+    get_inner_matches(m)
+        .get_one::<String>("GLOBAL_ARG")
+        .map(|v| v.as_str())
+        == val.into()
 }
 
 fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
-    get_outer_matches(m).value_of("GLOBAL_ARG") == val.into()
+    get_outer_matches(m)
+        .get_one::<String>("GLOBAL_ARG")
+        .map(|v| v.as_str())
+        == val.into()
 }
 
 fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {

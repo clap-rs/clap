@@ -382,7 +382,11 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
     let (subcommand, args) = m.subcommand().unwrap();
-    let args = args.values_of_os("").unwrap().collect::<Vec<_>>();
+    let args = args
+        .get_many::<OsString>("")
+        .unwrap()
+        .cloned()
+        .collect::<Vec<_>>();
     assert_eq!(subcommand, OsString::from("subcommand"));
     assert_eq!(
         args,
@@ -399,7 +403,7 @@ fn allow_validated_utf8_value_of() {
     #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.value_of("name");
+    let _ = m.get_one::<String>("name").map(|v| v.as_str());
 }
 
 #[test]
@@ -417,7 +421,7 @@ fn panic_validated_utf8_with_defaults() {
     #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
     let m = a.try_get_matches_from(["test"]).unwrap();
-    let _ = m.value_of("value");
+    let _ = m.get_one::<String>("value").map(|v| v.as_str());
     let _ = m.value_of_os("value");
 }
 
@@ -430,16 +434,16 @@ fn allow_invalid_utf8_value_of_os() {
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `name`"]
+#[should_panic = "Mismatch between definition and access of `name`. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_value_of() {
     #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.value_of("name");
+    let _ = m.get_one::<String>("name").map(|v| v.as_str());
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `value`"]
+#[should_panic = "Mismatch between definition and access of `value`. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_with_defaults() {
     #![allow(deprecated)]
     let a = Command::new("test").arg(
@@ -450,7 +454,7 @@ fn panic_invalid_utf8_with_defaults() {
     );
     let m = a.try_get_matches_from(["test"]).unwrap();
     let _ = m.value_of_os("value");
-    let _ = m.value_of("value");
+    let _ = m.get_one::<String>("value").map(|v| v.as_str());
 }
 
 #[test]
@@ -458,16 +462,16 @@ fn allow_validated_utf8_external_subcommand_values_of() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of("").unwrap_or_default().count();
+    args.get_many::<String>("").unwrap_or_default().count();
 }
 
 #[test]
-#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups"]
+#[should_panic = "Mismatch between definition and access of ``. Could not downcast to std::ffi::os_str::OsString, need to downcast to alloc::string::String"]
 fn panic_validated_utf8_external_subcommand_values_of_os() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of_os("").unwrap_or_default().count();
+    args.get_many::<OsString>("").unwrap_or_default().count();
 }
 
 #[test]
@@ -477,16 +481,16 @@ fn allow_invalid_utf8_external_subcommand_values_of_os() {
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of_os("").unwrap_or_default().count();
+    args.get_many::<OsString>("").unwrap_or_default().count();
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8`"]
+#[should_panic = "Mismatch between definition and access of ``. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_external_subcommand_values_of() {
     let a = Command::new("test")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of("").unwrap_or_default().count();
+    args.get_many::<String>("").unwrap_or_default().count();
 }

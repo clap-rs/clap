@@ -399,7 +399,10 @@ fn conflict_with_unused_default() {
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(m.is_present("flag"));
 }
 
@@ -422,7 +425,10 @@ fn conflicts_with_alongside_default() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(m.is_present("flag"));
 }
 
@@ -445,7 +451,10 @@ fn group_in_conflicts_with() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(m.is_present("flag"));
 }
 
@@ -468,7 +477,10 @@ fn group_conflicts_with_default_value() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(m.is_present("flag"));
 }
 
@@ -487,7 +499,10 @@ fn group_conflicts_with_default_arg() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(m.is_present("flag"));
 }
 

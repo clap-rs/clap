@@ -9,7 +9,10 @@ fn only_pos_follow() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
-    assert_eq!(m.value_of("arg").unwrap(), "-f");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "-f"
+    );
 }
 
 #[test]
@@ -28,7 +31,10 @@ fn issue_946() {
     let matches = r.unwrap();
 
     assert!(matches.is_present("exact"));
-    assert!(matches.value_of("filter").is_none());
+    assert!(matches
+        .get_one::<String>("filter")
+        .map(|v| v.as_str())
+        .is_none());
 }
 
 #[test]
@@ -40,7 +46,12 @@ fn positional() {
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("positional").unwrap(), "test");
+    assert_eq!(
+        m.get_one::<String>("positional")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "test"
+    );
 
     let m = Command::new("positional")
         .args(&[arg!(-f --flag "some flag"), Arg::new("positional").index(1)])
@@ -48,7 +59,12 @@ fn positional() {
         .unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("positional").unwrap(), "test");
+    assert_eq!(
+        m.get_one::<String>("positional")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "test"
+    );
 }
 
 #[test]
@@ -88,7 +104,7 @@ fn lots_o_vals() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.values_of("opt").unwrap().count(), 297); // i.e. more than u8
+    assert_eq!(m.get_many::<String>("opt").unwrap().count(), 297); // i.e. more than u8
 }
 
 #[test]
@@ -107,7 +123,10 @@ fn positional_multiple() {
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
     assert_eq!(
-        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &*m.get_many::<String>("positional")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["test1", "test2", "test3"]
     );
 }
@@ -128,7 +147,10 @@ fn positional_multiple_3() {
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
     assert_eq!(
-        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &*m.get_many::<String>("positional")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["test1", "test2", "test3"]
     );
 }
@@ -156,7 +178,10 @@ fn positional_possible_values() {
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
     assert_eq!(
-        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &*m.get_many::<String>("positional")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["test123"]
     );
 }
@@ -242,7 +267,13 @@ fn last_positional() {
         .try_get_matches_from(vec!["test", "tgt", "--", "arg"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &["arg"]);
+    assert_eq!(
+        m.get_many::<String>("ARGS")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["arg"]
+    );
 }
 
 #[test]
@@ -306,5 +337,8 @@ fn ignore_hyphen_values_on_last() {
         );
 
     let matches = cmd.try_get_matches_from(["test", "-n", "foo"]).unwrap();
-    assert_eq!(matches.value_of("name"), Some("foo"));
+    assert_eq!(
+        matches.get_one::<String>("name").map(|v| v.as_str()),
+        Some("foo")
+    );
 }

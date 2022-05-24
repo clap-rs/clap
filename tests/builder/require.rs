@@ -90,9 +90,12 @@ fn option_required_2() {
         .try_get_matches_from(vec!["", "-f", "val", "-c", "other_val"])
         .unwrap();
     assert!(m.is_present("c"));
-    assert_eq!(m.value_of("c").unwrap(), "other_val");
+    assert_eq!(
+        m.get_one::<String>("c").map(|v| v.as_str()).unwrap(),
+        "other_val"
+    );
     assert!(m.is_present("f"));
-    assert_eq!(m.value_of("f").unwrap(), "val");
+    assert_eq!(m.get_one::<String>("f").map(|v| v.as_str()).unwrap(), "val");
 }
 
 #[test]
@@ -112,7 +115,10 @@ fn positional_required_2() {
         .try_get_matches_from(vec!["", "someval"])
         .unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "someval");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "someval"
+    );
 }
 
 #[test]
@@ -1232,7 +1238,10 @@ fn requires_with_default_value() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(!m.is_present("flag"));
 }
 
@@ -1255,7 +1264,10 @@ fn requires_if_with_default_value() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(!m.is_present("flag"));
 }
 
@@ -1274,7 +1286,10 @@ fn group_requires_with_default_value() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(!m.is_present("flag"));
 }
 
@@ -1296,7 +1311,10 @@ fn required_if_eq_on_default_value() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(!m.is_present("flag"));
 }
 
@@ -1318,7 +1336,10 @@ fn required_if_eq_all_on_default_value() {
     );
     let m = result.unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("default")
+    );
     assert!(!m.is_present("flag"));
 }
 

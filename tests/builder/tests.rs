@@ -98,7 +98,7 @@ pub fn check_complex_output(args: &str, out: &str) {
     }
 
     if matches.is_present("option") {
-        if let Some(v) = matches.value_of("option") {
+        if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
             writeln!(
                 w,
                 "option present {} times with value: {}",
@@ -107,7 +107,7 @@ pub fn check_complex_output(args: &str, out: &str) {
             )
             .unwrap();
         }
-        if let Some(ov) = matches.values_of("option") {
+        if let Some(ov) = matches.get_many::<String>("option") {
             for o in ov {
                 writeln!(w, "An option: {}", o).unwrap();
             }
@@ -116,7 +116,7 @@ pub fn check_complex_output(args: &str, out: &str) {
         writeln!(w, "option NOT present").unwrap();
     }
 
-    if let Some(p) = matches.value_of("positional") {
+    if let Some(p) = matches.get_one::<String>("positional").map(|v| v.as_str()) {
         writeln!(w, "positional present with value: {}", p).unwrap();
     } else {
         writeln!(w, "positional NOT present").unwrap();
@@ -127,13 +127,19 @@ pub fn check_complex_output(args: &str, out: &str) {
         writeln!(
             w,
             "option2 present with value of: {}",
-            matches.value_of("long-option-2").unwrap()
+            matches
+                .get_one::<String>("long-option-2")
+                .map(|v| v.as_str())
+                .unwrap()
         )
         .unwrap();
         writeln!(
             w,
             "positional2 present with value of: {}",
-            matches.value_of("positional2").unwrap()
+            matches
+                .get_one::<String>("positional2")
+                .map(|v| v.as_str())
+                .unwrap()
         )
         .unwrap();
     } else {
@@ -141,31 +147,45 @@ pub fn check_complex_output(args: &str, out: &str) {
         writeln!(
             w,
             "option2 maybe present with value of: {}",
-            matches.value_of("long-option-2").unwrap_or("Nothing")
+            matches
+                .get_one::<String>("long-option-2")
+                .map(|v| v.as_str())
+                .unwrap_or("Nothing")
         )
         .unwrap();
         writeln!(
             w,
             "positional2 maybe present with value of: {}",
-            matches.value_of("positional2").unwrap_or("Nothing")
+            matches
+                .get_one::<String>("positional2")
+                .map(|v| v.as_str())
+                .unwrap_or("Nothing")
         )
         .unwrap();
     }
 
-    let _ = match matches.value_of("option3").unwrap_or("") {
+    let _ = match matches
+        .get_one::<String>("option3")
+        .map(|v| v.as_str())
+        .unwrap_or("")
+    {
         "fast" => writeln!(w, "option3 present quickly"),
         "slow" => writeln!(w, "option3 present slowly"),
         _ => writeln!(w, "option3 NOT present"),
     };
 
-    let _ = match matches.value_of("positional3").unwrap_or("") {
+    let _ = match matches
+        .get_one::<String>("positional3")
+        .map(|v| v.as_str())
+        .unwrap_or("")
+    {
         "vi" => writeln!(w, "positional3 present in vi mode"),
         "emacs" => writeln!(w, "positional3 present in emacs mode"),
         _ => writeln!(w, "positional3 NOT present"),
     };
 
     if matches.is_present("option") {
-        if let Some(v) = matches.value_of("option") {
+        if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
             writeln!(
                 w,
                 "option present {} times with value: {}",
@@ -174,7 +194,7 @@ pub fn check_complex_output(args: &str, out: &str) {
             )
             .unwrap();
         }
-        if let Some(ov) = matches.values_of("option") {
+        if let Some(ov) = matches.get_many::<String>("option") {
             for o in ov {
                 writeln!(w, "An option: {}", o).unwrap();
             }
@@ -183,7 +203,7 @@ pub fn check_complex_output(args: &str, out: &str) {
         writeln!(w, "option NOT present").unwrap();
     }
 
-    if let Some(p) = matches.value_of("positional") {
+    if let Some(p) = matches.get_one::<String>("positional").map(|v| v.as_str()) {
         writeln!(w, "positional present with value: {}", p).unwrap();
     } else {
         writeln!(w, "positional NOT present").unwrap();
@@ -198,10 +218,10 @@ pub fn check_complex_output(args: &str, out: &str) {
             }
 
             if matches.is_present("option") {
-                if let Some(v) = matches.value_of("option") {
+                if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
                     writeln!(w, "scoption present with value: {}", v).unwrap();
                 }
-                if let Some(ov) = matches.values_of("option") {
+                if let Some(ov) = matches.get_many::<String>("option") {
                     for o in ov {
                         writeln!(w, "An scoption: {}", o).unwrap();
                     }
@@ -210,7 +230,10 @@ pub fn check_complex_output(args: &str, out: &str) {
                 writeln!(w, "scoption NOT present").unwrap();
             }
 
-            if let Some(p) = matches.value_of("scpositional") {
+            if let Some(p) = matches
+                .get_one::<String>("scpositional")
+                .map(|v| v.as_str())
+            {
                 writeln!(w, "scpositional present with value: {}", p).unwrap();
             }
         }

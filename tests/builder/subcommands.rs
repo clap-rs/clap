@@ -116,7 +116,10 @@ fn subcommand() {
     assert_eq!(m.subcommand_name().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
     assert!(sub_m.is_present("test"));
-    assert_eq!(sub_m.value_of("test").unwrap(), "testing");
+    assert_eq!(
+        sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
+        "testing"
+    );
 }
 
 #[test]
@@ -160,7 +163,10 @@ fn subcommand_multiple() {
     assert_eq!(m.subcommand_name().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
     assert!(sub_m.is_present("test"));
-    assert_eq!(sub_m.value_of("test").unwrap(), "testing");
+    assert_eq!(
+        sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
+        "testing"
+    );
 }
 
 #[test]
@@ -335,7 +341,10 @@ fn issue_1031_args_with_same_name() {
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert_eq!(m.value_of("ui-path"), Some("signer"));
+    assert_eq!(
+        m.get_one::<String>("ui-path").map(|v| v.as_str()),
+        Some("signer")
+    );
 }
 
 #[test]
@@ -347,7 +356,10 @@ fn issue_1031_args_with_same_name_no_more_vals() {
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert_eq!(m.value_of("ui-path"), Some("value"));
+    assert_eq!(
+        m.get_one::<String>("ui-path").map(|v| v.as_str()),
+        Some("value")
+    );
     assert_eq!(m.subcommand_name(), Some("signer"));
 }
 
@@ -388,7 +400,9 @@ fn issue_1161_multiple_hyphen_hyphen() {
         "position",
         "args",
     ]);
-    let actual = m.values_of("slop").map(|vals| vals.collect::<Vec<_>>());
+    let actual = m
+        .get_many::<String>("slop")
+        .map(|vals| vals.map(|s| s.as_str()).collect::<Vec<_>>());
 
     assert_eq!(expected, actual);
 }
@@ -399,7 +413,10 @@ fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
         .subcommand(Command::new("subcommand"))
         .arg(Arg::new("argument"))
         .try_get_matches_from(vec!["myprog", "--", "subcommand"]);
-    assert_eq!(m.unwrap().value_of("argument"), Some("subcommand"));
+    assert_eq!(
+        m.unwrap().get_one::<String>("argument").map(|v| v.as_str()),
+        Some("subcommand")
+    );
 }
 
 #[test]
@@ -434,7 +451,10 @@ fn subcommand_after_argument() {
         .subcommand(Command::new("test"))
         .try_get_matches_from(vec!["myprog", "teat", "test"])
         .unwrap();
-    assert_eq!(m.value_of("some_text"), Some("teat"));
+    assert_eq!(
+        m.get_one::<String>("some_text").map(|v| v.as_str()),
+        Some("teat")
+    );
     assert_eq!(m.subcommand().unwrap().0, "test");
 }
 
@@ -445,7 +465,10 @@ fn subcommand_after_argument_looks_like_help() {
         .subcommand(Command::new("test"))
         .try_get_matches_from(vec!["myprog", "helt", "test"])
         .unwrap();
-    assert_eq!(m.value_of("some_text"), Some("helt"));
+    assert_eq!(
+        m.get_one::<String>("some_text").map(|v| v.as_str()),
+        Some("helt")
+    );
     assert_eq!(m.subcommand().unwrap().0, "test");
 }
 

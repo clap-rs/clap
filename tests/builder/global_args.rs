@@ -40,7 +40,8 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
             .unwrap()
             .subcommand_matches("sub1a")
             .unwrap()
-            .value_of("arg1")
+            .get_one::<String>("arg1")
+            .map(|v| v.as_str())
             .unwrap()
     );
 }
@@ -70,7 +71,10 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
         .unwrap();
     assert_eq!(
         Some("world"),
-        m.subcommand_matches("test").unwrap().value_of("sub-str")
+        m.subcommand_matches("test")
+            .unwrap()
+            .get_one::<String>("sub-str")
+            .map(|v| v.as_str())
     );
 }
 

@@ -44,7 +44,10 @@ fn possible_values_of_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("positional"));
-    assert_eq!(m.value_of("positional"), Some("test123"));
+    assert_eq!(
+        m.get_one::<String>("positional").map(|v| v.as_str()),
+        Some("test123")
+    );
 }
 
 #[test]
@@ -63,7 +66,10 @@ fn possible_value_arg_value() {
     let m = m.unwrap();
 
     assert!(m.is_present("arg_value"));
-    assert_eq!(m.value_of("arg_value"), Some("test123"));
+    assert_eq!(
+        m.get_one::<String>("arg_value").map(|v| v.as_str()),
+        Some("test123")
+    );
 }
 
 #[test]
@@ -93,7 +99,10 @@ fn possible_values_of_positional_multiple() {
 
     assert!(m.is_present("positional"));
     assert_eq!(
-        m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("positional")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         vec!["test123", "test321"]
     );
 }
@@ -130,7 +139,10 @@ fn possible_values_of_option() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.value_of("option"), Some("test123"));
+    assert_eq!(
+        m.get_one::<String>("option").map(|v| v.as_str()),
+        Some("test123")
+    );
 }
 
 #[test]
@@ -167,7 +179,10 @@ fn possible_values_of_option_multiple() {
 
     assert!(m.is_present("option"));
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         vec!["test123", "test321"]
     );
 }
@@ -299,7 +314,12 @@ fn alias() {
         .try_get_matches_from(vec!["pv", "--option", "123"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    assert!(m.unwrap().value_of("option").unwrap().eq("123"));
+    assert!(m
+        .unwrap()
+        .get_one::<String>("option")
+        .map(|v| v.as_str())
+        .unwrap()
+        .eq("123"));
 }
 
 #[test]
@@ -319,7 +339,12 @@ fn aliases() {
         .try_get_matches_from(vec!["pv", "--option", "2"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    assert!(m.unwrap().value_of("option").unwrap().eq("2"));
+    assert!(m
+        .unwrap()
+        .get_one::<String>("option")
+        .map(|v| v.as_str())
+        .unwrap()
+        .eq("2"));
 }
 
 #[test]
@@ -338,7 +363,8 @@ fn ignore_case() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m
         .unwrap()
-        .value_of("option")
+        .get_one::<String>("option")
+        .map(|v| v.as_str())
         .unwrap()
         .eq_ignore_ascii_case("test123"));
 }
@@ -375,7 +401,11 @@ fn ignore_case_multiple() {
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(
-        m.unwrap().values_of("option").unwrap().collect::<Vec<_>>(),
+        m.unwrap()
+            .get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["TeSt123", "teST123", "tESt321"]
     );
 }

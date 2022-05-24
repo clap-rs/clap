@@ -99,9 +99,9 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 fn main() {
     let matches = build_cli().get_matches();
 
-    if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
+    if let Some(generator) = matches.get_one::<Shell>("generator") {
         let mut cmd = build_cli();
         eprintln!("Generating completion file for {}...", generator);
-        print_completions(generator, &mut cmd);
+        print_completions(*generator, &mut cmd);
     }
 }
