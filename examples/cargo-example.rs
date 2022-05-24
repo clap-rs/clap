@@ -8,7 +8,7 @@ fn main() {
             clap::command!("example").arg(
                 clap::arg!(--"manifest-path" <PATH>)
                     .required(false)
-                    .allow_invalid_utf8(true),
+                    .value_parser(clap::value_parser!(std::path::PathBuf)),
             ),
         );
     let matches = cmd.get_matches();
@@ -16,8 +16,6 @@ fn main() {
         Some(("example", matches)) => matches,
         _ => unreachable!("clap should ensure we don't get here"),
     };
-    let manifest_path = matches
-        .value_of_os("manifest-path")
-        .map(std::path::PathBuf::from);
+    let manifest_path = matches.get_one::<std::path::PathBuf>("manifest-path");
     println!("{:?}", manifest_path);
 }

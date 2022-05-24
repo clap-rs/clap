@@ -8,18 +8,12 @@ static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
 
 \tDid you mean \"slow\"?
 
-USAGE:
-    clap-test -O <option>
-
 For more information try --help
 ";
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
 \t[possible values: slow, fast, \"ludicrous speed\"]
-
-USAGE:
-    clap-test -O <option>
 
 For more information try --help
 ";
@@ -30,18 +24,12 @@ static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-
 
 \tDid you mean \"ludicrous speed\"?
 
-USAGE:
-    clap-test -O <option>
-
 For more information try --help
 ";
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
 \t[possible values: slow, fast, \"ludicrous speed\"]
-
-USAGE:
-    clap-test -O <option>
 
 For more information try --help
 ";
@@ -285,9 +273,6 @@ fn missing_possible_value_error() {
 static MISSING_PV_ERROR: &str =
     "error: The argument '-O <option>' requires a value but none was supplied
 \t[possible values: slow, fast, \"ludicrous speed\"]
-
-USAGE:
-    clap-test [OPTIONS]
 
 For more information try --help
 ";

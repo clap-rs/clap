@@ -760,7 +760,6 @@ impl TypedValueParser for PathBufValueParser {
                 &[],
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             ));
         }
         Ok(Self::Value::from(value))
@@ -869,7 +868,6 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
                 &possible_vals(),
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             )
         })?;
         let value = E::value_variants()
@@ -886,7 +884,6 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
                 &possible_vals(),
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             )
             })?
             .clone();
@@ -997,7 +994,6 @@ impl TypedValueParser for PossibleValuesParser {
                 &possible_vals,
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             ))
         }
     }
@@ -1260,7 +1256,6 @@ impl TypedValueParser for BoolValueParser {
                 &possible_vals,
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             ));
         };
         Ok(value)
@@ -1529,7 +1524,6 @@ impl TypedValueParser for NonEmptyStringValueParser {
                 &[],
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             ));
         }
         let value = value.to_str().ok_or_else(|| {

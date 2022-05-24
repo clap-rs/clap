@@ -40,15 +40,12 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             if should_err {
                 return Err(Error::empty_value(
                     self.cmd,
-                    &o.possible_vals
+                    &get_possible_values(o)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
                     o.to_string(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
                 ));
             }
         }
@@ -110,12 +107,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .iter()
                     .any(|pv| pv.matches(&val_str, arg.is_ignore_case_set()));
                 if !ok {
-                    let used: Vec<Id> = matcher
-                        .arg_names()
-                        .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
-                        .filter(|&n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
-                        .cloned()
-                        .collect();
                     return Err(Error::invalid_value(
                         self.cmd,
                         val_str.into_owned(),
@@ -125,9 +116,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                             .map(PossibleValue::get_name)
                             .collect::<Vec<_>>(),
                         arg.to_string(),
-                        Usage::new(self.cmd)
-                            .required(&self.required)
-                            .create_usage_with_title(&used),
                     ));
                 }
             }
@@ -135,15 +123,12 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
                     self.cmd,
-                    &arg.possible_vals
+                    &get_possible_values(arg)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
                     arg.to_string(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
                 ));
             }
 
@@ -448,15 +433,12 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         if a.is_takes_value_set() && !min_vals_zero && ma.all_val_groups_empty() {
             return Err(Error::empty_value(
                 self.cmd,
-                &a.possible_vals
+                &get_possible_values(a)
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
                     .map(PossibleValue::get_name)
                     .collect::<Vec<_>>(),
                 a.to_string(),
-                Usage::new(self.cmd)
-                    .required(&self.required)
-                    .create_usage_with_title(&[]),
             ));
         }
         Ok(())
@@ -672,5 +654,21 @@ impl Conflicts {
             );
             conf
         })
+    }
+}
+
+fn get_possible_values<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
+    #![allow(deprecated)]
+    if !a.is_takes_value_set() {
+        vec![]
+    } else if let Some(pvs) = a.get_possible_values() {
+        // Check old first in case the user explicitly set possible values and the derive inferred
+        // a `ValueParser` with some.
+        pvs.to_vec()
+    } else {
+        a.get_value_parser()
+            .possible_values()
+            .map(|pvs| pvs.collect())
+            .unwrap_or_default()
     }
 }

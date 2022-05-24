@@ -1,6 +1,7 @@
+use std::path::PathBuf;
 use std::process::exit;
 
-use clap::{Arg, Command};
+use clap::{value_parser, Arg, Command};
 
 fn applet_commands() -> [Command<'static>; 2] {
     [
@@ -24,6 +25,7 @@ fn main() {
                         .exclusive(true)
                         .takes_value(true)
                         .default_missing_value("/usr/local/bin")
+                        .value_parser(value_parser!(PathBuf))
                         .use_value_delimiter(false),
                 )
                 .subcommands(applet_commands()),

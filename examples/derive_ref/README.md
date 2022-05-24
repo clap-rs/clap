@@ -274,16 +274,16 @@ Notes:
   - Implies `arg.takes_value(true).allow_invalid_utf8(true)`
 - `from_occurrences`:
   - Implies `arg.takes_value(false).multiple_occurrences(true)`
-  - Reads from `clap::ArgMatches::occurrences_of` rather than a `value_of` function
+  - Reads from `clap::ArgMatches::occurrences_of` rather than a `get_one` function
     - Note: operations on values, like `default_value`, are unlikely to do what you want
 - `from_flag`
   - Implies `arg.takes_value(false)`
-  - Reads from `clap::ArgMatches::is_present` rather than a `value_of` function
+  - Reads from `clap::ArgMatches::is_present` rather than a `get_one` function
     - Note: operations on values, like `default_value`, are unlikely to do what you want
 
 **Warning:**
-- To support non-UTF8 paths, you must use `parse(from_os_str)`, otherwise
-  `clap` will use `clap::ArgMatches::value_of` with `PathBuf::FromStr`.
+- To support non-UTF8 paths, you should use `#[clap(value_parser)]` otherwise
+  `clap` will parse it as a `String` which will fail on some paths.
 
 ## Doc Comments
 

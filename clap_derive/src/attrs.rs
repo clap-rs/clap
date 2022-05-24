@@ -805,7 +805,12 @@ impl ValueParser {
             Self::Explicit(method) => method,
             Self::Implicit(ident) => {
                 let func = Ident::new("value_parser", ident.span());
-                Method::new(func, quote!(clap::value_parser!(#inner_type)))
+                Method::new(
+                    func,
+                    quote_spanned! { ident.span()=>
+                        clap::value_parser!(#inner_type)
+                    },
+                )
             }
         }
     }
@@ -955,14 +960,23 @@ impl Parser {
     fn value_parser(&self) -> Method {
         let func = Ident::new("value_parser", self.kind.span());
         match *self.kind {
-            ParserKind::FromStr | ParserKind::TryFromStr => {
-                Method::new(func, quote!(clap::builder::ValueParser::string()))
-            }
-            ParserKind::FromOsStr | ParserKind::TryFromOsStr => {
-                Method::new(func, quote!(clap::builder::ValueParser::os_string()))
-            }
-            ParserKind::FromOccurrences => Method::new(func, quote!(clap::value_parser!(usize))),
-            ParserKind::FromFlag => Method::new(func, quote!(clap::ValueParser::bool())),
+            ParserKind::FromStr | ParserKind::TryFromStr => Method::new(
+                func,
+                quote_spanned! { self.kind.span()=>
+                clap::builder::ValueParser::string()},
+            ),
+            ParserKind::FromOsStr | ParserKind::TryFromOsStr => Method::new(
+                func,
+                quote_spanned! { self.kind.span()=> clap::builder::ValueParser::os_string()},
+            ),
+            ParserKind::FromOccurrences => Method::new(
+                func,
+                quote_spanned! { self.kind.span()=> clap::value_parser!(usize)},
+            ),
+            ParserKind::FromFlag => Method::new(
+                func,
+                quote_spanned! { self.kind.span()=> clap::ValueParser::bool()},
+            ),
         }
     }
 }

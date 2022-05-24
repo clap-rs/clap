@@ -288,20 +288,12 @@ impl Error {
             ])
     }
 
-    pub(crate) fn empty_value(
-        cmd: &Command,
-        good_vals: &[&str],
-        arg: String,
-        usage: String,
-    ) -> Self {
+    pub(crate) fn empty_value(cmd: &Command, good_vals: &[&str], arg: String) -> Self {
         let info = vec![arg.clone()];
         let mut err = Self::new(ErrorKind::EmptyValue)
             .with_cmd(cmd)
             .set_info(info)
-            .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (ContextKind::Usage, ContextValue::String(usage)),
-            ]);
+            .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))]);
         if !good_vals.is_empty() {
             err = err.insert_context_unchecked(
                 ContextKind::ValidValue,
@@ -327,7 +319,6 @@ impl Error {
         bad_val: String,
         good_vals: &[&str],
         arg: String,
-        usage: String,
     ) -> Self {
         let mut info = vec![arg.clone(), bad_val.clone()];
         info.extend(good_vals.iter().map(|s| (*s).to_owned()));
@@ -343,7 +334,6 @@ impl Error {
                     ContextKind::ValidValue,
                     ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
                 ),
-                (ContextKind::Usage, ContextValue::String(usage)),
             ]);
         if let Some(suggestion) = suggestion {
             err = err.insert_context_unchecked(
