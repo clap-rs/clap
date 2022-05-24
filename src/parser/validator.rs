@@ -46,9 +46,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
                     o.to_string(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
                 ));
             }
         }
@@ -110,12 +107,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .iter()
                     .any(|pv| pv.matches(&val_str, arg.is_ignore_case_set()));
                 if !ok {
-                    let used: Vec<Id> = matcher
-                        .arg_names()
-                        .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
-                        .filter(|&n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
-                        .cloned()
-                        .collect();
                     return Err(Error::invalid_value(
                         self.cmd,
                         val_str.into_owned(),
@@ -125,9 +116,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                             .map(PossibleValue::get_name)
                             .collect::<Vec<_>>(),
                         arg.to_string(),
-                        Usage::new(self.cmd)
-                            .required(&self.required)
-                            .create_usage_with_title(&used),
                     ));
                 }
             }
@@ -141,9 +129,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .map(PossibleValue::get_name)
                         .collect::<Vec<_>>(),
                     arg.to_string(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
                 ));
             }
 
@@ -454,9 +439,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .map(PossibleValue::get_name)
                     .collect::<Vec<_>>(),
                 a.to_string(),
-                Usage::new(self.cmd)
-                    .required(&self.required)
-                    .create_usage_with_title(&[]),
             ));
         }
         Ok(())

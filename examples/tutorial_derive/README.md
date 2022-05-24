@@ -417,9 +417,6 @@ $ 04_01_enum_derive medium
 error: "medium" isn't a valid value for '<MODE>'
 	[possible values: fast, slow]
 
-USAGE:
-    04_01_enum_derive[EXE] <MODE>
-
 For more information try --help
 
 ```

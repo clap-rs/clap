@@ -405,9 +405,6 @@ $ 04_01_possible medium
 error: "medium" isn't a valid value for '<MODE>'
 	[possible values: fast, slow]
 
-USAGE:
-    04_01_possible[EXE] <MODE>
-
 For more information try --help
 
 ```
@@ -440,9 +437,6 @@ $ 04_01_enum medium
 ? failed
 error: "medium" isn't a valid value for '<MODE>'
 	[possible values: fast, slow]
-
-USAGE:
-    04_01_enum[EXE] <MODE>
 
 For more information try --help
 
