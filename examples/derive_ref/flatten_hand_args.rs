@@ -19,8 +19,7 @@ impl FromArgMatches for CliArgs {
             bar: matches.is_present("bar"),
             quuz: matches
                 .remove_one::<String>("quuz")
-                .expect("matches definition")
-                .map(|quuz| std::sync::Arc::try_unwrap(quuz).unwrap_or_else(|arc| (*arc).clone())),
+                .expect("matches definition"),
         })
     }
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
@@ -34,7 +33,7 @@ impl FromArgMatches for CliArgs {
             .remove_one::<String>("quuz")
             .expect("matches definition")
         {
-            self.quuz = Some(std::sync::Arc::try_unwrap(quuz).unwrap_or_else(|arc| (*arc).clone()));
+            self.quuz = Some(quuz);
         }
         Ok(())
     }
