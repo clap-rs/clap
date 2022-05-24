@@ -65,7 +65,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         usage: &'cmd Usage<'help, 'cmd>,
         use_long: bool,
     ) -> Self {
-        debug!("Help::new");
+        debug!("Help::new cmd={}, use_long={}", cmd.get_name(), use_long);
         let term_w = match cmd.get_term_width() {
             Some(0) => usize::MAX,
             Some(w) => w,
@@ -456,7 +456,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
-            let possible_vals = get_possible_values(arg);
+            let possible_vals = arg.get_possible_values2();
             if self.use_long
                 && !arg.is_hide_possible_values_set()
                 && possible_vals.iter().any(PossibleValue::should_show_help)
@@ -658,7 +658,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             }
         }
 
-        let possible_vals = get_possible_values(a);
+        let possible_vals = a.get_possible_values2();
         if !(a.is_hide_possible_values_set()
             || possible_vals.is_empty()
             || cfg!(feature = "unstable-v4")
@@ -1139,21 +1139,6 @@ fn text_wrapper(help: &str, width: usize) -> String {
         .map(|line| textwrap::fill(line, &wrapper))
         .collect::<Vec<String>>()
         .join("\n")
-}
-
-fn get_possible_values<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
-    if !a.is_takes_value_set() {
-        vec![]
-    } else if let Some(pvs) = a.get_possible_values() {
-        // Check old first in case the user explicitly set possible values and the derive inferred
-        // a `ValueParser` with some.
-        pvs.to_vec()
-    } else {
-        a.get_value_parser()
-            .possible_values()
-            .map(|pvs| pvs.collect())
-            .unwrap_or_default()
-    }
 }
 
 #[cfg(test)]

@@ -4677,6 +4677,22 @@ impl<'help> Arg<'help> {
         }
     }
 
+    pub(crate) fn get_possible_values2(&self) -> Vec<PossibleValue<'help>> {
+        #![allow(deprecated)]
+        if !self.is_takes_value_set() {
+            vec![]
+        } else if let Some(pvs) = self.get_possible_values() {
+            // Check old first in case the user explicitly set possible values and the derive inferred
+            // a `ValueParser` with some.
+            pvs.to_vec()
+        } else {
+            self.get_value_parser()
+                .possible_values()
+                .map(|pvs| pvs.collect())
+                .unwrap_or_default()
+        }
+    }
+
     /// Get the names of values for this argument.
     #[inline]
     pub fn get_value_names(&self) -> Option<&[&'help str]> {

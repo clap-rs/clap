@@ -4902,7 +4902,9 @@ impl<'help> App<'help> {
                 || v.is_hide_long_help_set()
                 || v.is_hide_short_help_set()
                 || cfg!(feature = "unstable-v4")
-                    && v.possible_vals.iter().any(PossibleValue::should_show_help)
+                    && v.get_possible_values2()
+                        .iter()
+                        .any(PossibleValue::should_show_help)
         };
 
         // Subcommands aren't checked because we prefer short help for them, deferring to
