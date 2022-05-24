@@ -11,8 +11,7 @@ pub enum ErrorKind {
     /// # use clap::{Command, Arg, ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("speed")
-    ///         .possible_value("fast")
-    ///         .possible_value("slow"))
+    ///         .value_parser(["fast", "slow"]))
     ///     .try_get_matches_from(vec!["prog", "other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidValue);

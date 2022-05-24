@@ -128,6 +128,7 @@ pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
 
 /// Get the possible values for completion
 pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::PossibleValue<'help>>> {
+    #![allow(deprecated)]
     if !a.is_takes_value_set() {
         None
     } else if let Some(pvs) = a.get_possible_values() {

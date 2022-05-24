@@ -12,7 +12,7 @@
 //! . ./value_hints.fish
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
-use clap::{Arg, Command, ValueHint};
+use clap::{value_parser, Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
@@ -23,7 +23,7 @@ fn build_cli() -> Command<'static> {
         .arg(
             Arg::new("generator")
                 .long("generate")
-                .possible_values(Shell::possible_values()),
+                .value_parser(value_parser!(Shell)),
         )
         .arg(
             Arg::new("unknown")

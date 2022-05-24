@@ -24,9 +24,9 @@ macro_rules! create_app {
                 arg!([positional2] "tests positionals with exclusions"),
                 arg!(-O --Option <option3> "tests options with specific value sets")
                 .required(false)
-                    .possible_values(OPT3_VALS),
+                    .value_parser(OPT3_VALS),
                 arg!([positional3] ... "tests positionals with specific values")
-                    .possible_values(POS3_VALS),
+                    .value_parser(POS3_VALS),
                 arg!(--multvals "Tests multiple values not mult occs").required(false).value_names(&["one", "two"]),
                 arg!(
                     --multvalsmo "Tests multiple values, not mult occs"
@@ -96,7 +96,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .long("Option")
                         .takes_value(true)
                         .help("tests options with specific value sets")
-                        .possible_values(OPT3_VALS),
+                        .value_parser(OPT3_VALS),
                 )
                 .arg(
                     Arg::new("positional3")
@@ -105,7 +105,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .multiple_occurrences(true)
                         .help("tests positionals with specific values")
                         .index(4)
-                        .possible_values(POS3_VALS),
+                        .value_parser(POS3_VALS),
                 )
                 .arg(
                     Arg::new("multvals")

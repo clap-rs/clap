@@ -8,7 +8,7 @@ fn possible_values_ignore_case() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("ä")
+                .value_parser(["ä"])
                 .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "Ä"]);

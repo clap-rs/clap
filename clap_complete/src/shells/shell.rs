@@ -23,7 +23,8 @@ pub enum Shell {
 }
 
 impl Shell {
-    /// Report all `possible_values`
+    /// Deprecated, replaced with [`ArgEnumValueParser`][clap::builder::ArgEnumValueParser]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgEnumValueParser`")]
     pub fn possible_values() -> impl Iterator<Item = PossibleValue<'static>> {
         Shell::value_variants()
             .iter()

@@ -1654,76 +1654,11 @@ impl<'help> Arg<'help> {
         })
     }
 
-    /// Add a possible value for this argument.
-    ///
-    /// At runtime, `clap` verifies that only one of the specified values was used, or fails with
-    /// error message.
-    ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
-    ///
-    /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
-    /// over single possible values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("mode")
-    ///     .takes_value(true)
-    ///     .possible_value("fast")
-    ///     .possible_value("slow")
-    ///     .possible_value("medium")
-    /// # ;
-    /// ```
-    /// The same using [`PossibleValue`]:
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, PossibleValue};
-    /// Arg::new("mode").takes_value(true)
-    ///     .possible_value(PossibleValue::new("fast"))
-    /// // value with a help text
-    ///     .possible_value(PossibleValue::new("slow").help("not that fast"))
-    /// // value that is hidden from completion and help text
-    ///     .possible_value(PossibleValue::new("medium").hide(true))
-    /// # ;
-    /// ```
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_value("fast")
-    ///         .possible_value("slow")
-    ///         .possible_value("medium"))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--mode", "fast"
-    ///     ]);
-    /// assert!(m.is_present("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast"));
-    /// ```
-    ///
-    /// The next example shows a failed parse from using a value which wasn't defined as one of the
-    /// possible values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_value("fast")
-    ///         .possible_value("slow")
-    ///         .possible_value("medium"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--mode", "wrong"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
-    /// ```
-    /// [options]: Arg::takes_value()
-    /// [positional arguments]: Arg::index()
+    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+    )]
     #[must_use]
     pub fn possible_value<T>(mut self, value: T) -> Self
     where
@@ -1733,73 +1668,11 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Possible values for this argument.
-    ///
-    /// At runtime, `clap` verifies that
-    /// only one of the specified values was used, or fails with an error message.
-    ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
-    ///
-    /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
-    /// over single possible values.
-    ///
-    /// See also [hide_possible_values][Arg::hide_possible_values].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("mode")
-    ///     .takes_value(true)
-    ///     .possible_values(["fast", "slow", "medium"])
-    /// # ;
-    /// ```
-    /// The same using [`PossibleValue`]:
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, PossibleValue};
-    /// Arg::new("mode").takes_value(true).possible_values([
-    ///     PossibleValue::new("fast"),
-    /// // value with a help text
-    ///     PossibleValue::new("slow").help("not that fast"),
-    /// // value that is hidden from completion and help text
-    ///     PossibleValue::new("medium").hide(true),
-    /// ])
-    /// # ;
-    /// ```
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_values(["fast", "slow", "medium"]))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--mode", "fast"
-    ///     ]);
-    /// assert!(m.is_present("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast"));
-    /// ```
-    ///
-    /// The next example shows a failed parse from using a value which wasn't defined as one of the
-    /// possible values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_values(["fast", "slow", "medium"]))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--mode", "wrong"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
-    /// ```
-    /// [options]: Arg::takes_value()
-    /// [positional arguments]: Arg::index()
+    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+    )]
     #[must_use]
     pub fn possible_values<I, T>(mut self, values: I) -> Self
     where
@@ -1832,7 +1705,7 @@ impl<'help> Arg<'help> {
     ///         .long("option")
     ///         .takes_value(true)
     ///         .ignore_case(true)
-    ///         .possible_value("test123"))
+    ///         .value_parser(["test123"]))
     ///     .get_matches_from(vec![
     ///         "pv", "--option", "TeSt123",
     ///     ]);
@@ -1851,7 +1724,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .ignore_case(true)
     ///         .multiple_values(true)
-    ///         .possible_values(&["test123", "test321"]))
+    ///         .value_parser(["test123", "test321"]))
     ///     .get_matches_from(vec![
     ///         "pv", "--option", "TeSt123", "teST123", "tESt321"
     ///     ]);
@@ -2421,7 +2294,7 @@ impl<'help> Arg<'help> {
     ///         Command::new("prog")
     ///             .arg(Arg::new("color").long("color")
     ///                 .value_name("WHEN")
-    ///                 .possible_values(["always", "auto", "never"])
+    ///                 .value_parser(["always", "auto", "never"])
     ///                 .default_value("auto")
     ///                 .overrides_with("color")
     ///                 .min_values(0)
@@ -2950,7 +2823,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Do not display the [possible values][Arg::possible_values] in the help message.
+    /// Do not display the [possible values][crate::builder::ValueParser::possible_values] in the help message.
     ///
     /// This is useful for args with many values, or ones which are explained elsewhere in the
     /// help text.
@@ -2967,7 +2840,7 @@ impl<'help> Arg<'help> {
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .possible_values(["fast", "slow"])
+    ///         .value_parser(["fast", "slow"])
     ///         .takes_value(true)
     ///         .hide_possible_values(true));
     /// ```
@@ -4541,8 +4414,11 @@ impl<'help> Arg<'help> {
         Some(longs)
     }
 
-    /// Get the list of the possible values for this argument, if any
-    #[inline]
+    /// Deprecated, replaced with [`Arg::get_value_parser().possible_values()`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::get_value_parser().possible_values()`"
+    )]
     pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
         if self.possible_vals.is_empty() {
             None

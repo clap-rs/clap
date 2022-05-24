@@ -158,14 +158,14 @@ fn default_missing_value_flag_value() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_missing_value=value doesn't match possible values"]
+#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: \"value\" isn't a valid value for '<arg>'"]
 fn default_missing_values_are_possible_values() {
     use clap::{Arg, Command};
 
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
-                .possible_values(["one", "two"])
+                .value_parser(["one", "two"])
                 .default_missing_value("value"),
         )
         .try_get_matches();

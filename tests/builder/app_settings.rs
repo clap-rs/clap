@@ -415,8 +415,8 @@ fn skip_possible_values() {
         .args(&[
             arg!(-o --opt <opt> "some option")
                 .required(false)
-                .possible_values(["one", "two"]),
-            arg!([arg1] "some pos arg").possible_values(["three", "four"]),
+                .value_parser(["one", "two"]),
+            arg!([arg1] "some pos arg").value_parser(["three", "four"]),
         ]);
 
     utils::assert_output(cmd, "test --help", SKIP_POS_VALS, false);

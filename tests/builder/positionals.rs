@@ -148,7 +148,7 @@ fn positional_possible_values() {
     let r = Command::new("positional_possible_values")
         .args(&[
             arg!(-f --flag "some flag"),
-            Arg::new("positional").index(1).possible_value("test123"),
+            Arg::new("positional").index(1).value_parser(["test123"]),
         ])
         .try_get_matches_from(vec!["", "-f", "test123"]);
     assert!(r.is_ok(), "{:#?}", r);

@@ -201,7 +201,7 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
         write!(&mut opts, "--{} ", long).unwrap();
     }
     for pos in p.get_positionals() {
-        if let Some(vals) = pos.get_possible_values() {
+        if let Some(vals) = utils::possible_values(pos) {
             for value in vals {
                 write!(&mut opts, "{} ", value.get_name()).unwrap();
             }

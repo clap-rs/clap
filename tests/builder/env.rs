@@ -259,7 +259,7 @@ fn possible_value() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_PV")
                 .takes_value(true)
-                .possible_value("env"),
+                .value_parser(["env"]),
         )
         .try_get_matches_from(vec![""]);
 
@@ -279,7 +279,7 @@ fn not_possible_value() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_NPV")
                 .takes_value(true)
-                .possible_value("never"),
+                .value_parser(["never"]),
         )
         .try_get_matches_from(vec![""]);
 

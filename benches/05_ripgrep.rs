@@ -352,7 +352,7 @@ where
                 .value_name("WHEN")
                 .takes_value(true)
                 .hide_possible_values(true)
-                .possible_values(["never", "auto", "always", "ansi"]),
+                .value_parser(["never", "auto", "always", "ansi"]),
         )
         .arg(
             flag("colors")

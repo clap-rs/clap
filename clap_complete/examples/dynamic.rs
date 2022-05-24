@@ -13,7 +13,7 @@ fn command() -> clap::Command<'static> {
             clap::Arg::new("format")
                 .long("--format")
                 .short('F')
-                .possible_values(["json", "yaml", "toml"]),
+                .value_parser(["json", "yaml", "toml"]),
         )
         .args_conflicts_with_subcommands(true);
     let cmd = clap_complete::dynamic::bash::CompleteCommand::augment_subcommands(cmd);

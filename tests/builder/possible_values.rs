@@ -37,7 +37,7 @@ For more information try --help
 #[test]
 fn possible_values_of_positional() {
     let m = Command::new("possible_values")
-        .arg(Arg::new("positional").index(1).possible_value("test123"))
+        .arg(Arg::new("positional").index(1).value_parser(["test123"]))
         .try_get_matches_from(vec!["myprog", "test123"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -51,11 +51,11 @@ fn possible_values_of_positional() {
 fn possible_value_arg_value() {
     let m = Command::new("possible_values")
         .arg(
-            Arg::new("arg_value").index(1).possible_value(
-                PossibleValue::new("test123")
+            Arg::new("arg_value")
+                .index(1)
+                .value_parser([PossibleValue::new("test123")
                     .hide(false)
-                    .help("It's just a test"),
-            ),
+                    .help("It's just a test")]),
         )
         .try_get_matches_from(vec!["myprog", "test123"]);
 
@@ -69,7 +69,7 @@ fn possible_value_arg_value() {
 #[test]
 fn possible_values_of_positional_fail() {
     let m = Command::new("possible_values")
-        .arg(Arg::new("positional").index(1).possible_value("test123"))
+        .arg(Arg::new("positional").index(1).value_parser(["test123"]))
         .try_get_matches_from(vec!["myprog", "notest"]);
 
     assert!(m.is_err());
@@ -83,8 +83,7 @@ fn possible_values_of_positional_multiple() {
             Arg::new("positional")
                 .index(1)
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .multiple_values(true),
         )
         .try_get_matches_from(vec!["myprog", "test123", "test321"]);
@@ -106,8 +105,7 @@ fn possible_values_of_positional_multiple_fail() {
             Arg::new("positional")
                 .index(1)
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .multiple_values(true),
         )
         .try_get_matches_from(vec!["myprog", "test123", "notest"]);
@@ -124,7 +122,7 @@ fn possible_values_of_option() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123"),
+                .value_parser(["test123"]),
         )
         .try_get_matches_from(vec!["myprog", "--option", "test123"]);
 
@@ -143,7 +141,7 @@ fn possible_values_of_option_fail() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123"),
+                .value_parser(["test123"]),
         )
         .try_get_matches_from(vec!["myprog", "--option", "notest"]);
 
@@ -159,8 +157,7 @@ fn possible_values_of_option_multiple() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .multiple_occurrences(true),
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "test321"]);
@@ -183,8 +180,7 @@ fn possible_values_of_option_multiple_fail() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .multiple_occurrences(true),
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "notest"]);
@@ -196,11 +192,12 @@ fn possible_values_of_option_multiple_fail() {
 #[test]
 fn possible_values_output() {
     utils::assert_output(
-        Command::new("test").arg(Arg::new("option").short('O').possible_values([
-            "slow",
-            "fast",
-            "ludicrous speed",
-        ])),
+        Command::new("test").arg(
+            Arg::new("option")
+                .short('O')
+                .takes_value(true)
+                .value_parser(["slow", "fast", "ludicrous speed"]),
+        ),
         "clap-test -O slo",
         PV_ERROR,
         true,
@@ -213,9 +210,12 @@ fn possible_values_alias_output() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .possible_value("slow")
-                .possible_value(PossibleValue::new("fast").alias("fost"))
-                .possible_value(PossibleValue::new("ludicrous speed").aliases(["ls", "lcs"])),
+                .takes_value(true)
+                .value_parser([
+                    "slow".into(),
+                    PossibleValue::new("fast").alias("fost"),
+                    PossibleValue::new("ludicrous speed").aliases(["ls", "lcs"]),
+                ]),
         ),
         "clap-test -O slo",
         PV_ERROR,
@@ -229,9 +229,13 @@ fn possible_values_hidden_output() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .possible_values(["slow", "fast"])
-                .possible_value(PossibleValue::new("ludicrous speed"))
-                .possible_value(PossibleValue::new("forbidden speed").hide(true)),
+                .takes_value(true)
+                .value_parser([
+                    "slow".into(),
+                    "fast".into(),
+                    PossibleValue::new("ludicrous speed"),
+                    PossibleValue::new("forbidden speed").hide(true),
+                ]),
         ),
         "clap-test -O slo",
         PV_ERROR,
@@ -242,11 +246,12 @@ fn possible_values_hidden_output() {
 #[test]
 fn escaped_possible_values_output() {
     utils::assert_output(
-        Command::new("test").arg(Arg::new("option").short('O').possible_values([
-            "slow",
-            "fast",
-            "ludicrous speed",
-        ])),
+        Command::new("test").arg(
+            Arg::new("option")
+                .short('O')
+                .takes_value(true)
+                .value_parser(["slow", "fast", "ludicrous speed"]),
+        ),
         "clap-test -O ludicrous",
         PV_ERROR_ESCAPED,
         true,
@@ -259,10 +264,13 @@ fn missing_possible_value_error() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .possible_value("slow")
-                .possible_value(PossibleValue::new("fast").alias("fost"))
-                .possible_value(PossibleValue::new("ludicrous speed"))
-                .possible_value(PossibleValue::new("forbidden speed").hide(true)),
+                .takes_value(true)
+                .value_parser([
+                    "slow".into(),
+                    PossibleValue::new("fast").alias("fost"),
+                    PossibleValue::new("ludicrous speed"),
+                    PossibleValue::new("forbidden speed").hide(true),
+                ]),
         ),
         "clap-test -O",
         MISSING_PV_ERROR,
@@ -285,8 +293,7 @@ fn alias() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value(PossibleValue::new("test123").alias("123"))
-                .possible_value("test321")
+                .value_parser([PossibleValue::new("test123").alias("123"), "test321".into()])
                 .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "123"]);
@@ -303,8 +310,10 @@ fn aliases() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value(PossibleValue::new("test123").aliases(["1", "2", "3"]))
-                .possible_value("test321")
+                .value_parser([
+                    PossibleValue::new("test123").aliases(["1", "2", "3"]),
+                    "test321".into(),
+                ])
                 .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "2"]);
@@ -321,8 +330,7 @@ fn ignore_case() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
@@ -343,8 +351,7 @@ fn ignore_case_fail() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321"),
+                .value_parser(["test123", "test321"]),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
 
@@ -360,8 +367,7 @@ fn ignore_case_multiple() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .multiple_values(true)
                 .ignore_case(true),
         )
@@ -382,8 +388,7 @@ fn ignore_case_multiple_fail() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .possible_value("test123")
-                .possible_value("test321")
+                .value_parser(["test123", "test321"])
                 .multiple_values(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "test123", "teST123", "test321"]);

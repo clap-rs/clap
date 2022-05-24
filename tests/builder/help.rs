@@ -988,31 +988,32 @@ OPTIONS:
         .arg(
             Arg::new("possible_values")
                 .long("possible-values")
-                .possible_value(
+                .takes_value(true)
+                .value_parser([
                     PossibleValue::new("short_name")
                         .help("Long enough help message, barely warrant wrapping"),
-                )
-                .possible_value(
                     PossibleValue::new("second").help("Short help gets handled the same"),
-                ),
+                ]),
         )
         .arg(
             Arg::new("possible_values_with_new_line")
                 .long("possible-values-with-new-line")
-                .possible_value(
+                .takes_value(true)
+                .value_parser([
                     PossibleValue::new("long enough name to trigger new line").help(
                         "Really long enough help message to clearly warrant wrapping believe me",
                     ),
-                )
-                .possible_value("second"),
+                    PossibleValue::new("second"),
+                ]),
         )
         .arg(
             Arg::new("possible_values_without_new_line")
                 .long("possible-values-without-new-line")
-                .possible_value(
+                .takes_value(true)
+                .value_parser([
                     PossibleValue::new("name").help("Short enough help message with no wrapping"),
-                )
-                .possible_value(PossibleValue::new("second").help("short help")),
+                    PossibleValue::new("second").help("short help"),
+                ]),
         );
     utils::assert_output(cmd, "test --help", WRAPPED_HELP, false);
 }
@@ -1052,7 +1053,7 @@ fn hide_possible_vals() {
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
-                .possible_values(["fast", "slow"])
+                .value_parser(["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
         )
@@ -1062,7 +1063,7 @@ fn hide_possible_vals() {
                 .long("cafe")
                 .value_name("FILE")
                 .hide_possible_values(true)
-                .possible_values(["fast", "slow"])
+                .value_parser(["fast", "slow"])
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
@@ -1078,8 +1079,11 @@ fn hide_single_possible_val() {
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
-                .possible_values(["fast", "slow"])
-                .possible_value(PossibleValue::new("secret speed").hide(true))
+                .value_parser([
+                    "fast".into(),
+                    "slow".into(),
+                    PossibleValue::new("secret speed").hide(true),
+                ])
                 .help("Some vals")
                 .takes_value(true),
         )
@@ -1138,9 +1142,11 @@ OPTIONS:
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
-                .possible_value("fast")
-                .possible_value(PossibleValue::new("slow").help("not as fast"))
-                .possible_value(PossibleValue::new("secret speed").hide(true))
+                .value_parser([
+                    PossibleValue::new("fast"),
+                    PossibleValue::new("slow").help("not as fast"),
+                    PossibleValue::new("secret speed").hide(true),
+                ])
                 .help("Some vals")
                 .takes_value(true),
         )
@@ -1284,7 +1290,7 @@ fn issue_688_hide_pos_vals() {
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
-				.possible_values(filter_values)
+				.value_parser(filter_values)
 				.takes_value(true));
     utils::assert_output(app1, "ctest --help", ISSUE_688, false);
 
@@ -1295,7 +1301,7 @@ fn issue_688_hide_pos_vals() {
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear).")
 				.long("filter")
-				.possible_values(filter_values)
+				.value_parser(filter_values)
 				.takes_value(true));
     utils::assert_output(app2, "ctest --help", ISSUE_688, false);
 
@@ -1674,7 +1680,7 @@ fn escaped_whitespace_values() {
             .help("Pass an argument to the program.")
             .long("arg")
             .default_value("\n")
-            .possible_values(["normal", " ", "\n", "\t", "other"]),
+            .value_parser(["normal", " ", "\n", "\t", "other"]),
     );
     utils::assert_output(app1, "default --help", ESCAPED_DEFAULT_VAL, false);
 }
@@ -1847,7 +1853,7 @@ fn multiple_custom_help_headers() {
                 .long("speed")
                 .short('s')
                 .value_name("SPEED")
-                .possible_values(["fast", "slow"])
+                .value_parser(["fast", "slow"])
                 .help("How fast?")
                 .takes_value(true),
         );
