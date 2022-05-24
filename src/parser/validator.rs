@@ -40,7 +40,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             if should_err {
                 return Err(Error::empty_value(
                     self.cmd,
-                    &o.possible_vals
+                    &get_possible_values(o)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
@@ -123,7 +123,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 debug!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
                     self.cmd,
-                    &arg.possible_vals
+                    &get_possible_values(arg)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
@@ -433,7 +433,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         if a.is_takes_value_set() && !min_vals_zero && ma.all_val_groups_empty() {
             return Err(Error::empty_value(
                 self.cmd,
-                &a.possible_vals
+                &get_possible_values(a)
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
                     .map(PossibleValue::get_name)
@@ -654,5 +654,21 @@ impl Conflicts {
             );
             conf
         })
+    }
+}
+
+fn get_possible_values<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
+    #![allow(deprecated)]
+    if !a.is_takes_value_set() {
+        vec![]
+    } else if let Some(pvs) = a.get_possible_values() {
+        // Check old first in case the user explicitly set possible values and the derive inferred
+        // a `ValueParser` with some.
+        pvs.to_vec()
+    } else {
+        a.get_value_parser()
+            .possible_values()
+            .map(|pvs| pvs.collect())
+            .unwrap_or_default()
     }
 }
