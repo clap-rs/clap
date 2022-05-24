@@ -115,7 +115,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
-    pub fn get_one<T: Any + Send + Sync + 'static>(
+    pub fn get_one<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
     ) -> Result<Option<&T>, MatchesError> {
@@ -162,7 +162,7 @@ impl ArgMatches {
     ///     .collect();
     /// assert_eq!(vals, [22, 80, 2020]);
     /// ```
-    pub fn get_many<T: Any + Send + Sync + 'static>(
+    pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
     ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
@@ -248,7 +248,6 @@ impl ArgMatches {
     ///     ]);
     /// let vals: String = m.remove_one("file")
     ///     .expect("`file` is a `String`")
-    ///     .map(|f| std::sync::Arc::try_unwrap(f).expect("no clones made"))
     ///     .expect("`file`is required");
     /// assert_eq!(vals, "file.txt");
     /// ```
@@ -257,10 +256,10 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
-    pub fn remove_one<T: Any + Send + Sync + 'static>(
+    pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
-    ) -> Result<Option<std::sync::Arc<T>>, MatchesError> {
+    ) -> Result<Option<T>, MatchesError> {
         let id = Id::from(name);
         match self.try_remove_arg_t::<T>(&id)? {
             Some(values) => Ok(values
@@ -295,14 +294,13 @@ impl ArgMatches {
     /// let vals: Vec<String> = m.remove_many("file")
     ///     .expect("`file` is a `String`")
     ///     .expect("`file`is required")
-    ///     .map(|f| std::sync::Arc::try_unwrap(f).expect("no clones made"))
     ///     .collect();
     /// assert_eq!(vals, ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]);
     /// ```
-    pub fn remove_many<T: Any + Send + Sync + 'static>(
+    pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
-    ) -> Result<Option<impl Iterator<Item = std::sync::Arc<T>>>, MatchesError> {
+    ) -> Result<Option<impl Iterator<Item = T>>, MatchesError> {
         let id = Id::from(name);
         match self.try_remove_arg_t::<T>(&id)? {
             Some(values) => Ok(Some(
@@ -1286,8 +1284,7 @@ impl ArgMatches {
     ///          let ext_args: Vec<String> = sub_m.remove_many("")
     ///             .expect("`file` is a `String`")
     ///             .expect("`file`is required")
-    ///             .map(|f| std::sync::Arc::try_unwrap(f).expect("no clones made"))
-    ///     .collect();
+    ///             .collect();
     ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },

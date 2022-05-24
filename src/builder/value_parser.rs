@@ -531,7 +531,7 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
 
 impl<T, P> AnyValueParser for P
 where
-    T: std::any::Any + Send + Sync + 'static,
+    T: std::any::Any + Clone + Send + Sync + 'static,
     P: TypedValueParser<Value = T>,
 {
     fn parse_ref(
@@ -1664,7 +1664,7 @@ pub mod via_prelude {
     }
     impl<FromStr> ValueParserViaFromStr for AutoValueParser<FromStr>
     where
-        FromStr: std::str::FromStr + std::any::Any + Send + Sync + 'static,
+        FromStr: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
         <FromStr as std::str::FromStr>::Err:
             Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
     {

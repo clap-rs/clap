@@ -542,7 +542,7 @@ fn gen_parsers(
         _ if attrs.custom_value_parser() => (
             quote_spanned!(span=> remove_one::<#convert_type>),
             quote_spanned!(span=> remove_many::<#convert_type>),
-            quote!(|s| ::std::sync::Arc::try_unwrap(s).unwrap_or_else(|arc| (*arc).clone())),
+            quote!(|s| s),
             quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(s)),
         ),
         FromStr => (
