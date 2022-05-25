@@ -122,8 +122,8 @@ impl ArgMatches {
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     #[track_caller]
     pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, name: &str) -> Option<&T> {
-        self.try_get_one(name)
-            .expect("caller error: argument definition and access must match")
+        let id = Id::from(name);
+        MatchesError::unwrap(&id, self.try_get_one(name))
     }
 
     /// Iterate over values of a specific option or positional argument.
@@ -163,8 +163,8 @@ impl ArgMatches {
         &self,
         name: &str,
     ) -> Option<ValuesRef<T>> {
-        self.try_get_many(name)
-            .expect("caller error: argument definition and access must match")
+        let id = Id::from(name);
+        MatchesError::unwrap(&id, self.try_get_many(name))
     }
 
     /// Iterate over the original argument values.
@@ -208,9 +208,9 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
-    pub fn get_raw<T: Key>(&self, id: T) -> Option<RawValues<'_>> {
-        self.try_get_raw(id)
-            .expect("caller error: argument definition and access must match")
+    pub fn get_raw(&self, name: &str) -> Option<RawValues<'_>> {
+        let id = Id::from(name);
+        MatchesError::unwrap(&id, self.try_get_raw(name))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -250,8 +250,8 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, name: &str) -> Option<T> {
-        self.try_remove_one(name)
-            .expect("caller error: argument definition and access must match")
+        let id = Id::from(name);
+        MatchesError::unwrap(&id, self.try_remove_one(name))
     }
 
     /// Return values of a specific option or positional argument.
@@ -288,8 +288,8 @@ impl ArgMatches {
         &mut self,
         name: &str,
     ) -> Option<Values2<T>> {
-        self.try_remove_many(name)
-            .expect("caller error: argument definition and access must match")
+        let id = Id::from(name);
+        MatchesError::unwrap(&id, self.try_remove_many(name))
     }
 
     /// Check if any args were present on the command line
@@ -1427,8 +1427,8 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::get_raw`]
-    pub fn try_get_raw<T: Key>(&self, id: T) -> Result<Option<RawValues<'_>>, MatchesError> {
-        let id = Id::from(id);
+    pub fn try_get_raw(&self, name: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
+        let id = Id::from(name);
         let arg = match self.try_get_arg(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
