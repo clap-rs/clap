@@ -11,7 +11,6 @@ fn main() {
         "NAME: {:?}",
         matches
             .get_one::<String>("NAME")
-            .expect("matches definition")
             .expect("default ensures there is always a value")
     );
 }

@@ -17,9 +17,7 @@ impl FromArgMatches for CliArgs {
         Ok(Self {
             foo: matches.is_present("foo"),
             bar: matches.is_present("bar"),
-            quuz: matches
-                .remove_one::<String>("quuz")
-                .expect("matches definition"),
+            quuz: matches.remove_one::<String>("quuz"),
         })
     }
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
@@ -29,10 +27,7 @@ impl FromArgMatches for CliArgs {
     fn update_from_arg_matches_mut(&mut self, matches: &mut ArgMatches) -> Result<(), Error> {
         self.foo |= matches.is_present("foo");
         self.bar |= matches.is_present("bar");
-        if let Some(quuz) = matches
-            .remove_one::<String>("quuz")
-            .expect("matches definition")
-        {
+        if let Some(quuz) = matches.remove_one::<String>("quuz") {
             self.quuz = Some(quuz);
         }
         Ok(())

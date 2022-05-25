@@ -46,15 +46,15 @@ use crate::parser::AnyValueId;
 /// ).unwrap();
 ///
 /// let color: &String = m.get_one("color")
-///     .expect("matches definition").expect("default");
+///     .expect("default");
 /// assert_eq!(color, "auto");
 ///
 /// let hostname: &String = m.get_one("hostname")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(hostname, "rust-lang.org");
 ///
 /// let port: u16 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 3001);
 /// ```
 #[derive(Clone)]
@@ -105,7 +105,7 @@ impl ValueParser {
     ///
     /// let m = cmd.try_get_matches_from_mut(["cmd", "key=value"]).unwrap();
     /// let port: &EnvVar = m.get_one("env")
-    ///     .expect("matches definition").expect("required");
+    ///     .expect("required");
     /// assert_eq!(*port, ("key".into(), Some("value".into())));
     /// ```
     pub fn new(other: impl AnyValueParser + Send + Sync + 'static) -> Self {
@@ -130,7 +130,7 @@ impl ValueParser {
     ///
     /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
     /// let port: bool = *m.get_one("download")
-    ///     .expect("matches definition").expect("required");
+    ///     .expect("required");
     /// assert_eq!(port, true);
     ///
     /// assert!(cmd.try_get_matches_from_mut(["cmd", "forever"]).is_err());
@@ -156,7 +156,7 @@ impl ValueParser {
     ///
     /// let m = cmd.try_get_matches_from_mut(["cmd", "80"]).unwrap();
     /// let port: &String = m.get_one("port")
-    ///     .expect("matches definition").expect("required");
+    ///     .expect("required");
     /// assert_eq!(port, "80");
     /// ```
     pub const fn string() -> Self {
@@ -184,7 +184,7 @@ impl ValueParser {
     ///
     /// let m = cmd.try_get_matches_from_mut(["cmd", "hello.txt"]).unwrap();
     /// let port: &PathBuf = m.get_one("output")
-    ///     .expect("matches definition").expect("required");
+    ///     .expect("required");
     /// assert_eq!(port, Path::new("hello.txt"));
     ///
     /// assert!(cmd.try_get_matches_from_mut(["cmd", ""]).is_err());
@@ -264,7 +264,7 @@ impl ValueParser {
 /// ).unwrap();
 ///
 /// let hostname: &String = m.get_one("hostname")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(hostname, "rust-lang.org");
 /// ```
 impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
@@ -291,7 +291,7 @@ impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
 /// let port: i64 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 3001);
 /// ```
 impl From<std::ops::Range<i64>> for ValueParser {
@@ -319,7 +319,7 @@ impl From<std::ops::Range<i64>> for ValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
 /// let port: i64 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 3001);
 /// ```
 impl From<std::ops::RangeInclusive<i64>> for ValueParser {
@@ -347,7 +347,7 @@ impl From<std::ops::RangeInclusive<i64>> for ValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
 /// let port: i64 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 3001);
 /// ```
 impl From<std::ops::RangeFrom<i64>> for ValueParser {
@@ -375,7 +375,7 @@ impl From<std::ops::RangeFrom<i64>> for ValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "80"]).unwrap();
 /// let port: i64 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 80);
 /// ```
 impl From<std::ops::RangeTo<i64>> for ValueParser {
@@ -403,7 +403,7 @@ impl From<std::ops::RangeTo<i64>> for ValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "80"]).unwrap();
 /// let port: i64 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 80);
 /// ```
 impl From<std::ops::RangeToInclusive<i64>> for ValueParser {
@@ -431,7 +431,7 @@ impl From<std::ops::RangeToInclusive<i64>> for ValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
 /// let port: i64 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 3001);
 /// ```
 impl From<std::ops::RangeFull> for ValueParser {
@@ -462,7 +462,7 @@ impl From<std::ops::RangeFull> for ValueParser {
 /// ).unwrap();
 ///
 /// let color: &String = m.get_one("color")
-///     .expect("matches definition").expect("default");
+///     .expect("default");
 /// assert_eq!(color, "never");
 /// ```
 impl<P, const C: usize> From<[P; C]> for ValueParser
@@ -816,7 +816,7 @@ impl Default for PathBufValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "always"]).unwrap();
 /// let port: ColorChoice = *m.get_one("color")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, ColorChoice::Always);
 ///
 /// // Semantics
@@ -925,7 +925,7 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> Default for ArgEnumValue
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "always"]).unwrap();
 /// let port: &String = m.get_one("color")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, "always");
 /// ```
 ///
@@ -1032,7 +1032,7 @@ where
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
 /// let port: u16 = *m.get_one("port")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, 3001);
 /// ```
 ///
@@ -1293,7 +1293,7 @@ impl Default for BoolValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
 /// let port: bool = *m.get_one("append")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, true);
 /// ```
 ///
@@ -1386,7 +1386,7 @@ impl Default for FalseyValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
 /// let port: bool = *m.get_one("append")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, true);
 /// ```
 ///
@@ -1484,7 +1484,7 @@ impl Default for BoolishValueParser {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "true"]).unwrap();
 /// let port: &String = m.get_one("append")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, "true");
 /// ```
 ///
@@ -1693,7 +1693,7 @@ pub mod via_prelude {
 ///
 /// let m = cmd.try_get_matches_from_mut(["cmd", "file.txt"]).unwrap();
 /// let port: &PathBuf = m.get_one("output")
-///     .expect("matches definition").expect("required");
+///     .expect("required");
 /// assert_eq!(port, Path::new("file.txt"));
 /// ```
 ///

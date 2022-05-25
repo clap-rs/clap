@@ -11,16 +11,10 @@ fn main() {
 
     println!(
         "two: {:?}",
-        matches
-            .get_one::<String>("two")
-            .expect("matches definition")
-            .expect("required")
+        matches.get_one::<String>("two").expect("required")
     );
     println!(
         "one: {:?}",
-        matches
-            .get_one::<String>("one")
-            .expect("matches definition")
-            .expect("required")
+        matches.get_one::<String>("one").expect("required")
     );
 }

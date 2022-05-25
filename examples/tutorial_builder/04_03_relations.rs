@@ -47,10 +47,7 @@ fn main() {
     let mut patch = 3;
 
     // See if --set-ver was used to set the version manually
-    let version = if let Some(ver) = matches
-        .get_one::<String>("set-ver")
-        .expect("matches definition")
-    {
+    let version = if let Some(ver) = matches.get_one::<String>("set-ver") {
         ver.to_owned()
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
@@ -74,22 +71,12 @@ fn main() {
     if matches.is_present("config") {
         let input = matches
             .get_one::<PathBuf>("INPUT_FILE")
-            .expect("matches definition")
-            .unwrap_or_else(|| {
-                matches
-                    .get_one::<PathBuf>("spec-in")
-                    .expect("matches definition")
-                    .unwrap()
-            })
+            .unwrap_or_else(|| matches.get_one::<PathBuf>("spec-in").unwrap())
             .display();
         println!(
             "Doing work using input {} and config {}",
             input,
-            matches
-                .get_one::<PathBuf>("config")
-                .expect("matches definition")
-                .unwrap()
-                .display()
+            matches.get_one::<PathBuf>("config").unwrap().display()
         );
     }
 }

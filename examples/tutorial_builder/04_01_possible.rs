@@ -14,7 +14,6 @@ fn main() {
     // Note, it's safe to call unwrap() because the arg is required
     match matches
         .get_one::<String>("MODE")
-        .expect("matches definition")
         .expect("'MODE' is required and parsing will fail if its missing")
         .as_str()
     {

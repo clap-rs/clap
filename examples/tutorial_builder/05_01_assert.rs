@@ -8,7 +8,6 @@ fn main() {
     // Note, it's safe to call unwrap() because the arg is required
     let port: usize = *matches
         .get_one::<usize>("PORT")
-        .expect("matches definition")
         .expect("'PORT' is required and parsing will fail if its missing");
     println!("PORT = {}", port);
 }

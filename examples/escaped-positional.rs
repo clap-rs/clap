@@ -24,18 +24,12 @@ fn main() {
     // -f used: true
     println!("-f used: {:?}", matches.is_present("eff"));
     // -p's value: Some("bob")
-    println!(
-        "-p's value: {:?}",
-        matches
-            .get_one::<String>("pea")
-            .expect("matches definition")
-    );
+    println!("-p's value: {:?}", matches.get_one::<String>("pea"));
     // 'slops' values: Some(["sloppy", "slop", "slop"])
     println!(
         "'slops' values: {:?}",
         matches
             .get_many::<String>("slop")
-            .expect("matches definition")
             .map(|vals| vals.collect::<Vec<_>>())
             .unwrap_or_default()
     );

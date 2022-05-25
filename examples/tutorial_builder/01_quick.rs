@@ -26,17 +26,11 @@ fn main() {
         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments
-    if let Some(name) = matches
-        .get_one::<String>("name")
-        .expect("matches definition")
-    {
+    if let Some(name) = matches.get_one::<String>("name") {
         println!("Value for name: {}", name);
     }
 
-    if let Some(config_path) = matches
-        .get_one::<PathBuf>("config")
-        .expect("matches definition")
-    {
+    if let Some(config_path) = matches.get_one::<PathBuf>("config") {
         println!("Value for config: {}", config_path.display());
     }
 
