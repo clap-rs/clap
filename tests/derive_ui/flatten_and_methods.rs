@@ -10,9 +10,9 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct DaemonOpts {
-    #[clap(short)]
+    #[clap(short, value_parser)]
     user: String,
-    #[clap(short)]
+    #[clap(short, value_parser)]
     group: String,
 }
 

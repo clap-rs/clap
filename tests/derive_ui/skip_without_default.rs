@@ -17,7 +17,7 @@ enum Kind {
 #[derive(Parser, Debug)]
 #[clap(name = "test")]
 pub struct Opt {
-    #[clap(short)]
+    #[clap(short, value_parser)]
     number: u32,
     #[clap(skip)]
     k: Kind,
