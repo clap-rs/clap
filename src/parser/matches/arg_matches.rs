@@ -159,6 +159,7 @@ impl ArgMatches {
     ///     .collect();
     /// assert_eq!(vals, [22, 80, 2020]);
     /// ```
+    #[track_caller]
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
@@ -208,6 +209,7 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
+    #[track_caller]
     pub fn get_raw(&self, name: &str) -> Option<RawValues<'_>> {
         let id = Id::from(name);
         MatchesError::unwrap(&id, self.try_get_raw(name))
@@ -249,6 +251,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
+    #[track_caller]
     pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, name: &str) -> Option<T> {
         let id = Id::from(name);
         MatchesError::unwrap(&id, self.try_remove_one(name))
@@ -284,6 +287,7 @@ impl ArgMatches {
     ///     .collect();
     /// assert_eq!(vals, ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]);
     /// ```
+    #[track_caller]
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
