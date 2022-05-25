@@ -165,17 +165,20 @@ impl ArgMatches {
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
-    ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
+    ) -> Result<Option<ValuesRef<T>>, MatchesError> {
         let id = Id::from(name);
-        match self.try_get_arg_t::<T>(&id)? {
-            Some(values) => Ok(Some(
-                values
-                    .vals_flatten()
-                    // enforced by `try_get_arg_t`
-                    .map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
-            )),
-            None => Ok(None),
-        }
+        let arg = match self.try_get_arg(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.vals_flatten();
+        let values = ValuesRef {
+            // enforced by `try_get_arg_t`
+            iter: values.map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
+            len,
+        };
+        Ok(Some(values))
     }
 
     /// Iterate over the original argument values.
@@ -215,13 +218,19 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
-    pub fn get_raw<T: Key>(
-        &self,
-        id: T,
-    ) -> Result<Option<impl Iterator<Item = &OsStr>>, MatchesError> {
+    pub fn get_raw<T: Key>(&self, id: T) -> Result<Option<RawValues<'_>>, MatchesError> {
         let id = Id::from(id);
-        let arg = self.try_get_arg(&id)?;
-        Ok(arg.map(|arg| arg.raw_vals_flatten().map(|v| v.as_os_str())))
+        let arg = match self.try_get_arg(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.raw_vals_flatten();
+        let values = RawValues {
+            iter: values.map(OsString::as_os_str),
+            len,
+        };
+        Ok(Some(values))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -300,17 +309,20 @@ impl ArgMatches {
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
-    ) -> Result<Option<impl Iterator<Item = T>>, MatchesError> {
+    ) -> Result<Option<Values2<T>>, MatchesError> {
         let id = Id::from(name);
-        match self.try_remove_arg_t::<T>(&id)? {
-            Some(values) => Ok(Some(
-                values
-                    .into_vals_flatten()
-                    // enforced by `try_get_arg_t`
-                    .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
-            )),
-            None => Ok(None),
-        }
+        let arg = match self.try_remove_arg_t::<T>(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.into_vals_flatten();
+        let values = Values2 {
+            // enforced by `try_get_arg_t`
+            iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
+            len,
+        };
+        Ok(Some(values))
     }
 
     /// Check if any args were present on the command line
@@ -1547,6 +1559,185 @@ pub(crate) struct SubCommand {
     pub(crate) matches: ArgMatches,
 }
 
+/// Iterate over multiple values for an argument via [`ArgMatches::remove_many`].
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{Command, Arg};
+/// let mut m = Command::new("myapp")
+///     .arg(Arg::new("output")
+///         .short('o')
+///         .multiple_occurrences(true)
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
+///
+/// let mut values = m.remove_many::<String>("output")
+///     .unwrap()
+///     .unwrap();
+///
+/// assert_eq!(values.next(), Some(String::from("val1")));
+/// assert_eq!(values.next(), Some(String::from("val2")));
+/// assert_eq!(values.next(), None);
+/// ```
+#[derive(Clone, Debug)]
+pub struct Values2<T> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Flatten<std::vec::IntoIter<Vec<AnyValue>>>, fn(AnyValue) -> T>,
+    len: usize,
+}
+
+impl<T> Iterator for Values2<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<T> DoubleEndedIterator for Values2<T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<T> ExactSizeIterator for Values2<T> {}
+
+/// Creates an empty iterator.
+impl<T> Default for Values2<T> {
+    fn default() -> Self {
+        let empty: Vec<Vec<AnyValue>> = Default::default();
+        Values2 {
+            iter: empty.into_iter().flatten().map(|_| unreachable!()),
+            len: 0,
+        }
+    }
+}
+
+/// Iterate over multiple values for an argument via [`ArgMatches::get_many`].
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{Command, Arg};
+/// let m = Command::new("myapp")
+///     .arg(Arg::new("output")
+///         .short('o')
+///         .multiple_occurrences(true)
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
+///
+/// let mut values = m.get_many::<String>("output")
+///     .unwrap()
+///     .unwrap()
+///     .map(|s| s.as_str());
+///
+/// assert_eq!(values.next(), Some("val1"));
+/// assert_eq!(values.next(), Some("val2"));
+/// assert_eq!(values.next(), None);
+/// ```
+#[derive(Clone, Debug)]
+pub struct ValuesRef<'a, T> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, fn(&AnyValue) -> &T>,
+    len: usize,
+}
+
+impl<'a, T: 'a> Iterator for ValuesRef<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<'a, T: 'a> DoubleEndedIterator for ValuesRef<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a, T: 'a> ExactSizeIterator for ValuesRef<'a, T> {}
+
+/// Creates an empty iterator.
+impl<'a, T: 'a> Default for ValuesRef<'a, T> {
+    fn default() -> Self {
+        static EMPTY: [Vec<AnyValue>; 0] = [];
+        ValuesRef {
+            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+            len: 0,
+        }
+    }
+}
+
+/// Iterate over raw argument values via [`ArgMatches::get_raw`].
+///
+/// # Examples
+///
+#[cfg_attr(not(unix), doc = " ```ignore")]
+#[cfg_attr(unix, doc = " ```")]
+/// # use clap::{Command, arg, value_parser};
+/// use std::ffi::OsString;
+/// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+///
+/// let m = Command::new("utf8")
+///     .arg(arg!(<arg> "some arg")
+///         .value_parser(value_parser!(OsString)))
+///     .get_matches_from(vec![OsString::from("myprog"),
+///                             // "Hi {0xe9}!"
+///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+/// assert_eq!(
+///     &*m.get_raw("arg")
+///         .unwrap()
+///         .unwrap()
+///         .next().unwrap()
+///         .as_bytes(),
+///     [b'H', b'i', b' ', 0xe9, b'!']
+/// );
+/// ```
+#[derive(Clone, Debug)]
+pub struct RawValues<'a> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
+    len: usize,
+}
+
+impl<'a> Iterator for RawValues<'a> {
+    type Item = &'a OsStr;
+
+    fn next(&mut self) -> Option<&'a OsStr> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<'a> DoubleEndedIterator for RawValues<'a> {
+    fn next_back(&mut self) -> Option<&'a OsStr> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for RawValues<'a> {}
+
+/// Creates an empty iterator.
+impl Default for RawValues<'_> {
+    fn default() -> Self {
+        static EMPTY: [Vec<OsString>; 0] = [];
+        RawValues {
+            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+            len: 0,
+        }
+    }
+}
+
 // The following were taken and adapted from vec_map source
 // repo: https://github.com/contain-rs/vec-map
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
@@ -1830,6 +2021,12 @@ mod tests {
     #[test]
     fn test_default_osvalues() {
         let mut values: OsValues = OsValues::default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_raw_values() {
+        let mut values: RawValues = Default::default();
         assert_eq!(values.next(), None);
     }
 
