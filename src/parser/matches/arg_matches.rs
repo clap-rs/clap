@@ -97,7 +97,7 @@ impl ArgMatches {
     /// # Panic
     ///
     /// If the argument definition and access mismatch.  To handle this case programmatically, see
-    /// [`ArgMatches`][try_get_one].
+    /// [`ArgMatches::try_get_one`].
     ///
     /// # Examples
     ///
@@ -137,7 +137,7 @@ impl ArgMatches {
     /// # Panic
     ///
     /// If the argument definition and access mismatch.  To handle this case programmatically, see
-    /// [`ArgMatches`][try_get_many].
+    /// [`ArgMatches::try_get_many`].
     ///
     /// # Examples
     ///
@@ -178,7 +178,7 @@ impl ArgMatches {
     /// # Panic
     ///
     /// If the argument definition and access mismatch.  To handle this case programmatically, see
-    /// [`ArgMatches`][try_get_raw].
+    /// [`ArgMatches::try_get_raw`].
     ///
     /// # Examples
     ///
@@ -227,7 +227,7 @@ impl ArgMatches {
     /// # Panic
     ///
     /// If the argument definition and access mismatch.  To handle this case programmatically, see
-    /// [`ArgMatches`][try_remove_one].
+    /// [`ArgMatches::try_remove_one`].
     ///
     /// # Examples
     ///
@@ -265,7 +265,7 @@ impl ArgMatches {
     /// # Panic
     ///
     /// If the argument definition and access mismatch.  To handle this case programmatically, see
-    /// [`ArgMatches`][try_remove_many].
+    /// [`ArgMatches::try_remove_many`].
     ///
     /// # Examples
     ///
