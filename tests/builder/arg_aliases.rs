@@ -42,7 +42,10 @@ fn single_alias_of_option() {
     assert!(a.is_ok(), "{}", a.unwrap_err());
     let a = a.unwrap();
     assert!(a.is_present("alias"));
-    assert_eq!(a.value_of("alias").unwrap(), "cool");
+    assert_eq!(
+        a.get_one::<String>("alias").map(|v| v.as_str()).unwrap(),
+        "cool"
+    );
 }
 
 #[test]
@@ -82,10 +85,30 @@ fn multiple_aliases_of_option() {
     assert!(als1.is_present("aliases"));
     assert!(als2.is_present("aliases"));
     assert!(als3.is_present("aliases"));
-    assert_eq!(long.value_of("aliases").unwrap(), "value");
-    assert_eq!(als1.value_of("aliases").unwrap(), "value");
-    assert_eq!(als2.value_of("aliases").unwrap(), "value");
-    assert_eq!(als3.value_of("aliases").unwrap(), "value");
+    assert_eq!(
+        long.get_one::<String>("aliases")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "value"
+    );
+    assert_eq!(
+        als1.get_one::<String>("aliases")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "value"
+    );
+    assert_eq!(
+        als2.get_one::<String>("aliases")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "value"
+    );
+    assert_eq!(
+        als3.get_one::<String>("aliases")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "value"
+    );
 }
 
 #[test]
@@ -150,7 +173,10 @@ fn alias_on_a_subcommand_option() {
     assert!(m.subcommand_matches("some").is_some());
     let sub_m = m.subcommand_matches("some").unwrap();
     assert!(sub_m.is_present("test"));
-    assert_eq!(sub_m.value_of("test").unwrap(), "awesome");
+    assert_eq!(
+        sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
+        "awesome"
+    );
 }
 
 #[test]

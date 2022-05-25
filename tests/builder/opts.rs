@@ -36,7 +36,7 @@ fn require_equals_fail() {
         .arg(
             Arg::new("cfg")
                 .require_equals(true)
-                .forbid_empty_values(true)
+                .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .takes_value(true)
                 .long("config"),
         )
@@ -79,7 +79,7 @@ fn require_equals_min_values_zero() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("cfg"));
-    assert_eq!(m.value_of("cmd"), Some("cmd"));
+    assert_eq!(m.get_one::<String>("cmd").map(|v| v.as_str()), Some("cmd"));
 }
 
 #[test]
@@ -93,7 +93,10 @@ fn double_hyphen_as_value() {
         )
         .try_get_matches_from(vec!["prog", "--config", "--"]);
     assert!(res.is_ok(), "{:?}", res);
-    assert_eq!(res.unwrap().value_of("cfg"), Some("--"));
+    assert_eq!(
+        res.unwrap().get_one::<String>("cfg").map(|v| v.as_str()),
+        Some("--")
+    );
 }
 
 #[test]
@@ -103,7 +106,7 @@ fn require_equals_no_empty_values_fail() {
             Arg::new("cfg")
                 .takes_value(true)
                 .require_equals(true)
-                .forbid_empty_values(true)
+                .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .long("config"),
         )
         .arg(Arg::new("some"))
@@ -146,7 +149,7 @@ fn stdin_char() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("f"));
-    assert_eq!(m.value_of("f").unwrap(), "-");
+    assert_eq!(m.get_one::<String>("f").map(|v| v.as_str()).unwrap(), "-");
 }
 
 #[test]
@@ -160,9 +163,15 @@ fn opts_using_short() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("f"));
-    assert_eq!(m.value_of("f").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("f").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
     assert!(m.is_present("c"));
-    assert_eq!(m.value_of("c").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("c").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -202,7 +211,7 @@ fn lots_o_vals() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().count(), 297); // i.e. more than u8
+    assert_eq!(m.get_many::<String>("o").unwrap().count(), 297); // i.e. more than u8
 }
 
 #[test]
@@ -216,9 +225,15 @@ fn opts_using_long_space() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -232,9 +247,15 @@ fn opts_using_long_equals() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -248,9 +269,15 @@ fn opts_using_mixed() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -264,9 +291,15 @@ fn opts_using_mixed2() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -277,7 +310,10 @@ fn default_values_user_value() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.value_of("o").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 #[test]
@@ -289,9 +325,12 @@ fn multiple_vals_pos_arg_equals() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.value_of("o").unwrap(), "1");
+    assert_eq!(m.get_one::<String>("o").map(|v| v.as_str()).unwrap(), "1");
     assert!(m.is_present("file"));
-    assert_eq!(m.value_of("file").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
 }
 
 #[test]
@@ -307,9 +346,18 @@ fn multiple_vals_pos_arg_delim() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["1", "2"]);
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["1", "2"]
+    );
     assert!(m.is_present("file"));
-    assert_eq!(m.value_of("file").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
 }
 
 #[test]
@@ -341,9 +389,18 @@ fn require_delims() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["1", "2"]);
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["1", "2"]
+    );
     assert!(m.is_present("file"));
-    assert_eq!(m.value_of("file").unwrap(), "some");
+    assert_eq!(
+        m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
+        "some"
+    );
 }
 
 #[test]
@@ -358,7 +415,13 @@ fn leading_hyphen_pass() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2", "3"]);
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["-2", "3"]
+    );
 }
 
 #[test]
@@ -384,7 +447,13 @@ fn leading_hyphen_with_flag_after() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2", "-f"]);
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["-2", "-f"]
+    );
     assert!(!m.is_present("f"));
 }
 
@@ -397,7 +466,13 @@ fn leading_hyphen_with_flag_before() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2"]);
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["-2"]
+    );
     assert!(m.is_present("f"));
 }
 
@@ -415,8 +490,14 @@ fn leading_hyphen_with_only_pos_follows() {
     assert!(r.is_ok(), "{:?}", r);
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2"]);
-    assert_eq!(m.value_of("arg"), Some("val"));
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["-2"]
+    );
+    assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), Some("val"));
 }
 
 #[test]
@@ -440,7 +521,10 @@ fn issue_1047_min_zero_vals_default_val() {
         .try_get_matches_from(vec!["foo", "-d"])
         .unwrap();
     assert_eq!(m.occurrences_of("del"), 1);
-    assert_eq!(m.value_of("del"), Some("default"));
+    assert_eq!(
+        m.get_one::<String>("del").map(|v| v.as_str()),
+        Some("default")
+    );
 }
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> {
@@ -462,7 +546,7 @@ fn issue_1105_empty_value_long_explicit() {
     let r = issue_1105_setup(vec!["cmd", "--option", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert_eq!(m.value_of("option"), Some(""));
+    assert_eq!(m.get_one::<String>("option").map(|v| v.as_str()), Some(""));
 }
 
 #[test]
@@ -470,7 +554,7 @@ fn issue_1105_empty_value_long_equals() {
     let r = issue_1105_setup(vec!["cmd", "--option="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert_eq!(m.value_of("option"), Some(""));
+    assert_eq!(m.get_one::<String>("option").map(|v| v.as_str()), Some(""));
 }
 
 #[test]
@@ -485,7 +569,7 @@ fn issue_1105_empty_value_short_explicit() {
     let r = issue_1105_setup(vec!["cmd", "-o", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert_eq!(m.value_of("option"), Some(""));
+    assert_eq!(m.get_one::<String>("option").map(|v| v.as_str()), Some(""));
 }
 
 #[test]
@@ -493,7 +577,7 @@ fn issue_1105_empty_value_short_equals() {
     let r = issue_1105_setup(vec!["cmd", "-o="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert_eq!(m.value_of("option"), Some(""));
+    assert_eq!(m.get_one::<String>("option").map(|v| v.as_str()), Some(""));
 }
 
 #[test]
@@ -501,7 +585,7 @@ fn issue_1105_empty_value_short_explicit_no_space() {
     let r = issue_1105_setup(vec!["cmd", "-o", ""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert_eq!(m.value_of("option"), Some(""));
+    assert_eq!(m.get_one::<String>("option").map(|v| v.as_str()), Some(""));
 }
 
 #[test]
@@ -525,7 +609,13 @@ fn short_non_ascii_no_space() {
         .try_get_matches_from(&["test", "-磨VALUE"])
         .unwrap();
 
-    assert_eq!("VALUE", matches.value_of("opt").unwrap());
+    assert_eq!(
+        "VALUE",
+        matches
+            .get_one::<String>("opt")
+            .map(|v| v.as_str())
+            .unwrap()
+    );
 }
 
 #[test]
@@ -535,7 +625,13 @@ fn short_eq_val_starts_with_eq() {
         .try_get_matches_from(&["test", "-f==value"])
         .unwrap();
 
-    assert_eq!("=value", matches.value_of("opt").unwrap());
+    assert_eq!(
+        "=value",
+        matches
+            .get_one::<String>("opt")
+            .map(|v| v.as_str())
+            .unwrap()
+    );
 }
 
 #[test]
@@ -545,7 +641,13 @@ fn long_eq_val_starts_with_eq() {
         .try_get_matches_from(&["test", "--foo==value"])
         .unwrap();
 
-    assert_eq!("=value", matches.value_of("opt").unwrap());
+    assert_eq!(
+        "=value",
+        matches
+            .get_one::<String>("opt")
+            .map(|v| v.as_str())
+            .unwrap()
+    );
 }
 
 #[test]
@@ -554,7 +656,7 @@ fn issue_2022_get_flags_misuse() {
         .next_help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
     let matches = cmd.try_get_matches_from(&[""]).unwrap();
-    assert!(matches.value_of("a").is_some())
+    assert!(matches.get_one::<String>("a").map(|v| v.as_str()).is_some())
 }
 
 #[test]
@@ -565,7 +667,12 @@ fn issue_2279() {
         .try_get_matches_from(&[""])
         .unwrap();
 
-    assert_eq!(before_help_heading.value_of("foo"), Some("bar"));
+    assert_eq!(
+        before_help_heading
+            .get_one::<String>("foo")
+            .map(|v| v.as_str()),
+        Some("bar")
+    );
 
     let after_help_heading = Command::new("cmd")
         .next_help_heading(Some("This causes default_value to be ignored"))
@@ -573,7 +680,12 @@ fn issue_2279() {
         .try_get_matches_from(&[""])
         .unwrap();
 
-    assert_eq!(after_help_heading.value_of("foo"), Some("bar"));
+    assert_eq!(
+        after_help_heading
+            .get_one::<String>("foo")
+            .map(|v| v.as_str()),
+        Some("bar")
+    );
 }
 
 #[test]
@@ -588,21 +700,30 @@ fn infer_long_arg() {
         .try_get_matches_from(&["test", "--racec=hello"])
         .unwrap();
     assert!(!matches.is_present("racetrack"));
-    assert_eq!(matches.value_of("racecar"), Some("hello"));
+    assert_eq!(
+        matches.get_one::<String>("racecar").map(|v| v.as_str()),
+        Some("hello")
+    );
 
     let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--racet"])
         .unwrap();
     assert!(matches.is_present("racetrack"));
-    assert_eq!(matches.value_of("racecar"), None);
+    assert_eq!(
+        matches.get_one::<String>("racecar").map(|v| v.as_str()),
+        None
+    );
 
     let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--auto"])
         .unwrap();
     assert!(matches.is_present("racetrack"));
-    assert_eq!(matches.value_of("racecar"), None);
+    assert_eq!(
+        matches.get_one::<String>("racecar").map(|v| v.as_str()),
+        None
+    );
 
     let cmd = Command::new("test")
         .infer_long_args(true)

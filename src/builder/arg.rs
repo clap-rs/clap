@@ -1557,43 +1557,10 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Perform a custom validation on the argument value.
-    ///
-    /// You provide a closure
-    /// which accepts a [`&str`] value, and return a [`Result`] where the [`Err(String)`] is a
-    /// message displayed to the user.
-    ///
-    /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
-    /// message as all errors will appear as
-    /// `error: Invalid value for '<arg>': <YOUR MESSAGE>` where `<arg>` is replaced by the actual
-    /// arg, and `<YOUR MESSAGE>` is the `String` you return as the error.
-    ///
-    /// **NOTE:** There is a small performance hit for using validators, as they are implemented
-    /// with [`Arc`] pointers. And the value to be checked will be allocated an extra time in order
-    /// to be passed to the closure. This performance hit is extremely minimal in the grand
-    /// scheme of things.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// fn has_at(v: &str) -> Result<(), String> {
-    ///     if v.contains("@") { return Ok(()); }
-    ///     Err(String::from("The value did not contain the required @ sigil"))
-    /// }
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .validator(has_at))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "some@file"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("file"), Some("some@file"));
-    /// ```
-    /// [`Result`]: std::result::Result
-    /// [`Err(String)`]: std::result::Result::Err
-    /// [`Arc`]: std::sync::Arc
+    /// Deprecated, replaced with [`Arg::value_parser(...)`]
+    #[inline]
     #[must_use]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")]
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&str) -> Result<O, E> + Send + 'help,
@@ -1605,37 +1572,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Perform a custom validation on the argument value.
-    ///
-    /// See [validator][Arg::validator].
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```rust")]
-    /// # use clap::{Command, Arg};
-    /// # use std::ffi::{OsStr, OsString};
-    /// # use std::os::unix::ffi::OsStrExt;
-    /// fn has_ampersand(v: &OsStr) -> Result<(), String> {
-    ///     if v.as_bytes().iter().any(|b| *b == b'&') { return Ok(()); }
-    ///     Err(String::from("The value did not contain the required & sigil"))
-    /// }
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .validator_os(has_ampersand))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "Fish & chips"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("file"), Some("Fish & chips"));
-    /// ```
-    /// [`String`]: std::string::String
-    /// [`OsStr`]: std::ffi::OsStr
-    /// [`OsString`]: std::ffi::OsString
-    /// [`Result`]: std::result::Result
-    /// [`Err(String)`]: std::result::Result::Err
-    /// [`Rc`]: std::rc::Rc
+    /// Deprecated, replaced with [`Arg::value_parser(...)`]
     #[must_use]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")]
     pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,
@@ -1715,76 +1654,11 @@ impl<'help> Arg<'help> {
         })
     }
 
-    /// Add a possible value for this argument.
-    ///
-    /// At runtime, `clap` verifies that only one of the specified values was used, or fails with
-    /// error message.
-    ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
-    ///
-    /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
-    /// over single possible values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("mode")
-    ///     .takes_value(true)
-    ///     .possible_value("fast")
-    ///     .possible_value("slow")
-    ///     .possible_value("medium")
-    /// # ;
-    /// ```
-    /// The same using [`PossibleValue`]:
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, PossibleValue};
-    /// Arg::new("mode").takes_value(true)
-    ///     .possible_value(PossibleValue::new("fast"))
-    /// // value with a help text
-    ///     .possible_value(PossibleValue::new("slow").help("not that fast"))
-    /// // value that is hidden from completion and help text
-    ///     .possible_value(PossibleValue::new("medium").hide(true))
-    /// # ;
-    /// ```
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_value("fast")
-    ///         .possible_value("slow")
-    ///         .possible_value("medium"))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--mode", "fast"
-    ///     ]);
-    /// assert!(m.is_present("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast"));
-    /// ```
-    ///
-    /// The next example shows a failed parse from using a value which wasn't defined as one of the
-    /// possible values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_value("fast")
-    ///         .possible_value("slow")
-    ///         .possible_value("medium"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--mode", "wrong"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
-    /// ```
-    /// [options]: Arg::takes_value()
-    /// [positional arguments]: Arg::index()
+    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+    )]
     #[must_use]
     pub fn possible_value<T>(mut self, value: T) -> Self
     where
@@ -1794,73 +1668,11 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Possible values for this argument.
-    ///
-    /// At runtime, `clap` verifies that
-    /// only one of the specified values was used, or fails with an error message.
-    ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
-    ///
-    /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
-    /// over single possible values.
-    ///
-    /// See also [hide_possible_values][Arg::hide_possible_values].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("mode")
-    ///     .takes_value(true)
-    ///     .possible_values(["fast", "slow", "medium"])
-    /// # ;
-    /// ```
-    /// The same using [`PossibleValue`]:
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, PossibleValue};
-    /// Arg::new("mode").takes_value(true).possible_values([
-    ///     PossibleValue::new("fast"),
-    /// // value with a help text
-    ///     PossibleValue::new("slow").help("not that fast"),
-    /// // value that is hidden from completion and help text
-    ///     PossibleValue::new("medium").hide(true),
-    /// ])
-    /// # ;
-    /// ```
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_values(["fast", "slow", "medium"]))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--mode", "fast"
-    ///     ]);
-    /// assert!(m.is_present("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast"));
-    /// ```
-    ///
-    /// The next example shows a failed parse from using a value which wasn't defined as one of the
-    /// possible values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .takes_value(true)
-    ///         .possible_values(["fast", "slow", "medium"]))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--mode", "wrong"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
-    /// ```
-    /// [options]: Arg::takes_value()
-    /// [positional arguments]: Arg::index()
+    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+    )]
     #[must_use]
     pub fn possible_values<I, T>(mut self, values: I) -> Self
     where
@@ -1893,7 +1705,7 @@ impl<'help> Arg<'help> {
     ///         .long("option")
     ///         .takes_value(true)
     ///         .ignore_case(true)
-    ///         .possible_value("test123"))
+    ///         .value_parser(["test123"]))
     ///     .get_matches_from(vec![
     ///         "pv", "--option", "TeSt123",
     ///     ]);
@@ -1912,7 +1724,7 @@ impl<'help> Arg<'help> {
     ///         .takes_value(true)
     ///         .ignore_case(true)
     ///         .multiple_values(true)
-    ///         .possible_values(&["test123", "test321"]))
+    ///         .value_parser(["test123", "test321"]))
     ///     .get_matches_from(vec![
     ///         "pv", "--option", "TeSt123", "teST123", "tESt321"
     ///     ]);
@@ -1990,39 +1802,14 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// The argument's values can be invalid UTF-8 and should *not* be treated as an error.
-    ///
-    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
-    /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
-    /// or [`ArgMatches::values_of_lossy`] for those particular arguments which may contain invalid
-    /// UTF-8 values.
-    ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```rust")]
-    /// # use clap::{Command, Arg};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-    /// let r = Command::new("myprog")
-    ///     .arg(Arg::new("arg").allow_invalid_utf8(true))
-    ///     .try_get_matches_from(vec![
-    ///         OsString::from("myprog"),
-    ///         OsString::from_vec(vec![0xe9])
-    ///     ]);
-    ///
-    /// assert!(r.is_ok());
-    /// let m = r.unwrap();
-    /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
-    /// ```
-    /// [`ArgMatches::value_of_os`]: crate::ArgMatches::value_of_os()
-    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
-    /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
-    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
+    /// Deprecated, replaced with [`Arg::value_parser(...)`] with either [`ValueParser::os_string()`][crate::builder::ValueParser::os_string]
+    /// or [`ValueParser::path_buf()`][crate::builder::ValueParser::path_buf]
     #[inline]
     #[must_use]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
+    )]
     pub fn allow_invalid_utf8(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::AllowInvalidUtf8)
@@ -2031,53 +1818,13 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Don't allow an argument to accept explicitly empty values.
-    ///
-    /// An empty value must be specified at the command line with an explicit `""`, `''`, or
-    /// `--option=`
-    ///
-    /// **NOTE:** By default empty values are allowed.
-    ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`].
-    ///
-    /// # Examples
-    ///
-    /// The default is allowing empty values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .takes_value(true))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("cfg"), Some(""));
-    /// ```
-    ///
-    /// By adding this setting, we can forbid empty values.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .takes_value(true)
-    ///         .forbid_empty_values(true))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
-    /// ```
+    /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
     #[inline]
     #[must_use]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
+    )]
     pub fn forbid_empty_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::ForbidEmptyValues)
@@ -2547,7 +2294,7 @@ impl<'help> Arg<'help> {
     ///         Command::new("prog")
     ///             .arg(Arg::new("color").long("color")
     ///                 .value_name("WHEN")
-    ///                 .possible_values(["always", "auto", "never"])
+    ///                 .value_parser(["always", "auto", "never"])
     ///                 .default_value("auto")
     ///                 .overrides_with("color")
     ///                 .min_values(0)
@@ -3076,7 +2823,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Do not display the [possible values][Arg::possible_values] in the help message.
+    /// Do not display the [possible values][crate::builder::ValueParser::possible_values] in the help message.
     ///
     /// This is useful for args with many values, or ones which are explained elsewhere in the
     /// help text.
@@ -3093,7 +2840,7 @@ impl<'help> Arg<'help> {
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .possible_values(["fast", "slow"])
+    ///         .value_parser(["fast", "slow"])
     ///         .takes_value(true)
     ///         .hide_possible_values(true));
     /// ```
@@ -4667,8 +4414,11 @@ impl<'help> Arg<'help> {
         Some(longs)
     }
 
-    /// Get the list of the possible values for this argument, if any
-    #[inline]
+    /// Deprecated, replaced with [`Arg::get_value_parser().possible_values()`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `Arg::get_value_parser().possible_values()`"
+    )]
     pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
         if self.possible_vals.is_empty() {
             None
@@ -4812,12 +4562,14 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::AllowHyphenValues)
     }
 
-    /// Report whether [`Arg::forbid_empty_values`] is set
+    /// Deprecated, replaced with [`Arg::get_value_parser()`]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
     pub fn is_forbid_empty_values_set(&self) -> bool {
         self.is_set(ArgSettings::ForbidEmptyValues)
     }
 
-    /// Report whether [`Arg::is_allow_invalid_utf8_set`] is set
+    /// Deprecated, replaced with [`Arg::get_value_parser()`
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
     pub fn is_allow_invalid_utf8_set(&self) -> bool {
         self.is_set(ArgSettings::AllowInvalidUtf8)
     }

@@ -1,6 +1,6 @@
 #![cfg(not(windows))]
 
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, value_parser, Arg, Command};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
@@ -77,6 +77,7 @@ fn invalid_utf8_strict_option_long_equals() {
 
 #[test]
 fn invalid_utf8_lossy_positional() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(Arg::new("arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
@@ -88,6 +89,7 @@ fn invalid_utf8_lossy_positional() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_space() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -109,6 +111,7 @@ fn invalid_utf8_lossy_option_short_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_equals() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -129,6 +132,7 @@ fn invalid_utf8_lossy_option_short_equals() {
 
 #[test]
 fn invalid_utf8_lossy_option_short_no_space() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -149,6 +153,7 @@ fn invalid_utf8_lossy_option_short_no_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_long_space() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -170,6 +175,7 @@ fn invalid_utf8_lossy_option_long_space() {
 
 #[test]
 fn invalid_utf8_lossy_option_long_equals() {
+    #![allow(deprecated)]
     let r = Command::new("bad_utf8")
         .arg(
             Arg::new("arg")
@@ -191,13 +197,13 @@ fn invalid_utf8_lossy_option_long_equals() {
 #[test]
 fn invalid_utf8_positional() {
     let r = Command::new("bad_utf8")
-        .arg(Arg::new("arg").allow_invalid_utf8(true))
+        .arg(Arg::new("arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -210,7 +216,7 @@ fn invalid_utf8_option_short_space() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -221,7 +227,7 @@ fn invalid_utf8_option_short_space() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -234,7 +240,7 @@ fn invalid_utf8_option_short_equals() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -244,7 +250,7 @@ fn invalid_utf8_option_short_equals() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -257,7 +263,7 @@ fn invalid_utf8_option_short_no_space() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -267,7 +273,7 @@ fn invalid_utf8_option_short_no_space() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -280,7 +286,7 @@ fn invalid_utf8_option_long_space() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -291,7 +297,7 @@ fn invalid_utf8_option_long_space() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -304,7 +310,7 @@ fn invalid_utf8_option_long_equals() {
                 .short('a')
                 .long("arg")
                 .takes_value(true)
-                .allow_invalid_utf8(true),
+                .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
             OsString::from(""),
@@ -314,7 +320,7 @@ fn invalid_utf8_option_long_equals() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
-        &*m.value_of_os("arg").unwrap(),
+        &*m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -376,7 +382,11 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
     let (subcommand, args) = m.subcommand().unwrap();
-    let args = args.values_of_os("").unwrap().collect::<Vec<_>>();
+    let args = args
+        .get_many::<OsString>("")
+        .unwrap()
+        .cloned()
+        .collect::<Vec<_>>();
     assert_eq!(subcommand, OsString::from("subcommand"));
     assert_eq!(
         args,
@@ -390,14 +400,16 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 
 #[test]
 fn allow_validated_utf8_value_of() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.value_of("name");
+    let _ = m.get_one::<String>("name").map(|v| v.as_str());
 }
 
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `name`"]
 fn panic_validated_utf8_value_of_os() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of_os("name");
@@ -406,30 +418,34 @@ fn panic_validated_utf8_value_of_os() {
 #[test]
 #[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `value`"]
 fn panic_validated_utf8_with_defaults() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
     let m = a.try_get_matches_from(["test"]).unwrap();
-    let _ = m.value_of("value");
+    let _ = m.get_one::<String>("value").map(|v| v.as_str());
     let _ = m.value_of_os("value");
 }
 
 #[test]
 fn allow_invalid_utf8_value_of_os() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.value_of_os("name");
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `name`"]
+#[should_panic = "Mismatch between definition and access of `name`. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_value_of() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.value_of("name");
+    let _ = m.get_one::<String>("name").map(|v| v.as_str());
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `value`"]
+#[should_panic = "Mismatch between definition and access of `value`. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_with_defaults() {
+    #![allow(deprecated)]
     let a = Command::new("test").arg(
         arg!(--value <VALUE>)
             .required(false)
@@ -438,7 +454,7 @@ fn panic_invalid_utf8_with_defaults() {
     );
     let m = a.try_get_matches_from(["test"]).unwrap();
     let _ = m.value_of_os("value");
-    let _ = m.value_of("value");
+    let _ = m.get_one::<String>("value").map(|v| v.as_str());
 }
 
 #[test]
@@ -446,16 +462,16 @@ fn allow_validated_utf8_external_subcommand_values_of() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of("").unwrap_or_default().count();
+    args.get_many::<String>("").unwrap_or_default().count();
 }
 
 #[test]
-#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups"]
+#[should_panic = "Mismatch between definition and access of ``. Could not downcast to std::ffi::os_str::OsString, need to downcast to alloc::string::String"]
 fn panic_validated_utf8_external_subcommand_values_of_os() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of_os("").unwrap_or_default().count();
+    args.get_many::<OsString>("").unwrap_or_default().count();
 }
 
 #[test]
@@ -465,16 +481,16 @@ fn allow_invalid_utf8_external_subcommand_values_of_os() {
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of_os("").unwrap_or_default().count();
+    args.get_many::<OsString>("").unwrap_or_default().count();
 }
 
 #[test]
-#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8`"]
+#[should_panic = "Mismatch between definition and access of ``. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_external_subcommand_values_of() {
     let a = Command::new("test")
         .allow_external_subcommands(true)
         .allow_invalid_utf8_for_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
-    args.values_of("").unwrap_or_default().count();
+    args.get_many::<String>("").unwrap_or_default().count();
 }

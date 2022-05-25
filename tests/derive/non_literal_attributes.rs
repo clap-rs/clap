@@ -26,17 +26,18 @@ struct Opt {
         display_order = DISPLAY_ORDER,
         next_line_help = true,
         default_value = "0",
-        require_equals = true
+        require_equals = true,
+        value_parser
     )]
     x: i32,
 
-    #[clap(short = 'l', long = "level", aliases = &["set-level", "lvl"])]
+    #[clap(short = 'l', long = "level", value_parser, aliases = &["set-level", "lvl"])]
     level: String,
 
-    #[clap(long("values"))]
+    #[clap(long("values"), value_parser)]
     values: Vec<i32>,
 
-    #[clap(name = "FILE", requires_if("FILE", "values"))]
+    #[clap(name = "FILE", value_parser, requires_if("FILE", "values"))]
     files: Vec<String>,
 }
 
@@ -130,7 +131,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
 
 #[derive(Parser, PartialEq, Debug)]
 struct HexOpt {
-    #[clap(short, parse(try_from_str = parse_hex))]
+    #[clap(short, value_parser = parse_hex)]
     number: u64,
 }
 

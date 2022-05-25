@@ -164,6 +164,31 @@ impl ValueParser {
     }
 
     /// [`OsString`][std::ffi::OsString] parser for argument values
+    ///
+    /// # Example
+    ///
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```rust")]
+    /// # use clap::{Command, Arg, builder::ValueParser};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    /// let r = Command::new("myprog")
+    ///     .arg(
+    ///         Arg::new("arg")
+    ///         .required(true)
+    ///         .value_parser(ValueParser::os_string())
+    ///     )
+    ///     .try_get_matches_from(vec![
+    ///         OsString::from("myprog"),
+    ///         OsString::from_vec(vec![0xe9])
+    ///     ]);
+    ///
+    /// assert!(r.is_ok());
+    /// let m = r.unwrap();
+    /// let arg: &OsString = m.get_one("arg")
+    ///     .expect("required");
+    /// assert_eq!(arg.as_bytes(), &[0xe9]);
+    /// ```
     pub const fn os_string() -> Self {
         Self(ValueParserInner::OsString)
     }

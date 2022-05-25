@@ -1,3 +1,4 @@
+#![allow(deprecated)] // Can't opt-out of implicit flags until #3405
 use clap::Parser;
 
 #[derive(Parser, Debug, PartialEq)]

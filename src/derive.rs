@@ -70,7 +70,7 @@ use std::ffi::OsString;
 ///     fn from(m: ArgMatches) -> Self {
 ///         Context {
 ///             verbose: m.is_present("verbose"),
-///             name: m.value_of("name").map(|n| n.to_owned()),
+///             name: m.get_one::<String>("name").map(|n| n.clone()),
 ///         }
 ///     }
 /// }
@@ -286,7 +286,7 @@ pub trait FromArgMatches: Sized {
     /// impl From<ArgMatches> for Context {
     ///    fn from(m: ArgMatches) -> Self {
     ///        Context {
-    ///            name: m.value_of("name").unwrap().to_string(),
+    ///            name: m.get_one::<String>("name").unwrap().clone(),
     ///            debug: m.is_present("debug"),
     ///        }
     ///    }
@@ -320,7 +320,7 @@ pub trait FromArgMatches: Sized {
     /// impl From<ArgMatches> for Context {
     ///    fn from(m: ArgMatches) -> Self {
     ///        Context {
-    ///            name: m.value_of("name").unwrap().to_string(),
+    ///            name: m.get_one::<String>("name").unwrap().to_string(),
     ///            debug: m.is_present("debug"),
     ///        }
     ///    }

@@ -30,7 +30,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
                 .long("config")
                 .visible_alias("conf"),
         )
-        .arg(clap::Arg::new("choice").possible_values(["first", "second"]))
+        .arg(clap::Arg::new("choice").value_parser(["first", "second"]))
         .subcommand(
             clap::Command::new("test").about("tests things").arg(
                 clap::Arg::new("case")
@@ -141,7 +141,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
                     clap::Arg::new("config")
                         .long("config")
                         .takes_value(true)
-                        .possible_values([clap::PossibleValue::new("Lest quotes aren't escaped.")])
+                        .value_parser([clap::PossibleValue::new("Lest quotes aren't escaped.")])
                         .help("the other case to test"),
                 ),
             ),
@@ -154,7 +154,8 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         .arg(
             clap::Arg::new("choice")
                 .long("choice")
-                .possible_values(["bash", "fish", "zsh"]),
+                .takes_value(true)
+                .value_parser(["bash", "fish", "zsh"]),
         )
         .arg(
             clap::Arg::new("unknown")

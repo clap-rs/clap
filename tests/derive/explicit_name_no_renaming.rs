@@ -6,7 +6,7 @@ use clap::Parser;
 fn explicit_short_long_no_rename() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = '.', long = ".foo")]
+        #[clap(short = '.', long = ".foo", value_parser)]
         foo: String,
     }
 
@@ -27,7 +27,7 @@ fn explicit_short_long_no_rename() {
 fn explicit_name_no_rename() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(name = ".options")]
+        #[clap(name = ".options", value_parser)]
         foo: String,
     }
 

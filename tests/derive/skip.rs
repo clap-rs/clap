@@ -12,7 +12,7 @@ use clap::Parser;
 fn skip_1() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(short)]
+        #[clap(short, value_parser)]
         x: u32,
         #[clap(skip)]
         s: u32,
@@ -39,15 +39,17 @@ fn skip_1() {
 fn skip_2() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(short)]
+        #[clap(short, value_parser)]
         x: u32,
         #[clap(skip)]
         ss: String,
         #[clap(skip)]
         sn: u8,
+        #[clap(value_parser)]
         y: u32,
         #[clap(skip)]
         sz: u16,
+        #[clap(value_parser)]
         t: u32,
     }
 
@@ -81,7 +83,7 @@ fn skip_enum() {
 
     #[derive(Parser, Debug, PartialEq)]
     pub struct Opt {
-        #[clap(long, short)]
+        #[clap(long, short, value_parser)]
         number: u32,
         #[clap(skip)]
         k: Kind,
@@ -115,7 +117,7 @@ fn skip_help_doc_comments() {
         #[clap(skip)]
         c: u32,
 
-        #[clap(short, parse(try_from_str))]
+        #[clap(short, value_parser)]
         n: u32,
     }
 
@@ -134,7 +136,7 @@ fn skip_help_doc_comments() {
 fn skip_val() {
     #[derive(Parser, Debug, PartialEq)]
     pub struct Opt {
-        #[clap(long, short)]
+        #[clap(long, short, value_parser)]
         number: u32,
 
         #[clap(skip = "key")]

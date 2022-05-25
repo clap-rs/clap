@@ -19,7 +19,7 @@ fn basic() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum)]
+        #[clap(arg_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -54,7 +54,7 @@ fn default_value() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, default_value_t)]
+        #[clap(arg_enum, value_parser, default_value_t)]
         arg: ArgChoice,
     }
 
@@ -89,7 +89,7 @@ fn multi_word_is_renamed_kebab() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum)]
+        #[clap(arg_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -118,7 +118,7 @@ fn variant_with_defined_casing() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum)]
+        #[clap(arg_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -141,7 +141,7 @@ fn casing_is_propagated_from_parent() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum)]
+        #[clap(arg_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -165,7 +165,7 @@ fn casing_propagation_is_overridden() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum)]
+        #[clap(arg_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -188,7 +188,7 @@ fn ignore_case() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(true))]
+        #[clap(arg_enum, value_parser, ignore_case(true))]
         arg: ArgChoice,
     }
 
@@ -215,7 +215,7 @@ fn ignore_case_set_to_false() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(false))]
+        #[clap(arg_enum, ignore_case(false), value_parser)]
         arg: ArgChoice,
     }
 
@@ -238,7 +238,7 @@ fn alias() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(false))]
+        #[clap(arg_enum, ignore_case(false), value_parser)]
         arg: ArgChoice,
     }
 
@@ -266,7 +266,7 @@ fn multiple_alias() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(false))]
+        #[clap(arg_enum, ignore_case(false), value_parser)]
         arg: ArgChoice,
     }
 
@@ -375,7 +375,7 @@ fn option_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum)]
+        #[clap(arg_enum, value_parser)]
         arg: Option<ArgChoice>,
     }
 
@@ -405,7 +405,7 @@ fn option_option_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, long)]
+        #[clap(arg_enum, long, value_parser)]
         arg: Option<Option<ArgChoice>>,
     }
 
@@ -439,7 +439,7 @@ fn vec_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, short, long)]
+        #[clap(arg_enum, short, long, value_parser)]
         arg: Vec<ArgChoice>,
     }
 
@@ -469,7 +469,7 @@ fn option_vec_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, short, long)]
+        #[clap(arg_enum, short, long, value_parser)]
         arg: Option<Vec<ArgChoice>>,
     }
 
@@ -505,7 +505,8 @@ fn vec_type_default_value() {
             short,
             long,
             default_value = "foo,bar",
-            value_delimiter = ','
+            value_delimiter = ',',
+            value_parser
         )]
         arg: Vec<ArgChoice>,
     }

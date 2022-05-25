@@ -3,7 +3,7 @@
 //
 // CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
 
-use clap::{Arg, Command};
+use clap::{value_parser, Arg, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -352,7 +352,7 @@ where
                 .value_name("WHEN")
                 .takes_value(true)
                 .hide_possible_values(true)
-                .possible_values(["never", "auto", "always", "ansi"]),
+                .value_parser(["never", "auto", "always", "ansi"]),
         )
         .arg(
             flag("colors")
@@ -394,19 +394,19 @@ where
             flag("after-context")
                 .short('A')
                 .value_name("NUM")
-                .validator(validate_number),
+                .value_parser(value_parser!(usize)),
         )
         .arg(
             flag("before-context")
                 .short('B')
                 .value_name("NUM")
-                .validator(validate_number),
+                .value_parser(value_parser!(usize)),
         )
         .arg(
             flag("context")
                 .short('C')
                 .value_name("NUM")
-                .validator(validate_number),
+                .value_parser(value_parser!(usize)),
         )
         .arg(flag("column"))
         .arg(flag("context-separator").value_name("SEPARATOR"))
@@ -434,12 +434,12 @@ where
             flag("max-count")
                 .short('m')
                 .value_name("NUM")
-                .validator(validate_number),
+                .value_parser(value_parser!(usize)),
         )
         .arg(
             flag("maxdepth")
                 .value_name("NUM")
-                .validator(validate_number),
+                .value_parser(value_parser!(usize)),
         )
         .arg(flag("mmap"))
         .arg(flag("no-messages"))
@@ -458,7 +458,7 @@ where
             flag("threads")
                 .short('j')
                 .value_name("ARG")
-                .validator(validate_number),
+                .value_parser(value_parser!(usize)),
         )
         .arg(flag("vimgrep"))
         .arg(
@@ -931,12 +931,6 @@ lazy_static! {
 
         h
     };
-}
-
-fn validate_number(s: &str) -> Result<(), String> {
-    s.parse::<usize>()
-        .map(|_| ())
-        .map_err(|err| err.to_string())
 }
 
 criterion_group!(

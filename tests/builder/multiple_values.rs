@@ -21,7 +21,10 @@ fn option_long() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -45,7 +48,10 @@ fn option_short() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -72,7 +78,10 @@ fn option_mixed() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 4);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
 }
@@ -95,7 +104,10 @@ fn option_exact_exact() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -117,7 +129,10 @@ fn option_exact_exact_not_mult() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -142,7 +157,10 @@ fn option_exact_exact_mult() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 2);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4", "val5", "val6"]
     );
 }
@@ -199,7 +217,10 @@ fn option_min_exact() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -242,10 +263,13 @@ fn option_short_min_more_mult_occurs() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("option"), 4);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
-    assert_eq!(m.value_of("arg"), Some("pos"));
+    assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), Some("pos"));
 }
 
 #[test]
@@ -267,10 +291,13 @@ fn option_short_min_more_single_occur() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
-    assert_eq!(m.value_of("arg"), Some("pos"));
+    assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), Some("pos"));
 }
 
 #[test]
@@ -291,7 +318,10 @@ fn option_max_exact() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -314,7 +344,10 @@ fn option_max_less() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 2);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
 }
@@ -354,7 +387,10 @@ fn positional() {
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -375,7 +411,10 @@ fn positional_exact_exact() {
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -420,7 +459,10 @@ fn positional_min_exact() {
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -447,7 +489,10 @@ fn positional_min_more() {
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 4);
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
 }
@@ -464,7 +509,10 @@ fn positional_max_exact() {
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -481,7 +529,10 @@ fn positional_max_less() {
     assert!(m.is_present("pos"));
     assert_eq!(m.occurrences_of("pos"), 2);
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
 }
@@ -513,7 +564,10 @@ fn sep_long_equals() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -535,7 +589,10 @@ fn sep_long_space() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -557,7 +614,10 @@ fn sep_short_equals() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -579,7 +639,10 @@ fn sep_short_space() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -601,7 +664,10 @@ fn sep_short_no_space() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -622,7 +688,10 @@ fn sep_positional() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -644,7 +713,10 @@ fn different_sep() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -665,7 +737,10 @@ fn different_sep_positional() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -687,7 +762,10 @@ fn no_sep() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
-    assert_eq!(m.value_of("option").unwrap(), "val1,val2,val3");
+    assert_eq!(
+        m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
+        "val1,val2,val3"
+    );
 }
 
 #[test]
@@ -706,7 +784,10 @@ fn no_sep_positional() {
 
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
-    assert_eq!(m.value_of("option").unwrap(), "val1,val2,val3");
+    assert_eq!(
+        m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
+        "val1,val2,val3"
+    );
 }
 
 #[test]
@@ -733,11 +814,17 @@ fn req_delimiter_long() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val1"]
     );
     assert_eq!(
-        m.values_of("args").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("args")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val2", "val3"]
     );
 }
@@ -766,11 +853,17 @@ fn req_delimiter_long_with_equal() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val1"]
     );
     assert_eq!(
-        m.values_of("args").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("args")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val2", "val3"]
     );
 }
@@ -799,11 +892,17 @@ fn req_delimiter_short_with_space() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val1"]
     );
     assert_eq!(
-        m.values_of("args").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("args")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val2", "val3"]
     );
 }
@@ -832,11 +931,17 @@ fn req_delimiter_short_with_no_space() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val1"]
     );
     assert_eq!(
-        m.values_of("args").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("args")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val2", "val3"]
     );
 }
@@ -865,11 +970,17 @@ fn req_delimiter_short_with_equal() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val1"]
     );
     assert_eq!(
-        m.values_of("args").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("args")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["val2", "val3"]
     );
 }
@@ -927,14 +1038,20 @@ fn req_delimiter_complex() {
     assert!(m.is_present("option"));
     assert_eq!(m.occurrences_of("option"), 10);
     assert_eq!(
-        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &[
             "val2", "val4", "val6", "val8", "val10", "val12", "val13", "val15", "val16", "val18",
             "val19", "val21", "val22", "val24", "val25",
         ]
     );
     assert_eq!(
-        m.values_of("args").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("args")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &[
             "val1", "val3", "val5", "val7", "val9", "val11", "val14", "val17", "val20", "val23",
             "val26",
@@ -1026,10 +1143,16 @@ fn low_index_positional() {
     assert!(m.is_present("target"));
     assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
-        m.values_of("files").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert_eq!(m.value_of("target").unwrap(), "target");
+    assert_eq!(
+        m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
+        "target"
+    );
 }
 
 #[test]
@@ -1057,10 +1180,16 @@ fn low_index_positional_in_subcmd() {
     assert!(sm.is_present("target"));
     assert_eq!(sm.occurrences_of("target"), 1);
     assert_eq!(
-        sm.values_of("files").unwrap().collect::<Vec<_>>(),
+        sm.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert_eq!(sm.value_of("target").unwrap(), "target");
+    assert_eq!(
+        sm.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
+        "target"
+    );
 }
 
 #[test]
@@ -1087,11 +1216,20 @@ fn low_index_positional_with_option() {
     assert!(m.is_present("target"));
     assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
-        m.values_of("files").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert_eq!(m.value_of("target").unwrap(), "target");
-    assert_eq!(m.value_of("opt").unwrap(), "test");
+    assert_eq!(
+        m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
+        "target"
+    );
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()).unwrap(),
+        "test"
+    );
 }
 
 #[test]
@@ -1116,10 +1254,16 @@ fn low_index_positional_with_flag() {
     assert!(m.is_present("target"));
     assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
-        m.values_of("files").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert_eq!(m.value_of("target").unwrap(), "target");
+    assert_eq!(
+        m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
+        "target"
+    );
     assert!(m.is_present("flg"));
 }
 
@@ -1143,10 +1287,16 @@ fn multiple_value_terminator_option() {
     assert_eq!(m.occurrences_of("other"), 1);
     assert!(m.is_present("files"));
     assert_eq!(
-        m.values_of("files").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
-    assert_eq!(m.value_of("other"), Some("otherval"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
 }
 
 #[test]
@@ -1169,10 +1319,16 @@ fn multiple_value_terminator_option_other_arg() {
     assert!(m.is_present("other"));
     assert!(m.is_present("files"));
     assert_eq!(
-        m.values_of("files").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
-    assert_eq!(m.value_of("other"), Some("otherval"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
     assert!(m.is_present("flag"));
 }
 
@@ -1200,9 +1356,16 @@ fn multiple_vals_with_hyphen() {
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
 
     let m = res.unwrap();
-    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    let cmds: Vec<_> = m
+        .get_many::<String>("cmds")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
     assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
-    assert_eq!(m.value_of("location"), Some("/home/clap"));
+    assert_eq!(
+        m.get_one::<String>("location").map(|v| v.as_str()),
+        Some("/home/clap")
+    );
 }
 
 #[test]
@@ -1265,7 +1428,10 @@ fn value_names_building_num_vals() {
     let m = m.unwrap();
 
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -1280,7 +1446,10 @@ fn value_names_building_num_vals_for_positional() {
     let m = m.unwrap();
 
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3"]
     );
 }
@@ -1300,7 +1469,10 @@ fn number_of_values_preferred_over_value_names() {
     let m = m.unwrap();
 
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
 }
@@ -1320,7 +1492,10 @@ fn values_per_occurrence_named() {
         Err(err) => panic!("{}", err),
     };
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
 
@@ -1332,7 +1507,10 @@ fn values_per_occurrence_named() {
         Err(err) => panic!("{}", err),
     };
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
 }
@@ -1351,7 +1529,10 @@ fn values_per_occurrence_positional() {
         Err(err) => panic!("{}", err),
     };
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
 
@@ -1361,7 +1542,10 @@ fn values_per_occurrence_positional() {
         Err(err) => panic!("{}", err),
     };
     assert_eq!(
-        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("pos")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
 }

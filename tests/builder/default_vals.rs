@@ -13,7 +13,10 @@ fn opts() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.value_of("o").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -23,7 +26,7 @@ fn opt_without_value_fail() {
             arg!(o: -o <opt> "some opt")
                 .required(false)
                 .default_value("default")
-                .forbid_empty_values(true),
+                .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(vec!["", "-o"]);
     assert!(r.is_err());
@@ -46,7 +49,10 @@ fn opt_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.value_of("opt").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 #[test]
@@ -57,7 +63,10 @@ fn positionals() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -68,7 +77,10 @@ fn positional_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 // OsStr Default Values
@@ -88,7 +100,10 @@ fn osstr_opts() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.value_of("o").unwrap(), expected);
+    assert_eq!(
+        m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
+        expected
+    );
 }
 
 #[test]
@@ -106,7 +121,10 @@ fn osstr_opt_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.value_of("opt").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 #[test]
@@ -120,7 +138,10 @@ fn osstr_positionals() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), expected);
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        expected
+    );
 }
 
 #[test]
@@ -134,7 +155,10 @@ fn osstr_positional_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 // --- Default if arg is present
@@ -148,7 +172,10 @@ fn default_if_arg_present_no_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -160,7 +187,10 @@ fn default_if_arg_present_no_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -176,7 +206,10 @@ fn default_if_arg_present_no_arg_with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "first");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "first"
+    );
 }
 
 #[test]
@@ -192,7 +225,10 @@ fn default_if_arg_present_with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -208,7 +244,10 @@ fn default_if_arg_present_with_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -224,7 +263,10 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 // Conditional Default Values
@@ -238,7 +280,10 @@ fn default_if_arg_present_with_value_no_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -250,7 +295,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
-    assert!(m.value_of("arg").is_none());
+    assert!(m.get_one::<String>("arg").map(|v| v.as_str()).is_none());
 }
 
 #[test]
@@ -262,7 +307,10 @@ fn default_if_arg_present_with_value_no_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -278,7 +326,10 @@ fn default_if_arg_present_with_value_no_arg_with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "first");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "first"
+    );
 }
 
 #[test]
@@ -294,7 +345,10 @@ fn default_if_arg_present_with_value_no_arg_with_default_fail() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "first");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "first"
+    );
 }
 
 #[test]
@@ -310,7 +364,10 @@ fn default_if_arg_present_with_value_with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 #[test]
@@ -326,7 +383,10 @@ fn default_if_arg_present_with_value_with_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -342,7 +402,10 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -358,7 +421,10 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 // Unsetting the default
@@ -387,7 +453,7 @@ fn no_default_if_arg_present_with_value_with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
-    assert!(m.value_of("arg").is_none());
+    assert!(m.get_one::<String>("arg").map(|v| v.as_str()).is_none());
 }
 
 #[test]
@@ -403,7 +469,10 @@ fn no_default_if_arg_present_with_value_with_default_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -419,7 +488,10 @@ fn no_default_if_arg_present_no_arg_with_value_with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 // Multiple conditions
@@ -441,7 +513,10 @@ fn default_ifs_arg_present() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "flg");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "flg"
+    );
 }
 
 #[test]
@@ -458,7 +533,7 @@ fn no_default_ifs_arg_present() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
-    assert!(m.value_of("arg").is_none());
+    assert!(m.get_one::<String>("arg").map(|v| v.as_str()).is_none());
 }
 
 #[test]
@@ -478,7 +553,10 @@ fn default_ifs_arg_present_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "value");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "value"
+    );
 }
 
 #[test]
@@ -498,7 +576,10 @@ fn default_ifs_arg_present_order() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
 }
 
 // Interaction with requires
@@ -528,8 +609,14 @@ fn conditional_reqs_pass() {
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.value_of("output"), Some("other"));
-    assert_eq!(m.value_of("input"), Some("some"));
+    assert_eq!(
+        m.get_one::<String>("output").map(|v| v.as_str()),
+        Some("other")
+    );
+    assert_eq!(
+        m.get_one::<String>("input").map(|v| v.as_str()),
+        Some("some")
+    );
 }
 
 #[test]
@@ -539,14 +626,16 @@ fn multiple_defaults() {
             Arg::new("files")
                 .long("files")
                 .number_of_values(2)
-                .allow_invalid_utf8(true)
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("files"));
-    assert_eq!(m.values_of_lossy("files").unwrap(), vec!["old", "new"]);
+    assert_eq!(
+        m.get_many::<String>("files").unwrap().collect::<Vec<_>>(),
+        vec!["old", "new"]
+    );
 }
 
 #[test]
@@ -556,14 +645,16 @@ fn multiple_defaults_override() {
             Arg::new("files")
                 .long("files")
                 .number_of_values(2)
-                .allow_invalid_utf8(true)
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec!["", "--files", "other", "mine"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("files"));
-    assert_eq!(m.values_of_lossy("files").unwrap(), vec!["other", "mine"]);
+    assert_eq!(
+        m.get_many::<String>("files").unwrap().collect::<Vec<_>>(),
+        vec!["other", "mine"]
+    );
 }
 
 #[test]
@@ -605,7 +696,10 @@ fn issue_1050_num_vals_and_defaults() {
         .try_get_matches_from(vec!["hello", "--exit-code=1"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert_eq!(m.value_of("exit-code"), Some("1"));
+    assert_eq!(
+        m.get_one::<String>("exit-code").map(|v| v.as_str()),
+        Some("1")
+    );
 }
 
 #[cfg(debug_assertions)]
@@ -633,14 +727,14 @@ fn required_args_with_default_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=value doesn't match possible values"]
+#[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: \"value\" isn't a valid value for '<arg>'"]
 fn default_values_are_possible_values() {
     use clap::{Arg, Command};
 
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
-                .possible_values(["one", "two"])
+                .value_parser(["one", "two"])
                 .default_value("value"),
         )
         .try_get_matches();
@@ -648,14 +742,14 @@ fn default_values_are_possible_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=one failed validation: invalid digit found in string"]
+#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '<arg>"]
 fn invalid_default_values() {
     use clap::{Arg, Command};
 
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
-                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .value_parser(clap::value_parser!(u32))
                 .default_value("one"),
         )
         .try_get_matches();
@@ -668,7 +762,7 @@ fn valid_delimited_default_values() {
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
-                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .value_parser(clap::value_parser!(u32))
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
                 .default_value("1,2,3"),
@@ -678,14 +772,14 @@ fn valid_delimited_default_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=one failed validation: invalid digit found in string"]
+#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '<arg>"]
 fn invalid_delimited_default_values() {
     use clap::{Arg, Command};
 
     let _ = Command::new("test")
         .arg(
             Arg::new("arg")
-                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .value_parser(clap::value_parser!(u32))
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
                 .default_value("one,two"),
@@ -706,7 +800,11 @@ fn with_value_delimiter() {
     let matches = cmd.try_get_matches_from(vec![""]).unwrap();
 
     assert_eq!(
-        matches.values_of("option").unwrap().collect::<Vec<_>>(),
+        matches
+            .get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["first", "second"]
     );
 }
@@ -725,7 +823,11 @@ fn missing_with_value_delimiter() {
         .unwrap();
 
     assert_eq!(
-        matches.values_of("option").unwrap().collect::<Vec<_>>(),
+        matches
+            .get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["value1", "value2", "value3", "value4", "value5"]
     );
 }

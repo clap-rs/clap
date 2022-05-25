@@ -12,7 +12,7 @@
 //! . ./value_hints.fish
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
-use clap::{Arg, Command, ValueHint};
+use clap::{value_parser, Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
@@ -23,7 +23,7 @@ fn build_cli() -> Command<'static> {
         .arg(
             Arg::new("generator")
                 .long("generate")
-                .possible_values(Shell::possible_values()),
+                .value_parser(value_parser!(Shell)),
         )
         .arg(
             Arg::new("unknown")
@@ -99,9 +99,9 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 fn main() {
     let matches = build_cli().get_matches();
 
-    if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
+    if let Some(generator) = matches.get_one::<Shell>("generator") {
         let mut cmd = build_cli();
         eprintln!("Generating completion file for {}...", generator);
-        print_completions(generator, &mut cmd);
+        print_completions(*generator, &mut cmd);
     }
 }

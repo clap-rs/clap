@@ -11,7 +11,7 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[clap(name = "basic", parse(from_str))]
 struct Opt {
-    #[clap(short)]
+    #[clap(short, value_parser)]
     s: String,
 }
 

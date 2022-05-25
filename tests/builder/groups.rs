@@ -94,7 +94,10 @@ fn group_single_value() {
 
     let m = res.unwrap();
     assert!(m.is_present("grp"));
-    assert_eq!(m.value_of("grp").unwrap(), "blue");
+    assert_eq!(
+        m.get_one::<String>("grp").map(|v| v.as_str()).unwrap(),
+        "blue"
+    );
 }
 
 #[test]
@@ -108,7 +111,7 @@ fn group_single_flag() {
 
     let m = res.unwrap();
     assert!(m.is_present("grp"));
-    assert!(m.value_of("grp").is_none());
+    assert!(m.get_one::<String>("grp").map(|v| v.as_str()).is_none());
 }
 
 #[test]
@@ -122,7 +125,7 @@ fn group_empty() {
 
     let m = res.unwrap();
     assert!(!m.is_present("grp"));
-    assert!(m.value_of("grp").is_none());
+    assert!(m.get_one::<String>("grp").map(|v| v.as_str()).is_none());
 }
 
 #[test]
@@ -149,7 +152,10 @@ fn group_multi_value_single_arg() {
     let m = res.unwrap();
     assert!(m.is_present("grp"));
     assert_eq!(
-        &*m.values_of("grp").unwrap().collect::<Vec<_>>(),
+        &*m.get_many::<String>("grp")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["blue", "red", "green"]
     );
 }
@@ -311,15 +317,15 @@ fn issue_1794() {
         );
 
     let m = cmd.clone().try_get_matches_from(&["cmd", "pos1", "pos2"]).unwrap();
-    assert_eq!(m.value_of("pos1"), Some("pos1"));
-    assert_eq!(m.value_of("pos2"), Some("pos2"));
+    assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), Some("pos1"));
+    assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("pos2"));
     assert!(!m.is_present("option1"));
 
     let m = cmd
         .clone()
         .try_get_matches_from(&["cmd", "--option1", "positional"]).unwrap();
-    assert_eq!(m.value_of("pos1"), None);
-    assert_eq!(m.value_of("pos2"), Some("positional"));
+    assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), None);
+    assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("positional"));
     assert!(m.is_present("option1"));
 }
 */

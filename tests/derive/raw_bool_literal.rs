@@ -13,9 +13,9 @@ fn raw_bool_literal() {
     #[derive(Parser, Debug, PartialEq)]
     #[clap(name = "raw_bool")]
     struct Opt {
-        #[clap(raw(false))]
+        #[clap(raw(false), value_parser)]
         a: String,
-        #[clap(raw(true))]
+        #[clap(raw(true), value_parser)]
         b: String,
     }
 

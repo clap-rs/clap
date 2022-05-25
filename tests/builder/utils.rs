@@ -67,8 +67,8 @@ pub fn complex_app() -> Command<'static> {
             arg!([positional2] "tests positionals with exclusions"),
             arg!(-O --option3 <option3> "specific vals")
                 .required(false)
-                .possible_values(opt3_vals),
-            arg!([positional3] ... "tests specific values").possible_values(pos3_vals),
+                .value_parser(opt3_vals),
+            arg!([positional3] ... "tests specific values").value_parser(pos3_vals),
             arg!(--multvals "Tests multiple values, not mult occs")
                 .value_names(&["one", "two"])
                 .required(false),

@@ -60,7 +60,7 @@ fn multiple_occurrences_of_positional() {
         .expect("zero occurrences work");
     assert!(!m.is_present("multi"));
     assert_eq!(m.occurrences_of("multi"), 0);
-    assert!(m.values_of("multi").is_none());
+    assert!(m.get_many::<String>("multi").is_none());
 
     let m = cmd
         .clone()
@@ -68,7 +68,13 @@ fn multiple_occurrences_of_positional() {
         .expect("single occurrence work");
     assert!(m.is_present("multi"));
     assert_eq!(m.occurrences_of("multi"), 1);
-    assert_eq!(m.values_of("multi").unwrap().collect::<Vec<_>>(), ["one"]);
+    assert_eq!(
+        m.get_many::<String>("multi")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["one"]
+    );
 
     let m = cmd
         .clone()
@@ -77,7 +83,10 @@ fn multiple_occurrences_of_positional() {
     assert!(m.is_present("multi"));
     assert_eq!(m.occurrences_of("multi"), 4);
     assert_eq!(
-        m.values_of("multi").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("multi")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         ["one", "two", "three", "four"]
     );
 }

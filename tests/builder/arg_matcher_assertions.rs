@@ -16,15 +16,15 @@ fn arg_matches_if_present_wrong_arg() {
 
 #[test]
 #[cfg(debug_assertions)]
-#[should_panic = "`o` is not a name of an argument or a group."]
+#[should_panic = "Mismatch between definition and access of `o`. Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags"]
 fn arg_matches_value_of_wrong_arg() {
     let m = Command::new("test")
         .arg(Arg::new("opt").short('o').takes_value(true))
         .try_get_matches_from(&["test", "-o", "val"])
         .unwrap();
 
-    assert_eq!(m.value_of("opt"), Some("val"));
-    m.value_of("o");
+    assert_eq!(m.get_one::<String>("opt").map(|v| v.as_str()), Some("val"));
+    m.get_one::<String>("o").map(|v| v.as_str());
 }
 
 #[test]

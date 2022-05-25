@@ -20,6 +20,7 @@ use clap::{Args, Parser, Subcommand};
 fn flatten() {
     #[derive(Args, PartialEq, Debug)]
     struct Common {
+        #[clap(value_parser)]
         arg: i32,
     }
 
@@ -44,6 +45,7 @@ fn flatten() {
 fn flatten_twice() {
     #[derive(Args, PartialEq, Debug)]
     struct Common {
+        #[clap(value_parser)]
         arg: i32,
     }
 
@@ -62,6 +64,7 @@ fn flatten_twice() {
 fn flatten_in_subcommand() {
     #[derive(Args, PartialEq, Debug)]
     struct Common {
+        #[clap(value_parser)]
         arg: i32,
     }
 
@@ -105,6 +108,7 @@ fn flatten_in_subcommand() {
 fn update_args_with_flatten() {
     #[derive(Args, PartialEq, Debug)]
     struct Common {
+        #[clap(value_parser)]
         arg: i32,
     }
 
@@ -134,12 +138,15 @@ enum BaseCli {
 
 #[derive(Args, PartialEq, Debug)]
 struct Command1 {
+    #[clap(value_parser)]
     arg1: i32,
+    #[clap(value_parser)]
     arg2: i32,
 }
 
 #[derive(Args, PartialEq, Debug)]
 struct Command2 {
+    #[clap(value_parser)]
     arg2: i32,
 }
 
@@ -192,6 +199,7 @@ fn flatten_with_doc_comment() {
     #[derive(Args, PartialEq, Debug)]
     struct Common {
         /// This is an arg. Arg means "argument". Command line argument.
+        #[clap(value_parser)]
         arg: i32,
     }
 

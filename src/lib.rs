@@ -42,6 +42,7 @@ pub use crate::derive::{ArgEnum, Args, CommandFactory, FromArgMatches, Parser, S
 pub use crate::builder::App;
 pub use crate::builder::{AppFlags, AppSettings, ArgFlags, ArgSettings, PossibleValue, ValueHint};
 pub use crate::error::{ErrorKind, Result};
+#[allow(deprecated)]
 pub use crate::parser::{Indices, OsValues, ValueSource, Values};
 
 #[cfg(feature = "yaml")]

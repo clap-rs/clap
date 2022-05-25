@@ -14,14 +14,16 @@ use crate::util::eq_ignore_case;
 /// ```rust
 /// # use clap::{Arg, PossibleValue};
 /// let cfg = Arg::new("config")
-///       .takes_value(true)
-///       .value_name("FILE")
-///       .possible_value(PossibleValue::new("fast"))
-///       .possible_value(PossibleValue::new("slow").help("slower than fast"))
-///       .possible_value(PossibleValue::new("secret speed").hide(true));
+///     .takes_value(true)
+///     .value_name("FILE")
+///     .value_parser([
+///         PossibleValue::new("fast"),
+///         PossibleValue::new("slow").help("slower than fast"),
+///         PossibleValue::new("secret speed").hide(true)
+///     ]);
 /// ```
 /// [Args]: crate::Arg
-/// [possible values]: crate::Arg::possible_value()
+/// [possible values]: crate::builder::ValueParser::possible_values
 /// [hide]: PossibleValue::hide()
 /// [help]: PossibleValue::help()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]

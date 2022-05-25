@@ -24,7 +24,7 @@ fn try_str(s: &str) -> Result<String, std::convert::Infallible> {
 fn warning_never_struct() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(parse(try_from_str = try_str), default_value_t)]
+        #[clap(value_parser = try_str, default_value_t)]
         s: String,
     }
     assert_eq!(
@@ -40,7 +40,7 @@ fn warning_never_enum() {
     #[derive(Parser, Debug, PartialEq)]
     enum Opt {
         Foo {
-            #[clap(parse(try_from_str = try_str), default_value_t)]
+            #[clap(value_parser = try_str, default_value_t)]
             s: String,
         },
     }

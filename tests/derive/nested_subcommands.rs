@@ -118,6 +118,7 @@ struct Opt3 {
 #[derive(Subcommand, PartialEq, Debug)]
 enum Sub2 {
     Foo {
+        #[clap(value_parser)]
         file: String,
         #[clap(subcommand)]
         cmd: Sub3,
@@ -158,8 +159,16 @@ enum SubSubCmdWithOption {
 }
 #[derive(Subcommand, PartialEq, Debug)]
 enum Remote {
-    Add { name: String, url: String },
-    Remove { name: String },
+    Add {
+        #[clap(value_parser)]
+        name: String,
+        #[clap(value_parser)]
+        url: String,
+    },
+    Remove {
+        #[clap(value_parser)]
+        name: String,
+    },
 }
 
 #[derive(Subcommand, PartialEq, Debug)]

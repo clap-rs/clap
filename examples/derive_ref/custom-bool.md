@@ -31,14 +31,14 @@ USAGE:
 For more information try --help
 
 $ custom-bool --foo true false
-[examples/derive_ref/custom-bool.rs:31] opt = Opt {
+[examples/derive_ref/custom-bool.rs:32] opt = Opt {
     foo: true,
     bar: false,
     boom: false,
 }
 
 $ custom-bool --foo true --bar true false
-[examples/derive_ref/custom-bool.rs:31] opt = Opt {
+[examples/derive_ref/custom-bool.rs:32] opt = Opt {
     foo: true,
     bar: true,
     boom: false,

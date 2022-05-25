@@ -17,7 +17,10 @@ fn env() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg").unwrap(), "env");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "env"
+    );
 }
 
 #[test]
@@ -35,7 +38,7 @@ fn env_bool_literal() {
     let m = r.unwrap();
     assert!(m.is_present("present"));
     assert_eq!(m.occurrences_of("present"), 0);
-    assert_eq!(m.value_of("present"), None);
+    assert_eq!(m.get_one::<String>("present").map(|v| v.as_str()), None);
     assert!(!m.is_present("negated"));
     assert!(!m.is_present("absent"));
 }
@@ -56,7 +59,10 @@ fn env_os() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg").unwrap(), "env");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "env"
+    );
 }
 
 #[test]
@@ -77,7 +83,7 @@ fn no_env() {
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg"), None);
+    assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), None);
 }
 
 #[test]
@@ -94,7 +100,7 @@ fn no_env_no_takes_value() {
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg"), None);
+    assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), None);
 }
 
 #[test]
@@ -114,7 +120,10 @@ fn with_default() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg").unwrap(), "env");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "env"
+    );
 }
 
 #[test]
@@ -133,10 +142,17 @@ fn opt_user_override() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 1);
-    assert_eq!(m.value_of("arg").unwrap(), "opt");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "opt"
+    );
 
     // see https://github.com/clap-rs/clap/issues/1835
-    let values: Vec<_> = m.values_of("arg").unwrap().collect();
+    let values: Vec<_> = m
+        .get_many::<String>("arg")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
     assert_eq!(values, vec!["opt"]);
 }
 
@@ -156,7 +172,10 @@ fn positionals() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg").unwrap(), "env");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "env"
+    );
 }
 
 #[test]
@@ -175,10 +194,17 @@ fn positionals_user_override() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 1);
-    assert_eq!(m.value_of("arg").unwrap(), "opt");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "opt"
+    );
 
     // see https://github.com/clap-rs/clap/issues/1835
-    let values: Vec<_> = m.values_of("arg").unwrap().collect();
+    let values: Vec<_> = m
+        .get_many::<String>("arg")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
     assert_eq!(values, vec!["opt"]);
 }
 
@@ -200,7 +226,13 @@ fn multiple_one() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.values_of("arg").unwrap().collect::<Vec<_>>(), vec!["env"]);
+    assert_eq!(
+        m.get_many::<String>("arg")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        vec!["env"]
+    );
 }
 
 #[test]
@@ -222,7 +254,10 @@ fn multiple_three() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
     assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("arg")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         vec!["env1", "env2", "env3"]
     );
 }
@@ -245,7 +280,10 @@ fn multiple_no_delimiter() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
     assert_eq!(
-        m.values_of("arg").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("arg")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         vec!["env1 env2 env3"]
     );
 }
@@ -259,7 +297,7 @@ fn possible_value() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_PV")
                 .takes_value(true)
-                .possible_value("env"),
+                .value_parser(["env"]),
         )
         .try_get_matches_from(vec![""]);
 
@@ -267,7 +305,10 @@ fn possible_value() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg").unwrap(), "env");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "env"
+    );
 }
 
 #[test]
@@ -279,7 +320,7 @@ fn not_possible_value() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_NPV")
                 .takes_value(true)
-                .possible_value("never"),
+                .value_parser(["never"]),
         )
         .try_get_matches_from(vec![""]);
 
@@ -287,7 +328,7 @@ fn not_possible_value() {
 }
 
 #[test]
-fn validator() {
+fn value_parser() {
     env::set_var("CLP_TEST_ENV_VDOR", "env");
 
     let r = Command::new("df")
@@ -295,11 +336,11 @@ fn validator() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VDOR")
                 .takes_value(true)
-                .validator(|s| {
+                .value_parser(|s: &str| -> Result<String, String> {
                     if s == "env" {
-                        Ok(())
+                        Ok(s.to_owned())
                     } else {
-                        Err("not equal".to_string())
+                        Err("not equal".to_owned())
                     }
                 }),
         )
@@ -309,11 +350,14 @@ fn validator() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg").unwrap(), "env");
+    assert_eq!(
+        m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
+        "env"
+    );
 }
 
 #[test]
-fn validator_output() {
+fn value_parser_output() {
     env::set_var("CLP_TEST_ENV_VO", "42");
 
     let m = Command::new("df")
@@ -321,16 +365,16 @@ fn validator_output() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VO")
                 .takes_value(true)
-                .validator(|s| s.parse::<i32>()),
+                .value_parser(clap::value_parser!(i32)),
         )
         .try_get_matches_from(vec![""])
         .unwrap();
 
-    assert_eq!(m.value_of("arg").unwrap().parse(), Ok(42));
+    assert_eq!(*m.get_one::<i32>("arg").unwrap(), 42);
 }
 
 #[test]
-fn validator_invalid() {
+fn value_parser_invalid() {
     env::set_var("CLP_TEST_ENV_IV", "env");
 
     let r = Command::new("df")
@@ -338,9 +382,9 @@ fn validator_invalid() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_IV")
                 .takes_value(true)
-                .validator(|s| {
+                .value_parser(|s: &str| -> Result<String, String> {
                     if s != "env" {
-                        Ok(())
+                        Ok(s.to_owned())
                     } else {
                         Err("is equal".to_string())
                     }

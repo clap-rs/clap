@@ -106,7 +106,7 @@ fn top_long_doc_comment_both_help_long_help() {
         ///
         /// Or something else
         Foo {
-            #[clap(help = "foo")]
+            #[clap(value_parser, help = "foo")]
             bars: String,
         },
     }
@@ -191,7 +191,7 @@ fn multiline_separates_default() {
         /// Multiline
         ///
         /// Doc comment
-        #[clap(long, default_value = "x")]
+        #[clap(long, default_value = "x", value_parser)]
         x: String,
     }
 
@@ -229,7 +229,10 @@ fn doc_comment_about_handles_both_abouts() {
     /// Sub doc comment body
     #[derive(Parser, PartialEq, Eq, Debug)]
     pub enum Sub {
-        Compress { output: String },
+        Compress {
+            #[clap(value_parser)]
+            output: String,
+        },
     }
 
     let cmd = Opts::command();

@@ -26,34 +26,34 @@ use std::path::PathBuf;
 )]
 struct Opt {
     /// If provided, outputs the completion file for given shell
-    #[clap(long = "generate", arg_enum)]
+    #[clap(long = "generate", arg_enum, value_parser)]
     generator: Option<Shell>,
     // Showcasing all possible ValueHints:
-    #[clap(long, value_hint = ValueHint::Unknown)]
+    #[clap(long, value_hint = ValueHint::Unknown, value_parser)]
     unknown: Option<String>,
-    #[clap(long, value_hint = ValueHint::Other)]
+    #[clap(long, value_hint = ValueHint::Other, value_parser)]
     other: Option<String>,
-    #[clap(short, long, value_hint = ValueHint::AnyPath)]
+    #[clap(short, long, value_hint = ValueHint::AnyPath, value_parser)]
     path: Option<PathBuf>,
-    #[clap(short, long, value_hint = ValueHint::FilePath)]
+    #[clap(short, long, value_hint = ValueHint::FilePath, value_parser)]
     file: Option<PathBuf>,
-    #[clap(short, long, value_hint = ValueHint::DirPath)]
+    #[clap(short, long, value_hint = ValueHint::DirPath, value_parser)]
     dir: Option<PathBuf>,
-    #[clap(short, long, value_hint = ValueHint::ExecutablePath)]
+    #[clap(short, long, value_hint = ValueHint::ExecutablePath, value_parser)]
     exe: Option<PathBuf>,
-    #[clap(long, parse(from_os_str), value_hint = ValueHint::CommandName)]
+    #[clap(long, value_hint = ValueHint::CommandName, value_parser)]
     cmd_name: Option<OsString>,
-    #[clap(short, long, value_hint = ValueHint::CommandString)]
+    #[clap(short, long, value_hint = ValueHint::CommandString, value_parser)]
     cmd: Option<String>,
-    #[clap(value_hint = ValueHint::CommandWithArguments)]
+    #[clap(value_hint = ValueHint::CommandWithArguments, value_parser)]
     command_with_args: Vec<String>,
-    #[clap(short, long, value_hint = ValueHint::Username)]
+    #[clap(short, long, value_hint = ValueHint::Username, value_parser)]
     user: Option<String>,
-    #[clap(short, long, value_hint = ValueHint::Hostname)]
+    #[clap(short, long, value_hint = ValueHint::Hostname, value_parser)]
     host: Option<String>,
-    #[clap(long, value_hint = ValueHint::Url)]
+    #[clap(long, value_hint = ValueHint::Url, value_parser)]
     url: Option<String>,
-    #[clap(long, value_hint = ValueHint::EmailAddress)]
+    #[clap(long, value_hint = ValueHint::EmailAddress, value_parser)]
     email: Option<String>,
 }
 

@@ -39,7 +39,10 @@ fn option_overrides_itself() {
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
-    assert_eq!(m.value_of("opt"), Some("other"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("other")
+    );
 }
 
 #[test]
@@ -60,7 +63,10 @@ fn mult_option_require_delim_overrides_itself() {
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 3);
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["some", "other", "one", "two"]
     );
 }
@@ -89,7 +95,10 @@ fn mult_option_overrides_itself() {
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 2);
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["first", "overrides", "some", "other", "val"]
     );
 }
@@ -107,7 +116,10 @@ fn option_use_delim_false_override_itself() {
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
     assert_eq!(
-        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("opt")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["one,two"]
     );
 }
@@ -123,7 +135,10 @@ fn pos_mult_overrides_itself() {
     assert!(m.is_present("val"));
     assert_eq!(m.occurrences_of("val"), 3);
     assert_eq!(
-        m.values_of("val").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("val")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["some", "other", "value"]
     );
 }
@@ -183,7 +198,10 @@ fn posix_compatible_opts_long() {
         .try_get_matches_from(vec!["", "--flag", "some", "--color", "other"])
         .unwrap();
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
     assert!(!m.is_present("flag"));
 }
 
@@ -200,7 +218,10 @@ fn posix_compatible_opts_long_rev() {
         .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -215,7 +236,10 @@ fn posix_compatible_opts_long_equals() {
         .try_get_matches_from(vec!["", "--flag=some", "--color=other"])
         .unwrap();
     assert!(m.is_present("color"));
-    assert_eq!(m.value_of("color").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
     assert!(!m.is_present("flag"));
 }
 
@@ -232,7 +256,10 @@ fn posix_compatible_opts_long_equals_rev() {
         .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
-    assert_eq!(m.value_of("flag").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -247,7 +274,10 @@ fn posix_compatible_opts_short() {
         .try_get_matches_from(vec!["", "-f", "some", "-c", "other"])
         .unwrap();
     assert!(m.is_present("c"));
-    assert_eq!(m.value_of("c").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("c").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
     assert!(!m.is_present("f"));
 }
 
@@ -264,7 +294,10 @@ fn posix_compatible_opts_short_rev() {
         .unwrap();
     assert!(!m.is_present("c"));
     assert!(m.is_present("f"));
-    assert_eq!(m.value_of("f").unwrap(), "other");
+    assert_eq!(
+        m.get_one::<String>("f").map(|v| v.as_str()).unwrap(),
+        "other"
+    );
 }
 
 #[test]
@@ -377,13 +410,22 @@ fn issue_1374_overrides_self_with_multiple_values() {
         .clone()
         .try_get_matches_from(&["test", "--input", "a", "b", "c", "--input", "d"])
         .unwrap();
-    assert_eq!(m.values_of("input").unwrap().collect::<Vec<_>>(), &["d"]);
+    assert_eq!(
+        m.get_many::<String>("input")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["d"]
+    );
     let m = cmd
         .clone()
         .try_get_matches_from(&["test", "--input", "a", "b", "--input", "c", "d"])
         .unwrap();
     assert_eq!(
-        m.values_of("input").unwrap().collect::<Vec<_>>(),
+        m.get_many::<String>("input")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
         &["c", "d"]
     );
 }
@@ -396,6 +438,12 @@ fn incremental_override() {
     let m = cmd
         .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])
         .unwrap();
-    assert_eq!(m.values_of("name").unwrap().collect::<Vec<_>>(), &["ali"]);
+    assert_eq!(
+        m.get_many::<String>("name")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["ali"]
+    );
     assert!(!m.is_present("no-name"));
 }

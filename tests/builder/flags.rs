@@ -146,7 +146,10 @@ fn issue_1284_argument_in_flag_style() {
         .clone()
         .try_get_matches_from(vec!["", "--", "--another-flag"])
         .unwrap();
-    assert_eq!(m.value_of("filename"), Some("--another-flag"));
+    assert_eq!(
+        m.get_one::<String>("filename").map(|v| v.as_str()),
+        Some("--another-flag")
+    );
 
     let m = cmd
         .clone()
@@ -158,7 +161,10 @@ fn issue_1284_argument_in_flag_style() {
         .clone()
         .try_get_matches_from(vec!["", "--", "--a-flag"])
         .unwrap();
-    assert_eq!(m.value_of("filename"), Some("--a-flag"));
+    assert_eq!(
+        m.get_one::<String>("filename").map(|v| v.as_str()),
+        Some("--a-flag")
+    );
 
     utils::assert_output(cmd, "mycat --another-flag", USE_FLAG_AS_ARGUMENT, true);
 }

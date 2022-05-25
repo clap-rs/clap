@@ -6,7 +6,7 @@ use crate::utils;
 fn default_value() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value = "3")]
+        #[clap(value_parser, default_value = "3")]
         arg: i32,
     }
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
@@ -20,7 +20,7 @@ fn default_value() {
 fn default_value_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value_t = 3)]
+        #[clap(value_parser, default_value_t = 3)]
         arg: i32,
     }
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
@@ -34,7 +34,7 @@ fn default_value_t() {
 fn auto_default_value_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value_t)]
+        #[clap(value_parser, default_value_t)]
         arg: i32,
     }
     assert_eq!(Opt { arg: 0 }, Opt::try_parse_from(&["test"]).unwrap());
@@ -50,7 +50,7 @@ fn detect_os_variant() {
 
     #[derive(clap::Parser)]
     pub struct Options {
-        #[clap(default_value_os = ("123".as_ref()))]
+        #[clap(value_parser, default_value_os = ("123".as_ref()))]
         x: String,
     }
     Options::command().debug_assert();

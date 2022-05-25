@@ -722,7 +722,6 @@ fn assert_arg_flags(arg: &Arg) {
         }
     }
 
-    checker!(is_forbid_empty_values_set requires is_takes_value_set);
     checker!(is_require_value_delimiter_set requires is_takes_value_set);
     checker!(is_require_value_delimiter_set requires is_use_value_delimiter_set);
     checker!(is_hide_possible_values_set requires is_takes_value_set);
@@ -732,7 +731,11 @@ fn assert_arg_flags(arg: &Arg) {
     checker!(is_hide_default_value_set requires is_takes_value_set);
     checker!(is_multiple_values_set requires is_takes_value_set);
     checker!(is_ignore_case_set requires is_takes_value_set);
-    checker!(is_allow_invalid_utf8_set requires is_takes_value_set);
+    {
+        #![allow(deprecated)]
+        checker!(is_forbid_empty_values_set requires is_takes_value_set);
+        checker!(is_allow_invalid_utf8_set requires is_takes_value_set);
+    }
 }
 
 fn assert_defaults<'d>(
@@ -806,6 +809,29 @@ fn assert_defaults<'d>(
                     arg.name, field, default_os, err
                 );
             }
+        }
+
+        let value_parser = arg.get_value_parser();
+        let assert_cmd = Command::new("assert");
+        if let Some(delim) = arg.get_value_delimiter() {
+            let default_os = RawOsStr::new(default_os);
+            for part in default_os.split(delim) {
+                if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), &part.to_os_str())
+                {
+                    panic!(
+                        "Argument `{}`'s {}={:?} failed validation: {}",
+                        arg.name,
+                        field,
+                        part.to_str_lossy(),
+                        err
+                    );
+                }
+            }
+        } else if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), default_os) {
+            panic!(
+                "Argument `{}`'s {}={:?} failed validation: {}",
+                arg.name, field, default_os, err
+            );
         }
     }
 }
