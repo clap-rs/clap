@@ -1412,7 +1412,7 @@ impl ArgMatches {
         name: &str,
     ) -> Result<Option<ValuesRef<T>>, MatchesError> {
         let id = Id::from(name);
-        let arg = match self.try_get_arg(&id)? {
+        let arg = match self.try_get_arg_t::<T>(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
         };
