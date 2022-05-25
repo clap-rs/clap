@@ -1582,6 +1582,7 @@ pub(crate) struct SubCommand {
 /// ```
 #[derive(Clone, Debug)]
 pub struct Values2<T> {
+    #[allow(clippy::type_complexity)]
     iter: Map<Flatten<std::vec::IntoIter<Vec<AnyValue>>>, fn(AnyValue) -> T>,
     len: usize,
 }
@@ -1640,6 +1641,7 @@ impl<T> Default for Values2<T> {
 /// ```
 #[derive(Clone, Debug)]
 pub struct ValuesRef<'a, T> {
+    #[allow(clippy::type_complexity)]
     iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, fn(&AnyValue) -> &T>,
     len: usize,
 }
@@ -1701,6 +1703,7 @@ impl<'a, T: 'a> Default for ValuesRef<'a, T> {
 /// ```
 #[derive(Clone, Debug)]
 pub struct RawValues<'a> {
+    #[allow(clippy::type_complexity)]
     iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
     len: usize,
 }
