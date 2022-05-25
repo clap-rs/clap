@@ -175,6 +175,7 @@ These correspond to a `clap::Arg`.
   - When not present: case-converted field name is used
 - `value_parser [= <expr>]`: `clap::Arg::value_parser`
   - When not present: will auto-select an implementation based on the field type
+  - To register a custom type's `ValueParser`, implement `ValueParserFactory`
 - `help = <expr>`: `clap::Arg::help`
   - When not present: [Doc comment summary](#doc-comments)
 - `long_help = <expr>`: `clap::Arg::long_help`

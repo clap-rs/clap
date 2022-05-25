@@ -45,6 +45,7 @@ pub use value_parser::RangedI64ValueParser;
 pub use value_parser::StringValueParser;
 pub use value_parser::TypedValueParser;
 pub use value_parser::ValueParser;
+pub use value_parser::ValueParserFactory;
 
 #[allow(deprecated)]
 pub use command::App;
