@@ -1042,15 +1042,15 @@ impl<'help> Arg<'help> {
     /// ).unwrap();
     ///
     /// let color: &String = m.get_one("color")
-    ///     .expect("matches definition").expect("default");
+    ///     .expect("default");
     /// assert_eq!(color, "auto");
     ///
     /// let hostname: &String = m.get_one("hostname")
-    ///     .expect("matches definition").expect("required");
+    ///     .expect("required");
     /// assert_eq!(hostname, "rust-lang.org");
     ///
     /// let port: u16 = *m.get_one("port")
-    ///     .expect("matches definition").expect("required");
+    ///     .expect("required");
     /// assert_eq!(port, 3001);
     /// ```
     pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {

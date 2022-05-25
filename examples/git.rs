@@ -51,25 +51,18 @@ fn main() {
         Some(("clone", sub_matches)) => {
             println!(
                 "Cloning {}",
-                sub_matches
-                    .get_one::<String>("REMOTE")
-                    .expect("matches definition")
-                    .expect("required")
+                sub_matches.get_one::<String>("REMOTE").expect("required")
             );
         }
         Some(("push", sub_matches)) => {
             println!(
                 "Pushing to {}",
-                sub_matches
-                    .get_one::<String>("REMOTE")
-                    .expect("matches definition")
-                    .expect("required")
+                sub_matches.get_one::<String>("REMOTE").expect("required")
             );
         }
         Some(("add", sub_matches)) => {
             let paths = sub_matches
                 .get_many::<PathBuf>("PATH")
-                .expect("matches definition")
                 .into_iter()
                 .flatten()
                 .collect::<Vec<_>>();
@@ -79,21 +72,15 @@ fn main() {
             let stash_command = sub_matches.subcommand().unwrap_or(("push", sub_matches));
             match stash_command {
                 ("apply", sub_matches) => {
-                    let stash = sub_matches
-                        .get_one::<String>("STASH")
-                        .expect("matches definition");
+                    let stash = sub_matches.get_one::<String>("STASH");
                     println!("Applying {:?}", stash);
                 }
                 ("pop", sub_matches) => {
-                    let stash = sub_matches
-                        .get_one::<String>("STASH")
-                        .expect("matches definition");
+                    let stash = sub_matches.get_one::<String>("STASH");
                     println!("Popping {:?}", stash);
                 }
                 ("push", sub_matches) => {
-                    let message = sub_matches
-                        .get_one::<String>("message")
-                        .expect("matches definition");
+                    let message = sub_matches.get_one::<String>("message");
                     println!("Pushing {:?}", message);
                 }
                 (name, _) => {
@@ -104,7 +91,6 @@ fn main() {
         Some((ext, sub_matches)) => {
             let args = sub_matches
                 .get_many::<OsString>("")
-                .expect("matches definition")
                 .into_iter()
                 .flatten()
                 .collect::<Vec<_>>();

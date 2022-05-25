@@ -73,7 +73,6 @@ fn main() {
             if sync_matches.is_present("search") {
                 let packages: Vec<_> = sync_matches
                     .get_many::<String>("search")
-                    .expect("matches definition")
                     .expect("is present")
                     .map(|s| s.as_str())
                     .collect();
@@ -84,7 +83,6 @@ fn main() {
 
             let packages: Vec<_> = sync_matches
                 .get_many::<String>("package")
-                .expect("matches definition")
                 .expect("is present")
                 .map(|s| s.as_str())
                 .collect();
@@ -97,16 +95,10 @@ fn main() {
             }
         }
         Some(("query", query_matches)) => {
-            if let Some(packages) = query_matches
-                .get_many::<String>("info")
-                .expect("matches definition")
-            {
+            if let Some(packages) = query_matches.get_many::<String>("info") {
                 let comma_sep = packages.map(|s| s.as_str()).collect::<Vec<_>>().join(", ");
                 println!("Retrieving info for {}...", comma_sep);
-            } else if let Some(queries) = query_matches
-                .get_many::<String>("search")
-                .expect("matches definition")
-            {
+            } else if let Some(queries) = query_matches.get_many::<String>("search") {
                 let comma_sep = queries.map(|s| s.as_str()).collect::<Vec<_>>().join(", ");
                 println!("Searching Locally for {}...", comma_sep);
             } else {

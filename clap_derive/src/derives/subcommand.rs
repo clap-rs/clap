@@ -528,7 +528,6 @@ fn gen_from_arg_matches(
                     .chain(
                         #sub_arg_matches_var
                             .remove_many::<#str_ty>("")
-                            .expect("unexpected type")
                             .into_iter().flatten()  // `""` isn't present, bug in `unstable-v4`
                             .map(#str_ty::from)
                     )
