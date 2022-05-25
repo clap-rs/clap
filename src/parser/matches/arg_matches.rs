@@ -81,6 +81,7 @@ pub struct ArgMatches {
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
+/// # Arguments
 impl ArgMatches {
     /// Gets the value of a specific option or positional argument.
     ///
@@ -125,25 +126,6 @@ impl ArgMatches {
             .expect("caller error: argument definition and access must match")
     }
 
-    /// Non-panicing version of [`ArgMatches::get_one`]
-    pub fn try_get_one<T: Any + Clone + Send + Sync + 'static>(
-        &self,
-        name: &str,
-    ) -> Result<Option<&T>, MatchesError> {
-        let id = Id::from(name);
-        let arg = self.try_get_arg_t::<T>(&id)?;
-        let value = match arg.and_then(|a| a.first()) {
-            Some(value) => value,
-            None => {
-                return Ok(None);
-            }
-        };
-        Ok(value
-            .downcast_ref::<T>()
-            .map(Some)
-            .expect(INTERNAL_ERROR_MSG)) // enforced by `try_get_arg_t`
-    }
-
     /// Iterate over values of a specific option or positional argument.
     ///
     /// i.e. an argument that takes multiple values at runtime.
@@ -183,26 +165,6 @@ impl ArgMatches {
     ) -> Option<ValuesRef<T>> {
         self.try_get_many(name)
             .expect("caller error: argument definition and access must match")
-    }
-
-    /// Non-panicing version of [`ArgMatches::get_many`]
-    pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
-        &self,
-        name: &str,
-    ) -> Result<Option<ValuesRef<T>>, MatchesError> {
-        let id = Id::from(name);
-        let arg = match self.try_get_arg(&id)? {
-            Some(arg) => arg,
-            None => return Ok(None),
-        };
-        let len = arg.num_vals();
-        let values = arg.vals_flatten();
-        let values = ValuesRef {
-            // enforced by `try_get_arg_t`
-            iter: values.map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
-            len,
-        };
-        Ok(Some(values))
     }
 
     /// Iterate over the original argument values.
@@ -251,22 +213,6 @@ impl ArgMatches {
             .expect("caller error: argument definition and access must match")
     }
 
-    /// Non-panicing version of [`ArgMatches::get_raw`]
-    pub fn try_get_raw<T: Key>(&self, id: T) -> Result<Option<RawValues<'_>>, MatchesError> {
-        let id = Id::from(id);
-        let arg = match self.try_get_arg(&id)? {
-            Some(arg) => arg,
-            None => return Ok(None),
-        };
-        let len = arg.num_vals();
-        let values = arg.raw_vals_flatten();
-        let values = RawValues {
-            iter: values.map(OsString::as_os_str),
-            len,
-        };
-        Ok(Some(values))
-    }
-
     /// Returns the value of a specific option or positional argument.
     ///
     /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
@@ -308,22 +254,6 @@ impl ArgMatches {
             .expect("caller error: argument definition and access must match")
     }
 
-    /// Non-panicing version of [`ArgMatches::remove_one`]
-    pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
-        &mut self,
-        name: &str,
-    ) -> Result<Option<T>, MatchesError> {
-        let id = Id::from(name);
-        match self.try_remove_arg_t::<T>(&id)? {
-            Some(values) => Ok(values
-                .into_vals_flatten()
-                // enforced by `try_get_arg_t`
-                .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG))
-                .next()),
-            None => Ok(None),
-        }
-    }
-
     /// Return values of a specific option or positional argument.
     ///
     /// i.e. an argument that takes multiple values at runtime.
@@ -360,26 +290,6 @@ impl ArgMatches {
     ) -> Option<Values2<T>> {
         self.try_remove_many(name)
             .expect("caller error: argument definition and access must match")
-    }
-
-    /// Non-panicing version of [`ArgMatches::remove_many`]
-    pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
-        &mut self,
-        name: &str,
-    ) -> Result<Option<Values2<T>>, MatchesError> {
-        let id = Id::from(name);
-        let arg = match self.try_remove_arg_t::<T>(&id)? {
-            Some(arg) => arg,
-            None => return Ok(None),
-        };
-        let len = arg.num_vals();
-        let values = arg.into_vals_flatten();
-        let values = Values2 {
-            // enforced by `try_get_arg_t`
-            iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
-            len,
-        };
-        Ok(Some(values))
     }
 
     /// Check if any args were present on the command line
@@ -1253,6 +1163,28 @@ impl ArgMatches {
         Some(i)
     }
 
+    /// Check if an arg can be queried
+    ///
+    /// By default, `ArgMatches` functions assert on undefined `Id`s to help catch programmer
+    /// mistakes.  In some context, this doesn't work, so users can use this function to check
+    /// before they do a query on `ArgMatches`.
+    #[inline]
+    #[doc(hidden)]
+    pub fn is_valid_arg(&self, _id: impl Key) -> bool {
+        #[cfg(debug_assertions)]
+        {
+            let id = Id::from(_id);
+            self.disable_asserts || id == Id::empty_hash() || self.valid_args.contains(&id)
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            true
+        }
+    }
+}
+
+/// # Subcommands
+impl ArgMatches {
     /// The name and `ArgMatches` of the current [subcommand].
     ///
     /// Subcommand values are put in a child [`ArgMatches`]
@@ -1433,25 +1365,6 @@ impl ArgMatches {
         self.subcommand.as_ref().map(|sc| &*sc.name)
     }
 
-    /// Check if an arg can be queried
-    ///
-    /// By default, `ArgMatches` functions assert on undefined `Id`s to help catch programmer
-    /// mistakes.  In some context, this doesn't work, so users can use this function to check
-    /// before they do a query on `ArgMatches`.
-    #[inline]
-    #[doc(hidden)]
-    pub fn is_valid_arg(&self, _id: impl Key) -> bool {
-        #[cfg(debug_assertions)]
-        {
-            let id = Id::from(_id);
-            self.disable_asserts || id == Id::empty_hash() || self.valid_args.contains(&id)
-        }
-        #[cfg(not(debug_assertions))]
-        {
-            true
-        }
-    }
-
     /// Check if a subcommand can be queried
     ///
     /// By default, `ArgMatches` functions assert on undefined `Id`s to help catch programmer
@@ -1469,6 +1382,100 @@ impl ArgMatches {
         {
             true
         }
+    }
+}
+
+/// # Advanced
+impl ArgMatches {
+    /// Non-panicing version of [`ArgMatches::get_one`]
+    pub fn try_get_one<T: Any + Clone + Send + Sync + 'static>(
+        &self,
+        name: &str,
+    ) -> Result<Option<&T>, MatchesError> {
+        let id = Id::from(name);
+        let arg = self.try_get_arg_t::<T>(&id)?;
+        let value = match arg.and_then(|a| a.first()) {
+            Some(value) => value,
+            None => {
+                return Ok(None);
+            }
+        };
+        Ok(value
+            .downcast_ref::<T>()
+            .map(Some)
+            .expect(INTERNAL_ERROR_MSG)) // enforced by `try_get_arg_t`
+    }
+
+    /// Non-panicing version of [`ArgMatches::get_many`]
+    pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
+        &self,
+        name: &str,
+    ) -> Result<Option<ValuesRef<T>>, MatchesError> {
+        let id = Id::from(name);
+        let arg = match self.try_get_arg(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.vals_flatten();
+        let values = ValuesRef {
+            // enforced by `try_get_arg_t`
+            iter: values.map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
+            len,
+        };
+        Ok(Some(values))
+    }
+
+    /// Non-panicing version of [`ArgMatches::get_raw`]
+    pub fn try_get_raw<T: Key>(&self, id: T) -> Result<Option<RawValues<'_>>, MatchesError> {
+        let id = Id::from(id);
+        let arg = match self.try_get_arg(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.raw_vals_flatten();
+        let values = RawValues {
+            iter: values.map(OsString::as_os_str),
+            len,
+        };
+        Ok(Some(values))
+    }
+
+    /// Non-panicing version of [`ArgMatches::remove_one`]
+    pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
+        &mut self,
+        name: &str,
+    ) -> Result<Option<T>, MatchesError> {
+        let id = Id::from(name);
+        match self.try_remove_arg_t::<T>(&id)? {
+            Some(values) => Ok(values
+                .into_vals_flatten()
+                // enforced by `try_get_arg_t`
+                .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG))
+                .next()),
+            None => Ok(None),
+        }
+    }
+
+    /// Non-panicing version of [`ArgMatches::remove_many`]
+    pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
+        &mut self,
+        name: &str,
+    ) -> Result<Option<Values2<T>>, MatchesError> {
+        let id = Id::from(name);
+        let arg = match self.try_remove_arg_t::<T>(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.into_vals_flatten();
+        let values = Values2 {
+            // enforced by `try_get_arg_t`
+            iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
+            len,
+        };
+        Ok(Some(values))
     }
 }
 
