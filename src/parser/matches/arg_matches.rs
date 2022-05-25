@@ -171,11 +171,12 @@ impl ArgMatches {
             Some(arg) => arg,
             None => return Ok(None),
         };
+        let len = arg.num_vals();
         let values = arg.vals_flatten();
         let values = ValuesRef {
             // enforced by `try_get_arg_t`
             iter: values.map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
-            len: arg.num_vals(),
+            len,
         };
         Ok(Some(values))
     }
@@ -223,10 +224,11 @@ impl ArgMatches {
             Some(arg) => arg,
             None => return Ok(None),
         };
+        let len = arg.num_vals();
         let values = arg.raw_vals_flatten();
         let values = RawValues {
             iter: values.map(OsString::as_os_str),
-            len: arg.num_vals(),
+            len,
         };
         Ok(Some(values))
     }
@@ -307,17 +309,20 @@ impl ArgMatches {
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
-    ) -> Result<Option<impl Iterator<Item = T>>, MatchesError> {
+    ) -> Result<Option<Values2<T>>, MatchesError> {
         let id = Id::from(name);
-        match self.try_remove_arg_t::<T>(&id)? {
-            Some(values) => Ok(Some(
-                values
-                    .into_vals_flatten()
-                    // enforced by `try_get_arg_t`
-                    .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
-            )),
-            None => Ok(None),
-        }
+        let arg = match self.try_remove_arg_t::<T>(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let len = arg.num_vals();
+        let values = arg.into_vals_flatten();
+        let values = Values2 {
+            // enforced by `try_get_arg_t`
+            iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
+            len,
+        };
+        Ok(Some(values))
     }
 
     /// Check if any args were present on the command line
@@ -1552,6 +1557,63 @@ pub(crate) struct SubCommand {
     pub(crate) id: Id,
     pub(crate) name: String,
     pub(crate) matches: ArgMatches,
+}
+
+/// Iterate over multiple values for an argument via [`ArgMatches::remove_many`].
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{Command, Arg};
+/// let mut m = Command::new("myapp")
+///     .arg(Arg::new("output")
+///         .short('o')
+///         .multiple_occurrences(true)
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
+///
+/// let mut values = m.remove_many::<String>("output")
+///     .unwrap()
+///     .unwrap();
+///
+/// assert_eq!(values.next(), Some(String::from("val1")));
+/// assert_eq!(values.next(), Some(String::from("val2")));
+/// assert_eq!(values.next(), None);
+/// ```
+#[derive(Clone, Debug)]
+pub struct Values2<T> {
+    iter: Map<Flatten<std::vec::IntoIter<Vec<AnyValue>>>, fn(AnyValue) -> T>,
+    len: usize,
+}
+
+impl<T> Iterator for Values2<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<T> DoubleEndedIterator for Values2<T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<T> ExactSizeIterator for Values2<T> {}
+
+/// Creates an empty iterator.
+impl<T> Default for Values2<T> {
+    fn default() -> Self {
+        let empty: Vec<Vec<AnyValue>> = Default::default();
+        Values2 {
+            iter: empty.into_iter().flatten().map(|_| unreachable!()),
+            len: 0,
+        }
+    }
 }
 
 /// Iterate over multiple values for an argument via [`ArgMatches::get_many`].

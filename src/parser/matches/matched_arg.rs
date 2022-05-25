@@ -101,7 +101,7 @@ impl MatchedArg {
         self.vals.iter().flatten()
     }
 
-    pub(crate) fn into_vals_flatten(self) -> impl Iterator<Item = AnyValue> {
+    pub(crate) fn into_vals_flatten(self) -> Flatten<std::vec::IntoIter<Vec<AnyValue>>> {
         self.vals.into_iter().flatten()
     }
 
