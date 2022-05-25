@@ -165,17 +165,19 @@ impl ArgMatches {
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
-    ) -> Result<Option<impl Iterator<Item = &T>>, MatchesError> {
+    ) -> Result<Option<ValuesRef<T>>, MatchesError> {
         let id = Id::from(name);
-        match self.try_get_arg_t::<T>(&id)? {
-            Some(values) => Ok(Some(
-                values
-                    .vals_flatten()
-                    // enforced by `try_get_arg_t`
-                    .map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
-            )),
-            None => Ok(None),
-        }
+        let arg = match self.try_get_arg(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let values = arg.vals_flatten();
+        let values = ValuesRef {
+            // enforced by `try_get_arg_t`
+            iter: values.map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
+            len: arg.num_vals(),
+        };
+        Ok(Some(values))
     }
 
     /// Iterate over the original argument values.
@@ -1550,6 +1552,64 @@ pub(crate) struct SubCommand {
     pub(crate) id: Id,
     pub(crate) name: String,
     pub(crate) matches: ArgMatches,
+}
+
+/// Iterate over multiple values for an argument via [`ArgMatches::get_many`].
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap::{Command, Arg};
+/// let m = Command::new("myapp")
+///     .arg(Arg::new("output")
+///         .short('o')
+///         .multiple_occurrences(true)
+///         .takes_value(true))
+///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
+///
+/// let mut values = m.get_many::<String>("output")
+///     .unwrap()
+///     .unwrap()
+///     .map(|s| s.as_str());
+///
+/// assert_eq!(values.next(), Some("val1"));
+/// assert_eq!(values.next(), Some("val2"));
+/// assert_eq!(values.next(), None);
+/// ```
+#[derive(Clone, Debug)]
+pub struct ValuesRef<'a, T> {
+    iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, fn(&AnyValue) -> &T>,
+    len: usize,
+}
+
+impl<'a, T: 'a> Iterator for ValuesRef<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<'a, T: 'a> DoubleEndedIterator for ValuesRef<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a, T: 'a> ExactSizeIterator for ValuesRef<'a, T> {}
+
+/// Creates an empty iterator.
+impl<'a, T: 'a> Default for ValuesRef<'a, T> {
+    fn default() -> Self {
+        static EMPTY: [Vec<AnyValue>; 0] = [];
+        ValuesRef {
+            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+            len: 0,
+        }
+    }
 }
 
 /// Iterate over raw argument values via [`ArgMatches::get_raw`].

@@ -17,5 +17,6 @@ pub(crate) use self::parser::{ParseState, Parser};
 pub(crate) use self::validator::Validator;
 
 pub use self::matches::RawValues;
+pub use self::matches::ValuesRef;
 pub use self::matches::{ArgMatches, Indices, OsValues, ValueSource, Values};
 pub use error::MatchesError;
