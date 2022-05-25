@@ -1586,57 +1586,11 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Validates the argument via the given regular expression.
-    ///
-    /// As regular expressions are not very user friendly, the additional `err_message` should
-    /// describe the expected format in clear words. All notes for [`Arg::validator()`] regarding the
-    /// error message and performance also hold for `validator_regex`.
-    ///
-    /// The regular expression can either be borrowed or moved into `validator_regex`. This happens
-    /// automatically via [`RegexRef`]'s `Into` implementation.
-    ///
-    /// # Performance
-    /// Regular expressions are expensive to compile. You should prefer sharing your regular expression.
-    /// We use a [`Cow`]-like internal structure to enable both sharing as well as taking ownership of a
-    /// provided regular expression.
-    ///
-    /// # Examples
-    ///
-    /// You can use the classical `"\d+"` regular expression to match digits only:
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// use regex::Regex;
-    ///
-    /// let digits = Regex::new(r"\d+").unwrap();
-    ///
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("digits")
-    ///         .validator_regex(&digits, "only digits are allowed"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "12345"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("digits"), Some("12345"));
-    /// ```
-    ///
-    /// However, any valid `Regex` can be used:
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// use regex::Regex;
-    ///
-    /// let priority = Regex::new(r"[A-C]").unwrap();
-    ///
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("priority")
-    ///         .validator_regex(priority, "only priorities A, B or C are allowed"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "12345"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.err().unwrap().kind(), ErrorKind::ValueValidation)
-    /// ```
+    /// Deprecated in [Issue #3743](https://github.com/clap-rs/clap/issues/3743), replaced with [`Arg::value_parser(...)`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Deprecated in Issue #3743; eplaced with `Arg::value_parser(...)`"
+    )]
     #[cfg(feature = "regex")]
     #[must_use]
     pub fn validator_regex(
