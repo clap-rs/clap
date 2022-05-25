@@ -1567,6 +1567,127 @@ impl Default for NonEmptyStringValueParser {
     }
 }
 
+/// Register a type with [value_parser!][crate::value_parser!]
+///
+/// # Example
+///
+/// ```rust
+/// pub struct Custom(u32);
+///
+/// impl clap::builder::ValueParserFactory for Custom {
+///     type Parser = CustomValueParser;
+///     fn value_parser() -> Self::Parser {
+///         CustomValueParser
+///     }
+/// }
+///
+/// pub struct CustomValueParser;
+/// impl clap::builder::TypedValueParser for CustomValueParser {
+///     type Value = Custom;
+///
+///     fn parse_ref(
+///         &self,
+///         cmd: &clap::Command,
+///         arg: Option<&clap::Arg>,
+///         value: &std::ffi::OsStr,
+///     ) -> Result<Self::Value, clap::Error> {
+///         let inner = clap::value_parser!(u32);
+///         let val = inner.parse_ref(cmd, arg, value)?;
+///         Ok(Custom(val))
+///     }
+/// }
+///
+/// let parser: CustomValueParser = clap::value_parser!(Custom);
+/// ```
+pub trait ValueParserFactory {
+    /// Generated parser, usually [`ValueParser`].
+    ///
+    /// It should at least be a type that supports `Into<ValueParser>`.  A non-`ValueParser` type
+    /// allows the caller to do further initialization on the parser.
+    type Parser;
+
+    /// Create the specified [`Self::Parser`]
+    fn value_parser() -> Self::Parser;
+}
+impl ValueParserFactory for String {
+    type Parser = ValueParser;
+    fn value_parser() -> Self::Parser {
+        ValueParser::string()
+    }
+}
+impl ValueParserFactory for std::ffi::OsString {
+    type Parser = ValueParser;
+    fn value_parser() -> Self::Parser {
+        ValueParser::os_string()
+    }
+}
+impl ValueParserFactory for std::path::PathBuf {
+    type Parser = ValueParser;
+    fn value_parser() -> Self::Parser {
+        ValueParser::path_buf()
+    }
+}
+impl ValueParserFactory for bool {
+    type Parser = ValueParser;
+    fn value_parser() -> Self::Parser {
+        ValueParser::bool()
+    }
+}
+impl ValueParserFactory for u8 {
+    type Parser = RangedI64ValueParser<u8>;
+    fn value_parser() -> Self::Parser {
+        let start: i64 = u8::MIN.into();
+        let end: i64 = u8::MAX.into();
+        RangedI64ValueParser::new().range(start..=end)
+    }
+}
+impl ValueParserFactory for i8 {
+    type Parser = RangedI64ValueParser<i8>;
+    fn value_parser() -> Self::Parser {
+        let start: i64 = i8::MIN.into();
+        let end: i64 = i8::MAX.into();
+        RangedI64ValueParser::new().range(start..=end)
+    }
+}
+impl ValueParserFactory for u16 {
+    type Parser = RangedI64ValueParser<u16>;
+    fn value_parser() -> Self::Parser {
+        let start: i64 = u16::MIN.into();
+        let end: i64 = u16::MAX.into();
+        RangedI64ValueParser::new().range(start..=end)
+    }
+}
+impl ValueParserFactory for i16 {
+    type Parser = RangedI64ValueParser<i16>;
+    fn value_parser() -> Self::Parser {
+        let start: i64 = i16::MIN.into();
+        let end: i64 = i16::MAX.into();
+        RangedI64ValueParser::new().range(start..=end)
+    }
+}
+impl ValueParserFactory for u32 {
+    type Parser = RangedI64ValueParser<u32>;
+    fn value_parser() -> Self::Parser {
+        let start: i64 = u32::MIN.into();
+        let end: i64 = u32::MAX.into();
+        RangedI64ValueParser::new().range(start..=end)
+    }
+}
+impl ValueParserFactory for i32 {
+    type Parser = RangedI64ValueParser<i32>;
+    fn value_parser() -> Self::Parser {
+        let start: i64 = i32::MIN.into();
+        let end: i64 = i32::MAX.into();
+        RangedI64ValueParser::new().range(start..=end)
+    }
+}
+impl ValueParserFactory for i64 {
+    type Parser = RangedI64ValueParser<i64>;
+    fn value_parser() -> Self::Parser {
+        RangedI64ValueParser::new()
+    }
+}
+
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct AutoValueParser<T>(std::marker::PhantomData<T>);
@@ -1584,86 +1705,14 @@ pub mod via_prelude {
     use super::*;
 
     #[doc(hidden)]
-    pub trait ValueParserViaBuiltIn: private::ValueParserViaBuiltInSealed {
+    pub trait ValueParserViaFactory: private::ValueParserViaFactorySealed {
         type Parser;
         fn value_parser(&self) -> Self::Parser;
     }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<String> {
-        type Parser = ValueParser;
+    impl<P: ValueParserFactory> ValueParserViaFactory for &&AutoValueParser<P> {
+        type Parser = P::Parser;
         fn value_parser(&self) -> Self::Parser {
-            ValueParser::string()
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<std::ffi::OsString> {
-        type Parser = ValueParser;
-        fn value_parser(&self) -> Self::Parser {
-            ValueParser::os_string()
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<std::path::PathBuf> {
-        type Parser = ValueParser;
-        fn value_parser(&self) -> Self::Parser {
-            ValueParser::path_buf()
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<bool> {
-        type Parser = ValueParser;
-        fn value_parser(&self) -> Self::Parser {
-            ValueParser::bool()
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<u8> {
-        type Parser = RangedI64ValueParser<u8>;
-        fn value_parser(&self) -> Self::Parser {
-            let start: i64 = u8::MIN.into();
-            let end: i64 = u8::MAX.into();
-            RangedI64ValueParser::new().range(start..=end)
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<i8> {
-        type Parser = RangedI64ValueParser<i8>;
-        fn value_parser(&self) -> Self::Parser {
-            let start: i64 = i8::MIN.into();
-            let end: i64 = i8::MAX.into();
-            RangedI64ValueParser::new().range(start..=end)
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<u16> {
-        type Parser = RangedI64ValueParser<u16>;
-        fn value_parser(&self) -> Self::Parser {
-            let start: i64 = u16::MIN.into();
-            let end: i64 = u16::MAX.into();
-            RangedI64ValueParser::new().range(start..=end)
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<i16> {
-        type Parser = RangedI64ValueParser<i16>;
-        fn value_parser(&self) -> Self::Parser {
-            let start: i64 = i16::MIN.into();
-            let end: i64 = i16::MAX.into();
-            RangedI64ValueParser::new().range(start..=end)
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<u32> {
-        type Parser = RangedI64ValueParser<u32>;
-        fn value_parser(&self) -> Self::Parser {
-            let start: i64 = u32::MIN.into();
-            let end: i64 = u32::MAX.into();
-            RangedI64ValueParser::new().range(start..=end)
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<i32> {
-        type Parser = RangedI64ValueParser<i32>;
-        fn value_parser(&self) -> Self::Parser {
-            let start: i64 = i32::MIN.into();
-            let end: i64 = i32::MAX.into();
-            RangedI64ValueParser::new().range(start..=end)
-        }
-    }
-    impl ValueParserViaBuiltIn for &&AutoValueParser<i64> {
-        type Parser = RangedI64ValueParser<i64>;
-        fn value_parser(&self) -> Self::Parser {
-            RangedI64ValueParser::new()
+            P::value_parser()
         }
     }
 
@@ -1702,6 +1751,8 @@ pub mod via_prelude {
 }
 
 /// Select a [`ValueParser`] implementation from the intended type
+///
+/// To register a custom type with this macro, implement [`ValueParserFactory`].
 ///
 /// # Example
 ///
@@ -1784,18 +1835,8 @@ mod private {
     pub trait ValueParserViaSelfSealed {}
     impl<P: Into<ValueParser>> ValueParserViaSelfSealed for &&&AutoValueParser<P> {}
 
-    pub trait ValueParserViaBuiltInSealed {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<String> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::ffi::OsString> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<std::path::PathBuf> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<bool> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<u8> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i8> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<u16> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i16> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<u32> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i32> {}
-    impl ValueParserViaBuiltInSealed for &&AutoValueParser<i64> {}
+    pub trait ValueParserViaFactorySealed {}
+    impl<P: ValueParserFactory> ValueParserViaFactorySealed for &&AutoValueParser<P> {}
 
     pub trait ValueParserViaArgEnumSealed {}
     impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &AutoValueParser<E> {}
