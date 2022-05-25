@@ -3,6 +3,7 @@ mod arg_matches;
 mod matched_arg;
 mod value_source;
 
+pub use arg_matches::RawValues;
 pub use arg_matches::{ArgMatches, Indices, OsValues, Values};
 pub use value_source::ValueSource;
 

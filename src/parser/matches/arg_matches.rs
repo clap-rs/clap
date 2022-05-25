@@ -215,13 +215,18 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
-    pub fn get_raw<T: Key>(
-        &self,
-        id: T,
-    ) -> Result<Option<impl Iterator<Item = &OsStr>>, MatchesError> {
+    pub fn get_raw<T: Key>(&self, id: T) -> Result<Option<RawValues<'_>>, MatchesError> {
         let id = Id::from(id);
-        let arg = self.try_get_arg(&id)?;
-        Ok(arg.map(|arg| arg.raw_vals_flatten().map(|v| v.as_os_str())))
+        let arg = match self.try_get_arg(&id)? {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let values = arg.raw_vals_flatten();
+        let values = RawValues {
+            iter: values.map(OsString::as_os_str),
+            len: arg.num_vals(),
+        };
+        Ok(Some(values))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -1547,6 +1552,67 @@ pub(crate) struct SubCommand {
     pub(crate) matches: ArgMatches,
 }
 
+/// Iterate over raw argument values via [`ArgMatches::get_raw`].
+///
+/// # Examples
+///
+#[cfg_attr(not(unix), doc = " ```ignore")]
+#[cfg_attr(unix, doc = " ```")]
+/// # use clap::{Command, arg, value_parser};
+/// use std::ffi::OsString;
+/// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+///
+/// let m = Command::new("utf8")
+///     .arg(arg!(<arg> "some arg")
+///         .value_parser(value_parser!(OsString)))
+///     .get_matches_from(vec![OsString::from("myprog"),
+///                             // "Hi {0xe9}!"
+///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+/// assert_eq!(
+///     &*m.get_raw("arg")
+///         .unwrap()
+///         .unwrap()
+///         .next().unwrap()
+///         .as_bytes(),
+///     [b'H', b'i', b' ', 0xe9, b'!']
+/// );
+/// ```
+#[derive(Clone, Debug)]
+pub struct RawValues<'a> {
+    iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
+    len: usize,
+}
+
+impl<'a> Iterator for RawValues<'a> {
+    type Item = &'a OsStr;
+
+    fn next(&mut self) -> Option<&'a OsStr> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<'a> DoubleEndedIterator for RawValues<'a> {
+    fn next_back(&mut self) -> Option<&'a OsStr> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for RawValues<'a> {}
+
+/// Creates an empty iterator.
+impl Default for RawValues<'_> {
+    fn default() -> Self {
+        static EMPTY: [Vec<OsString>; 0] = [];
+        RawValues {
+            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+            len: 0,
+        }
+    }
+}
+
 // The following were taken and adapted from vec_map source
 // repo: https://github.com/contain-rs/vec-map
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
@@ -1830,6 +1896,12 @@ mod tests {
     #[test]
     fn test_default_osvalues() {
         let mut values: OsValues = OsValues::default();
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn test_default_raw_values() {
+        let mut values: RawValues = Default::default();
         assert_eq!(values.next(), None);
     }
 
