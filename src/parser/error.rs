@@ -1,3 +1,5 @@
+use crate::util::Id;
+
 /// Violation of [`ArgMatches`][crate::ArgMatches] assumptions
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[allow(missing_copy_implementations)] // We might add non-Copy types in the future
@@ -18,13 +20,33 @@ pub enum MatchesError {
     },
 }
 
+impl MatchesError {
+    #[track_caller]
+    pub(crate) fn unwrap<T>(id: &Id, r: Result<T, MatchesError>) -> T {
+        let err = match r {
+            Ok(t) => {
+                return t;
+            }
+            Err(err) => err,
+        };
+        panic!(
+            "Mismatch between definition and access of `{:?}`. {}",
+            id, err
+        )
+    }
+}
+
 impl std::error::Error for MatchesError {}
 
 impl std::fmt::Display for MatchesError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Self::Downcast { actual, expected } => {
-                writeln!(f, "Could not downcast from {:?} to {:?}", actual, expected)
+                writeln!(
+                    f,
+                    "Could not downcast to {:?}, need to downcast to {:?}",
+                    expected, actual
+                )
             }
             Self::UnknownArgument {} => {
                 writeln!(f, "Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags")
