@@ -1387,7 +1387,7 @@ impl ArgMatches {
 
 /// # Advanced
 impl ArgMatches {
-    /// Non-panicing version of [`ArgMatches::get_one`]
+    /// Non-panicking version of [`ArgMatches::get_one`]
     pub fn try_get_one<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
@@ -1406,7 +1406,7 @@ impl ArgMatches {
             .expect(INTERNAL_ERROR_MSG)) // enforced by `try_get_arg_t`
     }
 
-    /// Non-panicing version of [`ArgMatches::get_many`]
+    /// Non-panicking version of [`ArgMatches::get_many`]
     pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         name: &str,
@@ -1426,7 +1426,7 @@ impl ArgMatches {
         Ok(Some(values))
     }
 
-    /// Non-panicing version of [`ArgMatches::get_raw`]
+    /// Non-panicking version of [`ArgMatches::get_raw`]
     pub fn try_get_raw<T: Key>(&self, id: T) -> Result<Option<RawValues<'_>>, MatchesError> {
         let id = Id::from(id);
         let arg = match self.try_get_arg(&id)? {
@@ -1442,7 +1442,7 @@ impl ArgMatches {
         Ok(Some(values))
     }
 
-    /// Non-panicing version of [`ArgMatches::remove_one`]
+    /// Non-panicking version of [`ArgMatches::remove_one`]
     pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
@@ -1458,7 +1458,7 @@ impl ArgMatches {
         }
     }
 
-    /// Non-panicing version of [`ArgMatches::remove_many`]
+    /// Non-panicking version of [`ArgMatches::remove_many`]
     pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         name: &str,
