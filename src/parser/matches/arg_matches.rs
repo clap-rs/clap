@@ -835,13 +835,9 @@ impl ArgMatches {
         Some(i)
     }
 
-    /// Check if an arg can be queried
-    ///
-    /// By default, `ArgMatches` functions assert on undefined `Id`s to help catch programmer
-    /// mistakes.  In some context, this doesn't work, so users can use this function to check
-    /// before they do a query on `ArgMatches`.
     #[inline]
     #[doc(hidden)]
+    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::try_get_one()`")]
     pub fn is_valid_arg(&self, _id: impl Key) -> bool {
         #[cfg(debug_assertions)]
         {
