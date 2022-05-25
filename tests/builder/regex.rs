@@ -1,4 +1,5 @@
 #![cfg(feature = "regex")]
+#![allow(deprecated)]
 
 use clap::{error::ErrorKind, Arg, Command};
 use regex::{Regex, RegexSet};
