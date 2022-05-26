@@ -725,30 +725,37 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
             );
-            Some(opt)
+            Some((long_arg, opt))
         } else if self.cmd.is_infer_long_args_set() {
-            self.cmd.get_arguments().find(|a| {
-                a.long.map_or(false, |long| long.starts_with(long_arg))
-                    || a.aliases
-                        .iter()
-                        .any(|(alias, _)| alias.starts_with(long_arg))
+            self.cmd.get_arguments().find_map(|a| {
+                if let Some(long) = a.long {
+                    if long.starts_with(long_arg) {
+                        return Some((long, a));
+                    }
+                }
+                a.aliases
+                    .iter()
+                    .find_map(|(alias, _)| alias.starts_with(long_arg).then(|| (*alias, a)))
             })
         } else {
             None
         };
 
-        if let Some(opt) = opt {
+        if let Some((long_arg, opt)) = opt {
             *valid_arg_found = true;
             if opt.is_takes_value_set() {
                 debug!(
-                    "Parser::parse_long_arg: Found an opt with value '{:?}'",
-                    &long_value
+                    "Parser::parse_long_arg({:?}): Found an opt with value '{:?}'",
+                    long_arg, &long_value
                 );
                 let has_eq = long_value.is_some();
                 self.parse_opt(long_value, opt, matcher, trailing_values, has_eq)
             } else if let Some(rest) = long_value {
                 let required = self.cmd.required_graph();
-                debug!("Parser::parse_long_arg: Got invalid literal `{:?}`", rest);
+                debug!(
+                    "Parser::parse_long_arg({:?}): Got invalid literal `{:?}`",
+                    long_arg, rest
+                );
                 let used: Vec<Id> = matcher
                     .arg_names()
                     .filter(|&n| {
@@ -765,7 +772,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     arg: opt.to_string(),
                 })
             } else {
-                debug!("Parser::parse_long_arg: Presence validated");
+                debug!("Parser::parse_long_arg({:?}): Presence validated", long_arg);
                 self.parse_flag(Identifier::Long(long_arg), opt, matcher)
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
