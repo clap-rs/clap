@@ -977,7 +977,10 @@ fn allow_ext_sc_empty_args() {
     match res.unwrap().subcommand() {
         Some((name, args)) => {
             assert_eq!(name, "external-cmd");
-            assert_eq!(args.values_of_lossy(""), Some(vec![]));
+            assert_eq!(
+                args.get_many::<OsString>("").unwrap().collect::<Vec<_>>(),
+                Vec::<&OsString>::new(),
+            );
         }
         _ => unreachable!(),
     }
