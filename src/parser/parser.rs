@@ -23,7 +23,6 @@ use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
     cmd: &'cmd mut Command<'help>,
-    seen: Vec<Id>,
     cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
     flag_subcmd_at: Option<usize>,
@@ -37,7 +36,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     pub(crate) fn new(cmd: &'cmd mut Command<'help>) -> Self {
         Parser {
             cmd,
-            seen: Vec::new(),
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
             flag_subcmd_skip: 0,
@@ -387,7 +385,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     trailing_values = true;
                 }
 
-                self.seen.push(p.id.clone());
                 // Increase occurrence no matter if we are appending, occurrences
                 // of positional argument equals to number of values rather than
                 // the number of value groups.
@@ -821,7 +818,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         if let Some(opt) = opt {
             *valid_arg_found = true;
-            self.seen.push(opt.id.clone());
             if opt.is_takes_value_set() {
                 debug!(
                     "Parser::parse_long_arg: Found an opt with value '{:?}'",
@@ -949,7 +945,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     c
                 );
                 *valid_arg_found = true;
-                self.seen.push(opt.id.clone());
                 if !opt.is_takes_value_set() {
                     if let Some(parse_result) = self.check_for_help_and_version_char(c) {
                         return Ok(parse_result);
