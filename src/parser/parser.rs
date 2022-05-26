@@ -8,6 +8,7 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
+use crate::builder::Action;
 use crate::builder::AppSettings as AS;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
@@ -253,12 +254,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 Usage::new(self.cmd).create_usage_no_title(&used),
                             ))
                         }
-                        ParseResult::HelpFlag => {
-                            return Err(self.help_err(true, Stream::Stdout));
-                        }
-                        ParseResult::VersionFlag => {
-                            return Err(self.version_err(true));
-                        }
                         ParseResult::MaybeHyphenValue => {
                             // Maybe a hyphen value, do nothing.
                         }
@@ -335,12 +330,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 None,
                                 Usage::new(self.cmd).create_usage_with_title(&[]),
                             ));
-                        }
-                        ParseResult::HelpFlag => {
-                            return Err(self.help_err(false, Stream::Stdout));
-                        }
-                        ParseResult::VersionFlag => {
-                            return Err(self.version_err(false));
                         }
                         ParseResult::MaybeHyphenValue => {
                             // Maybe a hyphen value, do nothing.
@@ -695,74 +684,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    // Retrieves the names of all args the user has supplied thus far, except required ones
-    // because those will be listed in self.required
-    fn check_for_help_and_version_str(&self, arg: &RawOsStr) -> Option<ParseResult> {
-        debug!("Parser::check_for_help_and_version_str");
-        debug!(
-            "Parser::check_for_help_and_version_str: Checking if --{:?} is help or version...",
-            arg
-        );
-
-        if let Some(help) = self.cmd.find(&Id::help_hash()) {
-            if let Some(h) = help.long {
-                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.cmd.is_disable_help_flag_set()
-                {
-                    debug!("Help");
-                    return Some(ParseResult::HelpFlag);
-                }
-            }
-        }
-
-        if let Some(version) = self.cmd.find(&Id::version_hash()) {
-            if let Some(v) = version.long {
-                if arg == v
-                    && !self.is_set(AS::NoAutoVersion)
-                    && !self.cmd.is_disable_version_flag_set()
-                {
-                    debug!("Version");
-                    return Some(ParseResult::VersionFlag);
-                }
-            }
-        }
-
-        debug!("Neither");
-        None
-    }
-
-    fn check_for_help_and_version_char(&self, arg: char) -> Option<ParseResult> {
-        debug!("Parser::check_for_help_and_version_char");
-        debug!(
-            "Parser::check_for_help_and_version_char: Checking if -{} is help or version...",
-            arg
-        );
-
-        if let Some(help) = self.cmd.find(&Id::help_hash()) {
-            if let Some(h) = help.short {
-                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.cmd.is_disable_help_flag_set()
-                {
-                    debug!("Help");
-                    return Some(ParseResult::HelpFlag);
-                }
-            }
-        }
-
-        if let Some(version) = self.cmd.find(&Id::version_hash()) {
-            if let Some(v) = version.short {
-                if arg == v
-                    && !self.is_set(AS::NoAutoVersion)
-                    && !self.cmd.is_disable_version_flag_set()
-                {
-                    debug!("Version");
-                    return Some(ParseResult::VersionFlag);
-                }
-            }
-        }
-
-        debug!("Neither");
-        None
-    }
-
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -843,13 +764,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     used,
                     arg: opt.to_string(),
                 })
-            } else if let Some(parse_result) =
-                self.check_for_help_and_version_str(RawOsStr::from_str(long_arg))
-            {
-                Ok(parse_result)
             } else {
                 debug!("Parser::parse_long_arg: Presence validated");
-                Ok(self.parse_flag(opt, matcher))
+                self.parse_flag(Identifier::Long(long_arg), opt, matcher)
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
@@ -946,10 +863,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 );
                 *valid_arg_found = true;
                 if !opt.is_takes_value_set() {
-                    if let Some(parse_result) = self.check_for_help_and_version_char(c) {
-                        return Ok(parse_result);
-                    }
-                    ret = self.parse_flag(opt, matcher);
+                    ret = self.parse_flag(Identifier::Short(c), opt, matcher)?;
                     continue;
                 }
 
@@ -1161,13 +1075,38 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         matcher.has_val_groups(&arg.id)
     }
 
-    fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
+    fn parse_flag(
+        &self,
+        ident: Identifier,
+        arg: &Arg<'help>,
+        matcher: &mut ArgMatcher,
+    ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_flag");
+        match arg.get_action() {
+            Action::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
+            Action::Flag => {
+                self.start_occurrence_of_arg(matcher, arg);
+                matcher.add_index_to(&arg.id, self.cur_idx.get());
 
-        self.start_occurrence_of_arg(matcher, flag);
-        matcher.add_index_to(&flag.id, self.cur_idx.get());
-
-        ParseResult::ValuesDone
+                Ok(ParseResult::ValuesDone)
+            }
+            Action::Help => {
+                let use_long = match ident {
+                    Identifier::Long(_) => true,
+                    Identifier::Short(_) => false,
+                };
+                debug!("Help: use_long={}", use_long);
+                Err(self.help_err(use_long, Stream::Stdout))
+            }
+            Action::Version => {
+                let use_long = match ident {
+                    Identifier::Long(_) => true,
+                    Identifier::Short(_) => false,
+                };
+                debug!("Version: use_long={}", use_long);
+                Err(self.version_err(use_long))
+            }
+        }
     }
 
     fn remove_overrides(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) {
@@ -1220,15 +1159,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
                     self.add_val_to_arg(arg, &val, matcher, false, trailing_values)?;
                 } else {
-                    // Early return on `HelpFlag` or `VersionFlag`.
-                    match self.check_for_help_and_version_str(&val) {
-                        Some(ParseResult::HelpFlag) => {
-                            return Err(self.help_err(true, Stream::Stdout));
-                        }
-                        Some(ParseResult::VersionFlag) => {
-                            return Err(self.version_err(true));
-                        }
-                        _ => {
+                    match arg.get_action() {
+                        Action::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
+                        Action::Flag => {
                             debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                             let predicate = str_to_bool(val.to_str_lossy());
                             debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
@@ -1236,6 +1169,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
                                 matcher.add_index_to(&arg.id, self.cur_idx.get());
                             }
+                        }
+                        // Early return on `Help` or `Version`.
+                        Action::Help => {
+                            return Err(self.help_err(true, Stream::Stdout));
+                        }
+                        Action::Version => {
+                            return Err(self.version_err(true));
                         }
                     }
                 }
@@ -1518,8 +1458,10 @@ enum ParseResult {
     },
     /// No argument found e.g. parser is given `-` when parsing a flag.
     NoArg,
-    /// This is a Help flag.
-    HelpFlag,
-    /// This is a version flag.
-    VersionFlag,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum Identifier<'f> {
+    Short(char),
+    Long(&'f str),
 }

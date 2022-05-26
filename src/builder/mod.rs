@@ -3,6 +3,7 @@
 #[macro_use]
 mod macros;
 
+mod action;
 mod app_settings;
 mod arg;
 mod arg_group;
@@ -53,6 +54,7 @@ pub use command::App;
 #[cfg(feature = "regex")]
 pub use self::regex::RegexRef;
 
+pub(crate) use action::Action;
 pub(crate) use arg::display_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;
 pub(crate) use value_parser::ValueParserInner;
