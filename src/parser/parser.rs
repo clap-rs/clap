@@ -763,6 +763,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         };
 
         if let Some((long_arg, arg)) = arg {
+            let ident = Identifier::Long(long_arg);
             *valid_arg_found = true;
             if arg.is_takes_value_set() {
                 debug!(
@@ -770,7 +771,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     long_arg, &long_value
                 );
                 let has_eq = long_value.is_some();
-                self.parse_opt_value(long_value, arg, matcher, trailing_values, has_eq)
+                self.parse_opt_value(ident, long_value, arg, matcher, trailing_values, has_eq)
             } else if let Some(rest) = long_value {
                 let required = self.cmd.required_graph();
                 debug!(
@@ -794,7 +795,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 })
             } else {
                 debug!("Parser::parse_long_arg({:?}): Presence validated", long_arg);
-                self.react(Identifier::Long(long_arg), arg, matcher)
+                self.react(ident, arg, vec![], matcher)
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
@@ -885,13 +886,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             // Option: -o
             // Value: val
             if let Some(arg) = self.cmd.get_keymap().get(&c) {
+                let ident = Identifier::Short(c);
                 debug!(
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
                 );
                 *valid_arg_found = true;
                 if !arg.is_takes_value_set() {
-                    ret = self.react(Identifier::Short(c), arg, matcher)?;
+                    ret = self.react(ident, arg, vec![], matcher)?;
                     continue;
                 }
 
@@ -917,7 +919,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     (val, false)
                 };
-                match self.parse_opt_value(val, arg, matcher, trailing_values, has_eq)? {
+                match self.parse_opt_value(ident, val, arg, matcher, trailing_values, has_eq)? {
                     ParseResult::AttachedValueNotConsumed => continue,
                     x => return Ok(x),
                 }
@@ -947,6 +949,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     fn parse_opt_value(
         &self,
+        ident: Identifier,
         attached_value: Option<&RawOsStr>,
         arg: &Arg<'help>,
         matcher: &mut ArgMatcher,
@@ -998,8 +1001,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         } else if let Some(v) = attached_value {
             let mut arg_values = Vec::new();
             let parse_result = self.push_arg_values(arg, v, trailing_values, &mut arg_values);
-            self.start_occurrence_of_arg(matcher, arg);
-            self.store_arg_values(arg, arg_values, matcher)?;
+            let react_result = self.react(ident, arg, arg_values, matcher)?;
+            debug_assert_eq!(react_result, ParseResult::ValuesDone);
             let mut parse_result = parse_result.unwrap_or_else(|| {
                 if matcher.needs_more_vals(arg) {
                     ParseResult::Opt(arg.id.clone())
@@ -1097,6 +1100,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         &self,
         ident: Identifier,
         arg: &Arg<'help>,
+        raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!(
@@ -1104,14 +1108,24 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             arg.get_action, ident
         );
         match arg.get_action() {
-            Action::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
+            Action::StoreValue => {
+                self.start_occurrence_of_arg(matcher, arg);
+                self.store_arg_values(arg, raw_vals, matcher)?;
+                if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
+                    debug!(
+                        "Parser::react not enough values passed in, leaving it to the validator to complain",
+                    );
+                }
+                Ok(ParseResult::ValuesDone)
+            }
             Action::Flag => {
+                debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 self.start_occurrence_of_arg(matcher, arg);
                 matcher.add_index_to(&arg.id, self.cur_idx.get());
-
                 Ok(ParseResult::ValuesDone)
             }
             Action::Help => {
+                debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
                     Identifier::Long(_) => true,
                     Identifier::Short(_) => false,
@@ -1120,6 +1134,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Err(self.help_err(use_long, Stream::Stdout))
             }
             Action::Version => {
+                debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
                     Identifier::Long(_) => true,
                     Identifier::Short(_) => false,
