@@ -980,39 +980,34 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             trailing_values,
             self.cmd.is_dont_delimit_trailing_values_set()
         );
-        if !(trailing_values && self.cmd.is_dont_delimit_trailing_values_set()) {
-            if let Some(delim) = arg.val_delim {
-                let terminator = arg.terminator.map(OsStr::new);
-                let vals = val
-                    .split(delim)
-                    .map(|x| x.to_os_str().into_owned())
-                    .take_while(|val| Some(val.as_os_str()) != terminator);
+
+        let mut delim = arg.val_delim;
+        if trailing_values && self.cmd.is_dont_delimit_trailing_values_set() {
+            delim = None;
+        }
+        match delim {
+            Some(delim) if val.contains(delim) => {
+                let vals = val.split(delim).map(|x| x.to_os_str().into_owned());
                 for raw_val in vals {
+                    if Some(raw_val.as_os_str()) == arg.terminator.map(OsStr::new) {
+                        return Ok(ParseResult::ValuesDone);
+                    }
                     self.add_single_val_to_arg(arg, raw_val, matcher)?;
                 }
-                // If there was a delimiter used or we must use the delimiter to
-                // separate the values or no more vals is needed, we're not
-                // looking for more values.
-                return if val.contains(delim)
-                    || arg.is_require_value_delimiter_set()
-                    || !matcher.needs_more_vals(arg)
-                {
+                // Delimited values are always considered the final value
+                Ok(ParseResult::ValuesDone)
+            }
+            _ if Some(val) == arg.terminator.map(RawOsStr::from_str) => Ok(ParseResult::ValuesDone),
+            _ => {
+                self.add_single_val_to_arg(arg, val.to_os_str().into_owned(), matcher)?;
+                if arg.is_require_value_delimiter_set() {
                     Ok(ParseResult::ValuesDone)
-                } else {
+                } else if matcher.needs_more_vals(arg) {
                     Ok(ParseResult::Opt(arg.id.clone()))
-                };
+                } else {
+                    Ok(ParseResult::ValuesDone)
+                }
             }
-        }
-        if let Some(t) = arg.terminator {
-            if t == val {
-                return Ok(ParseResult::ValuesDone);
-            }
-        }
-        self.add_single_val_to_arg(arg, val.to_os_str().into_owned(), matcher)?;
-        if matcher.needs_more_vals(arg) {
-            Ok(ParseResult::Opt(arg.id.clone()))
-        } else {
-            Ok(ParseResult::ValuesDone)
         }
     }
 
