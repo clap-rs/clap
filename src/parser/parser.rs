@@ -1119,10 +1119,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         for arg in self.cmd.get_arguments() {
             // Use env only if the arg was absent among command line args,
             // early return if this is not the case.
-            if matcher
-                .get(&arg.id)
-                .map_or(false, |arg| arg.get_occurrences() != 0)
-            {
+            if matcher.contains(&arg.id) {
                 debug!("Parser::add_env: Skipping existing arg `{}`", arg);
                 continue;
             }
@@ -1231,7 +1228,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
-            if matcher.get(&arg.id).is_none() {
+            if !matcher.contains(&arg.id) {
                 for (id, val, default) in arg.default_vals_ifs.iter() {
                     let add = if let Some(a) = matcher.get(id) {
                         match val {
@@ -1270,7 +1267,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 "Parser::add_default_value:iter:{}: has default vals",
                 arg.name
             );
-            if matcher.get(&arg.id).is_some() {
+            if matcher.contains(&arg.id) {
                 debug!("Parser::add_default_value:iter:{}: was used", arg.name);
             // do nothing
             } else {
