@@ -345,12 +345,22 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // Assume this is a value of a previous arg.
 
                     // get the option so we can check the settings
-                    let parse_result = self.add_val_to_arg(
-                        &self.cmd[id],
+                    let mut arg_values = Vec::new();
+                    let arg = &self.cmd[id];
+                    let parse_result = self.push_arg_values(
+                        arg,
                         arg_os.to_value_os(),
-                        matcher,
                         trailing_values,
-                    )?;
+                        &mut arg_values,
+                    );
+                    self.store_arg_values(arg, arg_values, matcher)?;
+                    let parse_result = parse_result.unwrap_or_else(|| {
+                        if matcher.needs_more_vals(arg) {
+                            ParseResult::Opt(arg.id.clone())
+                        } else {
+                            ParseResult::ValuesDone
+                        }
+                    });
                     parse_state = match parse_result {
                         ParseResult::Opt(id) => ParseState::Opt(id),
                         ParseResult::ValuesDone => ParseState::ValuesDone,
@@ -375,15 +385,25 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     trailing_values = true;
                 }
 
+                let mut arg_values = Vec::new();
+                let _parse_result = self.push_arg_values(
+                    arg,
+                    arg_os.to_value_os(),
+                    trailing_values,
+                    &mut arg_values,
+                );
                 if !arg.is_multiple_values_set() || !matcher.contains(&arg.id) {
                     self.start_occurrence_of_arg(matcher, arg);
                 }
-                let _ignored_result =
-                    self.add_val_to_arg(arg, arg_os.to_value_os(), matcher, trailing_values)?;
-                debug!(
-                    "Parser::get_matches_with: Ignoring state {:?}; positionals do their own thing",
-                    _ignored_result
-                );
+                self.store_arg_values(arg, arg_values, matcher)?;
+                if let Some(_parse_result) = _parse_result {
+                    if _parse_result != ParseResult::ValuesDone {
+                        debug!(
+                            "Parser::get_matches_with: Ignoring state {:?}; positionals do their own thing",
+                            _parse_result
+                        );
+                    }
+                }
 
                 // Only increment the positional counter if it doesn't allow multiples
                 if !arg.is_multiple() {
@@ -948,13 +968,21 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !arg.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt_value: has default_missing_vals");
+                    let mut arg_values = Vec::new();
                     for v in arg.default_missing_vals.iter() {
-                        let _ignored_result =
-                            self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
-                        if _ignored_result != ParseResult::ValuesDone {
-                            debug!("Parser::parse_opt_value: Ignoring state {:?}; no values accepted after default_missing_values", _ignored_result);
+                        let _parse_result = self.push_arg_values(
+                            arg,
+                            &RawOsStr::new(v),
+                            trailing_values,
+                            &mut arg_values,
+                        );
+                        if let Some(_parse_result) = _parse_result {
+                            if _parse_result != ParseResult::ValuesDone {
+                                debug!("Parser::parse_opt_value: Ignoring state {:?}; no values accepted after default_missing_values", _parse_result);
+                            }
                         }
                     }
+                    self.store_arg_values(arg, arg_values, matcher)?;
                 };
                 if attached_value.is_some() {
                     Ok(ParseResult::AttachedValueNotConsumed)
@@ -968,13 +996,22 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 })
             }
         } else if let Some(v) = attached_value {
+            let mut arg_values = Vec::new();
+            let parse_result = self.push_arg_values(arg, v, trailing_values, &mut arg_values);
             self.start_occurrence_of_arg(matcher, arg);
-            let mut val_result = self.add_val_to_arg(arg, v, matcher, trailing_values)?;
-            if val_result != ParseResult::ValuesDone {
-                debug!("Parser::parse_opt_value: Overriding state {:?}; no values accepted after attached", val_result);
-                val_result = ParseResult::ValuesDone;
+            self.store_arg_values(arg, arg_values, matcher)?;
+            let mut parse_result = parse_result.unwrap_or_else(|| {
+                if matcher.needs_more_vals(arg) {
+                    ParseResult::Opt(arg.id.clone())
+                } else {
+                    ParseResult::ValuesDone
+                }
+            });
+            if parse_result != ParseResult::ValuesDone {
+                debug!("Parser::parse_opt_value: Overriding state {:?}; no values accepted after attached", parse_result);
+                parse_result = ParseResult::ValuesDone;
             }
-            Ok(val_result)
+            Ok(parse_result)
         } else {
             debug!("Parser::parse_opt_value: More arg vals required...");
             self.start_occurrence_of_arg(matcher, arg);
@@ -982,16 +1019,16 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    fn add_val_to_arg(
+    fn push_arg_values(
         &self,
         arg: &Arg<'help>,
         val: &RawOsStr,
-        matcher: &mut ArgMatcher,
         trailing_values: bool,
-    ) -> ClapResult<ParseResult> {
-        debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
+        output: &mut Vec<OsString>,
+    ) -> Option<ParseResult> {
+        debug!("Parser::push_arg_values; arg={}, val={:?}", arg.name, val);
         debug!(
-            "Parser::add_val_to_arg; trailing_values={:?}, DontDelimTrailingVals={:?}",
+            "Parser::push_arg_values; trailing_values={:?}, DontDelimTrailingVals={:?}",
             trailing_values,
             self.cmd.is_dont_delimit_trailing_values_set()
         );
@@ -1005,51 +1042,53 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let vals = val.split(delim).map(|x| x.to_os_str().into_owned());
                 for raw_val in vals {
                     if Some(raw_val.as_os_str()) == arg.terminator.map(OsStr::new) {
-                        return Ok(ParseResult::ValuesDone);
+                        return Some(ParseResult::ValuesDone);
                     }
-                    self.add_single_val_to_arg(arg, raw_val, matcher)?;
+                    output.push(raw_val);
                 }
                 // Delimited values are always considered the final value
-                Ok(ParseResult::ValuesDone)
+                Some(ParseResult::ValuesDone)
             }
-            _ if Some(val) == arg.terminator.map(RawOsStr::from_str) => Ok(ParseResult::ValuesDone),
+            _ if Some(val) == arg.terminator.map(RawOsStr::from_str) => {
+                Some(ParseResult::ValuesDone)
+            }
             _ => {
-                self.add_single_val_to_arg(arg, val.to_os_str().into_owned(), matcher)?;
+                output.push(val.to_os_str().into_owned());
                 if arg.is_require_value_delimiter_set() {
-                    Ok(ParseResult::ValuesDone)
-                } else if matcher.needs_more_vals(arg) {
-                    Ok(ParseResult::Opt(arg.id.clone()))
+                    Some(ParseResult::ValuesDone)
                 } else {
-                    Ok(ParseResult::ValuesDone)
+                    None
                 }
             }
         }
     }
 
-    fn add_single_val_to_arg(
+    fn store_arg_values(
         &self,
         arg: &Arg<'help>,
-        raw_val: OsString,
+        raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
-        debug!("Parser::add_single_val_to_arg: adding val...{:?}", raw_val);
+        debug!("Parser::store_arg_values: {:?}", raw_vals);
 
-        // update the current index because each value is a distinct index to clap
-        self.cur_idx.set(self.cur_idx.get() + 1);
-        debug!(
-            "Parser::add_single_val_to_arg: cur_idx:={}",
-            self.cur_idx.get()
-        );
-        let value_parser = arg.get_value_parser();
-        let val = value_parser.parse_ref(self.cmd, Some(arg), &raw_val)?;
+        for raw_val in raw_vals {
+            // update the current index because each value is a distinct index to clap
+            self.cur_idx.set(self.cur_idx.get() + 1);
+            debug!(
+                "Parser::add_single_val_to_arg: cur_idx:={}",
+                self.cur_idx.get()
+            );
+            let value_parser = arg.get_value_parser();
+            let val = value_parser.parse_ref(self.cmd, Some(arg), &raw_val)?;
 
-        // Increment or create the group "args"
-        for group in self.cmd.groups_for_arg(&arg.id) {
-            matcher.add_val_to(&group, val.clone(), raw_val.clone());
+            // Increment or create the group "args"
+            for group in self.cmd.groups_for_arg(&arg.id) {
+                matcher.add_val_to(&group, val.clone(), raw_val.clone());
+            }
+
+            matcher.add_val_to(&arg.id, val, raw_val);
+            matcher.add_index_to(&arg.id, self.cur_idx.get());
         }
-
-        matcher.add_val_to(&arg.id, val, raw_val);
-        matcher.add_index_to(&arg.id, self.cur_idx.get());
 
         Ok(())
     }
@@ -1133,11 +1172,15 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         "Parser::add_env: Found an opt with value={:?}, trailing={:?}",
                         val, trailing_values
                     );
+                    let mut arg_values = Vec::new();
+                    let _parse_result =
+                        self.push_arg_values(arg, &val, trailing_values, &mut arg_values);
                     self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
-                    let _ignored_result =
-                        self.add_val_to_arg(arg, &val, matcher, trailing_values)?;
-                    if _ignored_result != ParseResult::ValuesDone {
-                        debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _ignored_result);
+                    self.store_arg_values(arg, arg_values, matcher)?;
+                    if let Some(_parse_result) = _parse_result {
+                        if _parse_result != ParseResult::ValuesDone {
+                            debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
+                        }
                     }
                 } else {
                     match arg.get_action() {
@@ -1197,14 +1240,22 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         arg.name
                     );
                     // The flag occurred, we just want to add the val groups
-                    self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
+                    let mut arg_values = Vec::new();
                     for v in arg.default_missing_vals.iter() {
-                        let _ignored_result =
-                            self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
-                        if _ignored_result != ParseResult::ValuesDone {
-                            debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _ignored_result);
+                        let _parse_result = self.push_arg_values(
+                            arg,
+                            &RawOsStr::new(v),
+                            trailing_values,
+                            &mut arg_values,
+                        );
+                        if let Some(_parse_result) = _parse_result {
+                            if _parse_result != ParseResult::ValuesDone {
+                                debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _parse_result);
+                            }
                         }
                     }
+                    self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
+                    self.store_arg_values(arg, arg_values, matcher)?;
                 }
                 None => {
                     debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
@@ -1243,15 +1294,19 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                     if add {
                         if let Some(default) = default {
-                            self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                            let _ignored_result = self.add_val_to_arg(
+                            let mut arg_values = Vec::new();
+                            let _parse_result = self.push_arg_values(
                                 arg,
                                 &RawOsStr::new(default),
-                                matcher,
                                 trailing_values,
-                            )?;
-                            if _ignored_result != ParseResult::ValuesDone {
-                                debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _ignored_result);
+                                &mut arg_values,
+                            );
+                            self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
+                            self.store_arg_values(arg, arg_values, matcher)?;
+                            if let Some(_parse_result) = _parse_result {
+                                if _parse_result != ParseResult::ValuesDone {
+                                    debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _parse_result);
+                                }
                             }
                         }
                         return Ok(());
@@ -1272,15 +1327,22 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             // do nothing
             } else {
                 debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
-
-                self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
+                let mut arg_values = Vec::new();
                 for v in arg.default_vals.iter() {
-                    let _ignored_result =
-                        self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
-                    if _ignored_result != ParseResult::ValuesDone {
-                        debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _ignored_result);
+                    let _parse_result = self.push_arg_values(
+                        arg,
+                        &RawOsStr::new(v),
+                        trailing_values,
+                        &mut arg_values,
+                    );
+                    if let Some(_parse_result) = _parse_result {
+                        if _parse_result != ParseResult::ValuesDone {
+                            debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _parse_result);
+                        }
                     }
                 }
+                self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
+                self.store_arg_values(arg, arg_values, matcher)?;
             }
         } else {
             debug!(
