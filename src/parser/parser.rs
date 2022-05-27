@@ -743,7 +743,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     long_arg, &long_value
                 );
                 let has_eq = long_value.is_some();
-                self.parse_opt(long_value, opt, matcher, trailing_values, has_eq)
+                self.parse_opt_value(long_value, opt, matcher, trailing_values, has_eq)
             } else if let Some(rest) = long_value {
                 let required = self.cmd.required_graph();
                 debug!(
@@ -890,7 +890,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     (val, false)
                 };
-                match self.parse_opt(val, opt, matcher, trailing_values, has_eq)? {
+                match self.parse_opt_value(val, opt, matcher, trailing_values, has_eq)? {
                     ParseResult::AttachedValueNotConsumed => continue,
                     x => return Ok(x),
                 }
@@ -918,7 +918,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(ret)
     }
 
-    fn parse_opt(
+    fn parse_opt_value(
         &self,
         attached_value: Option<&RawOsStr>,
         opt: &Arg<'help>,
@@ -927,12 +927,12 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         has_eq: bool,
     ) -> ClapResult<ParseResult> {
         debug!(
-            "Parser::parse_opt; opt={}, val={:?}, has_eq={:?}",
+            "Parser::parse_opt_value; opt={}, val={:?}, has_eq={:?}",
             opt.name, attached_value, has_eq
         );
-        debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
+        debug!("Parser::parse_opt_value; opt.settings={:?}", opt.settings);
 
-        debug!("Parser::parse_opt; Checking for val...");
+        debug!("Parser::parse_opt_value; Checking for val...");
         // require_equals is set, but no '=' is provided, try throwing error.
         if opt.is_require_equals_set() && !has_eq {
             if opt.min_vals == Some(0) {
@@ -940,7 +940,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 self.start_occurrence_of_arg(matcher, opt);
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !opt.default_missing_vals.is_empty() {
-                    debug!("Parser::parse_opt: has default_missing_vals");
+                    debug!("Parser::parse_opt_value: has default_missing_vals");
                     for v in opt.default_missing_vals.iter() {
                         self.add_val_to_arg(opt, &RawOsStr::new(v), matcher, trailing_values)?;
                     }
@@ -961,7 +961,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             self.add_val_to_arg(opt, v, matcher, trailing_values)?;
             Ok(ParseResult::ValuesDone)
         } else {
-            debug!("Parser::parse_opt: More arg vals required...");
+            debug!("Parser::parse_opt_value: More arg vals required...");
             self.start_occurrence_of_arg(matcher, opt);
             Ok(ParseResult::Opt(opt.id.clone()))
         }
