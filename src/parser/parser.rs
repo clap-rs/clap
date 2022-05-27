@@ -941,11 +941,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !opt.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt: has default_missing_vals");
-                    self.add_multiple_vals_to_arg(
-                        opt,
-                        opt.default_missing_vals.iter().map(OsString::from),
-                        matcher,
-                    )?;
+                    for v in opt.default_missing_vals.iter() {
+                        self.add_val_to_arg(opt, &RawOsStr::new(v), matcher, trailing_values)?;
+                    }
                 };
                 if attached_value.is_some() {
                     Ok(ParseResult::AttachedValueNotConsumed)
@@ -989,7 +987,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     .split(delim)
                     .map(|x| x.to_os_str().into_owned())
                     .take_while(|val| Some(val.as_os_str()) != terminator);
-                self.add_multiple_vals_to_arg(arg, vals, matcher)?;
+                for raw_val in vals {
+                    self.add_single_val_to_arg(arg, raw_val, matcher)?;
+                }
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values or no more vals is needed, we're not
                 // looking for more values.
@@ -1014,19 +1014,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         } else {
             Ok(ParseResult::ValuesDone)
         }
-    }
-
-    fn add_multiple_vals_to_arg(
-        &self,
-        arg: &Arg<'help>,
-        raw_vals: impl Iterator<Item = OsString>,
-        matcher: &mut ArgMatcher,
-    ) -> ClapResult<()> {
-        for raw_val in raw_vals {
-            self.add_single_val_to_arg(arg, raw_val, matcher)?;
-        }
-
-        Ok(())
     }
 
     fn add_single_val_to_arg(
@@ -1222,21 +1209,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             debug!("Parser::add_default_value: doesn't have conditional defaults");
         }
 
-        fn process_default_vals(arg: &Arg<'_>, default_vals: &[&OsStr]) -> Vec<OsString> {
-            if let Some(delim) = arg.val_delim {
-                let mut vals = vec![];
-                for val in default_vals {
-                    let val = RawOsStr::new(val);
-                    for val in val.split(delim) {
-                        vals.push(val.to_os_str().into_owned());
-                    }
-                }
-                vals
-            } else {
-                default_vals.iter().map(OsString::from).collect()
-            }
-        }
-
         if !arg.default_vals.is_empty() {
             debug!(
                 "Parser::add_default_value:iter:{}: has default vals",
@@ -1249,11 +1221,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
 
                 self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                self.add_multiple_vals_to_arg(
-                    arg,
-                    process_default_vals(arg, &arg.default_vals).into_iter(),
-                    matcher,
-                )?;
+                for v in arg.default_vals.iter() {
+                    self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
+                }
             }
         } else {
             debug!(
@@ -1276,11 +1246,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         arg.name
                     );
                     self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                    self.add_multiple_vals_to_arg(
-                        arg,
-                        process_default_vals(arg, &arg.default_missing_vals).into_iter(),
-                        matcher,
-                    )?;
+                    for v in arg.default_missing_vals.iter() {
+                        self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
+                    }
                 }
                 None => {
                     debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);

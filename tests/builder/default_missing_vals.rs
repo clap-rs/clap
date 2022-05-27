@@ -174,6 +174,39 @@ fn default_missing_value_flag_value() {
     );
 }
 
+#[test]
+fn delimited_missing_value() {
+    let cmd = Command::new("test").arg(
+        Arg::new("flag")
+            .long("flag")
+            .default_value("one,two")
+            .default_missing_value("three,four")
+            .min_values(0)
+            .value_delimiter(',')
+            .require_equals(true),
+    );
+
+    let m = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(
+        m.get_many::<String>("flag")
+            .unwrap()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>(),
+        vec!["one", "two"]
+    );
+    assert_eq!(m.occurrences_of("flag"), 0);
+
+    let m = cmd.try_get_matches_from(["test", "--flag"]).unwrap();
+    assert_eq!(
+        m.get_many::<String>("flag")
+            .unwrap()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>(),
+        vec!["three", "four"]
+    );
+    assert_eq!(m.occurrences_of("flag"), 1);
+}
+
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: \"value\" isn't a valid value for '<arg>'"]
