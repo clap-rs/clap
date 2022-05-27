@@ -87,11 +87,6 @@ impl MatchedArg {
         self.indices.push(index)
     }
 
-    #[cfg(test)]
-    pub(crate) fn raw_vals(&self) -> Iter<Vec<OsString>> {
-        self.raw_vals.iter()
-    }
-
     #[cfg(feature = "unstable-grouped")]
     pub(crate) fn vals(&self) -> Iter<Vec<AnyValue>> {
         self.vals.iter()
@@ -116,11 +111,6 @@ impl MatchedArg {
     #[cfg(test)]
     pub(crate) fn first_raw(&self) -> Option<&OsString> {
         self.raw_vals_flatten().next()
-    }
-
-    pub(crate) fn push_val(&mut self, val: AnyValue, raw_val: OsString) {
-        self.vals.push(vec![val]);
-        self.raw_vals.push(vec![raw_val]);
     }
 
     pub(crate) fn new_val_group(&mut self) {
@@ -149,10 +139,6 @@ impl MatchedArg {
 
     pub(crate) fn all_val_groups_empty(&self) -> bool {
         self.vals.iter().flatten().count() == 0
-    }
-
-    pub(crate) fn has_val_groups(&self) -> bool {
-        !self.vals.is_empty()
     }
 
     pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
@@ -243,39 +229,5 @@ mod tests {
         m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
         m.append_val(AnyValue::new(String::from("ccc")), "ccc".into());
         assert_eq!(m.first_raw(), Some(&OsString::from("bbb")));
-    }
-
-    #[test]
-    fn test_grouped_vals_push_and_append() {
-        let mut m = MatchedArg::new_group();
-        m.push_val(AnyValue::new(String::from("aaa")), "aaa".into());
-        m.new_val_group();
-        m.append_val(AnyValue::new(String::from("bbb")), "bbb".into());
-        m.append_val(AnyValue::new(String::from("ccc")), "ccc".into());
-        m.new_val_group();
-        m.append_val(AnyValue::new(String::from("ddd")), "ddd".into());
-        m.push_val(AnyValue::new(String::from("eee")), "eee".into());
-        m.new_val_group();
-        m.append_val(AnyValue::new(String::from("fff")), "fff".into());
-        m.append_val(AnyValue::new(String::from("ggg")), "ggg".into());
-        m.append_val(AnyValue::new(String::from("hhh")), "hhh".into());
-        m.append_val(AnyValue::new(String::from("iii")), "iii".into());
-
-        let vals: Vec<&Vec<OsString>> = m.raw_vals().collect();
-        assert_eq!(
-            vals,
-            vec![
-                &vec![OsString::from("aaa")],
-                &vec![OsString::from("bbb"), OsString::from("ccc"),],
-                &vec![OsString::from("ddd")],
-                &vec![OsString::from("eee")],
-                &vec![
-                    OsString::from("fff"),
-                    OsString::from("ggg"),
-                    OsString::from("hhh"),
-                    OsString::from("iii"),
-                ]
-            ]
-        )
     }
 }

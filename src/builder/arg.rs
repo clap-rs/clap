@@ -18,6 +18,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::builder::usage_parser::UsageParser;
+use crate::builder::Action;
 use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
 use crate::PossibleValue;
@@ -63,6 +64,7 @@ pub struct Arg<'help> {
     pub(crate) name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
+    pub(crate) action: Option<Action>,
     pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
     pub(crate) settings: ArgFlags,
@@ -4526,6 +4528,12 @@ impl<'help> Arg<'help> {
     #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
     pub fn is_allow_invalid_utf8_set(&self) -> bool {
         self.is_set(ArgSettings::AllowInvalidUtf8)
+    }
+
+    /// Behavior when parsing the argument
+    pub(crate) fn get_action(&self) -> &super::Action {
+        const DEFAULT: super::Action = super::Action::StoreValue;
+        self.action.as_ref().unwrap_or(&DEFAULT)
     }
 
     /// Configured parser for argument values

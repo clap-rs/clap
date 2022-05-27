@@ -831,3 +831,49 @@ fn missing_with_value_delimiter() {
         ["value1", "value2", "value3", "value4", "value5"]
     );
 }
+
+#[test]
+fn default_independent_of_trailing() {
+    let cmd = Command::new("test")
+        .dont_delimit_trailing_values(true)
+        .arg(Arg::new("pos").required(true))
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .default_value("one,two")
+                .value_delimiter(','),
+        );
+
+    // Baseline behavior
+    let m = cmd
+        .clone()
+        .try_get_matches_from(vec!["program", "here"])
+        .unwrap();
+    assert_eq!(
+        m.get_one::<String>("pos").map(|v| v.as_str()).unwrap(),
+        "here"
+    );
+    assert_eq!(
+        m.get_many::<String>("flag")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["one", "two"]
+    );
+
+    // Trailing-values behavior should match the baseline
+    let m = cmd
+        .try_get_matches_from(vec!["program", "--", "here"])
+        .unwrap();
+    assert_eq!(
+        m.get_one::<String>("pos").map(|v| v.as_str()).unwrap(),
+        "here"
+    );
+    assert_eq!(
+        m.get_many::<String>("flag")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["one", "two"]
+    );
+}

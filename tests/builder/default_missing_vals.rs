@@ -1,4 +1,4 @@
-use clap::{arg, Arg, ArgMatches, Command};
+use clap::{arg, Arg, Command};
 
 #[test]
 fn opt_missing() {
@@ -20,6 +20,10 @@ fn opt_missing() {
         "auto"
     );
     assert_eq!(m.occurrences_of("color"), 0);
+    assert_eq!(
+        m.value_source("color").unwrap(),
+        clap::ValueSource::DefaultValue
+    );
 }
 
 #[test]
@@ -42,6 +46,10 @@ fn opt_present_with_missing_value() {
         "always"
     );
     assert_eq!(m.occurrences_of("color"), 1);
+    assert_eq!(
+        m.value_source("color").unwrap(),
+        clap::ValueSource::CommandLine
+    );
 }
 
 #[test]
@@ -64,6 +72,10 @@ fn opt_present_with_value() {
         "never"
     );
     assert_eq!(m.occurrences_of("color"), 1);
+    assert_eq!(
+        m.value_source("color").unwrap(),
+        clap::ValueSource::CommandLine
+    );
 }
 
 #[test]
@@ -85,6 +97,10 @@ fn opt_present_with_empty_value() {
         ""
     );
     assert_eq!(m.occurrences_of("color"), 1);
+    assert_eq!(
+        m.value_source("color").unwrap(),
+        clap::ValueSource::CommandLine
+    );
 }
 
 //## `default_value`/`default_missing_value` non-interaction checks
@@ -134,44 +150,96 @@ fn default_missing_value_flag_value() {
         Arg::new("flag")
             .long("flag")
             .takes_value(true)
+            .default_value("false")
             .default_missing_value("true"),
     );
 
-    fn flag_value(m: ArgMatches) -> bool {
-        match m.get_one::<String>("flag").map(|v| v.as_str()) {
-            None => false,
-            Some(x) => x.parse().expect("non boolean value"),
-        }
-    }
+    let m = cmd.clone().try_get_matches_from(&["test"]).unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()),
+        Some("false")
+    );
+    assert_eq!(m.occurrences_of("flag"), 0);
+    assert_eq!(
+        m.value_source("flag").unwrap(),
+        clap::ValueSource::DefaultValue
+    );
 
+    let m = cmd
+        .clone()
+        .try_get_matches_from(&["test", "--flag"])
+        .unwrap();
+    assert!(m.is_present("flag"));
     assert_eq!(
-        flag_value(cmd.clone().try_get_matches_from(&["test"]).unwrap()),
-        false
+        m.get_one::<String>("flag").map(|v| v.as_str()),
+        Some("true")
     );
+    assert_eq!(m.occurrences_of("flag"), 1);
     assert_eq!(
-        flag_value(
-            cmd.clone()
-                .try_get_matches_from(&["test", "--flag"])
-                .unwrap()
-        ),
-        true
+        m.value_source("flag").unwrap(),
+        clap::ValueSource::CommandLine
     );
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(&["test", "--flag=true"])
+        .unwrap();
+    assert!(m.is_present("flag"));
     assert_eq!(
-        flag_value(
-            cmd.clone()
-                .try_get_matches_from(&["test", "--flag=true"])
-                .unwrap()
-        ),
-        true
+        m.get_one::<String>("flag").map(|v| v.as_str()),
+        Some("true")
     );
+    assert_eq!(m.occurrences_of("flag"), 1);
     assert_eq!(
-        flag_value(
-            cmd.clone()
-                .try_get_matches_from(&["test", "--flag=false"])
-                .unwrap()
-        ),
-        false
+        m.value_source("flag").unwrap(),
+        clap::ValueSource::CommandLine
     );
+
+    let m = cmd.try_get_matches_from(&["test", "--flag=false"]).unwrap();
+    assert!(m.is_present("flag"));
+    assert_eq!(
+        m.get_one::<String>("flag").map(|v| v.as_str()),
+        Some("false")
+    );
+    assert_eq!(m.occurrences_of("flag"), 1);
+    assert_eq!(
+        m.value_source("flag").unwrap(),
+        clap::ValueSource::CommandLine
+    );
+}
+
+#[test]
+fn delimited_missing_value() {
+    let cmd = Command::new("test").arg(
+        Arg::new("flag")
+            .long("flag")
+            .default_value("one,two")
+            .default_missing_value("three,four")
+            .min_values(0)
+            .value_delimiter(',')
+            .require_equals(true),
+    );
+
+    let m = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(
+        m.get_many::<String>("flag")
+            .unwrap()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>(),
+        vec!["one", "two"]
+    );
+    assert_eq!(m.occurrences_of("flag"), 0);
+
+    let m = cmd.try_get_matches_from(["test", "--flag"]).unwrap();
+    assert_eq!(
+        m.get_many::<String>("flag")
+            .unwrap()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>(),
+        vec!["three", "four"]
+    );
+    assert_eq!(m.occurrences_of("flag"), 1);
 }
 
 #[cfg(debug_assertions)]

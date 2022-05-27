@@ -4115,6 +4115,10 @@ impl<'help> App<'help> {
             let mut pos_counter = 1;
             let self_override = self.is_set(AppSettings::AllArgsOverrideSelf);
             let hide_pv = self.is_set(AppSettings::HidePossibleValues);
+            let auto_help =
+                !self.is_set(AppSettings::NoAutoHelp) && !self.is_disable_help_flag_set();
+            let auto_version =
+                !self.is_set(AppSettings::NoAutoVersion) && !self.is_disable_version_flag_set();
             for a in self.args.args_mut() {
                 // Fill in the groups
                 for g in &a.groups {
@@ -4141,6 +4145,24 @@ impl<'help> App<'help> {
                     a.overrides.push(self_id);
                 }
                 a._build();
+                // HACK: Setting up action at this level while auto-help / disable help flag is
+                // required.  Otherwise, most of this won't be needed because when we can break
+                // compat, actions will reign supreme (default to `Store`)
+                if a.action.is_none() {
+                    if a.get_id() == "help" && auto_help {
+                        let action = super::Action::Help;
+                        a.action = Some(action);
+                    } else if a.get_id() == "version" && auto_version {
+                        let action = super::Action::Version;
+                        a.action = Some(action);
+                    } else if a.is_takes_value_set() {
+                        let action = super::Action::StoreValue;
+                        a.action = Some(action);
+                    } else {
+                        let action = super::Action::Flag;
+                        a.action = Some(action);
+                    }
+                }
                 if a.is_positional() && a.index.is_none() {
                     a.index = Some(pos_counter);
                     pos_counter += 1;

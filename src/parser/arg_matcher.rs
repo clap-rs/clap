@@ -11,9 +11,6 @@ use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
-// Third party
-use indexmap::map::Entry;
-
 #[derive(Debug, Default)]
 pub(crate) struct ArgMatcher(ArgMatches);
 
@@ -141,6 +138,7 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
         debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(source);
+        ma.new_val_group();
     }
 
     pub(crate) fn start_custom_group(&mut self, id: &Id, source: ValueSource) {
@@ -151,6 +149,7 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
         debug_assert_eq!(ma.type_id(), None);
         ma.set_source(source);
+        ma.new_val_group();
     }
 
     pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
@@ -160,6 +159,7 @@ impl ArgMatcher {
         debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
+        ma.new_val_group();
     }
 
     pub(crate) fn start_occurrence_of_group(&mut self, id: &Id) {
@@ -168,6 +168,7 @@ impl ArgMatcher {
         debug_assert_eq!(ma.type_id(), None);
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
+        ma.new_val_group();
     }
 
     pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
@@ -184,44 +185,17 @@ impl ArgMatcher {
         );
         ma.set_source(ValueSource::CommandLine);
         ma.inc_occurrences();
+        ma.new_val_group();
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString, append: bool) {
-        if append {
-            self.append_val_to(arg, val, raw_val);
-        } else {
-            self.push_val_to(arg, val, raw_val);
-        }
-    }
-
-    fn push_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString) {
-        // We will manually inc occurrences later(for flexibility under
-        // specific circumstances, like only add one occurrence for flag
-        // when we met: `--flag=one,two`).
-        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
-        ma.push_val(val, raw_val);
-    }
-
-    fn append_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString) {
+    pub(crate) fn add_val_to(&mut self, arg: &Id, val: AnyValue, raw_val: OsString) {
         let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.append_val(val, raw_val);
-    }
-
-    pub(crate) fn new_val_group(&mut self, arg: &Id) {
-        let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
-        ma.new_val_group();
     }
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize) {
         let ma = self.get_mut(arg).expect(INTERNAL_ERROR_MSG);
         ma.push_index(idx);
-    }
-
-    pub(crate) fn has_val_groups(&mut self, arg: &Id) -> bool {
-        match self.entry(arg) {
-            Entry::Occupied(e) => e.get().has_val_groups(),
-            Entry::Vacant(_) => false,
-        }
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
