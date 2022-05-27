@@ -967,11 +967,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         if arg.is_require_equals_set() && !has_eq {
             if arg.min_vals == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
-                self.start_occurrence_of_arg(matcher, arg);
+                let mut arg_values = Vec::new();
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !arg.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt_value: has default_missing_vals");
-                    let mut arg_values = Vec::new();
                     for v in arg.default_missing_vals.iter() {
                         let _parse_result = self.push_arg_values(
                             arg,
@@ -985,8 +984,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             }
                         }
                     }
-                    self.store_arg_values(arg, arg_values, matcher)?;
                 };
+                self.start_occurrence_of_arg(matcher, arg);
+                self.store_arg_values(arg, arg_values, matcher)?;
                 if attached_value.is_some() {
                     Ok(ParseResult::AttachedValueNotConsumed)
                 } else {
