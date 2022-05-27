@@ -419,8 +419,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 });
 
                 #[cfg(feature = "env")]
-                self.add_env(matcher, trailing_values)?;
-                self.add_defaults(matcher, trailing_values)?;
+                self.add_env(matcher)?;
+                self.add_defaults(matcher)?;
                 return Validator::new(self.cmd).validate(parse_state, matcher);
             } else {
                 // Start error processing
@@ -439,8 +439,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
 
         #[cfg(feature = "env")]
-        self.add_env(matcher, trailing_values)?;
-        self.add_defaults(matcher, trailing_values)?;
+        self.add_env(matcher)?;
+        self.add_defaults(matcher)?;
         Validator::new(self.cmd).validate(parse_state, matcher)
     }
 
@@ -1101,10 +1101,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     #[cfg(feature = "env")]
-    fn add_env(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) -> ClapResult<()> {
+    fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_env");
         use crate::util::str_to_bool;
 
+        let trailing_values = false; // defaults are independent of the commandline
         for arg in self.cmd.get_arguments() {
             // Use env only if the arg was absent among command line args,
             // early return if this is not the case.
@@ -1154,28 +1155,25 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    fn add_defaults(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) -> ClapResult<()> {
+    fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
         for o in self.cmd.get_opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            self.add_default_value(o, matcher, trailing_values)?;
+            self.add_default_value(o, matcher)?;
         }
 
         for p in self.cmd.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            self.add_default_value(p, matcher, trailing_values)?;
+            self.add_default_value(p, matcher)?;
         }
 
         Ok(())
     }
 
-    fn add_default_value(
-        &self,
-        arg: &Arg<'help>,
-        matcher: &mut ArgMatcher,
-        trailing_values: bool,
-    ) -> ClapResult<()> {
+    fn add_default_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        let trailing_values = false; // defaults are independent of the commandline
+
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
             if matcher.get(&arg.id).is_none() {
