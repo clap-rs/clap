@@ -971,7 +971,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             self.start_occurrence_of_arg(matcher, opt);
             let mut val_result = self.add_val_to_arg(opt, v, matcher, trailing_values)?;
             if val_result != ParseResult::ValuesDone {
-                debug!("Parser::parse_opt_value: Overiding state {:?}; no values accepted after attached", val_result);
+                debug!("Parser::parse_opt_value: Overriding state {:?}; no values accepted after attached", val_result);
                 val_result = ParseResult::ValuesDone;
             }
             Ok(val_result)
