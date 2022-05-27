@@ -794,7 +794,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 })
             } else {
                 debug!("Parser::parse_long_arg({:?}): Presence validated", long_arg);
-                self.parse_flag(Identifier::Long(long_arg), arg, matcher)
+                self.react(Identifier::Long(long_arg), arg, matcher)
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
@@ -891,7 +891,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 );
                 *valid_arg_found = true;
                 if !arg.is_takes_value_set() {
-                    ret = self.parse_flag(Identifier::Short(c), arg, matcher)?;
+                    ret = self.react(Identifier::Short(c), arg, matcher)?;
                     continue;
                 }
 
@@ -1093,13 +1093,16 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    fn parse_flag(
+    fn react(
         &self,
         ident: Identifier,
         arg: &Arg<'help>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
-        debug!("Parser::parse_flag");
+        debug!(
+            "Parser::react action={:?}, identifier={:?}",
+            arg.get_action, ident
+        );
         match arg.get_action() {
             Action::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
             Action::Flag => {
