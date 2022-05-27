@@ -985,8 +985,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         }
                     }
                 };
-                self.start_occurrence_of_arg(matcher, arg);
-                self.store_arg_values(arg, arg_values, matcher)?;
+                let react_result = self.react(ident, arg, arg_values, matcher)?;
+                debug_assert_eq!(react_result, ParseResult::ValuesDone);
                 if attached_value.is_some() {
                     Ok(ParseResult::AttachedValueNotConsumed)
                 } else {
