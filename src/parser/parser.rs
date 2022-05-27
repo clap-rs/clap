@@ -182,7 +182,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             && !self.is_set(AS::NoAutoHelp)
                             && !self.cmd.is_disable_help_subcommand_set()
                         {
-                            self.parse_help_subcommand(raw_args.remaining(&mut args_cursor))?;
+                            let _ =
+                                self.parse_help_subcommand(raw_args.remaining(&mut args_cursor))?;
                         }
                         subcmd_name = Some(sc_name.to_owned());
                         break;
@@ -376,7 +377,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 if !p.is_multiple_values_set() || !matcher.contains(&p.id) {
                     self.start_occurrence_of_arg(matcher, p);
                 }
-                self.add_val_to_arg(p, arg_os.to_value_os(), matcher, trailing_values)?;
+                let _ = self.add_val_to_arg(p, arg_os.to_value_os(), matcher, trailing_values)?;
 
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.is_multiple() {
@@ -942,7 +943,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 if !opt.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt_value: has default_missing_vals");
                     for v in opt.default_missing_vals.iter() {
-                        self.add_val_to_arg(opt, &RawOsStr::new(v), matcher, trailing_values)?;
+                        let _ =
+                            self.add_val_to_arg(opt, &RawOsStr::new(v), matcher, trailing_values)?;
                     }
                 };
                 if attached_value.is_some() {
@@ -958,7 +960,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             }
         } else if let Some(v) = attached_value {
             self.start_occurrence_of_arg(matcher, opt);
-            self.add_val_to_arg(opt, v, matcher, trailing_values)?;
+            let _ = self.add_val_to_arg(opt, v, matcher, trailing_values)?;
             Ok(ParseResult::ValuesDone)
         } else {
             debug!("Parser::parse_opt_value: More arg vals required...");
@@ -1122,7 +1124,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         val, trailing_values
                     );
                     self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
-                    self.add_val_to_arg(arg, &val, matcher, trailing_values)?;
+                    let _ = self.add_val_to_arg(arg, &val, matcher, trailing_values)?;
                 } else {
                     match arg.get_action() {
                         Action::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
@@ -1183,7 +1185,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // The flag occurred, we just want to add the val groups
                     self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
                     for v in arg.default_missing_vals.iter() {
-                        self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
+                        let _ =
+                            self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
                     }
                 }
                 None => {
@@ -1224,7 +1227,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     if add {
                         if let Some(default) = default {
                             self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                            self.add_val_to_arg(
+                            let _ = self.add_val_to_arg(
                                 arg,
                                 &RawOsStr::new(default),
                                 matcher,
@@ -1252,7 +1255,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
                 for v in arg.default_vals.iter() {
-                    self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
+                    let _ =
+                        self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
                 }
             }
         } else {
@@ -1373,6 +1377,7 @@ pub(crate) enum ParseState {
 
 /// Recoverable Parsing results.
 #[derive(Debug, PartialEq, Clone)]
+#[must_use]
 enum ParseResult {
     FlagSubCommand(String),
     Opt(Id),
