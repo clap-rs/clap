@@ -1174,6 +1174,43 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn add_default_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<()> {
         let trailing_values = false; // defaults are independent of the commandline
 
+        if !arg.default_missing_vals.is_empty() {
+            debug!(
+                "Parser::add_default_value:iter:{}: has default missing vals",
+                arg.name
+            );
+            match matcher.get(&arg.id) {
+                Some(ma) if ma.all_val_groups_empty() => {
+                    debug!(
+                        "Parser::add_default_value:iter:{}: has no user defined vals",
+                        arg.name
+                    );
+                    // The flag occurred, we just want to add the val groups
+                    self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
+                    for v in arg.default_missing_vals.iter() {
+                        self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
+                    }
+                }
+                None => {
+                    debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
+                    // do nothing
+                }
+                _ => {
+                    debug!(
+                        "Parser::add_default_value:iter:{}: has user defined vals",
+                        arg.name
+                    );
+                    // do nothing
+                }
+            }
+        } else {
+            debug!(
+                "Parser::add_default_value:iter:{}: doesn't have default missing vals",
+                arg.name
+            );
+            // do nothing
+        }
+
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
             if matcher.get(&arg.id).is_none() {
@@ -1226,43 +1263,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         } else {
             debug!(
                 "Parser::add_default_value:iter:{}: doesn't have default vals",
-                arg.name
-            );
-
-            // do nothing
-        }
-
-        if !arg.default_missing_vals.is_empty() {
-            debug!(
-                "Parser::add_default_value:iter:{}: has default missing vals",
-                arg.name
-            );
-            match matcher.get(&arg.id) {
-                Some(ma) if ma.all_val_groups_empty() => {
-                    debug!(
-                        "Parser::add_default_value:iter:{}: has no user defined vals",
-                        arg.name
-                    );
-                    self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                    for v in arg.default_missing_vals.iter() {
-                        self.add_val_to_arg(arg, &RawOsStr::new(v), matcher, trailing_values)?;
-                    }
-                }
-                None => {
-                    debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
-                    // do nothing
-                }
-                _ => {
-                    debug!(
-                        "Parser::add_default_value:iter:{}: has user defined vals",
-                        arg.name
-                    );
-                    // do nothing
-                }
-            }
-        } else {
-            debug!(
-                "Parser::add_default_value:iter:{}: doesn't have default missing vals",
                 arg.name
             );
 
