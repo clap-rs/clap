@@ -795,7 +795,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 })
             } else {
                 debug!("Parser::parse_long_arg({:?}): Presence validated", long_arg);
-                self.react(ident, arg, vec![], matcher)
+                self.react(Some(ident), ValueSource::CommandLine, arg, vec![], matcher)
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
@@ -893,7 +893,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 );
                 *valid_arg_found = true;
                 if !arg.is_takes_value_set() {
-                    ret = self.react(ident, arg, vec![], matcher)?;
+                    ret =
+                        self.react(Some(ident), ValueSource::CommandLine, arg, vec![], matcher)?;
                     continue;
                 }
 
@@ -985,7 +986,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         }
                     }
                 };
-                let react_result = self.react(ident, arg, arg_values, matcher)?;
+                let react_result = self.react(
+                    Some(ident),
+                    ValueSource::CommandLine,
+                    arg,
+                    arg_values,
+                    matcher,
+                )?;
                 debug_assert_eq!(react_result, ParseResult::ValuesDone);
                 if attached_value.is_some() {
                     Ok(ParseResult::AttachedValueNotConsumed)
@@ -1001,7 +1008,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         } else if let Some(v) = attached_value {
             let mut arg_values = Vec::new();
             let parse_result = self.push_arg_values(arg, v, trailing_values, &mut arg_values);
-            let react_result = self.react(ident, arg, arg_values, matcher)?;
+            let react_result = self.react(
+                Some(ident),
+                ValueSource::CommandLine,
+                arg,
+                arg_values,
+                matcher,
+            )?;
             debug_assert_eq!(react_result, ParseResult::ValuesDone);
             let mut parse_result = parse_result.unwrap_or_else(|| {
                 if matcher.needs_more_vals(arg) {
@@ -1098,18 +1111,25 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     fn react(
         &self,
-        ident: Identifier,
+        ident: Option<Identifier>,
+        source: ValueSource,
         arg: &Arg<'help>,
         raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!(
-            "Parser::react action={:?}, identifier={:?}",
-            arg.get_action, ident
+            "Parser::react action={:?}, identifier={:?}, souce={:?}",
+            arg.get_action(),
+            ident,
+            source
         );
         match arg.get_action() {
             Action::StoreValue => {
-                self.start_occurrence_of_arg(matcher, arg);
+                if source == ValueSource::CommandLine {
+                    self.start_occurrence_of_arg(matcher, arg);
+                } else {
+                    self.start_custom_arg(matcher, arg, source);
+                }
                 self.store_arg_values(arg, raw_vals, matcher)?;
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
                     debug!(
@@ -1120,15 +1140,20 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             }
             Action::Flag => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
-                self.start_occurrence_of_arg(matcher, arg);
+                if source == ValueSource::CommandLine {
+                    self.start_occurrence_of_arg(matcher, arg);
+                } else {
+                    self.start_custom_arg(matcher, arg, source);
+                }
                 matcher.add_index_to(&arg.id, self.cur_idx.get());
                 Ok(ParseResult::ValuesDone)
             }
             Action::Help => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
-                    Identifier::Long(_) => true,
-                    Identifier::Short(_) => false,
+                    Some(Identifier::Long(_)) => true,
+                    Some(Identifier::Short(_)) => false,
+                    None => true,
                 };
                 debug!("Help: use_long={}", use_long);
                 Err(self.help_err(use_long, Stream::Stdout))
@@ -1136,8 +1161,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             Action::Version => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
-                    Identifier::Long(_) => true,
-                    Identifier::Short(_) => false,
+                    Some(Identifier::Long(_)) => true,
+                    Some(Identifier::Short(_)) => false,
+                    None => true,
                 };
                 debug!("Version: use_long={}", use_long);
                 Err(self.version_err(use_long))
@@ -1193,8 +1219,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     let mut arg_values = Vec::new();
                     let _parse_result =
                         self.push_arg_values(arg, &val, trailing_values, &mut arg_values);
-                    self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
-                    self.store_arg_values(arg, arg_values, matcher)?;
+                    let _ = self.react(None, ValueSource::EnvVariable, arg, arg_values, matcher)?;
                     if let Some(_parse_result) = _parse_result {
                         if _parse_result != ParseResult::ValuesDone {
                             debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
@@ -1208,16 +1233,19 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             let predicate = str_to_bool(val.to_str_lossy());
                             debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
                             if predicate.unwrap_or(true) {
-                                self.start_custom_arg(matcher, arg, ValueSource::EnvVariable);
-                                matcher.add_index_to(&arg.id, self.cur_idx.get());
+                                let _ = self.react(
+                                    None,
+                                    ValueSource::EnvVariable,
+                                    arg,
+                                    vec![],
+                                    matcher,
+                                )?;
                             }
                         }
                         // Early return on `Help` or `Version`.
-                        Action::Help => {
-                            return Err(self.help_err(true, Stream::Stdout));
-                        }
-                        Action::Version => {
-                            return Err(self.version_err(true));
+                        Action::Help | Action::Version => {
+                            let _ =
+                                self.react(None, ValueSource::EnvVariable, arg, vec![], matcher)?;
                         }
                     }
                 }
@@ -1319,8 +1347,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 trailing_values,
                                 &mut arg_values,
                             );
-                            self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                            self.store_arg_values(arg, arg_values, matcher)?;
+                            let _ = self.react(
+                                None,
+                                ValueSource::DefaultValue,
+                                arg,
+                                arg_values,
+                                matcher,
+                            )?;
                             if let Some(_parse_result) = _parse_result {
                                 if _parse_result != ParseResult::ValuesDone {
                                     debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _parse_result);
@@ -1359,8 +1392,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         }
                     }
                 }
-                self.start_custom_arg(matcher, arg, ValueSource::DefaultValue);
-                self.store_arg_values(arg, arg_values, matcher)?;
+                let _ = self.react(None, ValueSource::DefaultValue, arg, arg_values, matcher)?;
             }
         } else {
             debug!(
