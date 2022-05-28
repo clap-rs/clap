@@ -762,8 +762,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             None
         };
 
-        if let Some((long_arg, arg)) = arg {
-            let ident = Identifier::Long(long_arg);
+        if let Some((_long_arg, arg)) = arg {
+            let ident = Identifier::Long;
             *valid_arg_found = true;
             if arg.is_takes_value_set() {
                 debug!(
@@ -886,7 +886,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             // Option: -o
             // Value: val
             if let Some(arg) = self.cmd.get_keymap().get(&c) {
-                let ident = Identifier::Short(c);
+                let ident = Identifier::Short;
                 debug!(
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
@@ -1152,8 +1152,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             Action::Help => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
-                    Some(Identifier::Long(_)) => true,
-                    Some(Identifier::Short(_)) => false,
+                    Some(Identifier::Long) => true,
+                    Some(Identifier::Short) => false,
                     None => true,
                 };
                 debug!("Help: use_long={}", use_long);
@@ -1162,8 +1162,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             Action::Version => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
-                    Some(Identifier::Long(_)) => true,
-                    Some(Identifier::Short(_)) => false,
+                    Some(Identifier::Long) => true,
+                    Some(Identifier::Short) => false,
                     None => true,
                 };
                 debug!("Version: use_long={}", use_long);
@@ -1542,7 +1542,7 @@ enum ParseResult {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-enum Identifier<'f> {
-    Short(char),
-    Long(&'f str),
+enum Identifier {
+    Short,
+    Long,
 }
