@@ -973,6 +973,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 if !arg.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt_value: has default_missing_vals");
                     for v in arg.default_missing_vals.iter() {
+                        let trailing_values = false; // CLI should not be affecting default_missing_values
                         let _parse_result = self.push_arg_values(
                             arg,
                             &RawOsStr::new(v),
