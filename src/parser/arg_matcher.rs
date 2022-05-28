@@ -12,35 +12,39 @@ use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Default)]
-pub(crate) struct ArgMatcher(ArgMatches);
+pub(crate) struct ArgMatcher {
+    matches: ArgMatches,
+}
 
 impl ArgMatcher {
     pub(crate) fn new(_cmd: &Command) -> Self {
-        ArgMatcher(ArgMatches {
-            #[cfg(debug_assertions)]
-            valid_args: {
-                let args = _cmd.get_arguments().map(|a| a.id.clone());
-                let groups = _cmd.get_groups().map(|g| g.id.clone());
-                args.chain(groups).collect()
+        ArgMatcher {
+            matches: ArgMatches {
+                #[cfg(debug_assertions)]
+                valid_args: {
+                    let args = _cmd.get_arguments().map(|a| a.id.clone());
+                    let groups = _cmd.get_groups().map(|g| g.id.clone());
+                    args.chain(groups).collect()
+                },
+                #[cfg(debug_assertions)]
+                valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
+                // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
+                // since users can't detect it and avoid the asserts.
+                //
+                // See clap-rs/clap#3263
+                #[cfg(debug_assertions)]
+                #[cfg(not(feature = "unstable-v4"))]
+                disable_asserts: _cmd.is_allow_external_subcommands_set(),
+                #[cfg(debug_assertions)]
+                #[cfg(feature = "unstable-v4")]
+                disable_asserts: false,
+                ..Default::default()
             },
-            #[cfg(debug_assertions)]
-            valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
-            // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
-            // since users can't detect it and avoid the asserts.
-            //
-            // See clap-rs/clap#3263
-            #[cfg(debug_assertions)]
-            #[cfg(not(feature = "unstable-v4"))]
-            disable_asserts: _cmd.is_allow_external_subcommands_set(),
-            #[cfg(debug_assertions)]
-            #[cfg(feature = "unstable-v4")]
-            disable_asserts: false,
-            ..Default::default()
-        })
+        }
     }
 
     pub(crate) fn into_inner(self) -> ArgMatches {
-        self.0
+        self.matches
     }
 
     pub(crate) fn propagate_globals(&mut self, global_arg_vec: &[Id]) {
@@ -78,51 +82,53 @@ impl ArgMatcher {
                 vals_map.insert(global_arg.clone(), to_update);
             }
         }
-        if let Some(ref mut sc) = self.0.subcommand {
-            let mut am = ArgMatcher(mem::take(&mut sc.matches));
+        if let Some(ref mut sc) = self.matches.subcommand {
+            let mut am = ArgMatcher {
+                matches: mem::take(&mut sc.matches),
+            };
             am.fill_in_global_values(global_arg_vec, vals_map);
-            mem::swap(&mut am.0, &mut sc.matches);
+            mem::swap(&mut am.matches, &mut sc.matches);
         }
 
         for (name, matched_arg) in vals_map.iter_mut() {
-            self.0.args.insert(name.clone(), matched_arg.clone());
+            self.matches.args.insert(name.clone(), matched_arg.clone());
         }
     }
 
     pub(crate) fn get(&self, arg: &Id) -> Option<&MatchedArg> {
-        self.0.args.get(arg)
+        self.matches.args.get(arg)
     }
 
     pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
-        self.0.args.get_mut(arg)
+        self.matches.args.get_mut(arg)
     }
 
     pub(crate) fn remove(&mut self, arg: &Id) {
-        self.0.args.swap_remove(arg);
+        self.matches.args.swap_remove(arg);
     }
 
     pub(crate) fn contains(&self, arg: &Id) -> bool {
-        self.0.args.contains_key(arg)
+        self.matches.args.contains_key(arg)
     }
 
     pub(crate) fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> {
-        self.0.args.keys()
+        self.matches.args.keys()
     }
 
     pub(crate) fn entry(&mut self, arg: &Id) -> indexmap::map::Entry<Id, MatchedArg> {
-        self.0.args.entry(arg.clone())
+        self.matches.args.entry(arg.clone())
     }
 
     pub(crate) fn subcommand(&mut self, sc: SubCommand) {
-        self.0.subcommand = Some(Box::new(sc));
+        self.matches.subcommand = Some(Box::new(sc));
     }
 
     pub(crate) fn subcommand_name(&self) -> Option<&str> {
-        self.0.subcommand_name()
+        self.matches.subcommand_name()
     }
 
     pub(crate) fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> {
-        self.0.args.iter()
+        self.matches.args.iter()
     }
 
     pub(crate) fn check_explicit<'a>(&self, arg: &Id, predicate: ArgPredicate<'a>) -> bool {
@@ -226,6 +232,6 @@ impl Deref for ArgMatcher {
     type Target = ArgMatches;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.matches
     }
 }
