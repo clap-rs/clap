@@ -247,6 +247,25 @@ fn required_group_conflicts_with_arg() {
 }
 
 #[test]
+fn subcommand_flag_conflicts_with_global() {
+    let mut cmd = Command::new("conflicts")
+        .arg(Arg::new("flag").long("flag").global(true))
+        .subcommand(
+            Command::new("subcommand").arg(Arg::new("flag2").long("flag2").conflicts_with("flag")),
+        );
+
+    let result = cmd.try_get_matches_from_mut(vec!["conflicts", "subcommand", "--flag", "--flag2"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+
+    let result = cmd.try_get_matches_from_mut(vec!["conflicts", "--flag", "subcommand", "--flag2"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
 fn conflict_output() {
     utils::assert_output(
         utils::complex_app(),
