@@ -385,17 +385,12 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     trailing_values = true;
                 }
 
-                let mut arg_values = Vec::new();
-                let _parse_result = self.push_arg_values(
-                    arg,
-                    arg_os.to_value_os(),
-                    trailing_values,
-                    &mut arg_values,
-                );
-                if !arg.is_multiple_values_set() || !matcher.contains(&arg.id) {
-                    self.start_occurrence_of_arg(matcher, arg);
+                if matcher.pending_arg_id() != Some(&arg.id) || !arg.is_multiple_values_set() {
+                    self.resolve_pending(matcher)?;
                 }
-                self.store_arg_values(arg, arg_values, matcher)?;
+                let arg_values = matcher.pending_values_mut(&arg.id, Some(Identifier::Index));
+                let _parse_result =
+                    self.push_arg_values(arg, arg_os.to_value_os(), trailing_values, arg_values);
                 if let Some(_parse_result) = _parse_result {
                     if _parse_result != ParseResult::ValuesDone {
                         debug!(
@@ -445,6 +440,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     matches: sc_m.into_inner(),
                 });
 
+                self.resolve_pending(matcher)?;
                 #[cfg(feature = "env")]
                 self.add_env(matcher)?;
                 self.add_defaults(matcher)?;
@@ -465,6 +461,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             self.parse_subcommand(&sc_name, matcher, raw_args, args_cursor, keep_state)?;
         }
 
+        self.resolve_pending(matcher)?;
         #[cfg(feature = "env")]
         self.add_env(matcher)?;
         self.add_defaults(matcher)?;
@@ -1110,6 +1107,27 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
+    fn resolve_pending(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        let pending = match matcher.take_pending() {
+            Some(pending) => pending,
+            None => {
+                return Ok(());
+            }
+        };
+
+        debug!("Parser::resolve_pending: id={:?}", pending.id);
+        let arg = self.cmd.find(&pending.id).expect(INTERNAL_ERROR_MSG);
+        let _ = self.react(
+            pending.ident,
+            ValueSource::CommandLine,
+            arg,
+            pending.raw_vals,
+            matcher,
+        )?;
+
+        Ok(())
+    }
+
     fn react(
         &self,
         ident: Option<Identifier>,
@@ -1118,6 +1136,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
+        self.resolve_pending(matcher)?;
+
         debug!(
             "Parser::react action={:?}, identifier={:?}, souce={:?}",
             arg.get_action(),
@@ -1154,6 +1174,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
                     Some(Identifier::Short) => false,
+                    Some(Identifier::Index) => true,
                     None => true,
                 };
                 debug!("Help: use_long={}", use_long);
@@ -1164,6 +1185,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
                     Some(Identifier::Short) => false,
+                    Some(Identifier::Index) => true,
                     None => true,
                 };
                 debug!("Version: use_long={}", use_long);
@@ -1256,7 +1278,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn add_defaults(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
         for arg in self.cmd.get_opts() {
@@ -1504,7 +1526,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum ParseState {
     ValuesDone,
     Opt(Id),
@@ -1541,8 +1563,16 @@ enum ParseResult {
     NoArg,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct PendingArg {
+    pub(crate) id: Id,
+    pub(crate) ident: Option<Identifier>,
+    pub(crate) raw_vals: Vec<OsString>,
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-enum Identifier {
+pub(crate) enum Identifier {
     Short,
     Long,
+    Index,
 }

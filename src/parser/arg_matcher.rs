@@ -7,6 +7,8 @@ use std::ops::Deref;
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command};
 use crate::parser::AnyValue;
+use crate::parser::Identifier;
+use crate::parser::PendingArg;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
@@ -14,6 +16,7 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Debug, Default)]
 pub(crate) struct ArgMatcher {
     matches: ArgMatches,
+    pending: Option<PendingArg>,
 }
 
 impl ArgMatcher {
@@ -40,6 +43,7 @@ impl ArgMatcher {
                 disable_asserts: false,
                 ..Default::default()
             },
+            pending: None,
         }
     }
 
@@ -85,6 +89,7 @@ impl ArgMatcher {
         if let Some(ref mut sc) = self.matches.subcommand {
             let mut am = ArgMatcher {
                 matches: mem::take(&mut sc.matches),
+                pending: None,
             };
             am.fill_in_global_values(global_arg_vec, vals_map);
             mem::swap(&mut am.matches, &mut sc.matches);
@@ -225,6 +230,29 @@ impl ArgMatcher {
             return o.is_multiple_values_set();
         }
         true
+    }
+
+    pub(crate) fn pending_arg_id(&self) -> Option<&Id> {
+        self.pending.as_ref().map(|p| &p.id)
+    }
+
+    pub(crate) fn pending_values_mut(
+        &mut self,
+        id: &Id,
+        ident: Option<Identifier>,
+    ) -> &mut Vec<OsString> {
+        let pending = self.pending.get_or_insert_with(|| PendingArg {
+            id: id.clone(),
+            ident,
+            raw_vals: Default::default(),
+        });
+        debug_assert_eq!(pending.id, *id, "{}", INTERNAL_ERROR_MSG);
+        debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
+        &mut pending.raw_vals
+    }
+
+    pub(crate) fn take_pending(&mut self) -> Option<PendingArg> {
+        self.pending.take()
     }
 }
 
