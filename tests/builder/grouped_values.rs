@@ -175,6 +175,52 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
 }
 
 #[test]
+fn grouped_interleaved_positional_values() {
+    let cmd = clap::Command::new("foo")
+        .arg(clap::Arg::new("pos").multiple_values(true))
+        .arg(
+            clap::Arg::new("flag")
+                .short('f')
+                .long("flag")
+                .takes_value(true)
+                .multiple_occurrences(true),
+        );
+
+    let m = cmd
+        .try_get_matches_from(["foo", "1", "2", "-f", "a", "3", "-f", "b", "4"])
+        .unwrap();
+    let pos: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
+    assert_eq!(pos, vec![vec!["1", "2", "3", "4"]]);
+    assert_eq!(m.occurrences_of("pos"), 1);
+    let flag: Vec<_> = m.grouped_values_of("flag").unwrap().collect();
+    assert_eq!(flag, vec![vec!["a"], vec!["b"]]);
+    assert_eq!(m.occurrences_of("flag"), 2);
+}
+
+#[test]
+fn grouped_interleaved_positional_occurrences() {
+    let cmd = clap::Command::new("foo")
+        .arg(clap::Arg::new("pos").multiple_occurrences(true))
+        .arg(
+            clap::Arg::new("flag")
+                .short('f')
+                .long("flag")
+                .takes_value(true)
+                .multiple_occurrences(true),
+        );
+
+    let m = cmd
+        .try_get_matches_from(["foo", "1", "2", "-f", "a", "3", "-f", "b", "4"])
+        .unwrap();
+    let pos: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
+    assert_eq!(pos, vec![vec!["1"], vec!["2"], vec!["3"], vec!["4"]]);
+    assert_eq!(m.occurrences_of("pos"), 4);
+    let flag: Vec<_> = m.grouped_values_of("flag").unwrap().collect();
+    assert_eq!(flag, vec![vec!["a"], vec!["b"]]);
+    assert_eq!(m.occurrences_of("flag"), 2);
+}
+
+#[test]
 fn issue_1374() {
     let cmd = Command::new("MyApp").arg(
         Arg::new("input")
