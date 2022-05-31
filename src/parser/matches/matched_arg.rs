@@ -132,7 +132,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn num_vals(&self) -> usize {
-        self.vals.iter().flatten().count()
+        self.vals.iter().map(|v| v.len()).sum()
     }
 
     // Will be used later
