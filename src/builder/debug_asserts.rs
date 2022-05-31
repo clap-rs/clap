@@ -642,6 +642,14 @@ fn assert_arg(arg: &Arg) {
         arg.name,
     );
 
+    assert_eq!(
+        arg.get_action().takes_value(),
+        arg.is_takes_value_set(),
+        "Argument `{}`'s selected action {:?} contradicts `takes_value`",
+        arg.name,
+        arg.get_action()
+    );
+
     if arg.get_value_hint() != ValueHint::Unknown {
         assert!(
             arg.is_takes_value_set(),
