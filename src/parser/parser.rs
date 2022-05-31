@@ -1157,6 +1157,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                 }
                 self.store_arg_values(arg, raw_vals, matcher)?;
+                if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
+                    // HACK: Maintain existing occurrence behavior
+                    let matched = matcher.get_mut(&arg.id).unwrap();
+                    matched.set_occurrences(matched.num_vals() as u64);
+                }
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
                     debug!(
                         "Parser::react not enough values passed in, leaving it to the validator to complain",

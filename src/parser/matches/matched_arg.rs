@@ -71,6 +71,10 @@ impl MatchedArg {
         self.occurs += 1;
     }
 
+    pub(crate) fn set_occurrences(&mut self, occurs: u64) {
+        self.occurs = occurs
+    }
+
     pub(crate) fn get_occurrences(&self) -> u64 {
         self.occurs
     }

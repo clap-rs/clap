@@ -385,7 +385,7 @@ fn positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -409,7 +409,7 @@ fn positional_exact_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -457,7 +457,7 @@ fn positional_min_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -487,7 +487,7 @@ fn positional_min_more() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 4);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -507,7 +507,7 @@ fn positional_max_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -527,7 +527,7 @@ fn positional_max_less() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 2);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -1139,7 +1139,7 @@ fn low_index_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 1);
+    assert_eq!(m.occurrences_of("files"), 3);
     assert!(m.is_present("target"));
     assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
@@ -1176,7 +1176,7 @@ fn low_index_positional_in_subcmd() {
     let sm = m.subcommand_matches("test").unwrap();
 
     assert!(sm.is_present("files"));
-    assert_eq!(sm.occurrences_of("files"), 1);
+    assert_eq!(sm.occurrences_of("files"), 3);
     assert!(sm.is_present("target"));
     assert_eq!(sm.occurrences_of("target"), 1);
     assert_eq!(
@@ -1212,7 +1212,7 @@ fn low_index_positional_with_option() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 1);
+    assert_eq!(m.occurrences_of("files"), 3);
     assert!(m.is_present("target"));
     assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
@@ -1250,7 +1250,7 @@ fn low_index_positional_with_flag() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 1);
+    assert_eq!(m.occurrences_of("files"), 3);
     assert!(m.is_present("target"));
     assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
@@ -1537,7 +1537,7 @@ fn values_per_occurrence_positional() {
             .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(m.occurrences_of("pos"), 2);
 
     let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2", "val3", "val4"]);
     let m = match m {
