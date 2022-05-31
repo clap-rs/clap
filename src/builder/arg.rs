@@ -1003,6 +1003,36 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Specify the behavior when parsing an argument
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .takes_value(true)
+    ///             .action(clap::builder::ArgAction::StoreValue)
+    ///     );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 1);
+    /// assert_eq!(
+    ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
+    ///     vec!["value"]
+    /// );
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn action(mut self, action: ArgAction) -> Self {
+        self.action = Some(action);
+        self
+    }
+
     /// Specify the type of the argument.
     ///
     /// This allows parsing and validating a value before storing it into
@@ -4531,7 +4561,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Behavior when parsing the argument
-    pub(crate) fn get_action(&self) -> &super::ArgAction {
+    pub fn get_action(&self) -> &super::ArgAction {
         const DEFAULT: super::ArgAction = super::ArgAction::StoreValue;
         self.action.as_ref().unwrap_or(&DEFAULT)
     }
