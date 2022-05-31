@@ -35,7 +35,6 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .takes_value(true)
     ///             .action(clap::builder::ArgAction::StoreValue)
     ///     );
     ///

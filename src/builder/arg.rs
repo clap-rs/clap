@@ -1014,7 +1014,6 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .takes_value(true)
     ///             .action(clap::builder::ArgAction::StoreValue)
     ///     );
     ///
@@ -4891,6 +4890,13 @@ impl<'help> Arg<'help> {
     pub(crate) fn _build(&mut self) {
         if self.is_positional() {
             self.settings.set(ArgSettings::TakesValue);
+        }
+        if let Some(action) = self.action.as_ref() {
+            if action.takes_value() {
+                self.settings.set(ArgSettings::TakesValue);
+            } else {
+                self.settings.unset(ArgSettings::TakesValue);
+            }
         }
 
         if self.value_parser.is_none() {
