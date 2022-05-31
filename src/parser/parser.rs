@@ -1070,13 +1070,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    fn store_arg_values(
+    fn push_arg_values(
         &self,
         arg: &Arg<'help>,
         raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
-        debug!("Parser::store_arg_values: {:?}", raw_vals);
+        debug!("Parser::push_arg_values: {:?}", raw_vals);
 
         for raw_val in raw_vals {
             // update the current index because each value is a distinct index to clap
@@ -1154,7 +1154,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     self.start_custom_arg(matcher, arg, source);
                 }
-                self.store_arg_values(arg, raw_vals, matcher)?;
+                self.push_arg_values(arg, raw_vals, matcher)?;
                 if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
                     // HACK: Maintain existing occurrence behavior
                     let matched = matcher.get_mut(&arg.id).unwrap();
@@ -1337,7 +1337,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         }
                     }
                     self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
-                    self.store_arg_values(arg, arg_values, matcher)?;
+                    self.push_arg_values(arg, arg_values, matcher)?;
                 }
                 None => {
                     debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
