@@ -55,6 +55,7 @@ pub use command::App;
 #[cfg(feature = "regex")]
 pub use self::regex::RegexRef;
 
+pub(crate) use action::CountType;
 pub(crate) use arg::display_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;
 pub(crate) use value_parser::ValueParserInner;

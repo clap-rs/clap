@@ -649,6 +649,16 @@ fn assert_arg(arg: &Arg) {
         arg.name,
         arg.get_action()
     );
+    if let Some(action_type_id) = arg.get_action().value_type_id() {
+        assert_eq!(
+            action_type_id,
+            arg.get_value_parser().type_id(),
+            "Argument `{}`'s selected action {:?} contradicts `value_parser` ({:?})",
+            arg.name,
+            arg.get_action(),
+            arg.get_value_parser()
+        );
+    }
 
     if arg.get_value_hint() != ValueHint::Unknown {
         assert!(
