@@ -672,6 +672,11 @@ fn assert_arg(arg: &Arg) {
             "Argument '{}' is a positional argument and can't have short or long name versions",
             arg.name
         );
+        assert!(
+            arg.is_takes_value_set(),
+            "Argument '{}` is positional, it must take a value",
+            arg.name
+        );
     }
 
     if arg.is_required_set() {
