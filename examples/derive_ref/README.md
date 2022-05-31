@@ -128,6 +128,9 @@ attributes.
 These correspond to a `clap::Command` which is used for both top-level parsers and
 when defining subcommands.
 
+**Raw attributes:**  Any [`Command` method](https://docs.rs/clap/latest/clap/type.Command.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
+- e.g. `#[clap(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
+
 **Magic attributes:**
 - `name  = <expr>`: `clap::Command::name`
   - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (`Parser` container), variant name (`Subcommand` variant)
@@ -163,12 +166,12 @@ And for `Subcommand` variants:
 - `external_subcommand`: `clap::Command::allow_external_subcommand(true)`
   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 
-**Raw attributes:**  Any [`Command` method](https://docs.rs/clap/latest/clap/type.Command.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
-- e.g. `#[clap(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
-
 ### Arg Attributes
 
 These correspond to a `clap::Arg`.
+
+**Raw attributes:**  Any [`Arg` method](https://docs.rs/clap/latest/clap/struct.Arg.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
+- e.g. `#[clap(max_values(3))]` would translate to `arg.max_values(3)`
 
 **Magic attributes**:
 - `name = <expr>`: `clap::Arg::new`
@@ -216,9 +219,6 @@ These correspond to a `clap::Arg`.
   - Requires `std::convert::Into<OsString>` or `#[clap(arg_enum)]`
   - Without `<expr>`, relies on `Default::default()`
 
-**Raw attributes:**  Any [`Arg` method](https://docs.rs/clap/latest/clap/struct.Arg.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
-- e.g. `#[clap(max_values(3))]` would translate to `arg.max_values(3)`
-
 ### Arg Enum Attributes
 
 - `rename_all = <expr>`: Override default field / variant name case conversion for `PossibleValue::new`
@@ -229,14 +229,14 @@ These correspond to a `clap::Arg`.
 
 These correspond to a `clap::PossibleValue`.
 
+**Raw attributes:**  Any [`PossibleValue` method](https://docs.rs/clap/latest/clap/struct.PossibleValue.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
+- e.g. `#[clap(alias("foo"))]` would translate to `pv.alias("foo")`
+
 **Magic attributes**:
 - `name = <expr>`: `clap::PossibleValue::new`
   - When not present: case-converted field name is used
 - `help = <expr>`: `clap::PossibleValue::help`
   - When not present: [Doc comment summary](#doc-comments)
-
-**Raw attributes:**  Any [`PossibleValue` method](https://docs.rs/clap/latest/clap/struct.PossibleValue.html) can also be used as an attribute, see [Terminology](#terminology) for syntax.
-- e.g. `#[clap(alias("foo"))]` would translate to `pv.alias("foo")`
 
 ## Arg Types
 
