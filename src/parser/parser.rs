@@ -1132,7 +1132,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         self.resolve_pending(matcher)?;
 
         debug!(
-            "Parser::react action={:?}, identifier={:?}, souce={:?}",
+            "Parser::react action={:?}, identifier={:?}, source={:?}",
             arg.get_action(),
             ident,
             source
