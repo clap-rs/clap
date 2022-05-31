@@ -18,7 +18,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::builder::usage_parser::UsageParser;
-use crate::builder::Action;
+use crate::builder::ArgAction;
 use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
 use crate::PossibleValue;
@@ -64,7 +64,7 @@ pub struct Arg<'help> {
     pub(crate) name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
-    pub(crate) action: Option<Action>,
+    pub(crate) action: Option<ArgAction>,
     pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
     pub(crate) settings: ArgFlags,
@@ -4531,8 +4531,8 @@ impl<'help> Arg<'help> {
     }
 
     /// Behavior when parsing the argument
-    pub(crate) fn get_action(&self) -> &super::Action {
-        const DEFAULT: super::Action = super::Action::StoreValue;
+    pub(crate) fn get_action(&self) -> &super::ArgAction {
+        const DEFAULT: super::ArgAction = super::ArgAction::StoreValue;
         self.action.as_ref().unwrap_or(&DEFAULT)
     }
 

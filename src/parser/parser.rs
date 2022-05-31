@@ -8,8 +8,8 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
-use crate::builder::Action;
 use crate::builder::AppSettings as AS;
+use crate::builder::ArgAction;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -1138,7 +1138,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             source
         );
         match arg.get_action() {
-            Action::StoreValue => {
+            ArgAction::StoreValue => {
                 if ident == Some(Identifier::Index)
                     && arg.is_multiple_values_set()
                     && matcher.contains(&arg.id)
@@ -1164,7 +1164,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
-            Action::Flag => {
+            ArgAction::Flag => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 if source == ValueSource::CommandLine {
                     if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
@@ -1179,7 +1179,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 matcher.add_index_to(&arg.id, self.cur_idx.get());
                 Ok(ParseResult::ValuesDone)
             }
-            Action::Help => {
+            ArgAction::Help => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
@@ -1190,7 +1190,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 debug!("Help: use_long={}", use_long);
                 Err(self.help_err(use_long, Stream::Stdout))
             }
-            Action::Version => {
+            ArgAction::Version => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
@@ -1260,8 +1260,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                 } else {
                     match arg.get_action() {
-                        Action::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
-                        Action::Flag => {
+                        ArgAction::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
+                        ArgAction::Flag => {
                             debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                             let predicate = str_to_bool(val.to_str_lossy());
                             debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
@@ -1276,7 +1276,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             }
                         }
                         // Early return on `Help` or `Version`.
-                        Action::Help | Action::Version => {
+                        ArgAction::Help | ArgAction::Version => {
                             let _ =
                                 self.react(None, ValueSource::EnvVariable, arg, vec![], matcher)?;
                         }

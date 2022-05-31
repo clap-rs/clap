@@ -4150,16 +4150,16 @@ impl<'help> App<'help> {
                 // compat, actions will reign supreme (default to `Store`)
                 if a.action.is_none() {
                     if a.get_id() == "help" && auto_help {
-                        let action = super::Action::Help;
+                        let action = super::ArgAction::Help;
                         a.action = Some(action);
                     } else if a.get_id() == "version" && auto_version {
-                        let action = super::Action::Version;
+                        let action = super::ArgAction::Version;
                         a.action = Some(action);
                     } else if a.is_takes_value_set() {
-                        let action = super::Action::StoreValue;
+                        let action = super::ArgAction::StoreValue;
                         a.action = Some(action);
                     } else {
-                        let action = super::Action::Flag;
+                        let action = super::ArgAction::Flag;
                         a.action = Some(action);
                     }
                 }
