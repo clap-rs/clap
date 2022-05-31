@@ -210,26 +210,35 @@ impl ArgMatcher {
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
-        debug!("ArgMatcher::needs_more_vals: o={}", o.name);
-        if let Some(ma) = self.get(&o.id) {
-            let current_num = ma.num_vals();
-            if let Some(num) = o.num_vals {
-                debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-                return if o.is_multiple_occurrences_set() {
-                    (current_num % num) != 0
-                } else {
-                    num != current_num
-                };
-            } else if let Some(num) = o.max_vals {
-                debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return current_num < num;
-            } else if o.min_vals.is_some() {
-                debug!("ArgMatcher::needs_more_vals: min_vals...true");
-                return true;
+        let num_resolved = self.get(&o.id).map(|ma| ma.num_vals()).unwrap_or(0);
+        let num_pending = self
+            .pending
+            .as_ref()
+            .and_then(|p| (p.id == o.id).then(|| p.raw_vals.len()))
+            .unwrap_or(0);
+        let current_num = num_resolved + num_pending;
+        debug!(
+            "ArgMatcher::needs_more_vals: o={}, resolved={}, pending={}",
+            o.name, num_resolved, num_pending
+        );
+        if current_num == 0 {
+            true
+        } else if let Some(num) = o.num_vals {
+            debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
+            if o.is_multiple_occurrences_set() {
+                (current_num % num) != 0
+            } else {
+                num != current_num
             }
-            return o.is_multiple_values_set();
+        } else if let Some(num) = o.max_vals {
+            debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
+            current_num < num
+        } else if o.min_vals.is_some() {
+            debug!("ArgMatcher::needs_more_vals: min_vals...true");
+            true
+        } else {
+            o.is_multiple_values_set()
         }
-        true
     }
 
     pub(crate) fn pending_arg_id(&self) -> Option<&Id> {
@@ -247,7 +256,9 @@ impl ArgMatcher {
             raw_vals: Default::default(),
         });
         debug_assert_eq!(pending.id, *id, "{}", INTERNAL_ERROR_MSG);
-        debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
+        if ident.is_some() {
+            debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
+        }
         &mut pending.raw_vals
     }
 

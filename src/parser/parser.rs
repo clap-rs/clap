@@ -345,15 +345,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // Assume this is a value of a previous arg.
 
                     // get the option so we can check the settings
-                    let mut arg_values = Vec::new();
+                    let arg_values = matcher.pending_values_mut(&id, None);
                     let arg = &self.cmd[id];
                     let parse_result = self.push_arg_values(
                         arg,
                         arg_os.to_value_os(),
                         trailing_values,
-                        &mut arg_values,
+                        arg_values,
                     );
-                    self.store_arg_values(arg, arg_values, matcher)?;
                     let parse_result = parse_result.unwrap_or_else(|| {
                         if matcher.needs_more_vals(arg) {
                             ParseResult::Opt(arg.id.clone())
@@ -720,10 +719,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             return Ok(ParseResult::MaybeHyphenValue);
         }
 
-        // Update the current index
-        self.cur_idx.set(self.cur_idx.get() + 1);
-        debug!("Parser::parse_long_arg: cur_idx:={}", self.cur_idx.get());
-
         debug!("Parser::parse_long_arg: Does it contain '='...");
         let long_arg = match long_arg {
             Ok(long_arg) => long_arg,
@@ -870,14 +865,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             };
             debug!("Parser::parse_short_arg:iter:{}", c);
 
-            // update each index because `-abcd` is four indices to clap
-            self.cur_idx.set(self.cur_idx.get() + 1);
-            debug!(
-                "Parser::parse_short_arg:iter:{}: cur_idx:={}",
-                c,
-                self.cur_idx.get()
-            );
-
             // Check for matching short options, and return the name if there is no trailing
             // concatenated value: -oval
             // Option: -o
@@ -925,6 +912,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
             return if let Some(sc_name) = self.cmd.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
+                // Make sure indices get updated before reading `self.cur_idx`
+                self.resolve_pending(matcher)?;
+                self.cur_idx.set(self.cur_idx.get() + 1);
+                debug!("Parser::parse_short_arg: cur_idx:={}", self.cur_idx.get());
+
                 let name = sc_name.to_string();
                 // Get the index of the previously saved flag subcommand in the group of flags (if exists).
                 // If it is a new flag subcommand, then the formentioned index should be the current one
@@ -1028,7 +1020,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             Ok(parse_result)
         } else {
             debug!("Parser::parse_opt_value: More arg vals required...");
-            self.start_occurrence_of_arg(matcher, arg);
+            self.resolve_pending(matcher)?;
+            matcher.pending_values_mut(&arg.id, Some(ident));
             Ok(ParseResult::Opt(arg.id.clone()))
         }
     }
@@ -1147,6 +1140,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         match arg.get_action() {
             Action::StoreValue => {
                 if source == ValueSource::CommandLine {
+                    if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
+                        // Record flag's index
+                        self.cur_idx.set(self.cur_idx.get() + 1);
+                        debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
+                    }
                     self.start_occurrence_of_arg(matcher, arg);
                 } else {
                     self.start_custom_arg(matcher, arg, source);
@@ -1162,6 +1160,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             Action::Flag => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 if source == ValueSource::CommandLine {
+                    if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
+                        // Record flag's index
+                        self.cur_idx.set(self.cur_idx.get() + 1);
+                        debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
+                    }
                     self.start_occurrence_of_arg(matcher, arg);
                 } else {
                     self.start_custom_arg(matcher, arg, source);

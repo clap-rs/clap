@@ -190,8 +190,8 @@ fn grouped_interleaved_positional_values() {
         .try_get_matches_from(["foo", "1", "2", "-f", "a", "3", "-f", "b", "4"])
         .unwrap();
     let pos: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
-    assert_eq!(pos, vec![vec!["1", "2", "3", "4"]]);
-    assert_eq!(m.occurrences_of("pos"), 1);
+    assert_eq!(pos, vec![vec!["1", "2"], vec!["3"], vec!["4"]]);
+    assert_eq!(m.occurrences_of("pos"), 3);
     let flag: Vec<_> = m.grouped_values_of("flag").unwrap().collect();
     assert_eq!(flag, vec![vec!["a"], vec!["b"]]);
     assert_eq!(m.occurrences_of("flag"), 2);
