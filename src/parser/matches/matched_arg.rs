@@ -71,6 +71,10 @@ impl MatchedArg {
         self.occurs += 1;
     }
 
+    pub(crate) fn set_occurrences(&mut self, occurs: u64) {
+        self.occurs = occurs
+    }
+
     pub(crate) fn get_occurrences(&self) -> u64 {
         self.occurs
     }
@@ -128,7 +132,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn num_vals(&self) -> usize {
-        self.vals.iter().flatten().count()
+        self.vals.iter().map(|v| v.len()).sum()
     }
 
     // Will be used later

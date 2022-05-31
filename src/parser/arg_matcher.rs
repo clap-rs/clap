@@ -7,40 +7,48 @@ use std::ops::Deref;
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command};
 use crate::parser::AnyValue;
+use crate::parser::Identifier;
+use crate::parser::PendingArg;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Default)]
-pub(crate) struct ArgMatcher(ArgMatches);
+pub(crate) struct ArgMatcher {
+    matches: ArgMatches,
+    pending: Option<PendingArg>,
+}
 
 impl ArgMatcher {
     pub(crate) fn new(_cmd: &Command) -> Self {
-        ArgMatcher(ArgMatches {
-            #[cfg(debug_assertions)]
-            valid_args: {
-                let args = _cmd.get_arguments().map(|a| a.id.clone());
-                let groups = _cmd.get_groups().map(|g| g.id.clone());
-                args.chain(groups).collect()
+        ArgMatcher {
+            matches: ArgMatches {
+                #[cfg(debug_assertions)]
+                valid_args: {
+                    let args = _cmd.get_arguments().map(|a| a.id.clone());
+                    let groups = _cmd.get_groups().map(|g| g.id.clone());
+                    args.chain(groups).collect()
+                },
+                #[cfg(debug_assertions)]
+                valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
+                // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
+                // since users can't detect it and avoid the asserts.
+                //
+                // See clap-rs/clap#3263
+                #[cfg(debug_assertions)]
+                #[cfg(not(feature = "unstable-v4"))]
+                disable_asserts: _cmd.is_allow_external_subcommands_set(),
+                #[cfg(debug_assertions)]
+                #[cfg(feature = "unstable-v4")]
+                disable_asserts: false,
+                ..Default::default()
             },
-            #[cfg(debug_assertions)]
-            valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
-            // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
-            // since users can't detect it and avoid the asserts.
-            //
-            // See clap-rs/clap#3263
-            #[cfg(debug_assertions)]
-            #[cfg(not(feature = "unstable-v4"))]
-            disable_asserts: _cmd.is_allow_external_subcommands_set(),
-            #[cfg(debug_assertions)]
-            #[cfg(feature = "unstable-v4")]
-            disable_asserts: false,
-            ..Default::default()
-        })
+            pending: None,
+        }
     }
 
     pub(crate) fn into_inner(self) -> ArgMatches {
-        self.0
+        self.matches
     }
 
     pub(crate) fn propagate_globals(&mut self, global_arg_vec: &[Id]) {
@@ -78,51 +86,54 @@ impl ArgMatcher {
                 vals_map.insert(global_arg.clone(), to_update);
             }
         }
-        if let Some(ref mut sc) = self.0.subcommand {
-            let mut am = ArgMatcher(mem::take(&mut sc.matches));
+        if let Some(ref mut sc) = self.matches.subcommand {
+            let mut am = ArgMatcher {
+                matches: mem::take(&mut sc.matches),
+                pending: None,
+            };
             am.fill_in_global_values(global_arg_vec, vals_map);
-            mem::swap(&mut am.0, &mut sc.matches);
+            mem::swap(&mut am.matches, &mut sc.matches);
         }
 
         for (name, matched_arg) in vals_map.iter_mut() {
-            self.0.args.insert(name.clone(), matched_arg.clone());
+            self.matches.args.insert(name.clone(), matched_arg.clone());
         }
     }
 
     pub(crate) fn get(&self, arg: &Id) -> Option<&MatchedArg> {
-        self.0.args.get(arg)
+        self.matches.args.get(arg)
     }
 
     pub(crate) fn get_mut(&mut self, arg: &Id) -> Option<&mut MatchedArg> {
-        self.0.args.get_mut(arg)
+        self.matches.args.get_mut(arg)
     }
 
     pub(crate) fn remove(&mut self, arg: &Id) {
-        self.0.args.swap_remove(arg);
+        self.matches.args.swap_remove(arg);
     }
 
     pub(crate) fn contains(&self, arg: &Id) -> bool {
-        self.0.args.contains_key(arg)
+        self.matches.args.contains_key(arg)
     }
 
     pub(crate) fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> {
-        self.0.args.keys()
+        self.matches.args.keys()
     }
 
     pub(crate) fn entry(&mut self, arg: &Id) -> indexmap::map::Entry<Id, MatchedArg> {
-        self.0.args.entry(arg.clone())
+        self.matches.args.entry(arg.clone())
     }
 
     pub(crate) fn subcommand(&mut self, sc: SubCommand) {
-        self.0.subcommand = Some(Box::new(sc));
+        self.matches.subcommand = Some(Box::new(sc));
     }
 
     pub(crate) fn subcommand_name(&self) -> Option<&str> {
-        self.0.subcommand_name()
+        self.matches.subcommand_name()
     }
 
     pub(crate) fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> {
-        self.0.args.iter()
+        self.matches.args.iter()
     }
 
     pub(crate) fn check_explicit<'a>(&self, arg: &Id, predicate: ArgPredicate<'a>) -> bool {
@@ -199,26 +210,60 @@ impl ArgMatcher {
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
-        debug!("ArgMatcher::needs_more_vals: o={}", o.name);
-        if let Some(ma) = self.get(&o.id) {
-            let current_num = ma.num_vals();
-            if let Some(num) = o.num_vals {
-                debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-                return if o.is_multiple_occurrences_set() {
-                    (current_num % num) != 0
-                } else {
-                    num != current_num
-                };
-            } else if let Some(num) = o.max_vals {
-                debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return current_num < num;
-            } else if o.min_vals.is_some() {
-                debug!("ArgMatcher::needs_more_vals: min_vals...true");
-                return true;
+        let num_resolved = self.get(&o.id).map(|ma| ma.num_vals()).unwrap_or(0);
+        let num_pending = self
+            .pending
+            .as_ref()
+            .and_then(|p| (p.id == o.id).then(|| p.raw_vals.len()))
+            .unwrap_or(0);
+        let current_num = num_resolved + num_pending;
+        debug!(
+            "ArgMatcher::needs_more_vals: o={}, resolved={}, pending={}",
+            o.name, num_resolved, num_pending
+        );
+        if current_num == 0 {
+            true
+        } else if let Some(num) = o.num_vals {
+            debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
+            if o.is_multiple_occurrences_set() {
+                (current_num % num) != 0
+            } else {
+                num != current_num
             }
-            return o.is_multiple_values_set();
+        } else if let Some(num) = o.max_vals {
+            debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
+            current_num < num
+        } else if o.min_vals.is_some() {
+            debug!("ArgMatcher::needs_more_vals: min_vals...true");
+            true
+        } else {
+            o.is_multiple_values_set()
         }
-        true
+    }
+
+    pub(crate) fn pending_arg_id(&self) -> Option<&Id> {
+        self.pending.as_ref().map(|p| &p.id)
+    }
+
+    pub(crate) fn pending_values_mut(
+        &mut self,
+        id: &Id,
+        ident: Option<Identifier>,
+    ) -> &mut Vec<OsString> {
+        let pending = self.pending.get_or_insert_with(|| PendingArg {
+            id: id.clone(),
+            ident,
+            raw_vals: Default::default(),
+        });
+        debug_assert_eq!(pending.id, *id, "{}", INTERNAL_ERROR_MSG);
+        if ident.is_some() {
+            debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
+        }
+        &mut pending.raw_vals
+    }
+
+    pub(crate) fn take_pending(&mut self) -> Option<PendingArg> {
+        self.pending.take()
     }
 }
 
@@ -226,6 +271,6 @@ impl Deref for ArgMatcher {
     type Target = ArgMatches;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.matches
     }
 }
