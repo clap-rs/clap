@@ -1167,7 +1167,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
-            ArgAction::Flag => {
+            ArgAction::IncOccurrence => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 if source == ValueSource::CommandLine {
                     if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
@@ -1264,7 +1264,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     match arg.get_action() {
                         ArgAction::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
-                        ArgAction::Flag => {
+                        ArgAction::IncOccurrence => {
                             debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                             let predicate = str_to_bool(val.to_str_lossy());
                             debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);

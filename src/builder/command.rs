@@ -4159,7 +4159,7 @@ impl<'help> App<'help> {
                         let action = super::ArgAction::StoreValue;
                         a.action = Some(action);
                     } else {
-                        let action = super::ArgAction::Flag;
+                        let action = super::ArgAction::IncOccurrence;
                         a.action = Some(action);
                     }
                 }

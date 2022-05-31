@@ -3,7 +3,7 @@
 #[non_exhaustive]
 pub(crate) enum ArgAction {
     StoreValue,
-    Flag,
+    IncOccurrence,
     Help,
     Version,
 }
