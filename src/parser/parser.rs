@@ -345,7 +345,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // Assume this is a value of a previous arg.
 
                     // get the option so we can check the settings
-                    let arg_values = matcher.pending_values_mut(&id, None);
+                    let arg_values = matcher.pending_values_mut(id, None);
                     let arg = &self.cmd[id];
                     let parse_result = self.push_arg_values(
                         arg,
@@ -1144,17 +1144,15 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     && matcher.contains(&arg.id)
                 {
                     // HACK: Reuse existing occurrence
-                } else {
-                    if source == ValueSource::CommandLine {
-                        if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
-                            // Record flag's index
-                            self.cur_idx.set(self.cur_idx.get() + 1);
-                            debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                        }
-                        self.start_occurrence_of_arg(matcher, arg);
-                    } else {
-                        self.start_custom_arg(matcher, arg, source);
+                } else if source == ValueSource::CommandLine {
+                    if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
+                        // Record flag's index
+                        self.cur_idx.set(self.cur_idx.get() + 1);
+                        debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
                     }
+                    self.start_occurrence_of_arg(matcher, arg);
+                } else {
+                    self.start_custom_arg(matcher, arg, source);
                 }
                 self.store_arg_values(arg, raw_vals, matcher)?;
                 if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
