@@ -1139,15 +1139,22 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         );
         match arg.get_action() {
             Action::StoreValue => {
-                if source == ValueSource::CommandLine {
-                    if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
-                        // Record flag's index
-                        self.cur_idx.set(self.cur_idx.get() + 1);
-                        debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                    }
-                    self.start_occurrence_of_arg(matcher, arg);
+                if ident == Some(Identifier::Index)
+                    && arg.is_multiple_values_set()
+                    && matcher.contains(&arg.id)
+                {
+                    // HACK: Reuse existing occurrence
                 } else {
-                    self.start_custom_arg(matcher, arg, source);
+                    if source == ValueSource::CommandLine {
+                        if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
+                            // Record flag's index
+                            self.cur_idx.set(self.cur_idx.get() + 1);
+                            debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
+                        }
+                        self.start_occurrence_of_arg(matcher, arg);
+                    } else {
+                        self.start_custom_arg(matcher, arg, source);
+                    }
                 }
                 self.store_arg_values(arg, raw_vals, matcher)?;
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
