@@ -971,7 +971,7 @@ impl Parser {
             ),
             ParserKind::FromOccurrences => Method::new(
                 func,
-                quote_spanned! { self.kind.span()=> clap::value_parser!(usize)},
+                quote_spanned! { self.kind.span()=> clap::value_parser!(u64)},
             ),
             ParserKind::FromFlag => Method::new(
                 func,
