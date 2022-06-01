@@ -1138,6 +1138,41 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             source
         );
         match arg.get_action() {
+            ArgAction::Set => {
+                if source == ValueSource::CommandLine
+                    && matches!(ident, Some(Identifier::Short) | Some(Identifier::Long))
+                {
+                    // Record flag's index
+                    self.cur_idx.set(self.cur_idx.get() + 1);
+                    debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
+                }
+                matcher.remove(&arg.id);
+                self.start_custom_arg(matcher, arg, source);
+                self.push_arg_values(arg, raw_vals, matcher)?;
+                if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
+                    debug!(
+                        "Parser::react not enough values passed in, leaving it to the validator to complain",
+                    );
+                }
+                Ok(ParseResult::ValuesDone)
+            }
+            ArgAction::Append => {
+                if source == ValueSource::CommandLine
+                    && matches!(ident, Some(Identifier::Short) | Some(Identifier::Long))
+                {
+                    // Record flag's index
+                    self.cur_idx.set(self.cur_idx.get() + 1);
+                    debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
+                }
+                self.start_custom_arg(matcher, arg, source);
+                self.push_arg_values(arg, raw_vals, matcher)?;
+                if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
+                    debug!(
+                        "Parser::react not enough values passed in, leaving it to the validator to complain",
+                    );
+                }
+                Ok(ParseResult::ValuesDone)
+            }
             ArgAction::StoreValue => {
                 if ident == Some(Identifier::Index)
                     && arg.is_multiple_values_set()
@@ -1189,10 +1224,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                     1 => raw_vals,
                     _ => {
-                        panic!(
-                            "Argument {:?} received too many values: {:?}",
-                            arg.id, raw_vals
-                        )
+                        debug!("Parser::react ignoring trailing values: {:?}", raw_vals);
+                        let mut raw_vals = raw_vals;
+                        raw_vals.resize(1, Default::default());
+                        raw_vals
                     }
                 };
 
@@ -1208,10 +1243,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                     1 => raw_vals,
                     _ => {
-                        panic!(
-                            "Argument {:?} received too many values: {:?}",
-                            arg.id, raw_vals
-                        )
+                        debug!("Parser::react ignoring trailing values: {:?}", raw_vals);
+                        let mut raw_vals = raw_vals;
+                        raw_vals.resize(1, Default::default());
+                        raw_vals
                     }
                 };
 
@@ -1231,10 +1266,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                     1 => raw_vals,
                     _ => {
-                        panic!(
-                            "Argument {:?} received too many values: {:?}",
-                            arg.id, raw_vals
-                        )
+                        debug!("Parser::react ignoring trailing values: {:?}", raw_vals);
+                        let mut raw_vals = raw_vals;
+                        raw_vals.resize(1, Default::default());
+                        raw_vals
                     }
                 };
 
@@ -1339,14 +1374,26 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 )?;
                             }
                         }
-                        ArgAction::SetTrue | ArgAction::SetFalse | ArgAction::Count => {
+                        ArgAction::Set
+                        | ArgAction::Append
+                        | ArgAction::SetTrue
+                        | ArgAction::SetFalse
+                        | ArgAction::Count => {
+                            let mut arg_values = Vec::new();
+                            let _parse_result =
+                                self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
                             let _ = self.react(
                                 None,
                                 ValueSource::EnvVariable,
                                 arg,
-                                vec![val.to_os_str().into_owned()],
+                                arg_values,
                                 matcher,
                             )?;
+                            if let Some(_parse_result) = _parse_result {
+                                if _parse_result != ParseResult::ValuesDone {
+                                    debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
+                                }
+                            }
                         }
                         // Early return on `Help` or `Version`.
                         ArgAction::Help | ArgAction::Version => {

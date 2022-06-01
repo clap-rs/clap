@@ -35,6 +35,53 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
+    ///             .action(clap::builder::ArgAction::Set)
+    ///     );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
+    ///     vec!["value"]
+    /// );
+    /// ```
+    Set,
+    /// When encountered, store the associated value(s) in [`ArgMatches`][crate::ArgMatches]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .multiple_occurrences(true)
+    ///             .action(clap::builder::ArgAction::Append)
+    ///     );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value1", "--flag", "value2"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
+    ///     vec!["value1", "value2"]
+    /// );
+    /// ```
+    Append,
+    /// When encountered, store the associated value(s) in [`ArgMatches`][crate::ArgMatches]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
     ///             .action(clap::builder::ArgAction::StoreValue)
     ///     );
     ///
@@ -201,6 +248,8 @@ pub enum ArgAction {
 impl ArgAction {
     pub(crate) fn takes_value(&self) -> bool {
         match self {
+            Self::Set => true,
+            Self::Append => true,
             Self::StoreValue => true,
             Self::IncOccurrence => false,
             Self::SetTrue => false,
@@ -213,6 +262,8 @@ impl ArgAction {
 
     pub(crate) fn default_value_parser(&self) -> Option<super::ValueParser> {
         match self {
+            Self::Set => None,
+            Self::Append => None,
             Self::StoreValue => None,
             Self::IncOccurrence => None,
             Self::SetTrue => Some(super::ValueParser::bool()),
@@ -228,6 +279,8 @@ impl ArgAction {
         use crate::parser::AnyValueId;
 
         match self {
+            Self::Set => None,
+            Self::Append => None,
             Self::StoreValue => None,
             Self::IncOccurrence => None,
             Self::SetTrue => Some(AnyValueId::of::<bool>()),

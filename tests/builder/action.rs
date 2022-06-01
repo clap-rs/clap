@@ -5,6 +5,77 @@ use clap::Arg;
 use clap::Command;
 
 #[test]
+fn set() {
+    let cmd = Command::new("test").arg(Arg::new("mammal").long("mammal").action(ArgAction::Set));
+
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(matches.get_one::<String>("mammal"), None);
+    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(matches.occurrences_of("mammal"), 0);
+    assert_eq!(matches.index_of("mammal"), None);
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "dog"])
+        .unwrap();
+    assert_eq!(matches.get_one::<String>("mammal").unwrap(), "dog");
+    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.occurrences_of("mammal"), 0);
+    assert_eq!(matches.index_of("mammal"), Some(2));
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "dog", "--mammal", "cat"])
+        .unwrap();
+    assert_eq!(matches.get_one::<String>("mammal").unwrap(), "cat");
+    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.occurrences_of("mammal"), 0);
+    assert_eq!(matches.index_of("mammal"), Some(4));
+}
+
+#[test]
+fn append() {
+    let cmd = Command::new("test").arg(Arg::new("mammal").long("mammal").action(ArgAction::Append));
+
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(matches.get_one::<String>("mammal"), None);
+    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(matches.occurrences_of("mammal"), 0);
+    assert_eq!(matches.index_of("mammal"), None);
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "dog"])
+        .unwrap();
+    assert_eq!(matches.get_one::<String>("mammal").unwrap(), "dog");
+    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.occurrences_of("mammal"), 0);
+    assert_eq!(
+        matches.indices_of("mammal").unwrap().collect::<Vec<_>>(),
+        vec![2]
+    );
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "dog", "--mammal", "cat"])
+        .unwrap();
+    assert_eq!(
+        matches
+            .get_many::<String>("mammal")
+            .unwrap()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>(),
+        vec!["dog", "cat"]
+    );
+    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.occurrences_of("mammal"), 0);
+    assert_eq!(
+        matches.indices_of("mammal").unwrap().collect::<Vec<_>>(),
+        vec![2, 4]
+    );
+}
+
+#[test]
 fn set_true() {
     let cmd =
         Command::new("test").arg(Arg::new("mammal").long("mammal").action(ArgAction::SetTrue));
