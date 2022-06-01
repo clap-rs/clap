@@ -1183,13 +1183,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::SetTrue => {
-                if source == ValueSource::CommandLine
-                    && matches!(ident, Some(Identifier::Short) | Some(Identifier::Long))
-                {
-                    // Record flag's index
-                    self.cur_idx.set(self.cur_idx.get() + 1);
-                    debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                }
                 let raw_vals = match raw_vals.len() {
                     0 => {
                         vec![OsString::from("true")]
@@ -1209,13 +1202,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::SetFalse => {
-                if source == ValueSource::CommandLine
-                    && matches!(ident, Some(Identifier::Short) | Some(Identifier::Long))
-                {
-                    // Record flag's index
-                    self.cur_idx.set(self.cur_idx.get() + 1);
-                    debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                }
                 let raw_vals = match raw_vals.len() {
                     0 => {
                         vec![OsString::from("false")]
@@ -1235,13 +1221,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::Count => {
-                if source == ValueSource::CommandLine
-                    && matches!(ident, Some(Identifier::Short) | Some(Identifier::Long))
-                {
-                    // Record flag's index
-                    self.cur_idx.set(self.cur_idx.get() + 1);
-                    debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                }
                 let raw_vals = match raw_vals.len() {
                     0 => {
                         let existing_value = *matcher
