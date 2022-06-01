@@ -104,6 +104,36 @@ fn set_true_with_default_value_if_value() {
 }
 
 #[test]
+fn set_true_with_required_if_eq() {
+    let cmd = Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::SetTrue)
+                .required_if_eq("dog", "true"),
+        )
+        .arg(Arg::new("dog").long("dog").action(ArgAction::SetTrue));
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal"])
+        .unwrap();
+    assert_eq!(matches.get_one::<u64>("dog"), None);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
+
+    cmd.clone()
+        .try_get_matches_from(["test", "--dog"])
+        .unwrap_err();
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--dog", "--mammal"])
+        .unwrap();
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
+}
+
+#[test]
 fn set_false() {
     let cmd = Command::new("test").arg(
         Arg::new("mammal")
