@@ -1385,12 +1385,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn add_defaults(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
-        for arg in self.cmd.get_opts() {
-            debug!("Parser::add_defaults:iter:{}:", arg.name);
-            self.add_default_value(arg, matcher)?;
-        }
-
-        for arg in self.cmd.get_positionals() {
+        for arg in self.cmd.get_arguments() {
             debug!("Parser::add_defaults:iter:{}:", arg.name);
             self.add_default_value(arg, matcher)?;
         }
