@@ -167,7 +167,7 @@ pub enum ArgAction {
     /// );
     /// ```
     SetFalse,
-    /// When encountered, increment a counter
+    /// When encountered, increment a `u64` counter
     ///
     /// No value is allowed
     ///
