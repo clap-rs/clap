@@ -4900,7 +4900,9 @@ impl<'help> Arg<'help> {
         }
 
         if self.value_parser.is_none() {
-            if self.is_allow_invalid_utf8_set() {
+            if let Some(default) = self.action.as_ref().and_then(|a| a.default_value_parser()) {
+                self.value_parser = Some(default);
+            } else if self.is_allow_invalid_utf8_set() {
                 self.value_parser = Some(super::ValueParser::os_string());
             } else {
                 self.value_parser = Some(super::ValueParser::string());

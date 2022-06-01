@@ -70,6 +70,81 @@ pub enum ArgAction {
     /// assert_eq!(matches.get_many::<String>("flag").unwrap_or_default().count(), 0);
     /// ```
     IncOccurrence,
+    /// When encountered, act as if `"true"` was encountered on the command-line
+    ///
+    /// No value is allowed
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::builder::ArgAction::SetTrue)
+    ///     );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_one::<bool>("flag").copied(),
+    ///     Some(true)
+    /// );
+    /// ```
+    SetTrue,
+    /// When encountered, act as if `"false"` was encountered on the command-line
+    ///
+    /// No value is allowed
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::builder::ArgAction::SetFalse)
+    ///     );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_one::<bool>("flag").copied(),
+    ///     Some(false)
+    /// );
+    /// ```
+    SetFalse,
+    /// When encountered, increment a counter
+    ///
+    /// No value is allowed
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::builder::ArgAction::Count)
+    ///     );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_one::<u64>("flag").copied(),
+    ///     Some(2)
+    /// );
+    /// ```
+    Count,
     /// When encountered, display [`Command::print_help`][super::App::print_help]
     ///
     /// Depending on the flag, [`Command::print_long_help`][super::App::print_long_help] may be shown
@@ -128,8 +203,40 @@ impl ArgAction {
         match self {
             Self::StoreValue => true,
             Self::IncOccurrence => false,
+            Self::SetTrue => false,
+            Self::SetFalse => false,
+            Self::Count => false,
             Self::Help => false,
             Self::Version => false,
         }
     }
+
+    pub(crate) fn default_value_parser(&self) -> Option<super::ValueParser> {
+        match self {
+            Self::StoreValue => None,
+            Self::IncOccurrence => None,
+            Self::SetTrue => Some(super::ValueParser::bool()),
+            Self::SetFalse => Some(super::ValueParser::bool()),
+            Self::Count => Some(crate::value_parser!(u64)),
+            Self::Help => None,
+            Self::Version => None,
+        }
+    }
+
+    #[cfg(debug_assertions)]
+    pub(crate) fn value_type_id(&self) -> Option<crate::parser::AnyValueId> {
+        use crate::parser::AnyValueId;
+
+        match self {
+            Self::StoreValue => None,
+            Self::IncOccurrence => None,
+            Self::SetTrue => Some(AnyValueId::of::<bool>()),
+            Self::SetFalse => Some(AnyValueId::of::<bool>()),
+            Self::Count => Some(AnyValueId::of::<CountType>()),
+            Self::Help => None,
+            Self::Version => None,
+        }
+    }
 }
+
+pub(crate) type CountType = u64;

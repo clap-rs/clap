@@ -1,3 +1,4 @@
+mod action;
 mod app_from_crate;
 mod app_settings;
 mod arg_aliases;

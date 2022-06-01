@@ -1182,6 +1182,67 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 matcher.add_index_to(&arg.id, self.cur_idx.get());
                 Ok(ParseResult::ValuesDone)
             }
+            ArgAction::SetTrue => {
+                let raw_vals = match raw_vals.len() {
+                    0 => {
+                        vec![OsString::from("true")]
+                    }
+                    1 => raw_vals,
+                    _ => {
+                        panic!(
+                            "Argument {:?} received too many values: {:?}",
+                            arg.id, raw_vals
+                        )
+                    }
+                };
+
+                matcher.remove(&arg.id);
+                self.start_custom_arg(matcher, arg, source);
+                self.push_arg_values(arg, raw_vals, matcher)?;
+                Ok(ParseResult::ValuesDone)
+            }
+            ArgAction::SetFalse => {
+                let raw_vals = match raw_vals.len() {
+                    0 => {
+                        vec![OsString::from("false")]
+                    }
+                    1 => raw_vals,
+                    _ => {
+                        panic!(
+                            "Argument {:?} received too many values: {:?}",
+                            arg.id, raw_vals
+                        )
+                    }
+                };
+
+                matcher.remove(&arg.id);
+                self.start_custom_arg(matcher, arg, source);
+                self.push_arg_values(arg, raw_vals, matcher)?;
+                Ok(ParseResult::ValuesDone)
+            }
+            ArgAction::Count => {
+                let raw_vals = match raw_vals.len() {
+                    0 => {
+                        let existing_value = *matcher
+                            .get_one::<crate::builder::CountType>(arg.get_id())
+                            .unwrap_or(&0);
+                        let next_value = existing_value + 1;
+                        vec![OsString::from(next_value.to_string())]
+                    }
+                    1 => raw_vals,
+                    _ => {
+                        panic!(
+                            "Argument {:?} received too many values: {:?}",
+                            arg.id, raw_vals
+                        )
+                    }
+                };
+
+                matcher.remove(&arg.id);
+                self.start_custom_arg(matcher, arg, source);
+                self.push_arg_values(arg, raw_vals, matcher)?;
+                Ok(ParseResult::ValuesDone)
+            }
             ArgAction::Help => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
@@ -1278,6 +1339,15 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 )?;
                             }
                         }
+                        ArgAction::SetTrue | ArgAction::SetFalse | ArgAction::Count => {
+                            let _ = self.react(
+                                None,
+                                ValueSource::EnvVariable,
+                                arg,
+                                vec![val.to_os_str().into_owned()],
+                                matcher,
+                            )?;
+                        }
                         // Early return on `Help` or `Version`.
                         ArgAction::Help | ArgAction::Version => {
                             let _ =
@@ -1294,12 +1364,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn add_defaults(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
-        for arg in self.cmd.get_opts() {
-            debug!("Parser::add_defaults:iter:{}:", arg.name);
-            self.add_default_value(arg, matcher)?;
-        }
-
-        for arg in self.cmd.get_positionals() {
+        for arg in self.cmd.get_arguments() {
             debug!("Parser::add_defaults:iter:{}:", arg.name);
             self.add_default_value(arg, matcher)?;
         }
