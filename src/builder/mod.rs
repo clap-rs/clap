@@ -24,6 +24,7 @@ mod debug_asserts;
 #[cfg(test)]
 mod tests;
 
+pub use action::ArgAction;
 pub use app_settings::{AppFlags, AppSettings};
 pub use arg::Arg;
 pub use arg_group::ArgGroup;
@@ -54,7 +55,6 @@ pub use command::App;
 #[cfg(feature = "regex")]
 pub use self::regex::RegexRef;
 
-pub(crate) use action::ArgAction;
 pub(crate) use arg::display_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;
 pub(crate) use value_parser::ValueParserInner;

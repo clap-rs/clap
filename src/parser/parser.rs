@@ -347,7 +347,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // get the option so we can check the settings
                     let arg_values = matcher.pending_values_mut(id, None);
                     let arg = &self.cmd[id];
-                    let parse_result = self.push_arg_values(
+                    let parse_result = self.split_arg_values(
                         arg,
                         arg_os.to_value_os(),
                         trailing_values,
@@ -389,7 +389,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 let arg_values = matcher.pending_values_mut(&arg.id, Some(Identifier::Index));
                 let _parse_result =
-                    self.push_arg_values(arg, arg_os.to_value_os(), trailing_values, arg_values);
+                    self.split_arg_values(arg, arg_os.to_value_os(), trailing_values, arg_values);
                 if let Some(_parse_result) = _parse_result {
                     if _parse_result != ParseResult::ValuesDone {
                         debug!(
@@ -963,7 +963,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     debug!("Parser::parse_opt_value: has default_missing_vals");
                     for v in arg.default_missing_vals.iter() {
                         let trailing_values = false; // CLI should not be affecting default_missing_values
-                        let _parse_result = self.push_arg_values(
+                        let _parse_result = self.split_arg_values(
                             arg,
                             &RawOsStr::new(v),
                             trailing_values,
@@ -997,7 +997,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             }
         } else if let Some(v) = attached_value {
             let mut arg_values = Vec::new();
-            let parse_result = self.push_arg_values(arg, v, trailing_values, &mut arg_values);
+            let parse_result = self.split_arg_values(arg, v, trailing_values, &mut arg_values);
             let react_result = self.react(
                 Some(ident),
                 ValueSource::CommandLine,
@@ -1026,16 +1026,16 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    fn push_arg_values(
+    fn split_arg_values(
         &self,
         arg: &Arg<'help>,
         val: &RawOsStr,
         trailing_values: bool,
         output: &mut Vec<OsString>,
     ) -> Option<ParseResult> {
-        debug!("Parser::push_arg_values; arg={}, val={:?}", arg.name, val);
+        debug!("Parser::split_arg_values; arg={}, val={:?}", arg.name, val);
         debug!(
-            "Parser::push_arg_values; trailing_values={:?}, DontDelimTrailingVals={:?}",
+            "Parser::split_arg_values; trailing_values={:?}, DontDelimTrailingVals={:?}",
             trailing_values,
             self.cmd.is_dont_delimit_trailing_values_set()
         );
@@ -1070,13 +1070,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    fn store_arg_values(
+    fn push_arg_values(
         &self,
         arg: &Arg<'help>,
         raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
-        debug!("Parser::store_arg_values: {:?}", raw_vals);
+        debug!("Parser::push_arg_values: {:?}", raw_vals);
 
         for raw_val in raw_vals {
             // update the current index because each value is a distinct index to clap
@@ -1154,7 +1154,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     self.start_custom_arg(matcher, arg, source);
                 }
-                self.store_arg_values(arg, raw_vals, matcher)?;
+                self.push_arg_values(arg, raw_vals, matcher)?;
                 if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
                     // HACK: Maintain existing occurrence behavior
                     let matched = matcher.get_mut(&arg.id).unwrap();
@@ -1167,7 +1167,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
-            ArgAction::Flag => {
+            ArgAction::IncOccurrence => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 if source == ValueSource::CommandLine {
                     if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
@@ -1254,7 +1254,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     );
                     let mut arg_values = Vec::new();
                     let _parse_result =
-                        self.push_arg_values(arg, &val, trailing_values, &mut arg_values);
+                        self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
                     let _ = self.react(None, ValueSource::EnvVariable, arg, arg_values, matcher)?;
                     if let Some(_parse_result) = _parse_result {
                         if _parse_result != ParseResult::ValuesDone {
@@ -1264,7 +1264,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     match arg.get_action() {
                         ArgAction::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
-                        ArgAction::Flag => {
+                        ArgAction::IncOccurrence => {
                             debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                             let predicate = str_to_bool(val.to_str_lossy());
                             debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
@@ -1324,7 +1324,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // The flag occurred, we just want to add the val groups
                     let mut arg_values = Vec::new();
                     for v in arg.default_missing_vals.iter() {
-                        let _parse_result = self.push_arg_values(
+                        let _parse_result = self.split_arg_values(
                             arg,
                             &RawOsStr::new(v),
                             trailing_values,
@@ -1337,7 +1337,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         }
                     }
                     self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
-                    self.store_arg_values(arg, arg_values, matcher)?;
+                    self.push_arg_values(arg, arg_values, matcher)?;
                 }
                 None => {
                     debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
@@ -1377,7 +1377,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     if add {
                         if let Some(default) = default {
                             let mut arg_values = Vec::new();
-                            let _parse_result = self.push_arg_values(
+                            let _parse_result = self.split_arg_values(
                                 arg,
                                 &RawOsStr::new(default),
                                 trailing_values,
@@ -1416,7 +1416,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
                 let mut arg_values = Vec::new();
                 for v in arg.default_vals.iter() {
-                    let _parse_result = self.push_arg_values(
+                    let _parse_result = self.split_arg_values(
                         arg,
                         &RawOsStr::new(v),
                         trailing_values,
