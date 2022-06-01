@@ -179,6 +179,10 @@ These correspond to a `clap::Arg`.
 - `value_parser [= <expr>]`: `clap::Arg::value_parser`
   - When not present: will auto-select an implementation based on the field type
   - To register a custom type's `ValueParser`, implement `ValueParserFactory`
+  - When present, implies `#[clap(action)]`
+- `action [= <expr>]`: `clap::Arg::action`
+  - When not present: will auto-select an action based on the field type
+  - When present, implies `#[clap(value_parser)]`
 - `help = <expr>`: `clap::Arg::help`
   - When not present: [Doc comment summary](#doc-comments)
 - `long_help = <expr>`: `clap::Arg::long_help`
@@ -346,7 +350,7 @@ struct Robo {
     /// I am artificial superintelligence. I won't rest
     /// until I'll have destroyed humanity. Enjoy your
     /// pathetic existence, you mere mortals.
-    #[clap(long)]
+    #[clap(long, action)]
     kill_all_humans: bool,
 }
 ```

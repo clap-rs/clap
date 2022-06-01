@@ -23,7 +23,7 @@ fn doc_comments() {
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz
-        #[clap(short, long)]
+        #[clap(short, long, action)]
         foo: bool,
     }
 
@@ -39,7 +39,12 @@ fn help_is_better_than_comments() {
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[clap(short, long, help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
+        #[clap(
+            short,
+            long,
+            help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES",
+            action
+        )]
         foo: bool,
     }
 
@@ -71,11 +76,11 @@ fn field_long_doc_comment_both_help_long_help() {
         /// Dot is removed from multiline comments.
         ///
         /// Long help
-        #[clap(long)]
+        #[clap(long, action)]
         foo: bool,
 
         /// Dot is removed from one short comment.
-        #[clap(long)]
+        #[clap(long, action)]
         bar: bool,
     }
 
@@ -141,7 +146,7 @@ fn verbatim_doc_comment() {
     #[derive(Parser, Debug)]
     #[clap(verbatim_doc_comment)]
     struct SeeFigure1 {
-        #[clap(long)]
+        #[clap(long, action)]
         foo: bool,
     }
 
@@ -171,10 +176,10 @@ fn verbatim_doc_comment_field() {
     #[derive(Parser, Debug)]
     struct Command {
         /// This help ends in a period.
-        #[clap(long, verbatim_doc_comment)]
+        #[clap(long, verbatim_doc_comment, action)]
         foo: bool,
         /// This help does not end in a period.
-        #[clap(long)]
+        #[clap(long, action)]
         bar: bool,
     }
 

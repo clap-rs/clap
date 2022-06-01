@@ -246,6 +246,7 @@ pub fn gen_augment(
                 let parser = attrs.parser(&field.ty);
 
                 let value_parser = attrs.value_parser(&field.ty);
+                let action = attrs.action(&field.ty);
                 let func = &parser.func;
 
                 let mut occurrences = false;
@@ -287,6 +288,7 @@ pub fn gen_augment(
                             #possible_values
                             #validator
                             #value_parser
+                            #action
                         }
                     }
 
@@ -299,6 +301,7 @@ pub fn gen_augment(
                         #possible_values
                         #validator
                         #value_parser
+                        #action
                     },
 
                     Ty::OptionVec => quote_spanned! { ty.span()=>
@@ -308,6 +311,7 @@ pub fn gen_augment(
                         #possible_values
                         #validator
                         #value_parser
+                        #action
                     },
 
                     Ty::Vec => {
@@ -318,6 +322,7 @@ pub fn gen_augment(
                             #possible_values
                             #validator
                             #value_parser
+                            #action
                         }
                     }
 
@@ -331,13 +336,18 @@ pub fn gen_augment(
 
                     Ty::Other => {
                         let required = attrs.find_default_method().is_none() && !override_required;
+                        // `ArgAction::takes_values` is assuming `ArgAction::default_value` will be
+                        // set though that won't always be true but this should be good enough,
+                        // otherwise we'll report an "arg required" error when unwrapping.
+                        let action_value = action.args();
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)
-                            .required(#required)
+                            .required(#required && #action_value.takes_values())
                             #possible_values
                             #validator
                             #value_parser
+                            #action
                         }
                     }
                 };

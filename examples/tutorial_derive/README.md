@@ -236,17 +236,11 @@ $ 03_01_flag_bool_derive --verbose
 verbose: true
 
 $ 03_01_flag_bool_derive --verbose --verbose
-? failed
-error: The argument '--verbose' was provided more than once, but cannot be used multiple times
-
-USAGE:
-    03_01_flag_bool_derive[EXE] [OPTIONS]
-
-For more information try --help
+verbose: true
 
 ```
 
-Or counted with `#[clap(parse(from_occurrences))]`:
+Or counted with `#[clap(action = clap::ArgAction::Count)]`:
 
 [Example:](03_01_flag_count.rs)
 ```console

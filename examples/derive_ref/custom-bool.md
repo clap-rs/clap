@@ -11,11 +11,11 @@ USAGE:
     custom-bool[EXE] [OPTIONS] --foo <FOO> <BOOM>
 
 ARGS:
-    <BOOM>    
+    <BOOM>    [possible values: true, false]
 
 OPTIONS:
         --bar <BAR>    [default: false]
-        --foo <FOO>    
+        --foo <FOO>    [possible values: true, false]
     -h, --help         Print help information
     -V, --version      Print version information
 
@@ -31,14 +31,14 @@ USAGE:
 For more information try --help
 
 $ custom-bool --foo true false
-[examples/derive_ref/custom-bool.rs:32] opt = Opt {
+[examples/derive_ref/custom-bool.rs:31] opt = Opt {
     foo: true,
     bar: false,
     boom: false,
 }
 
 $ custom-bool --foo true --bar true false
-[examples/derive_ref/custom-bool.rs:32] opt = Opt {
+[examples/derive_ref/custom-bool.rs:31] opt = Opt {
     foo: true,
     bar: true,
     boom: false,

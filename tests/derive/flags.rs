@@ -20,7 +20,7 @@ use clap::Parser;
 fn bool_type_is_flag() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[clap(short, long, action)]
         alice: bool,
     }
 
@@ -34,22 +34,24 @@ fn bool_type_is_flag() {
     );
     assert_eq!(
         Opt { alice: true },
+        Opt::try_parse_from(&["test", "-a", "-a"]).unwrap()
+    );
+    assert_eq!(
+        Opt { alice: true },
         Opt::try_parse_from(&["test", "--alice"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
-    assert!(Opt::try_parse_from(&["test", "-a", "-a"]).is_err());
-    assert!(Opt::try_parse_from(&["test", "-a", "--alice"]).is_err());
 }
 
 #[test]
-fn from_occurrences() {
+fn count() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, parse(from_occurrences))]
+        #[clap(short, long, action = clap::ArgAction::Count)]
         alice: u64,
-        #[clap(short, long, parse(from_occurrences))]
-        bob: u8,
+        #[clap(short, long, action = clap::ArgAction::Count)]
+        bob: u64,
     }
 
     assert_eq!(
@@ -111,9 +113,9 @@ fn non_bool_type_flag() {
 fn mixed_type_flags() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[clap(short, long, action)]
         alice: bool,
-        #[clap(short, long, parse(from_occurrences))]
+        #[clap(short, long, action = clap::ArgAction::Count)]
         bob: u64,
     }
 
@@ -191,10 +193,10 @@ fn ignore_qualified_bool_type() {
 }
 
 #[test]
-fn override_implicit_from_flag() {
+fn override_implicit_action() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(long, parse(try_from_str))]
+        #[clap(long, action = clap::ArgAction::Set)]
         arg: bool,
     }
 
@@ -213,7 +215,7 @@ fn override_implicit_from_flag() {
 fn override_implicit_from_flag_positional() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(parse(try_from_str))]
+        #[clap(action = clap::ArgAction::Set)]
         arg: bool,
     }
 

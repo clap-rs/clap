@@ -14,8 +14,8 @@ struct Cli {
     config: Option<PathBuf>,
 
     /// Turn debugging information on
-    #[clap(short, long, parse(from_occurrences))]
-    debug: usize,
+    #[clap(short, long, action = clap::ArgAction::Count)]
+    debug: u64,
 
     #[clap(subcommand)]
     command: Option<Commands>,
@@ -26,7 +26,7 @@ enum Commands {
     /// does testing things
     Test {
         /// lists test values
-        #[clap(short, long)]
+        #[clap(short, long, action)]
         list: bool,
     },
 }

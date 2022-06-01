@@ -274,8 +274,8 @@ fn derive_generated_error_has_full_context() {
     #[derive(Debug, Parser)]
     enum SubCommands {
         Sub {
-            #[clap(short, long, parse(from_occurrences))]
-            verbose: u8,
+            #[clap(short, long, action = clap::ArgAction::Count)]
+            verbose: u64,
         },
     }
 
@@ -339,7 +339,7 @@ OPTIONS:
     #[clap(next_display_order = 10000)]
     struct A {
         /// second flag
-        #[clap(long)]
+        #[clap(long, action)]
         flag_a: bool,
         /// second option
         #[clap(long, value_parser)]
@@ -350,7 +350,7 @@ OPTIONS:
     #[clap(next_display_order = 10)]
     struct B {
         /// first flag
-        #[clap(long)]
+        #[clap(long, action)]
         flag_b: bool,
         /// first option
         #[clap(long, value_parser)]
@@ -397,7 +397,7 @@ OPTIONS:
     #[derive(Args, Debug)]
     struct A {
         /// second flag
-        #[clap(long)]
+        #[clap(long, action)]
         flag_a: bool,
         /// second option
         #[clap(long, value_parser)]
@@ -407,7 +407,7 @@ OPTIONS:
     #[derive(Args, Debug)]
     struct B {
         /// first flag
-        #[clap(long)]
+        #[clap(long, action)]
         flag_b: bool,
         /// first option
         #[clap(long, value_parser)]
@@ -453,7 +453,7 @@ OPTIONS:
     #[derive(Args, Debug)]
     struct A {
         /// first flag
-        #[clap(long)]
+        #[clap(long, action)]
         flag_a: bool,
         /// first option
         #[clap(long, value_parser)]
@@ -463,7 +463,7 @@ OPTIONS:
     #[derive(Args, Debug)]
     struct B {
         /// second flag
-        #[clap(long)]
+        #[clap(long, action)]
         flag_b: bool,
         /// second option
         #[clap(long, value_parser)]
