@@ -49,10 +49,7 @@ fn multiple_args_and_final_arg_without_value() {
         Some("file")
     );
     assert!(m.is_present("f"));
-    assert!(matches!(
-        m.try_get_one::<String>("stuff").unwrap_err(),
-        clap::parser::MatchesError::ExpectedOne { .. }
-    ));
+    assert_eq!(m.get_one::<String>("stuff").map(|v| v.as_str()), None);
 }
 
 #[test]
@@ -79,10 +76,7 @@ fn multiple_args_and_intermittent_arg_without_value() {
         Some("file")
     );
     assert!(m.is_present("f"));
-    assert!(matches!(
-        m.try_get_one::<String>("stuff").unwrap_err(),
-        clap::parser::MatchesError::ExpectedOne { .. }
-    ));
+    assert_eq!(m.get_one::<String>("stuff").map(|v| v.as_str()), None);
 }
 
 #[test]
@@ -124,10 +118,7 @@ fn subcommand() {
         sub_m.is_present("test"),
         "expected subcommand to be present due to partial parsing"
     );
-    assert!(matches!(
-        sub_m.try_get_one::<String>("test").unwrap_err(),
-        clap::parser::MatchesError::ExpectedOne { .. }
-    ));
+    assert_eq!(sub_m.get_one::<String>("test").map(|v| v.as_str()), None);
     assert_eq!(
         sub_m.get_one::<String>("stuff").map(|v| v.as_str()),
         Some("some other val")

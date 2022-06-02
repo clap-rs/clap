@@ -111,10 +111,7 @@ fn group_single_flag() {
 
     let m = res.unwrap();
     assert!(m.is_present("grp"));
-    assert!(matches!(
-        m.try_get_one::<String>("grp").unwrap_err(),
-        clap::parser::MatchesError::ExpectedOne { .. }
-    ));
+    assert!(m.get_one::<String>("grp").map(|v| v.as_str()).is_none());
 }
 
 #[test]

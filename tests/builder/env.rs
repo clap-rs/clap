@@ -38,10 +38,7 @@ fn env_bool_literal() {
     let m = r.unwrap();
     assert!(m.is_present("present"));
     assert_eq!(m.occurrences_of("present"), 0);
-    assert!(matches!(
-        m.try_get_one::<String>("present").unwrap_err(),
-        clap::parser::MatchesError::ExpectedOne { .. }
-    ));
+    assert_eq!(m.get_one::<String>("present").map(|v| v.as_str()), None);
     assert!(!m.is_present("negated"));
     assert!(!m.is_present("absent"));
 }
