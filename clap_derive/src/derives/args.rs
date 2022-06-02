@@ -525,6 +525,12 @@ fn gen_parsers(
     let convert_type = inner_type(&field.ty);
     let id = attrs.id();
     let (get_one, get_many, deref, mut parse) = match *parser.kind {
+        _ if attrs.ignore_parser() => (
+            quote_spanned!(span=> remove_one::<#convert_type>),
+            quote_spanned!(span=> remove_many::<#convert_type>),
+            quote!(|s| s),
+            quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(s)),
+        ),
         FromOccurrences => (
             quote_spanned!(span=> occurrences_of),
             quote!(),
@@ -536,12 +542,6 @@ fn gen_parsers(
             quote!(),
             quote!(|s| ::std::ops::Deref::deref(s)),
             func.clone(),
-        ),
-        _ if attrs.ignore_parser() => (
-            quote_spanned!(span=> remove_one::<#convert_type>),
-            quote_spanned!(span=> remove_many::<#convert_type>),
-            quote!(|s| s),
-            quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(s)),
         ),
         FromStr => (
             quote_spanned!(span=> get_one::<String>),

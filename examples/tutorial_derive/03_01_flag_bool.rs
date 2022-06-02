@@ -3,7 +3,7 @@ use clap::Parser;
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Cli {
-    #[clap(short, long, value_parser)]
+    #[clap(short, long)]
     verbose: bool,
 }
 
