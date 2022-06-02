@@ -18,6 +18,11 @@ pub enum MatchesError {
     UnknownArgument {
         // Missing `id` but blocked on a public id type which will hopefully come with `unstable-v4`
     },
+    /// Present argument must have one value
+    #[non_exhaustive]
+    ExpectedOne {
+        // Missing `id` but blocked on a public id type which will hopefully come with `unstable-v4`
+    },
 }
 
 impl MatchesError {
@@ -50,6 +55,9 @@ impl std::fmt::Display for MatchesError {
             }
             Self::UnknownArgument {} => {
                 writeln!(f, "Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags")
+            }
+            Self::ExpectedOne {} => {
+                writeln!(f, "Present argument must have one value.  Make sure you are using the correct lookup (`get_one` vs `get_many`)")
             }
         }
     }
