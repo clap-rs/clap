@@ -721,7 +721,7 @@ impl Attrs {
             .unwrap_or_else(|| self.parser(field_type).value_parser())
     }
 
-    pub fn custom_value_parser(&self) -> bool {
+    pub fn ignore_parser(&self) -> bool {
         self.value_parser.is_some()
     }
 

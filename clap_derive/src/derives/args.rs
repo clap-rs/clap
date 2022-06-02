@@ -251,7 +251,7 @@ pub fn gen_augment(
                 let func = &parser.func;
 
                 let validator = match *parser.kind {
-                    _ if attrs.custom_value_parser() || attrs.is_enum() => quote!(),
+                    _ if attrs.ignore_parser() || attrs.is_enum() => quote!(),
                     ParserKind::TryFromStr => quote_spanned! { func.span()=>
                         .validator(|s| {
                             #func(s)
@@ -268,7 +268,7 @@ pub fn gen_augment(
                 };
 
                 let value_name = attrs.value_name();
-                let possible_values = if attrs.is_enum() && !attrs.custom_value_parser() {
+                let possible_values = if attrs.is_enum() && !attrs.ignore_parser() {
                     gen_arg_enum_possible_values(convert_type)
                 } else {
                     quote!()
@@ -537,7 +537,7 @@ fn gen_parsers(
             quote!(|s| ::std::ops::Deref::deref(s)),
             func.clone(),
         ),
-        _ if attrs.custom_value_parser() => (
+        _ if attrs.ignore_parser() => (
             quote_spanned!(span=> remove_one::<#convert_type>),
             quote_spanned!(span=> remove_many::<#convert_type>),
             quote!(|s| s),
@@ -568,7 +568,7 @@ fn gen_parsers(
             quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))),
         ),
     };
-    if attrs.is_enum() && !attrs.custom_value_parser() {
+    if attrs.is_enum() && !attrs.ignore_parser() {
         let ci = attrs.ignore_case();
 
         parse = quote_spanned! { convert_type.span()=>
