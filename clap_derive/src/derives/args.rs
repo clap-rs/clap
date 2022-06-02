@@ -241,7 +241,7 @@ pub fn gen_augment(
                 }
             }
             Kind::Arg(ty) => {
-                let convert_type = inner_type(**ty, &field.ty);
+                let convert_type = inner_type(&field.ty);
 
                 let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
                 let flag = *attrs.parser().kind == ParserKind::FromFlag;
@@ -524,7 +524,7 @@ fn gen_parsers(
     let parser = attrs.parser();
     let func = &parser.func;
     let span = parser.kind.span();
-    let convert_type = inner_type(**ty, &field.ty);
+    let convert_type = inner_type(&field.ty);
     let id = attrs.id();
     let (get_one, get_many, deref, mut parse) = match *parser.kind {
         FromOccurrences => (
