@@ -1063,8 +1063,11 @@ impl ArgMatches {
     ) -> Result<Option<&T>, MatchesError> {
         let id = Id::from(name);
         let arg = self.try_get_arg_t::<T>(&id)?;
-        let value = match arg.and_then(|a| a.first()) {
-            Some(value) => value,
+        let value = match arg.map(|a| a.first()) {
+            Some(Some(value)) => value,
+            Some(None) => {
+                return Err(MatchesError::ExpectedOne {});
+            }
             None => {
                 return Ok(None);
             }

@@ -1,7 +1,7 @@
 use crate::util::Id;
 
 /// Violation of [`ArgMatches`][crate::ArgMatches] assumptions
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 #[allow(missing_copy_implementations)] // We might add non-Copy types in the future
 #[non_exhaustive]
 pub enum MatchesError {
@@ -16,6 +16,11 @@ pub enum MatchesError {
     /// Argument not defined in [`Command`][crate::Command]
     #[non_exhaustive]
     UnknownArgument {
+        // Missing `id` but blocked on a public id type which will hopefully come with `unstable-v4`
+    },
+    /// Present argument must have one value
+    #[non_exhaustive]
+    ExpectedOne {
         // Missing `id` but blocked on a public id type which will hopefully come with `unstable-v4`
     },
 }
@@ -50,6 +55,9 @@ impl std::fmt::Display for MatchesError {
             }
             Self::UnknownArgument {} => {
                 writeln!(f, "Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags")
+            }
+            Self::ExpectedOne {} => {
+                writeln!(f, "Present argument must have one value.  Make sure you are using the correct lookup (`get_one` vs `get_many`)")
             }
         }
     }
