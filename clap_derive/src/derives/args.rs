@@ -246,7 +246,7 @@ pub fn gen_augment(
                 let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
                 let flag = *attrs.parser().kind == ParserKind::FromFlag;
 
-                let value_parser = attrs.value_parser().resolve(convert_type);
+                let value_parser = attrs.value_parser(&field.ty);
                 let parser = attrs.parser();
                 let func = &parser.func;
 

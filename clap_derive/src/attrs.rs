@@ -14,7 +14,7 @@
 
 use crate::{
     parse::*,
-    utils::{process_doc_comment, Sp, Ty},
+    utils::{inner_type, process_doc_comment, Sp, Ty},
 };
 
 use std::env;
@@ -740,10 +740,14 @@ impl Attrs {
         self.name.clone().translate(CasingStyle::ScreamingSnake)
     }
 
-    pub fn value_parser(&self) -> ValueParser {
+    pub fn value_parser(&self, field_type: &Type) -> Method {
         self.value_parser
             .clone()
-            .unwrap_or_else(|| ValueParser::Explicit(self.parser.value_parser()))
+            .map(|p| {
+                let inner_type = inner_type(field_type);
+                p.resolve(inner_type)
+            })
+            .unwrap_or_else(|| self.parser.value_parser())
     }
 
     pub fn custom_value_parser(&self) -> bool {
@@ -794,13 +798,13 @@ impl Attrs {
 }
 
 #[derive(Clone)]
-pub enum ValueParser {
+enum ValueParser {
     Explicit(Method),
     Implicit(Ident),
 }
 
 impl ValueParser {
-    pub fn resolve(self, inner_type: &Type) -> Method {
+    fn resolve(self, inner_type: &Type) -> Method {
         match self {
             Self::Explicit(method) => method,
             Self::Implicit(ident) => {
@@ -815,7 +819,7 @@ impl ValueParser {
         }
     }
 
-    pub fn span(&self) -> Span {
+    fn span(&self) -> Span {
         match self {
             Self::Explicit(method) => method.name.span(),
             Self::Implicit(ident) => ident.span(),
