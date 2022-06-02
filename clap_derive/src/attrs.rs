@@ -340,26 +340,6 @@ impl Attrs {
                 }
 
                 match *ty {
-                    Ty::Bool => {
-                        if res.is_positional() && res.parser.is_none() {
-                            abort!(field.ty,
-                                "`bool` cannot be used as positional parameter with default parser";
-                                help = "if you want to create a flag add `long` or `short`";
-                                help = "If you really want a boolean parameter \
-                                    add an explicit parser, for example `parse(try_from_str)`";
-                                note = "see also https://github.com/clap-rs/clap/blob/master/examples/derive_ref/custom-bool.md";
-                            )
-                        }
-                        if res.is_enum {
-                            abort!(field.ty, "`arg_enum` is meaningless for bool")
-                        }
-                        if let Some(m) = res.find_default_method() {
-                            abort!(m.name, "default_value is meaningless for bool")
-                        }
-                        if let Some(m) = res.find_method("required") {
-                            abort!(m.name, "required is meaningless for bool")
-                        }
-                    }
                     Ty::Option => {
                         if let Some(m) = res.find_default_method() {
                             abort!(m.name, "default_value is meaningless for Option")

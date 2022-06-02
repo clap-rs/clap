@@ -15,7 +15,7 @@
 use crate::{
     attrs::{Attrs, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
     dummies,
-    utils::{inner_type, sub_type, Sp, Ty},
+    utils::{inner_type, is_simple_ty, sub_type, Sp, Ty},
 };
 
 use proc_macro2::{Ident, Span, TokenStream};
@@ -275,8 +275,6 @@ pub fn gen_augment(
                 };
 
                 let modifier = match **ty {
-                    Ty::Bool => quote!(),
-
                     Ty::Option => {
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
@@ -586,18 +584,6 @@ fn gen_parsers(
     let arg_matches = format_ident!("__clap_arg_matches");
 
     let field_value = match **ty {
-        Ty::Bool => {
-            if update.is_some() {
-                quote_spanned! { ty.span()=>
-                    *#field_name || #arg_matches.is_present(#id)
-                }
-            } else {
-                quote_spanned! { ty.span()=>
-                    #arg_matches.is_present(#id)
-                }
-            }
-        }
-
         Ty::Option => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
@@ -645,11 +631,17 @@ fn gen_parsers(
             )
         },
 
-        Ty::Other if flag => quote_spanned! { ty.span()=>
-            #parse(
-                #arg_matches.is_present(#id)
-            )
-        },
+        Ty::Other if flag => {
+            if update.is_some() && is_simple_ty(&field.ty, "bool") {
+                quote_spanned! { ty.span()=>
+                    *#field_name || #arg_matches.is_present(#id)
+                }
+            } else {
+                quote_spanned! { ty.span()=>
+                    #parse(#arg_matches.is_present(#id))
+                }
+            }
+        }
 
         Ty::Other => {
             quote_spanned! { ty.span()=>

@@ -189,3 +189,41 @@ fn ignore_qualified_bool_type() {
         Opt::try_parse_from(&["test", "success"]).unwrap()
     );
 }
+
+#[test]
+fn override_implicit_from_flag() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(long, parse(try_from_str))]
+        arg: bool,
+    }
+
+    assert_eq!(
+        Opt { arg: false },
+        Opt::try_parse_from(&["test", "--arg", "false"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt { arg: true },
+        Opt::try_parse_from(&["test", "--arg", "true"]).unwrap()
+    );
+}
+
+#[test]
+fn override_implicit_from_flag_positional() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(parse(try_from_str))]
+        arg: bool,
+    }
+
+    assert_eq!(
+        Opt { arg: false },
+        Opt::try_parse_from(&["test", "false"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt { arg: true },
+        Opt::try_parse_from(&["test", "true"]).unwrap()
+    );
+}
