@@ -958,7 +958,7 @@ impl Parser {
             ),
             ParserKind::FromFlag => Method::new(
                 func,
-                quote_spanned! { self.kind.span()=> clap::ValueParser::bool()},
+                quote_spanned! { self.kind.span()=> clap::builder::ValueParser::bool()},
             ),
         }
     }
