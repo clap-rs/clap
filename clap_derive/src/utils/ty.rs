@@ -9,7 +9,6 @@ use syn::{
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Ty {
-    Bool,
     Vec,
     Option,
     OptionOption,
@@ -22,9 +21,7 @@ impl Ty {
         use self::Ty::*;
         let t = |kind| Sp::new(kind, ty.span());
 
-        if is_simple_ty(ty, "bool") {
-            t(Bool)
-        } else if is_generic_ty(ty, "Vec") {
+        if is_generic_ty(ty, "Vec") {
             t(Vec)
         } else if let Some(subty) = subty_if_name(ty, "Option") {
             if is_generic_ty(subty, "Option") {
@@ -40,8 +37,9 @@ impl Ty {
     }
 }
 
-pub fn inner_type(ty: Ty, field_ty: &syn::Type) -> &syn::Type {
-    match ty {
+pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {
+    let ty = Ty::from_syn_ty(field_ty);
+    match *ty {
         Ty::Vec | Ty::Option => sub_type(field_ty).unwrap_or(field_ty),
         Ty::OptionOption | Ty::OptionVec => {
             sub_type(field_ty).and_then(sub_type).unwrap_or(field_ty)

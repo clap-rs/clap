@@ -15,7 +15,7 @@
 use crate::{
     attrs::{Attrs, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
     dummies,
-    utils::{inner_type, sub_type, Sp, Ty},
+    utils::{inner_type, is_simple_ty, sub_type, Sp, Ty},
 };
 
 use proc_macro2::{Ident, Span, TokenStream};
@@ -241,13 +241,13 @@ pub fn gen_augment(
                 }
             }
             Kind::Arg(ty) => {
-                let convert_type = inner_type(**ty, &field.ty);
+                let convert_type = inner_type(&field.ty);
 
-                let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
-                let flag = *attrs.parser().kind == ParserKind::FromFlag;
+                let parser = attrs.parser(&field.ty);
+                let occurrences = *parser.kind == ParserKind::FromOccurrences;
+                let flag = *parser.kind == ParserKind::FromFlag;
 
-                let value_parser = attrs.value_parser().resolve(convert_type);
-                let parser = attrs.parser();
+                let value_parser = attrs.value_parser(&field.ty);
                 let func = &parser.func;
 
                 let validator = match *parser.kind {
@@ -275,8 +275,6 @@ pub fn gen_augment(
                 };
 
                 let modifier = match **ty {
-                    Ty::Bool => quote!(),
-
                     Ty::Option => {
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
@@ -521,10 +519,10 @@ fn gen_parsers(
 ) -> TokenStream {
     use self::ParserKind::*;
 
-    let parser = attrs.parser();
+    let parser = attrs.parser(&field.ty);
     let func = &parser.func;
     let span = parser.kind.span();
-    let convert_type = inner_type(**ty, &field.ty);
+    let convert_type = inner_type(&field.ty);
     let id = attrs.id();
     let (get_one, get_many, deref, mut parse) = match *parser.kind {
         FromOccurrences => (
@@ -578,26 +576,14 @@ fn gen_parsers(
         }
     }
 
-    let flag = *attrs.parser().kind == ParserKind::FromFlag;
-    let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
+    let flag = *parser.kind == ParserKind::FromFlag;
+    let occurrences = *parser.kind == ParserKind::FromOccurrences;
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block
     let arg_matches = format_ident!("__clap_arg_matches");
 
     let field_value = match **ty {
-        Ty::Bool => {
-            if update.is_some() {
-                quote_spanned! { ty.span()=>
-                    *#field_name || #arg_matches.is_present(#id)
-                }
-            } else {
-                quote_spanned! { ty.span()=>
-                    #arg_matches.is_present(#id)
-                }
-            }
-        }
-
         Ty::Option => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
@@ -645,11 +631,17 @@ fn gen_parsers(
             )
         },
 
-        Ty::Other if flag => quote_spanned! { ty.span()=>
-            #parse(
-                #arg_matches.is_present(#id)
-            )
-        },
+        Ty::Other if flag => {
+            if update.is_some() && is_simple_ty(&field.ty, "bool") {
+                quote_spanned! { ty.span()=>
+                    *#field_name || #arg_matches.is_present(#id)
+                }
+            } else {
+                quote_spanned! { ty.span()=>
+                    #parse(#arg_matches.is_present(#id))
+                }
+            }
+        }
 
         Ty::Other => {
             quote_spanned! { ty.span()=>

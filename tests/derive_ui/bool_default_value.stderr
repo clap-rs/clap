@@ -1,5 +1,0 @@
-error: default_value is meaningless for bool
-  --> $DIR/bool_default_value.rs:14:19
-   |
-14 |     #[clap(short, default_value = true)]
-   |                   ^^^^^^^^^^^^^
