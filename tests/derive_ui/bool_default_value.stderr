@@ -1,5 +1,5 @@
 error: default_value is meaningless for bool
-  --> $DIR/bool_default_value.rs:14:19
+  --> tests/derive_ui/bool_default_value.rs:14:19
    |
-14 |     #[clap(short, default_value = true)]
-   |                   ^^^^^^^^^^^^^
+14 |     #[clap(short, default_value_t = true)]
+   |                   ^^^^^^^^^^^^^^^

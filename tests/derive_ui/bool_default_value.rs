@@ -11,7 +11,7 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[clap(name = "basic")]
 struct Opt {
-    #[clap(short, default_value = true)]
+    #[clap(short, default_value_t = true)]
     b: bool,
 }
 
