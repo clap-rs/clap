@@ -243,11 +243,11 @@ pub fn gen_augment(
             Kind::Arg(ty) => {
                 let convert_type = inner_type(&field.ty);
 
-                let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
-                let flag = *attrs.parser().kind == ParserKind::FromFlag;
+                let parser = attrs.parser(&field.ty);
+                let occurrences = *parser.kind == ParserKind::FromOccurrences;
+                let flag = *parser.kind == ParserKind::FromFlag;
 
                 let value_parser = attrs.value_parser(&field.ty);
-                let parser = attrs.parser();
                 let func = &parser.func;
 
                 let validator = match *parser.kind {
@@ -521,7 +521,7 @@ fn gen_parsers(
 ) -> TokenStream {
     use self::ParserKind::*;
 
-    let parser = attrs.parser();
+    let parser = attrs.parser(&field.ty);
     let func = &parser.func;
     let span = parser.kind.span();
     let convert_type = inner_type(&field.ty);
@@ -578,8 +578,8 @@ fn gen_parsers(
         }
     }
 
-    let flag = *attrs.parser().kind == ParserKind::FromFlag;
-    let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
+    let flag = *parser.kind == ParserKind::FromFlag;
+    let occurrences = *parser.kind == ParserKind::FromOccurrences;
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block

@@ -14,7 +14,7 @@
 
 use crate::{
     parse::*,
-    utils::{inner_type, process_doc_comment, Sp, Ty},
+    utils::{inner_type, is_simple_ty, process_doc_comment, Sp, Ty},
 };
 
 use std::env;
@@ -43,13 +43,12 @@ pub struct Attrs {
     doc_comment: Vec<Method>,
     methods: Vec<Method>,
     value_parser: Option<ValueParser>,
-    parser: Sp<Parser>,
+    parser: Option<Sp<Parser>>,
     verbatim_doc_comment: Option<Ident>,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
     help_heading: Option<Method>,
     is_enum: bool,
-    has_custom_parser: bool,
     kind: Sp<Kind>,
 }
 
@@ -71,11 +70,8 @@ impl Attrs {
                 "`value_parse` attribute is only allowed on fields"
             );
         }
-        if res.has_custom_parser {
-            abort!(
-                res.parser.span(),
-                "`parse` attribute is only allowed on fields"
-            );
+        if let Some(parser) = res.parser.as_ref() {
+            abort!(parser.span(), "`parse` attribute is only allowed on fields");
         }
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
@@ -114,9 +110,9 @@ impl Attrs {
                         "`value_parse` attribute is only allowed flattened entry"
                     );
                 }
-                if res.has_custom_parser {
+                if let Some(parser) = res.parser.as_ref() {
                     abort!(
-                        res.parser.span(),
+                        parser.span(),
                         "parse attribute is not allowed for flattened entry"
                     );
                 }
@@ -140,9 +136,9 @@ impl Attrs {
                         "`value_parse` attribute is only allowed for subcommand"
                     );
                 }
-                if res.has_custom_parser {
+                if let Some(parser) = res.parser.as_ref() {
                     abort!(
-                        res.parser.span(),
+                        parser.span(),
                         "parse attribute is not allowed for subcommand"
                     );
                 }
@@ -214,11 +210,8 @@ impl Attrs {
                 "`value_parse` attribute is only allowed on fields"
             );
         }
-        if res.has_custom_parser {
-            abort!(
-                res.parser.span(),
-                "`parse` attribute is only allowed on fields"
-            );
+        if let Some(parser) = res.parser.as_ref() {
+            abort!(parser.span(), "`parse` attribute is only allowed on fields");
         }
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
@@ -257,9 +250,9 @@ impl Attrs {
                         "`value_parse` attribute is not allowed for flattened entry"
                     );
                 }
-                if res.has_custom_parser {
+                if let Some(parser) = res.parser.as_ref() {
                     abort!(
-                        res.parser.span(),
+                        parser.span(),
                         "parse attribute is not allowed for flattened entry"
                     );
                 }
@@ -287,9 +280,9 @@ impl Attrs {
                         "`value_parse` attribute is not allowed for subcommand"
                     );
                 }
-                if res.has_custom_parser {
+                if let Some(parser) = res.parser.as_ref() {
                     abort!(
-                        res.parser.span(),
+                        parser.span(),
                         "parse attribute is not allowed for subcommand"
                     );
                 }
@@ -333,10 +326,10 @@ impl Attrs {
             }
             Kind::Arg(orig_ty) => {
                 let mut ty = Ty::from_syn_ty(&field.ty);
-                if res.has_custom_parser {
-                    if let Some(parser) = res.value_parser.as_ref() {
+                if res.parser.is_some() {
+                    if let Some(value_parser) = res.value_parser.as_ref() {
                         abort!(
-                            parser.span(),
+                            value_parser.span(),
                             "`value_parse` attribute conflicts with `parse` attribute"
                         );
                     }
@@ -348,7 +341,7 @@ impl Attrs {
 
                 match *ty {
                     Ty::Bool => {
-                        if res.is_positional() && !res.has_custom_parser {
+                        if res.is_positional() && res.parser.is_none() {
                             abort!(field.ty,
                                 "`bool` cannot be used as positional parameter with default parser";
                                 help = "if you want to create a flag add `long` or `short`";
@@ -413,13 +406,12 @@ impl Attrs {
             doc_comment: vec![],
             methods: vec![],
             value_parser: None,
-            parser: Parser::default_spanned(default_span),
+            parser: None,
             verbatim_doc_comment: None,
             next_display_order: None,
             next_help_heading: None,
             help_heading: None,
             is_enum: false,
-            has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
         }
     }
@@ -623,8 +615,7 @@ impl Attrs {
                 }
 
                 Parse(ident, spec) => {
-                    self.has_custom_parser = true;
-                    self.parser = Parser::from_spec(ident, spec);
+                    self.parser = Some(Parser::from_spec(ident, spec));
                 }
             }
         }
@@ -747,15 +738,17 @@ impl Attrs {
                 let inner_type = inner_type(field_type);
                 p.resolve(inner_type)
             })
-            .unwrap_or_else(|| self.parser.value_parser())
+            .unwrap_or_else(|| self.parser(field_type).value_parser())
     }
 
     pub fn custom_value_parser(&self) -> bool {
         self.value_parser.is_some()
     }
 
-    pub fn parser(&self) -> &Sp<Parser> {
-        &self.parser
+    pub fn parser(&self, field_type: &Type) -> Sp<Parser> {
+        self.parser
+            .clone()
+            .unwrap_or_else(|| Parser::from_type(field_type, self.kind.span()))
     }
 
     pub fn kind(&self) -> Sp<Kind> {
@@ -917,10 +910,16 @@ pub struct Parser {
 }
 
 impl Parser {
-    fn default_spanned(span: Span) -> Sp<Self> {
-        let kind = Sp::new(ParserKind::TryFromStr, span);
-        let func = quote_spanned!(span=> ::std::str::FromStr::from_str);
-        Sp::new(Parser { kind, func }, span)
+    fn from_type(field_type: &Type, span: Span) -> Sp<Self> {
+        if is_simple_ty(field_type, "bool") {
+            let kind = Sp::new(ParserKind::FromFlag, span);
+            let func = quote_spanned!(span=> ::std::convert::From::from);
+            Sp::new(Parser { kind, func }, span)
+        } else {
+            let kind = Sp::new(ParserKind::TryFromStr, span);
+            let func = quote_spanned!(span=> ::std::str::FromStr::from_str);
+            Sp::new(Parser { kind, func }, span)
+        }
     }
 
     fn from_spec(parse_ident: Ident, spec: ParserSpec) -> Sp<Self> {
