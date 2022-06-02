@@ -1,7 +1,7 @@
 use crate::util::Id;
 
 /// Violation of [`ArgMatches`][crate::ArgMatches] assumptions
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 #[allow(missing_copy_implementations)] // We might add non-Copy types in the future
 #[non_exhaustive]
 pub enum MatchesError {
