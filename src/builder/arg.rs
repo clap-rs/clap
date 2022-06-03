@@ -4892,6 +4892,11 @@ impl<'help> Arg<'help> {
             self.settings.set(ArgSettings::TakesValue);
         }
         if let Some(action) = self.action.as_ref() {
+            if let Some(default_value) = action.default_value() {
+                if self.default_vals.is_empty() {
+                    self.default_vals = vec![default_value];
+                }
+            }
             if action.takes_value() {
                 self.settings.set(ArgSettings::TakesValue);
             } else {
