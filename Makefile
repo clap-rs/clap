@@ -35,3 +35,6 @@ clippy-%:
 
 test-ui-%:
 	cargo +${MSRV} test --test derive_ui --features derive ${_FEATURES_${@:test-ui-%=%}}
+
+doc:
+	cargo doc --workspace --all-features --no-deps --document-private-items
