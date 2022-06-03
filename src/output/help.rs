@@ -601,7 +601,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                 spec_vals.push(env_info);
             }
         }
-        if !a.is_hide_default_value_set() && !a.default_vals.is_empty() {
+        if a.is_takes_value_set() && !a.is_hide_default_value_set() && !a.default_vals.is_empty() {
             debug!(
                 "Help::spec_vals: Found default value...[{:?}]",
                 a.default_vals
