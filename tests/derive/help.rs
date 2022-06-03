@@ -363,7 +363,7 @@ OPTIONS:
     let mut buffer: Vec<u8> = Default::default();
     cmd.write_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
-    assert_eq!(help, HELP);
+    snapbox::assert_eq(HELP, help);
 }
 
 #[test]
@@ -420,7 +420,7 @@ OPTIONS:
     let mut buffer: Vec<u8> = Default::default();
     cmd.write_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
-    assert_eq!(help, HELP);
+    snapbox::assert_eq(HELP, help);
 }
 
 #[test]
@@ -476,5 +476,5 @@ OPTIONS:
     let mut buffer: Vec<u8> = Default::default();
     cmd.write_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
-    assert_eq!(help, HELP);
+    snapbox::assert_eq(HELP, help);
 }
