@@ -26,7 +26,7 @@ enum Commands {
     /// does testing things
     Test {
         /// lists test values
-        #[clap(short, long, value_parser)]
+        #[clap(short, long)]
         list: bool,
     },
 }

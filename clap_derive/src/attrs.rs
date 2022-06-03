@@ -64,10 +64,10 @@ impl Attrs {
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
-        if let Some(parser) = res.value_parser.as_ref() {
+        if let Some(value_parser) = res.value_parser.as_ref() {
             abort!(
-                parser.span(),
-                "`value_parse` attribute is only allowed on fields"
+                value_parser.span(),
+                "`value_parser` attribute is only allowed on fields"
             );
         }
         if let Some(parser) = res.parser.as_ref() {
@@ -104,10 +104,10 @@ impl Attrs {
 
         match &*res.kind {
             Kind::Flatten => {
-                if let Some(parser) = res.value_parser.as_ref() {
+                if let Some(value_parser) = res.value_parser.as_ref() {
                     abort!(
-                        parser.span(),
-                        "`value_parse` attribute is only allowed flattened entry"
+                        value_parser.span(),
+                        "`value_parser` attribute is not allowed for flattened entry"
                     );
                 }
                 if let Some(parser) = res.parser.as_ref() {
@@ -130,10 +130,10 @@ impl Attrs {
             Kind::ExternalSubcommand => (),
 
             Kind::Subcommand(_) => {
-                if let Some(parser) = res.value_parser.as_ref() {
+                if let Some(value_parser) = res.value_parser.as_ref() {
                     abort!(
-                        parser.span(),
-                        "`value_parse` attribute is only allowed for subcommand"
+                        value_parser.span(),
+                        "`value_parser` attribute is not allowed for subcommand"
                     );
                 }
                 if let Some(parser) = res.parser.as_ref() {
@@ -204,10 +204,10 @@ impl Attrs {
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "help");
 
-        if let Some(parser) = res.value_parser.as_ref() {
+        if let Some(value_parser) = res.value_parser.as_ref() {
             abort!(
-                parser.span(),
-                "`value_parse` attribute is only allowed on fields"
+                value_parser.span(),
+                "`value_parser` attribute is only allowed on fields"
             );
         }
         if let Some(parser) = res.parser.as_ref() {
@@ -244,10 +244,10 @@ impl Attrs {
 
         match &*res.kind {
             Kind::Flatten => {
-                if let Some(parser) = res.value_parser.as_ref() {
+                if let Some(value_parser) = res.value_parser.as_ref() {
                     abort!(
-                        parser.span(),
-                        "`value_parse` attribute is not allowed for flattened entry"
+                        value_parser.span(),
+                        "`value_parser` attribute is not allowed for flattened entry"
                     );
                 }
                 if let Some(parser) = res.parser.as_ref() {
@@ -274,10 +274,10 @@ impl Attrs {
             }
 
             Kind::Subcommand(_) => {
-                if let Some(parser) = res.value_parser.as_ref() {
+                if let Some(value_parser) = res.value_parser.as_ref() {
                     abort!(
-                        parser.span(),
-                        "`value_parse` attribute is not allowed for subcommand"
+                        value_parser.span(),
+                        "`value_parser` attribute is not allowed for subcommand"
                     );
                 }
                 if let Some(parser) = res.parser.as_ref() {
@@ -330,7 +330,7 @@ impl Attrs {
                     if let Some(value_parser) = res.value_parser.as_ref() {
                         abort!(
                             value_parser.span(),
-                            "`value_parse` attribute conflicts with `parse` attribute"
+                            "`value_parser` attribute conflicts with `parse` attribute"
                         );
                     }
                     match *ty {
@@ -721,7 +721,7 @@ impl Attrs {
             .unwrap_or_else(|| self.parser(field_type).value_parser())
     }
 
-    pub fn custom_value_parser(&self) -> bool {
+    pub fn ignore_parser(&self) -> bool {
         self.value_parser.is_some()
     }
 
@@ -958,7 +958,7 @@ impl Parser {
             ),
             ParserKind::FromFlag => Method::new(
                 func,
-                quote_spanned! { self.kind.span()=> clap::ValueParser::bool()},
+                quote_spanned! { self.kind.span()=> clap::builder::ValueParser::bool()},
             ),
         }
     }

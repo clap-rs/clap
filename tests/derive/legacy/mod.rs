@@ -1,4 +1,4 @@
-#![cfg(feature = "derive")]
+#![allow(deprecated)]
 
 mod app_name;
 mod arg_enum;
@@ -16,7 +16,6 @@ mod flatten;
 mod generic;
 mod help;
 mod issues;
-mod legacy;
 mod macros;
 mod naming;
 mod nested_subcommands;

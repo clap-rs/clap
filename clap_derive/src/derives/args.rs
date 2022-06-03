@@ -244,14 +244,14 @@ pub fn gen_augment(
                 let convert_type = inner_type(&field.ty);
 
                 let parser = attrs.parser(&field.ty);
-                let occurrences = *parser.kind == ParserKind::FromOccurrences;
-                let flag = *parser.kind == ParserKind::FromFlag;
 
                 let value_parser = attrs.value_parser(&field.ty);
                 let func = &parser.func;
 
+                let mut occurrences = false;
+                let mut flag = false;
                 let validator = match *parser.kind {
-                    _ if attrs.custom_value_parser() || attrs.is_enum() => quote!(),
+                    _ if attrs.ignore_parser() || attrs.is_enum() => quote!(),
                     ParserKind::TryFromStr => quote_spanned! { func.span()=>
                         .validator(|s| {
                             #func(s)
@@ -261,14 +261,19 @@ pub fn gen_augment(
                     ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
                         .validator_os(|s| #func(s).map(|_: #convert_type| ()))
                     },
-                    ParserKind::FromStr
-                    | ParserKind::FromOsStr
-                    | ParserKind::FromFlag
-                    | ParserKind::FromOccurrences => quote!(),
+                    ParserKind::FromStr | ParserKind::FromOsStr => quote!(),
+                    ParserKind::FromFlag => {
+                        flag = true;
+                        quote!()
+                    }
+                    ParserKind::FromOccurrences => {
+                        occurrences = true;
+                        quote!()
+                    }
                 };
 
                 let value_name = attrs.value_name();
-                let possible_values = if attrs.is_enum() && !attrs.custom_value_parser() {
+                let possible_values = if attrs.is_enum() && !attrs.ignore_parser() {
                     gen_arg_enum_possible_values(convert_type)
                 } else {
                     quote!()
@@ -524,25 +529,33 @@ fn gen_parsers(
     let span = parser.kind.span();
     let convert_type = inner_type(&field.ty);
     let id = attrs.id();
+    let mut flag = false;
+    let mut occurrences = false;
     let (get_one, get_many, deref, mut parse) = match *parser.kind {
-        FromOccurrences => (
-            quote_spanned!(span=> occurrences_of),
-            quote!(),
-            quote!(|s| ::std::ops::Deref::deref(s)),
-            func.clone(),
-        ),
-        FromFlag => (
-            quote!(),
-            quote!(),
-            quote!(|s| ::std::ops::Deref::deref(s)),
-            func.clone(),
-        ),
-        _ if attrs.custom_value_parser() => (
+        _ if attrs.ignore_parser() => (
             quote_spanned!(span=> remove_one::<#convert_type>),
             quote_spanned!(span=> remove_many::<#convert_type>),
             quote!(|s| s),
             quote_spanned!(func.span()=> |s| ::std::result::Result::Ok::<_, clap::Error>(s)),
         ),
+        FromOccurrences => {
+            occurrences = true;
+            (
+                quote_spanned!(span=> occurrences_of),
+                quote!(),
+                quote!(|s| ::std::ops::Deref::deref(s)),
+                func.clone(),
+            )
+        }
+        FromFlag => {
+            flag = true;
+            (
+                quote!(),
+                quote!(),
+                quote!(|s| ::std::ops::Deref::deref(s)),
+                func.clone(),
+            )
+        }
         FromStr => (
             quote_spanned!(span=> get_one::<String>),
             quote_spanned!(span=> get_many::<String>),
@@ -568,7 +581,7 @@ fn gen_parsers(
             quote_spanned!(func.span()=> |s| #func(s).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))),
         ),
     };
-    if attrs.is_enum() && !attrs.custom_value_parser() {
+    if attrs.is_enum() && !attrs.ignore_parser() {
         let ci = attrs.ignore_case();
 
         parse = quote_spanned! { convert_type.span()=>
@@ -576,8 +589,6 @@ fn gen_parsers(
         }
     }
 
-    let flag = *parser.kind == ParserKind::FromFlag;
-    let occurrences = *parser.kind == ParserKind::FromOccurrences;
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block
