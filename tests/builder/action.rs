@@ -81,10 +81,10 @@ fn set_true() {
         Command::new("test").arg(Arg::new("mammal").long("mammal").action(ArgAction::SetTrue));
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
-    assert_eq!(matches.get_one::<bool>("mammal"), None);
-    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
+    assert_eq!(matches.is_present("mammal"), true);
     assert_eq!(matches.occurrences_of("mammal"), 0);
-    assert_eq!(matches.index_of("mammal"), None);
+    assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
         .clone()
@@ -106,7 +106,7 @@ fn set_true() {
 }
 
 #[test]
-fn set_true_with_default_value() {
+fn set_true_with_explicit_default_value() {
     let cmd = Command::new("test").arg(
         Arg::new("mammal")
             .long("mammal")
@@ -141,6 +141,10 @@ fn set_true_with_default_value_if_present() {
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetTrue));
 
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
+
     let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
@@ -149,7 +153,7 @@ fn set_true_with_default_value_if_present() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<bool>("dog"), None);
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
 }
 
@@ -164,6 +168,10 @@ fn set_true_with_default_value_if_value() {
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetTrue));
 
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
+
     let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
@@ -172,7 +180,7 @@ fn set_true_with_default_value_if_value() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<bool>("dog"), None);
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
 }
 
@@ -191,12 +199,12 @@ fn set_true_with_required_if_eq() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<u64>("dog"), None);
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
 
-    cmd.clone()
-        .try_get_matches_from(["test", "--dog"])
-        .unwrap_err();
+    let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
 
     let matches = cmd
         .clone()
@@ -215,10 +223,10 @@ fn set_false() {
     );
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
-    assert_eq!(matches.get_one::<bool>("mammal"), None);
-    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
+    assert_eq!(matches.is_present("mammal"), true);
     assert_eq!(matches.occurrences_of("mammal"), 0);
-    assert_eq!(matches.index_of("mammal"), None);
+    assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
         .clone()
@@ -240,7 +248,7 @@ fn set_false() {
 }
 
 #[test]
-fn set_false_with_default_value() {
+fn set_false_with_explicit_default_value() {
     let cmd = Command::new("test").arg(
         Arg::new("mammal")
             .long("mammal")
@@ -275,6 +283,10 @@ fn set_false_with_default_value_if_present() {
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetFalse));
 
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
+
     let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
@@ -283,7 +295,7 @@ fn set_false_with_default_value_if_present() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<bool>("dog"), None);
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
 }
 
@@ -298,6 +310,10 @@ fn set_false_with_default_value_if_value() {
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetFalse));
 
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
+    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
+
     let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
@@ -306,7 +322,7 @@ fn set_false_with_default_value_if_value() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<bool>("dog"), None);
+    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
 }
 
@@ -315,10 +331,10 @@ fn count() {
     let cmd = Command::new("test").arg(Arg::new("mammal").long("mammal").action(ArgAction::Count));
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
-    assert_eq!(matches.get_one::<u64>("mammal"), None);
-    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 0);
+    assert_eq!(matches.is_present("mammal"), true);
     assert_eq!(matches.occurrences_of("mammal"), 0);
-    assert_eq!(matches.index_of("mammal"), None);
+    assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
         .clone()
@@ -340,7 +356,7 @@ fn count() {
 }
 
 #[test]
-fn count_with_default_value() {
+fn count_with_explicit_default_value() {
     let cmd = Command::new("test").arg(
         Arg::new("mammal")
             .long("mammal")
@@ -375,6 +391,10 @@ fn count_with_default_value_if_present() {
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::Count));
 
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(*matches.get_one::<u64>("dog").unwrap(), 0);
+    assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 0);
+
     let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
     assert_eq!(*matches.get_one::<u64>("dog").unwrap(), 1);
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 10);
@@ -383,7 +403,7 @@ fn count_with_default_value_if_present() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<u64>("dog"), None);
+    assert_eq!(*matches.get_one::<u64>("dog").unwrap(), 0);
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 1);
 }
 
@@ -398,9 +418,13 @@ fn count_with_default_value_if_value() {
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::Count));
 
+    let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(*matches.get_one::<u64>("dog").unwrap(), 0);
+    assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 0);
+
     let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
     assert_eq!(*matches.get_one::<u64>("dog").unwrap(), 1);
-    assert_eq!(matches.get_one::<u64>("mammal"), None);
+    assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 0);
 
     let matches = cmd
         .clone()
@@ -413,6 +437,6 @@ fn count_with_default_value_if_value() {
         .clone()
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
-    assert_eq!(matches.get_one::<u64>("dog"), None);
+    assert_eq!(*matches.get_one::<u64>("dog").unwrap(), 0);
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 1);
 }

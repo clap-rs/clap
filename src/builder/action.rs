@@ -119,6 +119,8 @@ pub enum ArgAction {
     IncOccurrence,
     /// When encountered, act as if `"true"` was encountered on the command-line
     ///
+    /// If no [`default_value`][super::Arg::default_value] is set, it will be `false`.
+    ///
     /// No value is allowed
     ///
     /// # Examples
@@ -133,16 +135,26 @@ pub enum ArgAction {
     ///             .action(clap::builder::ArgAction::SetTrue)
     ///     );
     ///
-    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
     /// assert!(matches.is_present("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
     ///     Some(true)
     /// );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_one::<bool>("flag").copied(),
+    ///     Some(false)
+    /// );
     /// ```
     SetTrue,
     /// When encountered, act as if `"false"` was encountered on the command-line
+    ///
+    /// If no [`default_value`][super::Arg::default_value] is set, it will be `true`.
     ///
     /// No value is allowed
     ///
@@ -158,16 +170,26 @@ pub enum ArgAction {
     ///             .action(clap::builder::ArgAction::SetFalse)
     ///     );
     ///
-    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
     /// assert!(matches.is_present("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
     ///     Some(false)
     /// );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_one::<bool>("flag").copied(),
+    ///     Some(true)
+    /// );
     /// ```
     SetFalse,
     /// When encountered, increment a `u64` counter
+    ///
+    /// If no [`default_value`][super::Arg::default_value] is set, it will be `0`.
     ///
     /// No value is allowed
     ///
@@ -183,12 +205,20 @@ pub enum ArgAction {
     ///             .action(clap::builder::ArgAction::Count)
     ///     );
     ///
-    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
     /// assert!(matches.is_present("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<u64>("flag").copied(),
     ///     Some(2)
+    /// );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
+    /// assert!(matches.is_present("flag"));
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
+    /// assert_eq!(
+    ///     matches.get_one::<u64>("flag").copied(),
+    ///     Some(0)
     /// );
     /// ```
     Count,
@@ -246,6 +276,20 @@ pub enum ArgAction {
 }
 
 impl ArgAction {
+    pub(crate) fn default_value(&self) -> Option<&'static std::ffi::OsStr> {
+        match self {
+            Self::Set => None,
+            Self::Append => None,
+            Self::StoreValue => None,
+            Self::IncOccurrence => None,
+            Self::SetTrue => Some(std::ffi::OsStr::new("false")),
+            Self::SetFalse => Some(std::ffi::OsStr::new("true")),
+            Self::Count => Some(std::ffi::OsStr::new("0")),
+            Self::Help => None,
+            Self::Version => None,
+        }
+    }
+
     pub(crate) fn takes_value(&self) -> bool {
         match self {
             Self::Set => true,
