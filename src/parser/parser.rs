@@ -9,7 +9,6 @@ use clap_lex::RawOsStr;
 
 // Internal
 use crate::builder::AppSettings as AS;
-use crate::builder::ArgAction;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -20,6 +19,7 @@ use crate::parser::features::suggestions;
 use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
+use crate::ArgAction;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {

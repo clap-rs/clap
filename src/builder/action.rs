@@ -9,7 +9,7 @@
 ///     .arg(
 ///         Arg::new("special-help")
 ///             .short('?')
-///             .action(clap::builder::ArgAction::Help)
+///             .action(clap::ArgAction::Help)
 ///     );
 ///
 /// // Existing help still exists
@@ -35,7 +35,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::builder::ArgAction::Set)
+    ///             .action(clap::ArgAction::Set)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
@@ -59,7 +59,7 @@ pub enum ArgAction {
     ///         Arg::new("flag")
     ///             .long("flag")
     ///             .multiple_occurrences(true)
-    ///             .action(clap::builder::ArgAction::Append)
+    ///             .action(clap::ArgAction::Append)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value1", "--flag", "value2"]).unwrap();
@@ -82,7 +82,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::builder::ArgAction::StoreValue)
+    ///             .action(clap::ArgAction::StoreValue)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
@@ -108,7 +108,7 @@ pub enum ArgAction {
     ///         Arg::new("flag")
     ///             .long("flag")
     ///             .multiple_occurrences(true)
-    ///             .action(clap::builder::ArgAction::IncOccurrence)
+    ///             .action(clap::ArgAction::IncOccurrence)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
@@ -132,7 +132,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::builder::ArgAction::SetTrue)
+    ///             .action(clap::ArgAction::SetTrue)
     ///     );
     ///
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
@@ -167,7 +167,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::builder::ArgAction::SetFalse)
+    ///             .action(clap::ArgAction::SetFalse)
     ///     );
     ///
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
@@ -202,7 +202,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::builder::ArgAction::Count)
+    ///             .action(clap::ArgAction::Count)
     ///     );
     ///
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
@@ -235,7 +235,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("special-help")
     ///             .short('?')
-    ///             .action(clap::builder::ArgAction::Help)
+    ///             .action(clap::ArgAction::Help)
     ///     );
     ///
     /// // Existing help still exists
@@ -261,7 +261,7 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("special-version")
     ///             .long("special-version")
-    ///             .action(clap::builder::ArgAction::Version)
+    ///             .action(clap::ArgAction::Version)
     ///     );
     ///
     /// // Existing help still exists

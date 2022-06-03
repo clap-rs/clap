@@ -18,9 +18,9 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::builder::usage_parser::UsageParser;
-use crate::builder::ArgAction;
 use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
+use crate::ArgAction;
 use crate::PossibleValue;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
@@ -1014,7 +1014,7 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::builder::ArgAction::StoreValue)
+    ///             .action(clap::ArgAction::StoreValue)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
