@@ -643,7 +643,7 @@ fn assert_arg(arg: &Arg) {
     );
 
     assert_eq!(
-        arg.get_action().takes_value(),
+        arg.get_action().takes_values(),
         arg.is_takes_value_set(),
         "Argument `{}`'s selected action {:?} contradicts `takes_value`",
         arg.name,

@@ -276,6 +276,24 @@ pub enum ArgAction {
 }
 
 impl ArgAction {
+    /// Returns whether this action accepts values on the command-line
+    ///
+    /// [`default_values`][super::Arg::default_values] and [`env`][super::Arg::env] may still be
+    /// processed.
+    pub fn takes_values(&self) -> bool {
+        match self {
+            Self::Set => true,
+            Self::Append => true,
+            Self::StoreValue => true,
+            Self::IncOccurrence => false,
+            Self::SetTrue => false,
+            Self::SetFalse => false,
+            Self::Count => false,
+            Self::Help => false,
+            Self::Version => false,
+        }
+    }
+
     pub(crate) fn default_value(&self) -> Option<&'static std::ffi::OsStr> {
         match self {
             Self::Set => None,
@@ -287,20 +305,6 @@ impl ArgAction {
             Self::Count => Some(std::ffi::OsStr::new("0")),
             Self::Help => None,
             Self::Version => None,
-        }
-    }
-
-    pub(crate) fn takes_value(&self) -> bool {
-        match self {
-            Self::Set => true,
-            Self::Append => true,
-            Self::StoreValue => true,
-            Self::IncOccurrence => false,
-            Self::SetTrue => false,
-            Self::SetFalse => false,
-            Self::Count => false,
-            Self::Help => false,
-            Self::Version => false,
         }
     }
 
