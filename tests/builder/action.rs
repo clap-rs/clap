@@ -1,7 +1,7 @@
 #![allow(clippy::bool_assert_comparison)]
 
-use clap::builder::ArgAction;
 use clap::Arg;
+use clap::ArgAction;
 use clap::Command;
 
 #[test]

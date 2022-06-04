@@ -20,6 +20,20 @@ fn opts() {
 }
 
 #[test]
+fn default_has_index() {
+    let r = Command::new("df")
+        .arg(
+            arg!(o: -o <opt> "some opt")
+                .required(false)
+                .default_value("default"),
+        )
+        .try_get_matches_from(vec![""]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(m.index_of("o"), Some(1));
+}
+
+#[test]
 fn opt_without_value_fail() {
     let r = Command::new("df")
         .arg(

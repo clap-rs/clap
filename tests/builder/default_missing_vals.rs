@@ -24,6 +24,7 @@ fn opt_missing() {
         m.value_source("color").unwrap(),
         clap::ValueSource::DefaultValue
     );
+    assert_eq!(m.index_of("color"), Some(1));
 }
 
 #[test]
@@ -50,6 +51,7 @@ fn opt_present_with_missing_value() {
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
     );
+    assert_eq!(m.index_of("color"), Some(2));
 }
 
 #[test]
@@ -76,6 +78,7 @@ fn opt_present_with_value() {
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
     );
+    assert_eq!(m.index_of("color"), Some(2));
 }
 
 #[test]
@@ -101,6 +104,7 @@ fn opt_present_with_empty_value() {
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
     );
+    assert_eq!(m.index_of("color"), Some(2));
 }
 
 //## `default_value`/`default_missing_value` non-interaction checks
@@ -270,4 +274,33 @@ fn default_missing_values_are_valid() {
                 .default_missing_value("value"),
         )
         .try_get_matches();
+}
+
+#[test]
+fn valid_index() {
+    let m = Command::new("df")
+        .arg(
+            Arg::new("color")
+                .long("color")
+                .default_value("auto")
+                .min_values(0)
+                .require_equals(true)
+                .default_missing_value("always"),
+        )
+        .arg(Arg::new("sync").long("sync"))
+        .try_get_matches_from(vec!["df", "--color", "--sync"])
+        .unwrap();
+    assert!(m.is_present("color"));
+    assert_eq!(
+        m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
+        "always"
+    );
+    assert_eq!(m.occurrences_of("color"), 1);
+    assert_eq!(
+        m.value_source("color").unwrap(),
+        clap::ValueSource::CommandLine
+    );
+
+    // Make sure the index reflects `--color`s position and not something else
+    assert_eq!(m.index_of("color"), Some(2));
 }

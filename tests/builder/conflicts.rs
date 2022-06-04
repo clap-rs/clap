@@ -62,7 +62,7 @@ fn flag_conflict_with_all() {
 }
 
 #[test]
-fn flag_conflict_with_everything() {
+fn exclusive_flag() {
     let result = Command::new("flag_conflict")
         .arg(arg!(-f --flag "some flag").exclusive(true))
         .arg(arg!(-o --other "some flag"))
@@ -70,6 +70,56 @@ fn flag_conflict_with_everything() {
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn exclusive_option() {
+    let result = Command::new("flag_conflict")
+        .arg(
+            arg!(-f --flag <VALUE> "some flag")
+                .required(false)
+                .exclusive(true),
+        )
+        .arg(arg!(-o --other <VALUE> "some flag").required(false))
+        .try_get_matches_from(vec!["myprog", "-o=val1", "-f=val2"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn not_exclusive_with_defaults() {
+    let result = Command::new("flag_conflict")
+        .arg(
+            arg!(-f --flag <VALUE> "some flag")
+                .required(false)
+                .exclusive(true),
+        )
+        .arg(
+            arg!(-o --other <VALUE> "some flag")
+                .required(false)
+                .default_value("val1"),
+        )
+        .try_get_matches_from(vec!["myprog", "-f=val2"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+}
+
+#[test]
+fn default_doesnt_activate_exclusive() {
+    let result = Command::new("flag_conflict")
+        .arg(
+            arg!(-f --flag <VALUE> "some flag")
+                .required(false)
+                .exclusive(true)
+                .default_value("val2"),
+        )
+        .arg(
+            arg!(-o --other <VALUE> "some flag")
+                .required(false)
+                .default_value("val1"),
+        )
+        .try_get_matches_from(vec!["myprog"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
 }
 
 #[test]

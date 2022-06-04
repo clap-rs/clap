@@ -26,6 +26,7 @@
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
 
+pub use crate::builder::ArgAction;
 pub use crate::builder::Command;
 pub use crate::builder::{Arg, ArgGroup};
 pub use crate::error::Error;

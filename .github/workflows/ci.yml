@@ -144,7 +144,7 @@ jobs:
     - name: Check documentation
       env:
         RUSTDOCFLAGS: -D warnings
-      run: cargo doc --workspace --all-features --no-deps --document-private-items
+      run: make doc
   rustfmt:
     name: rustfmt
     runs-on: ubuntu-latest

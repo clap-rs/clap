@@ -9,7 +9,6 @@ use clap_lex::RawOsStr;
 
 // Internal
 use crate::builder::AppSettings as AS;
-use crate::builder::ArgAction;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -20,6 +19,7 @@ use crate::parser::features::suggestions;
 use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
+use crate::ArgAction;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
@@ -771,7 +771,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     long_arg, rest
                 );
                 let used: Vec<Id> = matcher
-                    .arg_names()
+                    .arg_ids()
+                    .filter(|arg_id| {
+                        matcher.check_explicit(arg_id, crate::builder::ArgPredicate::IsPresent)
+                    })
                     .filter(|&n| {
                         self.cmd
                             .find(n)
@@ -1312,7 +1315,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         // Override anything that can override us
         let mut transitive = Vec::new();
-        for arg_id in matcher.arg_names() {
+        for arg_id in matcher.arg_ids() {
             if let Some(overrider) = self.cmd.find(arg_id) {
                 if overrider.overrides.contains(&arg.id) {
                     transitive.push(&overrider.id);
@@ -1612,7 +1615,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         let required = self.cmd.required_graph();
         let used: Vec<Id> = matcher
-            .arg_names()
+            .arg_ids()
+            .filter(|arg_id| {
+                matcher.check_explicit(arg_id, crate::builder::ArgPredicate::IsPresent)
+            })
             .filter(|n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
             .cloned()
             .collect();
