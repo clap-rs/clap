@@ -478,3 +478,50 @@ OPTIONS:
     let help = String::from_utf8(buffer).unwrap();
     snapbox::assert_eq(HELP, help);
 }
+
+#[test]
+#[cfg(feature = "unstable-v4")]
+fn derive_possible_value_help() {
+    static HELP: &str = "clap 
+Application help
+
+USAGE:
+    clap <ARG>
+
+ARGS:
+    <ARG>
+            Argument help
+
+            Possible values:
+              - foo: Foo help
+              - bar: Bar help
+
+OPTIONS:
+    -h, --help
+            Print help information
+";
+
+    /// Application help
+    #[derive(Parser, PartialEq, Debug)]
+    struct Args {
+        /// Argument help
+        #[clap(arg_enum, value_parser)]
+        arg: ArgChoice,
+    }
+
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        /// Foo help
+        Foo,
+        /// Bar help
+        Bar,
+    }
+
+    use clap::CommandFactory;
+    let mut cmd = Args::command();
+
+    let mut buffer: Vec<u8> = Default::default();
+    cmd.write_long_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    snapbox::assert_eq(HELP, help);
+}
