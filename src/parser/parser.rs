@@ -771,7 +771,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     long_arg, rest
                 );
                 let used: Vec<Id> = matcher
-                    .arg_names()
+                    .arg_ids()
                     .filter(|&n| {
                         self.cmd
                             .find(n)
@@ -1312,7 +1312,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         // Override anything that can override us
         let mut transitive = Vec::new();
-        for arg_id in matcher.arg_names() {
+        for arg_id in matcher.arg_ids() {
             if let Some(overrider) = self.cmd.find(arg_id) {
                 if overrider.overrides.contains(&arg.id) {
                     transitive.push(&overrider.id);
@@ -1612,7 +1612,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         let required = self.cmd.required_graph();
         let used: Vec<Id> = matcher
-            .arg_names()
+            .arg_ids()
             .filter(|n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
             .cloned()
             .collect();

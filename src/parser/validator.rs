@@ -52,7 +52,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
         if !has_subcmd && self.cmd.is_arg_required_else_help_set() {
             let num_user_values = matcher
-                .arg_names()
+                .arg_ids()
                 .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
@@ -179,7 +179,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         self.validate_exclusive(matcher)?;
 
         for arg_id in matcher
-            .arg_names()
+            .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|arg_id| self.cmd.find(arg_id).is_some())
         {
@@ -194,14 +194,14 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
     fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
         // Not bothering to filter for `check_explicit` since defaults shouldn't play into this
-        let args_count = matcher.arg_names().count();
+        let args_count = matcher.arg_ids().count();
         if args_count <= 1 {
             // Nothing present to conflict with
             return Ok(());
         }
 
         matcher
-            .arg_names()
+            .arg_ids()
             .filter_map(|name| {
                 debug!("Validator::validate_exclusive:iter:{:?}", name);
                 self.cmd
@@ -263,7 +263,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> String {
         let used_filtered: Vec<Id> = matcher
-            .arg_names()
+            .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
@@ -288,7 +288,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
     fn gather_requires(&mut self, matcher: &ArgMatcher) {
         debug!("Validator::gather_requires");
         for name in matcher
-            .arg_names()
+            .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
         {
             debug!("Validator::gather_requires:iter:{:?}", name);
@@ -455,9 +455,9 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
-        let is_exclusive_present = matcher.arg_names().any(|name| {
+        let is_exclusive_present = matcher.arg_ids().any(|id| {
             self.cmd
-                .find(name)
+                .find(id)
                 .map(|arg| arg.is_exclusive_set())
                 .unwrap_or_default()
         });
@@ -569,7 +569,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         );
 
         let used: Vec<Id> = matcher
-            .arg_names()
+            .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
@@ -601,7 +601,7 @@ impl Conflicts {
         debug!("Conflicts::gather_conflicts: arg={:?}", arg_id);
         let mut conflicts = Vec::new();
         for other_arg_id in matcher
-            .arg_names()
+            .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
         {
             if arg_id == other_arg_id {

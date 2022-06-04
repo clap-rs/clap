@@ -116,7 +116,7 @@ impl ArgMatcher {
         self.matches.args.contains_key(arg)
     }
 
-    pub(crate) fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> {
+    pub(crate) fn arg_ids(&self) -> indexmap::map::Keys<Id, MatchedArg> {
         self.matches.args.keys()
     }
 
