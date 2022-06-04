@@ -193,8 +193,12 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
-        // Not bothering to filter for `check_explicit` since defaults shouldn't play into this
-        let args_count = matcher.arg_ids().count();
+        let args_count = matcher
+            .arg_ids()
+            .filter(|arg_id| {
+                matcher.check_explicit(arg_id, crate::builder::ArgPredicate::IsPresent)
+            })
+            .count();
         if args_count <= 1 {
             // Nothing present to conflict with
             return Ok(());
@@ -202,6 +206,9 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
         matcher
             .arg_ids()
+            .filter(|arg_id| {
+                matcher.check_explicit(arg_id, crate::builder::ArgPredicate::IsPresent)
+            })
             .filter_map(|name| {
                 debug!("Validator::validate_exclusive:iter:{:?}", name);
                 self.cmd
@@ -455,12 +462,15 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
-        let is_exclusive_present = matcher.arg_ids().any(|id| {
-            self.cmd
-                .find(id)
-                .map(|arg| arg.is_exclusive_set())
-                .unwrap_or_default()
-        });
+        let is_exclusive_present = matcher
+            .arg_ids()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+            .any(|id| {
+                self.cmd
+                    .find(id)
+                    .map(|arg| arg.is_exclusive_set())
+                    .unwrap_or_default()
+            });
         debug!(
             "Validator::validate_required: is_exclusive_present={}",
             is_exclusive_present
