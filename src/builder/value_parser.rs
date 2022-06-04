@@ -1252,7 +1252,7 @@ impl BoolValueParser {
         ["true", "false"]
             .iter()
             .copied()
-            .map(|l| crate::PossibleValue::new(l).hide(true))
+            .map(|l| crate::PossibleValue::new(l))
     }
 }
 
@@ -1352,7 +1352,7 @@ impl FalseyValueParser {
             .iter()
             .chain(crate::util::FALSE_LITERALS.iter())
             .copied()
-            .map(|l| crate::PossibleValue::new(l).hide(true))
+            .map(|l| crate::PossibleValue::new(l).hide(l != "true" && l != "false"))
     }
 }
 
@@ -1449,7 +1449,7 @@ impl BoolishValueParser {
             .iter()
             .chain(crate::util::FALSE_LITERALS.iter())
             .copied()
-            .map(|l| crate::PossibleValue::new(l).hide(true))
+            .map(|l| crate::PossibleValue::new(l).hide(l != "true" && l != "false"))
     }
 }
 
