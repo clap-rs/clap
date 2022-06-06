@@ -162,6 +162,7 @@ fn multiple_occurrences_of_after_env() {
 }
 
 #[test]
+#[allow(deprecated)]
 fn max_occurrences_implies_multiple_occurrences() {
     let cmd = Command::new("prog").arg(
         Arg::new("verbose")
@@ -189,6 +190,7 @@ fn max_occurrences_implies_multiple_occurrences() {
 }
 
 #[test]
+#[allow(deprecated)]
 fn max_occurrences_try_inputs() {
     let cmd = Command::new("prog").arg(
         Arg::new("verbose")
@@ -226,6 +228,7 @@ fn max_occurrences_try_inputs() {
 }
 
 #[test]
+#[allow(deprecated)]
 fn max_occurrences_positional() {
     let cmd = Command::new("prog").arg(Arg::new("verbose").max_occurrences(3));
     let m = cmd.clone().try_get_matches_from(vec!["prog", "v"]);

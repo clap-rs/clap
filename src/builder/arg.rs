@@ -831,57 +831,13 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// The *maximum* number of occurrences for this argument.
-    ///
-    /// For example, if you had a
-    /// `-v` flag and you wanted up to 3 levels of verbosity you would set `.max_occurrences(3)`, and
-    /// this argument would be satisfied if the user provided it once or twice or thrice.
-    ///
-    /// **NOTE:** This implicitly sets [`Arg::multiple_occurrences(true)`] if the value is greater than 1.
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("verbosity")
-    ///     .short('v')
-    ///     .max_occurrences(3);
-    /// ```
-    ///
-    /// Supplying less than the maximum number of arguments is allowed
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("verbosity")
-    ///         .max_occurrences(3)
-    ///         .short('v'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-vvv"
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert_eq!(m.occurrences_of("verbosity"), 3);
-    /// ```
-    ///
-    /// Supplying more than the maximum number of arguments is an error
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("verbosity")
-    ///         .max_occurrences(2)
-    ///         .short('v'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-vvv"
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
-    /// ```
-    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
+    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u64).range(..max))`
     #[inline]
     #[must_use]
+    #[deprecated(
+        since = "3.2.0",
+        note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u64).range(..max))`"
+    )]
     pub fn max_occurrences(mut self, qty: usize) -> Self {
         self.max_occurs = Some(qty);
         if qty > 1 {
