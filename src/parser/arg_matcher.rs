@@ -70,11 +70,13 @@ impl ArgMatcher {
                 // We have to check if the parent's global arg wasn't used but still exists
                 // such as from a default value.
                 //
-                // For example, `myprog subcommand --global-arg=value` where --global-arg defines
+                // For example, `myprog subcommand --global-arg=value` where `--global-arg` defines
                 // a default value of `other` myprog would have an existing MatchedArg for
-                // --global-arg where the value is `other`, however the occurs will be 0.
+                // `--global-arg` where the value is `other`
                 let to_update = if let Some(parent_ma) = vals_map.get(global_arg) {
-                    if parent_ma.get_occurrences() > 0 && ma.get_occurrences() == 0 {
+                    if parent_ma.check_explicit(ArgPredicate::IsPresent)
+                        && !ma.check_explicit(ArgPredicate::IsPresent)
+                    {
                         parent_ma
                     } else {
                         ma
