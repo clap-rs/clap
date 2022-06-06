@@ -82,18 +82,20 @@ fn option_with_raw_default() {
 
 #[test]
 fn option_from_str() {
-    #[derive(Debug, PartialEq)]
+    #[derive(Clone, Debug, PartialEq)]
     struct A;
 
-    impl<'a> From<&'a str> for A {
-        fn from(_: &str) -> A {
-            A
+    impl std::str::FromStr for A {
+        type Err = std::convert::Infallible;
+
+        fn from_str(_: &str) -> Result<A, Self::Err> {
+            Ok(A)
         }
     }
 
     #[derive(Debug, Parser, PartialEq)]
     struct Opt {
-        #[clap(parse(from_str))]
+        #[clap(value_parser)]
         a: Option<A>,
     }
 
@@ -106,18 +108,20 @@ fn option_from_str() {
 
 #[test]
 fn vec_from_str() {
-    #[derive(Debug, PartialEq)]
+    #[derive(Clone, Debug, PartialEq)]
     struct A;
 
-    impl<'a> From<&'a str> for A {
-        fn from(_: &str) -> A {
-            A
+    impl std::str::FromStr for A {
+        type Err = std::convert::Infallible;
+
+        fn from_str(_: &str) -> Result<A, Self::Err> {
+            Ok(A)
         }
     }
 
     #[derive(Debug, Parser, PartialEq)]
     struct Opt {
-        #[clap(parse(from_str))]
+        #[clap(value_parser)]
         a: Vec<A>,
     }
 
@@ -133,18 +137,20 @@ fn vec_from_str() {
 
 #[test]
 fn option_vec_from_str() {
-    #[derive(Debug, PartialEq)]
+    #[derive(Clone, Debug, PartialEq)]
     struct A;
 
-    impl<'a> From<&'a str> for A {
-        fn from(_: &str) -> A {
-            A
+    impl std::str::FromStr for A {
+        type Err = std::convert::Infallible;
+
+        fn from_str(_: &str) -> Result<A, Self::Err> {
+            Ok(A)
         }
     }
 
     #[derive(Debug, Parser, PartialEq)]
     struct Opt {
-        #[clap(short, parse(from_str))]
+        #[clap(short, value_parser)]
         a: Option<Vec<A>>,
     }
 
@@ -214,13 +220,13 @@ fn required_with_option_type() {
 
 #[test]
 fn ignore_qualified_option_type() {
-    fn parser(s: &str) -> Option<String> {
-        Some(s.to_string())
+    fn parser(s: &str) -> Result<Option<String>, std::convert::Infallible> {
+        Ok(Some(s.to_string()))
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(parse(from_str = parser))]
+        #[clap(value_parser = parser)]
         arg: ::std::option::Option<String>,
     }
 
@@ -387,13 +393,13 @@ fn vec_type_with_multiple_values_only() {
 
 #[test]
 fn ignore_qualified_vec_type() {
-    fn parser(s: &str) -> Vec<String> {
-        vec![s.to_string()]
+    fn parser(s: &str) -> Result<Vec<String>, std::convert::Infallible> {
+        Ok(vec![s.to_string()])
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(parse(from_str = parser))]
+        #[clap(value_parser = parser)]
         arg: ::std::vec::Vec<String>,
     }
 

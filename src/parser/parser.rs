@@ -1176,6 +1176,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
+            #[allow(deprecated)]
             ArgAction::StoreValue => {
                 if ident == Some(Identifier::Index)
                     && arg.is_multiple_values_set()
@@ -1205,6 +1206,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
+            #[allow(deprecated)]
             ArgAction::IncOccurrence => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 if source == ValueSource::CommandLine {
@@ -1362,7 +1364,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                 } else {
                     match arg.get_action() {
+                        #[allow(deprecated)]
                         ArgAction::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
+                        #[allow(deprecated)]
                         ArgAction::IncOccurrence => {
                             debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                             let predicate = str_to_bool(val.to_str_lossy());

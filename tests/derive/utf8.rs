@@ -77,13 +77,13 @@ fn invalid_utf8_strict_option_long_equals() {
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct PositionalOs {
-    #[clap(parse(from_os_str))]
+    #[clap(value_parser)]
     arg: OsString,
 }
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct NamedOs {
-    #[clap(short, long, parse(from_os_str))]
+    #[clap(short, long, value_parser)]
     arg: OsString,
 }
 
