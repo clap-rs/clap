@@ -1,14 +1,13 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command, AppSettings};
+use clap::{arg, command, AppSettings, ArgAction};
 
 fn main() {
     let matches = command!()
-        .args_override_self(true)
         .global_setting(AppSettings::DeriveDisplayOrder)
         .allow_negative_numbers(true)
-        .arg(arg!(--two <VALUE>))
-        .arg(arg!(--one <VALUE>))
+        .arg(arg!(--two <VALUE>).action(ArgAction::Set))
+        .arg(arg!(--one <VALUE>).action(ArgAction::Set))
         .get_matches();
 
     println!(

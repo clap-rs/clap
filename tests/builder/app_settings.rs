@@ -1064,6 +1064,7 @@ fn built_in_subcommand_escaped() {
 
 #[test]
 fn aaos_flags() {
+    #![allow(deprecated)]
     // flags
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1077,6 +1078,7 @@ fn aaos_flags() {
 
 #[test]
 fn aaos_flags_mult() {
+    #![allow(deprecated)]
     // flags with multiple
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1090,6 +1092,7 @@ fn aaos_flags_mult() {
 
 #[test]
 fn aaos_opts() {
+    #![allow(deprecated)]
     // opts
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1107,6 +1110,7 @@ fn aaos_opts() {
 
 #[test]
 fn aaos_opts_w_other_overrides() {
+    #![allow(deprecated)]
     // opts with other overrides
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1130,6 +1134,7 @@ fn aaos_opts_w_other_overrides() {
 
 #[test]
 fn aaos_opts_w_other_overrides_rev() {
+    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1152,6 +1157,7 @@ fn aaos_opts_w_other_overrides_rev() {
 
 #[test]
 fn aaos_opts_w_other_overrides_2() {
+    #![allow(deprecated)]
     // opts with other overrides
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1175,6 +1181,7 @@ fn aaos_opts_w_other_overrides_2() {
 
 #[test]
 fn aaos_opts_w_other_overrides_rev_2() {
+    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1197,6 +1204,7 @@ fn aaos_opts_w_other_overrides_rev_2() {
 
 #[test]
 fn aaos_opts_w_override_as_conflict_1() {
+    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1216,6 +1224,7 @@ fn aaos_opts_w_override_as_conflict_1() {
 
 #[test]
 fn aaos_opts_w_override_as_conflict_2() {
+    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1238,6 +1247,7 @@ fn aaos_opts_w_override_as_conflict_2() {
 
 #[test]
 fn aaos_opts_mult() {
+    #![allow(deprecated)]
     // opts with multiple
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1264,6 +1274,7 @@ fn aaos_opts_mult() {
 
 #[test]
 fn aaos_opts_mult_req_delims() {
+    #![allow(deprecated)]
     // opts with multiple and require delims
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1293,6 +1304,7 @@ fn aaos_opts_mult_req_delims() {
 
 #[test]
 fn aaos_pos_mult() {
+    #![allow(deprecated)]
     // opts with multiple
     let res = Command::new("posix")
         .args_override_self(true)
@@ -1313,6 +1325,7 @@ fn aaos_pos_mult() {
 
 #[test]
 fn aaos_option_use_delim_false() {
+    #![allow(deprecated)]
     let m = Command::new("posix")
         .args_override_self(true)
         .arg(arg!(--opt <val> "some option").use_value_delimiter(false))
