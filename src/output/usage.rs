@@ -395,7 +395,13 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             .filter(|name| !self.cmd.get_positionals().any(|p| &&p.id == name))
             .filter(|name| !self.cmd.get_groups().any(|g| &&g.id == name))
             .filter(|name| !args_in_groups.contains(name))
-            .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
+            .filter(|name| {
+                !(matcher.is_some()
+                    && matcher
+                        .as_ref()
+                        .unwrap()
+                        .check_explicit(name, ArgPredicate::IsPresent))
+            })
         {
             debug!("Usage::get_required_usage_from:iter:{:?}", a);
             let arg = self.cmd.find(a).expect(INTERNAL_ERROR_MSG).to_string();
@@ -412,7 +418,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                     .cmd
                     .unroll_args_in_group(g)
                     .iter()
-                    .any(|arg| m.contains(arg));
+                    .any(|arg| m.check_explicit(arg, ArgPredicate::IsPresent));
                 if have_group_entry {
                     continue;
                 }
@@ -429,7 +435,9 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             .iter()
             .chain(incls.iter())
             .filter(|a| self.cmd.get_positionals().any(|p| &&p.id == a))
-            .filter(|&pos| matcher.map_or(true, |m| !m.contains(pos)))
+            .filter(|&pos| {
+                matcher.map_or(true, |m| !m.check_explicit(pos, ArgPredicate::IsPresent))
+            })
             .filter_map(|pos| self.cmd.find(pos))
             .filter(|&pos| incl_last || !pos.is_last_set())
             .filter(|pos| !args_in_groups.contains(&pos.id))

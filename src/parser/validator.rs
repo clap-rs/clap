@@ -88,12 +88,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         Ok(())
     }
 
-    fn validate_arg_values(
-        &self,
-        arg: &Arg,
-        ma: &MatchedArg,
-        matcher: &ArgMatcher,
-    ) -> ClapResult<()> {
+    fn validate_arg_values(&self, arg: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in ma.raw_vals_flatten() {
             if !arg.possible_vals.is_empty() {
@@ -121,7 +116,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             }
             {
                 #![allow(deprecated)]
-                if arg.is_forbid_empty_values_set() && val.is_empty() && matcher.contains(&arg.id) {
+                if arg.is_forbid_empty_values_set() && val.is_empty() {
                     debug!("Validator::validate_arg_values: illegal empty val found");
                     return Err(Error::empty_value(
                         self.cmd,
@@ -327,7 +322,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             );
             if let Some(arg) = self.cmd.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
-                self.validate_arg_values(arg, ma, matcher)?;
+                self.validate_arg_values(arg, ma)?;
                 self.validate_arg_num_occurs(arg, ma)?;
             }
             Ok(())
@@ -476,7 +471,11 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             is_exclusive_present
         );
 
-        for arg_or_group in self.required.iter().filter(|r| !matcher.contains(r)) {
+        for arg_or_group in self
+            .required
+            .iter()
+            .filter(|r| !matcher.check_explicit(r, ArgPredicate::IsPresent))
+        {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
             if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
@@ -489,7 +488,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .cmd
                     .unroll_args_in_group(&group.id)
                     .iter()
-                    .any(|a| matcher.contains(a))
+                    .any(|a| matcher.check_explicit(a, ArgPredicate::IsPresent))
                 {
                     return self.missing_required_error(matcher, vec![]);
                 }
@@ -500,7 +499,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         for a in self.cmd.get_arguments() {
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
-                    && !matcher.contains(&a.id)
+                    && !matcher.check_explicit(&a.id, ArgPredicate::IsPresent)
                 {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
@@ -509,7 +508,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             let match_all = a.r_ifs_all.iter().all(|(other, val)| {
                 matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
             });
-            if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
+            if match_all
+                && !a.r_ifs_all.is_empty()
+                && !matcher.check_explicit(&a.id, ArgPredicate::IsPresent)
+            {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
@@ -537,7 +539,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             .get_arguments()
             .filter(|&a| {
                 (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
-                    && !matcher.contains(&a.id)
+                    && !matcher.check_explicit(&a.id, ArgPredicate::IsPresent)
                     && self.fails_arg_required_unless(a, matcher)
             })
             .map(|a| a.id.clone())
