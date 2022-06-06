@@ -471,7 +471,11 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             is_exclusive_present
         );
 
-        for arg_or_group in self.required.iter().filter(|r| !matcher.contains(r)) {
+        for arg_or_group in self
+            .required
+            .iter()
+            .filter(|r| !matcher.check_explicit(r, ArgPredicate::IsPresent))
+        {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
             if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
@@ -484,7 +488,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .cmd
                     .unroll_args_in_group(&group.id)
                     .iter()
-                    .any(|a| matcher.contains(a))
+                    .any(|a| matcher.check_explicit(a, ArgPredicate::IsPresent))
                 {
                     return self.missing_required_error(matcher, vec![]);
                 }
@@ -495,7 +499,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         for a in self.cmd.get_arguments() {
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
-                    && !matcher.contains(&a.id)
+                    && !matcher.check_explicit(&a.id, ArgPredicate::IsPresent)
                 {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
@@ -504,7 +508,10 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             let match_all = a.r_ifs_all.iter().all(|(other, val)| {
                 matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
             });
-            if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
+            if match_all
+                && !a.r_ifs_all.is_empty()
+                && !matcher.check_explicit(&a.id, ArgPredicate::IsPresent)
+            {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
@@ -532,7 +539,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             .get_arguments()
             .filter(|&a| {
                 (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
-                    && !matcher.contains(&a.id)
+                    && !matcher.check_explicit(&a.id, ArgPredicate::IsPresent)
                     && self.fails_arg_required_unless(a, matcher)
             })
             .map(|a| a.id.clone())

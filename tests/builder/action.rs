@@ -202,9 +202,9 @@ fn set_true_with_required_if_eq() {
     assert_eq!(*matches.get_one::<bool>("dog").unwrap(), false);
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
 
-    let matches = cmd.clone().try_get_matches_from(["test", "--dog"]).unwrap();
-    assert_eq!(*matches.get_one::<bool>("dog").unwrap(), true);
-    assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
+    cmd.clone()
+        .try_get_matches_from(["test", "--dog"])
+        .unwrap_err();
 
     let matches = cmd
         .clone()
