@@ -330,6 +330,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
     }
 
     fn validate_arg_num_occurs(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
+        #![allow(deprecated)]
         debug!(
             "Validator::validate_arg_num_occurs: {:?}={}",
             a.name,

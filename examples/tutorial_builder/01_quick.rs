@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use clap::{arg, command, value_parser, Command};
+use clap::{arg, command, value_parser, ArgAction, Command};
 
 fn main() {
     let matches = command!()
@@ -15,9 +15,12 @@ fn main() {
             .required(false)
             .value_parser(value_parser!(PathBuf)),
         )
-        .arg(arg!(
-            -d --debug ... "Turn debugging information on"
-        ))
+        .arg(
+            arg!(
+                -d --debug "Turn debugging information on"
+            )
+            .action(ArgAction::Count),
+        )
         .subcommand(
             Command::new("test")
                 .about("does testing things")
@@ -36,7 +39,10 @@ fn main() {
 
     // You can see how many times a particular flag or argument occurred
     // Note, only flags can have multiple occurrences
-    match matches.occurrences_of("debug") {
+    match matches
+        .get_one::<u64>("debug")
+        .expect("Count's are defaulted")
+    {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
         2 => println!("Debug mode is on"),

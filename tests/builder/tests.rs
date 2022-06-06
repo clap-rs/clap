@@ -40,7 +40,7 @@ scpositional present with value: value
 ";
 
 static O2P: &str = "flag NOT present
-option present 2 times with value: some
+option present with value: some
 An option: some
 An option: other
 positional present with value: value
@@ -49,7 +49,7 @@ option2 maybe present with value of: Nothing
 positional2 maybe present with value of: Nothing
 option3 NOT present
 positional3 NOT present
-option present 2 times with value: some
+option present with value: some
 An option: some
 An option: other
 positional present with value: value
@@ -57,7 +57,7 @@ subcmd NOT present
 ";
 
 static F2OP: &str = "flag present 2 times
-option present 1 times with value: some
+option present with value: some
 An option: some
 positional present with value: value
 flag2 NOT present
@@ -65,14 +65,14 @@ option2 maybe present with value of: Nothing
 positional2 maybe present with value of: Nothing
 option3 NOT present
 positional3 NOT present
-option present 1 times with value: some
+option present with value: some
 An option: some
 positional present with value: value
 subcmd NOT present
 ";
 
 static FOP: &str = "flag present 1 times
-option present 1 times with value: some
+option present with value: some
 An option: some
 positional present with value: value
 flag2 NOT present
@@ -80,7 +80,7 @@ option2 maybe present with value of: Nothing
 positional2 maybe present with value of: Nothing
 option3 NOT present
 positional3 NOT present
-option present 1 times with value: some
+option present with value: some
 An option: some
 positional present with value: value
 subcmd NOT present
@@ -91,21 +91,18 @@ pub fn check_complex_output(args: &str, out: &str) {
     let matches = utils::complex_app()
         .try_get_matches_from(args.split(' ').collect::<Vec<_>>())
         .unwrap();
-    if matches.is_present("flag") {
-        writeln!(w, "flag present {} times", matches.occurrences_of("flag")).unwrap();
-    } else {
-        writeln!(w, "flag NOT present").unwrap();
+    match matches.get_one::<u64>("flag").unwrap() {
+        0 => {
+            writeln!(w, "flag NOT present").unwrap();
+        }
+        n => {
+            writeln!(w, "flag present {} times", n).unwrap();
+        }
     }
 
     if matches.is_present("option") {
         if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
-            writeln!(
-                w,
-                "option present {} times with value: {}",
-                matches.occurrences_of("option"),
-                v
-            )
-            .unwrap();
+            writeln!(w, "option present with value: {}", v).unwrap();
         }
         if let Some(ov) = matches.get_many::<String>("option") {
             for o in ov {
@@ -186,13 +183,7 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.is_present("option") {
         if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
-            writeln!(
-                w,
-                "option present {} times with value: {}",
-                matches.occurrences_of("option"),
-                v
-            )
-            .unwrap();
+            writeln!(w, "option present with value: {}", v).unwrap();
         }
         if let Some(ov) = matches.get_many::<String>("option") {
             for o in ov {
@@ -211,10 +202,13 @@ pub fn check_complex_output(args: &str, out: &str) {
     if let Some("subcmd") = matches.subcommand_name() {
         writeln!(w, "subcmd present").unwrap();
         if let Some(matches) = matches.subcommand_matches("subcmd") {
-            if matches.is_present("flag") {
-                writeln!(w, "flag present {} times", matches.occurrences_of("flag")).unwrap();
-            } else {
-                writeln!(w, "flag NOT present").unwrap();
+            match matches.get_one::<u64>("flag").unwrap() {
+                0 => {
+                    writeln!(w, "flag NOT present").unwrap();
+                }
+                n => {
+                    writeln!(w, "flag present {} times", n).unwrap();
+                }
             }
 
             if matches.is_present("option") {
@@ -267,7 +261,7 @@ fn flag_x2_opt() {
     check_complex_output(
         "clap-test value -f -f -o some",
         "flag present 2 times
-option present 1 times with value: some
+option present with value: some
 An option: some
 positional present with value: value
 flag2 NOT present
@@ -275,7 +269,7 @@ option2 maybe present with value of: Nothing
 positional2 maybe present with value of: Nothing
 option3 NOT present
 positional3 NOT present
-option present 1 times with value: some
+option present with value: some
 An option: some
 positional present with value: value
 subcmd NOT present

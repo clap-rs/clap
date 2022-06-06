@@ -11,7 +11,10 @@ fn set() {
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(matches.get_one::<String>("mammal"), None);
     assert_eq!(matches.is_present("mammal"), false);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), None);
 
     let matches = cmd
@@ -20,7 +23,10 @@ fn set() {
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "dog");
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(2));
 
     let matches = cmd
@@ -29,7 +35,10 @@ fn set() {
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "cat");
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(4));
 }
 
@@ -40,7 +49,10 @@ fn append() {
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(matches.get_one::<String>("mammal"), None);
     assert_eq!(matches.is_present("mammal"), false);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), None);
 
     let matches = cmd
@@ -49,7 +61,10 @@ fn append() {
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "dog");
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(
         matches.indices_of("mammal").unwrap().collect::<Vec<_>>(),
         vec![2]
@@ -68,7 +83,10 @@ fn append() {
         vec!["dog", "cat"]
     );
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(
         matches.indices_of("mammal").unwrap().collect::<Vec<_>>(),
         vec![2, 4]
@@ -83,7 +101,10 @@ fn set_true() {
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
@@ -92,7 +113,10 @@ fn set_true() {
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
@@ -101,7 +125,10 @@ fn set_true() {
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(2));
 }
 
@@ -120,13 +147,19 @@ fn set_true_with_explicit_default_value() {
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 }
 
@@ -225,7 +258,10 @@ fn set_false() {
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
@@ -234,7 +270,10 @@ fn set_false() {
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
@@ -243,7 +282,10 @@ fn set_false() {
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(2));
 }
 
@@ -262,13 +304,19 @@ fn set_false_with_explicit_default_value() {
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 }
 
@@ -333,7 +381,10 @@ fn count() {
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 0);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
@@ -342,7 +393,10 @@ fn count() {
         .unwrap();
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 1);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd
@@ -351,7 +405,10 @@ fn count() {
         .unwrap();
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 2);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(2));
 }
 
@@ -370,13 +427,19 @@ fn count_with_explicit_default_value() {
         .unwrap();
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 1);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<u64>("mammal").unwrap(), 10);
     assert_eq!(matches.is_present("mammal"), true);
-    assert_eq!(matches.occurrences_of("mammal"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(matches.occurrences_of("mammal"), 0);
+    }
     assert_eq!(matches.index_of("mammal"), Some(1));
 }
 

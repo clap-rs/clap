@@ -561,51 +561,14 @@ impl ArgMatches {
         value.and_then(MatchedArg::source)
     }
 
-    /// The number of times an argument was used at runtime.
-    ///
-    /// If an argument isn't present it will return `0`.
-    ///
-    /// **NOTE:** This returns the number of times the argument was used, *not* the number of
-    /// values. For example, `-o val1 val2 val3 -o val4` would return `2` (2 occurrences, but 4
-    /// values).  See [Arg::multiple_occurrences][crate::Arg::multiple_occurrences].
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("myprog")
-    ///     .arg(Arg::new("debug")
-    ///         .short('d')
-    ///         .multiple_occurrences(true))
-    ///     .get_matches_from(vec![
-    ///         "myprog", "-d", "-d", "-d"
-    ///     ]);
-    ///
-    /// assert_eq!(m.occurrences_of("debug"), 3);
-    /// ```
-    ///
-    /// This next example shows that counts actual uses of the argument, not just `-`'s
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("myprog")
-    ///     .arg(Arg::new("debug")
-    ///         .short('d')
-    ///         .multiple_occurrences(true))
-    ///     .arg(Arg::new("flag")
-    ///         .short('f'))
-    ///     .get_matches_from(vec![
-    ///         "myprog", "-ddfd"
-    ///     ]);
-    ///
-    /// assert_eq!(m.occurrences_of("debug"), 3);
-    /// assert_eq!(m.occurrences_of("flag"), 1);
-    /// ```
+    /// Deprecated, replaced with [`ArgMatches::get_many`]`.len()` or
+    /// [`ArgAction::Count`][crate::ArgAction].
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with either `ArgMatches::get_many(...).len()` or `ArgAction::Count`"
+    )]
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
+        #![allow(deprecated)]
         self.get_arg(&Id::from(id))
             .map_or(0, |a| a.get_occurrences())
     }

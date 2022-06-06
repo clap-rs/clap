@@ -19,7 +19,10 @@ fn opt_missing() {
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "auto"
     );
-    assert_eq!(m.occurrences_of("color"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("color"), 0);
+    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::DefaultValue
@@ -46,7 +49,10 @@ fn opt_present_with_missing_value() {
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "always"
     );
-    assert_eq!(m.occurrences_of("color"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("color"), 1);
+    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
@@ -73,7 +79,10 @@ fn opt_present_with_value() {
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "never"
     );
-    assert_eq!(m.occurrences_of("color"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("color"), 1);
+    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
@@ -99,7 +108,10 @@ fn opt_present_with_empty_value() {
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         ""
     );
-    assert_eq!(m.occurrences_of("color"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("color"), 1);
+    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
@@ -164,7 +176,10 @@ fn default_missing_value_flag_value() {
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("false")
     );
-    assert_eq!(m.occurrences_of("flag"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 0);
+    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::DefaultValue
@@ -179,7 +194,10 @@ fn default_missing_value_flag_value() {
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("true")
     );
-    assert_eq!(m.occurrences_of("flag"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 1);
+    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::CommandLine
@@ -194,7 +212,10 @@ fn default_missing_value_flag_value() {
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("true")
     );
-    assert_eq!(m.occurrences_of("flag"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 1);
+    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::CommandLine
@@ -206,7 +227,10 @@ fn default_missing_value_flag_value() {
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("false")
     );
-    assert_eq!(m.occurrences_of("flag"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 1);
+    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::CommandLine
@@ -233,7 +257,10 @@ fn delimited_missing_value() {
             .collect::<Vec<_>>(),
         vec!["one", "two"]
     );
-    assert_eq!(m.occurrences_of("flag"), 0);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 0);
+    }
 
     let m = cmd.try_get_matches_from(["test", "--flag"]).unwrap();
     assert_eq!(
@@ -243,7 +270,10 @@ fn delimited_missing_value() {
             .collect::<Vec<_>>(),
         vec!["three", "four"]
     );
-    assert_eq!(m.occurrences_of("flag"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 1);
+    }
 }
 
 #[cfg(debug_assertions)]
@@ -295,7 +325,10 @@ fn valid_index() {
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "always"
     );
-    assert_eq!(m.occurrences_of("color"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("color"), 1);
+    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine

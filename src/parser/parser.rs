@@ -1197,6 +1197,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
                     // HACK: Maintain existing occurrence behavior
                     let matched = matcher.get_mut(&arg.id).unwrap();
+                    #[allow(deprecated)]
                     matched.set_occurrences(matched.num_vals() as u64);
                 }
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {

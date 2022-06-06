@@ -171,6 +171,7 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
         debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(ValueSource::CommandLine);
+        #[allow(deprecated)]
         ma.inc_occurrences();
         ma.new_val_group();
     }
@@ -180,6 +181,7 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
         debug_assert_eq!(ma.type_id(), None);
         ma.set_source(ValueSource::CommandLine);
+        #[allow(deprecated)]
         ma.inc_occurrences();
         ma.new_val_group();
     }
@@ -197,6 +199,7 @@ impl ArgMatcher {
             )
         );
         ma.set_source(ValueSource::CommandLine);
+        #[allow(deprecated)]
         ma.inc_occurrences();
         ma.new_val_group();
     }

@@ -19,7 +19,10 @@ fn option_long() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -46,7 +49,10 @@ fn option_short() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -76,7 +82,10 @@ fn option_mixed() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 4);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 4);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -102,7 +111,10 @@ fn option_exact_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -127,7 +139,10 @@ fn option_exact_exact_not_mult() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -155,7 +170,10 @@ fn option_exact_exact_mult() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 2);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 2);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -215,7 +233,10 @@ fn option_min_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -261,7 +282,10 @@ fn option_short_min_more_mult_occurs() {
 
     assert!(m.is_present("option"));
     assert!(m.is_present("arg"));
-    assert_eq!(m.occurrences_of("option"), 4);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 4);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -289,7 +313,10 @@ fn option_short_min_more_single_occur() {
 
     assert!(m.is_present("option"));
     assert!(m.is_present("arg"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -316,7 +343,10 @@ fn option_max_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -342,7 +372,10 @@ fn option_max_less() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 2);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 2);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -385,7 +418,10 @@ fn positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -409,7 +445,10 @@ fn positional_exact_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -457,7 +496,10 @@ fn positional_min_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -487,7 +529,10 @@ fn positional_min_more() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 4);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 4);
+    }
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -507,7 +552,10 @@ fn positional_max_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -527,7 +575,10 @@ fn positional_max_less() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 2);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 2);
+    }
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -562,7 +613,10 @@ fn sep_long_equals() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -587,7 +641,10 @@ fn sep_long_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -612,7 +669,10 @@ fn sep_short_equals() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -637,7 +697,10 @@ fn sep_short_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -662,7 +725,10 @@ fn sep_short_no_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -686,7 +752,10 @@ fn sep_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -711,7 +780,10 @@ fn different_sep() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -735,7 +807,10 @@ fn different_sep_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -761,7 +836,10 @@ fn no_sep() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -783,7 +861,10 @@ fn no_sep_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -812,7 +893,10 @@ fn req_delimiter_long() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -851,7 +935,10 @@ fn req_delimiter_long_with_equal() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -890,7 +977,10 @@ fn req_delimiter_short_with_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -929,7 +1019,10 @@ fn req_delimiter_short_with_no_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -968,7 +1061,10 @@ fn req_delimiter_short_with_equal() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -1036,7 +1132,10 @@ fn req_delimiter_complex() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 10);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 10);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -1139,9 +1238,15 @@ fn low_index_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("files"), 3);
+    }
     assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("target"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1176,9 +1281,15 @@ fn low_index_positional_in_subcmd() {
     let sm = m.subcommand_matches("test").unwrap();
 
     assert!(sm.is_present("files"));
-    assert_eq!(sm.occurrences_of("files"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(sm.occurrences_of("files"), 3);
+    }
     assert!(sm.is_present("target"));
-    assert_eq!(sm.occurrences_of("target"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(sm.occurrences_of("target"), 1);
+    }
     assert_eq!(
         sm.get_many::<String>("files")
             .unwrap()
@@ -1212,9 +1323,15 @@ fn low_index_positional_with_option() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("files"), 3);
+    }
     assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("target"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1250,9 +1367,15 @@ fn low_index_positional_with_flag() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("files"), 3);
+    }
     assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("target"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1284,7 +1407,10 @@ fn multiple_value_terminator_option() {
     let m = m.unwrap();
 
     assert!(m.is_present("other"));
-    assert_eq!(m.occurrences_of("other"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("other"), 1);
+    }
     assert!(m.is_present("files"));
     assert_eq!(
         m.get_many::<String>("files")
@@ -1498,7 +1624,10 @@ fn values_per_occurrence_named() {
             .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
-    assert_eq!(m.occurrences_of("pos"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 1);
+    }
 
     let m = a.try_get_matches_from_mut(vec![
         "myprog", "--pos", "val1", "val2", "--pos", "val3", "val4",
@@ -1514,7 +1643,10 @@ fn values_per_occurrence_named() {
             .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
-    assert_eq!(m.occurrences_of("pos"), 2);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 2);
+    }
 }
 
 #[test]
@@ -1537,7 +1669,10 @@ fn values_per_occurrence_positional() {
             .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
-    assert_eq!(m.occurrences_of("pos"), 2);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos"), 2);
+    }
 
     let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2", "val3", "val4"]);
     let m = match m {
@@ -1551,7 +1686,7 @@ fn values_per_occurrence_positional() {
             .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
-    //assert_eq!(m.occurrences_of("pos"), 2);  // Fails, we don't recognize this as two occurrences
+    //#[allow(deprecated)]{assert_eq!(m.occurrences_of("pos"), 2);}  // Fails, we don't recognize this as two occurrences
 }
 
 // Theoretically we could support this but we aren't tracking occurrence boundaries for positionals
@@ -1566,7 +1701,10 @@ fn positional_parser_advances() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert_eq!(m.occurrences_of("pos1"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos1"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("pos1")
             .unwrap()
@@ -1575,7 +1713,10 @@ fn positional_parser_advances() {
         ["val1", "val2"]
     );
 
-    assert_eq!(m.occurrences_of("pos2"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("pos2"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("pos2")
             .unwrap()

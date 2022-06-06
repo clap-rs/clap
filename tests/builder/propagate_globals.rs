@@ -55,17 +55,26 @@ fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -
 }
 
 fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
-    (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
+    #[allow(deprecated)]
+    {
+        (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
+    }
 }
 
 fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
     let m = get_inner_matches(m);
-    (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
+    #[allow(deprecated)]
+    {
+        (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
+    }
 }
 
 fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
     let m = get_outer_matches(m);
-    (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
+    #[allow(deprecated)]
+    {
+        (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
+    }
 }
 
 #[test]
