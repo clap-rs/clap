@@ -288,7 +288,7 @@ impl ArgAction {
             Self::IncOccurrence => None,
             Self::SetTrue => Some(super::ValueParser::bool()),
             Self::SetFalse => Some(super::ValueParser::bool()),
-            Self::Count => Some(crate::value_parser!(u64)),
+            Self::Count => Some(crate::value_parser!(u64).into()),
             Self::Help => None,
             Self::Version => None,
         }

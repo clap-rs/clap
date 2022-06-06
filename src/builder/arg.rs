@@ -1041,7 +1041,7 @@ impl<'help> Arg<'help> {
     /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
     ///   - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
     ///   - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
-    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] for numeric ranges
+    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] and [`RangedU64ValueParser`][crate::builder::RangedU64ValueParser] for numeric ranges
     /// - [`ArgEnumValueParser`][crate::builder::ArgEnumValueParser] and  [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
     /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
     ///

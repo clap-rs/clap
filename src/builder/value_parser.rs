@@ -81,7 +81,7 @@ impl ValueParser {
     /// Pre-existing implementations include:
     /// - [`ArgEnumValueParser`] and  [`PossibleValuesParser`] for static enumerated values
     /// - [`BoolishValueParser`] and [`FalseyValueParser`] for alternative `bool` implementations
-    /// - [`RangedI64ValueParser`]
+    /// - [`RangedI64ValueParser`] and [`RangedU64ValueParser`]
     /// - [`NonEmptyStringValueParser`]
     ///
     /// # Example
@@ -302,6 +302,8 @@ impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
 ///
+/// See also [`RangedU64ValueParser`]
+///
 /// # Examples
 ///
 /// ```rust
@@ -329,6 +331,8 @@ impl From<std::ops::Range<i64>> for ValueParser {
 /// Create an `i64` [`ValueParser`] from a `N..=M` range
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// See also [`RangedU64ValueParser`]
 ///
 /// # Examples
 ///
@@ -358,6 +362,8 @@ impl From<std::ops::RangeInclusive<i64>> for ValueParser {
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
 ///
+/// See also [`RangedU64ValueParser`]
+///
 /// # Examples
 ///
 /// ```rust
@@ -385,6 +391,8 @@ impl From<std::ops::RangeFrom<i64>> for ValueParser {
 /// Create an `i64` [`ValueParser`] from a `..M` range
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// See also [`RangedU64ValueParser`]
 ///
 /// # Examples
 ///
@@ -414,6 +422,8 @@ impl From<std::ops::RangeTo<i64>> for ValueParser {
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
 ///
+/// See also [`RangedU64ValueParser`]
+///
 /// # Examples
 ///
 /// ```rust
@@ -441,6 +451,8 @@ impl From<std::ops::RangeToInclusive<i64>> for ValueParser {
 /// Create an `i64` [`ValueParser`] from a `..` range
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
+///
+/// See also [`RangedU64ValueParser`]
 ///
 /// # Examples
 ///
@@ -1235,6 +1247,201 @@ impl<T: std::convert::TryFrom<i64>> Default for RangedI64ValueParser<T> {
     }
 }
 
+/// Parse number that fall within a range of values
+///
+/// # Example
+///
+/// Usage:
+/// ```rust
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("port")
+///             .long("port")
+///             .value_parser(clap::value_parser!(u64).range(3000..))
+///             .takes_value(true)
+///             .required(true)
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+/// let port: u64 = *m.get_one("port")
+///     .expect("required");
+/// assert_eq!(port, 3001);
+/// ```
+///
+/// Semantics:
+/// ```rust
+/// # use std::ffi::OsStr;
+/// # use clap::builder::TypedValueParser;
+/// # let cmd = clap::Command::new("test");
+/// # let arg = None;
+/// let value_parser = clap::builder::RangedU64ValueParser::<u32>::new().range(0..200);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-200")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("300")).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-1")).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), 0);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
+/// ```
+#[derive(Copy, Clone, Debug)]
+pub struct RangedU64ValueParser<T: std::convert::TryFrom<u64> = u64> {
+    bounds: (std::ops::Bound<u64>, std::ops::Bound<u64>),
+    target: std::marker::PhantomData<T>,
+}
+
+impl<T: std::convert::TryFrom<u64>> RangedU64ValueParser<T> {
+    /// Select full range of `u64`
+    pub fn new() -> Self {
+        Self::from(..)
+    }
+
+    /// Narrow the supported range
+    pub fn range<B: RangeBounds<u64>>(mut self, range: B) -> Self {
+        // Consideration: when the user does `value_parser!(u8).range()`
+        // - Avoid programming mistakes by accidentally expanding the range
+        // - Make it convenient to limit the range like with `..10`
+        let start = match range.start_bound() {
+            l @ std::ops::Bound::Included(i) => {
+                debug_assert!(
+                    self.bounds.contains(i),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            l @ std::ops::Bound::Excluded(i) => {
+                debug_assert!(
+                    self.bounds.contains(&i.saturating_add(1)),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            std::ops::Bound::Unbounded => self.bounds.start_bound().cloned(),
+        };
+        let end = match range.end_bound() {
+            l @ std::ops::Bound::Included(i) => {
+                debug_assert!(
+                    self.bounds.contains(i),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            l @ std::ops::Bound::Excluded(i) => {
+                debug_assert!(
+                    self.bounds.contains(&i.saturating_sub(1)),
+                    "{} must be in {:?}",
+                    i,
+                    self.bounds
+                );
+                l.cloned()
+            }
+            std::ops::Bound::Unbounded => self.bounds.end_bound().cloned(),
+        };
+        self.bounds = (start, end);
+        self
+    }
+
+    fn format_bounds(&self) -> String {
+        let mut result = match self.bounds.0 {
+            std::ops::Bound::Included(i) => i.to_string(),
+            std::ops::Bound::Excluded(i) => i.saturating_add(1).to_string(),
+            std::ops::Bound::Unbounded => u64::MIN.to_string(),
+        };
+        result.push_str("..");
+        match self.bounds.1 {
+            std::ops::Bound::Included(i) => {
+                result.push('=');
+                result.push_str(&i.to_string());
+            }
+            std::ops::Bound::Excluded(i) => {
+                result.push_str(&i.to_string());
+            }
+            std::ops::Bound::Unbounded => {
+                result.push_str(&u64::MAX.to_string());
+            }
+        }
+        result
+    }
+}
+
+impl<T: std::convert::TryFrom<u64>> TypedValueParser for RangedU64ValueParser<T>
+where
+    <T as std::convert::TryFrom<u64>>::Error: Send + Sync + 'static + std::error::Error + ToString,
+{
+    type Value = T;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        raw_value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = raw_value.to_str().ok_or_else(|| {
+            crate::Error::invalid_utf8(
+                cmd,
+                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        })?;
+        let value = value.parse::<u64>().map_err(|err| {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                err.into(),
+            )
+            .with_cmd(cmd)
+        })?;
+        if !self.bounds.contains(&value) {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            return Err(crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                format!("{} is not in {}", value, self.format_bounds()).into(),
+            )
+            .with_cmd(cmd));
+        }
+
+        let value: Result<Self::Value, _> = value.try_into();
+        let value = value.map_err(|err| {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                err.into(),
+            )
+            .with_cmd(cmd)
+        })?;
+
+        Ok(value)
+    }
+}
+
+impl<T: std::convert::TryFrom<u64>, B: RangeBounds<u64>> From<B> for RangedU64ValueParser<T> {
+    fn from(range: B) -> Self {
+        Self {
+            bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
+            target: Default::default(),
+        }
+    }
+}
+
+impl<T: std::convert::TryFrom<u64>> Default for RangedU64ValueParser<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Implementation for [`ValueParser::bool`]
 ///
 /// Useful for composing new [`TypedValueParser`]s
@@ -1687,6 +1894,12 @@ impl ValueParserFactory for i64 {
         RangedI64ValueParser::new()
     }
 }
+impl ValueParserFactory for u64 {
+    type Parser = RangedU64ValueParser<u64>;
+    fn value_parser() -> Self::Parser {
+        RangedU64ValueParser::new()
+    }
+}
 
 #[doc(hidden)]
 #[derive(Debug)]
@@ -1784,6 +1997,8 @@ pub mod via_prelude {
 /// assert_eq!(format!("{:?}", parser), "ValueParser::path_buf");
 /// let parser = clap::value_parser!(u16).range(3000..);
 /// assert_eq!(format!("{:?}", parser), "RangedI64ValueParser { bounds: (Included(3000), Included(65535)), target: PhantomData }");
+/// let parser = clap::value_parser!(u64).range(3000..);
+/// assert_eq!(format!("{:?}", parser), "RangedU64ValueParser { bounds: (Included(3000), Unbounded), target: PhantomData }");
 ///
 /// // FromStr types
 /// let parser = clap::value_parser!(usize);
