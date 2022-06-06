@@ -2,20 +2,23 @@ use clap::{arg, Args as _, Command, FromArgMatches as _, Parser};
 
 #[derive(Parser, Debug)]
 struct DerivedArgs {
-    #[clap(short, long)]
+    #[clap(short, long, action)]
     derived: bool,
 }
 
 fn main() {
-    let cli = Command::new("CLI").arg(arg!(-b - -built));
+    let cli = Command::new("CLI").arg(arg!(-b - -built).action(clap::ArgAction::SetTrue));
     // Augment built args with derived args
     let cli = DerivedArgs::augment_args(cli);
 
     let matches = cli.get_matches();
-    println!("Value of built: {:?}", matches.is_present("built"));
+    println!(
+        "Value of built: {:?}",
+        *matches.get_one::<bool>("built").unwrap()
+    );
     println!(
         "Value of derived via ArgMatches: {:?}",
-        matches.is_present("derived")
+        *matches.get_one::<bool>("derived").unwrap()
     );
 
     // Since DerivedArgs implements FromArgMatches, we can extract it from the unstructured ArgMatches.

@@ -4897,7 +4897,7 @@ impl<'help> Arg<'help> {
                     self.default_vals = vec![default_value];
                 }
             }
-            if action.takes_value() {
+            if action.takes_values() {
                 self.settings.set(ArgSettings::TakesValue);
             } else {
                 self.settings.unset(ArgSettings::TakesValue);

@@ -5,14 +5,14 @@ use crate::utils;
 use clap::{ArgGroup, Args, Parser, Subcommand};
 
 #[test]
-fn issue_151() {
+fn issue_151_groups_within_subcommands() {
     #[derive(Args, Debug)]
     #[clap(group = ArgGroup::new("verb").required(true).multiple(true))]
     struct Opt {
-        #[clap(long, group = "verb")]
-        foo: bool,
-        #[clap(long, group = "verb")]
-        bar: bool,
+        #[clap(long, group = "verb", value_parser)]
+        foo: Option<String>,
+        #[clap(long, group = "verb", value_parser)]
+        bar: Option<String>,
     }
 
     #[derive(Debug, Parser)]
@@ -22,10 +22,10 @@ fn issue_151() {
     }
 
     assert!(Cli::try_parse_from(&["test"]).is_err());
-    assert!(Cli::try_parse_from(&["test", "--foo"]).is_ok());
-    assert!(Cli::try_parse_from(&["test", "--bar"]).is_ok());
-    assert!(Cli::try_parse_from(&["test", "--zebra"]).is_err());
-    assert!(Cli::try_parse_from(&["test", "--foo", "--bar"]).is_ok());
+    assert!(Cli::try_parse_from(&["test", "--foo=v1"]).is_ok());
+    assert!(Cli::try_parse_from(&["test", "--bar=v2"]).is_ok());
+    assert!(Cli::try_parse_from(&["test", "--zebra=v3"]).is_err());
+    assert!(Cli::try_parse_from(&["test", "--foo=v1", "--bar=v2"]).is_ok());
 }
 
 #[test]

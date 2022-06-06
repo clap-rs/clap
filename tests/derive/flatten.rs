@@ -70,7 +70,7 @@ fn flatten_in_subcommand() {
 
     #[derive(Args, PartialEq, Debug)]
     struct Add {
-        #[clap(short)]
+        #[clap(short, action)]
         interactive: bool,
         #[clap(flatten)]
         common: Common,
@@ -79,7 +79,7 @@ fn flatten_in_subcommand() {
     #[derive(Parser, PartialEq, Debug)]
     enum Opt {
         Fetch {
-            #[clap(short)]
+            #[clap(short, action)]
             all: bool,
             #[clap(flatten)]
             common: Common,
@@ -227,7 +227,7 @@ fn docstrings_ordering_with_multiple_clap() {
     /// This is the docstring for Flattened
     #[derive(Args)]
     struct Flattened {
-        #[clap(long)]
+        #[clap(long, action)]
         foo: bool,
     }
 
@@ -248,7 +248,7 @@ fn docstrings_ordering_with_multiple_clap_partial() {
     /// This is the docstring for Flattened
     #[derive(Args)]
     struct Flattened {
-        #[clap(long)]
+        #[clap(long, action)]
         foo: bool,
     }
 

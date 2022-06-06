@@ -20,19 +20,19 @@ use clap::{Args, Parser, Subcommand};
 enum Opt {
     /// Fetch stuff from GitHub
     Fetch {
-        #[clap(long)]
+        #[clap(long, action)]
         all: bool,
-        #[clap(short, long)]
         /// Overwrite local branches.
+        #[clap(short, long, action)]
         force: bool,
         #[clap(value_parser)]
         repo: String,
     },
 
     Add {
-        #[clap(short, long)]
+        #[clap(short, long, action)]
         interactive: bool,
-        #[clap(short, long)]
+        #[clap(short, long, action)]
         verbose: bool,
     },
 }
@@ -173,7 +173,7 @@ fn test_tuple_commands() {
 fn global_passed_down() {
     #[derive(Debug, PartialEq, Parser)]
     struct Opt {
-        #[clap(global = true, long)]
+        #[clap(global = true, long, action)]
         other: bool,
         #[clap(subcommand)]
         sub: Subcommands,
@@ -187,7 +187,7 @@ fn global_passed_down() {
 
     #[derive(Debug, PartialEq, Args)]
     struct GlobalCmd {
-        #[clap(from_global)]
+        #[clap(from_global, action)]
         other: bool,
     }
 

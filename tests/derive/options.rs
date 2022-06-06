@@ -37,8 +37,11 @@ fn required_option() {
         Opt { arg: 42 },
         Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
     );
+    assert_eq!(
+        Opt { arg: 42 },
+        Opt::try_parse_from(&["test", "--arg", "24", "--arg", "42"]).unwrap()
+    );
     assert!(Opt::try_parse_from(&["test"]).is_err());
-    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
 }
 
 #[test]
@@ -52,8 +55,11 @@ fn option_with_default() {
         Opt { arg: 24 },
         Opt::try_parse_from(&["test", "-a24"]).unwrap()
     );
+    assert_eq!(
+        Opt { arg: 42 },
+        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+    );
     assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
 }
 
 #[test]
@@ -67,8 +73,11 @@ fn option_with_raw_default() {
         Opt { arg: 24 },
         Opt::try_parse_from(&["test", "-a24"]).unwrap()
     );
+    assert_eq!(
+        Opt { arg: 42 },
+        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+    );
     assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
 }
 
 #[test]
@@ -157,8 +166,11 @@ fn option_type_is_optional() {
         Opt { arg: Some(42) },
         Opt::try_parse_from(&["test", "-a42"]).unwrap()
     );
+    assert_eq!(
+        Opt { arg: Some(42) },
+        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+    );
     assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
 }
 
 #[test]
@@ -176,8 +188,8 @@ fn required_with_option_type() {
     #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum SubCommands {
         ExSub {
-            #[clap(short, long, parse(from_occurrences))]
-            verbose: u8,
+            #[clap(short, long, action = clap::ArgAction::Count)]
+            verbose: u64,
         },
     }
 
@@ -238,8 +250,13 @@ fn option_option_type_is_optional_value() {
         Opt { arg: Some(None) },
         Opt::try_parse_from(&["test", "-a"]).unwrap()
     );
+    assert_eq!(
+        Opt {
+            arg: Some(Some(42))
+        },
+        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+    );
     assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
 }
 
 #[test]

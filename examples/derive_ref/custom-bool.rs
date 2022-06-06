@@ -1,21 +1,20 @@
-#![allow(deprecated)] // Can't opt-out of implicit flags until #3405
 use clap::Parser;
 
 #[derive(Parser, Debug, PartialEq)]
 #[clap(author, version, about, long_about = None)]
 struct Opt {
-    // Default parser for `try_from_str` is FromStr::from_str.
+    // Default parser for `Set` is FromStr::from_str.
     // `impl FromStr for bool` parses `true` or `false` so this
     // works as expected.
-    #[clap(long, parse(try_from_str))]
+    #[clap(long, action = clap::ArgAction::Set)]
     foo: bool,
 
     // Of course, this could be done with an explicit parser function.
-    #[clap(long, parse(try_from_str = true_or_false), default_value_t)]
+    #[clap(long, action = clap::ArgAction::Set, value_parser = true_or_false, default_value_t)]
     bar: bool,
 
-    // `bool` can be positional only with explicit `parse(...)` annotation
-    #[clap(parse(try_from_str))]
+    // `bool` can be positional only with explicit `action` annotation
+    #[clap(action = clap::ArgAction::Set)]
     boom: bool,
 }
 

@@ -5,7 +5,7 @@ fn test_standalone_long_generates_kebab_case() {
     #[derive(Parser, Debug, PartialEq)]
     #[allow(non_snake_case)]
     struct Opt {
-        #[clap(long)]
+        #[clap(long, action)]
         FOO_OPTION: bool,
     }
 
@@ -19,7 +19,7 @@ fn test_standalone_long_generates_kebab_case() {
 fn test_custom_long_overwrites_default_name() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(long = "foo")]
+        #[clap(long = "foo", action)]
         foo_option: bool,
     }
 

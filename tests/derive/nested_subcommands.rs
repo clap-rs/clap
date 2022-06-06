@@ -16,9 +16,9 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser, PartialEq, Debug)]
 struct Opt {
-    #[clap(short, long)]
+    #[clap(short, long, action)]
     force: bool,
-    #[clap(short, long, parse(from_occurrences))]
+    #[clap(short, long, action = clap::ArgAction::Count)]
     verbose: u64,
     #[clap(subcommand)]
     cmd: Sub,
@@ -32,9 +32,9 @@ enum Sub {
 
 #[derive(Parser, PartialEq, Debug)]
 struct Opt2 {
-    #[clap(short, long)]
+    #[clap(short, long, action)]
     force: bool,
-    #[clap(short, long, parse(from_occurrences))]
+    #[clap(short, long, action = clap::ArgAction::Count)]
     verbose: u64,
     #[clap(subcommand)]
     cmd: Option<Sub>,
@@ -109,7 +109,7 @@ fn test_badinput() {
 
 #[derive(Parser, PartialEq, Debug)]
 struct Opt3 {
-    #[clap(short, long)]
+    #[clap(short, long, action)]
     all: bool,
     #[clap(subcommand)]
     cmd: Sub2,
