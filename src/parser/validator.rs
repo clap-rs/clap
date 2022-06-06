@@ -88,12 +88,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         Ok(())
     }
 
-    fn validate_arg_values(
-        &self,
-        arg: &Arg,
-        ma: &MatchedArg,
-        matcher: &ArgMatcher,
-    ) -> ClapResult<()> {
+    fn validate_arg_values(&self, arg: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in ma.raw_vals_flatten() {
             if !arg.possible_vals.is_empty() {
@@ -121,7 +116,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             }
             {
                 #![allow(deprecated)]
-                if arg.is_forbid_empty_values_set() && val.is_empty() && matcher.contains(&arg.id) {
+                if arg.is_forbid_empty_values_set() && val.is_empty() {
                     debug!("Validator::validate_arg_values: illegal empty val found");
                     return Err(Error::empty_value(
                         self.cmd,
@@ -327,7 +322,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             );
             if let Some(arg) = self.cmd.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
-                self.validate_arg_values(arg, ma, matcher)?;
+                self.validate_arg_values(arg, ma)?;
                 self.validate_arg_num_occurs(arg, ma)?;
             }
             Ok(())
