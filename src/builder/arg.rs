@@ -4847,6 +4847,21 @@ impl<'help> Arg<'help> {
             } else {
                 self.settings.unset(ArgSettings::TakesValue);
             }
+            match action {
+                ArgAction::StoreValue
+                | ArgAction::IncOccurrence
+                | ArgAction::Help
+                | ArgAction::Version => {}
+                ArgAction::Set
+                | ArgAction::Append
+                | ArgAction::SetTrue
+                | ArgAction::SetFalse
+                | ArgAction::Count => {
+                    if !self.is_positional() {
+                        self.settings.set(ArgSettings::MultipleOccurrences);
+                    }
+                }
+            }
         }
 
         if self.value_parser.is_none() {
