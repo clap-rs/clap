@@ -970,12 +970,12 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::ArgAction::StoreValue)
+    ///             .action(clap::ArgAction::Set)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
     /// assert!(matches.is_present("flag"));
-    /// assert_eq!(matches.occurrences_of("flag"), 1);
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
     ///     vec!["value"]
@@ -1114,7 +1114,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.is_present("file"));
-    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
@@ -1854,7 +1853,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.is_present("option"));
-    /// assert_eq!(delims.occurrences_of("option"), 1);
     /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
@@ -1871,7 +1869,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(nodelims.is_present("option"));
-    /// assert_eq!(nodelims.occurrences_of("option"), 1);
     /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
@@ -2116,8 +2113,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
-    /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
-    /// used at runtime.
+    /// not, consider [`ArgMatches::value_source`][crate::ArgMatches::value_source].
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
@@ -2134,7 +2130,7 @@ impl<'help> Arg<'help> {
     /// First we use the default value without providing any value at runtime.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("myopt")
@@ -2145,13 +2141,13 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("opt"), Some("myval"));
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 0);
+    /// assert_eq!(m.value_source("opt"), Some(ValueSource::DefaultValue));
     /// ```
     ///
     /// Next we provide a value at runtime to override the default.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("myopt")
@@ -2162,7 +2158,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("opt"), Some("non_default"));
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
+    /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
@@ -2228,7 +2224,7 @@ impl<'help> Arg<'help> {
     /// Here is an implementation of the common POSIX style `--color` argument.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     ///
     /// macro_rules! cmd {
     ///     () => {{
@@ -2256,7 +2252,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("color"), Some("auto"));
     /// assert!(m.is_present("color"));
-    /// assert_eq!(m.occurrences_of("color"), 0);
+    /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
     ///
@@ -2266,7 +2262,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("color"), Some("never"));
     /// assert!(m.is_present("color"));
-    /// assert_eq!(m.occurrences_of("color"), 1);
+    /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
     ///
@@ -2276,9 +2272,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("color"), Some("always"));
     /// assert!(m.is_present("color"));
-    /// assert_eq!(m.occurrences_of("color"), 1);
+    /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
@@ -2459,7 +2454,6 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
@@ -4139,7 +4133,6 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--flag  "some flag").overrides_with("flag"))
     ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
-    /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     ///
     /// Making an arg [`Arg::multiple_occurrences`] and override itself
@@ -4152,7 +4145,6 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--flag ...  "some flag").overrides_with("flag"))
     ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
-    /// assert_eq!(m.occurrences_of("flag"), 4);
     /// ```
     ///
     /// Now notice with options (which *do not* set
@@ -4165,7 +4157,6 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--opt <val> "some option").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
     /// assert_eq!(m.value_of("opt"), Some("other"));
     /// ```
     ///
@@ -4183,7 +4174,6 @@ impl<'help> Arg<'help> {
     ///             )
     ///             .get_matches_from(vec!["", "--opt", "1", "2", "--opt", "3", "4", "5"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
     /// ```
     ///
@@ -4198,7 +4188,6 @@ impl<'help> Arg<'help> {
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 2);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     #[must_use]

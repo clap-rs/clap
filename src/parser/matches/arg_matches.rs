@@ -92,7 +92,7 @@ impl ArgMatches {
     /// Returns `None` if the option wasn't present.
     ///
     /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
     ///
     /// # Panic
     ///
@@ -118,7 +118,6 @@ impl ArgMatches {
     /// [option]: crate::Arg::takes_value()
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     #[track_caller]
     pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, name: &str) -> Option<&T> {
         let id = Id::from(name);
@@ -223,7 +222,7 @@ impl ArgMatches {
     /// Returns `None` if the option wasn't present.
     ///
     /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
     ///
     /// # Panic
     ///
@@ -248,7 +247,6 @@ impl ArgMatches {
     /// [option]: crate::Arg::takes_value()
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     #[track_caller]
     pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, name: &str) -> Option<T> {
         let id = Id::from(name);
@@ -500,7 +498,7 @@ impl ArgMatches {
     /// Check if an argument was present at runtime.
     ///
     /// *NOTE:* This will always return `true` if [`default_value`] has been set.
-    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
     ///
     /// # Panics
     ///
@@ -521,7 +519,6 @@ impl ArgMatches {
     /// ```
     ///
     /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
@@ -552,7 +549,6 @@ impl ArgMatches {
     /// ```
     ///
     /// [`default_value`]: crate::Arg::default_value()
-    /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn value_source<T: Key>(&self, id: T) -> Option<ValueSource> {
         let id = Id::from(id);
 
