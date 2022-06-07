@@ -50,6 +50,7 @@ pub struct Attrs {
     next_help_heading: Option<Method>,
     help_heading: Option<Method>,
     is_enum: bool,
+    is_positional: bool,
     kind: Sp<Kind>,
 }
 
@@ -436,6 +437,7 @@ impl Attrs {
             next_help_heading: None,
             help_heading: None,
             is_enum: false,
+            is_positional: true,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
         }
     }
@@ -448,6 +450,9 @@ impl Attrs {
         } else if name == "action" {
             self.action = Some(Action::Explicit(Method::new(name, quote!(#arg))));
         } else {
+            if name == "short" || name == "long" {
+                self.is_positional = false;
+            }
             self.methods.push(Method::new(name, quote!(#arg)));
         }
     }
@@ -810,6 +815,10 @@ impl Attrs {
         self.is_enum
     }
 
+    pub fn is_positional(&self) -> bool {
+        self.is_positional
+    }
+
     pub fn ignore_case(&self) -> TokenStream {
         let method = self.find_method("ignore_case");
 
@@ -826,12 +835,6 @@ impl Attrs {
 
     pub fn env_casing(&self) -> Sp<CasingStyle> {
         self.env_casing.clone()
-    }
-
-    pub fn is_positional(&self) -> bool {
-        self.methods
-            .iter()
-            .all(|m| m.name != "long" && m.name != "short")
     }
 
     pub fn has_explicit_methods(&self) -> bool {
