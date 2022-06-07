@@ -538,8 +538,11 @@ fn _verify_positionals(cmd: &Command) -> bool {
         let count = cmd
             .get_positionals()
             .filter(|p| {
-                p.is_multiple_occurrences_set()
-                    || (p.is_multiple_values_set() && p.num_vals.is_none())
+                #[allow(deprecated)]
+                {
+                    p.is_multiple_occurrences_set()
+                        || (p.is_multiple_values_set() && p.num_vals.is_none())
+                }
             })
             .count();
         let ok = count <= 1

@@ -52,7 +52,7 @@ pub fn complex_app() -> Command<'static> {
             )
             .required(false)
             .multiple_values(true)
-            .multiple_occurrences(true),
+            .action(ArgAction::Append),
         )
         .arg(arg!([positional] "tests positionals"))
         .arg(

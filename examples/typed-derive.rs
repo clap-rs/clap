@@ -22,7 +22,7 @@ struct Args {
     sleep: Option<humantime::Duration>,
 
     /// Hand-written parser for tuples
-    #[clap(short = 'D', value_parser = parse_key_val::<String, i32>, multiple_occurrences(true))]
+    #[clap(short = 'D', value_parser = parse_key_val::<String, i32>)]
     defines: Vec<(String, i32)>,
 }
 

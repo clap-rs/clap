@@ -242,7 +242,7 @@ fn ignore_qualified_option_type() {
 fn option_option_type_is_optional_value() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, value_parser, multiple_occurrences(true))]
+        #[clap(short, value_parser)]
         #[allow(clippy::option_option)]
         arg: Option<Option<i32>>,
     }
@@ -371,13 +371,7 @@ fn vec_type_with_required() {
 fn vec_type_with_multiple_values_only() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(
-            short,
-            long,
-            multiple_values(true),
-            multiple_occurrences(false),
-            value_parser
-        )]
+        #[clap(short, long, multiple_values(true), value_parser)]
         arg: Vec<i32>,
     }
     assert_eq!(

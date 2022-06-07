@@ -776,53 +776,10 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the argument may appear more than once.
-    ///
-    /// For flags, this results in the number of occurrences of the flag being recorded. For
-    /// example `-ddd` or `-d -d -d` would count as three occurrences. For options or arguments
-    /// that take a value, this *does not* affect how many values they can accept. (i.e. only one
-    /// at a time is allowed)
-    ///
-    /// For example, `--opt val1 --opt val2` is allowed, but `--opt val1 val2` is not.
-    ///
-    /// # Examples
-    ///
-    /// An example with flags
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("verbose")
-    ///         .multiple_occurrences(true)
-    ///         .short('v'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
-    ///     ]);
-    ///
-    /// assert!(m.is_present("verbose"));
-    /// assert_eq!(m.occurrences_of("verbose"), 3);
-    /// ```
-    ///
-    /// An example with options
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .multiple_occurrences(true)
-    ///         .takes_value(true)
-    ///         .short('F'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("file"));
-    /// assert_eq!(m.occurrences_of("file"), 3);
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// ```
+    /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
     #[inline]
     #[must_use]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action` (Issue #3772)")]
     pub fn multiple_occurrences(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::MultipleOccurrences)
@@ -1089,7 +1046,7 @@ impl<'help> Arg<'help> {
     /// until another argument is reached and it knows `--ui-paths` is done parsing.
     ///
     /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
-    /// [`Arg::number_of_values(1)`] or using *only* [`Arg::multiple_occurrences`]. The following are all
+    /// [`Arg::number_of_values(1)`] or using *only* [`ArgAction::Append`]. The following are all
     /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
     /// case.
     ///
@@ -1161,14 +1118,14 @@ impl<'help> Arg<'help> {
     /// appear to only fail sometimes...not good!
     ///
     /// A solution for the example above is to limit how many values with a [maximum], or [specific]
-    /// number, or to say [`Arg::multiple_occurrences`] is ok, but multiple values is not.
+    /// number, or to say [`ArgAction::Append`] is ok, but multiple values is not.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .takes_value(true)
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
     ///     .get_matches_from(vec![
@@ -1185,11 +1142,11 @@ impl<'help> Arg<'help> {
     /// As a final example, let's fix the above error and get a pretty message to the user :)
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .takes_value(true)
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
     ///     .try_get_matches_from(vec![
@@ -4477,7 +4434,8 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::MultipleValues)
     }
 
-    /// Report whether [`Arg::multiple_occurrences`] is set
+    /// [`Arg::multiple_occurrences`] is going away  ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
+    #[deprecated(since = "3.2.0", note = "`multiple_occurrences` away (Issue #3772)")]
     pub fn is_multiple_occurrences_set(&self) -> bool {
         self.is_set(ArgSettings::MultipleOccurrences)
     }

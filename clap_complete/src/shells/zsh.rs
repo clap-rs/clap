@@ -451,6 +451,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
         let help = o.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o, p_global);
 
+        #[allow(deprecated)]
         let multiple = if o.is_multiple_occurrences_set() {
             "*"
         } else {
@@ -554,6 +555,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
         let help = f.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, &f, p_global);
 
+        #[allow(deprecated)]
         let multiple = if f.is_multiple_occurrences_set() {
             "*"
         } else {
@@ -632,6 +634,7 @@ fn write_positionals_of(p: &Command) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
+        #[allow(deprecated)]
         let cardinality = if arg.is_multiple_values_set() || arg.is_multiple_occurrences_set() {
             "*:"
         } else if !arg.is_required_set() {

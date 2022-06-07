@@ -1,89 +1,44 @@
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, Arg, ArgAction, Command};
 
 #[test]
 fn multiple_occurrences_of_flags_long() {
     let m = Command::new("mo_flags_long")
-        .arg(arg!(--multflag "allowed multiple flag").multiple_occurrences(true))
-        .arg(arg!(--flag "disallowed multiple flag"))
+        .arg(arg!(--multflag "allowed multiple flag").action(ArgAction::SetTrue))
+        .arg(arg!(--flag "disallowed multiple flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--multflag", "--flag", "--multflag"])
         .unwrap();
     assert!(m.is_present("multflag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multflag"), 2);
-    }
+    assert_eq!(m.get_one::<bool>("multflag").copied(), Some(true));
     assert!(m.is_present("flag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
+    assert_eq!(m.get_one::<bool>("flag").copied(), Some(true));
 }
 
 #[test]
 fn multiple_occurrences_of_flags_short() {
     let m = Command::new("mo_flags_short")
-        .arg(arg!(-m --multflag "allowed multiple flag").multiple_occurrences(true))
-        .arg(arg!(-f --flag "disallowed multiple flag"))
+        .arg(arg!(-m --multflag "allowed multiple flag").action(ArgAction::SetTrue))
+        .arg(arg!(-f --flag "disallowed multiple flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-m", "-f", "-m"])
         .unwrap();
     assert!(m.is_present("multflag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multflag"), 2);
-    }
+    assert_eq!(m.get_one::<bool>("multflag").copied(), Some(true));
     assert!(m.is_present("flag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
-}
-
-#[test]
-fn multiple_occurrences_of_flags_mixed() {
-    let m = Command::new("mo_flags_mixed")
-        .arg(arg!(-m --multflag1 "allowed multiple flag").multiple_occurrences(true))
-        .arg(arg!(-n --multflag2 "another allowed multiple flag").multiple_occurrences(true))
-        .arg(arg!(-f --flag "disallowed multiple flag"))
-        .try_get_matches_from(vec![
-            "",
-            "-m",
-            "-f",
-            "-n",
-            "--multflag1",
-            "-m",
-            "--multflag2",
-        ])
-        .unwrap();
-    assert!(m.is_present("multflag1"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multflag1"), 3);
-    }
-    assert!(m.is_present("multflag2"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multflag2"), 2);
-    }
-    assert!(m.is_present("flag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
+    assert_eq!(m.get_one::<bool>("flag").copied(), Some(true));
 }
 
 #[test]
 fn multiple_occurrences_of_positional() {
-    let cmd = Command::new("test").arg(Arg::new("multi").multiple_occurrences(true));
+    let cmd = Command::new("test").arg(
+        Arg::new("multi")
+            .multiple_values(true)
+            .action(ArgAction::Append),
+    );
 
     let m = cmd
         .clone()
         .try_get_matches_from(&["test"])
         .expect("zero occurrences work");
     assert!(!m.is_present("multi"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multi"), 0);
-    }
     assert!(m.get_many::<String>("multi").is_none());
 
     let m = cmd
@@ -91,10 +46,6 @@ fn multiple_occurrences_of_positional() {
         .try_get_matches_from(&["test", "one"])
         .expect("single occurrence work");
     assert!(m.is_present("multi"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multi"), 1);
-    }
     assert_eq!(
         m.get_many::<String>("multi")
             .unwrap()
@@ -108,10 +59,6 @@ fn multiple_occurrences_of_positional() {
         .try_get_matches_from(&["test", "one", "two", "three", "four"])
         .expect("many occurrences work");
     assert!(m.is_present("multi"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multi"), 4);
-    }
     assert_eq!(
         m.get_many::<String>("multi")
             .unwrap()
@@ -128,14 +75,11 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .chain(vec!["-m"; 1024].into_iter())
         .collect();
     let m = Command::new("mo_flags_large_qty")
-        .arg(arg!(-m --multflag "allowed multiple flag").multiple_occurrences(true))
+        .arg(arg!(-m --multflag "allowed multiple flag").action(ArgAction::Count))
         .try_get_matches_from(args)
         .unwrap();
     assert!(m.is_present("multflag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("multflag"), 1024);
-    }
+    assert_eq!(m.get_one::<u64>("multflag").copied(), Some(1024));
 }
 
 #[cfg(feature = "env")]
@@ -147,35 +91,28 @@ fn multiple_occurrences_of_before_env() {
             .short('v')
             .long("verbose")
             .takes_value(false)
-            .multiple_occurrences(true),
+            .action(ArgAction::Count),
     );
 
     let m = cmd.clone().try_get_matches_from(vec![""]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(0));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(1));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(2));
+
     let m = cmd.clone().try_get_matches_from(vec!["", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(3));
 }
 
 #[cfg(feature = "env")]
@@ -186,149 +123,27 @@ fn multiple_occurrences_of_after_env() {
             .short('v')
             .long("verbose")
             .takes_value(false)
-            .multiple_occurrences(true)
+            .action(ArgAction::Count)
             .env("VERBOSE"),
     );
 
     let m = cmd.clone().try_get_matches_from(vec![""]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(0));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(1));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
-    }
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(2));
+
     let m = cmd.clone().try_get_matches_from(vec!["", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
-    }
-}
-
-#[test]
-#[allow(deprecated)]
-fn max_occurrences_implies_multiple_occurrences() {
-    let cmd = Command::new("prog").arg(
-        Arg::new("verbose")
-            .short('v')
-            .long("verbose")
-            .max_occurrences(3),
-    );
-    let m = cmd.try_get_matches_from(vec!["prog", "-vvv"]);
-
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
-    }
-
-    // One max should not imply multiple occurrences
-    let cmd = Command::new("prog").arg(
-        Arg::new("verbose")
-            .short('v')
-            .long("verbose")
-            .max_occurrences(1),
-    );
-
-    let m = cmd.try_get_matches_from(vec!["prog", "-vvv"]);
-
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnexpectedMultipleUsage);
-}
-
-#[test]
-#[allow(deprecated)]
-fn max_occurrences_try_inputs() {
-    let cmd = Command::new("prog").arg(
-        Arg::new("verbose")
-            .short('v')
-            .long("verbose")
-            .max_occurrences(3),
-    );
-    let m = cmd.clone().try_get_matches_from(vec!["prog", "-v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
-    }
-
-    let m = cmd.clone().try_get_matches_from(vec!["prog", "-vv"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
-    }
-
-    let m = cmd.clone().try_get_matches_from(vec!["prog", "-vvv"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
-    }
-
-    let m = cmd.clone().try_get_matches_from(vec!["prog", "-vvvv"]);
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
-
-    let m = cmd
-        .clone()
-        .try_get_matches_from(vec!["prog", "-v", "-v", "-v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
-    }
-
-    let m = cmd
-        .clone()
-        .try_get_matches_from(vec!["prog", "-v", "-vv", "-v"]);
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
-}
-
-#[test]
-#[allow(deprecated)]
-fn max_occurrences_positional() {
-    let cmd = Command::new("prog").arg(Arg::new("verbose").max_occurrences(3));
-    let m = cmd.clone().try_get_matches_from(vec!["prog", "v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
-    }
-
-    let m = cmd.clone().try_get_matches_from(vec!["prog", "v", "v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
-    }
-
-    let m = cmd
-        .clone()
-        .try_get_matches_from(vec!["prog", "v", "v", "v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
-    }
-
-    let m = cmd
-        .clone()
-        .try_get_matches_from(vec!["prog", "v", "v", "v", "v"]);
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
+    let m = m.unwrap();
+    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(3));
 }

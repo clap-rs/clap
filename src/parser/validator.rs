@@ -375,6 +375,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         if let Some(num) = a.num_vals {
             let total_num = ma.num_vals();
             debug!("Validator::validate_arg_num_vals: num_vals set...{}", num);
+            #[allow(deprecated)]
             let should_err = if a.is_multiple_occurrences_set() {
                 total_num % num != 0
             } else {
@@ -386,6 +387,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     self.cmd,
                     a.to_string(),
                     num,
+                    #[allow(deprecated)]
                     if a.is_multiple_occurrences_set() {
                         total_num % num
                     } else {

@@ -218,8 +218,7 @@ fn build_cli() -> Command<'static> {
                     Arg::new("command")
                         .required(true)
                         .takes_value(true)
-                        .multiple_values(true)
-                        .multiple_occurrences(true),
+                        .multiple_values(true),
                 ),
         )
         .subcommand(

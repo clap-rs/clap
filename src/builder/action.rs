@@ -58,7 +58,6 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .multiple_occurrences(true)
     ///             .action(clap::ArgAction::Append)
     ///     );
     ///

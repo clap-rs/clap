@@ -3,7 +3,7 @@
 //
 // CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
 
-use clap::{value_parser, Arg, Command};
+use clap::{value_parser, Arg, ArgAction, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -323,17 +323,12 @@ where
             "type-list",
             "version",
         ]))
-        .arg(
-            arg("path")
-                .takes_value(true)
-                .multiple_values(true)
-                .multiple_occurrences(true),
-        )
+        .arg(arg("path").takes_value(true).multiple_values(true))
         .arg(
             flag("regexp")
                 .short('e')
                 .allow_hyphen_values(true)
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .takes_value(true)
                 .value_name("pattern"),
         )
@@ -357,14 +352,14 @@ where
         .arg(
             flag("colors")
                 .value_name("SPEC")
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .takes_value(true),
         )
         .arg(flag("fixed-strings").short('F'))
         .arg(
             flag("glob")
                 .short('g')
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .takes_value(true)
                 .value_name("GLOB"),
         )
@@ -375,18 +370,18 @@ where
         .arg(
             flag("type")
                 .short('t')
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .takes_value(true)
                 .value_name("TYPE"),
         )
         .arg(
             flag("type-not")
                 .short('T')
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .takes_value(true)
                 .value_name("TYPE"),
         )
-        .arg(flag("unrestricted").short('u').multiple_occurrences(true))
+        .arg(flag("unrestricted").short('u').action(ArgAction::Append))
         .arg(flag("invert-match").short('v'))
         .arg(flag("word-regexp").short('w'))
         // Third, set up less common flags.
@@ -415,7 +410,7 @@ where
             flag("file")
                 .short('f')
                 .value_name("FILE")
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .arg(flag("files-with-matches").short('l'))
         .arg(flag("files-without-match"))
@@ -427,7 +422,7 @@ where
         .arg(
             flag("ignore-file")
                 .value_name("FILE")
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .arg(flag("follow").short('L'))
         .arg(
@@ -464,12 +459,12 @@ where
         .arg(
             flag("type-add")
                 .value_name("TYPE")
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .arg(
             flag("type-clear")
                 .value_name("TYPE")
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
 }
 

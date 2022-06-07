@@ -1,4 +1,4 @@
-use clap::{Arg, ArgMatches, Command};
+use clap::{Arg, ArgAction, ArgMatches, Command};
 
 fn get_app() -> Command<'static> {
     Command::new("myprog")
@@ -15,7 +15,7 @@ fn get_app() -> Command<'static> {
                 .long("global-flag")
                 .help("Specifies something needed by the subcommands")
                 .global(true)
-                .multiple_occurrences(true),
+                .action(ArgAction::Count),
         )
         .subcommand(Command::new("outer").subcommand(Command::new("inner")))
 }
@@ -55,26 +55,20 @@ fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -
 }
 
 fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
-    #[allow(deprecated)]
-    {
-        (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
-    }
+    (m.is_present("GLOBAL_FLAG") == present)
+        && (m.get_one::<u64>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
 fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
     let m = get_inner_matches(m);
-    #[allow(deprecated)]
-    {
-        (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
-    }
+    (m.is_present("GLOBAL_FLAG") == present)
+        && (m.get_one::<u64>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
 fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
     let m = get_outer_matches(m);
-    #[allow(deprecated)]
-    {
-        (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
-    }
+    (m.is_present("GLOBAL_FLAG") == present)
+        && (m.get_one::<u64>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
 #[test]

@@ -230,6 +230,7 @@ impl ArgMatcher {
             true
         } else if let Some(num) = o.num_vals {
             debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
+            #[allow(deprecated)]
             if o.is_multiple_occurrences_set() {
                 (current_num % num) != 0
             } else {

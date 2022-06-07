@@ -29,15 +29,13 @@ use crate::INTERNAL_ERROR_MSG;
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{Command, Arg};
+/// # use clap::{Command, Arg, ValueSource};
 /// let matches = Command::new("MyApp")
 ///     .arg(Arg::new("out")
 ///         .long("output")
 ///         .required(true)
-///         .takes_value(true))
-///     .arg(Arg::new("debug")
-///         .short('d')
-///         .multiple_occurrences(true))
+///         .takes_value(true)
+///         .default_value("-"))
 ///     .arg(Arg::new("cfg")
 ///         .short('c')
 ///         .takes_value(true))
@@ -57,14 +55,11 @@ use crate::INTERNAL_ERROR_MSG;
 ///
 /// // You can check the presence of an argument
 /// if matches.is_present("out") {
-///     // Another way to check if an argument was present, or if it occurred multiple times is to
-///     // use occurrences_of() which returns 0 if an argument isn't found at runtime, or the
-///     // number of times that it occurred, if it was. To allow an argument to appear more than
-///     // once, you must use the .multiple_occurrences(true) method, otherwise it will only return 1 or 0.
-///     if matches.occurrences_of("debug") > 2 {
-///         println!("Debug mode is REALLY on, don't be crazy");
+///     // However, if you want to know where the value came from
+///     if matches.value_source("out").expect("checked is_present") == ValueSource::CommandLine {
+///         println!("`out` set by user");
 ///     } else {
-///         println!("Debug mode kind of on");
+///         println!("`out` is defaulted");
 ///     }
 /// }
 /// ```
@@ -140,10 +135,10 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, value_parser};
+    /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("ports")
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
     ///         .value_parser(value_parser!(usize))
     ///         .short('p')
     ///         .takes_value(true)
@@ -269,10 +264,11 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, value_parser};
+    /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let mut m = Command::new("myprog")
     ///     .arg(Arg::new("file")
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
+    ///         .multiple_values(true)
     ///         .required(true)
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
@@ -379,12 +375,12 @@ impl ArgMatches {
     ///
     /// # Examples
     /// ```rust
-    /// # use clap::{Command,Arg};
+    /// # use clap::{Command,Arg, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("exec")
     ///         .short('x')
     ///         .min_values(1)
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
     ///         .value_terminator(";"))
     ///     .get_matches_from(vec![
     ///         "myprog", "-x", "echo", "hi", ";", "-x", "echo", "bye"]);
@@ -746,21 +742,21 @@ impl ArgMatches {
     /// Another quick example is when flags and options are used together
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
-    ///         .multiple_occurrences(true))
+    ///         .action(ArgAction::Append))
     ///     .arg(Arg::new("flag")
     ///         .short('f')
-    ///         .multiple_occurrences(true))
+    ///         .action(ArgAction::Count))
     ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
     ///            // ARGV indices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
     ///            // clap indices:                ^2      ^3          ^5      ^6
     ///
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
-    /// assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[3, 6]);
+    /// assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[6]);
     /// ```
     ///
     /// One final example, which is an odd case; if we *don't* use  value delimiter as we did with
@@ -1255,11 +1251,11 @@ pub(crate) struct SubCommand {
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Command, Arg};
+/// # use clap::{Command, Arg, ArgAction};
 /// let mut m = Command::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .multiple_occurrences(true)
+///         .action(ArgAction::Append)
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
 ///
@@ -1312,11 +1308,11 @@ impl<T> Default for Values2<T> {
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Command, Arg};
+/// # use clap::{Command, Arg, ArgAction};
 /// let m = Command::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .multiple_occurrences(true)
+///         .action(ArgAction::Append)
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
 ///

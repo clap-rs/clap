@@ -6,7 +6,7 @@ pub fn basic_command(name: &'static str) -> clap::Command<'static> {
             clap::Command::new("test").about("Subcommand").arg(
                 clap::Arg::new("debug")
                     .short('d')
-                    .multiple_occurrences(true),
+                    .action(clap::ArgAction::Count),
             ),
         )
 }
@@ -23,7 +23,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
         )
         .arg(
             clap::Arg::new("config")
-                .multiple_occurrences(true)
+                .action(clap::ArgAction::Count)
                 .help("some config file")
                 .short('c')
                 .visible_short_alias('C')
@@ -57,7 +57,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                 .arg(
                     clap::Arg::new("path")
                         .takes_value(true)
-                        .multiple_occurrences(true),
+                        .multiple_values(true),
                 ),
         )
         .subcommand(clap::Command::new("some-cmd-with-hyphens").alias("hyphen"))

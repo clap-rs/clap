@@ -1,4 +1,4 @@
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
 fn flag_overrides_itself() {
@@ -454,7 +454,7 @@ fn issue_1374_overrides_self_with_multiple_values() {
 #[test]
 fn incremental_override() {
     let mut cmd = Command::new("test")
-        .arg(arg!(--name <NAME>).multiple_occurrences(true))
+        .arg(arg!(--name <NAME>).action(ArgAction::Append))
         .arg(arg!(--"no-name").overrides_with("name"));
     let m = cmd
         .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])
