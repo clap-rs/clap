@@ -1,4 +1,5 @@
-mod action;
+#![allow(deprecated)]
+
 mod app_from_crate;
 mod app_settings;
 mod arg_aliases;
@@ -28,7 +29,6 @@ mod help_env;
 mod hidden_args;
 mod ignore_errors;
 mod indices;
-mod legacy;
 mod multiple_occurrences;
 mod multiple_values;
 mod opts;
