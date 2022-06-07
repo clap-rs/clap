@@ -242,7 +242,7 @@ pub fn check_complex_output(args: &str, out: &str) {
     }
 
     let res = str::from_utf8(&w).unwrap();
-    assert_eq!(res, out);
+    snapbox::assert_eq(out, res);
 }
 
 #[test]
