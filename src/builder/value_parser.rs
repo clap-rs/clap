@@ -1459,7 +1459,7 @@ impl BoolValueParser {
         ["true", "false"]
             .iter()
             .copied()
-            .map(|l| crate::PossibleValue::new(l))
+            .map(crate::PossibleValue::new)
     }
 }
 
