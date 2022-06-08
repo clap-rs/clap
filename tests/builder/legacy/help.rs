@@ -1991,7 +1991,7 @@ fn issue_1487() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
+#[should_panic = "Command::help_expected is enabled for the Command"]
 fn help_required_but_not_given() {
     Command::new("myapp")
         .help_expected(true)
@@ -2002,7 +2002,7 @@ fn help_required_but_not_given() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
+#[should_panic = "Command::help_expected is enabled for the Command"]
 fn help_required_but_not_given_settings_after_args() {
     Command::new("myapp")
         .arg(Arg::new("foo"))
@@ -2013,7 +2013,7 @@ fn help_required_but_not_given_settings_after_args() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
+#[should_panic = "Command::help_expected is enabled for the Command"]
 fn help_required_but_not_given_for_one_of_two_arguments() {
     Command::new("myapp")
         .help_expected(true)
@@ -2040,7 +2040,7 @@ fn help_required_globally() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpExpected is enabled for the Command"]
+#[should_panic = "Command::help_expected is enabled for the Command"]
 fn help_required_globally_but_not_given_for_subcommand() {
     Command::new("myapp")
         .help_expected(true)

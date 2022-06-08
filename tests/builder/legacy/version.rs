@@ -206,7 +206,7 @@ fn propagate_version_short() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Used Command::mut_arg(\"version\", ..) without providing Command::version, Command::long_version or using AppSettings::NoAutoVersion"]
+#[should_panic = "`ArgAction::Version` used without providing Command::version or Command::long_version"]
 fn mut_arg_version_panic() {
     let _res = common()
         .mut_arg("version", |v| v.short('z'))

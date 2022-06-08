@@ -2,7 +2,7 @@ use super::utils;
 
 use std::str;
 
-use clap::{error::ErrorKind, AppSettings, Arg, Command};
+use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
 fn common() -> Command<'static> {
     Command::new("foo")
@@ -206,7 +206,7 @@ fn propagate_version_short() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Used Command::mut_arg(\"version\", ..) without providing Command::version, Command::long_version or using AppSettings::NoAutoVersion"]
+#[should_panic = "`ArgAction::Version` used without providing Command::version or Command::long_version"]
 fn mut_arg_version_panic() {
     let _res = common()
         .mut_arg("version", |v| v.short('z'))
@@ -216,12 +216,11 @@ fn mut_arg_version_panic() {
 #[test]
 fn mut_arg_version_no_auto_version() {
     let res = common()
-        .mut_arg("version", |v| v.short('z'))
-        .setting(AppSettings::NoAutoVersion)
+        .mut_arg("version", |v| v.short('z').action(ArgAction::SetTrue))
         .try_get_matches_from("foo -z".split(' '));
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
-    assert!(res.unwrap().is_present("version"));
+    assert_eq!(res.unwrap().get_one::<bool>("version").copied(), Some(true));
 }
 
 #[cfg(debug_assertions)]

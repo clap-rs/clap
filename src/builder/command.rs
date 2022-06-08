@@ -4373,7 +4373,7 @@ impl<'help> App<'help> {
                 .collect();
 
             assert!(args_missing_help.is_empty(),
-                    "AppSettings::HelpExpected is enabled for the Command {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
+                    "Command::help_expected is enabled for the Command {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
                 );
