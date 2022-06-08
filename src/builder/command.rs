@@ -3682,9 +3682,11 @@ impl<'help> App<'help> {
         if !self.is_allow_external_subcommands_set() {
             None
         } else if self.is_allow_invalid_utf8_for_external_subcommands_set() {
-            Some(&super::ValueParser(super::ValueParserInner::OsString))
+            static DEFAULT: super::ValueParser = super::ValueParser::os_string();
+            Some(&DEFAULT)
         } else {
-            Some(&super::ValueParser(super::ValueParserInner::String))
+            static DEFAULT: super::ValueParser = super::ValueParser::string();
+            Some(&DEFAULT)
         }
     }
 
