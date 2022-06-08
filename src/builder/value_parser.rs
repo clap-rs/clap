@@ -58,10 +58,10 @@ use crate::parser::AnyValueId;
 /// assert_eq!(port, 3001);
 /// ```
 #[derive(Clone)]
-pub struct ValueParser(pub(crate) ValueParserInner);
+pub struct ValueParser(ValueParserInner);
 
 #[derive(Clone)]
-pub(crate) enum ValueParserInner {
+enum ValueParserInner {
     // Common enough to optimize and for possible values
     Bool,
     // Common enough to optimize

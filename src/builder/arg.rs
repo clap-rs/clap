@@ -4487,9 +4487,11 @@ impl<'help> Arg<'help> {
         if let Some(value_parser) = self.value_parser.as_ref() {
             value_parser
         } else if self.is_allow_invalid_utf8_set() {
-            &super::ValueParser(super::ValueParserInner::OsString)
+            static DEFAULT: super::ValueParser = super::ValueParser::os_string();
+            &DEFAULT
         } else {
-            &super::ValueParser(super::ValueParserInner::String)
+            static DEFAULT: super::ValueParser = super::ValueParser::string();
+            &DEFAULT
         }
     }
 
