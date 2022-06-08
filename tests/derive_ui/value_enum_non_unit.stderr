@@ -1,0 +1,5 @@
+error: `#[derive(ValueEnum)]` only supports non-unit variants, unless they are skipped
+ --> tests/derive_ui/value_enum_non_unit.rs:5:5
+  |
+5 |     Foo(usize),
+  |     ^^^

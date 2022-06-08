@@ -1,31 +1,31 @@
 warning: use of deprecated variant `clap::ArgAction::IncOccurrence`: Replaced with `ArgAction::SetTrue` or `ArgAction::Count`
- --> tests/derive_ui/bool_arg_enum.rs:6:5
+ --> tests/derive_ui/next/bool_value_enum.rs:6:5
   |
-6 |     #[clap(short, arg_enum)]
+6 |     #[clap(short, value_enum)]
   |     ^
   |
   = note: `#[warn(deprecated)]` on by default
 
 warning: use of deprecated variant `clap::ArgAction::IncOccurrence`: Replaced with `ArgAction::SetTrue` or `ArgAction::Count`
- --> tests/derive_ui/bool_arg_enum.rs:6:5
+ --> tests/derive_ui/next/bool_value_enum.rs:6:5
   |
-6 |     #[clap(short, arg_enum)]
+6 |     #[clap(short, value_enum)]
   |     ^
 
 error[E0277]: the trait bound `bool: ArgEnum` is not satisfied
-   --> tests/derive_ui/bool_arg_enum.rs:7:11
+   --> tests/derive_ui/next/bool_value_enum.rs:7:11
     |
 7   |     opts: bool,
     |           ^^^^ the trait `ArgEnum` is not implemented for `bool`
     |
-note: required by `clap::ArgEnum::from_str`
+note: required by `clap::ValueEnum::from_str`
    --> src/derive.rs
     |
     |     fn from_str(input: &str, ignore_case: bool) -> Result<Self, String> {
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0618]: expected function, found enum variant `bool`
- --> tests/derive_ui/bool_arg_enum.rs:7:11
+ --> tests/derive_ui/next/bool_value_enum.rs:7:11
   |
 7 |     opts: bool,
   |           ^^^^ call expression requires function
@@ -36,13 +36,13 @@ help: `bool` is a unit variant, you need to write it without the parenthesis
   |           ~~~~
 
 warning: use of deprecated associated function `clap::Arg::<'help>::possible_values`: Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`
- --> tests/derive_ui/bool_arg_enum.rs:7:11
+ --> tests/derive_ui/next/bool_value_enum.rs:7:11
   |
 7 |     opts: bool,
   |           ^^^^
 
 error[E0277]: the trait bound `bool: ArgEnum` is not satisfied
-   --> tests/derive_ui/bool_arg_enum.rs:7:11
+   --> tests/derive_ui/next/bool_value_enum.rs:7:11
     |
 7   |     opts: bool,
     |           ^^^^ the trait `ArgEnum` is not implemented for `bool`
@@ -54,16 +54,16 @@ note: required by `value_variants`
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0277]: the trait bound `bool: ArgEnum` is not satisfied
-   --> tests/derive_ui/bool_arg_enum.rs:6:5
+   --> tests/derive_ui/next/bool_value_enum.rs:6:5
     |
-6   | /     #[clap(short, arg_enum)]
+6   | /     #[clap(short, value_enum)]
 7   | |     opts: bool,
     | |______________^ the trait `ArgEnum` is not implemented for `bool`
     |
 note: required by a bound in `ArgEnum`
    --> src/derive.rs
     |
-    | / pub trait ArgEnum: Sized + Clone {
+    | / pub trait ValueEnum: Sized + Clone {
     | |     /// All possible argument values, in display order.
     | |     fn value_variants<'a>() -> &'a [Self];
     | |

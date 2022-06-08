@@ -430,8 +430,8 @@ pub trait Subcommand: FromArgMatches + Sized {
 
 /// Parse arguments into enums.
 ///
-/// When deriving [`Parser`], a field whose type implements `ArgEnum` can have the attribute
-/// `#[clap(arg_enum)]` which will
+/// When deriving [`Parser`], a field whose type implements `ValueEnum` can have the attribute
+/// `#[clap(value_enum)]` which will
 /// - Call [`Arg::possible_values`][crate::Arg::possible_values]
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
 ///
@@ -447,11 +447,11 @@ pub trait Subcommand: FromArgMatches + Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(arg_enum)]
+///     #[clap(value_enum)]
 ///     level: Level,
 /// }
 ///
-/// #[derive(clap::ArgEnum, Clone)]
+/// #[derive(clap::ValueEnum, Clone)]
 /// enum Level {
 ///     Debug,
 ///     Info,
@@ -459,7 +459,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///     Error,
 /// }
 /// ```
-pub trait ArgEnum: Sized + Clone {
+pub trait ValueEnum: Sized + Clone {
     /// All possible argument values, in display order.
     fn value_variants<'a>() -> &'a [Self];
 
@@ -469,7 +469,7 @@ pub trait ArgEnum: Sized + Clone {
             .iter()
             .find(|v| {
                 v.to_possible_value()
-                    .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_possible_value")
+                    .expect("ValueEnum::value_variants contains only values with a corresponding ValueEnum::to_possible_value")
                     .matches(input, ignore_case)
             })
             .cloned()

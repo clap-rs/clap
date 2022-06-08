@@ -409,7 +409,7 @@ For more information try --help
 
 ```
 
-When enabling the `derive` feature, you can use `ArgEnum` to take care of the boiler plate for you, giving the same results.
+When enabling the `derive` feature, you can use `ValueEnum` to take care of the boiler plate for you, giving the same results.
 
 [Example:](04_01_enum.rs)
 ```console

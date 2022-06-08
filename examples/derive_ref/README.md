@@ -20,7 +20,7 @@ See [demo.rs](../demo.rs) and [demo.md](../demo.md) for a brief example.
 
 Let's start by breaking down the anatomy of the derive attributes:
 ```rust
-use clap::{Parser, Args, Subcommand, ArgEnum};
+use clap::{Parser, Args, Subcommand, ValueEnum};
 
 /// Doc comment
 #[derive(Parser)]
@@ -30,7 +30,7 @@ struct Cli {
     #[clap(ARG ATTRIBUTE)]
     field: UserType,
 
-    #[clap(arg_enum, ARG ATTRIBUTE...)]
+    #[clap(value_enum, ARG ATTRIBUTE...)]
     field: EnumValues,
 
     #[clap(flatten)]
@@ -67,7 +67,7 @@ enum Command {
 }
 
 /// Doc comment
-#[derive(ArgEnum)]
+#[derive(ValueEnum)]
 #[clap(ARG ENUM ATTRIBUTE)]
 enum EnumValues {
     /// Doc comment
@@ -84,7 +84,7 @@ fn main() {
 - `Args` allows defining a set of re-usable arguments that get merged into their parent container.
 - `Subcommand` defines available subcommands.
   - Subcommand arguments can be defined in a struct-variant or automatically flattened with a tuple-variant.
-- `ArgEnum` allows parsing a value directly into an `enum`, erroring on unsupported values.
+- `ValueEnum` allows parsing a value directly into an `enum`, erroring on unsupported values.
   - The derive doesn't work on enums that contain non-unit variants, unless they are skipped
 
 See also the [tutorial](../tutorial_derive/README.md) and [examples](../README.md).
@@ -212,15 +212,15 @@ These correspond to a `clap::Arg`.
   - Default: `try_from_str`
   - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
   - See [Arg Types](#arg-types) for more details
-- `arg_enum`: Parse the value using the `ArgEnum` trait
+- `value_enum`: Parse the value using the `ValueEnum` trait
 - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
   - Without `<expr>`: fills the field with `Default::default()`
 - `default_value = <str>`: `clap::Arg::default_value` and `clap::Arg::required(false)`
 - `default_value_t [= <expr>]`: `clap::Arg::default_value` and `clap::Arg::required(false)`
-  - Requires `std::fmt::Display` or `#[clap(arg_enum)]`
+  - Requires `std::fmt::Display` or `#[clap(value_enum)]`
   - Without `<expr>`, relies on `Default::default()`
 - `default_value_os_t [= <expr>]`: `clap::Arg::default_value_os` and `clap::Arg::required(false)`
-  - Requires `std::convert::Into<OsString>` or `#[clap(arg_enum)]`
+  - Requires `std::convert::Into<OsString>` or `#[clap(value_enum)]`
   - Without `<expr>`, relies on `Default::default()`
 
 ### Arg Enum Attributes

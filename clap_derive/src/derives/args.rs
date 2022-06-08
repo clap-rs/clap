@@ -426,7 +426,7 @@ pub fn gen_augment(
 
 fn gen_arg_enum_possible_values(ty: &Type) -> TokenStream {
     quote_spanned! { ty.span()=>
-        .possible_values(<#ty as clap::ArgEnum>::value_variants().iter().filter_map(clap::ArgEnum::to_possible_value))
+        .possible_values(<#ty as clap::ValueEnum>::value_variants().iter().filter_map(clap::ValueEnum::to_possible_value))
     }
 }
 
@@ -643,7 +643,7 @@ fn gen_parsers(
         let ci = attrs.ignore_case();
 
         parse = quote_spanned! { convert_type.span()=>
-            |s| <#convert_type as clap::ArgEnum>::from_str(s, #ci).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))
+            |s| <#convert_type as clap::ValueEnum>::from_str(s, #ci).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #id, err)))
         }
     }
 

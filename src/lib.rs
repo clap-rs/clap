@@ -37,7 +37,7 @@ pub use crate::util::color::ColorChoice;
 #[allow(unused_imports)]
 pub(crate) use crate::util::color::ColorChoice;
 
-pub use crate::derive::{ArgEnum, Args, CommandFactory, FromArgMatches, Parser, Subcommand};
+pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 
 #[allow(deprecated)]
 pub use crate::builder::App;
@@ -66,6 +66,9 @@ pub use CommandFactory as IntoApp;
 #[deprecated(since = "3.0.0", note = "Replaced with `Parser`")]
 #[doc(hidden)]
 pub use Parser as StructOpt;
+/// Deprecated, replaced with [`ValueEnum`]
+#[deprecated(since = "3.2.0", note = "Replaced with `ValueEnum`")]
+pub use ValueEnum as ArgEnum;
 
 #[cfg(any(feature = "derive", feature = "cargo"))]
 #[doc(hidden)]

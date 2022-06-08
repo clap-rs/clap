@@ -378,7 +378,7 @@ name: "bob"
 ### Enumerated values
 
 If you have arguments of specific values you want to test for, you can derive
-`ArgEnum`.
+`ValueEnum`.
 
 This allows you specify the valid values for that argument. If the user does not use one of
 those specific values, they will receive a graceful exit with error message informing them

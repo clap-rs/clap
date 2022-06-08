@@ -3,7 +3,7 @@
 /// Regression test to ensure that type aliases do not cause compilation failures.
 use std::str::FromStr;
 
-use clap::{ArgEnum, Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 // Result type alias
 #[allow(dead_code)]
@@ -29,7 +29,7 @@ pub struct Opts {
     another_string: String,
     #[clap(subcommand)]
     command: Command,
-    #[clap(short, long, arg_enum, value_parser)]
+    #[clap(short, long, value_enum, value_parser)]
     choice: ArgChoice,
 }
 
@@ -38,7 +38,7 @@ enum Command {
     DoSomething { arg: Option<String> },
 }
 
-#[derive(ArgEnum, PartialEq, Debug, Clone)]
+#[derive(ValueEnum, PartialEq, Debug, Clone)]
 enum ArgChoice {
     Foo,
     Bar,

@@ -11,7 +11,7 @@ use clap::Parser;
 
 #[test]
 fn basic() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -19,7 +19,7 @@ fn basic() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -40,7 +40,7 @@ fn basic() {
 
 #[test]
 fn default_value() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -54,7 +54,7 @@ fn default_value() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser, default_value_t)]
+        #[clap(value_enum, value_parser, default_value_t)]
         arg: ArgChoice,
     }
 
@@ -80,7 +80,7 @@ fn default_value() {
 
 #[test]
 fn multi_word_is_renamed_kebab() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     #[allow(non_camel_case_types)]
     enum ArgChoice {
         FooBar,
@@ -89,7 +89,7 @@ fn multi_word_is_renamed_kebab() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -110,7 +110,7 @@ fn multi_word_is_renamed_kebab() {
 
 #[test]
 fn variant_with_defined_casing() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(rename_all = "screaming_snake")]
         FooBar,
@@ -118,7 +118,7 @@ fn variant_with_defined_casing() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -133,7 +133,7 @@ fn variant_with_defined_casing() {
 
 #[test]
 fn casing_is_propagated_from_parent() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
         FooBar,
@@ -141,7 +141,7 @@ fn casing_is_propagated_from_parent() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -156,7 +156,7 @@ fn casing_is_propagated_from_parent() {
 
 #[test]
 fn casing_propagation_is_overridden() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
         #[clap(rename_all = "camel")]
@@ -165,7 +165,7 @@ fn casing_propagation_is_overridden() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: ArgChoice,
     }
 
@@ -181,14 +181,14 @@ fn casing_propagation_is_overridden() {
 
 #[test]
 fn ignore_case() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser, ignore_case(true))]
+        #[clap(value_enum, value_parser, ignore_case(true))]
         arg: ArgChoice,
     }
 
@@ -208,14 +208,14 @@ fn ignore_case() {
 
 #[test]
 fn ignore_case_set_to_false() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(false), value_parser)]
+        #[clap(value_enum, ignore_case(false), value_parser)]
         arg: ArgChoice,
     }
 
@@ -230,7 +230,7 @@ fn ignore_case_set_to_false() {
 
 #[test]
 fn alias() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(alias = "TOTP")]
         Totp,
@@ -238,7 +238,7 @@ fn alias() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(false), value_parser)]
+        #[clap(value_enum, ignore_case(false), value_parser)]
         arg: ArgChoice,
     }
 
@@ -258,7 +258,7 @@ fn alias() {
 
 #[test]
 fn multiple_alias() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(alias = "TOTP", alias = "t")]
         Totp,
@@ -266,7 +266,7 @@ fn multiple_alias() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, ignore_case(false), value_parser)]
+        #[clap(value_enum, ignore_case(false), value_parser)]
         arg: ArgChoice,
     }
 
@@ -292,7 +292,7 @@ fn multiple_alias() {
 
 #[test]
 fn skip_variant() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     #[allow(dead_code)] // silence warning about `Baz` being unused
     enum ArgChoice {
         Foo,
@@ -302,9 +302,9 @@ fn skip_variant() {
     }
 
     assert_eq!(
-        <ArgChoice as clap::ArgEnum>::value_variants()
+        <ArgChoice as clap::ValueEnum>::value_variants()
             .iter()
-            .map(clap::ArgEnum::to_possible_value)
+            .map(clap::ValueEnum::to_possible_value)
             .map(Option::unwrap)
             .collect::<Vec<_>>(),
         vec![
@@ -314,7 +314,7 @@ fn skip_variant() {
     );
 
     {
-        use clap::ArgEnum;
+        use clap::ValueEnum;
         assert!(ArgChoice::from_str("foo", true).is_ok());
         assert!(ArgChoice::from_str("bar", true).is_ok());
         assert!(ArgChoice::from_str("baz", true).is_err());
@@ -323,7 +323,7 @@ fn skip_variant() {
 
 #[test]
 fn skip_non_unit_variant() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     #[allow(dead_code)] // silence warning about `Baz` being unused
     enum ArgChoice {
         Foo,
@@ -333,9 +333,9 @@ fn skip_non_unit_variant() {
     }
 
     assert_eq!(
-        <ArgChoice as clap::ArgEnum>::value_variants()
+        <ArgChoice as clap::ValueEnum>::value_variants()
             .iter()
-            .map(clap::ArgEnum::to_possible_value)
+            .map(clap::ValueEnum::to_possible_value)
             .map(Option::unwrap)
             .collect::<Vec<_>>(),
         vec![
@@ -345,7 +345,7 @@ fn skip_non_unit_variant() {
     );
 
     {
-        use clap::ArgEnum;
+        use clap::ValueEnum;
         assert!(ArgChoice::from_str("foo", true).is_ok());
         assert!(ArgChoice::from_str("bar", true).is_ok());
         assert!(ArgChoice::from_str("baz", true).is_err());
@@ -354,20 +354,20 @@ fn skip_non_unit_variant() {
 
 #[test]
 fn from_str_invalid() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
     }
 
     {
-        use clap::ArgEnum;
+        use clap::ValueEnum;
         assert!(ArgChoice::from_str("bar", true).is_err());
     }
 }
 
 #[test]
 fn option_type() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -375,7 +375,7 @@ fn option_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: Option<ArgChoice>,
     }
 
@@ -397,7 +397,7 @@ fn option_type() {
 
 #[test]
 fn option_option_type() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -405,7 +405,7 @@ fn option_option_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, long, value_parser)]
+        #[clap(value_enum, long, value_parser)]
         arg: Option<Option<ArgChoice>>,
     }
 
@@ -431,7 +431,7 @@ fn option_option_type() {
 
 #[test]
 fn vec_type() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -439,7 +439,7 @@ fn vec_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, short, long, value_parser)]
+        #[clap(value_enum, short, long, value_parser)]
         arg: Vec<ArgChoice>,
     }
 
@@ -461,7 +461,7 @@ fn vec_type() {
 
 #[test]
 fn option_vec_type() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -469,7 +469,7 @@ fn option_vec_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, short, long, value_parser)]
+        #[clap(value_enum, short, long, value_parser)]
         arg: Option<Vec<ArgChoice>>,
     }
 
@@ -491,7 +491,7 @@ fn option_vec_type() {
 
 #[test]
 fn vec_type_default_value() {
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -501,7 +501,7 @@ fn vec_type_default_value() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(
-            arg_enum,
+            value_enum,
             short,
             long,
             default_value = "foo,bar",

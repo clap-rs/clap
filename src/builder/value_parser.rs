@@ -79,7 +79,7 @@ impl ValueParser {
     /// To create a custom parser, see [`TypedValueParser`]
     ///
     /// Pre-existing implementations include:
-    /// - [`ArgEnumValueParser`] and  [`PossibleValuesParser`] for static enumerated values
+    /// - [`EnumValueParser`] and  [`PossibleValuesParser`] for static enumerated values
     /// - [`BoolishValueParser`] and [`FalseyValueParser`] for alternative `bool` implementations
     /// - [`RangedI64ValueParser`] and [`RangedU64ValueParser`]
     /// - [`NonEmptyStringValueParser`]
@@ -809,7 +809,7 @@ impl Default for PathBufValueParser {
     }
 }
 
-/// Parse an [`ArgEnum`][crate::ArgEnum] value.
+/// Parse an [`ValueEnum`][crate::ValueEnum] value.
 ///
 /// See also:
 /// - [`PossibleValuesParser`]
@@ -829,7 +829,7 @@ impl Default for PathBufValueParser {
 ///     Never,
 /// }
 ///
-/// impl clap::ArgEnum for ColorChoice {
+/// impl clap::ValueEnum for ColorChoice {
 ///     fn value_variants<'a>() -> &'a [Self] {
 ///         &[Self::Always, Self::Auto, Self::Never]
 ///     }
@@ -847,7 +847,7 @@ impl Default for PathBufValueParser {
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("color")
-///             .value_parser(clap::builder::ArgEnumValueParser::<ColorChoice>::new())
+///             .value_parser(clap::builder::EnumValueParser::<ColorChoice>::new())
 ///             .required(true)
 ///     );
 ///
@@ -857,7 +857,7 @@ impl Default for PathBufValueParser {
 /// assert_eq!(port, ColorChoice::Always);
 ///
 /// // Semantics
-/// let value_parser = clap::builder::ArgEnumValueParser::<ColorChoice>::new();
+/// let value_parser = clap::builder::EnumValueParser::<ColorChoice>::new();
 /// // or
 /// let value_parser = clap::value_parser!(ColorChoice);
 /// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
@@ -867,19 +867,19 @@ impl Default for PathBufValueParser {
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never")).unwrap(), ColorChoice::Never);
 /// ```
 #[derive(Clone, Debug)]
-pub struct ArgEnumValueParser<E: crate::ArgEnum + Clone + Send + Sync + 'static>(
+pub struct EnumValueParser<E: crate::ValueEnum + Clone + Send + Sync + 'static>(
     std::marker::PhantomData<E>,
 );
 
-impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ArgEnumValueParser<E> {
-    /// Parse an [`ArgEnum`][crate::ArgEnum]
+impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> EnumValueParser<E> {
+    /// Parse an [`ValueEnum`][crate::ValueEnum]
     pub fn new() -> Self {
         let phantom: std::marker::PhantomData<E> = Default::default();
         Self(phantom)
     }
 }
 
-impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for ArgEnumValueParser<E> {
+impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for EnumValueParser<E> {
     type Value = E;
 
     fn parse_ref(
@@ -911,7 +911,7 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
             .iter()
             .find(|v| {
                 v.to_possible_value()
-                    .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_possible_value")
+                    .expect("ValueEnum::value_variants contains only values with a corresponding ValueEnum::to_possible_value")
                     .matches(value, ignore_case)
             })
             .ok_or_else(|| {
@@ -938,7 +938,7 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> TypedValueParser for Arg
     }
 }
 
-impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> Default for ArgEnumValueParser<E> {
+impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueParser<E> {
     fn default() -> Self {
         Self::new()
     }
@@ -947,7 +947,7 @@ impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> Default for ArgEnumValue
 /// Verify the value is from an enumerated set of [`PossibleValue`][crate::PossibleValue].
 ///
 /// See also:
-/// - [`ArgEnumValueParser`]
+/// - [`EnumValueParser`]
 ///
 /// # Example
 ///
@@ -1930,18 +1930,18 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait ValueParserViaArgEnum: private::ValueParserViaArgEnumSealed {
+    pub trait ValueParserViaValueEnum: private::ValueParserViaValueEnumSealed {
         type Output;
 
         fn value_parser(&self) -> Self::Output;
     }
-    impl<E: crate::ArgEnum + Clone + Send + Sync + 'static> ValueParserViaArgEnum
+    impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> ValueParserViaValueEnum
         for &AutoValueParser<E>
     {
-        type Output = ArgEnumValueParser<E>;
+        type Output = EnumValueParser<E>;
 
         fn value_parser(&self) -> Self::Output {
-            ArgEnumValueParser::<E>::new()
+            EnumValueParser::<E>::new()
         }
     }
 
@@ -2004,14 +2004,14 @@ pub mod via_prelude {
 /// let parser = clap::value_parser!(usize);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::other(usize)");
 ///
-/// // ArgEnum types
+/// // ValueEnum types
 /// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 /// enum ColorChoice {
 ///     Always,
 ///     Auto,
 ///     Never,
 /// }
-/// impl clap::ArgEnum for ColorChoice {
+/// impl clap::ValueEnum for ColorChoice {
 ///     // ...
 /// #     fn value_variants<'a>() -> &'a [Self] {
 /// #         &[Self::Always, Self::Auto, Self::Never]
@@ -2025,7 +2025,7 @@ pub mod via_prelude {
 /// #     }
 /// }
 /// let parser = clap::value_parser!(ColorChoice);
-/// assert_eq!(format!("{:?}", parser), "ArgEnumValueParser(PhantomData)");
+/// assert_eq!(format!("{:?}", parser), "EnumValueParser(PhantomData)");
 /// ```
 #[macro_export]
 macro_rules! value_parser {
@@ -2053,8 +2053,8 @@ mod private {
     pub trait ValueParserViaFactorySealed {}
     impl<P: ValueParserFactory> ValueParserViaFactorySealed for &&AutoValueParser<P> {}
 
-    pub trait ValueParserViaArgEnumSealed {}
-    impl<E: crate::ArgEnum> ValueParserViaArgEnumSealed for &AutoValueParser<E> {}
+    pub trait ValueParserViaValueEnumSealed {}
+    impl<E: crate::ValueEnum> ValueParserViaValueEnumSealed for &AutoValueParser<E> {}
 
     pub trait ValueParserViaFromStrSealed {}
     impl<FromStr> ValueParserViaFromStrSealed for AutoValueParser<FromStr>
