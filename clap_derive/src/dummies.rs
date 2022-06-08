@@ -76,7 +76,7 @@ pub fn args(name: &Ident) {
 
 pub fn arg_enum(name: &Ident) {
     append_dummy(quote! {
-        impl clap::ArgEnum for #name {
+        impl clap::ValueEnum for #name {
             fn value_variants<'a>() -> &'a [Self]{
                 unimplemented!()
             }

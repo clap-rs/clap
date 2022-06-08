@@ -1,8 +1,8 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command, value_parser, ArgEnum};
+use clap::{arg, command, value_parser, ValueEnum};
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Mode {
     Fast,
     Slow,

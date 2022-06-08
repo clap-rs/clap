@@ -14,7 +14,7 @@
 
 use crate::utils;
 
-use clap::{ArgEnum, CommandFactory, Parser};
+use clap::{CommandFactory, Parser, ValueEnum};
 
 #[test]
 fn doc_comments() {
@@ -211,7 +211,7 @@ fn multiline_separates_default() {
 
 #[test]
 fn argenum_multiline_doc_comment() {
-    #[derive(ArgEnum, Clone)]
+    #[derive(ValueEnum, Clone)]
     enum LoremIpsum {
         /// Multiline
         ///

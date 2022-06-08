@@ -29,7 +29,7 @@ pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
 
     match input.data {
         Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
-        _ => abort_call_site!("`#[derive(ArgEnum)]` only supports enums"),
+        _ => abort_call_site!("`#[derive(ValueEnum)]` only supports enums"),
     }
 }
 
@@ -60,7 +60,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::ArgEnum for #name {
+        impl clap::ValueEnum for #name {
             #value_variants
             #to_possible_value
         }
@@ -83,7 +83,7 @@ fn lits(
                 None
             } else {
                 if !matches!(variant.fields, Fields::Unit) {
-                    abort!(variant.span(), "`#[derive(ArgEnum)]` only supports non-unit variants, unless they are skipped");
+                    abort!(variant.span(), "`#[derive(ValueEnum)]` only supports non-unit variants, unless they are skipped");
                 }
                 let fields = attrs.field_methods(false);
                 let name = attrs.cased_name();

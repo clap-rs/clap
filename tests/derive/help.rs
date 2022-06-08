@@ -505,11 +505,11 @@ OPTIONS:
     #[derive(Parser, PartialEq, Debug)]
     struct Args {
         /// Argument help
-        #[clap(arg_enum, value_parser)]
+        #[clap(value_enum, value_parser)]
         arg: ArgChoice,
     }
 
-    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         /// Foo help
         Foo,

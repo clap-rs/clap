@@ -1,6 +1,6 @@
-use clap::ArgEnum;
+use clap::ValueEnum;
 
-#[derive(ArgEnum, Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug)]
 struct Opt {}
 
 fn main() {

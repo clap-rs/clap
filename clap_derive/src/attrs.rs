@@ -486,7 +486,7 @@ impl Attrs {
                     self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
 
-                ArgEnum(_) => self.is_enum = true,
+                ValueEnum(_) => self.is_enum = true,
 
                 FromGlobal(ident) => {
                     let ty = Sp::call_site(Ty::Other);
@@ -536,11 +536,11 @@ impl Attrs {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed.iter().any(|a| matches!(a, ArgEnum(_))) {
+                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
                         quote_spanned!(ident.span()=> {
                             {
                                 let val: #ty = #val;
-                                clap::ArgEnum::to_possible_value(&val).unwrap().get_name()
+                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name()
                             }
                         })
                     } else {
@@ -579,11 +579,11 @@ impl Attrs {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed.iter().any(|a| matches!(a, ArgEnum(_))) {
+                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
                         quote_spanned!(ident.span()=> {
                             {
                                 let val: #ty = #val;
-                                clap::ArgEnum::to_possible_value(&val).unwrap().get_name()
+                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name()
                             }
                         })
                     } else {
