@@ -4142,10 +4142,10 @@ impl<'help> App<'help> {
                 // required.  Otherwise, most of this won't be needed because when we can break
                 // compat, actions will reign supreme (default to `Store`)
                 if a.action.is_none() {
-                    if a.get_id() == "help" && auto_help {
+                    if a.get_id() == "help" && auto_help && !a.is_takes_value_set() {
                         let action = super::ArgAction::Help;
                         a.action = Some(action);
-                    } else if a.get_id() == "version" && auto_version {
+                    } else if a.get_id() == "version" && auto_version && !a.is_takes_value_set() {
                         let action = super::ArgAction::Version;
                         a.action = Some(action);
                     } else if a.is_takes_value_set() {
