@@ -178,6 +178,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     let sc_name = self.possible_subcommand(arg_os.to_value(), valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
                     if let Some(sc_name) = sc_name {
+                        #[allow(deprecated)]
                         if sc_name == "help"
                             && !self.is_set(AS::NoAutoHelp)
                             && !self.cmd.is_disable_help_subcommand_set()

@@ -293,47 +293,12 @@ pub enum AppSettings {
     #[deprecated(since = "3.1.0", note = "Replaced with `Command::no_binary_name`")]
     NoBinaryName,
 
-    /// Treat the auto-generated `-h, --help` flags like any other flag, and *not* print the help
-    /// message.
-    ///
-    /// This allows one to handle printing of the help message manually.
-    ///
-    /// ```rust
-    /// # use clap::{Command, AppSettings};
-    /// let result = Command::new("myprog")
-    ///     .setting(AppSettings::NoAutoHelp)
-    ///     .try_get_matches_from("myprog --help".split(" "));
-    ///
-    /// // Normally, if `--help` is used clap prints the help message and returns an
-    /// // ErrorKind::DisplayHelp
-    /// //
-    /// // However, `--help` was treated like a normal flag
-    ///
-    /// assert!(result.is_ok());
-    /// assert!(result.unwrap().is_present("help"));
-    /// ```
+    /// Deprecated, replaced with [`Arg::action`][super::Arg::action]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action`")]
     NoAutoHelp,
 
-    /// Treat the auto-generated `-V, --version` flags like any other flag, and
-    /// *not* print the version message.
-    ///
-    /// This allows one to handle printing of the version message manually.
-    ///
-    /// ```rust
-    /// # use clap::{Command, AppSettings};
-    /// let result = Command::new("myprog")
-    ///     .version("3.0")
-    ///     .setting(AppSettings::NoAutoVersion)
-    ///     .try_get_matches_from("myprog --version".split(" "));
-    ///
-    /// // Normally, if `--version` is used clap prints the version message and returns an
-    /// // ErrorKind::DisplayVersion
-    /// //
-    /// // However, `--version` was treated like a normal flag
-    ///
-    /// assert!(result.is_ok());
-    /// assert!(result.unwrap().is_present("version"));
-    /// ```
+    /// Deprecated, replaced with [`Arg::action`][super::Arg::action]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action`")]
     NoAutoVersion,
 
     /// Deprecated, replaced with [`AppSettings::AllowHyphenValues`]
