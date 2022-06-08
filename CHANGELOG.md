@@ -27,6 +27,80 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Parsed, typed arguments via `Arg::value_parser` / `ArgMatches::{get_one,get_many}` (#2683, #3732)
+  - Several built-in `TypedValueParser`s available with an API open for expansion
+  - `value_parser!(T)` macro for selecting a parser for a given type (#3732) and open to expansion via the `ValueParserFactory` trait (#3755)
+  - `[&str]` is implicitly a value parser for possible values
+  - All `ArgMatches` getters do not assume required arguments (#2505)
+  - Add `ArgMatches::remove_*` variants to transfer ownership
+  - Add `ArgMatches::try_*` variants to avoid panics for developer errors (#3621)
+  - Add a `get_raw` to access the underlying `OsStr`s
+  - `PathBuf` value parsers imply `ValueHint::AnyPath` for completions (#3732)
+- Explicit control over parsing via `Arg::action` (#3774)
+  - `ArgAction::StoreValue`: existing `takes_value(true)` behavior
+  - `ArgAction::IncOccurrences`: existing `takes_value(false)` behavior
+  - `ArgAction::Help`: existing `--help` behavior
+  - `ArgAction::Version`: existing `--version` behavior
+  - `ArgAction::Set`: Overwrite existing values (like `Arg::multiple_occurrences` mixed with `Command::args_override_self`) (#3777)
+  - `ArgAction::Append`: like `Arg::multiple_occurrences` (#3777)
+  - `ArgAction::SetTrue`: Treat `--flag` as `--flag=true` (#3775)
+    - Implies `Arg::default_value("false")` (#3786)
+    - Parses `Arg::env` via `Arg::value_parser`
+  - `ArgAction::SetFalse`: Treat `--flag` as `--flag=false` (#3775)
+    - Implies `Arg::default_value("true")` (#3786)
+    - Parses `Arg::env` via `Arg::value_parser`
+  - `ArgAction::Count`: Treat `--flag --flag --flag` as `--flag=1 --flag=2 --flag=3` (#3775)
+    - Implies `Arg::default_value("0")` (#3786)
+    - Parses `Arg::env` via `Arg::value_parser`
+- *(derive)* Opt-in to new `Arg::value_parser` / `Arg::action` with either `#[clap(value_parser)]` (#3589, #3742) / `#[clap(action)]` attributes (#3794)
+  - Default `ValueParser` is determined by `value_parser!` (#3199, #3496)
+  - Default `ArgAction` is determine by a hard-coded lookup on the type (#3794)
+- `Command::multicall` is now stable for busybox-like programs and REPLs (#2861, #3684)
+
+### Fixes
+
+*parser*
+- Set `ArgMatches::value_source` and `ArgMatches::occurrences_of` for external subcommands (#3732)
+- Use value delimiter for `Arg::default_missing_values` (#3761, #3765)
+- Split`Arg::default_value` / `Arg::env` on value delimiters independent of whether `--` was used (#3765)
+- Allow applying defaults to flags (#3294, 3775)
+- Defaults no longer satisfy `required` and its variants (#3793)
+
+### Compatibility
+
+MSRV is now 1.56.0 (#3732)
+
+Behavior
+- Defaults no longer satisfy `required` and its variants (#3793)
+
+Moving (old location deprecated)
+- `clap::{PossibleValue, ValueHint}` to `clap::builder::{PossibleValue, ValueHint}`
+- `clap::{Indices, OsValues, ValueSource, Values}` to `clap::parser::{Indices, OsValues, ValueSource, Values}`
+- `clap::ArgEnum` to `clap::ValueEnum` (#3799)
+
+Replaced
+- `Arg::allow_invalid_utf8` with `Arg::value_parser(value_parser!(PathBuf))` (#3753)
+- `Arg::validator` / `Arg::validator_os` with `Arg::value_parser` (#3753)
+- `Arg::validator_regex` with users providing their own `builder::TypedValueParser` (#3756)
+- `Arg::forbid_empty_values` with `builder::NonEmptyStringValueParser` / `builder::PathBufValueParser` (#3753)
+- `Arg::possible_values` with `Arg::value_parser([...])`, `builder::PossibleValuesParser`, or `builder::EnumValueParser` (#3753)
+- `Arg::max_occurrences` with `arg.action(ArgAction::Count).value_parser(value_parser!(u64).range(..N))` for flags (#3797)
+- `Arg::multiple_occurrences` with `ArgAction::Append` or `ArgAction::Count` though positionals will need `Arg::multiple_values` (#3772, #3797)
+- `Command::args_override_self` with `ArgAction::Set` (#2627, #3797)
+- `AppSettings::NoAutoVersion` with `ArgAction` or `Command::disable_version_flag` (#3800)
+- `AppSettings::NoHelpVersion` with `ArgAction` or `Command::disable_help_flag` / `Command::disable_help_subcommand` (#3800)
+- `ArgMatches::{value_of, value_of_os, value_of_os_lossy, value_of_t}` with `ArgMatches::{get_one,remove_one}` (#3753)
+- `ArgMatches::{values_of, values_of_os, values_of_os_lossy, values_of_t}` with `ArgMatches::{get_many,remove_many}` (#3753)
+- `ArgMatches::is_valid_arg` with `ArgMatches::{try_get_one,try_get_many}` (#3753)
+- `ArgMatches::occurrences_of` with `ArgMatches::value_source` or `ArgAction::Count` (#3797)
+- `ArgAction::StoreValue` with `ArgAction::Set` or `ArgAction::Append` (#3797)
+- `ArgAction::IncOccurrences` with `ArgAction::SetTrue` or `ArgAction::Count` (#3797)
+- *(derive)* `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)
+- *(derive)* `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u64` (#3794)
+- *(derive)* `#[clap(parse(...))]` replaced with `#[clap(value_parser)]`  (#3589, #3794)
+
 ## [3.1.18] - 2022-05-10
 
 ### Fixes
