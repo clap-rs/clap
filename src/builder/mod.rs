@@ -44,6 +44,7 @@ pub use value_parser::OsStringValueParser;
 pub use value_parser::PathBufValueParser;
 pub use value_parser::PossibleValuesParser;
 pub use value_parser::RangedI64ValueParser;
+pub use value_parser::RangedU64ValueParser;
 pub use value_parser::StringValueParser;
 pub use value_parser::TypedValueParser;
 pub use value_parser::ValueParser;

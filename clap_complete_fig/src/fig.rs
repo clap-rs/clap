@@ -216,6 +216,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                 buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 4));
             }
 
+            #[allow(deprecated)]
             if option.is_multiple_occurrences_set() {
                 buffer.push_str(&format!(
                     "{:indent$}isRepeatable: true,\n",
@@ -303,6 +304,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                 buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 4));
             }
 
+            #[allow(deprecated)]
             if flag.is_multiple_occurrences_set() {
                 buffer.push_str(&format!(
                     "{:indent$}isRepeatable: true,\n",

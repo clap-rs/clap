@@ -910,17 +910,8 @@ impl<'help> App<'help> {
         }
     }
 
-    /// Specifies that all arguments override themselves.
-    ///
-    /// This is the equivalent to saying the `foo` arg using [`Arg::overrides_with("foo")`] for all
-    /// defined arguments.
-    ///
-    /// **NOTE:** This will not be applied when [`Arg::multiple_occurrences(true)`].
-    ///
-    /// **NOTE:** This choice is propagated to all child subcommands.
-    ///
-    /// [`Arg::overrides_with("foo")`]: crate::Arg::overrides_with()
-    #[inline]
+    /// Deprecated, replaced with [`ArgAction::Set`][super::ArgAction::Set]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action(ArgAction::Set)`")]
     pub fn args_override_self(self, yes: bool) -> Self {
         if yes {
             self.global_setting(AppSettings::AllArgsOverrideSelf)

@@ -776,53 +776,10 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the argument may appear more than once.
-    ///
-    /// For flags, this results in the number of occurrences of the flag being recorded. For
-    /// example `-ddd` or `-d -d -d` would count as three occurrences. For options or arguments
-    /// that take a value, this *does not* affect how many values they can accept. (i.e. only one
-    /// at a time is allowed)
-    ///
-    /// For example, `--opt val1 --opt val2` is allowed, but `--opt val1 val2` is not.
-    ///
-    /// # Examples
-    ///
-    /// An example with flags
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("verbose")
-    ///         .multiple_occurrences(true)
-    ///         .short('v'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
-    ///     ]);
-    ///
-    /// assert!(m.is_present("verbose"));
-    /// assert_eq!(m.occurrences_of("verbose"), 3);
-    /// ```
-    ///
-    /// An example with options
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .multiple_occurrences(true)
-    ///         .takes_value(true)
-    ///         .short('F'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("file"));
-    /// assert_eq!(m.occurrences_of("file"), 3);
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// ```
+    /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
     #[inline]
     #[must_use]
+    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action` (Issue #3772)")]
     pub fn multiple_occurrences(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::MultipleOccurrences)
@@ -831,57 +788,13 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// The *maximum* number of occurrences for this argument.
-    ///
-    /// For example, if you had a
-    /// `-v` flag and you wanted up to 3 levels of verbosity you would set `.max_occurrences(3)`, and
-    /// this argument would be satisfied if the user provided it once or twice or thrice.
-    ///
-    /// **NOTE:** This implicitly sets [`Arg::multiple_occurrences(true)`] if the value is greater than 1.
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("verbosity")
-    ///     .short('v')
-    ///     .max_occurrences(3);
-    /// ```
-    ///
-    /// Supplying less than the maximum number of arguments is allowed
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("verbosity")
-    ///         .max_occurrences(3)
-    ///         .short('v'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-vvv"
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert_eq!(m.occurrences_of("verbosity"), 3);
-    /// ```
-    ///
-    /// Supplying more than the maximum number of arguments is an error
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("verbosity")
-    ///         .max_occurrences(2)
-    ///         .short('v'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-vvv"
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
-    /// ```
-    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
+    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u64).range(..max))`
     #[inline]
     #[must_use]
+    #[deprecated(
+        since = "3.2.0",
+        note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u64).range(..max))`"
+    )]
     pub fn max_occurrences(mut self, qty: usize) -> Self {
         self.max_occurs = Some(qty);
         if qty > 1 {
@@ -1014,12 +927,12 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::ArgAction::StoreValue)
+    ///             .action(clap::ArgAction::Set)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
     /// assert!(matches.is_present("flag"));
-    /// assert_eq!(matches.occurrences_of("flag"), 1);
+    /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
     ///     vec!["value"]
@@ -1041,7 +954,7 @@ impl<'help> Arg<'help> {
     /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
     ///   - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
     ///   - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
-    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] for numeric ranges
+    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] and [`RangedU64ValueParser`][crate::builder::RangedU64ValueParser] for numeric ranges
     /// - [`ArgEnumValueParser`][crate::builder::ArgEnumValueParser] and  [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
     /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
     ///
@@ -1133,7 +1046,7 @@ impl<'help> Arg<'help> {
     /// until another argument is reached and it knows `--ui-paths` is done parsing.
     ///
     /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
-    /// [`Arg::number_of_values(1)`] or using *only* [`Arg::multiple_occurrences`]. The following are all
+    /// [`Arg::number_of_values(1)`] or using *only* [`ArgAction::Append`]. The following are all
     /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
     /// case.
     ///
@@ -1158,7 +1071,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.is_present("file"));
-    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
@@ -1206,14 +1118,14 @@ impl<'help> Arg<'help> {
     /// appear to only fail sometimes...not good!
     ///
     /// A solution for the example above is to limit how many values with a [maximum], or [specific]
-    /// number, or to say [`Arg::multiple_occurrences`] is ok, but multiple values is not.
+    /// number, or to say [`ArgAction::Append`] is ok, but multiple values is not.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .takes_value(true)
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
     ///     .get_matches_from(vec![
@@ -1230,11 +1142,11 @@ impl<'help> Arg<'help> {
     /// As a final example, let's fix the above error and get a pretty message to the user :)
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .takes_value(true)
-    ///         .multiple_occurrences(true)
+    ///         .action(ArgAction::Append)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
     ///     .try_get_matches_from(vec![
@@ -1898,7 +1810,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.is_present("option"));
-    /// assert_eq!(delims.occurrences_of("option"), 1);
     /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
@@ -1915,7 +1826,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(nodelims.is_present("option"));
-    /// assert_eq!(nodelims.occurrences_of("option"), 1);
     /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
@@ -2160,8 +2070,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
-    /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
-    /// used at runtime.
+    /// not, consider [`ArgMatches::value_source`][crate::ArgMatches::value_source].
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
@@ -2178,7 +2087,7 @@ impl<'help> Arg<'help> {
     /// First we use the default value without providing any value at runtime.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("myopt")
@@ -2189,13 +2098,13 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("opt"), Some("myval"));
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 0);
+    /// assert_eq!(m.value_source("opt"), Some(ValueSource::DefaultValue));
     /// ```
     ///
     /// Next we provide a value at runtime to override the default.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("myopt")
@@ -2206,7 +2115,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("opt"), Some("non_default"));
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
+    /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
@@ -2272,7 +2181,7 @@ impl<'help> Arg<'help> {
     /// Here is an implementation of the common POSIX style `--color` argument.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ValueSource};
     ///
     /// macro_rules! cmd {
     ///     () => {{
@@ -2300,7 +2209,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("color"), Some("auto"));
     /// assert!(m.is_present("color"));
-    /// assert_eq!(m.occurrences_of("color"), 0);
+    /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
     ///
@@ -2310,7 +2219,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("color"), Some("never"));
     /// assert!(m.is_present("color"));
-    /// assert_eq!(m.occurrences_of("color"), 1);
+    /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
     ///
@@ -2320,9 +2229,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("color"), Some("always"));
     /// assert!(m.is_present("color"));
-    /// assert_eq!(m.occurrences_of("color"), 1);
+    /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
@@ -2503,7 +2411,6 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
@@ -4183,7 +4090,6 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--flag  "some flag").overrides_with("flag"))
     ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
-    /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     ///
     /// Making an arg [`Arg::multiple_occurrences`] and override itself
@@ -4196,7 +4102,6 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--flag ...  "some flag").overrides_with("flag"))
     ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
-    /// assert_eq!(m.occurrences_of("flag"), 4);
     /// ```
     ///
     /// Now notice with options (which *do not* set
@@ -4209,7 +4114,6 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--opt <val> "some option").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
     /// assert_eq!(m.value_of("opt"), Some("other"));
     /// ```
     ///
@@ -4227,7 +4131,6 @@ impl<'help> Arg<'help> {
     ///             )
     ///             .get_matches_from(vec!["", "--opt", "1", "2", "--opt", "3", "4", "5"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
     /// ```
     ///
@@ -4242,7 +4145,6 @@ impl<'help> Arg<'help> {
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 2);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     #[must_use]
@@ -4532,7 +4434,8 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::MultipleValues)
     }
 
-    /// Report whether [`Arg::multiple_occurrences`] is set
+    /// [`Arg::multiple_occurrences`] is going away  ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
+    #[deprecated(since = "3.2.0", note = "`multiple_occurrences` away (Issue #3772)")]
     pub fn is_multiple_occurrences_set(&self) -> bool {
         self.is_set(ArgSettings::MultipleOccurrences)
     }
@@ -4901,6 +4804,21 @@ impl<'help> Arg<'help> {
                 self.settings.set(ArgSettings::TakesValue);
             } else {
                 self.settings.unset(ArgSettings::TakesValue);
+            }
+            match action {
+                ArgAction::StoreValue
+                | ArgAction::IncOccurrence
+                | ArgAction::Help
+                | ArgAction::Version => {}
+                ArgAction::Set
+                | ArgAction::Append
+                | ArgAction::SetTrue
+                | ArgAction::SetFalse
+                | ArgAction::Count => {
+                    if !self.is_positional() {
+                        self.settings.set(ArgSettings::MultipleOccurrences);
+                    }
+                }
             }
         }
 

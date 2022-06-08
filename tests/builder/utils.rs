@@ -5,7 +5,7 @@ use std::str;
 
 use regex::Regex;
 
-use clap::{arg, Arg, ArgGroup, Command};
+use clap::{arg, Arg, ArgAction, ArgGroup, Command};
 
 #[track_caller]
 pub fn assert_eq<S, S2>(expected: S, actual: S2)
@@ -52,10 +52,14 @@ pub fn complex_app() -> Command<'static> {
             )
             .required(false)
             .multiple_values(true)
-            .multiple_occurrences(true),
+            .action(ArgAction::Append),
         )
         .arg(arg!([positional] "tests positionals"))
-        .arg(arg!(-f --flag ... "tests flags").global(true))
+        .arg(
+            arg!(-f --flag  "tests flags")
+                .action(ArgAction::Count)
+                .global(true),
+        )
         .args(&[
             arg!(flag2: -F "tests flags with exclusions")
                 .conflicts_with("flag")

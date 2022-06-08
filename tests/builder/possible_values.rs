@@ -1,6 +1,6 @@
-use crate::utils;
+use super::utils;
 
-use clap::{error::ErrorKind, Arg, Command, PossibleValue};
+use clap::{error::ErrorKind, Arg, ArgAction, Command, PossibleValue};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
@@ -170,7 +170,7 @@ fn possible_values_of_option_multiple() {
                 .long("option")
                 .takes_value(true)
                 .value_parser(["test123", "test321"])
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "test321"]);
 
@@ -196,7 +196,7 @@ fn possible_values_of_option_multiple_fail() {
                 .long("option")
                 .takes_value(true)
                 .value_parser(["test123", "test321"])
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "notest"]);
 

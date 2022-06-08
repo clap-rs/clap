@@ -1,4 +1,4 @@
-use clap::{error::ErrorKind, Arg, Command};
+use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
 fn option_long() {
@@ -9,7 +9,7 @@ fn option_long() {
                 .help("multiple options")
                 .takes_value(true)
                 .multiple_values(true)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
             "", "--option", "val1", "--option", "val2", "--option", "val3",
@@ -19,7 +19,6 @@ fn option_long() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -38,7 +37,7 @@ fn option_short() {
                 .help("multiple options")
                 .takes_value(true)
                 .multiple_values(true)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
@@ -46,7 +45,6 @@ fn option_short() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -66,7 +64,7 @@ fn option_mixed() {
                 .help("multiple options")
                 .takes_value(true)
                 .multiple_values(true)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
             "", "-o", "val1", "--option", "val2", "--option", "val3", "-o", "val4",
@@ -76,7 +74,6 @@ fn option_mixed() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 4);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -94,7 +91,7 @@ fn option_exact_exact() {
                 .short('o')
                 .help("multiple options")
                 .number_of_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
@@ -102,7 +99,6 @@ fn option_exact_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -127,7 +123,6 @@ fn option_exact_exact_not_mult() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -145,7 +140,7 @@ fn option_exact_exact_mult() {
                 .short('o')
                 .help("multiple options")
                 .number_of_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
             "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6",
@@ -155,7 +150,6 @@ fn option_exact_exact_mult() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 2);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -173,7 +167,7 @@ fn option_exact_less() {
                 .short('o')
                 .help("multiple options")
                 .number_of_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
@@ -189,7 +183,7 @@ fn option_exact_more() {
                 .short('o')
                 .help("multiple options")
                 .number_of_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
             "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
@@ -207,7 +201,7 @@ fn option_min_exact() {
                 .short('o')
                 .help("multiple options")
                 .min_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
@@ -215,7 +209,6 @@ fn option_min_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -233,7 +226,7 @@ fn option_min_less() {
                 .short('o')
                 .help("multiple options")
                 .min_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
@@ -250,7 +243,7 @@ fn option_short_min_more_mult_occurs() {
                 .short('o')
                 .help("multiple options")
                 .min_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
             "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
@@ -261,7 +254,6 @@ fn option_short_min_more_mult_occurs() {
 
     assert!(m.is_present("option"));
     assert!(m.is_present("arg"));
-    assert_eq!(m.occurrences_of("option"), 4);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -289,7 +281,6 @@ fn option_short_min_more_single_occur() {
 
     assert!(m.is_present("option"));
     assert!(m.is_present("arg"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -308,7 +299,7 @@ fn option_max_exact() {
                 .short('o')
                 .help("multiple options")
                 .max_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
@@ -316,7 +307,6 @@ fn option_max_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 3);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -334,7 +324,7 @@ fn option_max_less() {
                 .short('o')
                 .help("multiple options")
                 .max_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
@@ -342,7 +332,6 @@ fn option_max_less() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 2);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -360,7 +349,7 @@ fn option_max_more() {
                 .short('o')
                 .help("multiple options")
                 .max_values(3)
-                .multiple_occurrences(true),
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
             "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
@@ -385,7 +374,6 @@ fn positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -409,7 +397,6 @@ fn positional_exact_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -457,7 +444,6 @@ fn positional_min_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -487,7 +473,6 @@ fn positional_min_more() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 4);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -507,7 +492,6 @@ fn positional_max_exact() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 3);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -527,7 +511,6 @@ fn positional_max_less() {
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
-    assert_eq!(m.occurrences_of("pos"), 2);
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -562,7 +545,6 @@ fn sep_long_equals() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -587,7 +569,6 @@ fn sep_long_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -612,7 +593,6 @@ fn sep_short_equals() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -637,7 +617,6 @@ fn sep_short_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -662,7 +641,6 @@ fn sep_short_no_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -686,7 +664,6 @@ fn sep_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -711,7 +688,6 @@ fn different_sep() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -735,7 +711,6 @@ fn different_sep_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -761,7 +736,6 @@ fn no_sep() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -783,7 +757,6 @@ fn no_sep_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -812,7 +785,6 @@ fn req_delimiter_long() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -851,7 +823,6 @@ fn req_delimiter_long_with_equal() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -890,7 +861,6 @@ fn req_delimiter_short_with_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -929,7 +899,6 @@ fn req_delimiter_short_with_no_space() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -968,7 +937,6 @@ fn req_delimiter_short_with_equal() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -993,7 +961,7 @@ fn req_delimiter_complex() {
                 .long("option")
                 .short('o')
                 .multiple_values(true)
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true),
         )
@@ -1036,7 +1004,6 @@ fn req_delimiter_complex() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 10);
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -1139,9 +1106,6 @@ fn low_index_positional() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
-    assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1149,6 +1113,7 @@ fn low_index_positional() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
+    assert!(m.is_present("target"));
     assert_eq!(
         m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1176,9 +1141,6 @@ fn low_index_positional_in_subcmd() {
     let sm = m.subcommand_matches("test").unwrap();
 
     assert!(sm.is_present("files"));
-    assert_eq!(sm.occurrences_of("files"), 3);
-    assert!(sm.is_present("target"));
-    assert_eq!(sm.occurrences_of("target"), 1);
     assert_eq!(
         sm.get_many::<String>("files")
             .unwrap()
@@ -1186,6 +1148,7 @@ fn low_index_positional_in_subcmd() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
+    assert!(sm.is_present("target"));
     assert_eq!(
         sm.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1212,9 +1175,6 @@ fn low_index_positional_with_option() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
-    assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1222,6 +1182,7 @@ fn low_index_positional_with_option() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
+    assert!(m.is_present("target"));
     assert_eq!(
         m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1250,9 +1211,6 @@ fn low_index_positional_with_flag() {
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
-    assert_eq!(m.occurrences_of("files"), 3);
-    assert!(m.is_present("target"));
-    assert_eq!(m.occurrences_of("target"), 1);
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1260,6 +1218,7 @@ fn low_index_positional_with_flag() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
+    assert!(m.is_present("target"));
     assert_eq!(
         m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1284,7 +1243,6 @@ fn multiple_value_terminator_option() {
     let m = m.unwrap();
 
     assert!(m.is_present("other"));
-    assert_eq!(m.occurrences_of("other"), 1);
     assert!(m.is_present("files"));
     assert_eq!(
         m.get_many::<String>("files")
@@ -1483,7 +1441,7 @@ fn values_per_occurrence_named() {
         Arg::new("pos")
             .long("pos")
             .number_of_values(2)
-            .multiple_occurrences(true),
+            .action(ArgAction::Append),
     );
 
     let m = a.try_get_matches_from_mut(vec!["myprog", "--pos", "val1", "val2"]);
@@ -1498,7 +1456,6 @@ fn values_per_occurrence_named() {
             .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
-    assert_eq!(m.occurrences_of("pos"), 1);
 
     let m = a.try_get_matches_from_mut(vec![
         "myprog", "--pos", "val1", "val2", "--pos", "val3", "val4",
@@ -1514,7 +1471,6 @@ fn values_per_occurrence_named() {
             .collect::<Vec<_>>(),
         ["val1", "val2", "val3", "val4"]
     );
-    assert_eq!(m.occurrences_of("pos"), 2);
 }
 
 #[test]
@@ -1522,7 +1478,7 @@ fn values_per_occurrence_positional() {
     let mut a = Command::new("test").arg(
         Arg::new("pos")
             .number_of_values(2)
-            .multiple_occurrences(true),
+            .action(ArgAction::Append),
     );
 
     let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2"]);
@@ -1536,51 +1492,5 @@ fn values_per_occurrence_positional() {
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
         ["val1", "val2"]
-    );
-    assert_eq!(m.occurrences_of("pos"), 2);
-
-    let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2", "val3", "val4"]);
-    let m = match m {
-        Ok(m) => m,
-        Err(err) => panic!("{}", err),
-    };
-    assert_eq!(
-        m.get_many::<String>("pos")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        ["val1", "val2", "val3", "val4"]
-    );
-    //assert_eq!(m.occurrences_of("pos"), 2);  // Fails, we don't recognize this as two occurrences
-}
-
-// Theoretically we could support this but we aren't tracking occurrence boundaries for positionals
-#[test]
-#[should_panic = "When using a positional argument with .multiple_values(true) that is *not the last* positional argument, the last positional argument (i.e. the one with the highest index) *must* have .required(true) or .last(true) set."]
-fn positional_parser_advances() {
-    let m = Command::new("multiple_values")
-        .arg(Arg::new("pos1").number_of_values(2))
-        .arg(Arg::new("pos2").number_of_values(2))
-        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
-
-    assert!(m.is_ok(), "{}", m.unwrap_err());
-    let m = m.unwrap();
-
-    assert_eq!(m.occurrences_of("pos1"), 1);
-    assert_eq!(
-        m.get_many::<String>("pos1")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        ["val1", "val2"]
-    );
-
-    assert_eq!(m.occurrences_of("pos2"), 1);
-    assert_eq!(
-        m.get_many::<String>("pos2")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        ["val3", "val4"]
     );
 }

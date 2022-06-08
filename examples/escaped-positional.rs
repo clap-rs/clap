@@ -13,7 +13,7 @@ fn main() {
         .arg(
             // Indicates that `slop` is only accessible after `--`.
             arg!(slop: [SLOP])
-                .multiple_occurrences(true)
+                .multiple_values(true)
                 .last(true)
                 .value_parser(value_parser!(String)),
         )

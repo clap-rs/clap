@@ -1176,6 +1176,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
+            #[allow(deprecated)]
             ArgAction::StoreValue => {
                 if ident == Some(Identifier::Index)
                     && arg.is_multiple_values_set()
@@ -1196,6 +1197,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
                     // HACK: Maintain existing occurrence behavior
                     let matched = matcher.get_mut(&arg.id).unwrap();
+                    #[allow(deprecated)]
                     matched.set_occurrences(matched.num_vals() as u64);
                 }
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
@@ -1205,6 +1207,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
+            #[allow(deprecated)]
             ArgAction::IncOccurrence => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 if source == ValueSource::CommandLine {
@@ -1362,7 +1365,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     }
                 } else {
                     match arg.get_action() {
+                        #[allow(deprecated)]
                         ArgAction::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
+                        #[allow(deprecated)]
                         ArgAction::IncOccurrence => {
                             debug!("Parser::add_env: Found a flag with value `{:?}`", val);
                             let predicate = str_to_bool(val.to_str_lossy());
@@ -1558,6 +1563,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     fn start_custom_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>, source: ValueSource) {
+        if source == ValueSource::CommandLine {
+            // With each new occurrence, remove overrides from prior occurrences
+            self.remove_overrides(arg, matcher);
+        }
         matcher.start_custom_arg(arg, source);
         for group in self.cmd.groups_for_arg(&arg.id) {
             matcher.start_custom_group(&group, source);

@@ -1,4 +1,4 @@
-use crate::utils;
+use super::utils;
 use clap::{arg, Arg, Command};
 
 const USE_FLAG_AS_ARGUMENT: &str =
@@ -56,7 +56,10 @@ fn lots_o_flags_sep() {
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.occurrences_of("o"), 297); // i.e. more than u8
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("o"), 297);
+    } // i.e. more than u8
 }
 
 #[test]
@@ -74,7 +77,10 @@ fn lots_o_flags_combined() {
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.occurrences_of("o"), 297); // i.e. more than u8
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("o"), 297);
+    } // i.e. more than u8
 }
 
 #[test]

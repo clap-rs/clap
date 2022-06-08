@@ -304,25 +304,73 @@ pub fn gen_augment(
                         #action
                     },
 
-                    Ty::OptionVec => quote_spanned! { ty.span()=>
-                        .takes_value(true)
-                        .value_name(#value_name)
-                        .multiple_occurrences(true)
-                        #possible_values
-                        #validator
-                        #value_parser
-                        #action
-                    },
+                    Ty::OptionVec => {
+                        if attrs.ignore_parser() {
+                            if attrs.is_positional() {
+                                quote_spanned! { ty.span()=>
+                                    .takes_value(true)
+                                    .value_name(#value_name)
+                                    .multiple_values(true)  // action won't be sufficient for getting multiple
+                                    #possible_values
+                                    #validator
+                                    #value_parser
+                                    #action
+                                }
+                            } else {
+                                quote_spanned! { ty.span()=>
+                                    .takes_value(true)
+                                    .value_name(#value_name)
+                                    #possible_values
+                                    #validator
+                                    #value_parser
+                                    #action
+                                }
+                            }
+                        } else {
+                            quote_spanned! { ty.span()=>
+                                .takes_value(true)
+                                .value_name(#value_name)
+                                .multiple_occurrences(true)
+                                #possible_values
+                                #validator
+                                #value_parser
+                                #action
+                            }
+                        }
+                    }
 
                     Ty::Vec => {
-                        quote_spanned! { ty.span()=>
-                            .takes_value(true)
-                            .value_name(#value_name)
-                            .multiple_occurrences(true)
-                            #possible_values
-                            #validator
-                            #value_parser
-                            #action
+                        if attrs.ignore_parser() {
+                            if attrs.is_positional() {
+                                quote_spanned! { ty.span()=>
+                                    .takes_value(true)
+                                    .value_name(#value_name)
+                                    .multiple_values(true)  // action won't be sufficient for getting multiple
+                                    #possible_values
+                                    #validator
+                                    #value_parser
+                                    #action
+                                }
+                            } else {
+                                quote_spanned! { ty.span()=>
+                                    .takes_value(true)
+                                    .value_name(#value_name)
+                                    #possible_values
+                                    #validator
+                                    #value_parser
+                                    #action
+                                }
+                            }
+                        } else {
+                            quote_spanned! { ty.span()=>
+                                .takes_value(true)
+                                .value_name(#value_name)
+                                .multiple_occurrences(true)
+                                #possible_values
+                                #validator
+                                #value_parser
+                                #action
+                            }
                         }
                     }
 

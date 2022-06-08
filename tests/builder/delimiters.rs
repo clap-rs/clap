@@ -10,7 +10,10 @@ fn opt_default_no_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -27,7 +30,10 @@ fn opt_eq_no_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -44,7 +50,10 @@ fn opt_s_eq_no_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -61,7 +70,10 @@ fn opt_s_default_no_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -78,7 +90,10 @@ fn opt_s_no_space_no_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -100,7 +115,10 @@ fn opt_s_no_space_mult_no_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -123,7 +141,10 @@ fn opt_eq_mult_def_delim() {
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
-    assert_eq!(m.occurrences_of("option"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("option"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()

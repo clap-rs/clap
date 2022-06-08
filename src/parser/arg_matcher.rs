@@ -70,11 +70,13 @@ impl ArgMatcher {
                 // We have to check if the parent's global arg wasn't used but still exists
                 // such as from a default value.
                 //
-                // For example, `myprog subcommand --global-arg=value` where --global-arg defines
+                // For example, `myprog subcommand --global-arg=value` where `--global-arg` defines
                 // a default value of `other` myprog would have an existing MatchedArg for
-                // --global-arg where the value is `other`, however the occurs will be 0.
+                // `--global-arg` where the value is `other`
                 let to_update = if let Some(parent_ma) = vals_map.get(global_arg) {
-                    if parent_ma.get_occurrences() > 0 && ma.get_occurrences() == 0 {
+                    if parent_ma.check_explicit(ArgPredicate::IsPresent)
+                        && !ma.check_explicit(ArgPredicate::IsPresent)
+                    {
                         parent_ma
                     } else {
                         ma
@@ -169,6 +171,7 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
         debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(ValueSource::CommandLine);
+        #[allow(deprecated)]
         ma.inc_occurrences();
         ma.new_val_group();
     }
@@ -178,6 +181,7 @@ impl ArgMatcher {
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
         debug_assert_eq!(ma.type_id(), None);
         ma.set_source(ValueSource::CommandLine);
+        #[allow(deprecated)]
         ma.inc_occurrences();
         ma.new_val_group();
     }
@@ -195,6 +199,7 @@ impl ArgMatcher {
             )
         );
         ma.set_source(ValueSource::CommandLine);
+        #[allow(deprecated)]
         ma.inc_occurrences();
         ma.new_val_group();
     }
@@ -225,6 +230,7 @@ impl ArgMatcher {
             true
         } else if let Some(num) = o.num_vals {
             debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
+            #[allow(deprecated)]
             if o.is_multiple_occurrences_set() {
                 (current_num % num) != 0
             } else {

@@ -1,6 +1,6 @@
-use crate::utils;
+use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, ArgGroup, Command, PossibleValue};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 Kevin K.
@@ -672,7 +672,7 @@ fn help_multi_subcommand_error() {
                     )
                     .required(false)
                     .multiple_values(true)
-                    .multiple_occurrences(true),
+                    .action(ArgAction::Append),
                 ),
         ),
     );
@@ -720,7 +720,7 @@ fn args_with_last_usage() {
                 .help("Prints out more stuff.")
                 .short('v')
                 .long("verbose")
-                .multiple_occurrences(true),
+                .action(ArgAction::SetTrue),
         )
         .arg(
             Arg::new("timeout")
@@ -822,7 +822,7 @@ fn multi_level_sc_help() {
                     )
                     .required(false)
                     .multiple_values(true)
-                    .multiple_occurrences(true),
+                    .action(ArgAction::Append),
                 ),
         ),
     );
@@ -2514,7 +2514,8 @@ fn positional_multiple_occurrences_is_dotted() {
         Arg::new("foo")
             .required(true)
             .takes_value(true)
-            .multiple_occurrences(true),
+            .multiple_values(true)
+            .action(ArgAction::Append),
     );
     utils::assert_output(
         cmd,
@@ -2538,7 +2539,8 @@ OPTIONS:
             .required(true)
             .takes_value(true)
             .value_name("BAR")
-            .multiple_occurrences(true),
+            .multiple_values(true)
+            .action(ArgAction::Append),
     );
     utils::assert_output(
         cmd,

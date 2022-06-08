@@ -49,6 +49,7 @@ const completion: Fig.Spec = {
       ],
       args: {
         name: "path",
+        isVariadic: true,
         isOptional: true,
       },
     },

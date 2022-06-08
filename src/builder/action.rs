@@ -58,7 +58,6 @@ pub enum ArgAction {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .multiple_occurrences(true)
     ///             .action(clap::ArgAction::Append)
     ///     );
     ///
@@ -71,51 +70,17 @@ pub enum ArgAction {
     /// );
     /// ```
     Append,
-    /// When encountered, store the associated value(s) in [`ArgMatches`][crate::ArgMatches]
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::Command;
-    /// # use clap::Arg;
-    /// let cmd = Command::new("mycmd")
-    ///     .arg(
-    ///         Arg::new("flag")
-    ///             .long("flag")
-    ///             .action(clap::ArgAction::StoreValue)
-    ///     );
-    ///
-    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
-    /// assert!(matches.is_present("flag"));
-    /// assert_eq!(matches.occurrences_of("flag"), 1);
-    /// assert_eq!(
-    ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
-    ///     vec!["value"]
-    /// );
-    /// ```
+    /// Deprecated, replaced with [`ArgAction::Set`] or [`ArgAction::Append`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `ArgAction::Set` or `ArgAction::Append`"
+    )]
     StoreValue,
-    /// When encountered, increment [`ArgMatches::occurrences_of`][crate::ArgMatches::occurrences_of]
-    ///
-    /// No value is allowed
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::Command;
-    /// # use clap::Arg;
-    /// let cmd = Command::new("mycmd")
-    ///     .arg(
-    ///         Arg::new("flag")
-    ///             .long("flag")
-    ///             .multiple_occurrences(true)
-    ///             .action(clap::ArgAction::IncOccurrence)
-    ///     );
-    ///
-    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
-    /// assert!(matches.is_present("flag"));
-    /// assert_eq!(matches.occurrences_of("flag"), 2);
-    /// assert_eq!(matches.get_many::<String>("flag").unwrap_or_default().count(), 0);
-    /// ```
+    /// Deprecated, replaced with [`ArgAction::SetTrue`] or [`ArgAction::Count`]
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with `ArgAction::SetTrue` or `ArgAction::Count`"
+    )]
     IncOccurrence,
     /// When encountered, act as if `"true"` was encountered on the command-line
     ///
@@ -284,7 +249,9 @@ impl ArgAction {
         match self {
             Self::Set => true,
             Self::Append => true,
+            #[allow(deprecated)]
             Self::StoreValue => true,
+            #[allow(deprecated)]
             Self::IncOccurrence => false,
             Self::SetTrue => false,
             Self::SetFalse => false,
@@ -298,7 +265,9 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
+            #[allow(deprecated)]
             Self::StoreValue => None,
+            #[allow(deprecated)]
             Self::IncOccurrence => None,
             Self::SetTrue => Some(std::ffi::OsStr::new("false")),
             Self::SetFalse => Some(std::ffi::OsStr::new("true")),
@@ -312,11 +281,13 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
+            #[allow(deprecated)]
             Self::StoreValue => None,
+            #[allow(deprecated)]
             Self::IncOccurrence => None,
             Self::SetTrue => Some(super::ValueParser::bool()),
             Self::SetFalse => Some(super::ValueParser::bool()),
-            Self::Count => Some(crate::value_parser!(u64)),
+            Self::Count => Some(crate::value_parser!(u64).into()),
             Self::Help => None,
             Self::Version => None,
         }
@@ -329,7 +300,9 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
+            #[allow(deprecated)]
             Self::StoreValue => None,
+            #[allow(deprecated)]
             Self::IncOccurrence => None,
             Self::SetTrue => Some(AnyValueId::of::<bool>()),
             Self::SetFalse => Some(AnyValueId::of::<bool>()),

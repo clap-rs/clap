@@ -1,5 +1,5 @@
 use clap::Command;
-use clap::{arg, Arg};
+use clap::{arg, Arg, ArgAction};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::io::Cursor;
 
@@ -95,7 +95,7 @@ fn app_example5<'c>() -> Command<'c> {
             .help("turns up the awesome")
             .short('a')
             .long("awesome")
-            .multiple_occurrences(true),
+            .action(ArgAction::Count),
     )
 }
 
@@ -120,7 +120,7 @@ fn app_example7<'c>() -> Command<'c> {
                 .help("the input file to use")
                 .takes_value(true)
                 .multiple_values(true)
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .required(true)
                 .short('i')
                 .long("input")
@@ -138,7 +138,7 @@ fn app_example8<'c>() -> Command<'c> {
                 .help("the input file to use")
                 .takes_value(true)
                 .multiple_values(true)
-                .multiple_occurrences(true)
+                .action(ArgAction::Append)
                 .required(true)
                 .short('i')
                 .long("input")

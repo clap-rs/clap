@@ -1,4 +1,4 @@
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
 fn flag_overrides_itself() {
@@ -12,7 +12,10 @@ fn flag_overrides_itself() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.occurrences_of("flag"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 1);
+    }
 }
 
 #[test]
@@ -23,7 +26,10 @@ fn mult_flag_overrides_itself() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("flag"));
-    assert_eq!(m.occurrences_of("flag"), 4);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("flag"), 4);
+    }
 }
 
 #[test]
@@ -38,7 +44,10 @@ fn option_overrides_itself() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("opt"), 1);
+    }
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("other")
@@ -61,7 +70,10 @@ fn mult_option_require_delim_overrides_itself() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("opt"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -93,7 +105,10 @@ fn mult_option_overrides_itself() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 2);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("opt"), 2);
+    }
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -114,7 +129,10 @@ fn option_use_delim_false_override_itself() {
         .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
         .unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 1);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("opt"), 1);
+    }
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -133,7 +151,10 @@ fn pos_mult_overrides_itself() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("val"));
-    assert_eq!(m.occurrences_of("val"), 3);
+    #[allow(deprecated)]
+    {
+        assert_eq!(m.occurrences_of("val"), 3);
+    }
     assert_eq!(
         m.get_many::<String>("val")
             .unwrap()
@@ -433,7 +454,7 @@ fn issue_1374_overrides_self_with_multiple_values() {
 #[test]
 fn incremental_override() {
     let mut cmd = Command::new("test")
-        .arg(arg!(--name <NAME>).multiple_occurrences(true))
+        .arg(arg!(--name <NAME>).action(ArgAction::Append))
         .arg(arg!(--"no-name").overrides_with("name"));
     let m = cmd
         .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])

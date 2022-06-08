@@ -425,7 +425,10 @@ macro_rules! arg_impl {
             @arg
             ({
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                }
 
                 let mut arg = $arg;
                 let long = $crate::arg_impl! { @string $long };
@@ -447,7 +450,10 @@ macro_rules! arg_impl {
             @arg
             ({
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                }
 
                 let mut arg = $arg;
                 let long = $crate::arg_impl! { @string $long };
@@ -470,7 +476,10 @@ macro_rules! arg_impl {
             ({
                 debug_assert_eq!($arg.get_long(), None, "Short flags should precede long flags");
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                }
 
                 $arg.short($crate::arg_impl! { @char $short })
             })
@@ -488,7 +497,10 @@ macro_rules! arg_impl {
             ({
                 debug_assert_eq!($arg.get_long(), None, "Short flags should precede long flags");
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Flags should precede `...`");
+                }
 
                 $arg.short($crate::arg_impl! { @char $short })
             })
@@ -504,7 +516,10 @@ macro_rules! arg_impl {
         $crate::arg_impl! {
             @arg
             ({
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                }
                 debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
                 let mut arg = $arg;
@@ -530,7 +545,10 @@ macro_rules! arg_impl {
         $crate::arg_impl! {
             @arg
             ({
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                }
                 debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
                 let mut arg = $arg;
@@ -556,7 +574,10 @@ macro_rules! arg_impl {
         $crate::arg_impl! {
             @arg
             ({
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                }
                 debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
                 let mut arg = $arg;
@@ -586,7 +607,10 @@ macro_rules! arg_impl {
         $crate::arg_impl! {
             @arg
             ({
-                debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                #[allow(deprecated)]
+                {
+                    debug_assert!(!$arg.is_multiple_occurrences_set(), "Values should precede `...`");
+                }
                 debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
                 let mut arg = $arg;
@@ -615,9 +639,9 @@ macro_rules! arg_impl {
     ) => {
         $crate::arg_impl! {
             @arg
-            ({
+            ({#[allow(deprecated)]{
                 $arg.multiple_occurrences(true)
-            })
+            }})
             $($tail)*
         }
     };
