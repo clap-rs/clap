@@ -4993,6 +4993,7 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("name", &self.name)
             .field("help", &self.help)
             .field("long_help", &self.long_help)
+            .field("action", &self.action)
             .field("value_parser", &self.value_parser)
             .field("blacklist", &self.blacklist)
             .field("settings", &self.settings)
