@@ -108,7 +108,11 @@ impl ValueParser {
     ///     .expect("required");
     /// assert_eq!(*port, ("key".into(), Some("value".into())));
     /// ```
-    pub fn new(other: impl AnyValueParser + Send + Sync + 'static) -> Self {
+    pub fn new<P>(other: P) -> Self
+    where
+        P: Send + Sync + TypedValueParser + 'static,
+        P::Value: Send + Sync + Clone,
+    {
         Self(ValueParserInner::Other(Arc::new(other)))
     }
 
@@ -292,7 +296,11 @@ impl ValueParser {
 ///     .expect("required");
 /// assert_eq!(hostname, "rust-lang.org");
 /// ```
-impl<P: AnyValueParser + Send + Sync + 'static> From<P> for ValueParser {
+impl<P> From<P> for ValueParser
+where
+    P: TypedValueParser + Send + Sync + 'static,
+    P::Value: Send + Sync + Clone,
+{
     fn from(p: P) -> Self {
         ValueParser(ValueParserInner::Other(Arc::new(p)))
     }
@@ -524,17 +532,8 @@ impl<'help> std::fmt::Debug for ValueParser {
     }
 }
 
-// Require people to implement `TypedValueParser` rather than `AnyValueParser`:
-// - Make implementing the user-facing trait easier
-// - Enforce in the type-system that a given `AnyValueParser::parse` always returns the same type
-//   on each call and that it matches `type_id`
-/// Parse/validate argument values into a `AnyValue`
-///
-/// This is a type-erased wrapper for [`TypedValueParser`].
-pub trait AnyValueParser: private::AnyValueParserSealed {
-    /// Parse into a `AnyValue`
-    ///
-    /// When `arg` is `None`, an external subcommand value is being parsed.
+/// A type-erased wrapper for [`TypedValueParser`].
+trait AnyValueParser {
     fn parse_ref(
         &self,
         cmd: &crate::Command,
@@ -542,9 +541,6 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
         value: &std::ffi::OsStr,
     ) -> Result<AnyValue, crate::Error>;
 
-    /// Parse into a `AnyValue`
-    ///
-    /// When `arg` is `None`, an external subcommand value is being parsed.
     fn parse(
         &self,
         cmd: &crate::Command,
@@ -555,15 +551,9 @@ pub trait AnyValueParser: private::AnyValueParserSealed {
     /// Describes the content of `AnyValue`
     fn type_id(&self) -> AnyValueId;
 
-    /// Reflect on enumerated value properties
-    ///
-    /// Error checking should not be done with this; it is mostly targeted at user-facing
-    /// applications like errors and completion.
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>> {
-        None
-    }
+    ) -> Option<Box<dyn Iterator<Item = crate::PossibleValue<'static>> + '_>>;
 }
 
 impl<T, P> AnyValueParser for P
@@ -2038,14 +2028,6 @@ macro_rules! value_parser {
 
 mod private {
     use super::*;
-
-    pub trait AnyValueParserSealed {}
-    impl<T, P> AnyValueParserSealed for P
-    where
-        T: std::any::Any + Send + Sync + 'static,
-        P: TypedValueParser<Value = T>,
-    {
-    }
 
     pub trait ValueParserViaSelfSealed {}
     impl<P: Into<ValueParser>> ValueParserViaSelfSealed for &&&AutoValueParser<P> {}

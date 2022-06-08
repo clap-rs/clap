@@ -33,7 +33,6 @@ pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
 pub use value_parser::via_prelude;
-pub use value_parser::AnyValueParser;
 pub use value_parser::AutoValueParser;
 pub use value_parser::BoolValueParser;
 pub use value_parser::BoolishValueParser;

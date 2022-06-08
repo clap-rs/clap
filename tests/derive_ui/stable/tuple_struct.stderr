@@ -18,5 +18,4 @@ error[E0599]: no function or associated item named `parse` found for struct `Opt
    = help: items from traits can only be used if the trait is implemented and in scope
    = note: the following traits define an item `parse`, perhaps you need to implement one of them:
            candidate #1: `Parser`
-           candidate #2: `AnyValueParser`
-           candidate #3: `TypedValueParser`
+           candidate #2: `TypedValueParser`
