@@ -4425,12 +4425,22 @@ impl<'help> App<'help> {
                         .position(|x| x.id == a.id && x.provider == ArgProvider::Generated);
 
                     if let Some(index) = generated_pos {
+                        debug!(
+                            "Command::_propagate removing {}'s {:?}",
+                            sc.get_name(),
+                            a.id
+                        );
                         sc.args.remove(index);
                         propagate = true;
                     }
                 }
 
                 if propagate || sc.find(&a.id).is_none() {
+                    debug!(
+                        "Command::_propagate pushing {:?} to {}",
+                        a.id,
+                        sc.get_name(),
+                    );
                     sc.args.push(a.clone());
                 }
             }
