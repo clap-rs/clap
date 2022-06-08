@@ -2,7 +2,7 @@ use std::ffi::OsString;
 
 use super::utils;
 
-use clap::{arg, error::ErrorKind, AppSettings, Arg, Command};
+use clap::{arg, error::ErrorKind, AppSettings, Arg, ArgAction, Command};
 
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
@@ -1345,62 +1345,68 @@ fn aaos_option_use_delim_false() {
 #[test]
 fn no_auto_help() {
     let cmd = Command::new("myprog")
-        .setting(AppSettings::NoAutoHelp)
-        .subcommand(Command::new("foo"));
+        .subcommand(Command::new("foo"))
+        .mut_arg("help", |v| v.action(ArgAction::SetTrue));
 
     let result = cmd.clone().try_get_matches_from("myprog --help".split(' '));
-
     assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("help"));
+    assert_eq!(result.unwrap().get_one::<bool>("help").copied(), Some(true));
 
     let result = cmd.clone().try_get_matches_from("myprog -h".split(' '));
-
     assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("help"));
-
-    let result = cmd.clone().try_get_matches_from("myprog help".split(' '));
-
-    assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert_eq!(result.unwrap().subcommand_name(), Some("help"));
+    assert_eq!(result.unwrap().get_one::<bool>("help").copied(), Some(true));
 }
 
 #[test]
 fn no_auto_version() {
     let cmd = Command::new("myprog")
         .version("3.0")
-        .setting(AppSettings::NoAutoVersion);
+        .mut_arg("version", |v| v.action(ArgAction::SetTrue));
 
     let result = cmd
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("version"));
+    assert_eq!(
+        result.unwrap().get_one::<bool>("version").copied(),
+        Some(true)
+    );
 
     let result = cmd.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("version"));
+    assert_eq!(
+        result.unwrap().get_one::<bool>("version").copied(),
+        Some(true)
+    );
 }
 
 #[test]
 fn no_auto_version_mut_arg() {
     let cmd = Command::new("myprog")
         .version("3.0")
-        .mut_arg("version", |v| v.help("custom help"))
-        .setting(AppSettings::NoAutoVersion);
+        .mut_arg("version", |v| {
+            v.action(ArgAction::SetTrue).help("custom help")
+        });
 
     let result = cmd
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("version"));
+    assert_eq!(
+        result.unwrap().get_one::<bool>("version").copied(),
+        Some(true)
+    );
 
     let result = cmd.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
-    assert!(result.unwrap().is_present("version"));
+    assert_eq!(
+        result.unwrap().get_one::<bool>("version").copied(),
+        Some(true)
+    );
 }
 
 #[test]

@@ -4,8 +4,8 @@ use clap_lex::RawOsStr;
 
 use crate::builder::arg::ArgProvider;
 use crate::mkeymap::KeyType;
-use crate::util::Id;
-use crate::{AppSettings, Arg, Command, ValueHint};
+use crate::ArgAction;
+use crate::{Arg, Command, ValueHint};
 
 pub(crate) fn assert_app(cmd: &Command) {
     debug!("Command::_debug_asserts");
@@ -23,16 +23,21 @@ pub(crate) fn assert_app(cmd: &Command) {
         );
 
         // Used `Command::mut_arg("version", ..) but did not provide any version information to display
-        let has_mutated_version = cmd
+        let version_needed = cmd
             .get_arguments()
-            .any(|x| x.id == Id::version_hash() && x.provider == ArgProvider::GeneratedMutated);
+            .filter(|x| {
+                matches!(x.get_action(), ArgAction::Version)
+                    && matches!(
+                        x.provider,
+                        ArgProvider::User | ArgProvider::GeneratedMutated
+                    )
+            })
+            .map(|x| x.get_id())
+            .collect::<Vec<_>>();
 
-        if has_mutated_version {
-            assert!(cmd.is_set(AppSettings::NoAutoVersion),
-                "Command {}: Used Command::mut_arg(\"version\", ..) without providing Command::version, Command::long_version or using AppSettings::NoAutoVersion"
+        assert_eq!(version_needed, Vec::<&str>::new(), "Command {}: `ArgAction::Version` used without providing Command::version or Command::long_version"
             ,cmd.get_name()
-                );
-        }
+        );
     }
 
     for sc in cmd.get_subcommands() {
