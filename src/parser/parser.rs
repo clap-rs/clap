@@ -1563,6 +1563,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     fn start_custom_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>, source: ValueSource) {
+        if source == ValueSource::CommandLine {
+            // With each new occurrence, remove overrides from prior occurrences
+            self.remove_overrides(arg, matcher);
+        }
         matcher.start_custom_arg(arg, source);
         for group in self.cmd.groups_for_arg(&arg.id) {
             matcher.start_custom_group(&group, source);
