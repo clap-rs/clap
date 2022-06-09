@@ -114,9 +114,9 @@ impl ArgMatches {
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
-    pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, name: &str) -> Option<&T> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_get_one(name))
+    pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, id: &str) -> Option<&T> {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_get_one(id))
     }
 
     /// Iterate over values of a specific option or positional argument.
@@ -155,10 +155,10 @@ impl ArgMatches {
     #[track_caller]
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
-        name: &str,
+        id: &str,
     ) -> Option<ValuesRef<T>> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_get_many(name))
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_get_many(id))
     }
 
     /// Iterate over the original argument values.
@@ -203,9 +203,9 @@ impl ArgMatches {
     /// [values]: OsValues
     /// [`String`]: std::string::String
     #[track_caller]
-    pub fn get_raw(&self, name: &str) -> Option<RawValues<'_>> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_get_raw(name))
+    pub fn get_raw(&self, id: &str) -> Option<RawValues<'_>> {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_get_raw(id))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -243,9 +243,9 @@ impl ArgMatches {
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
-    pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, name: &str) -> Option<T> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_remove_one(name))
+    pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, id: &str) -> Option<T> {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_remove_one(id))
     }
 
     /// Return values of a specific option or positional argument.
@@ -282,10 +282,10 @@ impl ArgMatches {
     #[track_caller]
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
-        name: &str,
+        id: &str,
     ) -> Option<Values2<T>> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_remove_many(name))
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_remove_many(id))
     }
 
     /// Check if any args were present on the command line
@@ -371,7 +371,7 @@ impl ArgMatches {
     ///
     /// If the value is invalid UTF-8.
     ///
-    /// If `id` is not a valid argument or group name.
+    /// If `id` is not a valid argument or group id.
     ///
     /// # Examples
     /// ```rust
@@ -528,7 +528,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.
+    /// If `id` is is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -585,7 +585,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.
+    /// If `id` is is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -719,7 +719,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.
+    /// If `id` is is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -1014,9 +1014,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::get_one`]
     pub fn try_get_one<T: Any + Clone + Send + Sync + 'static>(
         &self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<&T>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         let arg = self.try_get_arg_t::<T>(&id)?;
         let value = match arg.and_then(|a| a.first()) {
             Some(value) => value,
@@ -1033,9 +1033,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::get_many`]
     pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<ValuesRef<T>>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         let arg = match self.try_get_arg_t::<T>(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1051,8 +1051,8 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::get_raw`]
-    pub fn try_get_raw(&self, name: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
-        let id = Id::from(name);
+    pub fn try_get_raw(&self, id: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
+        let id = Id::from(id);
         let arg = match self.try_get_arg(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1069,9 +1069,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::remove_one`]
     pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<T>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         match self.try_remove_arg_t::<T>(&id)? {
             Some(values) => Ok(values
                 .into_vals_flatten()
@@ -1085,9 +1085,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::remove_many`]
     pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<Values2<T>>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         let arg = match self.try_remove_arg_t::<T>(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
