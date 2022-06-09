@@ -70,7 +70,7 @@ enum ValueParserInner {
     OsString,
     // Common enough to optimize
     PathBuf,
-    Other(Arc<dyn AnyValueParser + Send + Sync + 'static>),
+    Other(Arc<dyn AnyValueParser>),
 }
 
 impl ValueParser {
@@ -110,7 +110,7 @@ impl ValueParser {
     /// ```
     pub fn new<P>(other: P) -> Self
     where
-        P: Send + Sync + TypedValueParser + 'static,
+        P: TypedValueParser,
         P::Value: Send + Sync + Clone,
     {
         Self(ValueParserInner::Other(Arc::new(other)))
@@ -521,7 +521,7 @@ impl<'help> std::fmt::Debug for ValueParser {
 }
 
 /// A type-erased wrapper for [`TypedValueParser`].
-trait AnyValueParser {
+trait AnyValueParser: Send + Sync + 'static {
     fn parse_ref(
         &self,
         cmd: &crate::Command,
@@ -581,7 +581,7 @@ where
 }
 
 /// Parse/validate argument values
-pub trait TypedValueParser {
+pub trait TypedValueParser: Send + Sync + 'static {
     /// Argument's value type
     type Value;
 
@@ -620,7 +620,7 @@ pub trait TypedValueParser {
 
 impl<F, T, E> TypedValueParser for F
 where
-    F: Fn(&str) -> Result<T, E>,
+    F: Fn(&str) -> Result<T, E> + Send + Sync + 'static,
     E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
 {
     type Value = T;
@@ -1067,12 +1067,12 @@ where
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
 /// ```
 #[derive(Copy, Clone, Debug)]
-pub struct RangedI64ValueParser<T: std::convert::TryFrom<i64> = i64> {
+pub struct RangedI64ValueParser<T: std::convert::TryFrom<i64> + Send + Sync = i64> {
     bounds: (std::ops::Bound<i64>, std::ops::Bound<i64>),
     target: std::marker::PhantomData<T>,
 }
 
-impl<T: std::convert::TryFrom<i64>> RangedI64ValueParser<T> {
+impl<T: std::convert::TryFrom<i64> + Send + Sync> RangedI64ValueParser<T> {
     /// Select full range of `i64`
     pub fn new() -> Self {
         Self::from(..)
@@ -1152,7 +1152,8 @@ impl<T: std::convert::TryFrom<i64>> RangedI64ValueParser<T> {
     }
 }
 
-impl<T: std::convert::TryFrom<i64>> TypedValueParser for RangedI64ValueParser<T>
+impl<T: std::convert::TryFrom<i64> + Send + Sync + 'static> TypedValueParser
+    for RangedI64ValueParser<T>
 where
     <T as std::convert::TryFrom<i64>>::Error: Send + Sync + 'static + std::error::Error + ToString,
 {
@@ -1210,7 +1211,9 @@ where
     }
 }
 
-impl<T: std::convert::TryFrom<i64>, B: RangeBounds<i64>> From<B> for RangedI64ValueParser<T> {
+impl<T: std::convert::TryFrom<i64> + Send + Sync, B: RangeBounds<i64>> From<B>
+    for RangedI64ValueParser<T>
+{
     fn from(range: B) -> Self {
         Self {
             bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
@@ -1219,7 +1222,7 @@ impl<T: std::convert::TryFrom<i64>, B: RangeBounds<i64>> From<B> for RangedI64Va
     }
 }
 
-impl<T: std::convert::TryFrom<i64>> Default for RangedI64ValueParser<T> {
+impl<T: std::convert::TryFrom<i64> + Send + Sync> Default for RangedI64ValueParser<T> {
     fn default() -> Self {
         Self::new()
     }
@@ -1347,7 +1350,8 @@ impl<T: std::convert::TryFrom<u64>> RangedU64ValueParser<T> {
     }
 }
 
-impl<T: std::convert::TryFrom<u64>> TypedValueParser for RangedU64ValueParser<T>
+impl<T: std::convert::TryFrom<u64> + Send + Sync + 'static> TypedValueParser
+    for RangedU64ValueParser<T>
 where
     <T as std::convert::TryFrom<u64>>::Error: Send + Sync + 'static + std::error::Error + ToString,
 {
