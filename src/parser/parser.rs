@@ -236,6 +236,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             break;
                         }
                         ParseResult::EqualsNotProvided { arg } => {
+                            let _ = self.resolve_pending(matcher);
                             return Err(ClapError::no_equals(
                                 self.cmd,
                                 arg,
@@ -243,6 +244,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
+                            let _ = self.resolve_pending(matcher);
                             let remaining_args: Vec<_> = raw_args
                                 .remaining(&mut args_cursor)
                                 .map(|x| x.to_str().expect(INVALID_UTF8))
@@ -250,12 +252,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             return Err(self.did_you_mean_error(&arg, matcher, &remaining_args));
                         }
                         ParseResult::UnneededAttachedValue { rest, used, arg } => {
+                            let _ = self.resolve_pending(matcher);
                             return Err(ClapError::too_many_values(
                                 self.cmd,
                                 rest,
                                 arg,
                                 Usage::new(self.cmd).create_usage_no_title(&used),
-                            ))
+                            ));
                         }
                         ParseResult::MaybeHyphenValue => {
                             // Maybe a hyphen value, do nothing.
@@ -320,13 +323,15 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             break;
                         }
                         ParseResult::EqualsNotProvided { arg } => {
+                            let _ = self.resolve_pending(matcher);
                             return Err(ClapError::no_equals(
                                 self.cmd,
                                 arg,
                                 Usage::new(self.cmd).create_usage_with_title(&[]),
-                            ))
+                            ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
+                            let _ = self.resolve_pending(matcher);
                             return Err(ClapError::unknown_argument(
                                 self.cmd,
                                 arg,
@@ -373,6 +378,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
             if let Some(arg) = self.cmd.get_keymap().get(&pos_counter) {
                 if arg.is_last_set() && !trailing_values {
+                    let _ = self.resolve_pending(matcher);
                     return Err(ClapError::unknown_argument(
                         self.cmd,
                         arg_os.display().to_string(),
@@ -415,6 +421,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let sc_name = match arg_os.to_value() {
                     Ok(s) => s.to_string(),
                     Err(_) => {
+                        let _ = self.resolve_pending(matcher);
                         return Err(ClapError::invalid_utf8(
                             self.cmd,
                             Usage::new(self.cmd).create_usage_with_title(&[]),
@@ -447,6 +454,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 return Validator::new(self.cmd).validate(parse_state, matcher);
             } else {
                 // Start error processing
+                let _ = self.resolve_pending(matcher);
                 return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
             }
         }
