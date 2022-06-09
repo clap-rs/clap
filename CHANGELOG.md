@@ -18,6 +18,7 @@ _gated behind `unstable-v4`_
 - Leading dashes in `Arg::long` are no longer allowed (#3691)
 - Verify `required` is not used with conditional required settings (#3660)
 - Disallow more `value_names` than `number_of_values` (#2695)
+- *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
