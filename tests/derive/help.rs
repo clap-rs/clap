@@ -275,7 +275,7 @@ fn derive_generated_error_has_full_context() {
     enum SubCommands {
         Sub {
             #[clap(short, long, action = clap::ArgAction::Count)]
-            verbose: u64,
+            verbose: u8,
         },
     }
 

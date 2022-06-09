@@ -87,7 +87,7 @@ Replaced
 - `Arg::validator_regex` with users providing their own `builder::TypedValueParser` (#3756)
 - `Arg::forbid_empty_values` with `builder::NonEmptyStringValueParser` / `builder::PathBufValueParser` (#3753)
 - `Arg::possible_values` with `Arg::value_parser([...])`, `builder::PossibleValuesParser`, or `builder::EnumValueParser` (#3753)
-- `Arg::max_occurrences` with `arg.action(ArgAction::Count).value_parser(value_parser!(u64).range(..N))` for flags (#3797)
+- `Arg::max_occurrences` with `arg.action(ArgAction::Count).value_parser(value_parser!(u8).range(..N))` for flags (#3797)
 - `Arg::multiple_occurrences` with `ArgAction::Append` or `ArgAction::Count` though positionals will need `Arg::multiple_values` (#3772, #3797)
 - `Command::args_override_self` with `ArgAction::Set` (#2627, #3797)
 - `AppSettings::NoAutoVersion` with `ArgAction` or `Command::disable_version_flag` (#3800)
@@ -99,7 +99,7 @@ Replaced
 - `ArgAction::StoreValue` with `ArgAction::Set` or `ArgAction::Append` (#3797)
 - `ArgAction::IncOccurrences` with `ArgAction::SetTrue` or `ArgAction::Count` (#3797)
 - *(derive)* `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)
-- *(derive)* `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u64` (#3794)
+- *(derive)* `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u8` (#3794)
 - *(derive)* `#[clap(parse(...))]` replaced with `#[clap(value_parser)]`  (#3589, #3794)
 
 ## [3.1.18] - 2022-05-10

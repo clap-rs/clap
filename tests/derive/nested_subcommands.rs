@@ -19,7 +19,7 @@ struct Opt {
     #[clap(short, long, action)]
     force: bool,
     #[clap(short, long, action = clap::ArgAction::Count)]
-    verbose: u64,
+    verbose: u8,
     #[clap(subcommand)]
     cmd: Sub,
 }
@@ -35,7 +35,7 @@ struct Opt2 {
     #[clap(short, long, action)]
     force: bool,
     #[clap(short, long, action = clap::ArgAction::Count)]
-    verbose: u64,
+    verbose: u8,
     #[clap(subcommand)]
     cmd: Option<Sub>,
 }

@@ -91,7 +91,7 @@ pub fn check_complex_output(args: &str, out: &str) {
     let matches = utils::complex_app()
         .try_get_matches_from(args.split(' ').collect::<Vec<_>>())
         .unwrap();
-    match matches.get_one::<u64>("flag").unwrap() {
+    match matches.get_one::<u8>("flag").unwrap() {
         0 => {
             writeln!(w, "flag NOT present").unwrap();
         }
@@ -202,7 +202,7 @@ pub fn check_complex_output(args: &str, out: &str) {
     if let Some("subcmd") = matches.subcommand_name() {
         writeln!(w, "subcmd present").unwrap();
         if let Some(matches) = matches.subcommand_matches("subcmd") {
-            match matches.get_one::<u64>("flag").unwrap() {
+            match matches.get_one::<u8>("flag").unwrap() {
                 0 => {
                     writeln!(w, "flag NOT present").unwrap();
                 }

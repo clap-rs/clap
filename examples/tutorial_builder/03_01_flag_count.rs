@@ -10,7 +10,7 @@ fn main() {
     println!(
         "verbose: {:?}",
         matches
-            .get_one::<u64>("verbose")
+            .get_one::<u8>("verbose")
             .expect("Count always defaulted")
     );
 }

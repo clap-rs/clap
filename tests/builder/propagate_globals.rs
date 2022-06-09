@@ -54,21 +54,21 @@ fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -
         == val.into()
 }
 
-fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
+fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u8) -> bool {
     (m.is_present("GLOBAL_FLAG") == present)
-        && (m.get_one::<u64>("GLOBAL_FLAG").copied() == Some(occurrences))
+        && (m.get_one::<u8>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
-fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
+fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u8) -> bool {
     let m = get_inner_matches(m);
     (m.is_present("GLOBAL_FLAG") == present)
-        && (m.get_one::<u64>("GLOBAL_FLAG").copied() == Some(occurrences))
+        && (m.get_one::<u8>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
-fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
+fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u8) -> bool {
     let m = get_outer_matches(m);
     (m.is_present("GLOBAL_FLAG") == present)
-        && (m.get_one::<u64>("GLOBAL_FLAG").copied() == Some(occurrences))
+        && (m.get_one::<u8>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
 #[test]

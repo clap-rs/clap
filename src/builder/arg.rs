@@ -788,12 +788,12 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u64).range(..max))`
+    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
     #[inline]
     #[must_use]
     #[deprecated(
         since = "3.2.0",
-        note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u64).range(..max))`"
+        note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`"
     )]
     pub fn max_occurrences(mut self, qty: usize) -> Self {
         self.max_occurs = Some(qty);

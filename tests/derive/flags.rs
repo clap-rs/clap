@@ -49,9 +49,9 @@ fn count() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long, action = clap::ArgAction::Count)]
-        alice: u64,
+        alice: u8,
         #[clap(short, long, action = clap::ArgAction::Count)]
-        bob: u64,
+        bob: u8,
     }
 
     assert_eq!(
@@ -116,7 +116,7 @@ fn mixed_type_flags() {
         #[clap(short, long, action)]
         alice: bool,
         #[clap(short, long, action = clap::ArgAction::Count)]
-        bob: u64,
+        bob: u8,
     }
 
     assert_eq!(

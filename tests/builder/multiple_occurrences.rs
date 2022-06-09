@@ -70,16 +70,24 @@ fn multiple_occurrences_of_positional() {
 
 #[test]
 fn multiple_occurrences_of_flags_large_quantity() {
+    let cmd = Command::new("mo_flags_large_qty")
+        .arg(arg!(-m --multflag "allowed multiple flag").action(ArgAction::Count));
+
     let args: Vec<&str> = vec![""]
         .into_iter()
-        .chain(vec!["-m"; 1024].into_iter())
+        .chain(vec!["-m"; 200].into_iter())
         .collect();
-    let m = Command::new("mo_flags_large_qty")
-        .arg(arg!(-m --multflag "allowed multiple flag").action(ArgAction::Count))
-        .try_get_matches_from(args)
-        .unwrap();
+    let m = cmd.clone().try_get_matches_from(args).unwrap();
     assert!(m.is_present("multflag"));
-    assert_eq!(m.get_one::<u64>("multflag").copied(), Some(1024));
+    assert_eq!(m.get_one::<u8>("multflag").copied(), Some(200));
+
+    let args: Vec<&str> = vec![""]
+        .into_iter()
+        .chain(vec!["-m"; 500].into_iter())
+        .collect();
+    let m = cmd.try_get_matches_from(args).unwrap();
+    assert!(m.is_present("multflag"));
+    assert_eq!(m.get_one::<u8>("multflag").copied(), Some(u8::MAX));
 }
 
 #[cfg(feature = "env")]
@@ -97,22 +105,22 @@ fn multiple_occurrences_of_before_env() {
     let m = cmd.clone().try_get_matches_from(vec![""]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(0));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(0));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(1));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(1));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(2));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(2));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(3));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(3));
 }
 
 #[cfg(feature = "env")]
@@ -130,20 +138,20 @@ fn multiple_occurrences_of_after_env() {
     let m = cmd.clone().try_get_matches_from(vec![""]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(0));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(0));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-v"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(1));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(1));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-vv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(2));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(2));
 
     let m = cmd.clone().try_get_matches_from(vec!["", "-vvv"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-    assert_eq!(m.get_one::<u64>("verbose").copied(), Some(3));
+    assert_eq!(m.get_one::<u8>("verbose").copied(), Some(3));
 }

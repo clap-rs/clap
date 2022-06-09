@@ -195,7 +195,7 @@ fn required_with_option_type() {
     enum SubCommands {
         ExSub {
             #[clap(short, long, action = clap::ArgAction::Count)]
-            verbose: u64,
+            verbose: u8,
         },
     }
 
