@@ -26,11 +26,15 @@ pub(crate) fn assert_app(cmd: &Command) {
         let version_needed = cmd
             .get_arguments()
             .filter(|x| {
-                matches!(x.get_action(), ArgAction::Version)
-                    && matches!(
-                        x.provider,
-                        ArgProvider::User | ArgProvider::GeneratedMutated
-                    )
+                let action_set = matches!(x.get_action(), ArgAction::Version);
+                #[cfg(not(feature = "unstable-v4"))]
+                let provider_set = matches!(x.provider, ArgProvider::GeneratedMutated);
+                #[cfg(feature = "unstable-v4")]
+                let provider_set = matches!(
+                    x.provider,
+                    ArgProvider::User | ArgProvider::GeneratedMutated
+                );
+                action_set && provider_set
             })
             .map(|x| x.get_id())
             .collect::<Vec<_>>();

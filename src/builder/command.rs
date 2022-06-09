@@ -4142,10 +4142,10 @@ impl<'help> App<'help> {
                 // required.  Otherwise, most of this won't be needed because when we can break
                 // compat, actions will reign supreme (default to `Store`)
                 if a.action.is_none() {
-                    if a.get_id() == "help" && auto_help {
+                    if a.get_id() == "help" && auto_help && !a.is_takes_value_set() {
                         let action = super::ArgAction::Help;
                         a.action = Some(action);
-                    } else if a.get_id() == "version" && auto_version {
+                    } else if a.get_id() == "version" && auto_version && !a.is_takes_value_set() {
                         let action = super::ArgAction::Version;
                         a.action = Some(action);
                     } else if a.is_takes_value_set() {
@@ -4425,12 +4425,22 @@ impl<'help> App<'help> {
                         .position(|x| x.id == a.id && x.provider == ArgProvider::Generated);
 
                     if let Some(index) = generated_pos {
+                        debug!(
+                            "Command::_propagate removing {}'s {:?}",
+                            sc.get_name(),
+                            a.id
+                        );
                         sc.args.remove(index);
                         propagate = true;
                     }
                 }
 
                 if propagate || sc.find(&a.id).is_none() {
+                    debug!(
+                        "Command::_propagate pushing {:?} to {}",
+                        a.id,
+                        sc.get_name(),
+                    );
                     sc.args.push(a.clone());
                 }
             }
