@@ -1,5 +1,5 @@
 #[derive(Clone)]
-pub struct AnyValue {
+pub(crate) struct AnyValue {
     inner: std::sync::Arc<dyn std::any::Any + Send + Sync + 'static>,
     // While we can extract `TypeId` from `inner`, the debug repr is of a number, so let's track
     // the type_name in debug builds.
