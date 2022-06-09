@@ -152,7 +152,7 @@ pub enum ArgAction {
     /// );
     /// ```
     SetFalse,
-    /// When encountered, increment a `u64` counter
+    /// When encountered, increment a `u8` counter
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `0`.
     ///
@@ -174,7 +174,7 @@ pub enum ArgAction {
     /// assert!(matches.is_present("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
-    ///     matches.get_one::<u64>("flag").copied(),
+    ///     matches.get_one::<u8>("flag").copied(),
     ///     Some(2)
     /// );
     ///
@@ -182,7 +182,7 @@ pub enum ArgAction {
     /// assert!(matches.is_present("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
-    ///     matches.get_one::<u64>("flag").copied(),
+    ///     matches.get_one::<u8>("flag").copied(),
     ///     Some(0)
     /// );
     /// ```
@@ -287,7 +287,7 @@ impl ArgAction {
             Self::IncOccurrence => None,
             Self::SetTrue => Some(super::ValueParser::bool()),
             Self::SetFalse => Some(super::ValueParser::bool()),
-            Self::Count => Some(crate::value_parser!(u64).into()),
+            Self::Count => Some(crate::value_parser!(u8).into()),
             Self::Help => None,
             Self::Version => None,
         }
@@ -313,4 +313,4 @@ impl ArgAction {
     }
 }
 
-pub(crate) type CountType = u64;
+pub(crate) type CountType = u8;

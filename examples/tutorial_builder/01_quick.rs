@@ -40,7 +40,7 @@ fn main() {
     // You can see how many times a particular flag or argument occurred
     // Note, only flags can have multiple occurrences
     match matches
-        .get_one::<u64>("debug")
+        .get_one::<u8>("debug")
         .expect("Count's are defaulted")
     {
         0 => println!("Debug mode is off"),

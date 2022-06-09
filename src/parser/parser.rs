@@ -1268,7 +1268,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         let existing_value = *matcher
                             .get_one::<crate::builder::CountType>(arg.get_id())
                             .unwrap_or(&0);
-                        let next_value = existing_value + 1;
+                        let next_value = existing_value.saturating_add(1);
                         vec![OsString::from(next_value.to_string())]
                     }
                     1 => raw_vals,

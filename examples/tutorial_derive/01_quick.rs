@@ -15,7 +15,7 @@ struct Cli {
 
     /// Turn debugging information on
     #[clap(short, long, action = clap::ArgAction::Count)]
-    debug: u64,
+    debug: u8,
 
     #[clap(subcommand)]
     command: Option<Commands>,
