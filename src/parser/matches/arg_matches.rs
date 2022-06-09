@@ -288,6 +288,36 @@ impl ArgMatches {
         MatchesError::unwrap(&internal_id, self.try_remove_many(id))
     }
 
+    /// Check if values are present for the argument or group id
+    ///
+    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
+    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
+    ///
+    /// # Panics
+    ///
+    /// If `id` is is not a valid argument or group name.  To handle this case programmatically, see
+    /// [`ArgMatches::try_contains_id`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg};
+    /// let m = Command::new("myprog")
+    ///     .arg(Arg::new("debug")
+    ///         .short('d'))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-d"
+    ///     ]);
+    ///
+    /// assert!(m.contains_id("debug"));
+    /// ```
+    ///
+    /// [`default_value`]: crate::Arg::default_value()
+    pub fn contains_id(&self, id: &str) -> bool {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_contains_id(id))
+    }
+
     /// Check if any args were present on the command line
     ///
     /// # Examples
@@ -1100,6 +1130,16 @@ impl ArgMatches {
             len,
         };
         Ok(Some(values))
+    }
+
+    /// Non-panicking version of [`ArgMatches::contains_id`]
+    pub fn try_contains_id(&self, id: &str) -> Result<bool, MatchesError> {
+        let id = Id::from(id);
+
+        self.verify_arg(&id)?;
+
+        let presence = self.args.contains_key(&id);
+        Ok(presence)
     }
 }
 

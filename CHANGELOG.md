@@ -59,6 +59,7 @@ _gated behind `unstable-v4`_
   - Default `ValueParser` is determined by `value_parser!` (#3199, #3496)
   - Default `ArgAction` is determine by a hard-coded lookup on the type (#3794)
 - `Command::multicall` is now stable for busybox-like programs and REPLs (#2861, #3684)
+- `ArgMatches::{try_,}contains_id` for checking if there are values for an argument that mirrors the new `get_{one,many}` API
 
 ### Fixes
 
