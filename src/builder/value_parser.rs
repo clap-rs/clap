@@ -227,25 +227,13 @@ impl ValueParser {
     /// Parse into a `AnyValue`
     ///
     /// When `arg` is `None`, an external subcommand value is being parsed.
-    pub fn parse_ref(
+    pub(crate) fn parse_ref(
         &self,
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<AnyValue, crate::Error> {
         self.any_value_parser().parse_ref(cmd, arg, value)
-    }
-
-    /// Parse into a `AnyValue`
-    ///
-    /// When `arg` is `None`, an external subcommand value is being parsed.
-    pub fn parse(
-        &self,
-        cmd: &crate::Command,
-        arg: Option<&crate::Arg>,
-        value: std::ffi::OsString,
-    ) -> Result<AnyValue, crate::Error> {
-        self.any_value_parser().parse(cmd, arg, value)
     }
 
     /// Describes the content of `AnyValue`
