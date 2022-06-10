@@ -32,8 +32,6 @@ pub use arg_settings::{ArgFlags, ArgSettings};
 pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use value_hint::ValueHint;
-pub use value_parser::via_prelude;
-pub use value_parser::AutoValueParser;
 pub use value_parser::BoolValueParser;
 pub use value_parser::BoolishValueParser;
 pub use value_parser::EnumValueParser;
@@ -48,6 +46,8 @@ pub use value_parser::StringValueParser;
 pub use value_parser::TypedValueParser;
 pub use value_parser::ValueParser;
 pub use value_parser::ValueParserFactory;
+pub use value_parser::_AutoValueParser;
+pub use value_parser::via_prelude;
 
 #[allow(deprecated)]
 pub use command::App;
