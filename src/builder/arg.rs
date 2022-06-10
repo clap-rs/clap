@@ -3303,7 +3303,7 @@ impl<'help> Arg<'help> {
         ifs: &[(T, Option<&'help OsStr>, Option<&'help OsStr>)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg.key(), *val, *default);
+            self = self.default_value_if_os(arg, *val, *default);
         }
         self
     }
