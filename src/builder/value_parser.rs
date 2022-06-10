@@ -1917,11 +1917,11 @@ pub mod via_prelude {
     use super::*;
 
     #[doc(hidden)]
-    pub trait ValueParserViaFactory: private::ValueParserViaFactorySealed {
+    pub trait _ValueParserViaFactory: private::_ValueParserViaFactorySealed {
         type Parser;
         fn value_parser(&self) -> Self::Parser;
     }
-    impl<P: ValueParserFactory> ValueParserViaFactory for &&_AutoValueParser<P> {
+    impl<P: ValueParserFactory> _ValueParserViaFactory for &&_AutoValueParser<P> {
         type Parser = P::Parser;
         fn value_parser(&self) -> Self::Parser {
             P::value_parser()
@@ -1929,12 +1929,12 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait ValueParserViaValueEnum: private::ValueParserViaValueEnumSealed {
+    pub trait _ValueParserViaValueEnum: private::_ValueParserViaValueEnumSealed {
         type Output;
 
         fn value_parser(&self) -> Self::Output;
     }
-    impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> ValueParserViaValueEnum
+    impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> _ValueParserViaValueEnum
         for &_AutoValueParser<E>
     {
         type Output = EnumValueParser<E>;
@@ -1945,10 +1945,10 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait ValueParserViaFromStr: private::ValueParserViaFromStrSealed {
+    pub trait _ValueParserViaFromStr: private::_ValueParserViaFromStrSealed {
         fn value_parser(&self) -> ValueParser;
     }
-    impl<FromStr> ValueParserViaFromStr for _AutoValueParser<FromStr>
+    impl<FromStr> _ValueParserViaFromStr for _AutoValueParser<FromStr>
     where
         FromStr: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
         <FromStr as std::str::FromStr>::Err:
@@ -2038,17 +2038,17 @@ macro_rules! value_parser {
 mod private {
     use super::*;
 
-    pub trait ValueParserViaSelfSealed {}
-    impl<P: Into<ValueParser>> ValueParserViaSelfSealed for &&&_AutoValueParser<P> {}
+    pub trait _ValueParserViaSelfSealed {}
+    impl<P: Into<ValueParser>> _ValueParserViaSelfSealed for &&&_AutoValueParser<P> {}
 
-    pub trait ValueParserViaFactorySealed {}
-    impl<P: ValueParserFactory> ValueParserViaFactorySealed for &&_AutoValueParser<P> {}
+    pub trait _ValueParserViaFactorySealed {}
+    impl<P: ValueParserFactory> _ValueParserViaFactorySealed for &&_AutoValueParser<P> {}
 
-    pub trait ValueParserViaValueEnumSealed {}
-    impl<E: crate::ValueEnum> ValueParserViaValueEnumSealed for &_AutoValueParser<E> {}
+    pub trait _ValueParserViaValueEnumSealed {}
+    impl<E: crate::ValueEnum> _ValueParserViaValueEnumSealed for &_AutoValueParser<E> {}
 
-    pub trait ValueParserViaFromStrSealed {}
-    impl<FromStr> ValueParserViaFromStrSealed for _AutoValueParser<FromStr>
+    pub trait _ValueParserViaFromStrSealed {}
+    impl<FromStr> _ValueParserViaFromStrSealed for _AutoValueParser<FromStr>
     where
         FromStr: std::str::FromStr + std::any::Any + Send + Sync + 'static,
         <FromStr as std::str::FromStr>::Err:
