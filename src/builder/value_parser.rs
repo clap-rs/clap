@@ -291,6 +291,12 @@ where
     }
 }
 
+impl From<_AnonymousValueParser> for ValueParser {
+    fn from(p: _AnonymousValueParser) -> Self {
+        p.0
+    }
+}
+
 /// Create an `i64` [`ValueParser`] from a `N..M` range
 ///
 /// See [`RangedI64ValueParser`] for more control over the output type.
@@ -1912,6 +1918,13 @@ impl<T> _AutoValueParser<T> {
     }
 }
 
+/// Unstable [`ValueParser`]
+///
+/// Implementation may change to more specific instance in the future
+#[doc(hidden)]
+#[derive(Debug)]
+pub struct _AnonymousValueParser(ValueParser);
+
 #[doc(hidden)]
 pub mod via_prelude {
     use super::*;
@@ -1946,7 +1959,7 @@ pub mod via_prelude {
 
     #[doc(hidden)]
     pub trait _ValueParserViaFromStr: private::_ValueParserViaFromStrSealed {
-        fn value_parser(&self) -> ValueParser;
+        fn value_parser(&self) -> _AnonymousValueParser;
     }
     impl<FromStr> _ValueParserViaFromStr for _AutoValueParser<FromStr>
     where
@@ -1954,10 +1967,10 @@ pub mod via_prelude {
         <FromStr as std::str::FromStr>::Err:
             Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
     {
-        fn value_parser(&self) -> ValueParser {
+        fn value_parser(&self) -> _AnonymousValueParser {
             let func: fn(&str) -> Result<FromStr, <FromStr as std::str::FromStr>::Err> =
                 FromStr::from_str;
-            ValueParser::new(func)
+            _AnonymousValueParser(ValueParser::new(func))
         }
     }
 }
@@ -2001,7 +2014,7 @@ pub mod via_prelude {
 ///
 /// // FromStr types
 /// let parser = clap::value_parser!(usize);
-/// assert_eq!(format!("{:?}", parser), "ValueParser::other(usize)");
+/// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(usize))");
 ///
 /// // ValueEnum types
 /// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
