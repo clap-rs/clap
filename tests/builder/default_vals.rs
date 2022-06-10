@@ -716,27 +716,37 @@ fn issue_1050_num_vals_and_defaults() {
     );
 }
 
-#[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument group 'group' is required but all of it's arguments have a default value."]
 fn required_groups_with_default_values() {
     use clap::{Arg, ArgGroup, Command};
 
-    let _ = Command::new("test")
+    let cmd = Command::new("test")
         .arg(Arg::new("arg").default_value("value"))
-        .group(ArgGroup::new("group").args(&["arg"]).required(true))
-        .try_get_matches();
+        .group(ArgGroup::new("group").args(&["arg"]).required(true));
+
+    let result = cmd.clone().try_get_matches_from(&["test"]);
+    assert!(result.is_err());
+
+    let result = cmd.clone().try_get_matches_from(&["test", "value"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+    let m = result.unwrap();
+    assert!(m.contains_id("arg"));
+    assert!(m.contains_id("group"));
 }
 
-#[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument 'arg' is required and can't have a default value"]
 fn required_args_with_default_values() {
     use clap::{Arg, Command};
 
-    let _ = Command::new("test")
-        .arg(Arg::new("arg").required(true).default_value("value"))
-        .try_get_matches();
+    let cmd = Command::new("test").arg(Arg::new("arg").required(true).default_value("value"));
+
+    let result = cmd.clone().try_get_matches_from(&["test"]);
+    assert!(result.is_err());
+
+    let result = cmd.clone().try_get_matches_from(&["test", "value"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+    let m = result.unwrap();
+    assert!(m.contains_id("arg"));
 }
 
 #[cfg(debug_assertions)]

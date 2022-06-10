@@ -610,29 +610,6 @@ fn issue_1050_num_vals_and_defaults() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument group 'group' is required but all of it's arguments have a default value."]
-fn required_groups_with_default_values() {
-    use clap::{Arg, ArgGroup, Command};
-
-    let _ = Command::new("test")
-        .arg(Arg::new("arg").default_value("value"))
-        .group(ArgGroup::new("group").args(&["arg"]).required(true))
-        .try_get_matches();
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic = "Argument 'arg' is required and can't have a default value"]
-fn required_args_with_default_values() {
-    use clap::{Arg, Command};
-
-    let _ = Command::new("test")
-        .arg(Arg::new("arg").required(true).default_value("value"))
-        .try_get_matches();
-}
-
-#[cfg(debug_assertions)]
-#[test]
 #[should_panic = "Argument `arg`'s default_value=value doesn't match possible values"]
 fn default_values_are_possible_values() {
     use clap::{Arg, Command};
