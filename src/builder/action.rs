@@ -39,7 +39,7 @@ pub enum ArgAction {
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
@@ -62,7 +62,7 @@ pub enum ArgAction {
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value1", "--flag", "value2"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
@@ -101,7 +101,7 @@ pub enum ArgAction {
     ///     );
     ///
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
@@ -109,7 +109,7 @@ pub enum ArgAction {
     /// );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
@@ -136,7 +136,7 @@ pub enum ArgAction {
     ///     );
     ///
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
@@ -144,7 +144,7 @@ pub enum ArgAction {
     /// );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
@@ -171,7 +171,7 @@ pub enum ArgAction {
     ///     );
     ///
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<u8>("flag").copied(),
@@ -179,7 +179,7 @@ pub enum ArgAction {
     /// );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_one::<u8>("flag").copied(),

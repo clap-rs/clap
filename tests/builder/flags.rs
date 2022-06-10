@@ -1,5 +1,5 @@
 use super::utils;
-use clap::{arg, Arg, Command};
+use clap::{arg, Arg, ArgAction, Command};
 
 const USE_FLAG_AS_ARGUMENT: &str =
     "error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
@@ -16,19 +16,19 @@ For more information try --help
 fn flag_using_short() {
     let m = Command::new("flag")
         .args(&[
-            arg!(-f --flag "some flag"),
-            arg!(-c --color "some other flag"),
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
+            arg!(-c --color "some other flag").action(ArgAction::SetTrue),
         ])
         .try_get_matches_from(vec!["", "-f", "-c"])
         .unwrap();
-    assert!(m.is_present("flag"));
-    assert!(m.is_present("color"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
 }
 
 #[test]
 fn lots_o_flags_sep() {
     let r = Command::new("opts")
-        .arg(arg!(o: -o ... "some flag"))
+        .arg(arg!(o: -o ... "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec![
             "", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
             "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
@@ -55,17 +55,14 @@ fn lots_o_flags_sep() {
         ]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("o"), 297);
-    } // i.e. more than u8
+    assert!(m.contains_id("o"));
+    assert!(*m.get_one::<bool>("o").expect("defaulted by clap"));
 }
 
 #[test]
 fn lots_o_flags_combined() {
     let r = Command::new("opts")
-        .arg(arg!(o: -o ... "some flag"))
+        .arg(arg!(o: -o ... "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec![
             "",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
@@ -76,21 +73,21 @@ fn lots_o_flags_combined() {
         ]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("o"), 297);
-    } // i.e. more than u8
+    assert!(m.contains_id("o"));
+    assert!(*m.get_one::<bool>("o").expect("defaulted by clap"));
 }
 
 #[test]
 fn flag_using_long() {
     let m = Command::new("flag")
-        .args(&[arg!(--flag "some flag"), arg!(--color "some other flag")])
+        .args(&[
+            arg!(--flag "some flag").action(ArgAction::SetTrue),
+            arg!(--color "some other flag").action(ArgAction::SetTrue),
+        ])
         .try_get_matches_from(vec!["", "--flag", "--color"])
         .unwrap();
-    assert!(m.is_present("flag"));
-    assert!(m.is_present("color"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
 }
 
 #[test]
@@ -108,45 +105,45 @@ fn flag_using_long_with_literals() {
 fn flag_using_mixed() {
     let m = Command::new("flag")
         .args(&[
-            arg!(-f --flag "some flag"),
-            arg!(-c --color "some other flag"),
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
+            arg!(-c --color "some other flag").action(ArgAction::SetTrue),
         ])
         .try_get_matches_from(vec!["", "-f", "--color"])
         .unwrap();
-    assert!(m.is_present("flag"));
-    assert!(m.is_present("color"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
 
     let m = Command::new("flag")
         .args(&[
-            arg!(-f --flag "some flag"),
-            arg!(-c --color "some other flag"),
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
+            arg!(-c --color "some other flag").action(ArgAction::SetTrue),
         ])
         .try_get_matches_from(vec!["", "--flag", "-c"])
         .unwrap();
-    assert!(m.is_present("flag"));
-    assert!(m.is_present("color"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
 }
 
 #[test]
 fn multiple_flags_in_single() {
     let m = Command::new("multe_flags")
         .args(&[
-            arg!(-f --flag "some flag"),
-            arg!(-c --color "some other flag"),
-            arg!(-d --debug "another other flag"),
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
+            arg!(-c --color "some other flag").action(ArgAction::SetTrue),
+            arg!(-d --debug "another other flag").action(ArgAction::SetTrue),
         ])
         .try_get_matches_from(vec!["", "-fcd"])
         .unwrap();
-    assert!(m.is_present("flag"));
-    assert!(m.is_present("color"));
-    assert!(m.is_present("debug"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("debug").expect("defaulted by clap"));
 }
 
 #[test]
 fn issue_1284_argument_in_flag_style() {
     let cmd = Command::new("mycat")
         .arg(Arg::new("filename"))
-        .arg(Arg::new("a-flag").long("a-flag"));
+        .arg(Arg::new("a-flag").long("a-flag").action(ArgAction::SetTrue));
 
     let m = cmd
         .clone()
@@ -161,7 +158,7 @@ fn issue_1284_argument_in_flag_style() {
         .clone()
         .try_get_matches_from(vec!["", "--a-flag"])
         .unwrap();
-    assert!(m.is_present("a-flag"));
+    assert!(*m.get_one::<bool>("a-flag").expect("defaulted by clap"));
 
     let m = cmd
         .clone()
@@ -195,9 +192,15 @@ For more information try --help
 #[test]
 #[cfg(not(feature = "unstable-v4"))]
 fn leading_dash_stripped() {
-    let cmd = Command::new("mycat").arg(Arg::new("filename").long("--filename"));
+    let cmd = Command::new("mycat").arg(
+        Arg::new("filename")
+            .long("--filename")
+            .action(ArgAction::SetTrue),
+    );
     let matches = cmd.try_get_matches_from(["mycat", "--filename"]).unwrap();
-    assert!(matches.is_present("filename"));
+    assert!(*matches
+        .get_one::<bool>("filename")
+        .expect("defaulted by clap"));
 }
 
 #[test]

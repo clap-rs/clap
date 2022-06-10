@@ -35,7 +35,7 @@ fn main() {
     let matches = cmd.get_matches();
     let mut subcommand = matches.subcommand();
     if let Some(("busybox", cmd)) = subcommand {
-        if cmd.is_present("install") {
+        if cmd.contains_id("install") {
             unimplemented!("Make hardlinks to the executable here");
         }
         subcommand = cmd.subcommand();

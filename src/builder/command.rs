@@ -409,11 +409,12 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// fn cmd() -> Command<'static> {
     ///     Command::new("foo")
-    ///         .arg(Arg::new("bar").short('b')
-    ///     )
+    ///         .arg(
+    ///             Arg::new("bar").short('b').action(ArgAction::SetTrue)
+    ///         )
     /// }
     ///
     /// #[test]
@@ -423,7 +424,7 @@ impl<'help> App<'help> {
     ///
     /// fn main() {
     ///     let m = cmd().get_matches_from(vec!["foo", "-b"]);
-    ///     println!("{}", m.is_present("bar"));
+    ///     println!("{}", *m.get_one::<bool>("bar").expect("defaulted by clap"));
     /// }
     /// ```
     pub fn debug_assert(mut self) {
@@ -1910,17 +1911,19 @@ impl<'help> App<'help> {
     /// need to change!
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("cmd")
     ///     .arg(Arg::new("save-context")
-    ///         .long("save-context"))
+    ///         .long("save-context")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("save-runtime")
-    ///         .long("save-runtime"))
+    ///         .long("save-runtime")
+    ///         .action(ArgAction::SetTrue))
     ///     .replace("--save-all", &["--save-context", "--save-runtime"])
     ///     .get_matches_from(vec!["cmd", "--save-all"]);
     ///
-    /// assert!(m.is_present("save-context"));
-    /// assert!(m.is_present("save-runtime"));
+    /// assert!(*m.get_one::<bool>("save-context").expect("defaulted by clap"));
+    /// assert!(*m.get_one::<bool>("save-runtime").expect("defaulted by clap"));
     /// ```
     ///
     /// This can also be used with options, for example if our application with
@@ -1930,12 +1933,14 @@ impl<'help> App<'help> {
     /// above to enforce this:
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("cmd")
     ///     .arg(Arg::new("save-context")
-    ///         .long("save-context"))
+    ///         .long("save-context")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("save-runtime")
-    ///         .long("save-runtime"))
+    ///         .long("save-runtime")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("format")
     ///         .long("format")
     ///         .takes_value(true)
@@ -1943,8 +1948,8 @@ impl<'help> App<'help> {
     ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
     ///     .get_matches_from(vec!["cmd", "--save-all"]);
     ///
-    /// assert!(m.is_present("save-context"));
-    /// assert!(m.is_present("save-runtime"));
+    /// assert!(*m.get_one::<bool>("save-context").expect("defaulted by clap"));
+    /// assert!(*m.get_one::<bool>("save-runtime").expect("defaulted by clap"));
     /// assert_eq!(m.value_of("format"), Some("json"));
     /// ```
     ///
@@ -2197,13 +2202,14 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let matches = Command::new("pacman")
     ///     .subcommand(
     ///         Command::new("sync").short_flag('S').arg(
     ///             Arg::new("search")
     ///                 .short('s')
     ///                 .long("search")
+    ///                 .action(ArgAction::SetTrue)
     ///                 .help("search remote repositories for matching strings"),
     ///         ),
     ///     )
@@ -2211,7 +2217,7 @@ impl<'help> App<'help> {
     ///
     /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
-    /// assert!(sync_matches.is_present("search"));
+    /// assert!(*sync_matches.get_one::<bool>("search").expect("defaulted by clap"));
     /// ```
     /// [`Arg::short`]: Arg::short()
     #[must_use]
@@ -2233,13 +2239,14 @@ impl<'help> App<'help> {
     /// will *not* be stripped (i.e. `sync-file` is allowed).
     ///
     /// ```
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let matches = Command::new("pacman")
     ///     .subcommand(
     ///         Command::new("sync").long_flag("sync").arg(
     ///             Arg::new("search")
     ///                 .short('s')
     ///                 .long("search")
+    ///                 .action(ArgAction::SetTrue)
     ///                 .help("search remote repositories for matching strings"),
     ///         ),
     ///     )
@@ -2247,7 +2254,7 @@ impl<'help> App<'help> {
     ///
     /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
-    /// assert!(sync_matches.is_present("search"));
+    /// assert!(*sync_matches.get_one::<bool>("search").expect("defaulted by clap"));
     /// ```
     ///
     /// [`Arg::long`]: Arg::long()

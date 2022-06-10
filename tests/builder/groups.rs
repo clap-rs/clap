@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, ArgGroup, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
     <base|--delete>
@@ -93,7 +93,7 @@ fn group_single_value() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
 
     let m = res.unwrap();
-    assert!(m.is_present("grp"));
+    assert!(m.contains_id("grp"));
     assert_eq!(
         m.get_one::<String>("grp").map(|v| v.as_str()).unwrap(),
         "blue"
@@ -110,7 +110,7 @@ fn group_single_flag() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
 
     let m = res.unwrap();
-    assert!(m.is_present("grp"));
+    assert!(m.contains_id("grp"));
     assert!(m.get_one::<String>("grp").map(|v| v.as_str()).is_none());
 }
 
@@ -124,7 +124,7 @@ fn group_empty() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
 
     let m = res.unwrap();
-    assert!(!m.is_present("grp"));
+    assert!(!m.contains_id("grp"));
     assert!(m.get_one::<String>("grp").map(|v| v.as_str()).is_none());
 }
 
@@ -150,7 +150,7 @@ fn group_multi_value_single_arg() {
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
 
     let m = res.unwrap();
-    assert!(m.is_present("grp"));
+    assert!(m.contains_id("grp"));
     assert_eq!(
         &*m.get_many::<String>("grp")
             .unwrap()
@@ -231,8 +231,8 @@ fn req_group_with_conflict_usage_string_only_options() {
 #[test]
 fn required_group_multiple_args() {
     let result = Command::new("group")
-        .arg(arg!(-f --flag "some flag"))
-        .arg(arg!(-c --color "some other flag"))
+        .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
+        .arg(arg!(-c --color "some other flag").action(ArgAction::SetTrue))
         .group(
             ArgGroup::new("req")
                 .args(&["flag", "color"])
@@ -242,8 +242,8 @@ fn required_group_multiple_args() {
         .try_get_matches_from(vec!["group", "-f", "-c"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
-    assert!(m.is_present("flag"));
-    assert!(m.is_present("color"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
 }
 
 #[test]
@@ -267,8 +267,8 @@ fn group_overrides_required() {
     let result = command.try_get_matches_from(vec!["group", "--foo", "value"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
-    assert!(m.is_present("foo"));
-    assert!(!m.is_present("bar"));
+    assert!(m.contains_id("foo"));
+    assert!(!m.contains_id("bar"));
 }
 
 #[test]
@@ -299,7 +299,7 @@ fn group_acts_like_arg() {
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
-    assert!(m.is_present("mode"));
+    assert!(m.contains_id("mode"));
 }
 
 /* This is used to be fixed in a hack, we need to find a better way to fix it.
@@ -307,7 +307,7 @@ fn group_acts_like_arg() {
 fn issue_1794() {
     let cmd = clap::Command::new("hello")
         .bin_name("deno")
-        .arg(Arg::new("option1").long("option1").takes_value(false))
+        .arg(Arg::new("option1").long("option1").takes_value(false).action(ArgAction::SetTrue))
         .arg(Arg::new("pos1").takes_value(true))
         .arg(Arg::new("pos2").takes_value(true))
         .group(
@@ -319,13 +319,13 @@ fn issue_1794() {
     let m = cmd.clone().try_get_matches_from(&["cmd", "pos1", "pos2"]).unwrap();
     assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), Some("pos1"));
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("pos2"));
-    assert!(!m.is_present("option1"));
+    assert!(!*m.get_one::<bool>("option1").expect("defaulted by clap"));
 
     let m = cmd
         .clone()
         .try_get_matches_from(&["cmd", "--option1", "positional"]).unwrap();
     assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), None);
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("positional"));
-    assert!(m.is_present("option1"));
+    assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));
 }
 */

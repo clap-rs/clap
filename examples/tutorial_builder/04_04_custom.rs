@@ -2,16 +2,16 @@
 
 use std::path::PathBuf;
 
-use clap::{arg, command, value_parser, ErrorKind};
+use clap::{arg, command, value_parser, ArgAction, ErrorKind};
 
 fn main() {
     // Create application like normal
     let mut cmd = command!()
         // Add the version arguments
         .arg(arg!(--"set-ver" <VER> "set version manually").required(false))
-        .arg(arg!(--major         "auto inc major"))
-        .arg(arg!(--minor         "auto inc minor"))
-        .arg(arg!(--patch         "auto inc patch"))
+        .arg(arg!(--major         "auto inc major").action(ArgAction::SetTrue))
+        .arg(arg!(--minor         "auto inc minor").action(ArgAction::SetTrue))
+        .arg(arg!(--patch         "auto inc patch").action(ArgAction::SetTrue))
         // Arguments can also be added to a group individually, these two arguments
         // are part of the "input" group which is not required
         .arg(arg!([INPUT_FILE] "some regular input").value_parser(value_parser!(PathBuf)))
@@ -36,7 +36,9 @@ fn main() {
 
     // See if --set-ver was used to set the version manually
     let version = if let Some(ver) = matches.get_one::<String>("set-ver") {
-        if matches.is_present("major") || matches.is_present("minor") || matches.is_present("patch")
+        if *matches.get_one::<bool>("major").expect("defaulted by clap")
+            || *matches.get_one::<bool>("minor").expect("defaulted by clap")
+            || *matches.get_one::<bool>("patch").expect("defaulted by clap")
         {
             cmd.error(
                 ErrorKind::ArgumentConflict,
@@ -48,9 +50,9 @@ fn main() {
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
         let (maj, min, pat) = (
-            matches.is_present("major"),
-            matches.is_present("minor"),
-            matches.is_present("patch"),
+            *matches.get_one::<bool>("major").expect("defaulted by clap"),
+            *matches.get_one::<bool>("minor").expect("defaulted by clap"),
+            *matches.get_one::<bool>("patch").expect("defaulted by clap"),
         );
         match (maj, min, pat) {
             (true, false, false) => major += 1,
@@ -70,7 +72,7 @@ fn main() {
     println!("Version: {}", version);
 
     // Check for usage of -c
-    if matches.is_present("config") {
+    if matches.contains_id("config") {
         let input = matches
             .get_one::<PathBuf>("INPUT_FILE")
             .or_else(|| matches.get_one::<PathBuf>("spec-in"))

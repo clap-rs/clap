@@ -24,7 +24,7 @@ fn main() {
         .subcommand(
             Command::new("test")
                 .about("does testing things")
-                .arg(arg!(-l --list "lists test values")),
+                .arg(arg!(-l --list "lists test values").action(ArgAction::SetTrue)),
         )
         .get_matches();
 
@@ -53,7 +53,7 @@ fn main() {
     // matches just as you would the top level cmd
     if let Some(matches) = matches.subcommand_matches("test") {
         // "$ myapp test" was run
-        if matches.is_present("list") {
+        if *matches.get_one::<bool>("list").expect("defaulted by clap") {
             // "$ myapp test -l" was run
             println!("Printing testing lists...");
         } else {

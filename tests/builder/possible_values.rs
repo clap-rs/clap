@@ -43,7 +43,7 @@ fn possible_values_of_positional() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("positional"));
+    assert!(m.contains_id("positional"));
     assert_eq!(
         m.get_one::<String>("positional").map(|v| v.as_str()),
         Some("test123")
@@ -65,7 +65,7 @@ fn possible_value_arg_value() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("arg_value"));
+    assert!(m.contains_id("arg_value"));
     assert_eq!(
         m.get_one::<String>("arg_value").map(|v| v.as_str()),
         Some("test123")
@@ -97,7 +97,7 @@ fn possible_values_of_positional_multiple() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("positional"));
+    assert!(m.contains_id("positional"));
     assert_eq!(
         m.get_many::<String>("positional")
             .unwrap()
@@ -138,7 +138,7 @@ fn possible_values_of_option() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()),
         Some("test123")
@@ -177,7 +177,7 @@ fn possible_values_of_option_multiple() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()

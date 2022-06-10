@@ -447,8 +447,8 @@ fn stop_delim_values_only_pos_follows() {
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert!(!m.is_present("f"));
+    assert!(m.contains_id("arg"));
+    assert!(!m.contains_id("f"));
     assert_eq!(
         m.get_many::<String>("arg")
             .unwrap()
@@ -466,7 +466,7 @@ fn dont_delim_values_trailingvararg() {
         .arg(arg!([opt] ... "some pos"))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -483,8 +483,8 @@ fn delim_values_only_pos_follows() {
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert!(!m.is_present("f"));
+    assert!(m.contains_id("arg"));
+    assert!(!m.contains_id("f"));
     assert_eq!(
         m.get_many::<String>("arg")
             .unwrap()
@@ -501,7 +501,7 @@ fn delim_values_trailingvararg() {
         .arg(arg!([opt] ... "some pos"))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -521,8 +521,8 @@ fn delim_values_only_pos_follows_with_delim() {
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert!(!m.is_present("f"));
+    assert!(m.contains_id("arg"));
+    assert!(!m.contains_id("f"));
     assert_eq!(
         m.get_many::<String>("arg")
             .unwrap()
@@ -539,7 +539,7 @@ fn delim_values_trailingvararg_with_delim() {
         .arg(arg!([opt] ... "some pos").use_value_delimiter(true))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -554,15 +554,19 @@ fn leading_hyphen_short() {
     let res = Command::new("leadhy")
         .allow_hyphen_values(true)
         .arg(Arg::new("some"))
-        .arg(Arg::new("other").short('o'))
+        .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert!(m.is_present("some"));
-    assert!(m.is_present("other"));
+    assert!(m.contains_id("some"));
+    assert!(m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("some").map(|v| v.as_str()).unwrap(),
         "-bar"
+    );
+    assert_eq!(
+        *m.get_one::<bool>("other").expect("defaulted by clap"),
+        true
     );
 }
 
@@ -571,15 +575,19 @@ fn leading_hyphen_long() {
     let res = Command::new("leadhy")
         .allow_hyphen_values(true)
         .arg(Arg::new("some"))
-        .arg(Arg::new("other").short('o'))
+        .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert!(m.is_present("some"));
-    assert!(m.is_present("other"));
+    assert!(m.contains_id("some"));
+    assert!(m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("some").map(|v| v.as_str()).unwrap(),
         "--bar"
+    );
+    assert_eq!(
+        *m.get_one::<bool>("other").expect("defaulted by clap"),
+        true
     );
 }
 
@@ -588,15 +596,19 @@ fn leading_hyphen_opt() {
     let res = Command::new("leadhy")
         .allow_hyphen_values(true)
         .arg(Arg::new("some").takes_value(true).long("opt"))
-        .arg(Arg::new("other").short('o'))
+        .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--opt", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
-    assert!(m.is_present("some"));
-    assert!(m.is_present("other"));
+    assert!(m.contains_id("some"));
+    assert!(m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("some").map(|v| v.as_str()).unwrap(),
         "--bar"
+    );
+    assert_eq!(
+        *m.get_one::<bool>("other").expect("defaulted by clap"),
+        true
     );
 }
 
@@ -638,7 +650,7 @@ fn leading_double_hyphen_trailingvararg() {
         .arg(arg!([opt] ... "some pos"))
         .try_get_matches_from(vec!["", "--foo", "-Wl", "bar"])
         .unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -1064,44 +1076,49 @@ fn built_in_subcommand_escaped() {
 
 #[test]
 fn aaos_flags() {
-    #![allow(deprecated)]
     // flags
-    let res = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--flag  "some flag"))
-        .try_get_matches_from(vec!["", "--flag", "--flag"]);
+    let cmd = Command::new("posix").arg(arg!(--flag  "some flag").action(ArgAction::SetTrue));
+
+    let res = cmd.clone().try_get_matches_from(vec!["", "--flag"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("flag"));
-    assert_eq!(m.occurrences_of("flag"), 1);
+    assert!(m.contains_id("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+
+    let res = cmd.try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(m.contains_id("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn aaos_flags_mult() {
-    #![allow(deprecated)]
     // flags with multiple
-    let res = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--flag ...  "some flag"))
-        .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+    let cmd = Command::new("posix").arg(arg!(--flag  "some flag").action(ArgAction::Count));
+
+    let res = cmd.clone().try_get_matches_from(vec!["", "--flag"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("flag"));
-    assert_eq!(m.occurrences_of("flag"), 4);
+    assert!(m.contains_id("flag"));
+    assert_eq!(*m.get_one::<u8>("flag").expect("defaulted by clap"), 1);
+
+    let res = cmd.try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(m.contains_id("flag"));
+    assert_eq!(*m.get_one::<u8>("flag").expect("defaulted by clap"), 4);
 }
 
 #[test]
 fn aaos_opts() {
-    #![allow(deprecated)]
     // opts
     let res = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--opt <val> "some option"))
+        .arg(arg!(--opt <val> "some option").action(ArgAction::Set))
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 1);
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("other")
@@ -1110,22 +1127,24 @@ fn aaos_opts() {
 
 #[test]
 fn aaos_opts_w_other_overrides() {
-    #![allow(deprecated)]
     // opts with other overrides
     let res = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--opt <val> "some option").required(false))
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(false)
+                .action(ArgAction::Set),
+        )
         .arg(
             arg!(--other <val> "some other option")
                 .required(false)
-                .overrides_with("opt"),
+                .overrides_with("opt")
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--other=test", "--opt=other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    assert!(!m.is_present("other"));
-    assert_eq!(m.occurrences_of("opt"), 1);
+    assert!(m.contains_id("opt"));
+    assert!(!m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("other")
@@ -1134,21 +1153,24 @@ fn aaos_opts_w_other_overrides() {
 
 #[test]
 fn aaos_opts_w_other_overrides_rev() {
-    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--opt <val> "some option").required(true))
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(true)
+                .action(ArgAction::Set),
+        )
         .arg(
             arg!(--other <val> "some other option")
                 .required(true)
-                .overrides_with("opt"),
+                .overrides_with("opt")
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--other=val"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(!m.is_present("opt"));
-    assert!(m.is_present("other"));
+    assert!(!m.contains_id("opt"));
+    assert!(m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("other").map(|v| v.as_str()),
         Some("val")
@@ -1157,22 +1179,24 @@ fn aaos_opts_w_other_overrides_rev() {
 
 #[test]
 fn aaos_opts_w_other_overrides_2() {
-    #![allow(deprecated)]
     // opts with other overrides
     let res = Command::new("posix")
-        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(false)
-                .overrides_with("other"),
+                .overrides_with("other")
+                .action(ArgAction::Set),
         )
-        .arg(arg!(--other <val> "some other option").required(false))
+        .arg(
+            arg!(--other <val> "some other option")
+                .required(false)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--opt=some", "--other=test", "--opt=other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    assert!(!m.is_present("other"));
-    assert_eq!(m.occurrences_of("opt"), 1);
+    assert!(m.contains_id("opt"));
+    assert!(!m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("other")
@@ -1181,21 +1205,24 @@ fn aaos_opts_w_other_overrides_2() {
 
 #[test]
 fn aaos_opts_w_other_overrides_rev_2() {
-    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
-        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(true)
-                .overrides_with("other"),
+                .overrides_with("other")
+                .action(ArgAction::Set),
         )
-        .arg(arg!(--other <val> "some other option").required(true))
+        .arg(
+            arg!(--other <val> "some other option")
+                .required(true)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--other=val"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(!m.is_present("opt"));
-    assert!(m.is_present("other"));
+    assert!(!m.contains_id("opt"));
+    assert!(m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("other").map(|v| v.as_str()),
         Some("val")
@@ -1204,41 +1231,47 @@ fn aaos_opts_w_other_overrides_rev_2() {
 
 #[test]
 fn aaos_opts_w_override_as_conflict_1() {
-    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
-        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(true)
-                .overrides_with("other"),
+                .overrides_with("other")
+                .action(ArgAction::Set),
         )
-        .arg(arg!(--other <val> "some other option").required(true))
+        .arg(
+            arg!(--other <val> "some other option")
+                .required(true)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--opt=some"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    assert!(!m.is_present("other"));
+    assert!(m.contains_id("opt"));
+    assert!(!m.contains_id("other"));
     assert_eq!(m.get_one::<String>("opt").map(|v| v.as_str()), Some("some"));
 }
 
 #[test]
 fn aaos_opts_w_override_as_conflict_2() {
-    #![allow(deprecated)]
     // opts with other overrides, rev
     let res = Command::new("posix")
-        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(true)
-                .overrides_with("other"),
+                .overrides_with("other")
+                .action(ArgAction::Set),
         )
-        .arg(arg!(--other <val> "some other option").required(true))
+        .arg(
+            arg!(--other <val> "some other option")
+                .required(true)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--other=some"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(!m.is_present("opt"));
-    assert!(m.is_present("other"));
+    assert!(!m.contains_id("opt"));
+    assert!(m.contains_id("other"));
     assert_eq!(
         m.get_one::<String>("other").map(|v| v.as_str()),
         Some("some")
@@ -1246,23 +1279,21 @@ fn aaos_opts_w_override_as_conflict_2() {
 }
 
 #[test]
-fn aaos_opts_mult() {
-    #![allow(deprecated)]
-    // opts with multiple
+fn aaos_opts_mult_req_delims() {
+    // opts with multiple and require delims
     let res = Command::new("posix")
-        .args_override_self(true)
         .arg(
             arg!(--opt <val> ... "some option")
                 .number_of_values(1)
                 .takes_value(true)
                 .use_value_delimiter(true)
-                .require_value_delimiter(true),
+                .require_value_delimiter(true)
+                .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 3);
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -1273,12 +1304,14 @@ fn aaos_opts_mult() {
 }
 
 #[test]
-fn aaos_opts_mult_req_delims() {
-    #![allow(deprecated)]
-    // opts with multiple and require delims
+fn aaos_opts_mult() {
+    // opts with multiple
     let res = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--opt <val> ... "some option").multiple_values(true))
+        .arg(
+            arg!(--opt <val> ... "some option")
+                .multiple_values(true)
+                .action(ArgAction::Append),
+        )
         .try_get_matches_from(vec![
             "",
             "--opt",
@@ -1291,8 +1324,7 @@ fn aaos_opts_mult_req_delims() {
         ]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 2);
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -1304,16 +1336,13 @@ fn aaos_opts_mult_req_delims() {
 
 #[test]
 fn aaos_pos_mult() {
-    #![allow(deprecated)]
     // opts with multiple
     let res = Command::new("posix")
-        .args_override_self(true)
         .arg(arg!([val] ... "some pos"))
         .try_get_matches_from(vec!["", "some", "other", "value"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("val"));
-    assert_eq!(m.occurrences_of("val"), 3);
+    assert!(m.contains_id("val"));
     assert_eq!(
         m.get_many::<String>("val")
             .unwrap()
@@ -1327,12 +1356,14 @@ fn aaos_pos_mult() {
 fn aaos_option_use_delim_false() {
     #![allow(deprecated)]
     let m = Command::new("posix")
-        .args_override_self(true)
-        .arg(arg!(--opt <val> "some option").use_value_delimiter(false))
+        .arg(
+            arg!(--opt <val> "some option")
+                .use_value_delimiter(false)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
         .unwrap();
-    assert!(m.is_present("opt"));
-    assert_eq!(m.occurrences_of("opt"), 1);
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()

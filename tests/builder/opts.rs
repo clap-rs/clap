@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, ArgMatches, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgMatches, Command};
 
 #[cfg(feature = "suggestions")]
 static DYM: &str =
@@ -78,7 +78,7 @@ fn require_equals_min_values_zero() {
         .try_get_matches_from(vec!["prog", "--config", "cmd"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("cfg"));
+    assert!(m.contains_id("cfg"));
     assert_eq!(m.get_one::<String>("cmd").map(|v| v.as_str()), Some("cmd"));
 }
 
@@ -148,7 +148,7 @@ fn stdin_char() {
         .try_get_matches_from(vec!["", "-f", "-"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("f"));
+    assert!(m.contains_id("f"));
     assert_eq!(m.get_one::<String>("f").map(|v| v.as_str()).unwrap(), "-");
 }
 
@@ -162,12 +162,12 @@ fn opts_using_short() {
         .try_get_matches_from(vec!["", "-f", "some", "-c", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("f"));
+    assert!(m.contains_id("f"));
     assert_eq!(
         m.get_one::<String>("f").map(|v| v.as_str()).unwrap(),
         "some"
     );
-    assert!(m.is_present("c"));
+    assert!(m.contains_id("c"));
     assert_eq!(
         m.get_one::<String>("c").map(|v| v.as_str()).unwrap(),
         "other"
@@ -210,7 +210,7 @@ fn lots_o_vals() {
         ]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(m.get_many::<String>("o").unwrap().count(), 297); // i.e. more than u8
 }
 
@@ -224,12 +224,12 @@ fn opts_using_long_space() {
         .try_get_matches_from(vec!["", "--flag", "some", "--color", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "some"
     );
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "other"
@@ -246,12 +246,12 @@ fn opts_using_long_equals() {
         .try_get_matches_from(vec!["", "--flag=some", "--color=other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "some"
     );
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "other"
@@ -268,12 +268,12 @@ fn opts_using_mixed() {
         .try_get_matches_from(vec!["", "-f", "some", "--color", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "some"
     );
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "other"
@@ -290,12 +290,12 @@ fn opts_using_mixed2() {
         .try_get_matches_from(vec!["", "--flag=some", "-c", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "some"
     );
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "other"
@@ -309,7 +309,7 @@ fn default_values_user_value() {
         .try_get_matches_from(vec!["", "-o", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
         "value"
@@ -324,9 +324,9 @@ fn multiple_vals_pos_arg_equals() {
         .try_get_matches_from(vec!["", "-o=1", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(m.get_one::<String>("o").map(|v| v.as_str()).unwrap(), "1");
-    assert!(m.is_present("file"));
+    assert!(m.contains_id("file"));
     assert_eq!(
         m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
         "some"
@@ -345,7 +345,7 @@ fn multiple_vals_pos_arg_delim() {
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_many::<String>("o")
             .unwrap()
@@ -353,7 +353,7 @@ fn multiple_vals_pos_arg_delim() {
             .collect::<Vec<_>>(),
         &["1", "2"]
     );
-    assert!(m.is_present("file"));
+    assert!(m.contains_id("file"));
     assert_eq!(
         m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
         "some"
@@ -388,7 +388,7 @@ fn require_delims() {
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_many::<String>("o")
             .unwrap()
@@ -396,7 +396,7 @@ fn require_delims() {
             .collect::<Vec<_>>(),
         &["1", "2"]
     );
-    assert!(m.is_present("file"));
+    assert!(m.contains_id("file"));
     assert_eq!(
         m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
         "some"
@@ -414,7 +414,7 @@ fn leading_hyphen_pass() {
         .try_get_matches_from(vec!["", "-o", "-2", "3"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_many::<String>("o")
             .unwrap()
@@ -442,11 +442,11 @@ fn leading_hyphen_with_flag_after() {
                 .multiple_values(true)
                 .allow_hyphen_values(true),
         )
-        .arg(arg!(f: -f "some flag"))
+        .arg(arg!(f: -f "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-o", "-2", "-f"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_many::<String>("o")
             .unwrap()
@@ -454,18 +454,18 @@ fn leading_hyphen_with_flag_after() {
             .collect::<Vec<_>>(),
         &["-2", "-f"]
     );
-    assert!(!m.is_present("f"));
+    assert!(!*m.get_one::<bool>("f").expect("defaulted by clap"));
 }
 
 #[test]
 fn leading_hyphen_with_flag_before() {
     let r = Command::new("mvae")
         .arg(arg!(o: -o [opt] ... "some opt").allow_hyphen_values(true))
-        .arg(arg!(f: -f "some flag"))
+        .arg(arg!(f: -f "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "-o", "-2"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_many::<String>("o")
             .unwrap()
@@ -473,7 +473,7 @@ fn leading_hyphen_with_flag_before() {
             .collect::<Vec<_>>(),
         &["-2"]
     );
-    assert!(m.is_present("f"));
+    assert!(*m.get_one::<bool>("f").expect("defaulted by clap"));
 }
 
 #[test]
@@ -489,7 +489,7 @@ fn leading_hyphen_with_only_pos_follows() {
         .try_get_matches_from(vec!["", "-o", "-2", "--", "val"]);
     assert!(r.is_ok(), "{:?}", r);
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_many::<String>("o")
             .unwrap()
@@ -695,14 +695,21 @@ fn issue_2279() {
 fn infer_long_arg() {
     let cmd = Command::new("test")
         .infer_long_args(true)
-        .arg(Arg::new("racetrack").long("racetrack").alias("autobahn"))
+        .arg(
+            Arg::new("racetrack")
+                .long("racetrack")
+                .alias("autobahn")
+                .action(ArgAction::SetTrue),
+        )
         .arg(Arg::new("racecar").long("racecar").takes_value(true));
 
     let matches = cmd
         .clone()
         .try_get_matches_from(&["test", "--racec=hello"])
         .unwrap();
-    assert!(!matches.is_present("racetrack"));
+    assert!(!*matches
+        .get_one::<bool>("racetrack")
+        .expect("defaulted by clap"));
     assert_eq!(
         matches.get_one::<String>("racecar").map(|v| v.as_str()),
         Some("hello")
@@ -712,7 +719,9 @@ fn infer_long_arg() {
         .clone()
         .try_get_matches_from(&["test", "--racet"])
         .unwrap();
-    assert!(matches.is_present("racetrack"));
+    assert!(*matches
+        .get_one::<bool>("racetrack")
+        .expect("defaulted by clap"));
     assert_eq!(
         matches.get_one::<String>("racecar").map(|v| v.as_str()),
         None
@@ -722,7 +731,9 @@ fn infer_long_arg() {
         .clone()
         .try_get_matches_from(&["test", "--auto"])
         .unwrap();
-    assert!(matches.is_present("racetrack"));
+    assert!(*matches
+        .get_one::<bool>("racetrack")
+        .expect("defaulted by clap"));
     assert_eq!(
         matches.get_one::<String>("racecar").map(|v| v.as_str()),
         None
@@ -730,11 +741,11 @@ fn infer_long_arg() {
 
     let cmd = Command::new("test")
         .infer_long_args(true)
-        .arg(Arg::new("arg").long("arg"));
+        .arg(Arg::new("arg").long("arg").action(ArgAction::SetTrue));
 
     let matches = cmd.clone().try_get_matches_from(&["test", "--"]).unwrap();
-    assert!(!matches.is_present("arg"));
+    assert!(!*matches.get_one::<bool>("arg").expect("defaulted by clap"));
 
     let matches = cmd.clone().try_get_matches_from(&["test", "--a"]).unwrap();
-    assert!(matches.is_present("arg"));
+    assert!(*matches.get_one::<bool>("arg").expect("defaulted by clap"));
 }

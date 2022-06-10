@@ -6,30 +6,27 @@ fn flag_overrides_itself() {
         .arg(
             arg!(--flag  "some flag"
             )
+            .action(ArgAction::SetTrue)
             .overrides_with("flag"),
         )
         .try_get_matches_from(vec!["", "--flag", "--flag"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("flag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn mult_flag_overrides_itself() {
     let res = Command::new("posix")
-        .arg(arg!(--flag ...  "some flag").overrides_with("flag"))
+        .arg(
+            arg!(--flag ...  "some flag")
+                .overrides_with("flag")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("flag"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 4);
-    }
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -43,11 +40,7 @@ fn option_overrides_itself() {
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("opt"), 1);
-    }
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("other")
@@ -69,11 +62,7 @@ fn mult_option_require_delim_overrides_itself() {
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("opt"), 3);
-    }
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -104,11 +93,7 @@ fn mult_option_overrides_itself() {
         ]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("opt"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("opt"), 2);
-    }
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -128,11 +113,7 @@ fn option_use_delim_false_override_itself() {
         )
         .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
         .unwrap();
-    assert!(m.is_present("opt"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("opt"), 1);
-    }
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_many::<String>("opt")
             .unwrap()
@@ -150,11 +131,7 @@ fn pos_mult_overrides_itself() {
         .try_get_matches_from(vec!["", "some", "other", "value"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("val"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("val"), 3);
-    }
+    assert!(m.contains_id("val"));
     assert_eq!(
         m.get_many::<String>("val")
             .unwrap()
@@ -166,45 +143,61 @@ fn pos_mult_overrides_itself() {
 #[test]
 fn posix_compatible_flags_long() {
     let m = Command::new("posix")
-        .arg(arg!(--flag  "some flag").overrides_with("color"))
-        .arg(arg!(--color "some other flag"))
+        .arg(
+            arg!(--flag  "some flag")
+                .overrides_with("color")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(--color "some other flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--flag", "--color"])
         .unwrap();
-    assert!(m.is_present("color"));
-    assert!(!m.is_present("flag"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn posix_compatible_flags_long_rev() {
     let m = Command::new("posix")
-        .arg(arg!(--flag  "some flag").overrides_with("color"))
-        .arg(arg!(--color "some other flag"))
+        .arg(
+            arg!(--flag  "some flag")
+                .overrides_with("color")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(--color "some other flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--color", "--flag"])
         .unwrap();
-    assert!(!m.is_present("color"));
-    assert!(m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn posix_compatible_flags_short() {
     let m = Command::new("posix")
-        .arg(arg!(-f --flag  "some flag").overrides_with("color"))
-        .arg(arg!(-c --color "some other flag"))
+        .arg(
+            arg!(-f --flag  "some flag")
+                .overrides_with("color")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-c --color "some other flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "-c"])
         .unwrap();
-    assert!(m.is_present("color"));
-    assert!(!m.is_present("flag"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn posix_compatible_flags_short_rev() {
     let m = Command::new("posix")
-        .arg(arg!(-f --flag  "some flag").overrides_with("color"))
-        .arg(arg!(-c --color "some other flag"))
+        .arg(
+            arg!(-f --flag  "some flag")
+                .overrides_with("color")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-c --color "some other flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-c", "-f"])
         .unwrap();
-    assert!(!m.is_present("color"));
-    assert!(m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -218,12 +211,12 @@ fn posix_compatible_opts_long() {
         .arg(arg!(--color <color> "some other flag").required(false))
         .try_get_matches_from(vec!["", "--flag", "some", "--color", "other"])
         .unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "other"
     );
-    assert!(!m.is_present("flag"));
+    assert!(!m.contains_id("flag"));
 }
 
 #[test]
@@ -237,8 +230,8 @@ fn posix_compatible_opts_long_rev() {
         .arg(arg!(--color <color> "some other flag").required(false))
         .try_get_matches_from(vec!["", "--color", "some", "--flag", "other"])
         .unwrap();
-    assert!(!m.is_present("color"));
-    assert!(m.is_present("flag"));
+    assert!(!m.contains_id("color"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "other"
@@ -256,12 +249,12 @@ fn posix_compatible_opts_long_equals() {
         .arg(arg!(--color <color> "some other flag").required(false))
         .try_get_matches_from(vec!["", "--flag=some", "--color=other"])
         .unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "other"
     );
-    assert!(!m.is_present("flag"));
+    assert!(!m.contains_id("flag"));
 }
 
 #[test]
@@ -275,8 +268,8 @@ fn posix_compatible_opts_long_equals_rev() {
         .arg(arg!(--color <color> "some other flag").required(false))
         .try_get_matches_from(vec!["", "--color=some", "--flag=other"])
         .unwrap();
-    assert!(!m.is_present("color"));
-    assert!(m.is_present("flag"));
+    assert!(!m.contains_id("color"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "other"
@@ -294,12 +287,12 @@ fn posix_compatible_opts_short() {
         .arg(arg!(c: -c <color> "some other flag").required(false))
         .try_get_matches_from(vec!["", "-f", "some", "-c", "other"])
         .unwrap();
-    assert!(m.is_present("c"));
+    assert!(m.contains_id("c"));
     assert_eq!(
         m.get_one::<String>("c").map(|v| v.as_str()).unwrap(),
         "other"
     );
-    assert!(!m.is_present("f"));
+    assert!(!m.contains_id("f"));
 }
 
 #[test]
@@ -313,8 +306,8 @@ fn posix_compatible_opts_short_rev() {
         .arg(arg!(c: -c <color> "some other flag").required(false))
         .try_get_matches_from(vec!["", "-c", "some", "-f", "other"])
         .unwrap();
-    assert!(!m.is_present("c"));
-    assert!(m.is_present("f"));
+    assert!(!m.contains_id("c"));
+    assert!(m.contains_id("f"));
     assert_eq!(
         m.get_one::<String>("f").map(|v| v.as_str()).unwrap(),
         "other"
@@ -324,28 +317,44 @@ fn posix_compatible_opts_short_rev() {
 #[test]
 fn conflict_overridden() {
     let m = Command::new("conflict_overridden")
-        .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
-        .arg(arg!(-d --debug "other flag"))
-        .arg(arg!(-c --color "third flag").overrides_with("flag"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .conflicts_with("debug")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-d --debug "other flag").action(ArgAction::SetTrue))
+        .arg(
+            arg!(-c --color "third flag")
+                .overrides_with("flag")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "-f", "-c", "-d"])
         .unwrap();
-    assert!(m.is_present("color"));
-    assert!(!m.is_present("flag"));
-    assert!(m.is_present("debug"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("debug").expect("defaulted by clap"));
 }
 
 #[test]
 fn conflict_overridden_2() {
     let result = Command::new("conflict_overridden")
-        .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
-        .arg(arg!(-d --debug "other flag"))
-        .arg(arg!(-c --color "third flag").overrides_with("flag"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .conflicts_with("debug")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-d --debug "other flag").action(ArgAction::SetTrue))
+        .arg(
+            arg!(-c --color "third flag")
+                .overrides_with("flag")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "-f", "-d", "-c"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
-    assert!(m.is_present("color"));
-    assert!(m.is_present("debug"));
-    assert!(!m.is_present("flag"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("debug").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -363,14 +372,22 @@ fn conflict_overridden_3() {
 #[test]
 fn conflict_overridden_4() {
     let m = Command::new("conflict_overridden")
-        .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
-        .arg(arg!(-d --debug "other flag"))
-        .arg(arg!(-c --color "third flag").overrides_with("flag"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .conflicts_with("debug")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-d --debug "other flag").action(ArgAction::SetTrue))
+        .arg(
+            arg!(-c --color "third flag")
+                .overrides_with("flag")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "-d", "-f", "-c"])
         .unwrap();
-    assert!(m.is_present("color"));
-    assert!(!m.is_present("flag"));
-    assert!(m.is_present("debug"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("debug").expect("defaulted by clap"));
 }
 
 #[test]
@@ -386,24 +403,36 @@ fn pos_required_overridden_by_flag() {
 fn require_overridden_2() {
     let m = Command::new("require_overridden")
         .arg(Arg::new("req_pos").required(true))
-        .arg(arg!(-c --color "other flag").overrides_with("req_pos"))
+        .arg(
+            arg!(-c --color "other flag")
+                .overrides_with("req_pos")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "-c", "req_pos"])
         .unwrap();
-    assert!(!m.is_present("color"));
-    assert!(m.is_present("req_pos"));
+    assert!(!*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(m.contains_id("req_pos"));
 }
 
 #[test]
 fn require_overridden_3() {
     let m = Command::new("require_overridden")
-        .arg(arg!(-f --flag "some flag").requires("debug"))
-        .arg(arg!(-d --debug "other flag"))
-        .arg(arg!(-c --color "third flag").overrides_with("flag"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .requires("debug")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-d --debug "other flag").action(ArgAction::SetTrue))
+        .arg(
+            arg!(-c --color "third flag")
+                .overrides_with("flag")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "-f", "-c"])
         .unwrap();
-    assert!(m.is_present("color"));
-    assert!(!m.is_present("flag"));
-    assert!(!m.is_present("debug"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("debug").expect("defaulted by clap"));
 }
 
 #[test]
@@ -455,7 +484,11 @@ fn issue_1374_overrides_self_with_multiple_values() {
 fn incremental_override() {
     let mut cmd = Command::new("test")
         .arg(arg!(--name <NAME>).action(ArgAction::Append))
-        .arg(arg!(--"no-name").overrides_with("name"));
+        .arg(
+            arg!(--"no-name")
+                .overrides_with("name")
+                .action(ArgAction::SetTrue),
+        );
     let m = cmd
         .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])
         .unwrap();
@@ -466,5 +499,5 @@ fn incremental_override() {
             .collect::<Vec<_>>(),
         &["ali"]
     );
-    assert!(!m.is_present("no-name"));
+    assert!(!*m.get_one::<bool>("no-name").expect("defaulted by clap"));
 }

@@ -100,7 +100,7 @@ pub fn check_complex_output(args: &str, out: &str) {
         }
     }
 
-    if matches.is_present("option") {
+    if matches.contains_id("option") {
         if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
             writeln!(w, "option present with value: {}", v).unwrap();
         }
@@ -119,7 +119,7 @@ pub fn check_complex_output(args: &str, out: &str) {
         writeln!(w, "positional NOT present").unwrap();
     }
 
-    if matches.is_present("flag2") {
+    if *matches.get_one::<bool>("flag2").expect("defaulted by clap") {
         writeln!(w, "flag2 present").unwrap();
         writeln!(
             w,
@@ -181,7 +181,7 @@ pub fn check_complex_output(args: &str, out: &str) {
         _ => writeln!(w, "positional3 NOT present"),
     };
 
-    if matches.is_present("option") {
+    if matches.contains_id("option") {
         if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
             writeln!(w, "option present with value: {}", v).unwrap();
         }
@@ -211,7 +211,7 @@ pub fn check_complex_output(args: &str, out: &str) {
                 }
             }
 
-            if matches.is_present("option") {
+            if matches.contains_id("option") {
                 if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
                     writeln!(w, "scoption present with value: {}", v).unwrap();
                 }

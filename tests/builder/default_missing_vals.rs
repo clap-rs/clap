@@ -14,15 +14,11 @@ fn opt_missing() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "auto"
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("color"), 0);
-    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::DefaultValue
@@ -44,15 +40,11 @@ fn opt_present_with_missing_value() {
         .try_get_matches_from(vec!["", "--color"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "always"
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("color"), 1);
-    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
@@ -74,15 +66,11 @@ fn opt_present_with_value() {
         .try_get_matches_from(vec!["", "--color=never"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "never"
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("color"), 1);
-    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
@@ -103,15 +91,11 @@ fn opt_present_with_empty_value() {
         .try_get_matches_from(vec!["", "--color="]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         ""
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("color"), 1);
-    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine
@@ -133,7 +117,7 @@ fn opt_default() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
         "default"
@@ -152,7 +136,7 @@ fn opt_default_user_override() {
         .try_get_matches_from(vec!["", "-o=value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
         "value"
@@ -171,15 +155,11 @@ fn default_missing_value_flag_value() {
     );
 
     let m = cmd.clone().try_get_matches_from(&["test"]).unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("false")
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 0);
-    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::DefaultValue
@@ -189,15 +169,11 @@ fn default_missing_value_flag_value() {
         .clone()
         .try_get_matches_from(&["test", "--flag"])
         .unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("true")
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::CommandLine
@@ -207,30 +183,22 @@ fn default_missing_value_flag_value() {
         .clone()
         .try_get_matches_from(&["test", "--flag=true"])
         .unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("true")
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::CommandLine
     );
 
     let m = cmd.try_get_matches_from(&["test", "--flag=false"]).unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()),
         Some("false")
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
     assert_eq!(
         m.value_source("flag").unwrap(),
         clap::ValueSource::CommandLine
@@ -257,10 +225,6 @@ fn delimited_missing_value() {
             .collect::<Vec<_>>(),
         vec!["one", "two"]
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 0);
-    }
 
     let m = cmd.try_get_matches_from(["test", "--flag"]).unwrap();
     assert_eq!(
@@ -270,10 +234,6 @@ fn delimited_missing_value() {
             .collect::<Vec<_>>(),
         vec!["three", "four"]
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("flag"), 1);
-    }
 }
 
 #[cfg(debug_assertions)]
@@ -320,15 +280,11 @@ fn valid_index() {
         .arg(Arg::new("sync").long("sync"))
         .try_get_matches_from(vec!["df", "--color", "--sync"])
         .unwrap();
-    assert!(m.is_present("color"));
+    assert!(m.contains_id("color"));
     assert_eq!(
         m.get_one::<String>("color").map(|v| v.as_str()).unwrap(),
         "always"
     );
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("color"), 1);
-    }
     assert_eq!(
         m.value_source("color").unwrap(),
         clap::ValueSource::CommandLine

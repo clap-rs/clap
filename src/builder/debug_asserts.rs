@@ -317,19 +317,6 @@ pub(crate) fn assert_app(cmd: &Command) {
                 arg
             );
         }
-
-        // Required groups should have at least one arg without default values
-        if group.required && !group.args.is_empty() {
-            assert!(
-                group.args.iter().any(|arg| {
-                    cmd.get_arguments()
-                        .any(|x| x.id == *arg && x.default_vals.is_empty())
-                }),
-                "Command {}: Argument group '{}' is required but all of it's arguments have a default value.",
-                    cmd.get_name(),
-                group.name
-            )
-        }
     }
 
     // Conflicts between flags and subcommands
@@ -697,14 +684,6 @@ fn assert_arg(arg: &Arg) {
         assert!(
             arg.is_takes_value_set(),
             "Argument '{}` is positional, it must take a value",
-            arg.name
-        );
-    }
-
-    if arg.is_required_set() {
-        assert!(
-            arg.default_vals.is_empty(),
-            "Argument '{}' is required and can't have a default value",
             arg.name
         );
     }

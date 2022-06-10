@@ -3,7 +3,7 @@
 use std::env;
 use std::ffi::OsStr;
 
-use clap::{arg, Arg, Command};
+use clap::{arg, builder::FalseyValueParser, Arg, ArgAction, Command};
 
 #[test]
 fn env() {
@@ -15,11 +15,7 @@ fn env() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
@@ -32,21 +28,34 @@ fn env_bool_literal() {
     env::set_var("CLP_TEST_FLAG_FALSE", "nO");
 
     let r = Command::new("df")
-        .arg(Arg::new("present").short('p').env("CLP_TEST_FLAG_TRUE"))
-        .arg(Arg::new("negated").short('n').env("CLP_TEST_FLAG_FALSE"))
-        .arg(Arg::new("absent").short('a').env("CLP_TEST_FLAG_ABSENT"))
+        .arg(
+            Arg::new("present")
+                .short('p')
+                .env("CLP_TEST_FLAG_TRUE")
+                .action(ArgAction::SetTrue)
+                .value_parser(FalseyValueParser::new()),
+        )
+        .arg(
+            Arg::new("negated")
+                .short('n')
+                .env("CLP_TEST_FLAG_FALSE")
+                .action(ArgAction::SetTrue)
+                .value_parser(FalseyValueParser::new()),
+        )
+        .arg(
+            Arg::new("absent")
+                .short('a')
+                .env("CLP_TEST_FLAG_ABSENT")
+                .action(ArgAction::SetTrue)
+                .value_parser(FalseyValueParser::new()),
+        )
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("present"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("present"), 0);
-    }
-    assert_eq!(m.get_one::<String>("present").map(|v| v.as_str()), None);
-    assert!(!m.is_present("negated"));
-    assert!(!m.is_present("absent"));
+    assert!(*m.get_one::<bool>("present").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("negated").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("absent").expect("defaulted by clap"));
 }
 
 #[test]
@@ -63,11 +72,7 @@ fn env_os() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
@@ -90,11 +95,7 @@ fn no_env() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(!m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(!m.contains_id("arg"));
     assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), None);
 }
 
@@ -110,11 +111,7 @@ fn no_env_no_takes_value() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(!m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(!m.contains_id("arg"));
     assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), None);
 }
 
@@ -133,11 +130,7 @@ fn with_default() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
@@ -158,11 +151,7 @@ fn opt_user_override() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 1);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "opt"
@@ -191,11 +180,7 @@ fn positionals() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
@@ -216,11 +201,7 @@ fn positionals_user_override() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 1);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "opt"
@@ -251,11 +232,7 @@ fn multiple_one() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_many::<String>("arg")
             .unwrap()
@@ -281,11 +258,7 @@ fn multiple_three() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_many::<String>("arg")
             .unwrap()
@@ -310,11 +283,7 @@ fn multiple_no_delimiter() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_many::<String>("arg")
             .unwrap()
@@ -339,11 +308,7 @@ fn possible_value() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
@@ -387,11 +352,7 @@ fn value_parser() {
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("arg"), 0);
-    }
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"

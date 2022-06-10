@@ -68,7 +68,7 @@ use yaml_rust::Yaml;
 /// assert!(result.is_ok());
 /// let matches = result.unwrap();
 /// // We may not know which of the args was used, so we can test for the group...
-/// assert!(matches.is_present("vers"));
+/// assert!(matches.contains_id("vers"));
 /// // we could also alternatively check each arg individually (not shown here)
 /// ```
 /// [`ArgGroup::multiple(true)`]: ArgGroup::multiple()
@@ -150,9 +150,9 @@ impl<'help> ArgGroup<'help> {
     ///         .arg("color"))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
-    /// assert!(m.is_present("req_flags"));
+    /// assert!(m.contains_id("req_flags"));
     /// // but we can also check individually if needed
-    /// assert!(m.is_present("flag"));
+    /// assert!(m.contains_id("flag"));
     /// ```
     /// [argument]: crate::Arg
     #[must_use]
@@ -176,9 +176,9 @@ impl<'help> ArgGroup<'help> {
     ///         .args(&["flag", "color"]))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
-    /// assert!(m.is_present("req_flags"));
+    /// assert!(m.contains_id("req_flags"));
     /// // but we can also check individually if needed
-    /// assert!(m.is_present("flag"));
+    /// assert!(m.contains_id("flag"));
     /// ```
     /// [arguments]: crate::Arg
     #[must_use]
@@ -208,7 +208,7 @@ impl<'help> ArgGroup<'help> {
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myprog", "-f", "-c"]);
     /// // maybe we don't know which of the two flags was used...
-    /// assert!(m.is_present("req_flags"));
+    /// assert!(m.contains_id("req_flags"));
     /// ```
     /// In this next example, we show the default behavior (i.e. `multiple(false)) which will throw
     /// an error if more than one of the args in the group was used.
