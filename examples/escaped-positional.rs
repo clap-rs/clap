@@ -1,10 +1,10 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command, value_parser};
+use clap::{arg, command, value_parser, ArgAction};
 
 fn main() {
     let matches = command!()
-        .arg(arg!(eff: -f))
+        .arg(arg!(eff: -f).action(ArgAction::SetTrue))
         .arg(
             arg!(pea: -p <PEAR>)
                 .required(false)
@@ -22,7 +22,10 @@ fn main() {
     // This is what will happen with `myprog -f -p=bob -- sloppy slop slop`...
 
     // -f used: true
-    println!("-f used: {:?}", matches.is_present("eff"));
+    println!(
+        "-f used: {:?}",
+        *matches.get_one::<bool>("eff").expect("defaulted by clap")
+    );
     // -p's value: Some("bob")
     println!("-p's value: {:?}", matches.get_one::<String>("pea"));
     // 'slops' values: Some(["sloppy", "slop", "slop"])

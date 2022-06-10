@@ -49,11 +49,12 @@ use std::ffi::OsString;
 /// The equivalent [`Command`] struct + `From` implementation:
 ///
 /// ```rust
-/// # use clap::{Command, Arg, ArgMatches};
+/// # use clap::{Command, Arg, ArgMatches, ArgAction};
 /// Command::new("demo")
 ///     .about("My super CLI")
 ///     .arg(Arg::new("verbose")
 ///         .long("verbose")
+///         .action(ArgAction::SetTrue)
 ///         .help("More verbose output"))
 ///     .arg(Arg::new("name")
 ///         .long("name")
@@ -69,8 +70,8 @@ use std::ffi::OsString;
 /// impl From<ArgMatches> for Context {
 ///     fn from(m: ArgMatches) -> Self {
 ///         Context {
-///             verbose: m.is_present("verbose"),
-///             name: m.get_one::<String>("name").map(|n| n.clone()),
+///             verbose: *m.get_one::<bool>("verbose").expect("defaulted_by_clap"),
+///             name: m.get_one::<String>("name").cloned(),
 ///         }
 ///     }
 /// }
@@ -287,7 +288,7 @@ pub trait FromArgMatches: Sized {
     ///    fn from(m: ArgMatches) -> Self {
     ///        Context {
     ///            name: m.get_one::<String>("name").unwrap().clone(),
-    ///            debug: m.is_present("debug"),
+    ///            debug: *m.get_one::<bool>("debug").expect("defaulted by clap"),
     ///        }
     ///    }
     /// }
@@ -321,7 +322,7 @@ pub trait FromArgMatches: Sized {
     ///    fn from(m: ArgMatches) -> Self {
     ///        Context {
     ///            name: m.get_one::<String>("name").unwrap().to_string(),
-    ///            debug: m.is_present("debug"),
+    ///            debug: *m.get_one::<bool>("debug").expect("defaulted by clap"),
     ///        }
     ///    }
     /// }

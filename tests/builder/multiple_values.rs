@@ -18,7 +18,7 @@ fn option_long() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -44,7 +44,7 @@ fn option_short() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -73,7 +73,7 @@ fn option_mixed() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -98,7 +98,7 @@ fn option_exact_exact() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -122,7 +122,7 @@ fn option_exact_exact_not_mult() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -149,7 +149,7 @@ fn option_exact_exact_mult() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -208,7 +208,7 @@ fn option_min_exact() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -252,8 +252,8 @@ fn option_short_min_more_mult_occurs() {
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
 
-    assert!(m.is_present("option"));
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("option"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -279,8 +279,8 @@ fn option_short_min_more_single_occur() {
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
 
-    assert!(m.is_present("option"));
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("option"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -306,7 +306,7 @@ fn option_max_exact() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -331,7 +331,7 @@ fn option_max_less() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -373,7 +373,7 @@ fn positional() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("pos"));
+    assert!(m.contains_id("pos"));
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -396,7 +396,7 @@ fn positional_exact_exact() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("pos"));
+    assert!(m.contains_id("pos"));
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -443,7 +443,7 @@ fn positional_min_exact() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("pos"));
+    assert!(m.contains_id("pos"));
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -472,7 +472,7 @@ fn positional_min_more() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("pos"));
+    assert!(m.contains_id("pos"));
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -491,7 +491,7 @@ fn positional_max_exact() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("pos"));
+    assert!(m.contains_id("pos"));
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -510,7 +510,7 @@ fn positional_max_less() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("pos"));
+    assert!(m.contains_id("pos"));
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -544,7 +544,7 @@ fn sep_long_equals() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -568,7 +568,7 @@ fn sep_long_space() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -592,7 +592,7 @@ fn sep_short_equals() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -616,7 +616,7 @@ fn sep_short_space() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -640,7 +640,7 @@ fn sep_short_no_space() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -663,7 +663,7 @@ fn sep_positional() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -687,7 +687,7 @@ fn different_sep() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -710,7 +710,7 @@ fn different_sep_positional() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -735,7 +735,7 @@ fn no_sep() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -756,7 +756,7 @@ fn no_sep_positional() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -784,7 +784,7 @@ fn req_delimiter_long() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -822,7 +822,7 @@ fn req_delimiter_long_with_equal() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -860,7 +860,7 @@ fn req_delimiter_short_with_space() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -898,7 +898,7 @@ fn req_delimiter_short_with_no_space() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -936,7 +936,7 @@ fn req_delimiter_short_with_equal() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -1003,7 +1003,7 @@ fn req_delimiter_complex() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()
@@ -1105,7 +1105,7 @@ fn low_index_positional() {
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1113,7 +1113,7 @@ fn low_index_positional() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert!(m.is_present("target"));
+    assert!(m.contains_id("target"));
     assert_eq!(
         m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1140,7 +1140,7 @@ fn low_index_positional_in_subcmd() {
     let m = m.unwrap();
     let sm = m.subcommand_matches("test").unwrap();
 
-    assert!(sm.is_present("files"));
+    assert!(sm.contains_id("files"));
     assert_eq!(
         sm.get_many::<String>("files")
             .unwrap()
@@ -1148,7 +1148,7 @@ fn low_index_positional_in_subcmd() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert!(sm.is_present("target"));
+    assert!(sm.contains_id("target"));
     assert_eq!(
         sm.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1174,7 +1174,7 @@ fn low_index_positional_with_option() {
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1182,7 +1182,7 @@ fn low_index_positional_with_option() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert!(m.is_present("target"));
+    assert!(m.contains_id("target"));
     assert_eq!(
         m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
@@ -1204,13 +1204,13 @@ fn low_index_positional_with_flag() {
                 .multiple_values(true),
         )
         .arg(Arg::new("target").index(2).required(true))
-        .arg(Arg::new("flg").long("flag"))
+        .arg(Arg::new("flg").long("flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target", "--flag"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1218,12 +1218,12 @@ fn low_index_positional_with_flag() {
             .collect::<Vec<_>>(),
         ["file1", "file2", "file3"]
     );
-    assert!(m.is_present("target"));
+    assert!(m.contains_id("target"));
     assert_eq!(
         m.get_one::<String>("target").map(|v| v.as_str()).unwrap(),
         "target"
     );
-    assert!(m.is_present("flg"));
+    assert!(*m.get_one::<bool>("flg").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1242,8 +1242,8 @@ fn multiple_value_terminator_option() {
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
-    assert!(m.is_present("other"));
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("other"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1268,14 +1268,14 @@ fn multiple_value_terminator_option_other_arg() {
                 .multiple_values(true),
         )
         .arg(Arg::new("other"))
-        .arg(Arg::new("flag").short('F'))
+        .arg(Arg::new("flag").short('F').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
-    assert!(m.is_present("other"));
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("other"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1287,7 +1287,7 @@ fn multiple_value_terminator_option_other_arg() {
         m.get_one::<String>("other").map(|v| v.as_str()),
         Some("otherval")
     );
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]

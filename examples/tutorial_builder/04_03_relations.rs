@@ -2,16 +2,16 @@
 
 use std::path::PathBuf;
 
-use clap::{arg, command, value_parser, ArgGroup};
+use clap::{arg, command, value_parser, ArgAction, ArgGroup};
 
 fn main() {
     // Create application like normal
     let matches = command!()
         // Add the version arguments
         .arg(arg!(--"set-ver" <VER> "set version manually").required(false))
-        .arg(arg!(--major         "auto inc major"))
-        .arg(arg!(--minor         "auto inc minor"))
-        .arg(arg!(--patch         "auto inc patch"))
+        .arg(arg!(--major         "auto inc major").action(ArgAction::SetTrue))
+        .arg(arg!(--minor         "auto inc minor").action(ArgAction::SetTrue))
+        .arg(arg!(--patch         "auto inc patch").action(ArgAction::SetTrue))
         // Create a group, make it required, and add the above arguments
         .group(
             ArgGroup::new("vers")
@@ -52,9 +52,9 @@ fn main() {
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
         let (maj, min, pat) = (
-            matches.is_present("major"),
-            matches.is_present("minor"),
-            matches.is_present("patch"),
+            *matches.get_one::<bool>("major").expect("defaulted by clap"),
+            *matches.get_one::<bool>("minor").expect("defaulted by clap"),
+            *matches.get_one::<bool>("patch").expect("defaulted by clap"),
         );
         match (maj, min, pat) {
             (true, _, _) => major += 1,
@@ -68,7 +68,7 @@ fn main() {
     println!("Version: {}", version);
 
     // Check for usage of -c
-    if matches.is_present("config") {
+    if matches.contains_id("config") {
         let input = matches
             .get_one::<PathBuf>("INPUT_FILE")
             .unwrap_or_else(|| matches.get_one::<PathBuf>("spec-in").unwrap())

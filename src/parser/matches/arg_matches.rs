@@ -53,10 +53,10 @@ use crate::INTERNAL_ERROR_MSG;
 /// // used at runtime.
 /// println!("Value for --output: {}", matches.get_one::<String>("out").unwrap());
 ///
-/// // You can check the presence of an argument
-/// if matches.is_present("out") {
+/// // You can check the presence of an argument's values
+/// if matches.contains_id("out") {
 ///     // However, if you want to know where the value came from
-///     if matches.value_source("out").expect("checked is_present") == ValueSource::CommandLine {
+///     if matches.value_source("out").expect("checked contains_id") == ValueSource::CommandLine {
 ///         println!("`out` set by user");
 ///     } else {
 ///         println!("`out` is defaulted");
@@ -521,30 +521,12 @@ impl ArgMatches {
         self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
-    /// Check if an argument was present at runtime.
-    ///
-    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
-    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("myprog")
-    ///     .arg(Arg::new("debug")
-    ///         .short('d'))
-    ///     .get_matches_from(vec![
-    ///         "myprog", "-d"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("debug"));
-    /// ```
-    ///
-    /// [`default_value`]: crate::Arg::default_value()
+    /// Deprecated, replaced with [`ArgMatches::contains_id`] or
+    /// [`ArgAction::SetTrue`][crate::ArgAction].
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with either `ArgMatches::contains_id(...)` or `ArgAction::SetTrue`"
+    )]
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
@@ -963,10 +945,12 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, };
+    /// # use clap::{Command, Arg, ArgAction};
     /// let app_m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue)
+    ///     )
     ///     .subcommand(Command::new("test")
     ///         .arg(Arg::new("opt")
     ///             .long("option")
@@ -976,7 +960,7 @@ impl ArgMatches {
     ///     ]);
     ///
     /// // Both parent commands, and child subcommands can have arguments present at the same times
-    /// assert!(app_m.is_present("debug"));
+    /// assert!(*app_m.get_one::<bool>("debug").expect("defaulted by clap"));
     ///
     /// // Get the subcommand's ArgMatches instance
     /// if let Some(sub_m) = app_m.subcommand_matches("test") {

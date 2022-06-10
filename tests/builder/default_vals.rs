@@ -12,7 +12,7 @@ fn opts() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
         "default"
@@ -62,7 +62,7 @@ fn opt_user_override() {
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()).unwrap(),
         "value"
@@ -76,7 +76,7 @@ fn positionals() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -90,7 +90,7 @@ fn positional_user_override() {
         .try_get_matches_from(vec!["", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "value"
@@ -113,7 +113,7 @@ fn osstr_opts() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("o"));
+    assert!(m.contains_id("o"));
     assert_eq!(
         m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
         expected
@@ -134,7 +134,7 @@ fn osstr_opt_user_override() {
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()).unwrap(),
         "value"
@@ -151,7 +151,7 @@ fn osstr_positionals() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         expected
@@ -168,7 +168,7 @@ fn osstr_positional_user_override() {
         .try_get_matches_from(vec!["", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "value"
@@ -185,7 +185,7 @@ fn default_if_arg_present_no_default() {
         .try_get_matches_from(vec!["", "--opt", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -200,7 +200,7 @@ fn default_if_arg_present_no_default_user_override() {
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -219,7 +219,7 @@ fn default_if_arg_present_no_arg_with_default() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "first"
@@ -238,7 +238,7 @@ fn default_if_arg_present_with_default() {
         .try_get_matches_from(vec!["", "--opt", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -257,7 +257,7 @@ fn default_if_arg_present_with_default_user_override() {
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -276,7 +276,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
         .try_get_matches_from(vec!["", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -293,7 +293,7 @@ fn default_if_arg_present_with_value_no_default() {
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -308,7 +308,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
         .try_get_matches_from(vec!["", "--opt", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(!m.is_present("arg"));
+    assert!(!m.contains_id("arg"));
     assert!(m.get_one::<String>("arg").map(|v| v.as_str()).is_none());
 }
 
@@ -320,7 +320,7 @@ fn default_if_arg_present_with_value_no_default_user_override() {
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -339,7 +339,7 @@ fn default_if_arg_present_with_value_no_arg_with_default() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "first"
@@ -358,7 +358,7 @@ fn default_if_arg_present_with_value_no_arg_with_default_fail() {
         .try_get_matches_from(vec!["", "--opt", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "first"
@@ -377,7 +377,7 @@ fn default_if_arg_present_with_value_with_default() {
         .try_get_matches_from(vec!["", "--opt", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -396,7 +396,7 @@ fn default_if_arg_present_with_value_with_default_user_override() {
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -415,7 +415,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
         .try_get_matches_from(vec!["", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -434,7 +434,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
         .try_get_matches_from(vec!["", "--opt", "value", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -451,7 +451,7 @@ fn no_default_if_arg_present_with_value_no_default() {
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(!m.is_present("arg"));
+    assert!(!m.contains_id("arg"));
 }
 
 #[test]
@@ -466,7 +466,7 @@ fn no_default_if_arg_present_with_value_with_default() {
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(!m.is_present("arg"));
+    assert!(!m.contains_id("arg"));
     assert!(m.get_one::<String>("arg").map(|v| v.as_str()).is_none());
 }
 
@@ -482,7 +482,7 @@ fn no_default_if_arg_present_with_value_with_default_user_override() {
         .try_get_matches_from(vec!["", "--opt", "value", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "other"
@@ -501,7 +501,7 @@ fn no_default_if_arg_present_no_arg_with_value_with_default() {
         .try_get_matches_from(vec!["", "--opt", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -526,7 +526,7 @@ fn default_ifs_arg_present() {
         .try_get_matches_from(vec!["", "--flag"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "flg"
@@ -546,7 +546,7 @@ fn no_default_ifs_arg_present() {
         .try_get_matches_from(vec!["", "--flag"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(!m.is_present("arg"));
+    assert!(!m.contains_id("arg"));
     assert!(m.get_one::<String>("arg").map(|v| v.as_str()).is_none());
 }
 
@@ -566,7 +566,7 @@ fn default_ifs_arg_present_user_override() {
         .try_get_matches_from(vec!["", "--flag", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "value"
@@ -589,7 +589,7 @@ fn default_ifs_arg_present_order() {
         .try_get_matches_from(vec!["", "--opt=some", "--flag"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
+    assert!(m.contains_id("arg"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
@@ -645,7 +645,7 @@ fn multiple_defaults() {
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files").unwrap().collect::<Vec<_>>(),
         vec!["old", "new"]
@@ -664,7 +664,7 @@ fn multiple_defaults_override() {
         .try_get_matches_from(vec!["", "--files", "other", "mine"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("files"));
+    assert!(m.contains_id("files"));
     assert_eq!(
         m.get_many::<String>("files").unwrap().collect::<Vec<_>>(),
         vec!["other", "mine"]

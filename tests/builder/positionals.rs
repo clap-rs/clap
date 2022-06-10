@@ -1,4 +1,4 @@
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
 fn only_pos_follow() {
@@ -7,8 +7,8 @@ fn only_pos_follow() {
         .try_get_matches_from(vec!["", "--", "-f"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert!(!m.is_present("f"));
+    assert!(m.contains_id("arg"));
+    assert!(!m.contains_id("f"));
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "-f"
@@ -19,7 +19,7 @@ fn only_pos_follow() {
 fn issue_946() {
     let r = Command::new("compiletest")
         .allow_hyphen_values(true)
-        .arg(arg!(--exact    "filters match exactly"))
+        .arg(arg!(--exact    "filters match exactly").action(ArgAction::SetTrue))
         .arg(
             clap::Arg::new("filter")
                 .index(1)
@@ -30,7 +30,7 @@ fn issue_946() {
     assert!(r.is_ok(), "{:#?}", r);
     let matches = r.unwrap();
 
-    assert!(matches.is_present("exact"));
+    assert!(*matches.get_one::<bool>("exact").expect("defaulted by clap"));
     assert!(matches
         .get_one::<String>("filter")
         .map(|v| v.as_str())
@@ -40,12 +40,15 @@ fn issue_946() {
 #[test]
 fn positional() {
     let r = Command::new("positional")
-        .args(&[arg!(-f --flag "some flag"), Arg::new("positional").index(1)])
+        .args(&[
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
+            Arg::new("positional").index(1),
+        ])
         .try_get_matches_from(vec!["", "-f", "test"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
-    assert!(m.is_present("positional"));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("positional"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
     assert_eq!(
         m.get_one::<String>("positional")
             .map(|v| v.as_str())
@@ -54,11 +57,14 @@ fn positional() {
     );
 
     let m = Command::new("positional")
-        .args(&[arg!(-f --flag "some flag"), Arg::new("positional").index(1)])
+        .args(&[
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
+            Arg::new("positional").index(1),
+        ])
         .try_get_matches_from(vec!["", "test", "--flag"])
         .unwrap();
-    assert!(m.is_present("positional"));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("positional"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
     assert_eq!(
         m.get_one::<String>("positional")
             .map(|v| v.as_str())
@@ -103,7 +109,7 @@ fn lots_o_vals() {
         ]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("opt"));
+    assert!(m.contains_id("opt"));
     assert_eq!(m.get_many::<String>("opt").unwrap().count(), 297); // i.e. more than u8
 }
 
@@ -111,7 +117,7 @@ fn lots_o_vals() {
 fn positional_multiple() {
     let r = Command::new("positional_multiple")
         .args(&[
-            arg!(-f --flag "some flag"),
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional")
                 .index(1)
                 .takes_value(true)
@@ -120,8 +126,8 @@ fn positional_multiple() {
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
-    assert!(m.is_present("positional"));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("positional"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
     assert_eq!(
         &*m.get_many::<String>("positional")
             .unwrap()
@@ -135,7 +141,7 @@ fn positional_multiple() {
 fn positional_multiple_3() {
     let r = Command::new("positional_multiple")
         .args(&[
-            arg!(-f  --flag "some flag"),
+            arg!(-f  --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional")
                 .index(1)
                 .takes_value(true)
@@ -144,8 +150,8 @@ fn positional_multiple_3() {
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
-    assert!(m.is_present("positional"));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("positional"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
     assert_eq!(
         &*m.get_many::<String>("positional")
             .unwrap()
@@ -169,14 +175,14 @@ fn positional_multiple_2() {
 fn positional_possible_values() {
     let r = Command::new("positional_possible_values")
         .args(&[
-            arg!(-f --flag "some flag"),
+            arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional").index(1).value_parser(["test123"]),
         ])
         .try_get_matches_from(vec!["", "-f", "test123"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
-    assert!(m.is_present("positional"));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("positional"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
     assert_eq!(
         &*m.get_many::<String>("positional")
             .unwrap()

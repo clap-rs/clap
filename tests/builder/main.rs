@@ -1,3 +1,5 @@
+#![allow(clippy::bool_assert_comparison)]
+
 mod action;
 mod app_from_crate;
 mod app_settings;

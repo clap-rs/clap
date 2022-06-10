@@ -10,7 +10,7 @@ fn set() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(matches.get_one::<String>("mammal"), None);
-    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(matches.contains_id("mammal"), false);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -22,7 +22,7 @@ fn set() {
         .try_get_matches_from(["test", "--mammal", "dog"])
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "dog");
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -34,7 +34,7 @@ fn set() {
         .try_get_matches_from(["test", "--mammal", "dog", "--mammal", "cat"])
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "cat");
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -48,7 +48,7 @@ fn append() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(matches.get_one::<String>("mammal"), None);
-    assert_eq!(matches.is_present("mammal"), false);
+    assert_eq!(matches.contains_id("mammal"), false);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -60,7 +60,7 @@ fn append() {
         .try_get_matches_from(["test", "--mammal", "dog"])
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "dog");
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -82,7 +82,7 @@ fn append() {
             .collect::<Vec<_>>(),
         vec!["dog", "cat"]
     );
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -100,7 +100,7 @@ fn set_true() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -112,7 +112,7 @@ fn set_true() {
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -124,7 +124,7 @@ fn set_true() {
         .try_get_matches_from(["test", "--mammal", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -146,7 +146,7 @@ fn set_true_with_explicit_default_value() {
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -155,7 +155,7 @@ fn set_true_with_explicit_default_value() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -257,7 +257,7 @@ fn set_false() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -269,7 +269,7 @@ fn set_false() {
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -281,7 +281,7 @@ fn set_false() {
         .try_get_matches_from(["test", "--mammal", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -303,7 +303,7 @@ fn set_false_with_explicit_default_value() {
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -312,7 +312,7 @@ fn set_false_with_explicit_default_value() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -380,7 +380,7 @@ fn count() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<u8>("mammal").unwrap(), 0);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -392,7 +392,7 @@ fn count() {
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<u8>("mammal").unwrap(), 1);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -404,7 +404,7 @@ fn count() {
         .try_get_matches_from(["test", "--mammal", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<u8>("mammal").unwrap(), 2);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -426,7 +426,7 @@ fn count_with_explicit_default_value() {
         .try_get_matches_from(["test", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<u8>("mammal").unwrap(), 1);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
@@ -435,7 +435,7 @@ fn count_with_explicit_default_value() {
 
     let matches = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert_eq!(*matches.get_one::<u8>("mammal").unwrap(), 10);
-    assert_eq!(matches.is_present("mammal"), true);
+    assert_eq!(matches.contains_id("mammal"), true);
     #[allow(deprecated)]
     {
         assert_eq!(matches.occurrences_of("mammal"), 0);
