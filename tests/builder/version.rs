@@ -81,12 +81,12 @@ fn version_flag_from_long_version_long() {
 #[test]
 fn override_version_long_with_user_flag() {
     let res = with_version()
-        .arg(Arg::new("ver").long("version"))
+        .arg(Arg::new("ver").long("version").action(ArgAction::SetTrue))
         .try_get_matches_from("foo --version".split(' '));
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("ver"));
+    assert!(*m.get_one::<bool>("ver").expect("defaulted by clap"));
 }
 
 #[test]
@@ -103,12 +103,12 @@ fn override_version_long_with_user_flag_no_version_flag() {
 #[test]
 fn override_version_short_with_user_flag() {
     let res = with_version()
-        .arg(Arg::new("ver").short('V'))
+        .arg(Arg::new("ver").short('V').action(ArgAction::SetTrue))
         .try_get_matches_from("foo -V".split(' '));
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("ver"));
+    assert!(*m.get_one::<bool>("ver").expect("defaulted by clap"));
 }
 
 #[test]

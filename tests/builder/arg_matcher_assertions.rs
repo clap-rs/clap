@@ -1,17 +1,17 @@
 #[cfg(debug_assertions)]
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 
 #[test]
 #[cfg(debug_assertions)]
-#[should_panic = "`f` is not a name of an argument or a group."]
+#[should_panic = "Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags"]
 fn arg_matches_if_present_wrong_arg() {
     let m = Command::new("test")
-        .arg(Arg::new("flag").short('f'))
+        .arg(Arg::new("flag").short('f').action(ArgAction::SetTrue))
         .try_get_matches_from(&["test", "-f"])
         .unwrap();
 
-    assert!(m.is_present("flag"));
-    m.is_present("f");
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+    m.contains_id("f");
 }
 
 #[test]

@@ -9,11 +9,7 @@ fn opt_default_no_delim() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -29,11 +25,7 @@ fn opt_eq_no_delim() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -49,11 +41,7 @@ fn opt_s_eq_no_delim() {
     assert!(m.is_ok(), "{:?}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -69,11 +57,7 @@ fn opt_s_default_no_delim() {
     assert!(m.is_ok(), "{:?}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -89,11 +73,7 @@ fn opt_s_no_space_no_delim() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -114,11 +94,7 @@ fn opt_s_no_space_mult_no_delim() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_one::<String>("option").map(|v| v.as_str()).unwrap(),
         "val1,val2,val3"
@@ -140,11 +116,7 @@ fn opt_eq_mult_def_delim() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
-    assert!(m.is_present("option"));
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("option"), 1);
-    }
+    assert!(m.contains_id("option"));
     assert_eq!(
         m.get_many::<String>("option")
             .unwrap()

@@ -1,4 +1,4 @@
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 
 fn main() {
     let matches = Command::new("pacman")
@@ -56,6 +56,7 @@ fn main() {
                         .long("info")
                         .conflicts_with("search")
                         .short('i')
+                        .action(ArgAction::SetTrue)
                         .help("view package information"),
                 )
                 .arg(
@@ -70,10 +71,10 @@ fn main() {
 
     match matches.subcommand() {
         Some(("sync", sync_matches)) => {
-            if sync_matches.is_present("search") {
+            if sync_matches.contains_id("search") {
                 let packages: Vec<_> = sync_matches
                     .get_many::<String>("search")
-                    .expect("is present")
+                    .expect("contains_id")
                     .map(|s| s.as_str())
                     .collect();
                 let values = packages.join(", ");
@@ -88,7 +89,10 @@ fn main() {
                 .collect();
             let values = packages.join(", ");
 
-            if sync_matches.is_present("info") {
+            if *sync_matches
+                .get_one::<bool>("info")
+                .expect("defaulted by clap")
+            {
                 println!("Retrieving info for {}...", values);
             } else {
                 println!("Installing {}...", values);

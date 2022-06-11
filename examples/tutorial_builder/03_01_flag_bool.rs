@@ -1,9 +1,21 @@
 // Note: this requires the `cargo` feature
 
-use clap::{arg, command};
+use clap::{command, Arg, ArgAction};
 
 fn main() {
-    let matches = command!().arg(arg!(-v - -verbose)).get_matches();
+    let matches = command!()
+        .arg(
+            Arg::new("verbose")
+                .short('v')
+                .long("verbose")
+                .action(ArgAction::SetTrue),
+        )
+        .get_matches();
 
-    println!("verbose: {:?}", matches.is_present("verbose"));
+    println!(
+        "verbose: {:?}",
+        *matches
+            .get_one::<bool>("verbose")
+            .expect("defaulted by clap")
+    );
 }

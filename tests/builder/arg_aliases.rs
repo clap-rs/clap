@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, Arg, Command};
+use clap::{arg, Arg, ArgAction, Command};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
@@ -41,7 +41,7 @@ fn single_alias_of_option() {
         .try_get_matches_from(vec!["", "--new-opt", "cool"]);
     assert!(a.is_ok(), "{}", a.unwrap_err());
     let a = a.unwrap();
-    assert!(a.is_present("alias"));
+    assert!(a.contains_id("alias"));
     assert_eq!(
         a.get_one::<String>("alias").map(|v| v.as_str()).unwrap(),
         "cool"
@@ -81,10 +81,10 @@ fn multiple_aliases_of_option() {
     assert!(als3.is_ok(), "{}", als3.unwrap_err());
     let als3 = als3.unwrap();
 
-    assert!(long.is_present("aliases"));
-    assert!(als1.is_present("aliases"));
-    assert!(als2.is_present("aliases"));
-    assert!(als3.is_present("aliases"));
+    assert!(long.contains_id("aliases"));
+    assert!(als1.contains_id("aliases"));
+    assert!(als2.contains_id("aliases"));
+    assert!(als3.contains_id("aliases"));
     assert_eq!(
         long.get_one::<String>("aliases")
             .map(|v| v.as_str())
@@ -114,22 +114,26 @@ fn multiple_aliases_of_option() {
 #[test]
 fn single_alias_of_flag() {
     let a = Command::new("test")
-        .arg(Arg::new("flag").long("flag").alias("alias"))
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .alias("alias")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["", "--alias"]);
     assert!(a.is_ok(), "{}", a.unwrap_err());
     let a = a.unwrap();
-    assert!(a.is_present("flag"));
+    assert!(*a.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn multiple_aliases_of_flag() {
-    let a = Command::new("test").arg(Arg::new("flag").long("flag").aliases(&[
-        "invisible",
-        "set",
-        "of",
-        "cool",
-        "aliases",
-    ]));
+    let a = Command::new("test").arg(
+        Arg::new("flag")
+            .long("flag")
+            .aliases(&["invisible", "set", "of", "cool", "aliases"])
+            .action(ArgAction::SetTrue),
+    );
 
     let flag = a.clone().try_get_matches_from(vec!["", "--flag"]);
     assert!(flag.is_ok(), "{}", flag.unwrap_err());
@@ -147,10 +151,10 @@ fn multiple_aliases_of_flag() {
     assert!(als.is_ok(), "{}", als.unwrap_err());
     let als = als.unwrap();
 
-    assert!(flag.is_present("flag"));
-    assert!(inv.is_present("flag"));
-    assert!(cool.is_present("flag"));
-    assert!(als.is_present("flag"));
+    assert!(*flag.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*inv.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*cool.get_one::<bool>("flag").expect("defaulted by clap"));
+    assert!(*als.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -172,7 +176,7 @@ fn alias_on_a_subcommand_option() {
 
     assert!(m.subcommand_matches("some").is_some());
     let sub_m = m.subcommand_matches("some").unwrap();
-    assert!(sub_m.is_present("test"));
+    assert!(sub_m.contains_id("test"));
     assert_eq!(
         sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
         "awesome"

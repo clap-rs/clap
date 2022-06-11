@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, ArgGroup, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
@@ -63,12 +63,16 @@ fn flag_required() {
 #[test]
 fn flag_required_2() {
     let m = Command::new("flag_required")
-        .arg(arg!(-f --flag "some flag").requires("color"))
-        .arg(arg!(-c --color "third flag"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .requires("color")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-c --color "third flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "-c"])
         .unwrap();
-    assert!(m.is_present("color"));
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -89,12 +93,12 @@ fn option_required_2() {
         .arg(arg!(c: -c <color> "third flag").required(false))
         .try_get_matches_from(vec!["", "-f", "val", "-c", "other_val"])
         .unwrap();
-    assert!(m.is_present("c"));
+    assert!(m.contains_id("c"));
     assert_eq!(
         m.get_one::<String>("c").map(|v| v.as_str()).unwrap(),
         "other_val"
     );
-    assert!(m.is_present("f"));
+    assert!(m.contains_id("f"));
     assert_eq!(m.get_one::<String>("f").map(|v| v.as_str()).unwrap(), "val");
 }
 
@@ -114,7 +118,7 @@ fn positional_required_2() {
         .arg(Arg::new("flag").index(1).required(true))
         .try_get_matches_from(vec!["", "someval"])
         .unwrap();
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()).unwrap(),
         "someval"
@@ -197,29 +201,29 @@ fn group_required() {
 #[test]
 fn group_required_2() {
     let m = Command::new("group_required")
-        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(arg!(--some "some arg"))
-        .arg(arg!(--other "other arg"))
+        .arg(arg!(--some "some arg").action(ArgAction::SetTrue))
+        .arg(arg!(--other "other arg").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "--some"])
         .unwrap();
-    assert!(m.is_present("some"));
-    assert!(!m.is_present("other"));
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("some").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("other").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn group_required_3() {
     let m = Command::new("group_required")
-        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(arg!(--some "some arg"))
-        .arg(arg!(--other "other arg"))
+        .arg(arg!(--some "some arg").action(ArgAction::SetTrue))
+        .arg(arg!(--other "other arg").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "--other"])
         .unwrap();
-    assert!(!m.is_present("some"));
-    assert!(m.is_present("other"));
-    assert!(m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("some").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("other").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -238,31 +242,39 @@ fn arg_require_group() {
 #[test]
 fn arg_require_group_2() {
     let res = Command::new("arg_require_group")
-        .arg(arg!(-f --flag "some flag").requires("gr"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .requires("gr")
+                .action(ArgAction::SetTrue),
+        )
         .group(ArgGroup::new("gr").arg("some").arg("other"))
-        .arg(arg!(--some "some arg"))
-        .arg(arg!(--other "other arg"))
+        .arg(arg!(--some "some arg").action(ArgAction::SetTrue))
+        .arg(arg!(--other "other arg").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "--some"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("some"));
-    assert!(!m.is_present("other"));
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("some").expect("defaulted by clap"));
+    assert!(!*m.get_one::<bool>("other").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn arg_require_group_3() {
     let res = Command::new("arg_require_group")
-        .arg(arg!(-f --flag "some flag").requires("gr"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .requires("gr")
+                .action(ArgAction::SetTrue),
+        )
         .group(ArgGroup::new("gr").arg("some").arg("other"))
-        .arg(arg!(--some "some arg"))
-        .arg(arg!(--other "other arg"))
+        .arg(arg!(--some "some arg").action(ArgAction::SetTrue))
+        .arg(arg!(--other "other arg").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-f", "--other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(!m.is_present("some"));
-    assert!(m.is_present("other"));
-    assert!(m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("some").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("other").expect("defaulted by clap"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 // REQUIRED_UNLESS
@@ -304,13 +316,13 @@ fn required_unless_present() {
                 .takes_value(true)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["unlesstest", "--debug"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("dbg"));
-    assert!(!m.is_present("cfg"));
+    assert!(*m.get_one::<bool>("dbg").expect("defaulted by clap"));
+    assert!(!m.contains_id("cfg"));
 }
 
 #[test]
@@ -357,15 +369,15 @@ fn required_unless_present_all() {
                 .takes_value(true)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessall", "--debug", "-i", "file"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("dbg"));
-    assert!(m.is_present("infile"));
-    assert!(!m.is_present("cfg"));
+    assert!(*m.get_one::<bool>("dbg").expect("defaulted by clap"));
+    assert!(m.contains_id("infile"));
+    assert!(!m.contains_id("cfg"));
 }
 
 #[test]
@@ -396,14 +408,14 @@ fn required_unless_present_any() {
                 .takes_value(true)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("dbg"));
-    assert!(!m.is_present("cfg"));
+    assert!(*m.get_one::<bool>("dbg").expect("defaulted by clap"));
+    assert!(!m.contains_id("cfg"));
 }
 
 #[test]
@@ -417,14 +429,14 @@ fn required_unless_any_2() {
                 .takes_value(true)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessone", "-i", "file"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(m.is_present("infile"));
-    assert!(!m.is_present("cfg"));
+    assert!(m.contains_id("infile"));
+    assert!(!m.contains_id("cfg"));
 }
 
 #[test]
@@ -493,15 +505,15 @@ fn required_unless_any_1() {
                 .takes_value(true)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    assert!(!m.is_present("infile"));
-    assert!(!m.is_present("cfg"));
-    assert!(m.is_present("dbg"));
+    assert!(!m.contains_id("infile"));
+    assert!(!m.contains_id("cfg"));
+    assert!(*m.get_one::<bool>("dbg").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1112,11 +1124,11 @@ fn short_flag_require_equals_with_minvals_zero() {
                 .min_values(0)
                 .require_equals(true),
         )
-        .arg(Arg::new("unique").short('u'))
+        .arg(Arg::new("unique").short('u').action(ArgAction::SetTrue))
         .try_get_matches_from(&["foo", "-cu"])
         .unwrap();
-    assert!(m.is_present("check"));
-    assert!(m.is_present("unique"));
+    assert!(m.contains_id("check"));
+    assert!(*m.get_one::<bool>("unique").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1130,44 +1142,50 @@ fn issue_2624() {
                 .min_values(0)
                 .value_parser(["silent", "quiet", "diagnose-first"]),
         )
-        .arg(Arg::new("unique").short('u').long("unique"))
+        .arg(
+            Arg::new("unique")
+                .short('u')
+                .long("unique")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(&["foo", "-cu"])
         .unwrap();
-    assert!(matches.is_present("check"));
-    assert!(matches.is_present("unique"));
+    assert!(matches.contains_id("check"));
+    assert!(*matches
+        .get_one::<bool>("unique")
+        .expect("defaulted by clap"));
 }
 
 #[test]
 fn required_unless_all_with_any() {
     let cmd = Command::new("prog")
-        .arg(Arg::new("foo").long("foo"))
-        .arg(Arg::new("bar").long("bar"))
-        .arg(Arg::new("baz").long("baz"))
+        .arg(Arg::new("foo").long("foo").action(ArgAction::SetTrue))
+        .arg(Arg::new("bar").long("bar").action(ArgAction::SetTrue))
+        .arg(Arg::new("baz").long("baz").action(ArgAction::SetTrue))
         .arg(
             Arg::new("flag")
                 .long("flag")
+                .action(ArgAction::SetTrue)
                 .required_unless_present_any(&["foo"])
                 .required_unless_present_all(&["bar", "baz"]),
         );
 
     let result = cmd.clone().try_get_matches_from(vec!["myprog"]);
-
     assert!(result.is_err(), "{:?}", result.unwrap());
 
     let result = cmd.clone().try_get_matches_from(vec!["myprog", "--foo"]);
-
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
-    assert!(!result.unwrap().is_present("flag"));
+    let matches = result.unwrap();
+    assert!(!*matches.get_one::<bool>("flag").expect("defaulted by clap"));
 
     let result = cmd
         .clone()
         .try_get_matches_from(vec!["myprog", "--bar", "--baz"]);
-
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
-    assert!(!result.unwrap().is_present("flag"));
+    let matches = result.unwrap();
+    assert!(!*matches.get_one::<bool>("flag").expect("defaulted by clap"));
 
     let result = cmd.try_get_matches_from(vec!["myprog", "--bar"]);
-
     assert!(result.is_err(), "{:?}", result.unwrap());
 }
 
@@ -1228,7 +1246,7 @@ fn requires_with_default_value() {
                 .default_value("default")
                 .requires("flag"),
         )
-        .arg(Arg::new("flag").long("flag"))
+        .arg(Arg::new("flag").long("flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["myprog"]);
 
     assert!(
@@ -1242,7 +1260,7 @@ fn requires_with_default_value() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(!m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1254,7 +1272,7 @@ fn requires_if_with_default_value() {
                 .default_value("default")
                 .requires_if("default", "flag"),
         )
-        .arg(Arg::new("flag").long("flag"))
+        .arg(Arg::new("flag").long("flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["myprog"]);
 
     assert!(
@@ -1268,14 +1286,14 @@ fn requires_if_with_default_value() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(!m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn group_requires_with_default_value() {
     let result = Command::new("prog")
         .arg(Arg::new("opt").long("opt").default_value("default"))
-        .arg(Arg::new("flag").long("flag"))
+        .arg(Arg::new("flag").long("flag").action(ArgAction::SetTrue))
         .group(ArgGroup::new("one").arg("opt").requires("flag"))
         .try_get_matches_from(vec!["myprog"]);
 
@@ -1290,7 +1308,7 @@ fn group_requires_with_default_value() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(!m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1300,6 +1318,7 @@ fn required_if_eq_on_default_value() {
         .arg(
             Arg::new("flag")
                 .long("flag")
+                .action(ArgAction::SetTrue)
                 .required_if_eq("opt", "default"),
         )
         .try_get_matches_from(vec!["myprog"]);
@@ -1315,7 +1334,7 @@ fn required_if_eq_on_default_value() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(!m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1325,6 +1344,7 @@ fn required_if_eq_all_on_default_value() {
         .arg(
             Arg::new("flag")
                 .long("flag")
+                .action(ArgAction::SetTrue)
                 .required_if_eq_all(&[("opt", "default")]),
         )
         .try_get_matches_from(vec!["myprog"]);
@@ -1340,7 +1360,7 @@ fn required_if_eq_all_on_default_value() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(!m.is_present("flag"));
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]

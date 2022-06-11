@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, ArgGroup, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
 
@@ -443,7 +443,11 @@ fn conflict_with_unused_default() {
                 .required(false)
                 .default_value("default"),
         )
-        .arg(arg!(-f --flag "some flag").conflicts_with("opt"))
+        .arg(
+            arg!(-f --flag "some flag")
+                .conflicts_with("opt")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["myprog", "-f"]);
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
@@ -453,7 +457,7 @@ fn conflict_with_unused_default() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -465,7 +469,7 @@ fn conflicts_with_alongside_default() {
                 .required(false)
                 .conflicts_with("flag"),
         )
-        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["myprog", "-f"]);
 
     assert!(
@@ -479,7 +483,7 @@ fn conflicts_with_alongside_default() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -491,7 +495,12 @@ fn group_in_conflicts_with() {
                 .default_value("default")
                 .group("one"),
         )
-        .arg(Arg::new("flag").long("flag").conflicts_with("one"))
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .conflicts_with("one")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["myprog", "--flag"]);
 
     assert!(
@@ -505,7 +514,7 @@ fn group_in_conflicts_with() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
@@ -517,7 +526,12 @@ fn group_conflicts_with_default_value() {
                 .default_value("default")
                 .group("one"),
         )
-        .arg(Arg::new("flag").long("flag").group("one"))
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .group("one")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["myprog", "--flag"]);
 
     assert!(
@@ -531,14 +545,19 @@ fn group_conflicts_with_default_value() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
 fn group_conflicts_with_default_arg() {
     let result = Command::new("conflict")
         .arg(Arg::new("opt").long("opt").default_value("default"))
-        .arg(Arg::new("flag").long("flag").group("one"))
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .group("one")
+                .action(ArgAction::SetTrue),
+        )
         .group(ArgGroup::new("one").conflicts_with("opt"))
         .try_get_matches_from(vec!["myprog", "--flag"]);
 
@@ -553,7 +572,7 @@ fn group_conflicts_with_default_arg() {
         m.get_one::<String>("opt").map(|v| v.as_str()),
         Some("default")
     );
-    assert!(m.is_present("flag"));
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]

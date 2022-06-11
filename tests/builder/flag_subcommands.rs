@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
 fn flag_subcommand_normal() {
@@ -10,14 +10,17 @@ fn flag_subcommand_normal() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .help("testing testing"),
+                    .help("testing testing")
+                    .action(ArgAction::SetTrue),
             ),
         )
         .try_get_matches_from(vec!["myprog", "some", "--test"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -31,7 +34,8 @@ fn flag_subcommand_normal_with_alias() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .help("testing testing"),
+                        .help("testing testing")
+                        .action(ArgAction::SetTrue),
                 )
                 .alias("result"),
         )
@@ -39,7 +43,9 @@ fn flag_subcommand_normal_with_alias() {
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -50,14 +56,17 @@ fn flag_subcommand_short() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .help("testing testing"),
+                    .help("testing testing")
+                    .action(ArgAction::SetTrue),
             ),
         )
         .try_get_matches_from(vec!["myprog", "-S", "--test"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -68,14 +77,17 @@ fn flag_subcommand_short_with_args() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .help("testing testing"),
+                    .help("testing testing")
+                    .action(ArgAction::SetTrue),
             ),
         )
         .try_get_matches_from(vec!["myprog", "-St"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -88,7 +100,8 @@ fn flag_subcommand_short_with_alias() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .help("testing testing"),
+                        .help("testing testing")
+                        .action(ArgAction::SetTrue),
                 )
                 .short_flag_alias('M')
                 .short_flag_alias('B'),
@@ -97,7 +110,9 @@ fn flag_subcommand_short_with_alias() {
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -159,7 +174,8 @@ fn flag_subcommand_short_with_aliases() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .help("testing testing"),
+                        .help("testing testing")
+                        .action(ArgAction::SetTrue),
                 )
                 .short_flag_aliases(&['M', 'B']),
         )
@@ -167,7 +183,9 @@ fn flag_subcommand_short_with_aliases() {
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -214,7 +232,7 @@ fn flag_subcommand_short_after_long_arg() {
         .subcommand(
             Command::new("sync")
                 .short_flag('S')
-                .arg(Arg::new("clean").short('c')),
+                .arg(Arg::new("clean").short('c').action(ArgAction::SetTrue)),
         )
         .arg(Arg::new("arg").long("arg").takes_value(true))
         .try_get_matches_from(vec!["pacman", "--arg", "foo", "-Sc"])
@@ -222,7 +240,7 @@ fn flag_subcommand_short_after_long_arg() {
     let subm = m.subcommand_matches("sync");
     assert!(subm.is_some());
     let subm = subm.unwrap();
-    assert!(subm.is_present("clean"));
+    assert!(*subm.get_one::<bool>("clean").expect("defaulted by clap"));
 }
 
 #[test]
@@ -233,14 +251,17 @@ fn flag_subcommand_long() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .help("testing testing"),
+                    .help("testing testing")
+                    .action(ArgAction::SetTrue),
             ),
         )
         .try_get_matches_from(vec!["myprog", "--some", "--test"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -253,7 +274,8 @@ fn flag_subcommand_long_with_alias() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .help("testing testing"),
+                        .help("testing testing")
+                        .action(ArgAction::SetTrue),
                 )
                 .long_flag_alias("result"),
         )
@@ -261,7 +283,9 @@ fn flag_subcommand_long_with_alias() {
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -274,7 +298,8 @@ fn flag_subcommand_long_with_aliases() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .help("testing testing"),
+                        .help("testing testing")
+                        .action(ArgAction::SetTrue),
                 )
                 .long_flag_aliases(&["result", "someall"]),
         )
@@ -282,7 +307,9 @@ fn flag_subcommand_long_with_aliases() {
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("test"));
+    assert!(*sub_matches
+        .get_one::<bool>("test")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -292,26 +319,34 @@ fn flag_subcommand_multiple() {
             Command::new("some")
                 .short_flag('S')
                 .long_flag("some")
-                .arg(arg!(-f --flag "some flag"))
-                .arg(arg!(-p --print "print something"))
+                .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
+                .arg(arg!(-p --print "print something").action(ArgAction::SetTrue))
                 .subcommand(
                     Command::new("result")
                         .short_flag('R')
                         .long_flag("result")
-                        .arg(arg!(-f --flag "some flag"))
-                        .arg(arg!(-p --print "print something")),
+                        .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
+                        .arg(arg!(-p --print "print something").action(ArgAction::SetTrue)),
                 ),
         )
         .try_get_matches_from(vec!["myprog", "-SfpRfp"])
         .unwrap();
     assert_eq!(matches.subcommand_name().unwrap(), "some");
     let sub_matches = matches.subcommand_matches("some").unwrap();
-    assert!(sub_matches.is_present("flag"));
-    assert!(sub_matches.is_present("print"));
+    assert!(*sub_matches
+        .get_one::<bool>("flag")
+        .expect("defaulted by clap"));
+    assert!(*sub_matches
+        .get_one::<bool>("print")
+        .expect("defaulted by clap"));
     assert_eq!(sub_matches.subcommand_name().unwrap(), "result");
     let result_matches = sub_matches.subcommand_matches("result").unwrap();
-    assert!(result_matches.is_present("flag"));
-    assert!(result_matches.is_present("print"));
+    assert!(*result_matches
+        .get_one::<bool>("flag")
+        .expect("defaulted by clap"));
+    assert!(*result_matches
+        .get_one::<bool>("print")
+        .expect("defaulted by clap"));
 }
 
 #[cfg(debug_assertions)]

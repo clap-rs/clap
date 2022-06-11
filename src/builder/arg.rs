@@ -156,12 +156,13 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("config")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .takes_value(true))
     ///     .get_matches_from(vec![
-    ///         "prog", "-c"
+    ///         "prog", "-c", "file.toml"
     ///     ]);
     ///
-    /// assert!(m.is_present("config"));
+    /// assert_eq!(m.get_one::<String>("config").map(String::as_str), Some("file.toml"));
     /// ```
     #[inline]
     #[must_use]
@@ -193,12 +194,13 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .long("config"))
+    ///         .long("config")
+    ///         .takes_value(true))
     ///     .get_matches_from(vec![
-    ///         "prog", "--config"
+    ///         "prog", "--config", "file.toml"
     ///     ]);
     ///
-    /// assert!(m.is_present("cfg"));
+    /// assert_eq!(m.get_one::<String>("cfg").map(String::as_str), Some("file.toml"));
     /// ```
     #[inline]
     #[must_use]
@@ -231,7 +233,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
     ///         ]);
-    /// assert!(m.is_present("test"));
+    /// assert!(m.contains_id("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
     #[must_use]
@@ -257,7 +259,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "-e", "cool"
     ///         ]);
-    /// assert!(m.is_present("test"));
+    /// assert!(m.contains_id("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
     #[must_use]
@@ -276,17 +278,18 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///                     .long("test")
     ///                     .aliases(&["do-stuff", "do-tests", "tests"])
+    ///                     .action(ArgAction::SetTrue)
     ///                     .help("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
     ///                 "prog", "--do-tests"
     ///             ]);
-    /// assert!(m.is_present("test"));
+    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
     /// ```
     #[must_use]
     pub fn aliases(mut self, names: &[&'help str]) -> Self {
@@ -302,17 +305,18 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///                     .short('t')
     ///                     .short_aliases(&['e', 's'])
+    ///                     .action(ArgAction::SetTrue)
     ///                     .help("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
     ///                 "prog", "-s"
     ///             ]);
-    /// assert!(m.is_present("test"));
+    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
     /// ```
     #[must_use]
     pub fn short_aliases(mut self, names: &[char]) -> Self {
@@ -339,7 +343,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "--something-awesome", "coffee"
     ///         ]);
-    /// assert!(m.is_present("test"));
+    /// assert!(m.contains_id("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
     /// [`Command::alias`]: Arg::alias()
@@ -365,7 +369,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "-t", "coffee"
     ///         ]);
-    /// assert!(m.is_present("test"));
+    /// assert!(m.contains_id("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
     #[must_use]
@@ -383,15 +387,16 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///                 .long("test")
+    ///                 .action(ArgAction::SetTrue)
     ///                 .visible_aliases(&["something", "awesome", "cool"]))
     ///        .get_matches_from(vec![
     ///             "prog", "--awesome"
     ///         ]);
-    /// assert!(m.is_present("test"));
+    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
     /// ```
     /// [`Command::aliases`]: Arg::aliases()
     #[must_use]
@@ -407,15 +412,16 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///                 .long("test")
+    ///                 .action(ArgAction::SetTrue)
     ///                 .visible_short_aliases(&['t', 'e']))
     ///        .get_matches_from(vec![
     ///             "prog", "-t"
     ///         ]);
-    /// assert!(m.is_present("test"));
+    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
     /// ```
     #[must_use]
     pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
@@ -467,7 +473,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--debug", "fast"
     ///     ]);
     ///
-    /// assert!(m.is_present("mode"));
+    /// assert!(m.contains_id("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast")); // notice index(1) means "first positional"
     ///                                               // *not* first argument
     /// ```
@@ -747,11 +753,12 @@ impl<'help> Arg<'help> {
     /// want to clutter the source with three duplicate [`Arg`] definitions.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("verb")
     ///         .long("verbose")
     ///         .short('v')
+    ///         .action(ArgAction::SetTrue)
     ///         .global(true))
     ///     .subcommand(Command::new("test"))
     ///     .subcommand(Command::new("do-stuff"))
@@ -761,11 +768,10 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.subcommand_name(), Some("do-stuff"));
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
-    /// assert!(sub_m.is_present("verb"));
+    /// assert_eq!(*sub_m.get_one::<bool>("verb").expect("defaulted by clap"), true);
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
-    /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
     #[must_use]
     pub fn global(self, yes: bool) -> Self {
@@ -901,7 +907,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--mode", "fast"
     ///     ]);
     ///
-    /// assert!(m.is_present("mode"));
+    /// assert!(m.contains_id("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
     /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
@@ -931,7 +937,7 @@ impl<'help> Arg<'help> {
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
-    /// assert!(matches.is_present("flag"));
+    /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
@@ -1070,7 +1076,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
     ///
-    /// assert!(m.is_present("file"));
+    /// assert!(m.contains_id("file"));
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
@@ -1107,10 +1113,10 @@ impl<'help> Arg<'help> {
     ///         "prog", "-F", "file1", "file2", "file3", "word"
     ///     ]);
     ///
-    /// assert!(m.is_present("file"));
+    /// assert!(m.contains_id("file"));
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
-    /// assert!(!m.is_present("word")); // but we clearly used word!
+    /// assert!(!m.contains_id("word")); // but we clearly used word!
     /// ```
     ///
     /// The problem is `clap` doesn't know when to stop parsing values for "files". This is further
@@ -1132,10 +1138,10 @@ impl<'help> Arg<'help> {
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
     ///     ]);
     ///
-    /// assert!(m.is_present("file"));
+    /// assert!(m.contains_id("file"));
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// assert!(m.is_present("word"));
+    /// assert!(m.contains_id("word"));
     /// assert_eq!(m.value_of("word"), Some("word"));
     /// ```
     ///
@@ -1809,7 +1815,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--option=val1,val2,val3",
     ///     ]);
     ///
-    /// assert!(delims.is_present("option"));
+    /// assert!(delims.contains_id("option"));
     /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
@@ -1825,7 +1831,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--option=val1,val2,val3",
     ///     ]);
     ///
-    /// assert!(nodelims.is_present("option"));
+    /// assert!(nodelims.contains_id("option"));
     /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
@@ -1914,7 +1920,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "-o", "val1,val2,val3",
     ///     ]);
     ///
-    /// assert!(delims.is_present("opt"));
+    /// assert!(delims.contains_id("opt"));
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     ///
@@ -1955,7 +1961,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "-o", "val1", "val2", "val3",
     ///     ]);
     ///
-    /// assert!(delims.is_present("opt"));
+    /// assert!(delims.contains_id("opt"));
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     #[inline]
@@ -2068,7 +2074,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
     ///
-    /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
+    /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::contains_id`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
     /// not, consider [`ArgMatches::value_source`][crate::ArgMatches::value_source].
     ///
@@ -2097,7 +2103,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert_eq!(m.value_of("opt"), Some("myval"));
-    /// assert!(m.is_present("opt"));
+    /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::DefaultValue));
     /// ```
     ///
@@ -2114,13 +2120,13 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert_eq!(m.value_of("opt"), Some("non_default"));
-    /// assert!(m.is_present("opt"));
+    /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`ArgMatches::is_present`]: crate::ArgMatches::is_present()
+    /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
     #[must_use]
@@ -2208,7 +2214,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert_eq!(m.value_of("color"), Some("auto"));
-    /// assert!(m.is_present("color"));
+    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
@@ -2218,7 +2224,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert_eq!(m.value_of("color"), Some("never"));
-    /// assert!(m.is_present("color"));
+    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
@@ -2228,12 +2234,11 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert_eq!(m.value_of("color"), Some("always"));
-    /// assert!(m.is_present("color"));
+    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
@@ -2412,7 +2417,6 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
     /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
-    /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     #[cfg(feature = "env")]
@@ -3020,7 +3024,7 @@ impl<'help> Arg<'help> {
     ///     .get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
-    /// assert!(m.is_present("mode"));
+    /// assert!(m.contains_id("mode"));
     /// ```
     ///
     /// [`ArgGroup`]: crate::ArgGroup
@@ -3057,8 +3061,8 @@ impl<'help> Arg<'help> {
     ///     .get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
-    /// assert!(m.is_present("mode"));
-    /// assert!(m.is_present("verbosity"));
+    /// assert!(m.contains_id("mode"));
+    /// assert!(m.contains_id("verbosity"));
     /// ```
     ///
     /// [`ArgGroup`]: crate::ArgGroup
@@ -4059,7 +4063,7 @@ impl<'help> Arg<'help> {
     ///
     /// # Examples
     ///
-    /// ```rust # use clap::{Command, Arg};
+    /// ```rust
     /// # use clap::{Command, arg};
     /// let m = Command::new("prog")
     ///     .arg(arg!(-f --flag "some flag")

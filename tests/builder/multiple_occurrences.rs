@@ -7,9 +7,9 @@ fn multiple_occurrences_of_flags_long() {
         .arg(arg!(--flag "disallowed multiple flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--multflag", "--flag", "--multflag"])
         .unwrap();
-    assert!(m.is_present("multflag"));
+    assert!(m.contains_id("multflag"));
     assert_eq!(m.get_one::<bool>("multflag").copied(), Some(true));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(m.get_one::<bool>("flag").copied(), Some(true));
 }
 
@@ -20,9 +20,9 @@ fn multiple_occurrences_of_flags_short() {
         .arg(arg!(-f --flag "disallowed multiple flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-m", "-f", "-m"])
         .unwrap();
-    assert!(m.is_present("multflag"));
+    assert!(m.contains_id("multflag"));
     assert_eq!(m.get_one::<bool>("multflag").copied(), Some(true));
-    assert!(m.is_present("flag"));
+    assert!(m.contains_id("flag"));
     assert_eq!(m.get_one::<bool>("flag").copied(), Some(true));
 }
 
@@ -38,14 +38,14 @@ fn multiple_occurrences_of_positional() {
         .clone()
         .try_get_matches_from(&["test"])
         .expect("zero occurrences work");
-    assert!(!m.is_present("multi"));
+    assert!(!m.contains_id("multi"));
     assert!(m.get_many::<String>("multi").is_none());
 
     let m = cmd
         .clone()
         .try_get_matches_from(&["test", "one"])
         .expect("single occurrence work");
-    assert!(m.is_present("multi"));
+    assert!(m.contains_id("multi"));
     assert_eq!(
         m.get_many::<String>("multi")
             .unwrap()
@@ -58,7 +58,7 @@ fn multiple_occurrences_of_positional() {
         .clone()
         .try_get_matches_from(&["test", "one", "two", "three", "four"])
         .expect("many occurrences work");
-    assert!(m.is_present("multi"));
+    assert!(m.contains_id("multi"));
     assert_eq!(
         m.get_many::<String>("multi")
             .unwrap()
@@ -78,7 +78,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .chain(vec!["-m"; 200].into_iter())
         .collect();
     let m = cmd.clone().try_get_matches_from(args).unwrap();
-    assert!(m.is_present("multflag"));
+    assert!(m.contains_id("multflag"));
     assert_eq!(m.get_one::<u8>("multflag").copied(), Some(200));
 
     let args: Vec<&str> = vec![""]
@@ -86,7 +86,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .chain(vec!["-m"; 500].into_iter())
         .collect();
     let m = cmd.try_get_matches_from(args).unwrap();
-    assert!(m.is_present("multflag"));
+    assert!(m.contains_id("multflag"));
     assert_eq!(m.get_one::<u8>("multflag").copied(), Some(u8::MAX));
 }
 

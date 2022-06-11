@@ -4,7 +4,7 @@
 
 #![cfg(windows)]
 
-use clap::{arg, Command};
+use clap::{arg, value_parser, Command};
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 
@@ -21,94 +21,20 @@ fn bad_osstring(ascii: &[u8]) -> OsString {
 }
 
 #[test]
-fn invalid_utf16_lossy_positional() {
-    let r = Command::new("bad_utf16")
-        .arg(arg!(<arg> "some arg").allow_invalid_utf8(true))
-        .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"")]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
-}
-
-#[test]
-fn invalid_utf16_lossy_option_short_space() {
-    let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
-        .try_get_matches_from(vec![
-            OsString::from(""),
-            OsString::from("-a"),
-            bad_osstring(b""),
-        ]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
-}
-
-#[test]
-fn invalid_utf16_lossy_option_short_equals() {
-    let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
-        .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a=")]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
-}
-
-#[test]
-fn invalid_utf16_lossy_option_short_no_space() {
-    let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
-        .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a")]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
-}
-
-#[test]
-fn invalid_utf16_lossy_option_long_space() {
-    let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
-        .try_get_matches_from(vec![
-            OsString::from(""),
-            OsString::from("--arg"),
-            bad_osstring(b""),
-        ]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
-}
-
-#[test]
-fn invalid_utf16_lossy_option_long_equals() {
-    let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
-        .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"--arg=")]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
-}
-
-#[test]
 fn invalid_utf16_positional() {
     let r = Command::new("bad_utf16")
-        .arg(arg!(<arg> "some arg").allow_invalid_utf8(true))
+        .arg(arg!(<arg> "some arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
+    assert!(m.contains_id("arg"));
+    assert_eq!(&*m.get_one::<OsString>("arg").unwrap(), &*bad_osstring(b""));
 }
 
 #[test]
 fn invalid_utf16_option_short_space() {
     let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
+        .arg(arg!(-a --arg <arg> "some arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("-a"),
@@ -116,36 +42,36 @@ fn invalid_utf16_option_short_space() {
         ]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
+    assert!(m.contains_id("arg"));
+    assert_eq!(&*m.get_one::<OsString>("arg").unwrap(), &*bad_osstring(b""));
 }
 
 #[test]
 fn invalid_utf16_option_short_equals() {
     let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
+        .arg(arg!(-a --arg <arg> "some arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a=")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
+    assert!(m.contains_id("arg"));
+    assert_eq!(&*m.get_one::<OsString>("arg").unwrap(), &*bad_osstring(b""));
 }
 
 #[test]
 fn invalid_utf16_option_short_no_space() {
     let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
+        .arg(arg!(-a --arg <arg> "some arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
+    assert!(m.contains_id("arg"));
+    assert_eq!(&*m.get_one::<OsString>("arg").unwrap(), &*bad_osstring(b""));
 }
 
 #[test]
 fn invalid_utf16_option_long_space() {
     let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
+        .arg(arg!(-a --arg <arg> "some arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("--arg"),
@@ -153,17 +79,17 @@ fn invalid_utf16_option_long_space() {
         ]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
+    assert!(m.contains_id("arg"));
+    assert_eq!(&*m.get_one::<OsString>("arg").unwrap(), &*bad_osstring(b""));
 }
 
 #[test]
 fn invalid_utf16_option_long_equals() {
     let r = Command::new("bad_utf16")
-        .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
+        .arg(arg!(-a --arg <arg> "some arg").value_parser(value_parser!(OsString)))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"--arg=")]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
+    assert!(m.contains_id("arg"));
+    assert_eq!(&*m.get_one::<OsString>("arg").unwrap(), &*bad_osstring(b""));
 }

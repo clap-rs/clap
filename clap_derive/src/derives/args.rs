@@ -663,7 +663,7 @@ fn gen_parsers(
         }
 
         Ty::OptionOption => quote_spanned! { ty.span()=>
-            if #arg_matches.is_present(#id) {
+            if #arg_matches.contains_id(#id) {
                 Some(
                     #arg_matches.#get_one(#id)
                         .map(#deref)
@@ -675,7 +675,7 @@ fn gen_parsers(
         },
 
         Ty::OptionVec => quote_spanned! { ty.span()=>
-            if #arg_matches.is_present(#id) {
+            if #arg_matches.contains_id(#id) {
                 Some(#arg_matches.#get_many(#id)
                     .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
@@ -724,7 +724,7 @@ fn gen_parsers(
 
     if let Some(access) = update {
         quote_spanned! { field.span()=>
-            if #arg_matches.is_present(#id) {
+            if #arg_matches.contains_id(#id) {
                 #access
                 *#field_name = #field_value
             }

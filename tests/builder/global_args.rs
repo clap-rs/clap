@@ -1,4 +1,4 @@
-use clap::{arg, Arg, Command};
+use clap::{arg, Arg, ArgAction, Command};
 
 #[test]
 fn issue_1076() {
@@ -82,27 +82,37 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
 fn global_arg_available_in_subcommand() {
     let m = Command::new("opt")
         .args(&[
-            Arg::new("global").global(true).long("global"),
-            Arg::new("not").global(false).long("not"),
+            Arg::new("global")
+                .global(true)
+                .long("global")
+                .action(ArgAction::SetTrue),
+            Arg::new("not")
+                .global(false)
+                .long("not")
+                .action(ArgAction::SetTrue),
         ])
         .subcommand(Command::new("ping"))
         .try_get_matches_from(&["opt", "ping", "--global"])
         .unwrap();
 
-    assert!(m.is_present("global"));
-    assert!(m.subcommand_matches("ping").unwrap().is_present("global"));
+    assert!(*m.get_one::<bool>("global").expect("defaulted by clap"));
+    assert!(*m
+        .subcommand_matches("ping")
+        .unwrap()
+        .get_one::<bool>("global")
+        .expect("defaulted by clap"));
 }
 
 #[test]
 fn deeply_nested_discovery() {
     let cmd = Command::new("a")
-        .arg(arg!(--"long-a").global(true))
+        .arg(arg!(--"long-a").global(true).action(ArgAction::SetTrue))
         .subcommand(
             Command::new("b")
-                .arg(arg!(--"long-b").global(true))
+                .arg(arg!(--"long-b").global(true).action(ArgAction::SetTrue))
                 .subcommand(
                     Command::new("c")
-                        .arg(arg!(--"long-c").global(true))
+                        .arg(arg!(--"long-c").global(true).action(ArgAction::SetTrue))
                         .subcommand(Command::new("d")),
                 ),
         );
@@ -110,9 +120,9 @@ fn deeply_nested_discovery() {
     let m = cmd
         .try_get_matches_from(["a", "b", "c", "d", "--long-a", "--long-b", "--long-c"])
         .unwrap();
-    assert!(m.is_present("long-a"));
+    assert!(*m.get_one::<bool>("long-a").expect("defaulted by clap"));
     let m = m.subcommand_matches("b").unwrap();
-    assert!(m.is_present("long-b"));
+    assert!(*m.get_one::<bool>("long-b").expect("defaulted by clap"));
     let m = m.subcommand_matches("c").unwrap();
-    assert!(m.is_present("long-c"));
+    assert!(*m.get_one::<bool>("long-c").expect("defaulted by clap"));
 }

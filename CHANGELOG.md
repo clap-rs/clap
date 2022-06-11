@@ -59,6 +59,7 @@ _gated behind `unstable-v4`_
   - Default `ValueParser` is determined by `value_parser!` (#3199, #3496)
   - Default `ArgAction` is determine by a hard-coded lookup on the type (#3794)
 - `Command::multicall` is now stable for busybox-like programs and REPLs (#2861, #3684)
+- `ArgMatches::{try_,}contains_id` for checking if there are values for an argument that mirrors the new `get_{one,many}` API
 
 ### Fixes
 
@@ -96,6 +97,7 @@ Replaced
 - `ArgMatches::{values_of, values_of_os, values_of_os_lossy, values_of_t}` with `ArgMatches::{get_many,remove_many}` (#3753)
 - `ArgMatches::is_valid_arg` with `ArgMatches::{try_get_one,try_get_many}` (#3753)
 - `ArgMatches::occurrences_of` with `ArgMatches::value_source` or `ArgAction::Count` (#3797)
+- `ArgMatches::is_present` with `ArgMatches::contains_id` or `ArgAction::SetTrue` (#3797)
 - `ArgAction::StoreValue` with `ArgAction::Set` or `ArgAction::Append` (#3797)
 - `ArgAction::IncOccurrences` with `ArgAction::SetTrue` or `ArgAction::Count` (#3797)
 - *(derive)* `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)

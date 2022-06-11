@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -115,7 +115,7 @@ fn subcommand() {
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
-    assert!(sub_m.is_present("test"));
+    assert!(sub_m.contains_id("test"));
     assert_eq!(
         sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
         "testing"
@@ -162,7 +162,7 @@ fn subcommand_multiple() {
     assert!(m.subcommand_matches("add").is_none());
     assert_eq!(m.subcommand_name().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
-    assert!(sub_m.is_present("test"));
+    assert!(sub_m.contains_id("test"));
     assert_eq!(
         sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
         "testing"
@@ -475,7 +475,7 @@ fn subcommand_after_argument_looks_like_help() {
 #[test]
 fn issue_2494_subcommand_is_present() {
     let cmd = Command::new("opt")
-        .arg(Arg::new("global").long("global"))
+        .arg(Arg::new("global").long("global").action(ArgAction::SetTrue))
         .subcommand(Command::new("global"));
 
     let m = cmd
@@ -483,18 +483,18 @@ fn issue_2494_subcommand_is_present() {
         .try_get_matches_from(&["opt", "--global", "global"])
         .unwrap();
     assert_eq!(m.subcommand_name().unwrap(), "global");
-    assert!(m.is_present("global"));
+    assert!(*m.get_one::<bool>("global").expect("defaulted by clap"));
 
     let m = cmd
         .clone()
         .try_get_matches_from(&["opt", "--global"])
         .unwrap();
     assert!(m.subcommand_name().is_none());
-    assert!(m.is_present("global"));
+    assert!(*m.get_one::<bool>("global").expect("defaulted by clap"));
 
     let m = cmd.try_get_matches_from(&["opt", "global"]).unwrap();
     assert_eq!(m.subcommand_name().unwrap(), "global");
-    assert!(!m.is_present("global"));
+    assert!(!*m.get_one::<bool>("global").expect("defaulted by clap"));
 }
 
 #[test]

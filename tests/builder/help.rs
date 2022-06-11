@@ -1688,9 +1688,21 @@ fn escaped_whitespace_values() {
 fn issue_1112_setup() -> Command<'static> {
     Command::new("test")
         .version("1.3")
-        .arg(Arg::new("help1").long("help").short('h').help("some help"))
+        .arg(
+            Arg::new("help1")
+                .long("help")
+                .short('h')
+                .help("some help")
+                .action(ArgAction::SetTrue),
+        )
         .subcommand(
-            Command::new("foo").arg(Arg::new("help1").long("help").short('h').help("some help")),
+            Command::new("foo").arg(
+                Arg::new("help1")
+                    .long("help")
+                    .short('h')
+                    .help("some help")
+                    .action(ArgAction::SetTrue),
+            ),
         )
 }
 
@@ -1699,7 +1711,8 @@ fn prefer_user_help_long_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "--help"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    assert!(m.unwrap().is_present("help1"));
+    let m = m.unwrap();
+    assert!(*m.get_one::<bool>("help1").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1707,7 +1720,8 @@ fn prefer_user_help_short_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "-h"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    assert!(m.unwrap().is_present("help1"));
+    let m = m.unwrap();
+    assert!(*m.get_one::<bool>("help1").expect("defaulted by clap"));
 }
 
 #[test]
@@ -1715,11 +1729,12 @@ fn prefer_user_subcmd_help_long_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "--help"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
-    assert!(m
-        .unwrap()
+    let m = m.unwrap();
+    assert!(*m
         .subcommand_matches("foo")
         .unwrap()
-        .is_present("help1"));
+        .get_one::<bool>("help1")
+        .expect("defaulted by clap"));
 }
 
 #[test]
@@ -1727,11 +1742,12 @@ fn prefer_user_subcmd_help_short_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "-h"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
     assert!(m
-        .unwrap()
         .subcommand_matches("foo")
         .unwrap()
-        .is_present("help1"));
+        .get_one::<bool>("help1")
+        .expect("defaulted by clap"));
 }
 
 #[test]

@@ -53,10 +53,10 @@ use crate::INTERNAL_ERROR_MSG;
 /// // used at runtime.
 /// println!("Value for --output: {}", matches.get_one::<String>("out").unwrap());
 ///
-/// // You can check the presence of an argument
-/// if matches.is_present("out") {
+/// // You can check the presence of an argument's values
+/// if matches.contains_id("out") {
 ///     // However, if you want to know where the value came from
-///     if matches.value_source("out").expect("checked is_present") == ValueSource::CommandLine {
+///     if matches.value_source("out").expect("checked contains_id") == ValueSource::CommandLine {
 ///         println!("`out` set by user");
 ///     } else {
 ///         println!("`out` is defaulted");
@@ -114,9 +114,9 @@ impl ArgMatches {
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
-    pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, name: &str) -> Option<&T> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_get_one(name))
+    pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, id: &str) -> Option<&T> {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_get_one(id))
     }
 
     /// Iterate over values of a specific option or positional argument.
@@ -155,10 +155,10 @@ impl ArgMatches {
     #[track_caller]
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
-        name: &str,
+        id: &str,
     ) -> Option<ValuesRef<T>> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_get_many(name))
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_get_many(id))
     }
 
     /// Iterate over the original argument values.
@@ -203,9 +203,9 @@ impl ArgMatches {
     /// [values]: OsValues
     /// [`String`]: std::string::String
     #[track_caller]
-    pub fn get_raw(&self, name: &str) -> Option<RawValues<'_>> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_get_raw(name))
+    pub fn get_raw(&self, id: &str) -> Option<RawValues<'_>> {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_get_raw(id))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -243,9 +243,9 @@ impl ArgMatches {
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
-    pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, name: &str) -> Option<T> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_remove_one(name))
+    pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, id: &str) -> Option<T> {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_remove_one(id))
     }
 
     /// Return values of a specific option or positional argument.
@@ -282,10 +282,40 @@ impl ArgMatches {
     #[track_caller]
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
-        name: &str,
+        id: &str,
     ) -> Option<Values2<T>> {
-        let id = Id::from(name);
-        MatchesError::unwrap(&id, self.try_remove_many(name))
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_remove_many(id))
+    }
+
+    /// Check if values are present for the argument or group id
+    ///
+    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
+    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
+    ///
+    /// # Panics
+    ///
+    /// If `id` is is not a valid argument or group name.  To handle this case programmatically, see
+    /// [`ArgMatches::try_contains_id`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg};
+    /// let m = Command::new("myprog")
+    ///     .arg(Arg::new("debug")
+    ///         .short('d'))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-d"
+    ///     ]);
+    ///
+    /// assert!(m.contains_id("debug"));
+    /// ```
+    ///
+    /// [`default_value`]: crate::Arg::default_value()
+    pub fn contains_id(&self, id: &str) -> bool {
+        let internal_id = Id::from(id);
+        MatchesError::unwrap(&internal_id, self.try_contains_id(id))
     }
 
     /// Check if any args were present on the command line
@@ -371,7 +401,7 @@ impl ArgMatches {
     ///
     /// If the value is invalid UTF-8.
     ///
-    /// If `id` is not a valid argument or group name.
+    /// If `id` is not a valid argument or group id.
     ///
     /// # Examples
     /// ```rust
@@ -491,30 +521,12 @@ impl ArgMatches {
         self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
-    /// Check if an argument was present at runtime.
-    ///
-    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
-    /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
-    ///
-    /// # Panics
-    ///
-    /// If `id` is is not a valid argument or group name.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("myprog")
-    ///     .arg(Arg::new("debug")
-    ///         .short('d'))
-    ///     .get_matches_from(vec![
-    ///         "myprog", "-d"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("debug"));
-    /// ```
-    ///
-    /// [`default_value`]: crate::Arg::default_value()
+    /// Deprecated, replaced with [`ArgMatches::contains_id`] or
+    /// [`ArgAction::SetTrue`][crate::ArgAction].
+    #[deprecated(
+        since = "3.2.0",
+        note = "Replaced with either `ArgMatches::contains_id(...)` or `ArgAction::SetTrue`"
+    )]
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
@@ -528,7 +540,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.
+    /// If `id` is is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -585,7 +597,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.
+    /// If `id` is is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -719,7 +731,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.
+    /// If `id` is is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -933,10 +945,12 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, };
+    /// # use clap::{Command, Arg, ArgAction};
     /// let app_m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue)
+    ///     )
     ///     .subcommand(Command::new("test")
     ///         .arg(Arg::new("opt")
     ///             .long("option")
@@ -946,7 +960,7 @@ impl ArgMatches {
     ///     ]);
     ///
     /// // Both parent commands, and child subcommands can have arguments present at the same times
-    /// assert!(app_m.is_present("debug"));
+    /// assert!(*app_m.get_one::<bool>("debug").expect("defaulted by clap"));
     ///
     /// // Get the subcommand's ArgMatches instance
     /// if let Some(sub_m) = app_m.subcommand_matches("test") {
@@ -1014,9 +1028,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::get_one`]
     pub fn try_get_one<T: Any + Clone + Send + Sync + 'static>(
         &self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<&T>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         let arg = self.try_get_arg_t::<T>(&id)?;
         let value = match arg.and_then(|a| a.first()) {
             Some(value) => value,
@@ -1033,9 +1047,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::get_many`]
     pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<ValuesRef<T>>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         let arg = match self.try_get_arg_t::<T>(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1051,8 +1065,8 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::get_raw`]
-    pub fn try_get_raw(&self, name: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
-        let id = Id::from(name);
+    pub fn try_get_raw(&self, id: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
+        let id = Id::from(id);
         let arg = match self.try_get_arg(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1069,9 +1083,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::remove_one`]
     pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<T>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         match self.try_remove_arg_t::<T>(&id)? {
             Some(values) => Ok(values
                 .into_vals_flatten()
@@ -1085,9 +1099,9 @@ impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::remove_many`]
     pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
-        name: &str,
+        id: &str,
     ) -> Result<Option<Values2<T>>, MatchesError> {
-        let id = Id::from(name);
+        let id = Id::from(id);
         let arg = match self.try_remove_arg_t::<T>(&id)? {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1100,6 +1114,16 @@ impl ArgMatches {
             len,
         };
         Ok(Some(values))
+    }
+
+    /// Non-panicking version of [`ArgMatches::contains_id`]
+    pub fn try_contains_id(&self, id: &str) -> Result<bool, MatchesError> {
+        let id = Id::from(id);
+
+        self.verify_arg(&id)?;
+
+        let presence = self.args.contains_key(&id);
+        Ok(presence)
     }
 }
 

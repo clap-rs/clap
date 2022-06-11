@@ -486,7 +486,7 @@ fn gen_from_arg_matches(
 
         if cfg!(feature = "unstable-v4") {
             quote! {
-                if #sub_name == #subcommand_name_var && !#sub_arg_matches_var.is_present("") {
+                if #sub_name == #subcommand_name_var && !#sub_arg_matches_var.contains_id("") {
                     return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
                 }
             }

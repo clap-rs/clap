@@ -63,7 +63,8 @@ pub fn complex_app() -> Command<'static> {
         .args(&[
             arg!(flag2: -F "tests flags with exclusions")
                 .conflicts_with("flag")
-                .requires("long-option-2"),
+                .requires("long-option-2")
+                .action(ArgAction::SetTrue),
             arg!(--"long-option-2" <option2> "tests long options with exclusions")
                 .required(false)
                 .conflicts_with("option")

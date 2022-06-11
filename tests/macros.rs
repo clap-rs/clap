@@ -114,7 +114,10 @@ fn quoted_arg_long_name() {
     let matches = cmd
         .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
-    assert!(matches.is_present("option2"));
+    #[allow(deprecated)]
+    {
+        assert!(matches.is_present("option2"));
+    }
 }
 
 #[test]
@@ -522,7 +525,10 @@ mod arg_impl {
             .arg(arg)
             .try_get_matches_from(vec!["", "some-val"])
             .unwrap();
-        assert!(m.is_present("some-arg"));
+        #[allow(deprecated)]
+        {
+            assert!(m.is_present("some-arg"));
+        }
         assert_eq!(m.get_one::<String>("some-arg").unwrap(), "some-val");
     }
 
@@ -543,7 +549,10 @@ mod arg_impl {
             .arg(arg)
             .try_get_matches_from(vec!["", "-a", "val"])
             .unwrap();
-        assert!(m.is_present("some-val"));
+        #[allow(deprecated)]
+        {
+            assert!(m.is_present("some-val"));
+        }
         assert_eq!(m.get_one::<String>("some-val").unwrap(), "val");
     }
 
@@ -564,7 +573,10 @@ mod arg_impl {
             .arg(arg)
             .try_get_matches_from(vec!["", "--arg", "some-val"])
             .unwrap();
-        assert!(m.is_present("arg"));
+        #[allow(deprecated)]
+        {
+            assert!(m.is_present("arg"));
+        }
         assert_eq!(m.get_one::<String>("arg").unwrap(), "some-val");
     }
 }
