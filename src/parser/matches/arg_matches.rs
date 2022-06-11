@@ -521,11 +521,11 @@ impl ArgMatches {
         self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
-    /// Deprecated, replaced with [`ArgMatches::contains_id`] or
-    /// [`ArgAction::SetTrue`][crate::ArgAction].
+    /// Deprecated, replaced with [`ArgAction::SetTrue`][crate::ArgAction] or
+    /// [`ArgMatches::contains_id`].
     #[deprecated(
         since = "3.2.0",
-        note = "Replaced with either `ArgMatches::contains_id(...)` or `ArgAction::SetTrue`"
+        note = "Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`"
     )]
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
@@ -565,11 +565,11 @@ impl ArgMatches {
         value.and_then(MatchedArg::source)
     }
 
-    /// Deprecated, replaced with [`ArgMatches::get_many`]`.len()` or
-    /// [`ArgAction::Count`][crate::ArgAction].
+    /// Deprecated, replaced with  [`ArgAction::Count`][crate::ArgAction] or
+    /// [`ArgMatches::get_many`]`.len()`.
     #[deprecated(
         since = "3.2.0",
-        note = "Replaced with either `ArgMatches::get_many(...).len()` or `ArgAction::Count`"
+        note = "Replaced with either `ArgAction::Count` or `ArgMatches::get_many(...).len()`"
     )]
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
         #![allow(deprecated)]
