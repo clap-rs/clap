@@ -35,7 +35,7 @@ help: `bool` is a unit variant, you need to write it without the parenthesis
 7 |     opts: bool,
   |           ~~~~
 
-warning: use of deprecated associated function `clap::ArgMatches::is_present`: Replaced with either `ArgMatches::contains_id(...)` or `ArgAction::SetTrue`
+warning: use of deprecated associated function `clap::ArgMatches::is_present`: Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`
  --> tests/derive_ui/next/bool_value_enum.rs:7:11
   |
 7 |     opts: bool,
