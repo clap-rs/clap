@@ -1,7 +1,6 @@
 #![allow(deprecated)]
-
-use std::ffi::OsStr;
 use clap::{Arg, ArgSettings, Command};
+use std::ffi::OsStr;
 
 #[test]
 fn setting() {
@@ -53,10 +52,6 @@ fn default_value_ifs_os() {
                 .long("flag")
                 .allow_invalid_utf8(true)
                 .takes_value(true)
-        )
-        .arg(
-            arg!(option: -o --option [option] "option arg")
-                .allow_invalid_utf8(true)
         )
         .arg(
             Arg::new("other")
