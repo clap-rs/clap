@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+
 use clap::{Arg, ArgSettings, Command};
 use std::ffi::OsStr;
 
