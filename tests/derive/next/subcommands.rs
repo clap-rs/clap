@@ -20,19 +20,19 @@ use clap::{Args, Parser, Subcommand};
 enum Opt {
     /// Fetch stuff from GitHub
     Fetch {
-        #[clap(long, action)]
+        #[clap(long)]
         all: bool,
         /// Overwrite local branches.
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         force: bool,
-        #[clap(value_parser)]
+
         repo: String,
     },
 
     Add {
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         interactive: bool,
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         verbose: bool,
     },
 }
@@ -89,10 +89,7 @@ fn test_no_parse() {
 
 #[derive(Parser, PartialEq, Debug)]
 enum Opt2 {
-    DoSomething {
-        #[clap(value_parser)]
-        arg: String,
-    },
+    DoSomething { arg: String },
 }
 
 #[test]
@@ -127,13 +124,11 @@ fn test_null_commands() {
 #[derive(Parser, PartialEq, Debug)]
 #[clap(about = "Not shown")]
 struct Add {
-    #[clap(value_parser)]
     file: String,
 }
 /// Not shown
 #[derive(Parser, PartialEq, Debug)]
 struct Fetch {
-    #[clap(value_parser)]
     remote: String,
 }
 #[derive(Parser, PartialEq, Debug)]
@@ -173,7 +168,7 @@ fn test_tuple_commands() {
 fn global_passed_down() {
     #[derive(Debug, PartialEq, Parser)]
     struct Opt {
-        #[clap(global = true, long, action)]
+        #[clap(global = true, long)]
         other: bool,
         #[clap(subcommand)]
         sub: Subcommands,
@@ -187,7 +182,7 @@ fn global_passed_down() {
 
     #[derive(Debug, PartialEq, Args)]
     struct GlobalCmd {
-        #[clap(from_global, action)]
+        #[clap(from_global)]
         other: bool,
     }
 
@@ -343,15 +338,13 @@ fn update_subcommands() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Command1 {
-        #[clap(value_parser)]
         arg1: i32,
-        #[clap(value_parser)]
+
         arg2: i32,
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Command2 {
-        #[clap(value_parser)]
         arg2: i32,
     }
 
@@ -405,15 +398,13 @@ fn update_sub_subcommands() {
 
     #[derive(Args, PartialEq, Debug)]
     struct Command1 {
-        #[clap(value_parser)]
         arg1: i32,
-        #[clap(value_parser)]
+
         arg2: i32,
     }
 
     #[derive(Args, PartialEq, Debug)]
     struct Command2 {
-        #[clap(value_parser)]
         arg2: i32,
     }
 
@@ -466,15 +457,13 @@ fn update_ext_subcommand() {
 
     #[derive(Args, PartialEq, Debug)]
     struct Command1 {
-        #[clap(value_parser)]
         arg1: i32,
-        #[clap(value_parser)]
+
         arg2: i32,
     }
 
     #[derive(Args, PartialEq, Debug)]
     struct Command2 {
-        #[clap(value_parser)]
         arg2: i32,
     }
 
@@ -569,7 +558,6 @@ fn built_in_subcommand_escaped() {
     #[derive(Debug, PartialEq, Parser)]
     enum Command {
         Install {
-            #[clap(value_parser)]
             arg: Option<String>,
         },
         #[clap(external_subcommand)]
@@ -598,7 +586,6 @@ fn built_in_subcommand_escaped() {
     #[derive(Debug, PartialEq, Parser)]
     enum Command {
         Install {
-            #[clap(value_parser)]
             arg: Option<String>,
         },
         #[clap(external_subcommand)]

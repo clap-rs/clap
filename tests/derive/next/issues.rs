@@ -9,9 +9,9 @@ fn issue_151_groups_within_subcommands() {
     #[derive(Args, Debug)]
     #[clap(group = ArgGroup::new("verb").required(true).multiple(true))]
     struct Opt {
-        #[clap(long, group = "verb", value_parser)]
+        #[clap(long, group = "verb")]
         foo: Option<String>,
-        #[clap(long, group = "verb", value_parser)]
+        #[clap(long, group = "verb")]
         bar: Option<String>,
     }
 
@@ -89,7 +89,6 @@ fn issue_418() {
         #[clap(visible_alias = "ret")]
         Reticulate {
             /// How many splines
-            #[clap(value_parser)]
             num_splines: u8,
         },
         /// Frobnicate the rest
@@ -122,9 +121,8 @@ fn issue_490() {
 
     #[derive(Parser, Debug)]
     struct Opt {
-        #[clap(value_parser)]
         opt_vec: Vec<u16>,
-        #[clap(long, value_parser)]
+        #[clap(long)]
         opt_opt_vec: Option<Vec<u16>>,
     }
 
