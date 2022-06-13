@@ -33,7 +33,7 @@ mod utils;
 #[proc_macro_error]
 pub fn value_enum(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
-    derives::derive_arg_enum(&input).into()
+    derives::derive_value_enum(&input).into()
 }
 
 /// Generates the `ValueEnum` impl.
@@ -41,7 +41,7 @@ pub fn value_enum(input: TokenStream) -> TokenStream {
 #[proc_macro_error]
 pub fn arg_enum(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
-    derives::derive_arg_enum(&input).into()
+    derives::derive_value_enum(&input).into()
 }
 
 /// Generates the `Parser` implementation.

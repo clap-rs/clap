@@ -17,15 +17,16 @@ use crate::{
 use proc_macro2::{Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
+use quote::quote_spanned;
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataEnum, DeriveInput,
     Fields, Ident, Variant,
 };
 
-pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
+pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
     let ident = &input.ident;
 
-    dummies::arg_enum(ident);
+    dummies::value_enum(ident);
 
     match input.data {
         Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
@@ -74,7 +75,7 @@ fn lits(
     variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_arg_enum_variant(
+            let attrs = Attrs::from_value_enum_variant(
                 variant,
                 parent_attribute.casing(),
                 parent_attribute.env_casing(),
@@ -88,7 +89,7 @@ fn lits(
                 let fields = attrs.field_methods(false);
                 let name = attrs.cased_name();
                 Some((
-                    quote! {
+                    quote_spanned! { variant.span()=>
                         clap::PossibleValue::new(#name)
                         #fields
                     },

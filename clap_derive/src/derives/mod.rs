@@ -11,13 +11,13 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
-mod arg_enum;
 mod args;
 mod into_app;
 mod parser;
 mod subcommand;
+mod value_enum;
 
 pub use self::parser::derive_parser;
-pub use arg_enum::derive_arg_enum;
 pub use args::derive_args;
 pub use subcommand::derive_subcommand;
+pub use value_enum::derive_value_enum;

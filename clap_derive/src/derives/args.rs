@@ -275,7 +275,7 @@ pub fn gen_augment(
 
                 let value_name = attrs.value_name();
                 let possible_values = if attrs.is_enum() && !attrs.ignore_parser() {
-                    gen_arg_enum_possible_values(convert_type)
+                    gen_value_enum_possible_values(convert_type)
                 } else {
                     quote!()
                 };
@@ -424,7 +424,7 @@ pub fn gen_augment(
     }}
 }
 
-fn gen_arg_enum_possible_values(ty: &Type) -> TokenStream {
+fn gen_value_enum_possible_values(ty: &Type) -> TokenStream {
     quote_spanned! { ty.span()=>
         .possible_values(<#ty as clap::ValueEnum>::value_variants().iter().filter_map(clap::ValueEnum::to_possible_value))
     }
