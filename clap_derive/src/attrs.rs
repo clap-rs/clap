@@ -362,7 +362,7 @@ impl Attrs {
                 let ty = Ty::from_syn_ty(&field.ty);
                 res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
             }
-            Kind::Arg(orig_ty) => {
+            Kind::Arg(_) => {
                 let mut ty = Ty::from_syn_ty(&field.ty);
                 if res.parser.is_some() {
                     if let Some(value_parser) = res.value_parser.as_ref() {
@@ -408,7 +408,14 @@ impl Attrs {
 
                     _ => (),
                 }
-                res.kind = Sp::new(Kind::Arg(ty), orig_ty.span());
+                res.kind = Sp::new(
+                    Kind::Arg(ty),
+                    field
+                        .ident
+                        .as_ref()
+                        .map(|i| i.span())
+                        .unwrap_or_else(|| field.ty.span()),
+                );
             }
         }
 
