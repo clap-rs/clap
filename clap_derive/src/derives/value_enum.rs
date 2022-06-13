@@ -17,6 +17,7 @@ use crate::{
 use proc_macro2::{Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
+use quote::quote_spanned;
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataEnum, DeriveInput,
     Fields, Ident, Variant,
@@ -88,7 +89,7 @@ fn lits(
                 let fields = attrs.field_methods(false);
                 let name = attrs.cased_name();
                 Some((
-                    quote! {
+                    quote_spanned! { variant.span()=>
                         clap::PossibleValue::new(#name)
                         #fields
                     },
