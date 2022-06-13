@@ -30,6 +30,8 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.2.0] - 2022-06-13
+
 ### Features
 
 - Parsed, typed arguments via `Arg::value_parser` / `ArgMatches::{get_one,get_many}` (#2683, #3732)
@@ -3435,7 +3437,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.1.18...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/clap-rs/clap/compare/v3.1.18...v3.2.0
 [3.1.18]: https://github.com/clap-rs/clap/compare/v3.1.17...v3.1.18
 [3.1.17]: https://github.com/clap-rs/clap/compare/v3.1.16...v3.1.17
 [3.1.16]: https://github.com/clap-rs/clap/compare/v3.1.15...v3.1.16
