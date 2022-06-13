@@ -1,5 +1,8 @@
+use std::ffi::OsStr;
+use std::ffi::OsString;
+
 use super::utils;
-use clap::{arg, error::ErrorKind, Arg, Command};
+use clap::{arg, error::ErrorKind, value_parser, Arg, Command};
 
 #[test]
 fn opts() {
@@ -593,6 +596,38 @@ fn default_ifs_arg_present_order() {
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
+    );
+}
+
+#[test]
+fn default_value_ifs_os() {
+    let cmd = Command::new("my_cargo")
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .value_parser(value_parser!(OsString))
+                .takes_value(true),
+        )
+        .arg(
+            Arg::new("other")
+                .long("other")
+                .value_parser(value_parser!(OsString))
+                .default_value_ifs_os(&[(
+                    "flag",
+                    Some(OsStr::new("标记2")),
+                    Some(OsStr::new("flag=标记2")),
+                )]),
+        );
+    let result = cmd.try_get_matches_from(["my_cargo", "--flag", "标记2"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+    let m = result.unwrap();
+    assert_eq!(
+        m.get_one::<OsString>("flag").map(OsString::as_os_str),
+        Some(OsStr::new("标记2"))
+    );
+    assert_eq!(
+        m.get_one::<OsString>("other").map(OsString::as_os_str),
+        Some(OsStr::new("flag=标记2")),
     );
 }
 
