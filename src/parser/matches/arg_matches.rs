@@ -459,6 +459,7 @@ impl ArgMatches {
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
     #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
     where
         R: FromStr,
@@ -480,6 +481,7 @@ impl ArgMatches {
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
     #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
     where
         R: FromStr,
@@ -491,6 +493,7 @@ impl ArgMatches {
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
     #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
     where
         R: FromStr,
@@ -512,6 +515,7 @@ impl ArgMatches {
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
     #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
     where
         R: FromStr,
@@ -527,6 +531,7 @@ impl ArgMatches {
         since = "3.2.0",
         note = "Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`"
     )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
@@ -557,6 +562,7 @@ impl ArgMatches {
     /// ```
     ///
     /// [`default_value`]: crate::Arg::default_value()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_source<T: Key>(&self, id: T) -> Option<ValueSource> {
         let id = Id::from(id);
 
@@ -571,6 +577,7 @@ impl ArgMatches {
         since = "3.2.0",
         note = "Replaced with either `ArgAction::Count` or `ArgMatches::get_many(...).len()`"
     )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
         #![allow(deprecated)]
         self.get_arg(&Id::from(id))
@@ -711,6 +718,7 @@ impl ArgMatches {
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
     /// ```
     /// [delimiter]: crate::Arg::value_delimiter()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn index_of<T: Key>(&self, id: T) -> Option<usize> {
         let arg = self.get_arg(&Id::from(id))?;
         let i = arg.get_index(0)?;
@@ -793,6 +801,7 @@ impl ArgMatches {
     /// ```
     /// [`ArgMatches::index_of`]: ArgMatches::index_of()
     /// [delimiter]: Arg::value_delimiter()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
         let arg = self.get_arg(&Id::from(id))?;
         let i = Indices {
@@ -1199,7 +1208,7 @@ impl ArgMatches {
                 return Err(MatchesError::UnknownArgument {});
             } else {
                 debug!(
-                    "`{:?}` is not a name of an argument or a group.\n\
+                    "`{:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     _arg
@@ -1223,7 +1232,7 @@ impl ArgMatches {
                 );
             } else {
                 panic!(
-                    "`{:?}` is not a name of an argument or a group.\n\
+                    "`{:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     arg
