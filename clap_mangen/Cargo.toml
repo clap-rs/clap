@@ -1,6 +1,6 @@
 [package]
 name = "clap_mangen"
-version = "0.1.6"
+version = "0.1.7"
 description = "A manpage generator for clap"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_mangen"
 documentation = "https://docs.rs/clap_mangen"
