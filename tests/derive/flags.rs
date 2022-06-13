@@ -167,7 +167,7 @@ fn mixed_type_flags() {
 fn ignore_qualified_bool_type() {
     mod inner {
         #[allow(non_camel_case_types)]
-        #[derive(PartialEq, Debug)]
+        #[derive(PartialEq, Debug, Clone)]
         pub struct bool(pub String);
 
         impl std::str::FromStr for self::bool {
@@ -181,6 +181,7 @@ fn ignore_qualified_bool_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
+        #[clap(action)]
         arg: inner::bool,
     }
 
