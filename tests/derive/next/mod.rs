@@ -1,7 +1,5 @@
 #![cfg(feature = "derive")]
-
-mod legacy;
-mod next;
+#![cfg(feature = "unstable-v4")]
 
 mod app_name;
 mod arguments;
