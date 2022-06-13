@@ -268,7 +268,7 @@ You can then support your custom type with `#[clap(parse(<kind> [= <function>]))
 | `from_str`               | `fn(&str) -> T`                       | `::std::convert::From::from`    |
 | `try_from_str` (default) | `fn(&str) -> Result<T, E>`            | `::std::str::FromStr::from_str` |
 | `from_os_str`            | `fn(&OsStr) -> T`                     | `::std::convert::From::from`    |
-| `try_from_os_str`        | `fn(&OsStr) -> Result<T, String>`     | (no default function)           |
+| `try_from_os_str`        | `fn(&OsStr) -> Result<T, E>`          | (no default function)           |
 | `from_occurrences`       | `fn(u64) -> T`                        | `value as T`                    |
 | `from_flag`              | `fn(bool) -> T`                       | `::std::convert::From::from`    |
 
