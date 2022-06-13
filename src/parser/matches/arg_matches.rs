@@ -1208,7 +1208,7 @@ impl ArgMatches {
                 return Err(MatchesError::UnknownArgument {});
             } else {
                 debug!(
-                    "`{:?}` is not a name of an argument or a group.\n\
+                    "`{:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     _arg
@@ -1232,7 +1232,7 @@ impl ArgMatches {
                 );
             } else {
                 panic!(
-                    "`{:?}` is not a name of an argument or a group.\n\
+                    "`{:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     arg
