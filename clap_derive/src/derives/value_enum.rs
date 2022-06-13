@@ -22,10 +22,10 @@ use syn::{
     Fields, Ident, Variant,
 };
 
-pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
+pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
     let ident = &input.ident;
 
-    dummies::arg_enum(ident);
+    dummies::value_enum(ident);
 
     match input.data {
         Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
@@ -74,7 +74,7 @@ fn lits(
     variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_arg_enum_variant(
+            let attrs = Attrs::from_value_enum_variant(
                 variant,
                 parent_attribute.casing(),
                 parent_attribute.env_casing(),

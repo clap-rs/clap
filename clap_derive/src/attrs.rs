@@ -209,7 +209,7 @@ impl Attrs {
         res
     }
 
-    pub fn from_arg_enum_variant(
+    pub fn from_value_enum_variant(
         variant: &Variant,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
