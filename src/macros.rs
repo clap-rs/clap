@@ -1,8 +1,11 @@
 /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
 #[cfg(feature = "yaml")]
-#[deprecated(
-    since = "3.0.0",
-    note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        since = "3.0.0",
+        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+    )
 )]
 #[doc(hidden)]
 #[macro_export]
@@ -15,7 +18,10 @@ macro_rules! load_yaml {
 
 /// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")
+)]
 #[doc(hidden)]
 macro_rules! value_t {
     ($m:ident, $v:expr, $t:ty) => {
@@ -28,9 +34,12 @@ macro_rules! value_t {
 
 /// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
 #[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        since = "3.0.0",
+        note = "Replaced with `ArgMatches::value_of_t_or_exit`"
+    )
 )]
 #[doc(hidden)]
 macro_rules! value_t_or_exit {
@@ -44,7 +53,10 @@ macro_rules! value_t_or_exit {
 
 /// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")
+)]
 #[doc(hidden)]
 macro_rules! values_t {
     ($m:ident, $v:expr, $t:ty) => {
@@ -57,9 +69,12 @@ macro_rules! values_t {
 
 /// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
 #[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        since = "3.0.0",
+        note = "Replaced with `ArgMatches::values_of_t_or_exit`"
+    )
 )]
 #[doc(hidden)]
 macro_rules! values_t_or_exit {
@@ -71,7 +86,10 @@ macro_rules! values_t_or_exit {
     };
 }
 
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")
+)]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _clap_count_exprs {
@@ -81,7 +99,10 @@ macro_rules! _clap_count_exprs {
 }
 
 /// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")
+)]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! arg_enum {
@@ -344,7 +365,10 @@ macro_rules! command {
 
 /// Deprecated, replaced with [`clap::command!`][crate::command]
 #[cfg(feature = "cargo")]
-#[deprecated(since = "3.1.0", note = "Replaced with `clap::command!")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.1.0", note = "Replaced with `clap::command!")
+)]
 #[macro_export]
 macro_rules! app_from_crate {
     () => {{
@@ -754,9 +778,12 @@ macro_rules! arg {
 }
 
 /// Deprecated, replaced with [`clap::Parser`][crate::Parser] and [`clap::arg!`][crate::arg] (Issue clap-rs/clap#2835)
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)"
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        since = "3.0.0",
+        note = "Replaced with `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)"
+    )
 )]
 #[doc(hidden)]
 #[macro_export]

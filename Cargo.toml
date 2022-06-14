@@ -73,6 +73,7 @@ color = ["atty", "termcolor"]
 suggestions = ["strsim"]
 
 # Optional
+deprecated = [] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
 derive = ["clap_derive", "once_cell"]
 cargo = ["once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
@@ -84,7 +85,7 @@ unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode character
 unstable-replace = []
 unstable-grouped = []
 # note: this will always enable clap_derive, change this to `clap_derive?/unstable-v4` when MSRV is bigger than 1.60
-unstable-v4 = ["clap_derive/unstable-v4"]
+unstable-v4 = ["clap_derive/unstable-v4", "deprecated"]
 
 [lib]
 bench = false

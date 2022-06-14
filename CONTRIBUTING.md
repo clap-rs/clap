@@ -38,10 +38,12 @@ Our releases fall into one of:
   - Aspire to at least 6-9 months between releases
   - Remove all deprecated functionality
   - Try to minimize new breaking changes to ease user transition and reduce time "we go dark" (unreleased feature-branch)
+  - Upon release, a minor release will be made for the previous major that enables `deprecated` feature by default
 - Minor releases which are for minor compatibility changes
   - Aspire to at least 2 months between releases
   - Changes to MSRV
-  - Deprecating existing functionality
+  - Deprecating existing functionality (behind the `deprecated` feature flag)
+  - Making the `deprecated` feature flag enabled-by-default (only on last planned minor release)
   - `#[doc(hidden)]` all deprecated items in the prior minor release
 - Patch releases
   - One for every user-facing, user-contributed PR (i.e. release early, release often)
@@ -51,7 +53,7 @@ If your change does not fit within a "patch" release, please coordinate with the
 Some practices to avoid breaking changes
 - Duplicate functionality, with old functionality marked as "deprecated"
   - Common documentation pattern: `/// Deprecated in [Issue #XXX](https://github.com/clap-rs/clap/issues/XXX), replaced with [intra-doc-link]`
-  - Common deprecation pattern: `#[deprecated(since = "X.Y.Z", note = "Replaced with `ITEM` in Issue #XXX")]`
+  - Common deprecation pattern: `#[cfg_attr(feature = "deprecated", deprecated(since = "X.Y.Z", note = "Replaced with `ITEM` in Issue #XXX"))]`
   - Please keep API addition and deprecation in separate commits in a PR to make it easier to review
 - Develop the feature behind an `unstable-<name>` feature flag with a stablization tracking issue (e.g. [Multicall Tracking issue](https://github.com/clap-rs/clap/issues/2861))
 

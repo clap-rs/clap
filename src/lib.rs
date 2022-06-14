@@ -48,9 +48,12 @@ pub use crate::parser::{Indices, OsValues, ValueSource, Values};
 
 #[cfg(feature = "yaml")]
 #[doc(hidden)]
-#[deprecated(
-    since = "3.0.0",
-    note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        since = "3.0.0",
+        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+    )
 )]
 #[doc(hidden)]
 pub use yaml_rust::YamlLoader;
@@ -60,14 +63,23 @@ pub use yaml_rust::YamlLoader;
 pub use clap_derive::{self, *};
 
 /// Deprecated, replaced with [`CommandFactory`]
-#[deprecated(since = "3.0.0", note = "Replaced with `CommandFactory`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.0.0", note = "Replaced with `CommandFactory`")
+)]
 pub use CommandFactory as IntoApp;
 /// Deprecated, replaced with [`Parser`]
-#[deprecated(since = "3.0.0", note = "Replaced with `Parser`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.0.0", note = "Replaced with `Parser`")
+)]
 #[doc(hidden)]
 pub use Parser as StructOpt;
 /// Deprecated, replaced with [`ValueEnum`]
-#[deprecated(since = "3.2.0", note = "Replaced with `ValueEnum`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.2.0", note = "Replaced with `ValueEnum`")
+)]
 pub use ValueEnum as ArgEnum;
 
 #[cfg(any(feature = "derive", feature = "cargo"))]
@@ -96,9 +108,12 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 /// Deprecated, replaced with [`Command::new`], unless you were looking for [Subcommand]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `Command::new` unless you intended the `Subcommand` trait"
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        since = "3.0.0",
+        note = "Replaced with `Command::new` unless you intended the `Subcommand` trait"
+    )
 )]
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone)]
@@ -108,7 +123,10 @@ pub struct SubCommand {}
 impl SubCommand {
     /// Deprecated, replaced with [`Command::new`].
     /// Did you mean Subcommand (lower-case c)?
-    #[deprecated(since = "3.0.0", note = "Replaced with `Command::new`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Command::new`")
+    )]
     #[doc(hidden)]
     pub fn with_name<'help>(name: &str) -> App<'help> {
         Command::new(name)
@@ -116,9 +134,12 @@ impl SubCommand {
 
     /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+        )
     )]
     #[doc(hidden)]
     pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {

@@ -1,17 +1,3 @@
-warning: use of deprecated associated function `clap::ArgMatches::is_present`: Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`
-  --> tests/derive_ui/stable/non_existent_attr.rs:15:12
-   |
-15 |     debug: bool,
-   |            ^^^^
-   |
-   = note: `#[warn(deprecated)]` on by default
-
-warning: use of deprecated associated function `clap::ArgMatches::is_present`: Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`
-  --> tests/derive_ui/stable/non_existent_attr.rs:15:12
-   |
-15 |     debug: bool,
-   |            ^^^^
-
 error[E0599]: no method named `non_existing_attribute` found for struct `Arg` in the current scope
   --> tests/derive_ui/stable/non_existent_attr.rs:14:19
    |
