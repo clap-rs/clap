@@ -18,7 +18,6 @@ _gated behind `unstable-v4`_
 - Leading dashes in `Arg::long` are no longer allowed (#3691)
 - Verify `required` is not used with conditional required settings (#3660)
 - Disallow more `value_names` than `number_of_values` (#2695)
-- Don't correct argument id in `default_value_ifs_os`(#3815)
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
@@ -78,6 +77,8 @@ _gated behind `unstable-v4`_
 - `ArgMatches::{try_,}contains_id` for checking if there are values for an argument that mirrors the new `get_{one,many}` API
 
 ### Fixes
+
+- Don't correct argument id in `default_value_ifs_os`(#3815)
 
 *parser*
 - Set `ArgMatches::value_source` and `ArgMatches::occurrences_of` for external subcommands (#3732)
