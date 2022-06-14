@@ -235,9 +235,8 @@ macro_rules! crate_version {
 #[macro_export]
 macro_rules! crate_authors {
     ($sep:expr) => {{
-        clap::lazy_static::lazy_static! {
-            static ref CACHED: String = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
-        }
+        static CACHED: clap::once_cell::sync::Lazy<String> =
+            clap::once_cell::sync::Lazy::new(|| env!("CARGO_PKG_AUTHORS").replace(':', $sep));
 
         let s: &'static str = &*CACHED;
         s

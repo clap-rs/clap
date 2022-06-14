@@ -72,7 +72,7 @@ pub use ValueEnum as ArgEnum;
 
 #[cfg(any(feature = "derive", feature = "cargo"))]
 #[doc(hidden)]
-pub use lazy_static;
+pub use once_cell;
 
 #[macro_use]
 #[allow(missing_docs)]
