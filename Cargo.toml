@@ -73,7 +73,8 @@ color = ["atty", "termcolor"]
 suggestions = ["strsim"]
 
 # Optional
-deprecated = [] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
+# note: this will always enable clap_derive, change this to `clap_derive?/unstable-v4` when MSRV is bigger than 1.60
+deprecated = ["clap_derive/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
 derive = ["clap_derive", "once_cell"]
 cargo = ["once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["terminal_size", "textwrap/terminal_size"]

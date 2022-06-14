@@ -113,6 +113,7 @@ pub fn gen_from_arg_matches_for_struct(
 
     let constructor = gen_constructor(fields, &attrs);
     let updater = gen_updater(fields, &attrs, true);
+    let raw_deprecated = raw_deprecated();
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
@@ -136,6 +137,7 @@ pub fn gen_from_arg_matches_for_struct(
             }
 
             fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                #raw_deprecated
                 let v = #struct_name #constructor;
                 ::std::result::Result::Ok(v)
             }
@@ -145,6 +147,7 @@ pub fn gen_from_arg_matches_for_struct(
             }
 
             fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                #raw_deprecated
                 #updater
                 ::std::result::Result::Ok(())
             }
@@ -272,6 +275,45 @@ pub fn gen_augment(
                         quote!()
                     }
                 };
+                let parse_deprecation = match *parser.kind {
+                    _ if !attrs.explicit_parser() || cfg!(not(feature = "deprecated")) => quote!(),
+                    ParserKind::FromStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser = ...)]`")]
+                        fn parse_from_str() {
+                        }
+                        parse_from_str();
+                    },
+                    ParserKind::TryFromStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser = ...)]`")]
+                        fn parse_try_from_str() {
+                        }
+                        parse_try_from_str();
+                    },
+                    ParserKind::FromOsStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser)]` for `PathBuf` or `#[clap(value_parser = ...)]` with a custom `TypedValueParser`")]
+                        fn parse_from_os_str() {
+                        }
+                        parse_from_os_str();
+                    },
+                    ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser = ...)]` with a custom `TypedValueParser`")]
+                        fn parse_try_from_os_str() {
+                        }
+                        parse_try_from_os_str();
+                    },
+                    ParserKind::FromFlag => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(action = ArgAction::SetTrue)]`")]
+                        fn parse_from_flag() {
+                        }
+                        parse_from_flag();
+                    },
+                    ParserKind::FromOccurrences => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(action = ArgAction::Count)]` with a field type of `u8`")]
+                        fn parse_from_occurrences() {
+                        }
+                        parse_from_occurrences();
+                    },
+                };
 
                 let value_name = attrs.value_name();
                 let possible_values = if attrs.is_enum() && !attrs.ignore_parser() {
@@ -280,7 +322,7 @@ pub fn gen_augment(
                     quote!()
                 };
 
-                let modifier = match **ty {
+                let implicit_methods = match **ty {
                     Ty::Option => {
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
@@ -401,14 +443,20 @@ pub fn gen_augment(
                 };
 
                 let id = attrs.id();
-                let methods = attrs.field_methods(true);
+                let explicit_methods = attrs.field_methods(true);
 
                 Some(quote_spanned! { field.span()=>
-                    let #app_var = #app_var.arg(
-                        clap::Arg::new(#id)
-                            #modifier
-                            #methods
-                    );
+                    let #app_var = #app_var.arg({
+                        #parse_deprecation
+
+                        #[allow(deprecated)]
+                        let arg = clap::Arg::new(#id)
+                            #implicit_methods;
+
+                        let arg = arg
+                            #explicit_methods;
+                        arg
+                    });
                 })
             }
         }
@@ -731,5 +779,18 @@ fn gen_parsers(
         }
     } else {
         quote_spanned!(field.span()=> #field_name: #field_value )
+    }
+}
+
+#[cfg(feature = "raw-deprecated")]
+pub fn raw_deprecated() -> TokenStream {
+    quote! {}
+}
+
+#[cfg(not(feature = "raw-deprecated"))]
+pub fn raw_deprecated() -> TokenStream {
+    quote! {
+        #![allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
+
     }
 }

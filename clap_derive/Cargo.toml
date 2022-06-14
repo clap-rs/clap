@@ -51,4 +51,6 @@ proc-macro-error = "1"
 [features]
 default = []
 debug = []
-unstable-v4 = []
+unstable-v4 = ["deprecated"]
+deprecated = []
+raw-deprecated = ["deprecated"]

@@ -540,8 +540,11 @@ fn gen_from_arg_matches(
         },
     };
 
+    let raw_deprecated = args::raw_deprecated();
     quote! {
         fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+            #raw_deprecated
+
             #( #child_subcommands )else*
 
             if let Some((#subcommand_name_var, mut __clap_arg_sub_matches)) = __clap_arg_matches.remove_subcommand() {
@@ -652,11 +655,14 @@ fn gen_update_from_arg_matches(
         }
     });
 
+    let raw_deprecated = args::raw_deprecated();
     quote! {
         fn update_from_arg_matches_mut<'b>(
             &mut self,
             __clap_arg_matches: &mut clap::ArgMatches,
         ) -> ::std::result::Result<(), clap::Error> {
+            #raw_deprecated
+
             if let Some(__clap_name) = __clap_arg_matches.subcommand_name() {
                 match self {
                     #( #subcommands ),*
