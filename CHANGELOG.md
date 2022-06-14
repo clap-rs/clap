@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Provide more clearer deprecation messages for `#[clap(parse)]` attribute (#3832)
+
 ## [3.2.3] - 2022-06-14
 
 ### Fixes
