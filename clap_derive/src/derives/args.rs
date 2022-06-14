@@ -136,6 +136,7 @@ pub fn gen_from_arg_matches_for_struct(
             }
 
             fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                #[allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
                 let v = #struct_name #constructor;
                 ::std::result::Result::Ok(v)
             }
@@ -145,6 +146,7 @@ pub fn gen_from_arg_matches_for_struct(
             }
 
             fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                #[allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
                 #updater
                 ::std::result::Result::Ok(())
             }

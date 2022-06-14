@@ -542,6 +542,8 @@ fn gen_from_arg_matches(
 
     quote! {
         fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+            #[allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Subcommand`
+
             #( #child_subcommands )else*
 
             if let Some((#subcommand_name_var, mut __clap_arg_sub_matches)) = __clap_arg_matches.remove_subcommand() {
@@ -657,6 +659,8 @@ fn gen_update_from_arg_matches(
             &mut self,
             __clap_arg_matches: &mut clap::ArgMatches,
         ) -> ::std::result::Result<(), clap::Error> {
+            #[allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Subcommand`
+
             if let Some(__clap_name) = __clap_arg_matches.subcommand_name() {
                 match self {
                     #( #subcommands ),*
