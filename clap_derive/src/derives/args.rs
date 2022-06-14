@@ -282,7 +282,7 @@ pub fn gen_augment(
                     quote!()
                 };
 
-                let modifier = match **ty {
+                let implicit_methods = match **ty {
                     Ty::Option => {
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
@@ -403,13 +403,13 @@ pub fn gen_augment(
                 };
 
                 let id = attrs.id();
-                let methods = attrs.field_methods(true);
+                let explicit_methods = attrs.field_methods(true);
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg(
                         clap::Arg::new(#id)
-                            #modifier
-                            #methods
+                            #implicit_methods
+                            #explicit_methods
                     );
                 })
             }
