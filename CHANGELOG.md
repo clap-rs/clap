@@ -30,6 +30,8 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.2.3] - 2022-06-14
+
 ### Fixes
 
 - Moved deprecations to be behind the `deprecated` Cargo.toml feature (#3830)
@@ -3469,7 +3471,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.2...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.3...HEAD
+[3.2.3]: https://github.com/clap-rs/clap/compare/v3.2.2...v3.2.3
 [3.2.2]: https://github.com/clap-rs/clap/compare/v3.2.1...v3.2.2
 [3.2.1]: https://github.com/clap-rs/clap/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/clap-rs/clap/compare/v3.1.18...v3.2.0
