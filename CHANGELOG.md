@@ -26,9 +26,17 @@ _gated behind `unstable-v4`_
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
 - *(derive)* Leave `Arg::id` as `verbatim` casing (#3282)
+- *(derive)* Default to `#[clap(value_parser, action)]` instead of `#[clap(parse)]` (#3827)
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+### Fixes
+
+- *(derive)* Improve the highlighted code for deprecation warnings
+
+**gated behind `unstable-v4`**
+- *(derive)* Default to `#[clap(value_parser, action)]` instead of `#[clap(parse)]` (#3827)
 
 ## [3.2.1] - 2022-06-13
 
