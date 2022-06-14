@@ -275,6 +275,45 @@ pub fn gen_augment(
                         quote!()
                     }
                 };
+                let parse_deprecation = match *parser.kind {
+                    _ if !attrs.explicit_parser() || cfg!(not(feature = "deprecated")) => quote!(),
+                    ParserKind::FromStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser = ...)]`")]
+                        fn parse_from_str() {
+                        }
+                        parse_from_str();
+                    },
+                    ParserKind::TryFromStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser = ...)]`")]
+                        fn parse_try_from_str() {
+                        }
+                        parse_try_from_str();
+                    },
+                    ParserKind::FromOsStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser)]` for `PathBuf` or `#[clap(value_parser = ...)]` with a custom `TypedValueParser`")]
+                        fn parse_from_os_str() {
+                        }
+                        parse_from_os_str();
+                    },
+                    ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(value_parser = ...)]` with a custom `TypedValueParser`")]
+                        fn parse_try_from_os_str() {
+                        }
+                        parse_try_from_os_str();
+                    },
+                    ParserKind::FromFlag => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(action = ArgAction::SetTrue)]`")]
+                        fn parse_from_flag() {
+                        }
+                        parse_from_flag();
+                    },
+                    ParserKind::FromOccurrences => quote_spanned! { func.span()=>
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(action = ArgAction::Count)]` with a field type of `u8`")]
+                        fn parse_from_occurrences() {
+                        }
+                        parse_from_occurrences();
+                    },
+                };
 
                 let value_name = attrs.value_name();
                 let possible_values = if attrs.is_enum() && !attrs.ignore_parser() {
@@ -408,8 +447,12 @@ pub fn gen_augment(
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg({
+                        #parse_deprecation
+
+                        #[allow(deprecated)]
                         let arg = clap::Arg::new(#id)
                             #implicit_methods;
+
                         let arg = arg
                             #explicit_methods;
                         arg

@@ -825,6 +825,10 @@ impl Attrs {
         self.value_parser.is_some() || self.action.is_some()
     }
 
+    pub fn explicit_parser(&self) -> bool {
+        self.parser.is_some()
+    }
+
     pub fn parser(&self, field_type: &Type) -> Sp<Parser> {
         self.parser
             .clone()
