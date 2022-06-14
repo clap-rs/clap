@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+#![cfg(not(feature = "unstable-v4"))]
 
 mod app_from_crate;
 mod app_settings;

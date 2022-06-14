@@ -1,8 +1,7 @@
-#![allow(deprecated)]
-#![cfg(not(feature = "unstable-v4"))]
+#![cfg(feature = "derive")]
+#![cfg(feature = "unstable-v4")]
 
 mod app_name;
-mod arg_enum;
 mod arguments;
 mod author_version_about;
 mod basic;
@@ -32,3 +31,4 @@ mod subcommands;
 mod type_alias_regressions;
 mod utf8;
 mod utils;
+mod value_enum;

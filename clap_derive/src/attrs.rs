@@ -784,9 +784,18 @@ impl Attrs {
             .unwrap_or_else(|| {
                 if let Some(action) = self.action.as_ref() {
                     let inner_type = inner_type(field_type);
-                    default_value_parser(inner_type, action.span())
-                } else {
+                    let span = action.span();
+                    default_value_parser(inner_type, span)
+                } else if !self.ignore_parser() || cfg!(not(feature = "unstable-v4")) {
                     self.parser(field_type).value_parser()
+                } else {
+                    let inner_type = inner_type(field_type);
+                    let span = self
+                        .action
+                        .as_ref()
+                        .map(|a| a.span())
+                        .unwrap_or_else(|| self.kind.span());
+                    default_value_parser(inner_type, span)
                 }
             })
     }
@@ -797,13 +806,27 @@ impl Attrs {
             .map(|p| p.resolve(field_type))
             .unwrap_or_else(|| {
                 if let Some(value_parser) = self.value_parser.as_ref() {
-                    default_action(field_type, value_parser.span())
-                } else {
+                    let span = value_parser.span();
+                    default_action(field_type, span)
+                } else if !self.ignore_parser() || cfg!(not(feature = "unstable-v4")) {
                     self.parser(field_type).action()
+                } else {
+                    let span = self
+                        .value_parser
+                        .as_ref()
+                        .map(|a| a.span())
+                        .unwrap_or_else(|| self.kind.span());
+                    default_action(field_type, span)
                 }
             })
     }
 
+    #[cfg(feature = "unstable-v4")]
+    pub fn ignore_parser(&self) -> bool {
+        self.parser.is_none()
+    }
+
+    #[cfg(not(feature = "unstable-v4"))]
     pub fn ignore_parser(&self) -> bool {
         self.value_parser.is_some() || self.action.is_some()
     }
