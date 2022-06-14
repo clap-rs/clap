@@ -70,7 +70,10 @@ use crate::builder::debug_asserts::assert_app;
 pub type Command<'help> = App<'help>;
 
 /// Deprecated, replaced with [`Command`]
-#[deprecated(since = "3.1.0", note = "Replaced with `Command`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.1.0", note = "Replaced with `Command`")
+)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct App<'help> {
     id: Id,
@@ -912,7 +915,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`ArgAction::Set`][super::ArgAction::Set]
-    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action(ArgAction::Set)`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `Arg::action(ArgAction::Set)`")
+    )]
     pub fn args_override_self(self, yes: bool) -> Self {
         if yes {
             self.global_setting(AppSettings::AllArgsOverrideSelf)
@@ -1808,7 +1814,10 @@ impl<'help> App<'help> {
     /// Deprecated, replaced with [`Command::next_help_heading`]
     #[inline]
     #[must_use]
-    #[deprecated(since = "3.1.0", note = "Replaced with `App::next_help_heading`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `App::next_help_heading`")
+    )]
     pub fn help_heading<O>(self, heading: O) -> Self
     where
         O: Into<Option<&'help str>>,
@@ -3284,7 +3293,10 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`Command::get_next_help_heading`]
     #[inline]
-    #[deprecated(since = "3.1.0", note = "Replaced with `App::get_next_help_heading`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `App::get_next_help_heading`")
+    )]
     pub fn get_help_heading(&self) -> Option<&'help str> {
         self.get_next_help_heading()
     }
@@ -3398,9 +3410,12 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::get_subcommand_help_heading`]
     #[inline]
-    #[deprecated(
-        since = "3.1.0",
-        note = "Replaced with `App::get_subcommand_help_heading`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `App::get_subcommand_help_heading`"
+        )
     )]
     pub fn get_subommand_help_heading(&self) -> Option<&str> {
         self.get_subcommand_help_heading()
@@ -3722,9 +3737,12 @@ impl<'help> App<'help> {
 impl<'help> App<'help> {
     /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+        )
     )]
     #[doc(hidden)]
     pub fn from_yaml(y: &'help Yaml) -> Self {
@@ -3813,7 +3831,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::override_usage`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::override_usage`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::override_usage`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn usage<S: Into<&'help str>>(self, usage: S) -> Self {
@@ -3821,7 +3842,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::override_help`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::override_help`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::override_help`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn help<S: Into<&'help str>>(self, help: S) -> Self {
@@ -3829,7 +3853,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::mut_arg`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn help_short(self, c: char) -> Self {
@@ -3837,7 +3864,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::mut_arg`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn version_short(self, c: char) -> Self {
@@ -3845,7 +3875,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::mut_arg`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn help_message(self, s: impl Into<&'help str>) -> Self {
@@ -3853,7 +3886,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::mut_arg`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn version_message(self, s: impl Into<&'help str>) -> Self {
@@ -3861,7 +3897,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::help_template`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::help_template`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::help_template`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn template<S: Into<&'help str>>(self, s: S) -> Self {
@@ -3869,7 +3908,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::setting(a| b)`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::setting(a | b)`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::setting(a | b)`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn settings(mut self, settings: &[AppSettings]) -> Self {
@@ -3880,7 +3922,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::unset_setting(a| b)`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::unset_setting(a | b)`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::unset_setting(a | b)`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
@@ -3891,7 +3936,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::global_setting(a| b)`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::global_setting(a | b)`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::global_setting(a | b)`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
@@ -3903,7 +3951,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::term_width`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::term_width`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::term_width`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn set_term_width(self, width: usize) -> Self {
@@ -3911,7 +3962,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
@@ -3920,7 +3974,10 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
@@ -3936,28 +3993,40 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::render_version`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")
+    )]
     #[doc(hidden)]
     pub fn write_version<W: io::Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_version()).map_err(From::from)
     }
 
     /// Deprecated, replaced with [`Command::render_long_version`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")
+    )]
     #[doc(hidden)]
     pub fn write_long_version<W: io::Write>(&self, w: &mut W) -> ClapResult<()> {
         write!(w, "{}", self.render_long_version()).map_err(From::from)
     }
 
     /// Deprecated, replaced with [`Command::try_get_matches`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches`")
+    )]
     #[doc(hidden)]
     pub fn get_matches_safe(self) -> ClapResult<ArgMatches> {
         self.try_get_matches()
     }
 
     /// Deprecated, replaced with [`Command::try_get_matches_from`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches_from`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches_from`")
+    )]
     #[doc(hidden)]
     pub fn get_matches_from_safe<I, T>(self, itr: I) -> ClapResult<ArgMatches>
     where
@@ -3968,9 +4037,12 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`Command::try_get_matches_from_mut`]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Replaced with `App::try_get_matches_from_mut`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `App::try_get_matches_from_mut`"
+        )
     )]
     #[doc(hidden)]
     pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
@@ -4062,19 +4134,28 @@ impl<'help> App<'help> {
     }
 
     #[doc(hidden)]
-    #[deprecated(since = "3.1.10", note = "Replaced with `Command::build`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.10", note = "Replaced with `Command::build`")
+    )]
     pub fn _build_all(&mut self) {
         self.build();
     }
 
     #[doc(hidden)]
-    #[deprecated(since = "3.1.10", note = "Replaced with `Command::build`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.10", note = "Replaced with `Command::build`")
+    )]
     pub fn _build(&mut self) {
         self._build_self()
     }
 
     #[doc(hidden)]
-    #[deprecated(since = "3.1.13", note = "Replaced with `Command::build`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.13", note = "Replaced with `Command::build`")
+    )]
     pub fn _build_bin_names(&mut self) {
         self._build_bin_names_internal();
     }

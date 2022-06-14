@@ -164,7 +164,10 @@ impl<'help> PossibleValue<'help> {
 
     /// Deprecated, replaced with [`PossibleValue::is_hide_set`]
     #[inline]
-    #[deprecated(since = "3.1.0", note = "Replaced with `PossibleValue::is_hide_set`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `PossibleValue::is_hide_set`")
+    )]
     pub fn is_hidden(&self) -> bool {
         self.is_hide_set()
     }
@@ -181,9 +184,12 @@ impl<'help> PossibleValue<'help> {
     }
 
     /// Get the name if argument value is not hidden, `None` otherwise
-    #[deprecated(
-        since = "3.1.4",
-        note = "Use `PossibleValue::is_hide_set` and `PossibleValue::get_name`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.1.4",
+            note = "Use `PossibleValue::is_hide_set` and `PossibleValue::get_name`"
+        )
     )]
     pub fn get_visible_name(&self) -> Option<&'help str> {
         if self.hide {

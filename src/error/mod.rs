@@ -40,10 +40,16 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 pub struct Error {
     inner: Box<ErrorInner>,
     /// Deprecated, replaced with [`Error::kind()`]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Error::kind()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Error::kind()`")
+    )]
     pub kind: ErrorKind,
     /// Deprecated, replaced with [`Error::context()`]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Error::context()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Error::context()`")
+    )]
     pub info: Vec<String>,
 }
 
@@ -153,7 +159,10 @@ impl Error {
     /// Deprecated, replaced with [`Command::error`]
     ///
     /// [`Command::error`]: crate::Command::error
-    #[deprecated(since = "3.0.0", note = "Replaced with `Command::error`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Command::error`")
+    )]
     #[doc(hidden)]
     pub fn with_description(description: String, kind: ErrorKind) -> Self {
         Error::raw(kind, description)

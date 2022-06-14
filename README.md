@@ -140,6 +140,7 @@ Why use the procedural [Builder API](https://github.com/clap-rs/clap/blob/v3.2.2
 
 #### Optional features
 
+* **deprecated**: Guided experience to prepare for next breaking release (at different stages of development, this may become default)
 * **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
 * **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
 * **env**: Turns on the usage of environment variables during parsing.
