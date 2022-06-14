@@ -552,14 +552,11 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            clap::lazy_static::lazy_static! {
-                                static ref DEFAULT_VALUE: &'static str = {
-                                    let val: #ty = #val;
-                                    let s = ::std::string::ToString::to_string(&val);
-                                    ::std::boxed::Box::leak(s.into_boxed_str())
-                                };
-                            }
-                            *DEFAULT_VALUE
+                            static DEFAULT_VALUE: clap::once_cell::sync::Lazy<String> = clap::once_cell::sync::Lazy::new(|| {
+                                let val: #ty = #val;
+                                ::std::string::ToString::to_string(&val)
+                            });
+                            &*DEFAULT_VALUE
                         })
                     };
 
@@ -595,14 +592,11 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            clap::lazy_static::lazy_static! {
-                                static ref DEFAULT_VALUE: &'static ::std::ffi::OsStr = {
-                                    let val: #ty = #val;
-                                    let s: ::std::ffi::OsString = val.into();
-                                    ::std::boxed::Box::leak(s.into_boxed_os_str())
-                                };
-                            }
-                            *DEFAULT_VALUE
+                            static DEFAULT_VALUE: clap::once_cell::sync::Lazy<::std::ffi::OsString> = clap::once_cell::sync::Lazy::new(|| {
+                                let val: #ty = #val;
+                                ::std::ffi::OsString = val.into()
+                            });
+                            &*DEFAULT_VALUE
                         })
                     };
 
