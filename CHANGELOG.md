@@ -114,9 +114,20 @@ Replaced
 - `ArgMatches::is_present` with `ArgMatches::contains_id` or `ArgAction::SetTrue` (#3797)
 - `ArgAction::StoreValue` with `ArgAction::Set` or `ArgAction::Append` (#3797)
 - `ArgAction::IncOccurrences` with `ArgAction::SetTrue` or `ArgAction::Count` (#3797)
-- *(derive)* `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)
-- *(derive)* `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u8` (#3794)
-- *(derive)* `#[clap(parse(...))]` replaced with `#[clap(value_parser)]`  (#3589, #3794)
+- *(derive)* `#[clap(parse(...))]` replaced with: (#3589, #3794)
+  - For default parsers (no `parse` attribute), deprecation warnings can be
+    silenced by opting into the new behavior by adding either `#[clap(action)]`
+    or `#[clap(value_parser)]` (ie requesting the default behavior for these
+    attributes).  Alternatively, the `unstable-v4` feature changes the default
+    away from `parse` to `action`/`value_parser`.
+  - For `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)
+  - For `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u8` (#3794)
+  - For `#[clap(parse(from_os_str)]` for `PathBuf`, replace it with
+    `#[clap(value_parser)]` (as mentioned earlier this will call
+    `value_parser!(PathBuf)` which will auto-select the right `ValueParser`
+    automatically).
+  - For `#[clap(parse(try_from_str = ...)]`, replace it with `#[clap(value_parser = ...)]`
+  - For most other cases, a type implementing `TypedValueParser` will be needed and specify it with `#[clap(value_parser = ...)]`
 
 ## [3.1.18] - 2022-05-10
 
