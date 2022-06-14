@@ -113,6 +113,7 @@ pub fn gen_from_arg_matches_for_struct(
 
     let constructor = gen_constructor(fields, &attrs);
     let updater = gen_updater(fields, &attrs, true);
+    let raw_deprecated = raw_deprecated();
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
@@ -136,7 +137,7 @@ pub fn gen_from_arg_matches_for_struct(
             }
 
             fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
-                #[allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
+                #raw_deprecated
                 let v = #struct_name #constructor;
                 ::std::result::Result::Ok(v)
             }
@@ -146,7 +147,7 @@ pub fn gen_from_arg_matches_for_struct(
             }
 
             fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
-                #[allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
+                #raw_deprecated
                 #updater
                 ::std::result::Result::Ok(())
             }
@@ -735,5 +736,18 @@ fn gen_parsers(
         }
     } else {
         quote_spanned!(field.span()=> #field_name: #field_value )
+    }
+}
+
+#[cfg(feature = "raw-deprecated")]
+pub fn raw_deprecated() -> TokenStream {
+    quote! {}
+}
+
+#[cfg(not(feature = "raw-deprecated"))]
+pub fn raw_deprecated() -> TokenStream {
+    quote! {
+        #![allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
+
     }
 }
