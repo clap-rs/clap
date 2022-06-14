@@ -49,6 +49,7 @@ MSRV is now 1.56.0 (#3732)
 
 Behavior
 - Defaults no longer satisfy `required` and its variants (#3793)
+- When misusing `ArgMatches::value_of` and friends, debug asserts were turned into panics
 
 Moving (old location deprecated)
 - `clap::{PossibleValue, ValueHint}` to `clap::builder::{PossibleValue, ValueHint}`
