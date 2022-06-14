@@ -43,50 +43,6 @@ _gated behind `unstable-v4`_
 
 ## [3.2.0] - 2022-06-13
 
-### Features
-
-- Parsed, typed arguments via `Arg::value_parser` / `ArgMatches::{get_one,get_many}` (#2683, #3732)
-  - Several built-in `TypedValueParser`s available with an API open for expansion
-  - `value_parser!(T)` macro for selecting a parser for a given type (#3732) and open to expansion via the `ValueParserFactory` trait (#3755)
-  - `[&str]` is implicitly a value parser for possible values
-  - All `ArgMatches` getters do not assume required arguments (#2505)
-  - Add `ArgMatches::remove_*` variants to transfer ownership
-  - Add `ArgMatches::try_*` variants to avoid panics for developer errors (#3621)
-  - Add a `get_raw` to access the underlying `OsStr`s
-  - `PathBuf` value parsers imply `ValueHint::AnyPath` for completions (#3732)
-- Explicit control over parsing via `Arg::action` (#3774)
-  - `ArgAction::StoreValue`: existing `takes_value(true)` behavior
-  - `ArgAction::IncOccurrences`: existing `takes_value(false)` behavior
-  - `ArgAction::Help`: existing `--help` behavior
-  - `ArgAction::Version`: existing `--version` behavior
-  - `ArgAction::Set`: Overwrite existing values (like `Arg::multiple_occurrences` mixed with `Command::args_override_self`) (#3777)
-  - `ArgAction::Append`: like `Arg::multiple_occurrences` (#3777)
-  - `ArgAction::SetTrue`: Treat `--flag` as `--flag=true` (#3775)
-    - Implies `Arg::default_value("false")` (#3786)
-    - Parses `Arg::env` via `Arg::value_parser`
-  - `ArgAction::SetFalse`: Treat `--flag` as `--flag=false` (#3775)
-    - Implies `Arg::default_value("true")` (#3786)
-    - Parses `Arg::env` via `Arg::value_parser`
-  - `ArgAction::Count`: Treat `--flag --flag --flag` as `--flag=1 --flag=2 --flag=3` (#3775)
-    - Implies `Arg::default_value("0")` (#3786)
-    - Parses `Arg::env` via `Arg::value_parser`
-- *(derive)* Opt-in to new `Arg::value_parser` / `Arg::action` with either `#[clap(value_parser)]` (#3589, #3742) / `#[clap(action)]` attributes (#3794)
-  - Default `ValueParser` is determined by `value_parser!` (#3199, #3496)
-  - Default `ArgAction` is determine by a hard-coded lookup on the type (#3794)
-- `Command::multicall` is now stable for busybox-like programs and REPLs (#2861, #3684)
-- `ArgMatches::{try_,}contains_id` for checking if there are values for an argument that mirrors the new `get_{one,many}` API
-
-### Fixes
-
-- Don't correct argument id in `default_value_ifs_os`(#3815)
-
-*parser*
-- Set `ArgMatches::value_source` and `ArgMatches::occurrences_of` for external subcommands (#3732)
-- Use value delimiter for `Arg::default_missing_values` (#3761, #3765)
-- Split`Arg::default_value` / `Arg::env` on value delimiters independent of whether `--` was used (#3765)
-- Allow applying defaults to flags (#3294, 3775)
-- Defaults no longer satisfy `required` and its variants (#3793)
-
 ### Compatibility
 
 MSRV is now 1.56.0 (#3732)
@@ -131,6 +87,50 @@ Replaced
     automatically).
   - For `#[clap(parse(try_from_str = ...)]`, replace it with `#[clap(value_parser = ...)]`
   - For most other cases, a type implementing `TypedValueParser` will be needed and specify it with `#[clap(value_parser = ...)]`
+
+### Features
+
+- Parsed, typed arguments via `Arg::value_parser` / `ArgMatches::{get_one,get_many}` (#2683, #3732)
+  - Several built-in `TypedValueParser`s available with an API open for expansion
+  - `value_parser!(T)` macro for selecting a parser for a given type (#3732) and open to expansion via the `ValueParserFactory` trait (#3755)
+  - `[&str]` is implicitly a value parser for possible values
+  - All `ArgMatches` getters do not assume required arguments (#2505)
+  - Add `ArgMatches::remove_*` variants to transfer ownership
+  - Add `ArgMatches::try_*` variants to avoid panics for developer errors (#3621)
+  - Add a `get_raw` to access the underlying `OsStr`s
+  - `PathBuf` value parsers imply `ValueHint::AnyPath` for completions (#3732)
+- Explicit control over parsing via `Arg::action` (#3774)
+  - `ArgAction::StoreValue`: existing `takes_value(true)` behavior
+  - `ArgAction::IncOccurrences`: existing `takes_value(false)` behavior
+  - `ArgAction::Help`: existing `--help` behavior
+  - `ArgAction::Version`: existing `--version` behavior
+  - `ArgAction::Set`: Overwrite existing values (like `Arg::multiple_occurrences` mixed with `Command::args_override_self`) (#3777)
+  - `ArgAction::Append`: like `Arg::multiple_occurrences` (#3777)
+  - `ArgAction::SetTrue`: Treat `--flag` as `--flag=true` (#3775)
+    - Implies `Arg::default_value("false")` (#3786)
+    - Parses `Arg::env` via `Arg::value_parser`
+  - `ArgAction::SetFalse`: Treat `--flag` as `--flag=false` (#3775)
+    - Implies `Arg::default_value("true")` (#3786)
+    - Parses `Arg::env` via `Arg::value_parser`
+  - `ArgAction::Count`: Treat `--flag --flag --flag` as `--flag=1 --flag=2 --flag=3` (#3775)
+    - Implies `Arg::default_value("0")` (#3786)
+    - Parses `Arg::env` via `Arg::value_parser`
+- *(derive)* Opt-in to new `Arg::value_parser` / `Arg::action` with either `#[clap(value_parser)]` (#3589, #3742) / `#[clap(action)]` attributes (#3794)
+  - Default `ValueParser` is determined by `value_parser!` (#3199, #3496)
+  - Default `ArgAction` is determine by a hard-coded lookup on the type (#3794)
+- `Command::multicall` is now stable for busybox-like programs and REPLs (#2861, #3684)
+- `ArgMatches::{try_,}contains_id` for checking if there are values for an argument that mirrors the new `get_{one,many}` API
+
+### Fixes
+
+- Don't correct argument id in `default_value_ifs_os`(#3815)
+
+*parser*
+- Set `ArgMatches::value_source` and `ArgMatches::occurrences_of` for external subcommands (#3732)
+- Use value delimiter for `Arg::default_missing_values` (#3761, #3765)
+- Split`Arg::default_value` / `Arg::env` on value delimiters independent of whether `--` was used (#3765)
+- Allow applying defaults to flags (#3294, 3775)
+- Defaults no longer satisfy `required` and its variants (#3793)
 
 ## [3.1.18] - 2022-05-10
 
