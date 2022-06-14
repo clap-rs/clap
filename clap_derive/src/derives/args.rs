@@ -406,11 +406,13 @@ pub fn gen_augment(
                 let explicit_methods = attrs.field_methods(true);
 
                 Some(quote_spanned! { field.span()=>
-                    let #app_var = #app_var.arg(
-                        clap::Arg::new(#id)
-                            #implicit_methods
-                            #explicit_methods
-                    );
+                    let #app_var = #app_var.arg({
+                        let arg = clap::Arg::new(#id)
+                            #implicit_methods;
+                        let arg = arg
+                            #explicit_methods;
+                        arg
+                    });
                 })
             }
         }
