@@ -30,6 +30,13 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Moved deprecations to be behind the `deprecated` Cargo.toml feature (#3830)
+  - For now, it is disabled by default though we are considering enabling it by
+    default as we release the next major version to help draw attention to the
+    deprecation migration path
+
 ## [3.2.2] - 2022-06-14
 
 ### Fixes
