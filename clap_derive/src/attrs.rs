@@ -594,7 +594,7 @@ impl Attrs {
                         quote_spanned!(ident.span()=> {
                             static DEFAULT_VALUE: clap::once_cell::sync::Lazy<::std::ffi::OsString> = clap::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
-                                ::std::ffi::OsString = val.into()
+                                ::std::ffi::OsString::from(val)
                             });
                             &*DEFAULT_VALUE
                         })
