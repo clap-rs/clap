@@ -2257,6 +2257,42 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("color"), Some("always"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
+    ///
+    /// For bool literals:
+    /// ```rust
+    /// # use clap::{Command, Arg, ValueSource, value_parser};
+    /// fn cli() -> Command<'static> {
+    ///     Command::new("prog")
+    ///         .arg(Arg::new("create").long("create")
+    ///             .value_name("BOOL")
+    ///             .value_parser(value_parser!(bool))
+    ///             .min_values(0)
+    ///             .require_equals(true)
+    ///             .default_missing_value("true")
+    ///         )
+    /// }
+    ///
+    /// // first, we'll provide no arguments
+    /// let m  = cli().get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    /// assert_eq!(m.get_one::<bool>("create").copied(), None);
+    ///
+    /// // next, we'll provide a runtime value to override the default (as usually done).
+    /// let m  = cli().get_matches_from(vec![
+    ///         "prog", "--create=false"
+    ///     ]);
+    /// assert_eq!(m.get_one::<bool>("create").copied(), Some(false));
+    /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
+    ///
+    /// // finally, we will use the shortcut and only provide the argument without a value.
+    /// let m  = cli().get_matches_from(vec![
+    ///         "prog", "--create"
+    ///     ]);
+    /// assert_eq!(m.get_one::<bool>("create").copied(), Some(true));
+    /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
+    /// ```
+    ///
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()

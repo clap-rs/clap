@@ -92,7 +92,8 @@ pub enum ArgAction {
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `false`.
     ///
-    /// No value is allowed
+    /// No value is allowed. To optionally accept a value, see
+    /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
     /// # Examples
     ///
@@ -127,7 +128,8 @@ pub enum ArgAction {
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `true`.
     ///
-    /// No value is allowed
+    /// No value is allowed. To optionally accept a value, see
+    /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
     /// # Examples
     ///
@@ -162,7 +164,8 @@ pub enum ArgAction {
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `0`.
     ///
-    /// No value is allowed
+    /// No value is allowed. To optionally accept a value, see
+    /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
     /// # Examples
     ///
