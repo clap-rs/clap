@@ -189,8 +189,8 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
     }
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
-    fn write_args(&mut self, args: &[&Arg<'help>]) -> io::Result<()> {
-        debug!("Help::write_args");
+    fn write_args(&mut self, args: &[&Arg<'help>], _category: &str) -> io::Result<()> {
+        debug!("Help::write_args {}", _category);
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
         let mut ord_v = Vec::new();
@@ -203,9 +203,12 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             should_show_arg(self.use_long, *arg)
         }) {
             if arg.longest_filter() {
-                debug!("Help::write_args: Current Longest...{}", longest);
                 longest = longest.max(display_width(arg.to_string().as_str()));
-                debug!("Help::write_args: New Longest...{}", longest);
+                debug!(
+                    "Help::write_args: arg={:?} longest={}",
+                    arg.get_id(),
+                    longest
+                );
             }
 
             // Formatting key like this to ensure that:
@@ -854,7 +857,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                 self.none("\n\n")?;
             }
             self.warning("OPTIONS:\n")?;
-            self.write_args(&non_pos)?;
+            self.write_args(&non_pos, "OPTIONS")?;
             first = false;
         }
         if !custom_headings.is_empty() {
@@ -876,7 +879,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                         self.none("\n\n")?;
                     }
                     self.warning(format!("{}:\n", heading))?;
-                    self.write_args(&args)?;
+                    self.write_args(&args, heading)?;
                     first = false
                 }
             }
@@ -1079,10 +1082,10 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                     "options" => {
                         // Include even those with a heading as we don't have a good way of
                         // handling help_heading in the template.
-                        self.write_args(&self.cmd.get_non_positionals().collect::<Vec<_>>())?;
+                        self.write_args(&self.cmd.get_non_positionals().collect::<Vec<_>>(), "options")?;
                     }
                     "positionals" => {
-                        self.write_args(&self.cmd.get_positionals().collect::<Vec<_>>())?;
+                        self.write_args(&self.cmd.get_positionals().collect::<Vec<_>>(), "positionals")?;
                     }
                     "subcommands" => {
                         self.write_subcommands(self.cmd)?;
