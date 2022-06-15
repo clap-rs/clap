@@ -2220,57 +2220,41 @@ impl<'help> Arg<'help> {
     ///
     /// # Examples
     ///
-    /// Here is an implementation of the common POSIX style `--color` argument.
-    ///
+    /// For POSIX style `--color`:
     /// ```rust
     /// # use clap::{Command, Arg, ValueSource};
-    ///
-    /// macro_rules! cmd {
-    ///     () => {{
-    ///         Command::new("prog")
-    ///             .arg(Arg::new("color").long("color")
-    ///                 .value_name("WHEN")
-    ///                 .value_parser(["always", "auto", "never"])
-    ///                 .default_value("auto")
-    ///                 .overrides_with("color")
-    ///                 .min_values(0)
-    ///                 .require_equals(true)
-    ///                 .default_missing_value("always")
-    ///                 .help("Specify WHEN to colorize output.")
-    ///             )
-    ///    }};
+    /// fn cli() -> Command<'static> {
+    ///     Command::new("prog")
+    ///         .arg(Arg::new("color").long("color")
+    ///             .value_name("WHEN")
+    ///             .value_parser(["always", "auto", "never"])
+    ///             .default_value("auto")
+    ///             .min_values(0)
+    ///             .require_equals(true)
+    ///             .default_missing_value("always")
+    ///             .help("Specify WHEN to colorize output.")
+    ///         )
     /// }
     ///
-    /// let mut m;
-    ///
     /// // first, we'll provide no arguments
-    ///
-    /// m  = cmd!().get_matches_from(vec![
+    /// let m  = cli().get_matches_from(vec![
     ///         "prog"
     ///     ]);
-    ///
     /// assert_eq!(m.value_of("color"), Some("auto"));
-    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
-    ///
-    /// m  = cmd!().get_matches_from(vec![
+    /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color=never"
     ///     ]);
-    ///
     /// assert_eq!(m.value_of("color"), Some("never"));
-    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
-    ///
-    /// m  = cmd!().get_matches_from(vec![
+    /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color"
     ///     ]);
-    ///
     /// assert_eq!(m.value_of("color"), Some("always"));
-    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
