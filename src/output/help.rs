@@ -253,7 +253,18 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
     ) -> io::Result<()> {
         let spec_vals = &self.spec_vals(arg);
 
-        self.write_arg_inner(arg, spec_vals, next_line_help, longest)?;
+        self.short(arg)?;
+        self.long(arg)?;
+        self.val(arg)?;
+        self.align_to_about(arg, next_line_help, longest)?;
+
+        let about = if self.use_long {
+            arg.long_help.or(arg.help).unwrap_or("")
+        } else {
+            arg.help.or(arg.long_help).unwrap_or("")
+        };
+
+        self.help(Some(arg), about, spec_vals, next_line_help, longest)?;
 
         if !last_arg {
             self.none("\n")?;
@@ -529,29 +540,6 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                 }
             }
         }
-        Ok(())
-    }
-
-    /// Writes help for an argument to the wrapped stream.
-    fn write_arg_inner(
-        &mut self,
-        arg: &Arg<'help>,
-        spec_vals: &str,
-        next_line_help: bool,
-        longest: usize,
-    ) -> io::Result<()> {
-        self.short(arg)?;
-        self.long(arg)?;
-        self.val(arg)?;
-        self.align_to_about(arg, next_line_help, longest)?;
-
-        let about = if self.use_long {
-            arg.long_help.or(arg.help).unwrap_or("")
-        } else {
-            arg.help.or(arg.long_help).unwrap_or("")
-        };
-
-        self.help(Some(arg), about, spec_vals, next_line_help, longest)?;
         Ok(())
     }
 
