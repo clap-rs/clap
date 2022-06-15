@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Fix regression with `#[clap(default_value_os_t ...)]` introduced in v3.2.3
+
 ## [3.2.4] - 2022-06-14
 
 ### Fixes
