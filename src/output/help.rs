@@ -174,7 +174,12 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             .filter(|arg| should_show_arg(self.use_long, *arg))
         {
             if arg.longest_filter() {
-                longest = longest.max(display_width(arg.to_string().as_str()));
+                longest = longest.max(display_width(&arg.to_string()));
+                debug!(
+                    "Help::write_args_unsorted: arg={:?} longest={}",
+                    arg.get_id(),
+                    longest
+                );
             }
             arg_v.push(arg)
         }
@@ -203,7 +208,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             should_show_arg(self.use_long, *arg)
         }) {
             if arg.longest_filter() {
-                longest = longest.max(display_width(arg.to_string().as_str()));
+                longest = longest.max(display_width(&arg.to_string()));
                 debug!(
                     "Help::write_args: arg={:?} longest={}",
                     arg.get_id(),
@@ -344,35 +349,41 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         next_line_help: bool,
         longest: usize,
     ) -> io::Result<()> {
-        debug!("Help::align_to_about: arg={}", arg.name);
-        debug!("Help::align_to_about: Has switch...");
-        if self.use_long {
+        debug!(
+            "Help::align_to_about: arg={}, next_line_help={}, longest={}",
+            arg.name, next_line_help, longest
+        );
+        if self.use_long || next_line_help {
             // long help prints messages on the next line so it doesn't need to align text
             debug!("Help::align_to_about: printing long help so skip alignment");
         } else if !arg.is_positional() {
-            debug!("Yes");
-            debug!("Help::align_to_about: nlh...{:?}", next_line_help);
-            if !next_line_help {
-                let self_len = display_width(arg.to_string().as_str());
-                // subtract ourself
-                let mut spcs = longest - self_len;
-                // Since we're writing spaces from the tab point we first need to know if we
-                // had a long and short, or just short
-                if arg.long.is_some() {
-                    // Only account 4 after the val
-                    spcs += 4;
-                } else {
-                    // Only account for ', --' + 4 after the val
-                    spcs += 8;
-                }
+            let self_len = display_width(&arg.to_string());
+            // Since we're writing spaces from the tab point we first need to know if we
+            // had a long and short, or just short
+            let padding = if arg.long.is_some() {
+                // Only account 4 after the val
+                4
+            } else {
+                // Only account for ', --' + 4 after the val
+                8
+            };
+            let spcs = longest + padding - self_len;
+            debug!(
+                "Help::align_to_about: positional=false arg_len={}, spaces={}",
+                self_len, spcs
+            );
 
-                self.spaces(spcs)?;
-            }
-        } else if !next_line_help {
-            debug!("No, and not next_line");
-            self.spaces(longest + 4 - display_width(&arg.to_string()))?;
+            self.spaces(spcs)?;
         } else {
-            debug!("No");
+            let self_len = display_width(&arg.to_string());
+            let padding = 4;
+            let spcs = longest + padding - self_len;
+            debug!(
+                "Help::align_to_about: positional=true arg_len={}, spaces={}",
+                self_len, spcs
+            );
+
+            self.spaces(spcs)?;
         }
         Ok(())
     }
