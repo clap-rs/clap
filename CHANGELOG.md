@@ -19,14 +19,96 @@ _gated behind `unstable-v4`_
 - Verify `required` is not used with conditional required settings (#3660)
 - Disallow more `value_names` than `number_of_values` (#2695)
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
+- *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
 - *(derive)* Leave `Arg::id` as `verbatim` casing (#3282)
+- *(derive)* Default to `#[clap(value_parser, action)]` instead of `#[clap(parse)]` (#3827)
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+## [3.2.5] - 2022-06-15
+
+### Fixes
+
+- *(derive)* Fix regression with `#[clap(default_value_os_t ...)]` introduced in v3.2.3
+
+## [3.2.4] - 2022-06-14
+
+### Fixes
+
+- *(derive)* Provide more clearer deprecation messages for `#[clap(parse)]` attribute (#3832)
+
+## [3.2.3] - 2022-06-14
+
+### Fixes
+
+- Moved deprecations to be behind the `deprecated` Cargo.toml feature (#3830)
+  - For now, it is disabled by default though we are considering enabling it by
+    default as we release the next major version to help draw attention to the
+    deprecation migration path
+
+## [3.2.2] - 2022-06-14
+
+### Fixes
+
+- *(derive)* Improve the highlighted code for deprecation warnings
+
+**gated behind `unstable-v4`**
+- *(derive)* Default to `#[clap(value_parser, action)]` instead of `#[clap(parse)]` (#3827)
+
+## [3.2.1] - 2022-06-13
+
+## [3.2.0] - 2022-06-13
+
+### Compatibility
+
+MSRV is now 1.56.0 (#3732)
+
+Behavior
+- Defaults no longer satisfy `required` and its variants (#3793)
+- When misusing `ArgMatches::value_of` and friends, debug asserts were turned into panics
+
+Moving (old location deprecated)
+- `clap::{PossibleValue, ValueHint}` to `clap::builder::{PossibleValue, ValueHint}`
+- `clap::{Indices, OsValues, ValueSource, Values}` to `clap::parser::{Indices, OsValues, ValueSource, Values}`
+- `clap::ArgEnum` to `clap::ValueEnum` (#3799)
+
+Replaced
+- `Arg::allow_invalid_utf8` with `Arg::value_parser(value_parser!(PathBuf))` (#3753)
+- `Arg::validator` / `Arg::validator_os` with `Arg::value_parser` (#3753)
+- `Arg::validator_regex` with users providing their own `builder::TypedValueParser` (#3756)
+- `Arg::forbid_empty_values` with `builder::NonEmptyStringValueParser` / `builder::PathBufValueParser` (#3753)
+- `Arg::possible_values` with `Arg::value_parser([...])`, `builder::PossibleValuesParser`, or `builder::EnumValueParser` (#3753)
+- `Arg::max_occurrences` with `arg.action(ArgAction::Count).value_parser(value_parser!(u8).range(..N))` for flags (#3797)
+- `Arg::multiple_occurrences` with `ArgAction::Append` or `ArgAction::Count` though positionals will need `Arg::multiple_values` (#3772, #3797)
+- `Command::args_override_self` with `ArgAction::Set` (#2627, #3797)
+- `AppSettings::NoAutoVersion` with `ArgAction` or `Command::disable_version_flag` (#3800)
+- `AppSettings::NoHelpVersion` with `ArgAction` or `Command::disable_help_flag` / `Command::disable_help_subcommand` (#3800)
+- `ArgMatches::{value_of, value_of_os, value_of_os_lossy, value_of_t}` with `ArgMatches::{get_one,remove_one}` (#3753)
+- `ArgMatches::{values_of, values_of_os, values_of_os_lossy, values_of_t}` with `ArgMatches::{get_many,remove_many}` (#3753)
+- `ArgMatches::is_valid_arg` with `ArgMatches::{try_get_one,try_get_many}` (#3753)
+- `ArgMatches::occurrences_of` with `ArgMatches::value_source` or `ArgAction::Count` (#3797)
+- `ArgMatches::is_present` with `ArgMatches::contains_id` or `ArgAction::SetTrue` (#3797)
+- `ArgAction::StoreValue` with `ArgAction::Set` or `ArgAction::Append` (#3797)
+- `ArgAction::IncOccurrences` with `ArgAction::SetTrue` or `ArgAction::Count` (#3797)
+- *(derive)* `#[clap(parse(...))]` replaced with: (#3589, #3794)
+  - For default parsers (no `parse` attribute), deprecation warnings can be
+    silenced by opting into the new behavior by adding either `#[clap(action)]`
+    or `#[clap(value_parser)]` (ie requesting the default behavior for these
+    attributes).  Alternatively, the `unstable-v4` feature changes the default
+    away from `parse` to `action`/`value_parser`.
+  - For `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)
+  - For `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u8` (#3794)
+  - For `#[clap(parse(from_os_str)]` for `PathBuf`, replace it with
+    `#[clap(value_parser)]` (as mentioned earlier this will call
+    `value_parser!(PathBuf)` which will auto-select the right `ValueParser`
+    automatically).
+  - For `#[clap(parse(try_from_str = ...)]`, replace it with `#[clap(value_parser = ...)]`
+  - For most other cases, a type implementing `TypedValueParser` will be needed and specify it with `#[clap(value_parser = ...)]`
 
 ### Features
 
@@ -63,46 +145,14 @@ _gated behind `unstable-v4`_
 
 ### Fixes
 
+- Don't correct argument id in `default_value_ifs_os`(#3815)
+
 *parser*
 - Set `ArgMatches::value_source` and `ArgMatches::occurrences_of` for external subcommands (#3732)
 - Use value delimiter for `Arg::default_missing_values` (#3761, #3765)
 - Split`Arg::default_value` / `Arg::env` on value delimiters independent of whether `--` was used (#3765)
 - Allow applying defaults to flags (#3294, 3775)
 - Defaults no longer satisfy `required` and its variants (#3793)
-
-### Compatibility
-
-MSRV is now 1.56.0 (#3732)
-
-Behavior
-- Defaults no longer satisfy `required` and its variants (#3793)
-
-Moving (old location deprecated)
-- `clap::{PossibleValue, ValueHint}` to `clap::builder::{PossibleValue, ValueHint}`
-- `clap::{Indices, OsValues, ValueSource, Values}` to `clap::parser::{Indices, OsValues, ValueSource, Values}`
-- `clap::ArgEnum` to `clap::ValueEnum` (#3799)
-
-Replaced
-- `Arg::allow_invalid_utf8` with `Arg::value_parser(value_parser!(PathBuf))` (#3753)
-- `Arg::validator` / `Arg::validator_os` with `Arg::value_parser` (#3753)
-- `Arg::validator_regex` with users providing their own `builder::TypedValueParser` (#3756)
-- `Arg::forbid_empty_values` with `builder::NonEmptyStringValueParser` / `builder::PathBufValueParser` (#3753)
-- `Arg::possible_values` with `Arg::value_parser([...])`, `builder::PossibleValuesParser`, or `builder::EnumValueParser` (#3753)
-- `Arg::max_occurrences` with `arg.action(ArgAction::Count).value_parser(value_parser!(u8).range(..N))` for flags (#3797)
-- `Arg::multiple_occurrences` with `ArgAction::Append` or `ArgAction::Count` though positionals will need `Arg::multiple_values` (#3772, #3797)
-- `Command::args_override_self` with `ArgAction::Set` (#2627, #3797)
-- `AppSettings::NoAutoVersion` with `ArgAction` or `Command::disable_version_flag` (#3800)
-- `AppSettings::NoHelpVersion` with `ArgAction` or `Command::disable_help_flag` / `Command::disable_help_subcommand` (#3800)
-- `ArgMatches::{value_of, value_of_os, value_of_os_lossy, value_of_t}` with `ArgMatches::{get_one,remove_one}` (#3753)
-- `ArgMatches::{values_of, values_of_os, values_of_os_lossy, values_of_t}` with `ArgMatches::{get_many,remove_many}` (#3753)
-- `ArgMatches::is_valid_arg` with `ArgMatches::{try_get_one,try_get_many}` (#3753)
-- `ArgMatches::occurrences_of` with `ArgMatches::value_source` or `ArgAction::Count` (#3797)
-- `ArgMatches::is_present` with `ArgMatches::contains_id` or `ArgAction::SetTrue` (#3797)
-- `ArgAction::StoreValue` with `ArgAction::Set` or `ArgAction::Append` (#3797)
-- `ArgAction::IncOccurrences` with `ArgAction::SetTrue` or `ArgAction::Count` (#3797)
-- *(derive)* `#[clap(parse(from_flag))]` replaced with `#[clap(action = ArgAction::SetTrue)]` (#3794)
-- *(derive)* `#[clap(parse(from_occurrences))]` replaced with `#[clap(action = ArgAction::Count)]` though the field's type must be `u8` (#3794)
-- *(derive)* `#[clap(parse(...))]` replaced with `#[clap(value_parser)]`  (#3589, #3794)
 
 ## [3.1.18] - 2022-05-10
 
@@ -3433,7 +3483,13 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.1.18...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.5...HEAD
+[3.2.5]: https://github.com/clap-rs/clap/compare/v3.2.4...v3.2.5
+[3.2.4]: https://github.com/clap-rs/clap/compare/v3.2.3...v3.2.4
+[3.2.3]: https://github.com/clap-rs/clap/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/clap-rs/clap/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/clap-rs/clap/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/clap-rs/clap/compare/v3.1.18...v3.2.0
 [3.1.18]: https://github.com/clap-rs/clap/compare/v3.1.17...v3.1.18
 [3.1.17]: https://github.com/clap-rs/clap/compare/v3.1.16...v3.1.17
 [3.1.16]: https://github.com/clap-rs/clap/compare/v3.1.15...v3.1.16

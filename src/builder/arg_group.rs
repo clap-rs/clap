@@ -129,7 +129,10 @@ impl<'help> ArgGroup<'help> {
     }
 
     /// Deprecated, replaced with [`ArgGroup::id`]
-    #[deprecated(since = "3.1.0", note = "Replaced with `ArgGroup::id`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `ArgGroup::id`")
+    )]
     pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
         self.id(n)
     }
@@ -433,7 +436,10 @@ impl<'help> ArgGroup<'help> {
     }
 
     /// Deprecated, replaced with [`ArgGroup::new`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")
+    )]
     #[doc(hidden)]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
@@ -441,9 +447,12 @@ impl<'help> ArgGroup<'help> {
 
     /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Maybe clap::Parser would fit your use case? (Issue #3087)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Maybe clap::Parser would fit your use case? (Issue #3087)"
+        )
     )]
     #[doc(hidden)]
     pub fn from_yaml(yaml: &'help Yaml) -> Self {

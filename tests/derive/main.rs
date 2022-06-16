@@ -1,5 +1,8 @@
 #![cfg(feature = "derive")]
 
+mod legacy;
+mod next;
+
 mod app_name;
 mod arguments;
 mod author_version_about;
@@ -15,7 +18,6 @@ mod flatten;
 mod generic;
 mod help;
 mod issues;
-mod legacy;
 mod macros;
 mod naming;
 mod nested_subcommands;

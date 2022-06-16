@@ -1,17 +1,3 @@
-warning: use of deprecated variant `clap::ArgAction::IncOccurrence`: Replaced with `ArgAction::SetTrue` or `ArgAction::Count`
- --> tests/derive_ui/stable/bool_value_enum.rs:6:5
-  |
-6 |     #[clap(short, value_enum)]
-  |     ^
-  |
-  = note: `#[warn(deprecated)]` on by default
-
-warning: use of deprecated variant `clap::ArgAction::IncOccurrence`: Replaced with `ArgAction::SetTrue` or `ArgAction::Count`
- --> tests/derive_ui/stable/bool_value_enum.rs:6:5
-  |
-6 |     #[clap(short, value_enum)]
-  |     ^
-
 error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
    --> tests/derive_ui/stable/bool_value_enum.rs:7:11
     |
@@ -34,18 +20,6 @@ help: `bool` is a unit variant, you need to write it without the parenthesis
   |
 7 |     opts: bool,
   |           ~~~~
-
-warning: use of deprecated associated function `clap::ArgMatches::is_present`: Replaced with either `ArgMatches::contains_id(...)` or `ArgAction::SetTrue`
- --> tests/derive_ui/stable/bool_value_enum.rs:7:11
-  |
-7 |     opts: bool,
-  |           ^^^^
-
-warning: use of deprecated associated function `clap::Arg::<'help>::possible_values`: Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`
- --> tests/derive_ui/stable/bool_value_enum.rs:7:11
-  |
-7 |     opts: bool,
-  |           ^^^^
 
 error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
    --> tests/derive_ui/stable/bool_value_enum.rs:7:11

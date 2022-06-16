@@ -67,17 +67,17 @@ impl MatchedArg {
         }
     }
 
-    #[deprecated(since = "3.2.0")]
+    #[cfg_attr(feature = "deprecated", deprecated(since = "3.2.0"))]
     pub(crate) fn inc_occurrences(&mut self) {
         self.occurs += 1;
     }
 
-    #[deprecated(since = "3.2.0")]
+    #[cfg_attr(feature = "deprecated", deprecated(since = "3.2.0"))]
     pub(crate) fn set_occurrences(&mut self, occurs: u64) {
         self.occurs = occurs
     }
 
-    #[deprecated(since = "3.2.0")]
+    #[cfg_attr(feature = "deprecated", deprecated(since = "3.2.0"))]
     pub(crate) fn get_occurrences(&self) -> u64 {
         self.occurs
     }

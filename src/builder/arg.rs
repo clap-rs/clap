@@ -135,7 +135,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::id`]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::id`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Arg::id`")
+    )]
     pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
         self.id(n)
     }
@@ -785,7 +788,10 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
     #[inline]
     #[must_use]
-    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::action` (Issue #3772)")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `Arg::action` (Issue #3772)")
+    )]
     pub fn multiple_occurrences(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::MultipleOccurrences)
@@ -797,9 +803,12 @@ impl<'help> Arg<'help> {
     /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
     #[inline]
     #[must_use]
-    #[deprecated(
-        since = "3.2.0",
-        note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`"
+        )
     )]
     pub fn max_occurrences(mut self, qty: usize) -> Self {
         self.max_occurs = Some(qty);
@@ -1509,7 +1518,10 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::value_parser(...)`]
     #[inline]
     #[must_use]
-    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")
+    )]
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&str) -> Result<O, E> + Send + 'help,
@@ -1523,7 +1535,10 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::value_parser(...)`]
     #[must_use]
-    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")
+    )]
     pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,
@@ -1536,9 +1551,12 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated in [Issue #3743](https://github.com/clap-rs/clap/issues/3743), replaced with [`Arg::value_parser(...)`]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Deprecated in Issue #3743; eplaced with `Arg::value_parser(...)`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Deprecated in Issue #3743; eplaced with `Arg::value_parser(...)`"
+        )
     )]
     #[cfg(feature = "regex")]
     #[must_use]
@@ -1558,9 +1576,12 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+        )
     )]
     #[must_use]
     pub fn possible_value<T>(mut self, value: T) -> Self
@@ -1572,9 +1593,12 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+        )
     )]
     #[must_use]
     pub fn possible_values<I, T>(mut self, values: I) -> Self
@@ -1709,9 +1733,12 @@ impl<'help> Arg<'help> {
     /// or [`ValueParser::path_buf()`][crate::builder::ValueParser::path_buf]
     #[inline]
     #[must_use]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
+        )
     )]
     pub fn allow_invalid_utf8(self, yes: bool) -> Self {
         if yes {
@@ -1724,9 +1751,12 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
     #[inline]
     #[must_use]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
+        )
     )]
     pub fn forbid_empty_values(self, yes: bool) -> Self {
         if yes {
@@ -1853,7 +1883,10 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::use_value_delimiter`]
     #[inline]
     #[must_use]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::use_value_delimiter`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Arg::use_value_delimiter`")
+    )]
     pub fn use_delimiter(self, yes: bool) -> Self {
         self.use_value_delimiter(yes)
     }
@@ -1977,7 +2010,10 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::require_value_delimiter`]
     #[inline]
     #[must_use]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::require_value_delimiter`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Arg::require_value_delimiter`")
+    )]
     pub fn require_delimiter(self, yes: bool) -> Self {
         self.require_value_delimiter(yes)
     }
@@ -2184,59 +2220,79 @@ impl<'help> Arg<'help> {
     ///
     /// # Examples
     ///
-    /// Here is an implementation of the common POSIX style `--color` argument.
-    ///
+    /// For POSIX style `--color`:
     /// ```rust
     /// # use clap::{Command, Arg, ValueSource};
-    ///
-    /// macro_rules! cmd {
-    ///     () => {{
-    ///         Command::new("prog")
-    ///             .arg(Arg::new("color").long("color")
-    ///                 .value_name("WHEN")
-    ///                 .value_parser(["always", "auto", "never"])
-    ///                 .default_value("auto")
-    ///                 .overrides_with("color")
-    ///                 .min_values(0)
-    ///                 .require_equals(true)
-    ///                 .default_missing_value("always")
-    ///                 .help("Specify WHEN to colorize output.")
-    ///             )
-    ///    }};
+    /// fn cli() -> Command<'static> {
+    ///     Command::new("prog")
+    ///         .arg(Arg::new("color").long("color")
+    ///             .value_name("WHEN")
+    ///             .value_parser(["always", "auto", "never"])
+    ///             .default_value("auto")
+    ///             .min_values(0)
+    ///             .require_equals(true)
+    ///             .default_missing_value("always")
+    ///             .help("Specify WHEN to colorize output.")
+    ///         )
     /// }
     ///
-    /// let mut m;
-    ///
     /// // first, we'll provide no arguments
-    ///
-    /// m  = cmd!().get_matches_from(vec![
+    /// let m  = cli().get_matches_from(vec![
     ///         "prog"
     ///     ]);
-    ///
     /// assert_eq!(m.value_of("color"), Some("auto"));
-    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
-    ///
-    /// m  = cmd!().get_matches_from(vec![
+    /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color=never"
     ///     ]);
-    ///
     /// assert_eq!(m.value_of("color"), Some("never"));
-    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
-    ///
-    /// m  = cmd!().get_matches_from(vec![
+    /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color"
     ///     ]);
-    ///
     /// assert_eq!(m.value_of("color"), Some("always"));
-    /// assert!(m.contains_id("color"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
+    ///
+    /// For bool literals:
+    /// ```rust
+    /// # use clap::{Command, Arg, ValueSource, value_parser};
+    /// fn cli() -> Command<'static> {
+    ///     Command::new("prog")
+    ///         .arg(Arg::new("create").long("create")
+    ///             .value_name("BOOL")
+    ///             .value_parser(value_parser!(bool))
+    ///             .min_values(0)
+    ///             .require_equals(true)
+    ///             .default_missing_value("true")
+    ///         )
+    /// }
+    ///
+    /// // first, we'll provide no arguments
+    /// let m  = cli().get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    /// assert_eq!(m.get_one::<bool>("create").copied(), None);
+    ///
+    /// // next, we'll provide a runtime value to override the default (as usually done).
+    /// let m  = cli().get_matches_from(vec![
+    ///         "prog", "--create=false"
+    ///     ]);
+    /// assert_eq!(m.get_one::<bool>("create").copied(), Some(false));
+    /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
+    ///
+    /// // finally, we will use the shortcut and only provide the argument without a value.
+    /// let m  = cli().get_matches_from(vec![
+    ///         "prog", "--create"
+    ///     ]);
+    /// assert_eq!(m.get_one::<bool>("create").copied(), Some(true));
+    /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
+    /// ```
+    ///
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
@@ -4203,7 +4259,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::get_id`]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::get_id`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Arg::get_id`")
+    )]
     pub fn get_name(&self) -> &'help str {
         self.get_id()
     }
@@ -4306,9 +4365,12 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::get_value_parser().possible_values()`]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `Arg::get_value_parser().possible_values()`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::get_value_parser().possible_values()`"
+        )
     )]
     pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
         if self.possible_vals.is_empty() {
@@ -4379,7 +4441,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::is_global_set`]
-    #[deprecated(since = "3.1.0", note = "Replaced with `Arg::is_global_set`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `Arg::is_global_set`")
+    )]
     pub fn get_global(&self) -> bool {
         self.is_global_set()
     }
@@ -4439,7 +4504,10 @@ impl<'help> Arg<'help> {
     }
 
     /// [`Arg::multiple_occurrences`] is going away  ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
-    #[deprecated(since = "3.2.0", note = "`multiple_occurrences` away (Issue #3772)")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "`multiple_occurrences` away (Issue #3772)")
+    )]
     pub fn is_multiple_occurrences_set(&self) -> bool {
         self.is_set(ArgSettings::MultipleOccurrences)
     }
@@ -4455,13 +4523,19 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::get_value_parser()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")
+    )]
     pub fn is_forbid_empty_values_set(&self) -> bool {
         self.is_set(ArgSettings::ForbidEmptyValues)
     }
 
     /// Deprecated, replaced with [`Arg::get_value_parser()`
-    #[deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")
+    )]
     pub fn is_allow_invalid_utf8_set(&self) -> bool {
         self.is_set(ArgSettings::AllowInvalidUtf8)
     }
@@ -4580,7 +4654,10 @@ impl<'help> Arg<'help> {
 /// # Deprecated
 impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::new`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")
+    )]
     #[doc(hidden)]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
@@ -4588,9 +4665,12 @@ impl<'help> Arg<'help> {
 
     /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
+        )
     )]
     #[doc(hidden)]
     pub fn from_yaml(y: &'help Yaml) -> Self {
@@ -4661,14 +4741,20 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
+    )]
     #[doc(hidden)]
     pub fn from_usage(u: &'help str) -> Self {
         UsageParser::from_usage(u).parse()
     }
 
     /// Deprecated, replaced with [`Arg::required_unless_present`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn required_unless<T: Key>(self, arg_id: T) -> Self {
@@ -4676,9 +4762,12 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::required_unless_present_all`]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Replaced with `Arg::required_unless_present_all`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Arg::required_unless_present_all`"
+        )
     )]
     #[doc(hidden)]
     #[must_use]
@@ -4691,9 +4780,12 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::required_unless_present_any`]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Replaced with `Arg::required_unless_present_any`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Arg::required_unless_present_any`"
+        )
     )]
     #[doc(hidden)]
     #[must_use]
@@ -4706,7 +4798,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::required_if_eq`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn required_if<T: Key>(self, arg_id: T, val: &'help str) -> Self {
@@ -4714,7 +4809,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::required_if_eq_any`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn required_ifs<T: Key>(self, ifs: &[(T, &'help str)]) -> Self {
@@ -4722,7 +4820,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::hide`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")
+    )]
     #[doc(hidden)]
     #[inline]
     #[must_use]
@@ -4731,7 +4832,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::ignore_case`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")
+    )]
     #[doc(hidden)]
     #[inline]
     #[must_use]
@@ -4740,7 +4844,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::forbid_empty_values`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn empty_values(self, yes: bool) -> Self {
@@ -4749,9 +4856,12 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::multiple_occurrences`] (most likely what you want) and
     /// [`Arg::multiple_values`]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
+        )
     )]
     #[doc(hidden)]
     #[must_use]
@@ -4760,7 +4870,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::hide_short_help`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")
+    )]
     #[doc(hidden)]
     #[inline]
     #[must_use]
@@ -4769,7 +4882,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::hide_long_help`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")
+    )]
     #[doc(hidden)]
     #[inline]
     #[must_use]
@@ -4778,7 +4894,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::setting`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn set(self, s: ArgSettings) -> Self {
@@ -4786,7 +4905,10 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::unset_setting`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")
+    )]
     #[doc(hidden)]
     #[must_use]
     pub fn unset(self, s: ArgSettings) -> Self {

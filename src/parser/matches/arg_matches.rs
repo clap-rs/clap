@@ -342,7 +342,10 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
+    )]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         let id = Id::from(id);
@@ -352,7 +355,10 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
+    )]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         let id = Id::from(id);
@@ -362,7 +368,10 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
+    )]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         let id = Id::from(id);
@@ -372,7 +381,10 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+    )]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
         #![allow(deprecated)]
@@ -431,7 +443,10 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+    )]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
         let id = Id::from(id);
@@ -444,7 +459,10 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+    )]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
         #![allow(deprecated)]
@@ -458,7 +476,11 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
+    )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
     where
         R: FromStr,
@@ -479,7 +501,11 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
+    )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
     where
         R: FromStr,
@@ -490,7 +516,11 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+    )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
     where
         R: FromStr,
@@ -511,7 +541,11 @@ impl ArgMatches {
     }
 
     /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+    )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
     where
         R: FromStr,
@@ -521,12 +555,16 @@ impl ArgMatches {
         self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
-    /// Deprecated, replaced with [`ArgMatches::contains_id`] or
-    /// [`ArgAction::SetTrue`][crate::ArgAction].
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with either `ArgMatches::contains_id(...)` or `ArgAction::SetTrue`"
+    /// Deprecated, replaced with [`ArgAction::SetTrue`][crate::ArgAction] or
+    /// [`ArgMatches::contains_id`].
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`"
+        )
     )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
@@ -557,6 +595,7 @@ impl ArgMatches {
     /// ```
     ///
     /// [`default_value`]: crate::Arg::default_value()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_source<T: Key>(&self, id: T) -> Option<ValueSource> {
         let id = Id::from(id);
 
@@ -565,12 +604,16 @@ impl ArgMatches {
         value.and_then(MatchedArg::source)
     }
 
-    /// Deprecated, replaced with [`ArgMatches::get_many`]`.len()` or
-    /// [`ArgAction::Count`][crate::ArgAction].
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with either `ArgMatches::get_many(...).len()` or `ArgAction::Count`"
+    /// Deprecated, replaced with  [`ArgAction::Count`][crate::ArgAction] or
+    /// [`ArgMatches::get_many`]`.len()`.
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with either `ArgAction::Count` or `ArgMatches::get_many(...).len()`"
+        )
     )]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
         #![allow(deprecated)]
         self.get_arg(&Id::from(id))
@@ -711,6 +754,7 @@ impl ArgMatches {
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
     /// ```
     /// [delimiter]: crate::Arg::value_delimiter()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn index_of<T: Key>(&self, id: T) -> Option<usize> {
         let arg = self.get_arg(&Id::from(id))?;
         let i = arg.get_index(0)?;
@@ -793,6 +837,7 @@ impl ArgMatches {
     /// ```
     /// [`ArgMatches::index_of`]: ArgMatches::index_of()
     /// [delimiter]: Arg::value_delimiter()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
         let arg = self.get_arg(&Id::from(id))?;
         let i = Indices {
@@ -804,7 +849,10 @@ impl ArgMatches {
 
     #[inline]
     #[doc(hidden)]
-    #[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::try_get_one()`")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::try_get_one()`")
+    )]
     pub fn is_valid_arg(&self, _id: impl Key) -> bool {
         #[cfg(debug_assertions)]
         {
@@ -1199,7 +1247,7 @@ impl ArgMatches {
                 return Err(MatchesError::UnknownArgument {});
             } else {
                 debug!(
-                    "`{:?}` is not a name of an argument or a group.\n\
+                    "`{:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     _arg
@@ -1223,7 +1271,7 @@ impl ArgMatches {
                 );
             } else {
                 panic!(
-                    "`{:?}` is not a name of an argument or a group.\n\
+                    "`{:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     arg
@@ -1452,7 +1500,10 @@ impl Default for RawValues<'_> {
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
 /// Deprecated, replaced with [`ArgMatches::get_many()`]
-#[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+)]
 #[derive(Clone, Debug)]
 pub struct Values<'a> {
     #[allow(clippy::type_complexity)]
@@ -1534,7 +1585,10 @@ impl<'a> Default for GroupedValues<'a> {
 }
 
 /// Deprecated, replaced with [`ArgMatches::get_many()`]
-#[deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
+)]
 #[derive(Clone, Debug)]
 pub struct OsValues<'a> {
     #[allow(clippy::type_complexity)]

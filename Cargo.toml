@@ -10,7 +10,7 @@ members = [
 
 [package]
 name = "clap"
-version = "3.1.18"
+version = "3.2.5"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
@@ -73,8 +73,10 @@ color = ["atty", "termcolor"]
 suggestions = ["strsim"]
 
 # Optional
-derive = ["clap_derive", "lazy_static"]
-cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
+# note: this will always enable clap_derive, change this to `clap_derive?/unstable-v4` when MSRV is bigger than 1.60
+deprecated = ["clap_derive/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
+derive = ["clap_derive", "once_cell"]
+cargo = ["once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
 yaml = ["yaml-rust"]
 env = [] # Use environment variables during arg parsing
@@ -84,14 +86,14 @@ unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode character
 unstable-replace = []
 unstable-grouped = []
 # note: this will always enable clap_derive, change this to `clap_derive?/unstable-v4` when MSRV is bigger than 1.60
-unstable-v4 = ["clap_derive/unstable-v4"]
+unstable-v4 = ["clap_derive/unstable-v4", "deprecated"]
 
 [lib]
 bench = false
 
 [dependencies]
-clap_derive = { path = "./clap_derive", version = "=3.1.18", optional = true }
-clap_lex = { path = "./clap_lex", version = "0.2.0" }
+clap_derive = { path = "./clap_derive", version = "=3.2.5", optional = true }
+clap_lex = { path = "./clap_lex", version = "0.2.2" }
 bitflags = "1.2"
 textwrap = { version = "0.15.0", default-features = false, features = [] }
 unicase = { version = "2.6", optional = true }
@@ -101,9 +103,9 @@ yaml-rust = { version = "0.4.1",  optional = true }
 atty = { version = "0.2",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.1.12", optional = true }
-lazy_static = { version = "1", optional = true }
 regex = { version = "1.0", optional = true }
 backtrace = { version = "0.3", optional = true }
+once_cell = { version = "1.12.0", optional = true }
 
 [dev-dependencies]
 regex = "1.0"

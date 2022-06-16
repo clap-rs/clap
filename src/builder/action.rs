@@ -71,22 +71,29 @@ pub enum ArgAction {
     /// ```
     Append,
     /// Deprecated, replaced with [`ArgAction::Set`] or [`ArgAction::Append`]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `ArgAction::Set` or `ArgAction::Append`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `ArgAction::Set` or `ArgAction::Append`"
+        )
     )]
     StoreValue,
     /// Deprecated, replaced with [`ArgAction::SetTrue`] or [`ArgAction::Count`]
-    #[deprecated(
-        since = "3.2.0",
-        note = "Replaced with `ArgAction::SetTrue` or `ArgAction::Count`"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `ArgAction::SetTrue` or `ArgAction::Count`"
+        )
     )]
     IncOccurrence,
     /// When encountered, act as if `"true"` was encountered on the command-line
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `false`.
     ///
-    /// No value is allowed
+    /// No value is allowed. To optionally accept a value, see
+    /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
     /// # Examples
     ///
@@ -121,7 +128,8 @@ pub enum ArgAction {
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `true`.
     ///
-    /// No value is allowed
+    /// No value is allowed. To optionally accept a value, see
+    /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
     /// # Examples
     ///
@@ -156,7 +164,8 @@ pub enum ArgAction {
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `0`.
     ///
-    /// No value is allowed
+    /// No value is allowed. To optionally accept a value, see
+    /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
     /// # Examples
     ///

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{CommandFactory, Parser};
 
 use crate::utils;
@@ -42,6 +44,30 @@ fn auto_default_value_t() {
 
     let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 0]"));
+}
+
+#[test]
+fn default_value_os_t() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(value_parser, default_value_os_t = PathBuf::from("abc.def"))]
+        arg: PathBuf,
+    }
+    assert_eq!(
+        Opt {
+            arg: PathBuf::from("abc.def")
+        },
+        Opt::try_parse_from(&["test"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: PathBuf::from("ghi")
+        },
+        Opt::try_parse_from(&["test", "ghi"]).unwrap()
+    );
+
+    let help = utils::get_long_help::<Opt>();
+    assert!(help.contains("[default: abc.def]"));
 }
 
 #[test]

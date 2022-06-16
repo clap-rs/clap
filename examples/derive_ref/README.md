@@ -208,7 +208,10 @@ These correspond to a `clap::Arg`.
   - When `Option<T>`, the subcommand becomes optional
 - `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in
 - `parse(<kind> [= <function>])`: `clap::Arg::validator` and `clap::ArgMatches::values_of_t`
-  - **Deprecated:** except for `from_flag` or `from_occurrences`, instead use `value_parser`
+  - **Deprecated:**
+    - Use `value_parser(...)` for `from_str`, `try_from_str`, `from_os_str`, and `try_from_os_str`
+    - Use `action(ArgAction::Count` for `from_occurrences`
+    - Use `action(ArgAction::SetTrue` for `from_flag`
   - Default: `try_from_str`
   - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
   - See [Arg Types](#arg-types) for more details
@@ -268,7 +271,7 @@ You can then support your custom type with `#[clap(parse(<kind> [= <function>]))
 | `from_str`               | `fn(&str) -> T`                       | `::std::convert::From::from`    |
 | `try_from_str` (default) | `fn(&str) -> Result<T, E>`            | `::std::str::FromStr::from_str` |
 | `from_os_str`            | `fn(&OsStr) -> T`                     | `::std::convert::From::from`    |
-| `try_from_os_str`        | `fn(&OsStr) -> Result<T, OsString>`   | (no default function)           |
+| `try_from_os_str`        | `fn(&OsStr) -> Result<T, E>`          | (no default function)           |
 | `from_occurrences`       | `fn(u64) -> T`                        | `value as T`                    |
 | `from_flag`              | `fn(bool) -> T`                       | `::std::convert::From::from`    |
 

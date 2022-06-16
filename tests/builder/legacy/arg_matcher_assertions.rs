@@ -3,7 +3,7 @@ use clap::{Arg, Command};
 
 #[test]
 #[cfg(debug_assertions)]
-#[should_panic = "`f` is not a name of an argument or a group."]
+#[should_panic = "`f` is not an id of an argument or a group."]
 fn arg_matches_if_present_wrong_arg() {
     let m = Command::new("test")
         .arg(Arg::new("flag").short('f'))
@@ -16,7 +16,7 @@ fn arg_matches_if_present_wrong_arg() {
 
 #[test]
 #[cfg(debug_assertions)]
-#[should_panic = "`o` is not a name of an argument or a group."]
+#[should_panic = "`o` is not an id of an argument or a group."]
 fn arg_matches_value_of_wrong_arg() {
     let m = Command::new("test")
         .arg(Arg::new("opt").short('o').takes_value(true))

@@ -209,7 +209,7 @@ impl Attrs {
         res
     }
 
-    pub fn from_arg_enum_variant(
+    pub fn from_value_enum_variant(
         variant: &Variant,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
@@ -362,7 +362,7 @@ impl Attrs {
                 let ty = Ty::from_syn_ty(&field.ty);
                 res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
             }
-            Kind::Arg(orig_ty) => {
+            Kind::Arg(_) => {
                 let mut ty = Ty::from_syn_ty(&field.ty);
                 if res.parser.is_some() {
                     if let Some(value_parser) = res.value_parser.as_ref() {
@@ -408,7 +408,14 @@ impl Attrs {
 
                     _ => (),
                 }
-                res.kind = Sp::new(Kind::Arg(ty), orig_ty.span());
+                res.kind = Sp::new(
+                    Kind::Arg(ty),
+                    field
+                        .ident
+                        .as_ref()
+                        .map(|i| i.span())
+                        .unwrap_or_else(|| field.ty.span()),
+                );
             }
         }
 
@@ -545,14 +552,11 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            clap::lazy_static::lazy_static! {
-                                static ref DEFAULT_VALUE: &'static str = {
-                                    let val: #ty = #val;
-                                    let s = ::std::string::ToString::to_string(&val);
-                                    ::std::boxed::Box::leak(s.into_boxed_str())
-                                };
-                            }
-                            *DEFAULT_VALUE
+                            static DEFAULT_VALUE: clap::once_cell::sync::Lazy<String> = clap::once_cell::sync::Lazy::new(|| {
+                                let val: #ty = #val;
+                                ::std::string::ToString::to_string(&val)
+                            });
+                            &*DEFAULT_VALUE
                         })
                     };
 
@@ -588,14 +592,11 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            clap::lazy_static::lazy_static! {
-                                static ref DEFAULT_VALUE: &'static ::std::ffi::OsStr = {
-                                    let val: #ty = #val;
-                                    let s: ::std::ffi::OsString = val.into();
-                                    ::std::boxed::Box::leak(s.into_boxed_os_str())
-                                };
-                            }
-                            *DEFAULT_VALUE
+                            static DEFAULT_VALUE: clap::once_cell::sync::Lazy<::std::ffi::OsString> = clap::once_cell::sync::Lazy::new(|| {
+                                let val: #ty = #val;
+                                ::std::ffi::OsString::from(val)
+                            });
+                            &*DEFAULT_VALUE
                         })
                     };
 
@@ -777,9 +778,18 @@ impl Attrs {
             .unwrap_or_else(|| {
                 if let Some(action) = self.action.as_ref() {
                     let inner_type = inner_type(field_type);
-                    default_value_parser(inner_type, action.span())
-                } else {
+                    let span = action.span();
+                    default_value_parser(inner_type, span)
+                } else if !self.ignore_parser() || cfg!(not(feature = "unstable-v4")) {
                     self.parser(field_type).value_parser()
+                } else {
+                    let inner_type = inner_type(field_type);
+                    let span = self
+                        .action
+                        .as_ref()
+                        .map(|a| a.span())
+                        .unwrap_or_else(|| self.kind.span());
+                    default_value_parser(inner_type, span)
                 }
             })
     }
@@ -790,15 +800,33 @@ impl Attrs {
             .map(|p| p.resolve(field_type))
             .unwrap_or_else(|| {
                 if let Some(value_parser) = self.value_parser.as_ref() {
-                    default_action(field_type, value_parser.span())
-                } else {
+                    let span = value_parser.span();
+                    default_action(field_type, span)
+                } else if !self.ignore_parser() || cfg!(not(feature = "unstable-v4")) {
                     self.parser(field_type).action()
+                } else {
+                    let span = self
+                        .value_parser
+                        .as_ref()
+                        .map(|a| a.span())
+                        .unwrap_or_else(|| self.kind.span());
+                    default_action(field_type, span)
                 }
             })
     }
 
+    #[cfg(feature = "unstable-v4")]
+    pub fn ignore_parser(&self) -> bool {
+        self.parser.is_none()
+    }
+
+    #[cfg(not(feature = "unstable-v4"))]
     pub fn ignore_parser(&self) -> bool {
         self.value_parser.is_some() || self.action.is_some()
+    }
+
+    pub fn explicit_parser(&self) -> bool {
+        self.parser.is_some()
     }
 
     pub fn parser(&self, field_type: &Type) -> Sp<Parser> {

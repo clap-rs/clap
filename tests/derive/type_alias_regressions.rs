@@ -1,7 +1,5 @@
+//! Regression test to ensure that type aliases do not cause compilation failures.
 #![allow(deprecated)]
-
-/// Regression test to ensure that type aliases do not cause compilation failures.
-use std::str::FromStr;
 
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -9,19 +7,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 #[allow(dead_code)]
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-// Wrapper to use for Option type alias
-#[derive(Debug, PartialEq, Eq)]
-struct Wrapper<T>(T);
-
-impl<T: FromStr> FromStr for Wrapper<T> {
-    type Err = <T as FromStr>::Err;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        T::from_str(s).map(Wrapper)
-    }
-}
-
-type Option<T> = std::option::Option<Wrapper<T>>;
+type Option<T> = std::option::Option<T>;
 
 #[derive(Parser)]
 pub struct Opts {

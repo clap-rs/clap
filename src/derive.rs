@@ -20,7 +20,7 @@ use std::ffi::OsString;
 /// See also [`Subcommand`] and [`Args`].
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.18/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.5/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
@@ -158,9 +158,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
 
     /// Deprecated, `StructOpt::clap` replaced with [`IntoCommand::command`] (derive as part of
     /// [`Parser`])
-    #[deprecated(
-        since = "3.0.0",
-        note = "`StructOpt::clap` is replaced with `IntoCommand::command` (derived as part of `Parser`)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "`StructOpt::clap` is replaced with `IntoCommand::command` (derived as part of `Parser`)"
+        )
     )]
     #[doc(hidden)]
     fn clap<'help>() -> Command<'help> {
@@ -169,9 +172,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
 
     /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches_mut`] (derive as part of
     /// [`Parser`])
-    #[deprecated(
-        since = "3.0.0",
-        note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches_mut` (derived as part of `Parser`)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches_mut` (derived as part of `Parser`)"
+        )
     )]
     #[doc(hidden)]
     fn from_clap(matches: &ArgMatches) -> Self {
@@ -179,9 +185,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 
     /// Deprecated, `StructOpt::from_args` replaced with `Parser::parse` (note the change in derives)
-    #[deprecated(
-        since = "3.0.0",
-        note = "`StructOpt::from_args` is replaced with `Parser::parse` (note the change in derives)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "`StructOpt::from_args` is replaced with `Parser::parse` (note the change in derives)"
+        )
     )]
     #[doc(hidden)]
     fn from_args() -> Self {
@@ -189,9 +198,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 
     /// Deprecated, `StructOpt::from_args_safe` replaced with `Parser::try_parse` (note the change in derives)
-    #[deprecated(
-        since = "3.0.0",
-        note = "`StructOpt::from_args_safe` is replaced with `Parser::try_parse` (note the change in derives)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "`StructOpt::from_args_safe` is replaced with `Parser::try_parse` (note the change in derives)"
+        )
     )]
     #[doc(hidden)]
     fn from_args_safe() -> Result<Self, Error> {
@@ -199,9 +211,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 
     /// Deprecated, `StructOpt::from_iter` replaced with `Parser::parse_from` (note the change in derives)
-    #[deprecated(
-        since = "3.0.0",
-        note = "`StructOpt::from_iter` is replaced with `Parser::parse_from` (note the change in derives)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "`StructOpt::from_iter` is replaced with `Parser::parse_from` (note the change in derives)"
+        )
     )]
     #[doc(hidden)]
     fn from_iter<I, T>(itr: I) -> Self
@@ -214,9 +229,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
 
     /// Deprecated, `StructOpt::from_iter_safe` replaced with `Parser::try_parse_from` (note the
     /// change in derives)
-    #[deprecated(
-        since = "3.0.0",
-        note = "`StructOpt::from_iter_safe` is replaced with `Parser::try_parse_from` (note the change in derives)"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "`StructOpt::from_iter_safe` is replaced with `Parser::try_parse_from` (note the change in derives)"
+        )
     )]
     #[doc(hidden)]
     fn from_iter_safe<I, T>(itr: I) -> Result<Self, Error>
@@ -240,7 +258,10 @@ pub trait CommandFactory: Sized {
         Self::into_app()
     }
     /// Deprecated, replaced with `CommandFactory::command`
-    #[deprecated(since = "3.1.0", note = "Replaced with `CommandFactory::command")]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "3.1.0", note = "Replaced with `CommandFactory::command")
+    )]
     fn into_app<'help>() -> Command<'help>;
     /// Build a [`Command`] that can update `self`.
     ///
@@ -250,9 +271,12 @@ pub trait CommandFactory: Sized {
         Self::into_app_for_update()
     }
     /// Deprecated, replaced with `CommandFactory::command_for_update`
-    #[deprecated(
-        since = "3.1.0",
-        note = "Replaced with `CommandFactory::command_for_update"
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `CommandFactory::command_for_update"
+        )
     )]
     fn into_app_for_update<'help>() -> Command<'help>;
 }
@@ -349,7 +373,7 @@ pub trait FromArgMatches: Sized {
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.18/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.5/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
@@ -393,7 +417,7 @@ pub trait Args: FromArgMatches + Sized {
 ///   `Subcommand`.
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.18/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.5/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
@@ -437,7 +461,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
 ///
 /// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.1.18/examples/derive_ref/README.md)
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.5/examples/derive_ref/README.md)
 /// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
