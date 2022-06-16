@@ -1497,7 +1497,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             crate::builder::ArgPredicate::Equals(v) => {
                                 a.raw_vals_flatten().any(|value| v == value)
                             }
-                            crate::builder::ArgPredicate::IsPresent => true,
+                            crate::builder::ArgPredicate::IsPresent => a.num_vals() == 0,
                         }
                     } else {
                         false

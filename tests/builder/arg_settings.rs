@@ -83,3 +83,24 @@ fn default_value_ifs_os() {
         }
     }
 }
+
+#[test]
+pub fn default_value_ifs() {
+    let cmd = Command::new("my_cargo")
+        .arg(Arg::new("flag").long("flag").takes_value(true))
+        .arg(Arg::new("other").long("other").default_value_ifs(&[
+            // should not set default val for the arg when val is none.
+            // we could consider that there are other conditions for same arg id
+            ("flag", None, Some("default")),
+            ("flag", Some("123"), Some("456")),
+        ]));
+    let result = cmd.try_get_matches_from(["my_cargo", "--flag", "123"]);
+    match result {
+        Ok(arg_matches) => {
+            assert_eq!(arg_matches.value_of("other"), Some("456"));
+        }
+        Err(e) => {
+            println!("{}", e.to_string());
+        }
+    }
+}
