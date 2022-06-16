@@ -604,13 +604,13 @@ impl ArgMatches {
         value.and_then(MatchedArg::source)
     }
 
-    /// Deprecated, replaced with  [`ArgAction::Count`][crate::ArgAction] or
-    /// [`ArgMatches::get_many`]`.len()`.
+    /// Deprecated, replaced with  [`ArgAction::Count`][crate::ArgAction],
+    /// [`ArgMatches::get_many`]`.len()`, or [`ArgMatches::value_source`].
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with either `ArgAction::Count` or `ArgMatches::get_many(...).len()`"
+            note = "Replaced with either `ArgAction::Count`, `ArgMatches::get_many(...).len()`, or `ArgMatches::value_source`"
         )
     )]
     #[cfg_attr(debug_assertions, track_caller)]
