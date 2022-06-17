@@ -3,7 +3,6 @@ name = "clap_mangen"
 version = "0.1.8"
 description = "A manpage generator for clap"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_mangen"
-documentation = "https://docs.rs/clap_mangen"
 categories = ["command-line-interface"]
 keywords = [
   "clap",
@@ -12,7 +11,6 @@ keywords = [
   "manpage",
 ]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 edition = "2021"
 rust-version = "1.56.0"  # MSRV
 include = [

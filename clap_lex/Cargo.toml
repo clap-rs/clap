@@ -3,7 +3,6 @@ name = "clap_lex"
 version = "0.2.2"
 description = "Minimal, flexible command line parser"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_lex"
-documentation = "https://docs.rs/clap_lex"
 categories = ["command-line-interface"]
 keywords = [
   "argument",
@@ -13,7 +12,6 @@ keywords = [
   "parse"
 ]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 edition = "2021"
 rust-version = "1.56.0"  # MSRV
 include = [

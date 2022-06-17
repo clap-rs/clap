@@ -13,7 +13,6 @@ name = "clap"
 version = "3.2.5"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
-documentation = "https://docs.rs/clap/"
 categories = ["command-line-interface"]
 keywords = [
   "argument",
@@ -23,7 +22,6 @@ keywords = [
   "parse"
 ]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 edition = "2021"
 rust-version = "1.56.0"  # MSRV
 include = [
