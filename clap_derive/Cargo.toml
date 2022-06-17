@@ -3,7 +3,6 @@ name = "clap_derive"
 version = "3.2.5"
 description = "Parse command line argument by defining a struct, derive crate."
 repository = "https://github.com/clap-rs/clap/tree/master/clap_derive"
-documentation = "https://docs.rs/clap_derive"
 categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
 keywords = [
   "clap",
@@ -13,7 +12,6 @@ keywords = [
   "proc_macro"
 ]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 edition = "2021"
 rust-version = "1.56.0"  # MSRV
 include = [

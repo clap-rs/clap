@@ -3,7 +3,6 @@ name = "clap_complete"
 version = "3.2.1"
 description = "Generate shell completion scripts for your clap::Command"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
-documentation = "https://docs.rs/clap_complete"
 categories = ["command-line-interface"]
 keywords = [
   "clap",
@@ -12,7 +11,6 @@ keywords = [
   "bash",
 ]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 edition = "2021"
 rust-version = "1.56.0"  # MSRV
 include = [
