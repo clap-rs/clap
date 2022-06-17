@@ -407,7 +407,7 @@ impl ErrorKind {
             Self::UnrecognizedSubcommand => Some("A subcommand wasn't recognized"),
             Self::EmptyValue => Some("An argument requires a value but none was supplied"),
             Self::NoEquals => Some("Equal is needed when assigning values to one of the arguments"),
-            Self::ValueValidation => Some("Invalid for for one of the arguments"),
+            Self::ValueValidation => Some("Invalid value for one of the arguments"),
             Self::TooManyValues => Some("An argument received an unexpected value"),
             Self::TooFewValues => Some("An argument requires more values"),
             Self::TooManyOccurrences => Some("An argument occurred too many times"),
