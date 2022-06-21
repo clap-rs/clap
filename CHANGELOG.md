@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't panic when parsing `--=`
+
 ## [3.2.5] - 2022-06-15
 
 ### Fixes
