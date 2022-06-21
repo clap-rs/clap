@@ -738,8 +738,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             }
         };
         if long_arg.is_empty() {
-            debug_assert!(long_value.is_none(), "{:?}", long_value);
-            return Ok(ParseResult::NoArg);
+            debug_assert!(
+                long_value.is_some(),
+                "`--` should be filtered out before this point"
+            );
         }
 
         let arg = if let Some(arg) = self.cmd.get_keymap().get(long_arg) {
