@@ -20,7 +20,7 @@ macro_rules! load_yaml {
 #[macro_export]
 #[cfg_attr(
     feature = "deprecated",
-    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")
+    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::get_one`")
 )]
 #[doc(hidden)]
 macro_rules! value_t {
@@ -36,10 +36,7 @@ macro_rules! value_t {
 #[macro_export]
 #[cfg_attr(
     feature = "deprecated",
-    deprecated(
-        since = "3.0.0",
-        note = "Replaced with `ArgMatches::value_of_t_or_exit`"
-    )
+    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::get_one`")
 )]
 #[doc(hidden)]
 macro_rules! value_t_or_exit {
@@ -55,7 +52,7 @@ macro_rules! value_t_or_exit {
 #[macro_export]
 #[cfg_attr(
     feature = "deprecated",
-    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")
+    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::get_many`")
 )]
 #[doc(hidden)]
 macro_rules! values_t {
@@ -71,10 +68,7 @@ macro_rules! values_t {
 #[macro_export]
 #[cfg_attr(
     feature = "deprecated",
-    deprecated(
-        since = "3.0.0",
-        note = "Replaced with `ArgMatches::values_of_t_or_exit`"
-    )
+    deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::get_many`")
 )]
 #[doc(hidden)]
 macro_rules! values_t_or_exit {
@@ -88,7 +82,7 @@ macro_rules! values_t_or_exit {
 
 #[cfg_attr(
     feature = "deprecated",
-    deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")
+    deprecated(since = "3.0.0", note = "Replaced with `ValueEnum`")
 )]
 #[doc(hidden)]
 #[macro_export]
@@ -101,7 +95,7 @@ macro_rules! _clap_count_exprs {
 /// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
 #[cfg_attr(
     feature = "deprecated",
-    deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")
+    deprecated(since = "3.0.0", note = "Replaced with `ValueEnum`")
 )]
 #[doc(hidden)]
 #[macro_export]

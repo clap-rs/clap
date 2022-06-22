@@ -400,23 +400,20 @@ pub enum AppSettings {
     )]
     NoAutoVersion,
 
-    /// Deprecated, replaced with [`AppSettings::AllowHyphenValues`]
+    /// Deprecated, replaced with [`Command::allow_hyphen_values`]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `AppSettings::AllowHyphenValues`"
-        )
+        deprecated(since = "3.0.0", note = "Replaced with `Command::allow_hyphen_values`")
     )]
     #[doc(hidden)]
     AllowLeadingHyphen,
 
-    /// Deprecated, this is now the default, see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8] for the opposite.
+    /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "This is now the default see `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8` for the opposite."
+            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`"
         )
     )]
     #[doc(hidden)]
@@ -462,42 +459,47 @@ pub enum AppSettings {
     #[doc(hidden)]
     ColorNever,
 
-    /// Deprecated, replaced with [`AppSettings::DisableHelpFlag`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")
-    )]
-    #[doc(hidden)]
-    DisableHelpFlags,
-
-    /// Deprecated, replaced with [`AppSettings::DisableVersionFlag`]
+    /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `AppSettings::DisableVersionFlag`"
+            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
+        )
+    )]
+    #[doc(hidden)]
+    DisableHelpFlags,
+
+    /// Deprecated, replaced with [`Command::disable_version_flag`] and
+    /// [`Command::is_disable_version_flag_set`]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
         )
     )]
     #[doc(hidden)]
     DisableVersion,
 
-    /// Deprecated, replaced with [`AppSettings::PropagateVersion`]
+    /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `AppSettings::PropagateVersion`"
+            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
         )
     )]
     #[doc(hidden)]
     GlobalVersion,
 
-    /// Deprecated, replaced with [`AppSettings::HidePossibleValues`]
+    /// Deprecated, replaced with [`Command::hide_possible_values`] and
+    /// [`Arg::is_hide_possible_values_set`]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with AppSettings::HidePossibleValues"
+            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
         )
     )]
     #[doc(hidden)]
