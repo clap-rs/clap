@@ -50,14 +50,10 @@ pub enum ArgSettings {
         )
     )]
     MultipleValues,
-    /// Deprecated, replaced with [`Arg::multiple_occurrences`] and
-    /// [`Arg::is_multiple_occurrences_set`]
+    /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::multiple_occurrences` and `Arg::is_multiple_occurrences_set`"
-        )
+        deprecated(since = "3.1.0", note = "Replaced with `Arg::action` (Issue #3772)")
     )]
     MultipleOccurrences,
     /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
@@ -66,18 +62,17 @@ pub enum ArgSettings {
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Split into `ArgSettings::MultipleOccurrences` (most likely what you want)  and `ArgSettings::MultipleValues`"
+            note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
         )
     )]
     #[doc(hidden)]
     Multiple,
-    /// Deprecated, replaced with [`Arg::forbid_empty_values`] and
-    /// [`Arg::is_forbid_empty_values_set`]
+    /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::forbid_empty_values` and `Arg::is_forbid_empty_values_set`"
+            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
         )
     )]
     ForbidEmptyValues,
@@ -157,12 +152,13 @@ pub enum ArgSettings {
         )
     )]
     AllowHyphenValues,
-    /// Deprecated, replaced with [`ArgSettings::AllowHyphenValues`]
+    /// Deprecated, replaced with [`Arg::allow_hyphen_values`] and
+    /// [`Arg::is_allow_hyphen_values_set`]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `ArgSettings::AllowHyphenValues`"
+            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
         )
     )]
     #[doc(hidden)]
@@ -203,10 +199,13 @@ pub enum ArgSettings {
         )
     )]
     IgnoreCase,
-    /// Deprecated, replaced with [`ArgSettings::IgnoreCase`]
+    /// Deprecated, replaced with [`Arg::ignore_case`] and [`Arg::is_ignore_case_set`]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`"
+        )
     )]
     #[doc(hidden)]
     CaseInsensitive,

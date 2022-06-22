@@ -156,13 +156,13 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
             .map_err(format_error::<Self>)
     }
 
-    /// Deprecated, `StructOpt::clap` replaced with [`IntoCommand::command`] (derive as part of
+    /// Deprecated, `StructOpt::clap` replaced with [`CommandFactory::command`] (derive as part of
     /// [`Parser`])
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "`StructOpt::clap` is replaced with `IntoCommand::command` (derived as part of `Parser`)"
+            note = "`StructOpt::clap` is replaced with `CommandFactory::command` (derived as part of `Parser`)"
         )
     )]
     #[doc(hidden)]
