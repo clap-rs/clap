@@ -10,7 +10,7 @@
 3. [Arg Types](#arg-types)
 4. [Doc Comments](#doc-comments)
 5. [Tips](#tips)
-6. [Mixing Builder and Derive APIS](#mixing-builder-and-derive-apis)
+6. [Mixing Builder and Derive APIs](#mixing-builder-and-derive-apis)
 
 ## Overview
 
