@@ -82,9 +82,12 @@ pub use Parser as StructOpt;
 )]
 pub use ValueEnum as ArgEnum;
 
-#[cfg(any(feature = "derive", feature = "cargo"))]
 #[doc(hidden)]
-pub use once_cell;
+pub mod __macro_refs {
+    #[cfg(any(feature = "derive", feature = "cargo"))]
+    #[doc(hidden)]
+    pub use once_cell;
+}
 
 #[macro_use]
 #[allow(missing_docs)]
