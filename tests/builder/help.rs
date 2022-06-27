@@ -606,6 +606,18 @@ SUBCOMMANDS:
     sub     short about sub
 ";
 
+static SETUP_HELP_MESSAGE: &str = "test 1.3
+Kevin K.
+tests stuff
+
+USAGE:
+    test
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+";
+
 fn setup() -> Command<'static> {
     Command::new("test")
         .author("Kevin K.")
@@ -2895,4 +2907,11 @@ fn display_name_subcommand_explicit() {
         cmd.find_subcommand("child").unwrap().get_display_name(),
         Some("child.display")
     );
+}
+
+#[test]
+fn get_help_as_string() {
+    let cmd = &mut setup();
+    let help = cmd.get_help();
+    assert_eq!(help, SETUP_HELP_MESSAGE);
 }
