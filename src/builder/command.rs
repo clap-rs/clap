@@ -725,14 +725,11 @@ impl<'help> App<'help> {
         let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
         match Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help() {
-            Ok(_) => {
-                c.to_owned().to_string()
-            },
+            Ok(_) => c.to_owned().to_string(),
             Err(e) => {
-                panic!("{}",e.to_string())
-            },
+                panic!("{}", e.to_string())
+            }
         }
-
     }
 
     /// Returns the long help message.
@@ -752,14 +749,11 @@ impl<'help> App<'help> {
         let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
         match Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help() {
-            Ok(_) => {
-                c.to_owned().to_string()
-            },
+            Ok(_) => c.to_owned().to_string(),
             Err(e) => {
-                panic!("{}",e.to_string())
-            },
+                panic!("{}", e.to_string())
+            }
         }
-
     }
 
     /// Prints the long help message (`--help`) to [`io::stdout()`].
