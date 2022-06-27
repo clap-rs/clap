@@ -618,6 +618,21 @@ OPTIONS:
     -V, --version    Print version information
 ";
 
+static SETUP_LONG_HELP_MESSAGE: &str = "test 1.3
+Kevin K.
+tests stuff
+
+USAGE:
+    test
+
+OPTIONS:
+    -h, --help
+            Print help information
+
+    -V, --version
+            Print version information
+";
+
 fn setup() -> Command<'static> {
     Command::new("test")
         .author("Kevin K.")
@@ -2914,4 +2929,11 @@ fn get_help_as_string() {
     let cmd = &mut setup();
     let help = cmd.get_help();
     assert_eq!(help, SETUP_HELP_MESSAGE);
+}
+
+#[test]
+fn get_long_help_as_string() {
+    let cmd = &mut setup();
+    let help = cmd.get_long_help();
+    assert_eq!(help, SETUP_LONG_HELP_MESSAGE);
 }
