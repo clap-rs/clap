@@ -728,7 +728,7 @@ impl<'help> App<'help> {
             Ok(_) => {
                 c.to_owned().to_string()
             },
-            Err(e) => {panic!("{e}")},
+            Err(e) => {panic!("{}",e.to_string())},
         }
 
     }
@@ -753,7 +753,7 @@ impl<'help> App<'help> {
             Ok(_) => {
                 c.to_owned().to_string()
             },
-            Err(e) => {panic!("{e}")},
+            Err(e) => {panic!("{}",e.to_string())},
         }
 
     }
