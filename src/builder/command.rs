@@ -708,6 +708,31 @@ impl<'help> App<'help> {
         c.print()
     }
 
+    /// Returns the help message (`-h`).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// let mut cmd = Command::new("myprog");
+    /// let help: String = cmd.get_help();
+    /// print!("{}",help);
+    /// ```
+    pub fn get_help(&mut self) -> String {
+        self._build_self();
+        let color = self.get_color();
+
+        let mut c = Colorizer::new(Stream::Stdout, color);
+        let usage = Usage::new(self);
+        match Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help() {
+            Ok(_) => {
+                c.to_owned().to_string()
+            },
+            Err(e) => {panic!("{e}")},
+        }
+
+    }
+
     /// Prints the long help message (`--help`) to [`io::stdout()`].
     ///
     /// See also [`Command::print_help`].
