@@ -715,10 +715,10 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// let mut cmd = Command::new("myprog");
-    /// let help: String = cmd.get_help();
+    /// let help: String = cmd.render_help();
     /// print!("{}",help);
     /// ```
-    pub fn get_help(&mut self) -> String {
+    pub fn render_help(&mut self) -> String {
         self._build_self();
         let color = self.get_color();
 
@@ -739,10 +739,10 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::Command;
     /// let mut cmd = Command::new("myprog");
-    /// let help: String = cmd.get_long_help();
+    /// let help: String = cmd.render_long_help();
     /// print!("{}",help);
     /// ```
-    pub fn get_long_help(&mut self) -> String {
+    pub fn render_long_help(&mut self) -> String {
         self._build_self();
         let color = self.get_color();
 
