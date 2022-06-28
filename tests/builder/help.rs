@@ -2927,13 +2927,13 @@ fn display_name_subcommand_explicit() {
 #[test]
 fn get_help_as_string() {
     let cmd = &mut setup();
-    let help = cmd.get_help();
+    let help = cmd.render_help();
     assert_eq!(help, SETUP_HELP_MESSAGE);
 }
 
 #[test]
 fn get_long_help_as_string() {
     let cmd = &mut setup();
-    let help = cmd.get_long_help();
+    let help = cmd.render_long_help();
     assert_eq!(help, SETUP_LONG_HELP_MESSAGE);
 }
