@@ -552,7 +552,7 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            static DEFAULT_VALUE: clap::once_cell::sync::Lazy<String> = clap::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<String> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 ::std::string::ToString::to_string(&val)
                             });
@@ -592,7 +592,7 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            static DEFAULT_VALUE: clap::once_cell::sync::Lazy<::std::ffi::OsString> = clap::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 ::std::ffi::OsString::from(val)
                             });
