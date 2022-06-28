@@ -1742,6 +1742,11 @@ mod tests {
     use super::*;
 
     #[test]
+    fn check_auto_traits() {
+        static_assertions::assert_impl_all!(ArgMatches: Send, Sync, Unpin);
+    }
+
+    #[test]
     fn test_default_values() {
         #![allow(deprecated)]
         let mut values: Values = Values::default();
