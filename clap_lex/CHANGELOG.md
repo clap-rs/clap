@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.4] - 2022-06-28
+
 ## [0.2.3] - 2022-06-21
 
 ## [0.2.2] - 2022-06-13
@@ -28,7 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Drop `memchr` dependency
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.3...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.4...HEAD
+[0.2.4]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.3...clap_lex-v0.2.4
 [0.2.3]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.2...clap_lex-v0.2.3
 [0.2.2]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.1...clap_lex-v0.2.2
 [0.2.1]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.0...clap_lex-v0.2.1

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.1.10] - 2022-06-28
+
 ## [0.1.9] - 2022-06-21
 
 ## [0.1.8] - 2022-06-13
@@ -38,7 +40,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.1.9...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.1.10...HEAD
+[0.1.10]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.1.9...clap_mangen-v0.1.10
 [0.1.9]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.1.8...clap_mangen-v0.1.9
 [0.1.8]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.1.7...clap_mangen-v0.1.8
 [0.1.7]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.1.6...clap_mangen-v0.1.7
