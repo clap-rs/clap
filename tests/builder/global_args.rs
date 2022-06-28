@@ -126,3 +126,40 @@ fn deeply_nested_discovery() {
     let m = m.subcommand_matches("c").unwrap();
     assert!(*m.get_one::<bool>("long-c").expect("defaulted by clap"));
 }
+
+#[test]
+fn global_overrides_default() {
+    let cmd = Command::new("test")
+        .arg(
+            Arg::new("name")
+                .long("name")
+                .global(true)
+                .takes_value(true)
+                .default_value("from_default"),
+        )
+        .subcommand(Command::new("sub"));
+
+    let m = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(
+        m.get_one::<String>("name").unwrap().as_str(),
+        "from_default"
+    );
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["test", "--name", "from_arg"])
+        .unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["test", "--name", "from_arg", "sub"])
+        .unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["test", "sub", "--name", "from_arg"])
+        .unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
+}
