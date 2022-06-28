@@ -163,3 +163,40 @@ fn global_overrides_default() {
         .unwrap();
     assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
 }
+
+#[test]
+#[cfg(feature = "env")]
+fn global_overrides_env() {
+    std::env::set_var("GLOBAL_OVERRIDES_ENV", "from_env");
+
+    let cmd = Command::new("test")
+        .arg(
+            Arg::new("name")
+                .long("name")
+                .global(true)
+                .takes_value(true)
+                .env("GLOBAL_OVERRIDES_ENV"),
+        )
+        .subcommand(Command::new("sub"));
+
+    let m = cmd.clone().try_get_matches_from(["test"]).unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_env");
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["test", "--name", "from_arg"])
+        .unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["test", "--name", "from_arg", "sub"])
+        .unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["test", "sub", "--name", "from_arg"])
+        .unwrap();
+    assert_eq!(m.get_one::<String>("name").unwrap().as_str(), "from_arg");
+}
