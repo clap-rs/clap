@@ -129,6 +129,10 @@ macro_rules! write_method {
                 Ok(())
             }
             HelpWriter::Normal(w) => w.write_all($msg.as_ref()),
+            HelpWriter::String(s) => {
+                s.push_str($msg.into().as_str());
+                Ok(())
+            }
         }
     };
 }
@@ -1117,6 +1121,7 @@ const TAB_WIDTH: usize = 4;
 pub(crate) enum HelpWriter<'writer> {
     Normal(&'writer mut dyn Write),
     Buffer(&'writer mut Colorizer),
+    String(&'writer mut String),
 }
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
