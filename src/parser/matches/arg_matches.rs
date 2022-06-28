@@ -114,7 +114,12 @@ impl ArgMatches {
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
-    pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, id: &str) -> Option<&T> {
+    pub fn get_one<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
+        &self,
+        id: &str,
+    ) -> Option<&T> {
         let internal_id = Id::from(id);
         MatchesError::unwrap(&internal_id, self.try_get_one(id))
     }
@@ -153,7 +158,9 @@ impl ArgMatches {
     /// assert_eq!(vals, [22, 80, 2020]);
     /// ```
     #[track_caller]
-    pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
+    pub fn get_many<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
         &self,
         id: &str,
     ) -> Option<ValuesRef<T>> {
@@ -243,7 +250,12 @@ impl ArgMatches {
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
-    pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, id: &str) -> Option<T> {
+    pub fn remove_one<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
+        &mut self,
+        id: &str,
+    ) -> Option<T> {
         let internal_id = Id::from(id);
         MatchesError::unwrap(&internal_id, self.try_remove_one(id))
     }
@@ -280,7 +292,9 @@ impl ArgMatches {
     /// assert_eq!(vals, ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]);
     /// ```
     #[track_caller]
-    pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
+    pub fn remove_many<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
         &mut self,
         id: &str,
     ) -> Option<Values2<T>> {
@@ -1074,7 +1088,9 @@ impl ArgMatches {
 /// # Advanced
 impl ArgMatches {
     /// Non-panicking version of [`ArgMatches::get_one`]
-    pub fn try_get_one<T: Any + Clone + Send + Sync + 'static>(
+    pub fn try_get_one<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
         &self,
         id: &str,
     ) -> Result<Option<&T>, MatchesError> {
@@ -1093,7 +1109,9 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::get_many`]
-    pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
+    pub fn try_get_many<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
         &self,
         id: &str,
     ) -> Result<Option<ValuesRef<T>>, MatchesError> {
@@ -1129,7 +1147,9 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::remove_one`]
-    pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
+    pub fn try_remove_one<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
         &mut self,
         id: &str,
     ) -> Result<Option<T>, MatchesError> {
@@ -1145,7 +1165,9 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::remove_many`]
-    pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
+    pub fn try_remove_many<
+        T: Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + 'static,
+    >(
         &mut self,
         id: &str,
     ) -> Result<Option<Values2<T>>, MatchesError> {
@@ -1743,7 +1765,13 @@ mod tests {
 
     #[test]
     fn check_auto_traits() {
-        static_assertions::assert_impl_all!(ArgMatches: Send, Sync, Unpin);
+        static_assertions::assert_impl_all!(
+            ArgMatches: Send,
+            Sync,
+            std::panic::RefUnwindSafe,
+            std::panic::UnwindSafe,
+            Unpin
+        );
     }
 
     #[test]

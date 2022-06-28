@@ -108,7 +108,7 @@ impl ValueParser {
     pub fn new<P>(other: P) -> Self
     where
         P: TypedValueParser,
-        P::Value: Send + Sync + Clone,
+        P::Value: Send + Sync + Clone + std::panic::UnwindSafe + std::panic::RefUnwindSafe,
     {
         Self(ValueParserInner::Other(Box::new(other)))
     }
@@ -284,7 +284,7 @@ impl ValueParser {
 impl<P> From<P> for ValueParser
 where
     P: TypedValueParser + Send + Sync + 'static,
-    P::Value: Send + Sync + Clone,
+    P::Value: Send + Sync + Clone + std::panic::UnwindSafe + std::panic::RefUnwindSafe,
 {
     fn from(p: P) -> Self {
         Self::new(p)
@@ -563,7 +563,13 @@ trait AnyValueParser: Send + Sync + 'static {
 
 impl<T, P> AnyValueParser for P
 where
-    T: std::any::Any + Clone + Send + Sync + 'static,
+    T: std::any::Any
+        + Clone
+        + Send
+        + Sync
+        + std::panic::UnwindSafe
+        + std::panic::RefUnwindSafe
+        + 'static,
     P: TypedValueParser<Value = T>,
 {
     fn parse_ref(
@@ -1963,7 +1969,14 @@ pub mod via_prelude {
     }
     impl<FromStr> _ValueParserViaFromStr for _AutoValueParser<FromStr>
     where
-        FromStr: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
+        FromStr: std::str::FromStr
+            + std::any::Any
+            + Clone
+            + Send
+            + Sync
+            + std::panic::UnwindSafe
+            + std::panic::RefUnwindSafe
+            + 'static,
         <FromStr as std::str::FromStr>::Err:
             Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
     {

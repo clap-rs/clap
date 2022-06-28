@@ -1,25 +1,54 @@
 #[derive(Clone)]
 pub(crate) struct AnyValue {
-    inner: std::sync::Arc<dyn std::any::Any + Send + Sync + 'static>,
+    inner: std::sync::Arc<
+        dyn std::any::Any
+            + Send
+            + Sync
+            + std::panic::UnwindSafe
+            + std::panic::RefUnwindSafe
+            + 'static,
+    >,
     // While we can extract `TypeId` from `inner`, the debug repr is of a number, so let's track
     // the type_name in debug builds.
     id: AnyValueId,
 }
 
 impl AnyValue {
-    pub(crate) fn new<V: std::any::Any + Clone + Send + Sync + 'static>(inner: V) -> Self {
+    pub(crate) fn new<
+        V: std::any::Any
+            + Clone
+            + Send
+            + Sync
+            + std::panic::UnwindSafe
+            + std::panic::RefUnwindSafe
+            + 'static,
+    >(
+        inner: V,
+    ) -> Self {
         let id = AnyValueId::of::<V>();
         let inner = std::sync::Arc::new(inner);
         Self { inner, id }
     }
 
-    pub(crate) fn downcast_ref<T: std::any::Any + Clone + Send + Sync + 'static>(
+    pub(crate) fn downcast_ref<
+        T: std::any::Any
+            + Clone
+            + Send
+            + Sync
+            + std::panic::UnwindSafe
+            + std::panic::RefUnwindSafe
+            + 'static,
+    >(
         &self,
     ) -> Option<&T> {
         self.inner.downcast_ref::<T>()
     }
 
-    pub(crate) fn downcast_into<T: std::any::Any + Clone + Send + Sync>(self) -> Result<T, Self> {
+    pub(crate) fn downcast_into<
+        T: std::any::Any + Clone + Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe,
+    >(
+        self,
+    ) -> Result<T, Self> {
         let id = self.id;
         let value =
             std::sync::Arc::downcast::<T>(self.inner).map_err(|inner| Self { inner, id })?;
