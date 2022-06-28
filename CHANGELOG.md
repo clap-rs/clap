@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Global arguments should override env-sourced arguments
+
 ## [3.2.6] - 2022-06-21
 
 ### Fixes
