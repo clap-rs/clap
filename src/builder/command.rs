@@ -720,12 +720,11 @@ impl<'help> App<'help> {
     /// ```
     pub fn render_help(&mut self) -> String {
         self._build_self();
-        let color = self.get_color();
 
-        let mut c = Colorizer::new(Stream::Stdout, color);
+        let mut help: String = "".into();
         let usage = Usage::new(self);
-        match Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help() {
-            Ok(_) => c.to_owned().to_string(),
+        match Help::new(HelpWriter::String(&mut help), self, &usage, false).write_help() {
+            Ok(_) => help,
             Err(e) => {
                 panic!("{}", e.to_string())
             }
@@ -744,12 +743,11 @@ impl<'help> App<'help> {
     /// ```
     pub fn render_long_help(&mut self) -> String {
         self._build_self();
-        let color = self.get_color();
 
-        let mut c = Colorizer::new(Stream::Stdout, color);
+        let mut help: String = "".into();
         let usage = Usage::new(self);
-        match Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help() {
-            Ok(_) => c.to_owned().to_string(),
+        match Help::new(HelpWriter::String(&mut help), self, &usage, true).write_help() {
+            Ok(_) => help,
             Err(e) => {
                 panic!("{}", e.to_string())
             }
