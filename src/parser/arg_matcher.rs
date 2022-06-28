@@ -74,9 +74,7 @@ impl ArgMatcher {
                 // a default value of `other` myprog would have an existing MatchedArg for
                 // `--global-arg` where the value is `other`
                 let to_update = if let Some(parent_ma) = vals_map.get(global_arg) {
-                    if parent_ma.check_explicit(ArgPredicate::IsPresent)
-                        && !ma.check_explicit(ArgPredicate::IsPresent)
-                    {
+                    if parent_ma.source() > ma.source() {
                         parent_ma
                     } else {
                         ma
