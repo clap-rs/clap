@@ -427,6 +427,25 @@ fn mut_arg_all() {
 }
 
 #[test]
+fn mut_subcommand_all() {
+    let cmd = utils::complex_app();
+
+    assert_eq!(
+        cmd.find_subcommand("subcmd")
+            .unwrap()
+            .is_disable_version_flag_set(),
+        false
+    );
+    let cmd = cmd.mut_subcommand("subcmd", |subcmd| subcmd.disable_version_flag(true));
+    assert_eq!(
+        cmd.find_subcommand("subcmd")
+            .unwrap()
+            .is_disable_version_flag_set(),
+        true
+    );
+}
+
+#[test]
 fn issue_3669_command_build_recurses() {
     let mut cmd = Command::new("ctest").subcommand(
         Command::new("subcmd").subcommand(
