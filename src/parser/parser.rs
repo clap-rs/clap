@@ -671,7 +671,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     ) -> ClapResult<()> {
         debug!("Parser::parse_subcommand");
 
-        let partial_parsing_enabled = self.cmd.is_ignore_errors_set();
+        let global_ignore_errors = self.cmd.is_ignore_errors_set();
 
         if let Some(sc) = self.cmd._build_subcommand(sc_name) {
             let mut sc_matcher = ArgMatcher::new(sc);
@@ -691,7 +691,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     p.flag_subcmd_skip = self.flag_subcmd_skip;
                 }
                 if let Err(error) = p.get_matches_with(&mut sc_matcher, raw_args, args_cursor) {
-                    if partial_parsing_enabled {
+                    if sc.is_ignore_errors_set() || global_ignore_errors {
                         debug!(
                             "Parser::parse_subcommand: ignored error in subcommand {}: {:?}",
                             sc_name, error

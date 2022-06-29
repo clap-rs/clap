@@ -118,9 +118,38 @@ fn subcommand() {
         sub_m.contains_id("test"),
         "expected subcommand to be present due to partial parsing"
     );
-    assert_eq!(sub_m.get_one::<String>("test").map(|v| v.as_str()), None);
+    assert_eq!(sub_m.get_one::<String>("test"), None);
     assert_eq!(
         sub_m.get_one::<String>("stuff").map(|v| v.as_str()),
         Some("some other val")
     );
+}
+
+#[test]
+fn ignore_nested() {
+    // Ignore errors on toplevel subcommand.
+
+    let cmd = Command::new("test").subcommand(Command::new("some").ignore_errors(true));
+
+    let r = cmd.try_get_matches_from(vec!["myprog", "some", "--test"]);
+
+    assert!(r.is_ok(), "unexpected error: {:?}", r);
+
+    // Ignore errors on nested subcommand.
+
+    let cmd = Command::new("test")
+        .subcommand(Command::new("foo").subcommand(Command::new("bar").ignore_errors(true)));
+
+    let r = cmd.try_get_matches_from(vec!["myprog", "foo", "bar", "--test"]);
+
+    assert!(r.is_ok(), "unexpected error: {:?}", r);
+
+    // Reports error on toplevel with child ignoring them.
+
+    let cmd = Command::new("test")
+        .subcommand(Command::new("foo").subcommand(Command::new("bar").ignore_errors(true)));
+
+    let r = cmd.try_get_matches_from(vec!["myprog", "foo", "--error", "bar"]);
+
+    assert!(r.is_err());
 }
