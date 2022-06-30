@@ -6,7 +6,8 @@
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
 #![cfg_attr(feature = "derive", doc = include_str!("../README.md"))]
-//! <https://github.com/clap-rs/clap>
+//! For tutorials, examples, etc, see either <https://github.com/clap-rs/clap> or build with
+//! `--features unstable-doc`
 #![warn(
     missing_docs,
     missing_debug_implementations,
