@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `Command::mut_subcommand` to mirror `Command::mut_arg`
+
 ## [3.2.7] - 2022-06-28
 
 ### Fixes
