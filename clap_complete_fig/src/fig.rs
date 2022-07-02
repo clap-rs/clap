@@ -217,7 +217,19 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             }
 
             #[allow(deprecated)]
-            if option.is_multiple_occurrences_set() {
+            if matches!(
+                option.get_action(),
+                ArgAction::StoreValue | ArgAction::IncOccurrence
+            ) && option.is_multiple_occurrences_set()
+            {
+                buffer.push_str(&format!(
+                    "{:indent$}isRepeatable: true,\n",
+                    "",
+                    indent = indent + 4
+                ));
+            }
+
+            if let ArgAction::Set | ArgAction::Append | ArgAction::Count = option.get_action() {
                 buffer.push_str(&format!(
                     "{:indent$}isRepeatable: true,\n",
                     "",
@@ -305,7 +317,19 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             }
 
             #[allow(deprecated)]
-            if flag.is_multiple_occurrences_set() {
+            if matches!(
+                flag.get_action(),
+                ArgAction::StoreValue | ArgAction::IncOccurrence
+            ) && flag.is_multiple_occurrences_set()
+            {
+                buffer.push_str(&format!(
+                    "{:indent$}isRepeatable: true,\n",
+                    "",
+                    indent = indent + 4
+                ));
+            }
+
+            if let ArgAction::Set | ArgAction::Append | ArgAction::Count = flag.get_action() {
                 buffer.push_str(&format!(
                     "{:indent$}isRepeatable: true,\n",
                     "",
