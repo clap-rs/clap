@@ -31,7 +31,12 @@ Create your command-line parser, with all of the bells and whistles, declarative
 
 ### Example
 
-This uses our
+Add `clap` as a dependency with the `derive` feature enabled:
+```console
+cargo add clap -F derive
+```
+
+This allows using the
 [Derive API](https://github.com/clap-rs/clap/blob/v3.2.8/examples/tutorial_derive/README.md)
 which provides access to the [Builder API](https://github.com/clap-rs/clap/blob/v3.2.8/examples/tutorial_builder/README.md) as attributes on a `struct`:
 
@@ -60,11 +65,7 @@ fn main() {
     }
 }
 ```
-Add this to `Cargo.toml`:
-```toml
-[dependencies]
-clap = { version = "3.2.8", features = ["derive"] }
-```
+
 ```bash
 $ demo --help
 clap [..]
