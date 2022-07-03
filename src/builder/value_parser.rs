@@ -1906,6 +1906,20 @@ impl ValueParserFactory for u64 {
     }
 }
 
+impl ValueParserFactory for isize {
+    type Parser = RangedU64ValueParser<isize>;
+    fn value_parser() -> Self::Parser {
+        RangedU64ValueParser::new()
+    }
+}
+
+impl ValueParserFactory for usize {
+    type Parser = RangedU64ValueParser<usize>;
+    fn value_parser() -> Self::Parser {
+        RangedU64ValueParser::new()
+    }
+}
+
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct _AutoValueParser<T>(std::marker::PhantomData<T>);
@@ -2011,10 +2025,12 @@ pub mod via_prelude {
 /// assert_eq!(format!("{:?}", parser), "RangedI64ValueParser { bounds: (Included(3000), Included(65535)), target: PhantomData }");
 /// let parser = clap::value_parser!(u64).range(3000..);
 /// assert_eq!(format!("{:?}", parser), "RangedU64ValueParser { bounds: (Included(3000), Unbounded), target: PhantomData }");
+/// let parser = clap::value_parser!(usize).range(3000..);
+/// assert_eq!(format!("{:?}", parser), "RangedU64ValueParser { bounds: (Included(3000), Unbounded), target: PhantomData }");
 ///
 /// // FromStr types
-/// let parser = clap::value_parser!(usize);
-/// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(usize))");
+/// let parser = clap::value_parser!(f32);
+/// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(f32))");
 ///
 /// // ValueEnum types
 /// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
