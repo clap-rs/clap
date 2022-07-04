@@ -63,7 +63,7 @@ Not printing testing lists...
 
 ## Configuring the Parser
 
-You use the `Command` the start building a parser.
+You use the `Command` then start building a parser.
 
 [Example:](02_apps.rs)
 ```console
