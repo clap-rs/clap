@@ -66,7 +66,7 @@ In addition to this tutorial, see the [derive reference](../derive_ref/README.md
 
 ## Configuring the Parser
 
-You use derive `Parser` the start building a parser.
+You use derive `Parser` to start building a parser.
 
 [Example:](02_apps.rs)
 ```console
