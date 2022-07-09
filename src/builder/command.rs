@@ -3556,15 +3556,21 @@ impl<'help> App<'help> {
         if arg.is_global_set() {
             self.get_global_arg_conflicts_with(arg)
         } else {
-            arg.blacklist
-                .iter()
-                .map(|id| {
-                    self.args.args().find(|arg| arg.id == *id).expect(
-                        "Command::get_arg_conflicts_with: \
-                    The passed arg conflicts with an arg unknown to the cmd",
-                    )
-                })
-                .collect()
+            let mut result = Vec::new();
+            for id in arg.blacklist.iter() {
+                if let Some(arg) = self.find(id) {
+                    result.push(arg);
+                } else if let Some(group) = self.find_group(id) {
+                    result.extend(
+                        self.unroll_args_in_group(&group.id)
+                            .iter()
+                            .map(|id| self.find(id).expect(INTERNAL_ERROR_MSG)),
+                    );
+                } else {
+                    panic!("Command::get_arg_conflicts_with: The passed arg conflicts with an arg unknown to the cmd");
+                }
+            }
+            result
         }
     }
 
