@@ -22,7 +22,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use clap::{Command, AppSettings, Arg, ValueHint, value_parser};
+//! use clap::{Command, Arg, ValueHint, value_parser};
 //! use clap_complete::{generate, Generator, Shell};
 //! use std::io;
 //!
@@ -35,6 +35,7 @@
 //!        .arg(
 //!            Arg::new("generator")
 //!                .long("generate")
+//!                .takes_value(true)
 //!                .value_parser(value_parser!(Shell)),
 //!        )
 //! }
@@ -46,7 +47,7 @@
 //! fn main() {
 //!     let matches = build_cli().get_matches();
 //!
-//!     if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
+//!     if let Some(generator) = matches.get_one::<Shell>("generator").copied() {
 //!         let mut cmd = build_cli();
 //!         eprintln!("Generating completion file for {}...", generator);
 //!         print_completions(generator, &mut cmd);
