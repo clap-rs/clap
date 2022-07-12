@@ -446,6 +446,25 @@ fn mut_subcommand_all() {
 }
 
 #[test]
+fn mut_subcommand_with_alias_resolve() {
+    let mut cmd =
+        Command::new("foo").subcommand(Command::new("bar").alias("baz").about("test subcmd"));
+    assert_eq!(
+        cmd.find_subcommand("baz").unwrap().get_about().unwrap(),
+        "test subcmd"
+    );
+
+    let true_name = cmd.find_subcommand("baz").unwrap().get_name().to_string();
+    assert_eq!(true_name, "bar");
+
+    cmd = cmd.mut_subcommand(&*true_name, |subcmd| subcmd.about("modified about"));
+    assert_eq!(
+        cmd.find_subcommand("baz").unwrap().get_about().unwrap(),
+        "modified about"
+    );
+}
+
+#[test]
 fn issue_3669_command_build_recurses() {
     let mut cmd = Command::new("ctest").subcommand(
         Command::new("subcmd").subcommand(
