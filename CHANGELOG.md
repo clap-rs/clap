@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Loosen lifetime on `Command::mut_subcommand`
+
 ## [3.2.8] - 2022-06-30
 
 ### Features
