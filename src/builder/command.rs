@@ -298,10 +298,10 @@ impl<'help> App<'help> {
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
-    pub fn mut_subcommand<T, F>(mut self, subcmd_id: T, f: F) -> Self
+    pub fn mut_subcommand<'a, T, F>(mut self, subcmd_id: T, f: F) -> Self
     where
         F: FnOnce(App<'help>) -> App<'help>,
-        T: Into<&'help str>,
+        T: Into<&'a str>,
     {
         let subcmd_id: &str = subcmd_id.into();
         let id = Id::from(subcmd_id);
