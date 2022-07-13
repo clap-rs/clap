@@ -10,7 +10,7 @@ members = [
 
 [package]
 name = "clap"
-version = "3.2.10"
+version = "3.2.11"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]

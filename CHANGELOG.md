@@ -30,6 +30,8 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.2.11] - 2022-07-13
+
 ### Features
 
 - Added `Arg::get_all_short_aliaes` and `Arg::get_all_aliases`
@@ -3511,7 +3513,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.10...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.11...HEAD
+[3.2.11]: https://github.com/clap-rs/clap/compare/v3.2.10...v3.2.11
 [3.2.10]: https://github.com/clap-rs/clap/compare/v3.2.8...v3.2.10
 [3.2.8]: https://github.com/clap-rs/clap/compare/v3.2.7...v3.2.8
 [3.2.7]: https://github.com/clap-rs/clap/compare/v3.2.6...v3.2.7
