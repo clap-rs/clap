@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `Arg::get_all_short_aliaes` and `Arg::get_all_aliases`
+
 ## [3.2.10] - 2022-07-12
 
 ### Fixes
