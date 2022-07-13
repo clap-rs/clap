@@ -4316,6 +4316,16 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Get *all* short aliases for this argument, if any, both visible and hidden.
+    #[inline]
+    pub fn get_all_short_aliases(&self) -> Option<Vec<char>> {
+        if self.short_aliases.is_empty() {
+            None
+        } else {
+            Some(self.short_aliases.iter().map(|(s, _)| s).copied().collect())
+        }
+    }
+
     /// Get the short option name and its visible aliases, if any
     #[inline]
     pub fn get_short_and_visible_aliases(&self) -> Option<Vec<char>> {
@@ -4348,6 +4358,16 @@ impl<'help> Arg<'help> {
                     .copied()
                     .collect(),
             )
+        }
+    }
+
+    /// Get *all* aliases for this argument, if any, both visible and hidden.
+    #[inline]
+    pub fn get_all_aliases(&self) -> Option<Vec<&'help str>> {
+        if self.aliases.is_empty() {
+            None
+        } else {
+            Some(self.aliases.iter().map(|(s, _)| s).copied().collect())
         }
     }
 

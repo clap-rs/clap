@@ -112,6 +112,37 @@ fn multiple_aliases_of_option() {
 }
 
 #[test]
+fn get_aliases() {
+    let a = Arg::new("aliases")
+        .long("aliases")
+        .takes_value(true)
+        .help("multiple aliases")
+        .aliases(&["alias1", "alias2", "alias3"])
+        .short_aliases(&['a', 'b', 'c'])
+        .visible_aliases(&["alias4", "alias5", "alias6"])
+        .visible_short_aliases(&['d', 'e', 'f']);
+
+    assert!(a.get_short_and_visible_aliases().is_none());
+    assert_eq!(
+        a.get_long_and_visible_aliases().unwrap(),
+        &["aliases", "alias4", "alias5", "alias6"]
+    );
+    assert_eq!(
+        a.get_visible_aliases().unwrap(),
+        &["alias4", "alias5", "alias6"]
+    );
+    assert_eq!(
+        a.get_all_aliases().unwrap(),
+        &["alias1", "alias2", "alias3", "alias4", "alias5", "alias6"]
+    );
+    assert_eq!(a.get_visible_short_aliases().unwrap(), vec!['d', 'e', 'f']);
+    assert_eq!(
+        a.get_all_short_aliases().unwrap(),
+        vec!['a', 'b', 'c', 'd', 'e', 'f']
+    );
+}
+
+#[test]
 fn single_alias_of_flag() {
     let a = Command::new("test")
         .arg(
