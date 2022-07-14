@@ -297,6 +297,24 @@ fn required_group_conflicts_with_arg() {
 }
 
 #[test]
+fn get_arg_conflicts_with_group() {
+    let flag = arg!(--flag).conflicts_with("gr");
+    let mut cmd = Command::new("group_conflict")
+        .arg(&flag)
+        .group(ArgGroup::new("gr").arg("some").arg("other"))
+        .arg(arg!(--some))
+        .arg(arg!(--other));
+
+    cmd.build();
+
+    let result = cmd.get_arg_conflicts_with(&flag);
+
+    assert_eq!(result.len(), 2);
+    assert_eq!(result[0].get_id(), "some");
+    assert_eq!(result[1].get_id(), "other");
+}
+
+#[test]
 fn conflict_output() {
     utils::assert_output(
         utils::complex_app(),
