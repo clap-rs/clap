@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Allow an arg to declare a conflict with a group
+
 ## [3.2.11] - 2022-07-13
 
 ### Features
