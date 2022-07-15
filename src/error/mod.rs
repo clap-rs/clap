@@ -297,6 +297,22 @@ impl Error {
             ])
     }
 
+    pub(crate) fn argument_subcommand_conflict(
+        cmd: &Command,
+        arg: String,
+        subcmd: String,
+        usage: String,
+    ) -> Self {
+        Self::new(ErrorKind::ArgumentConflict)
+            .with_cmd(cmd)
+            .set_info(vec![subcmd.clone()])
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
+    }
+
     pub(crate) fn empty_value(cmd: &Command, good_vals: &[&str], arg: String) -> Self {
         let info = vec![arg.clone()];
         let mut err = Self::new(ErrorKind::EmptyValue)
@@ -618,33 +634,42 @@ impl Error {
     fn write_dynamic_context(&self, c: &mut Colorizer) -> bool {
         match self.kind() {
             ErrorKind::ArgumentConflict => {
+                let subcmd = self.get_context(ContextKind::InvalidSubcommand);
                 let invalid_arg = self.get_context(ContextKind::InvalidArg);
                 let prior_arg = self.get_context(ContextKind::PriorArg);
-                if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
-                    (invalid_arg, prior_arg)
-                {
+
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                     c.none("The argument '");
                     c.warning(invalid_arg);
                     c.none("' cannot be used with");
 
-                    match prior_arg {
-                        ContextValue::Strings(values) => {
+                    match (prior_arg, subcmd) {
+                        (Some(ContextValue::Strings(values)), _) => {
                             c.none(":");
                             for v in values {
                                 c.none("\n    ");
                                 c.warning(&**v);
                             }
-                        }
-                        ContextValue::String(value) => {
+                            true
+                        },
+                        (Some(ContextValue::String(value)), _) => {
                             c.none(" '");
                             c.warning(value);
                             c.none("'");
-                        }
-                        _ => {
+                            true
+                        },
+                        (_, Some(ContextValue::String(value))) => {
+                            c.none(" subcommand '");
+                            c.warning(value);
+                            c.none("'");
+                            true
+                        },
+                        (Some(_), _) | (_, Some(_)) => {
                             c.none(" one or more of the other specified arguments");
-                        }
+                            true
+                        },
+                        (None, None) => false
                     }
-                    true
                 } else {
                     false
                 }

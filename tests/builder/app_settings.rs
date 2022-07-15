@@ -745,6 +745,18 @@ fn args_negate_subcommands_two_levels() {
 }
 
 #[test]
+fn args_conflict_subcommands_error() {
+    let res = Command::new("todo")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(--flag))
+        .subcommand(Command::new("sub1"))
+        .try_get_matches_from(vec!["", "--flag", "sub1"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
 fn propagate_vals_down() {
     let m = Command::new("myprog")
         .arg(arg!([cmd] "command to run").global(true))
