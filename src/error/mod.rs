@@ -651,24 +651,24 @@ impl Error {
                                 c.warning(&**v);
                             }
                             true
-                        },
+                        }
                         (Some(ContextValue::String(value)), _) => {
                             c.none(" '");
                             c.warning(value);
                             c.none("'");
                             true
-                        },
+                        }
                         (_, Some(ContextValue::String(value))) => {
                             c.none(" subcommand '");
                             c.warning(value);
                             c.none("'");
                             true
-                        },
+                        }
                         (Some(_), _) | (_, Some(_)) => {
                             c.none(" one or more of the other specified arguments");
                             true
-                        },
-                        (None, None) => false
+                        }
+                        (None, None) => false,
                     }
                 } else {
                     false
