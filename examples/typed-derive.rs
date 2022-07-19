@@ -1,9 +1,7 @@
-// Note: this requires the `derive` feature
-
 use clap::Parser;
 use std::error::Error;
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug)] // requires `derive` feature
 struct Args {
     /// Implicitly using `std::str::FromStr`
     #[clap(short = 'O', value_parser)]

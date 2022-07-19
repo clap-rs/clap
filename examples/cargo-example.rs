@@ -1,5 +1,3 @@
-// Note: this requires the `cargo` feature
-
 fn main() {
     let cmd = clap::Command::new("cargo")
         .bin_name("cargo")

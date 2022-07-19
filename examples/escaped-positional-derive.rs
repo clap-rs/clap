@@ -1,8 +1,6 @@
-// Note: this requires the `derive` feature
-
 use clap::Parser;
 
-#[derive(Parser)]
+#[derive(Parser)] // requires `derive` feature
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     #[clap(short = 'f', action)]

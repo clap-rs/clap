@@ -1,5 +1,3 @@
-*Jump to [source](cargo-example-derive.rs)*
-
 For more on creating a custom subcommand, see [the cargo
 book](https://doc.rust-lang.org/cargo/reference/external-tools.html#custom-subcommands).
 The crate [`clap-cargo`](https://github.com/crate-ci/clap-cargo) can help in

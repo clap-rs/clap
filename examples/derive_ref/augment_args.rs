@@ -1,6 +1,6 @@
-use clap::{arg, Args as _, Command, FromArgMatches as _, Parser};
+use clap::{arg, Args, Command, FromArgMatches as _};
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 struct DerivedArgs {
     #[clap(short, long, action)]
     derived: bool,

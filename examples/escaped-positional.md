@@ -1,6 +1,4 @@
-*Jump to [source](escaped-positional.rs)*
-
-**This requires enabling the `cargo` feature flag.**
+**This requires enabling the [`cargo` feature flag][crate::_features].**
 
 You can use `--` to escape further arguments.
 

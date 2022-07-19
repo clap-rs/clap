@@ -1,6 +1,4 @@
-*Jump to [source](escaped-positional-derive.rs)*
-
-**This requires enabling the `derive` feature flag.**
+**This requires enabling the [`derive` feature flag][crate::_features].**
 
 You can use `--` to escape further arguments.
 

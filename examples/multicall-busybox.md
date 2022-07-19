@@ -1,8 +1,4 @@
-*Jump to [source](multicall-busybox.rs)*
-
-Example of a busybox-style multicall program
-
-See the documentation for `clap::Command::multicall` for rationale.
+See the documentation for [`Command::multicall`][crate::App::multicall] for rationale.
 
 This example omits every command except true and false,
 which are the most trivial to implement,

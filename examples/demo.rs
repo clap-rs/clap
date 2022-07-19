@@ -1,5 +1,3 @@
-// Note: this requires the `derive` feature
-
 use clap::Parser;
 
 /// Simple program to greet a person

@@ -1,9 +1,7 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command, value_parser, ArgAction};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(arg!(eff: -f).action(ArgAction::SetTrue))
         .arg(
             arg!(pea: -p <PEAR>)

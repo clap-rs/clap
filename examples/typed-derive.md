@@ -1,6 +1,4 @@
-*Jump to [source](typed-derive.rs)*
-
-**This requires enabling the `derive` feature flag.**
+**This requires enabling the [`derive` feature flag][crate::_features].**
 
 Help:
 ```console

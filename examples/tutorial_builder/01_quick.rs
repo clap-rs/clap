@@ -1,11 +1,9 @@
-// Note: this requires the `cargo` feature
-
 use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, ArgAction, Command};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(arg!([name] "Optional name to operate on"))
         .arg(
             arg!(

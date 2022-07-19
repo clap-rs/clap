@@ -1,12 +1,10 @@
-// Note: this requires the `derive` feature
-
 use std::ffi::OsString;
 use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
 
 /// A fictional versioning CLI
-#[derive(Debug, Parser)]
+#[derive(Debug, Parser)] // requires `derive` feature
 #[clap(name = "git")]
 #[clap(about = "A fictional versioning CLI", long_about = None)]
 struct Cli {

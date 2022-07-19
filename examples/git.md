@@ -1,5 +1,3 @@
-*Jump to [source](git.rs)*
-
 Git is an example of several common subcommand patterns.
 
 Help:

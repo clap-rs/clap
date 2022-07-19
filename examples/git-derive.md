@@ -1,6 +1,4 @@
-*Jump to [source](git-derive.rs)*
-
-**This requires enabling the `derive` feature flag.**
+**This requires enabling the [`derive` feature flag][crate::_features].**
 
 Git is an example of several common subcommand patterns.
 

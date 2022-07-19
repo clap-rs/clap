@@ -1,9 +1,7 @@
-// Note: this requires the `cargo` feature
-
 use clap::{command, Arg, ArgAction};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(
             Arg::new("verbose")
                 .short('v')

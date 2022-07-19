@@ -1,12 +1,10 @@
-// Note: this requires the `cargo` feature
-
 use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, ArgAction, ErrorKind};
 
 fn main() {
     // Create application like normal
-    let mut cmd = command!()
+    let mut cmd = command!() // requires `cargo` feature
         // Add the version arguments
         .arg(arg!(--"set-ver" <VER> "set version manually").required(false))
         .arg(arg!(--major         "auto inc major").action(ArgAction::SetTrue))

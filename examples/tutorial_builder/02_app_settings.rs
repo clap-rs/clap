@@ -1,9 +1,7 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command, AppSettings, ArgAction};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .global_setting(AppSettings::DeriveDisplayOrder)
         .allow_negative_numbers(true)
         .arg(arg!(--two <VALUE>).action(ArgAction::Set))

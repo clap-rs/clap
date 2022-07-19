@@ -1,9 +1,7 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command, Command};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .propagate_version(true)
         .subcommand_required(true)
         .arg_required_else_help(true)

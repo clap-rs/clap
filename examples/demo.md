@@ -1,8 +1,3 @@
-*Jump to [source](demo.rs)*
-
-**This requires enabling the `derive` feature flag.**
-
-Used to validate README.md's content
 ```console
 $ demo --help
 clap [..]
@@ -17,4 +12,8 @@ OPTIONS:
     -n, --name <NAME>      Name of the person to greet
     -V, --version          Print version information
 
+$ demo --name Me
+Hello Me!
+
 ```
+*(version number and `.exe` extension on windows replaced by placeholders)*
