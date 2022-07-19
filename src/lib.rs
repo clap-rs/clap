@@ -36,7 +36,7 @@
 //!
 //! Run
 //! ```console
-//! $ cargo add clap -F derive
+//! $ cargo add clap --features derive
 //! ```
 //! *(See also [feature flag reference][_features])*
 //!
