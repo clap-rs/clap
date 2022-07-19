@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Pulled in tutorials, cookbook, and derive reference into rustdoc
+
 ## [3.2.12] - 2022-07-14
 
 ### Fixes
