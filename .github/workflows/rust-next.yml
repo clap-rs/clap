@@ -1,0 +1,61 @@
+name: rust-next
+on:
+  schedule:
+  - cron: '3 3 3 * *'
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+        build: [stable, linux, windows, mac, nightly, minimal, default, next]
+        include:
+        - build: stable
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+        - build: linux
+          os: ubuntu-latest
+          rust: "beta"
+          features: "full"
+        - build: windows
+          os: windows-latest
+          rust: "beta"
+          features: "full"
+        - build: mac
+          os: macos-latest
+          rust: "beta"
+          features: "full"
+        - build: nightly
+          os: ubuntu-latest
+          rust: "nightly"
+          features: "full"
+        - build: minimal
+          os: ubuntu-latest
+          rust: "stable"
+          features: "minimal"
+        - build: default
+          os: ubuntu-latest
+          rust: "stable"
+          features: "default"
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'

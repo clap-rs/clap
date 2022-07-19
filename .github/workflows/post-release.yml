@@ -1,0 +1,42 @@
+name: post-release
+on:
+  push:
+    tags:
+    - "v*"
+permissions:
+  contents: read
+
+jobs:
+  create-release:
+    permissions:
+      contents: write  # for actions/create-release to create a release
+    name: create-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.release.outputs.upload_url }}
+      release_version: ${{ env.RELEASE_VERSION }}
+    steps:
+    - name: Get the release version from the tag
+      shell: bash
+      if: env.RELEASE_VERSION == ''
+      run: |
+        # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
+        echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        echo "version is: ${{ env.RELEASE_VERSION }}"
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+    - name: Generate Release Notes
+      run: |
+        ./.github/workflows/release-notes.py --tag ${{ env.RELEASE_VERSION }} --output notes-${{ env.RELEASE_VERSION }}.md
+        cat notes-${{ env.RELEASE_VERSION }}.md
+    - name: Create GitHub release
+      id: release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.RELEASE_VERSION }}
+        release_name: ${{ env.RELEASE_VERSION }}
+        body_path: notes-${{ env.RELEASE_VERSION }}.md
