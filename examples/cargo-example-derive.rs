@@ -1,8 +1,6 @@
-// Note: this requires the `derive` feature
-
 use clap::Parser;
 
-#[derive(Parser)]
+#[derive(Parser)] // requires `derive` feature
 #[clap(name = "cargo")]
 #[clap(bin_name = "cargo")]
 enum Cargo {

@@ -1,5 +1,3 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command, value_parser};
 
 fn main() {
@@ -13,14 +11,15 @@ fn main() {
 }
 
 fn cmd() -> clap::Command<'static> {
-    command!().arg(
-        arg!(<PORT>)
-            .help("Network port to use")
-            .value_parser(value_parser!(usize)),
-    )
+    command!() // requires `cargo` feature
+        .arg(
+            arg!(<PORT>)
+                .help("Network port to use")
+                .value_parser(value_parser!(usize)),
+        )
 }
 
 #[test]
-fn verify_app() {
+fn verify_cmd() {
     cmd().debug_assert();
 }

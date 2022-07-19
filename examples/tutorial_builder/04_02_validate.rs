@@ -1,11 +1,9 @@
-// Note: this requires the `cargo` feature
-
 use std::ops::RangeInclusive;
 
 use clap::{arg, command};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(
             arg!(<PORT>)
                 .help("Network port to use")

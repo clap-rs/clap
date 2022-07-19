@@ -19,11 +19,9 @@ use std::ffi::OsString;
 ///
 /// See also [`Subcommand`] and [`Args`].
 ///
-/// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.12/examples/derive_ref/README.md)
-/// for attributes and best practices.
+/// See the [derive reference](crate::_derive) for attributes and best practices.
 ///
-/// **NOTE:** Deriving requires the `derive` feature flag
+/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
 ///
 /// # Examples
 ///
@@ -372,11 +370,9 @@ pub trait FromArgMatches: Sized {
 ///   `Args`.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
-/// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.12/examples/derive_ref/README.md)
-/// for attributes and best practices.
+/// See the [derive reference](crate::_derive) for attributes and best practices.
 ///
-/// **NOTE:** Deriving requires the `derive` feature flag
+/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
 ///
 /// # Example
 ///
@@ -416,11 +412,9 @@ pub trait Args: FromArgMatches + Sized {
 /// - `#[clap(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
 ///   `Subcommand`.
 ///
-/// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.12/examples/derive_ref/README.md)
-/// for attributes and best practices.
+/// See the [derive reference](crate::_derive) for attributes and best practices.
 ///
-/// **NOTE:** Deriving requires the `derive` feature flag
+/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
 ///
 /// # Example
 ///
@@ -460,11 +454,9 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// - Call [`Arg::possible_values`][crate::Arg::possible_values]
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
 ///
-/// See the
-/// [derive reference](https://github.com/clap-rs/clap/blob/v3.2.12/examples/derive_ref/README.md)
-/// for attributes and best practices.
+/// See the [derive reference](crate::_derive) for attributes and best practices.
 ///
-/// **NOTE:** Deriving requires the `derive` feature flag
+/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
 ///
 /// # Example
 ///

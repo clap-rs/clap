@@ -1,9 +1,7 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(arg!([NAME]).default_value("alice"))
         .get_matches();
 

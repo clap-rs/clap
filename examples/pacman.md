@@ -1,5 +1,3 @@
-*Jump to [source](pacman.rs)*
-
 [`pacman`](https://wiki.archlinux.org/index.php/pacman) defines subcommands via flags.
 
 Here, `-S` is a short flag subcommand:

@@ -1,5 +1,3 @@
-// Note: this requires the `cargo` feature
-
 use std::ffi::OsString;
 use std::path::PathBuf;
 

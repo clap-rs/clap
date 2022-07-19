@@ -1,15 +1,13 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command, value_parser, ValueEnum};
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)] // requires `derive` feature
 enum Mode {
     Fast,
     Slow,
 }
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(
             arg!(<MODE>)
                 .help("What mode to run the program in")

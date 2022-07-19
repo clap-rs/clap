@@ -1,9 +1,7 @@
-// Note: this requires the `cargo` feature
-
 use clap::{arg, command, value_parser};
 
 fn main() {
-    let matches = command!()
+    let matches = command!() // requires `cargo` feature
         .arg(
             arg!(<PORT>)
                 .help("Network port to use")
