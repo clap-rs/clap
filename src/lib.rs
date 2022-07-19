@@ -40,7 +40,7 @@
 //! ```
 //! *(See also [feature flag reference][_features])*
 //!
-//! Then in `main.rs`:
+//! Then in `main.rs`, declare what data you want to parse from the command line by defining a struct and annotating it with clap's derive macros:
 #![cfg_attr(not(feature = "derive"), doc = " ```ignore")]
 #![cfg_attr(feature = "derive", doc = " ```no_run")]
 #![doc = include_str!("../examples/demo.rs")]
