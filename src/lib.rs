@@ -40,13 +40,13 @@
 //! ```
 //! *(See also [feature flag reference][_features])*
 //!
-//! Then in `main.rs`:
+//! Then define your CLI in `main.rs`:
 #![cfg_attr(not(feature = "derive"), doc = " ```ignore")]
 #![cfg_attr(feature = "derive", doc = " ```no_run")]
 #![doc = include_str!("../examples/demo.rs")]
 //! ```
 //!
-//! Then try it out:
+//! And try it out:
 #![doc = include_str!("../examples/demo.md")]
 //!
 //! See also the derive [tutorial][_derive::_tutorial] and [reference][_derive]
