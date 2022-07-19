@@ -497,15 +497,10 @@
 //! This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore
 //! cannot break due to new features, or bumped minimum versions of Rust.
 //!
-//! #### Minimum Version of Rust
+//! #### Minimum Version of Rust (MSRV)
 //!
-//! `clap` will officially support current stable Rust, minus two releases, but may work with prior
-//! releases as well. For example, current stable Rust at the time of this writing is 1.21.0,
-//! meaning `clap` is guaranteed to compile with 1.19.0 and beyond. At the 1.22.0 release, `clap`
-//! will be guaranteed to compile with 1.20.0 and beyond, etc.
-//!
-//! Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be
-//! clearly annotated in the `CHANGELOG.md`
+//! `clap` v2's MSRV is 1.46.0 and will only be updated for critical changes.  Any changes will be
+//! noted in the `CHANGELOG.md`
 //!
 //! ## License
 //!

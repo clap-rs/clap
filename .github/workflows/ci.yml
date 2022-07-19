@@ -1,0 +1,112 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [v2-master]
+  schedule:
+  - cron: '3 3 3 * *'
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    permissions:
+      contents: none
+    name: CI
+    needs: [test, check, docs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Done
+        run: exit 0
+  test:
+    name: Test
+    strategy:
+      matrix:
+        build: [linux, windows, mac, minimal, default]
+        include:
+        - build: linux
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+        - build: windows
+          os: windows-latest
+          rust: "stable"
+          features: "full"
+        - build: mac
+          os: macos-latest
+          rust: "stable"
+          features: "full"
+        - build: minimal
+          os: ubuntu-latest
+          rust: "stable"
+          features: "minimal"
+        - build: default
+          os: ubuntu-latest
+          rust: "stable"
+          features: "default"
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [msrv, debug, release]
+        include:
+          - build: msrv
+            rust: 1.46.0  # MSRV
+            target: x86_64-unknown-linux-gnu
+            features: full
+          - build: debug
+            rust: stable
+            target: x86_64-unknown-linux-gnu
+            features: debug
+          - build: release
+            rust: stable
+            target: x86_64-unknown-linux-gnu
+            features: release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - name: Check
+        run: make check-${{ matrix.features }}
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Check documentation
+      run: make doc
