@@ -1227,6 +1227,41 @@ fn low_index_positional_with_flag() {
 }
 
 #[test]
+fn low_index_positional_with_extra_flags() {
+    let cmd = Command::new("test")
+        .arg(Arg::new("yes").long("yes").action(ArgAction::SetTrue))
+        .arg(Arg::new("one").long("one").action(ArgAction::Set))
+        .arg(Arg::new("two").long("two").action(ArgAction::Set))
+        .arg(Arg::new("input").multiple_values(true).required(true))
+        .arg(Arg::new("output").required(true));
+    let m = cmd.try_get_matches_from([
+        "test", "--one", "1", "--two", "2", "3", "4", "5", "6", "7", "8",
+    ]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    let m = m.unwrap();
+
+    assert_eq!(
+        m.get_many::<String>("input")
+            .unwrap()
+            .into_iter()
+            .map(String::from)
+            .collect::<Vec<_>>(),
+        vec![
+            "3".to_owned(),
+            "4".to_owned(),
+            "5".to_owned(),
+            "6".to_owned(),
+            "7".to_owned()
+        ],
+    );
+    assert_eq!(m.get_one::<String>("output").unwrap(), "8");
+    assert_eq!(m.get_one::<String>("one").unwrap(), "1");
+    assert_eq!(m.get_one::<String>("two").unwrap(), "2");
+    assert!(!*m.get_one::<bool>("yes").unwrap());
+}
+
+#[test]
 fn multiple_value_terminator_option() {
     let m = Command::new("lip")
         .arg(
