@@ -62,8 +62,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         let mut parse_state = ParseState::ValuesDone;
         let mut pos_counter = 1;
 
-        // Already met any valid arg(then we shouldn't expect subcommands after it).
-        let mut valid_arg_found = false;
+        // Already met this valid arg(then we shouldn't expect subcommands after it).
+        let mut valid_arg_found = None;
         // If the user already passed '--'. Meaning only positional args follow.
         let mut trailing_values = false;
 
@@ -142,7 +142,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                             // current value matches the next arg.
                             self.is_new_arg(&n, arg)
                                 || self
-                                    .possible_subcommand(n.to_value(), valid_arg_found)
+                                    .possible_subcommand(n.to_value(), &valid_arg_found)
                                     .is_some()
                         } else {
                             true
@@ -175,7 +175,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     || !matches!(parse_state, ParseState::Opt(_) | ParseState::Pos(_))
                 {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
-                    let sc_name = self.possible_subcommand(arg_os.to_value(), valid_arg_found);
+                    let sc_name = self.possible_subcommand(arg_os.to_value(), &valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
                     if let Some(sc_name) = sc_name {
                         #[allow(deprecated)]
@@ -413,7 +413,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     parse_state = ParseState::Pos(arg.id.clone());
                 }
-                valid_arg_found = true;
+                valid_arg_found = Some(arg.to_string());
             } else if let Some(external_parser) =
                 self.cmd.get_external_subcommand_value_parser().cloned()
             {
@@ -479,14 +479,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn match_arg_error(
         &self,
         arg_os: &clap_lex::ParsedArg<'_>,
-        valid_arg_found: bool,
+        valid_arg_found: Option<String>,
         trailing_values: bool,
     ) -> ClapError {
         // If argument follows a `--`
         if trailing_values {
             // If the arg matches a subcommand name, or any of its aliases (if defined)
             if self
-                .possible_subcommand(arg_os.to_value(), valid_arg_found)
+                .possible_subcommand(arg_os.to_value(), &valid_arg_found)
                 .is_some()
             {
                 return ClapError::unnecessary_double_dash(
@@ -496,6 +496,18 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 );
             }
         }
+
+        // Conflicting arg and subcommand due to `args_conflicts_with_subcommands`.
+        let subcmd_match = self.possible_subcommand(arg_os.to_value(), &None);
+        if let Some((arg, subcmd)) = valid_arg_found.zip(subcmd_match) {
+            return ClapError::argument_subcommand_conflict(
+                self.cmd,
+                arg,
+                subcmd.into(),
+                Usage::new(self.cmd).create_usage_with_title(&[]),
+            );
+        }
+
         let candidates = suggestions::did_you_mean(
             &arg_os.display().to_string(),
             self.cmd.all_subcommand_names(),
@@ -538,12 +550,12 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     fn possible_subcommand(
         &self,
         arg: Result<&str, &RawOsStr>,
-        valid_arg_found: bool,
+        valid_arg_found: &Option<String>,
     ) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg);
         let arg = arg.ok()?;
 
-        if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
+        if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found.is_some()) {
             if self.cmd.is_infer_subcommands_set() {
                 // For subcommand `test`, we accepts it's prefix: `t`, `te`,
                 // `tes` and `test`.
@@ -716,7 +728,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         long_arg: Result<&str, &RawOsStr>,
         long_value: Option<&RawOsStr>,
         parse_state: &ParseState,
-        valid_arg_found: &mut bool,
+        valid_arg_found: &mut Option<String>,
         trailing_values: bool,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
@@ -767,7 +779,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
         if let Some((_long_arg, arg)) = arg {
             let ident = Identifier::Long;
-            *valid_arg_found = true;
+            *valid_arg_found = Some(arg.to_string());
             if arg.is_takes_value_set() {
                 debug!(
                     "Parser::parse_long_arg({:?}): Found an arg with value '{:?}'",
@@ -821,7 +833,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         parse_state: &ParseState,
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,
-        valid_arg_found: &mut bool,
+        valid_arg_found: &mut Option<String>,
         trailing_values: bool,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_short_arg: short_arg={:?}", short_arg);
@@ -889,7 +901,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
                 );
-                *valid_arg_found = true;
+                *valid_arg_found = Some(arg.to_string());
                 if !arg.is_takes_value_set() {
                     ret =
                         self.react(Some(ident), ValueSource::CommandLine, arg, vec![], matcher)?;

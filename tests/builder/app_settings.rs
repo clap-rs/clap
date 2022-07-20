@@ -78,7 +78,7 @@ OPTIONS:
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    info    
+    info
 ";
 
 #[test]
@@ -741,6 +741,28 @@ fn args_negate_subcommands_two_levels() {
             .get_one::<String>("arg2")
             .map(|v| v.as_str()),
         Some("sub2")
+    );
+}
+
+#[test]
+fn args_conflict_subcommands_error() {
+    let app = Command::new("todo")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(--flag))
+        .subcommand(Command::new("sub1"));
+
+    utils::assert_output(
+        app,
+        " --flag sub1",
+        "\
+error: The argument '--flag' cannot be used with subcommand 'sub1'
+
+USAGE:
+    todo [OPTIONS]
+    todo <SUBCOMMAND>
+
+For more information try --help\n",
+        true,
     );
 }
 
