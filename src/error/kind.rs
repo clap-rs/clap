@@ -374,13 +374,6 @@ pub enum ErrorKind {
     /// ```
     DisplayVersion,
 
-    /// Occurs when using the [`ArgMatches::value_of_t`] and friends to convert an argument value
-    /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
-    /// with name `config` to be converted, but `config` wasn't used by the user.
-    ///
-    /// [`ArgMatches::value_of_t`]: crate::ArgMatches::value_of_t()
-    ArgumentNotFound,
-
     /// Represents an [I/O error].
     /// Can occur when writing to `stderr` or `stdout` or reading a configuration file.
     ///
@@ -426,7 +419,6 @@ impl ErrorKind {
             Self::DisplayHelp => None,
             Self::DisplayHelpOnMissingArgumentOrSubcommand => None,
             Self::DisplayVersion => None,
-            Self::ArgumentNotFound => Some("An argument wasn't found"),
             Self::Io => None,
             Self::Format => None,
         }

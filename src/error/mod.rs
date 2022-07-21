@@ -861,17 +861,6 @@ impl Error {
                     false
                 }
             }
-            ErrorKind::ArgumentNotFound => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    c.none("The argument '");
-                    c.warning(invalid_arg.to_string());
-                    c.none("' wasn't found");
-                    true
-                } else {
-                    false
-                }
-            }
             ErrorKind::DisplayHelp
             | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
             | ErrorKind::DisplayVersion
