@@ -18,10 +18,6 @@ pub enum ContextKind {
     ExpectedNumValues,
     /// Minimum number of allowed values
     MinValues,
-    /// Number of occurrences present
-    ActualNumOccurrences,
-    /// Maximum number of allowed occurrences
-    MaxOccurrences,
     /// Potential fix for the user
     SuggestedCommand,
     /// Potential fix for the user

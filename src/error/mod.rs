@@ -352,29 +352,6 @@ impl Error {
             .extend_context_unchecked([(ContextKind::Usage, ContextValue::String(usage))])
     }
 
-    pub(crate) fn too_many_occurrences(
-        cmd: &Command,
-        arg: String,
-        max_occurs: usize,
-        curr_occurs: usize,
-        usage: String,
-    ) -> Self {
-        Self::new(ErrorKind::TooManyOccurrences)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (
-                    ContextKind::MaxOccurrences,
-                    ContextValue::Number(max_occurs as isize),
-                ),
-                (
-                    ContextKind::ActualNumValues,
-                    ContextValue::Number(curr_occurs as isize),
-                ),
-                (ContextKind::Usage, ContextValue::String(usage)),
-            ])
-    }
-
     pub(crate) fn too_many_values(cmd: &Command, val: String, arg: String, usage: String) -> Self {
         Self::new(ErrorKind::TooManyValues)
             .with_cmd(cmd)
@@ -689,29 +666,6 @@ impl Error {
                 }
             }
             ErrorKind::InvalidUtf8 => false,
-            ErrorKind::TooManyOccurrences => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let actual_num_occurs = self.get_context(ContextKind::ActualNumOccurrences);
-                let max_occurs = self.get_context(ContextKind::MaxOccurrences);
-                if let (
-                    Some(ContextValue::String(invalid_arg)),
-                    Some(ContextValue::Number(actual_num_occurs)),
-                    Some(ContextValue::Number(max_occurs)),
-                ) = (invalid_arg, actual_num_occurs, max_occurs)
-                {
-                    let were_provided = Error::singular_or_plural(*actual_num_occurs as usize);
-                    c.none("The argument '");
-                    c.warning(invalid_arg);
-                    c.none("' allows at most ");
-                    c.warning(max_occurs.to_string());
-                    c.none(" occurrences but ");
-                    c.warning(actual_num_occurs.to_string());
-                    c.none(were_provided);
-                    true
-                } else {
-                    false
-                }
-            }
             ErrorKind::TooManyValues => {
                 let invalid_arg = self.get_context(ContextKind::InvalidArg);
                 let invalid_value = self.get_context(ContextKind::InvalidValue);

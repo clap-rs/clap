@@ -76,7 +76,6 @@ pub struct Arg<'help> {
     pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
-    pub(crate) max_occurs: Option<usize>,
     pub(crate) max_vals: Option<usize>,
     pub(crate) min_vals: Option<usize>,
     pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
@@ -777,25 +776,6 @@ impl<'help> Arg<'help> {
             self.setting(ArgSettings::MultipleOccurrences)
         } else {
             self.unset_setting(ArgSettings::MultipleOccurrences)
-        }
-    }
-
-    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`"
-        )
-    )]
-    pub fn max_occurrences(mut self, qty: usize) -> Self {
-        self.max_occurs = Some(qty);
-        if qty > 1 {
-            self.multiple_occurrences(true)
-        } else {
-            self
         }
     }
 

@@ -333,24 +333,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .create_usage_with_title(&[]),
             ));
         }
-        if let Some(max_occurs) = a.max_occurs {
-            debug!(
-                "Validator::validate_arg_num_occurs: max_occurs set...{}",
-                max_occurs
-            );
-            let occurs = ma.get_occurrences() as usize;
-            if occurs > max_occurs {
-                return Err(Error::too_many_occurrences(
-                    self.cmd,
-                    a.to_string(),
-                    max_occurs,
-                    occurs,
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
-            }
-        }
 
         Ok(())
     }

@@ -175,24 +175,6 @@ pub enum ErrorKind {
     /// [`Arg::min_values`]: crate::Arg::min_values()
     TooFewValues,
 
-    /// Occurs when a user provides more occurrences for an argument than were defined by setting
-    /// [`Arg::max_occurrences`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let result = Command::new("prog")
-    ///     .arg(Arg::new("verbosity")
-    ///         .short('v')
-    ///         .max_occurrences(2))
-    ///     .try_get_matches_from(vec!["prog", "-vvv"]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
-    /// ```
-    /// [`Arg::max_occurrences`]: crate::Arg::max_occurrences()
-    TooManyOccurrences,
-
     /// Occurs when the user provides a different number of values for an argument than what's
     /// been defined by setting [`Arg::number_of_values`] or than was implicitly set by
     /// [`Arg::value_names`].
@@ -403,7 +385,6 @@ impl ErrorKind {
             Self::ValueValidation => Some("Invalid value for one of the arguments"),
             Self::TooManyValues => Some("An argument received an unexpected value"),
             Self::TooFewValues => Some("An argument requires more values"),
-            Self::TooManyOccurrences => Some("An argument occurred too many times"),
             Self::WrongNumberOfValues => Some("An argument received too many or too few values"),
             Self::ArgumentConflict => {
                 Some("An argument cannot be used with one or more of the other specified arguments")
