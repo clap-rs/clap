@@ -98,77 +98,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 arg_os.to_value_os().as_raw_bytes()
             );
 
-            // Correct pos_counter.
-            pos_counter = {
-                let is_second_to_last = pos_counter + 1 == positional_count;
-
-                // The last positional argument, or second to last positional
-                // argument may be set to .multiple_values(true) or `.multiple_occurrences(true)`
-                let low_index_mults = is_second_to_last
-                    && self
-                        .cmd
-                        .get_positionals()
-                        .any(|a| a.is_multiple() && (positional_count != a.index.unwrap_or(0)))
-                    && self
-                        .cmd
-                        .get_positionals()
-                        .last()
-                        .map_or(false, |p_name| !p_name.is_last_set());
-
-                let missing_pos = self.cmd.is_allow_missing_positional_set()
-                    && is_second_to_last
-                    && !trailing_values;
-
-                debug!(
-                    "Parser::get_matches_with: Positional counter...{}",
-                    pos_counter
-                );
-                debug!(
-                    "Parser::get_matches_with: Low index multiples...{:?}",
-                    low_index_mults
-                );
-
-                if low_index_mults || missing_pos {
-                    let skip_current = if let Some(n) = raw_args.peek(&args_cursor) {
-                        if let Some(arg) = self
-                            .cmd
-                            .get_positionals()
-                            .find(|a| a.index == Some(pos_counter))
-                        {
-                            // If next value looks like a new_arg or it's a
-                            // subcommand, skip positional argument under current
-                            // pos_counter(which means current value cannot be a
-                            // positional argument with a value next to it), assume
-                            // current value matches the next arg.
-                            self.is_new_arg(&n, arg)
-                                || self
-                                    .possible_subcommand(n.to_value(), valid_arg_found)
-                                    .is_some()
-                        } else {
-                            true
-                        }
-                    } else {
-                        true
-                    };
-
-                    if skip_current {
-                        debug!("Parser::get_matches_with: Bumping the positional counter...");
-                        pos_counter + 1
-                    } else {
-                        pos_counter
-                    }
-                } else if trailing_values
-                    && (self.cmd.is_allow_missing_positional_set() || contains_last)
-                {
-                    // Came to -- and one positional has .last(true) set, so we go immediately
-                    // to the last (highest index) positional
-                    debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                    positional_count
-                } else {
-                    pos_counter
-                }
-            };
-
             // Has the user already passed '--'? Meaning only positional args follow
             if !trailing_values {
                 if self.cmd.is_subcommand_precedence_over_arg_set()
@@ -375,6 +304,77 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     continue;
                 }
             }
+
+            // Correct pos_counter.
+            pos_counter = {
+                let is_second_to_last = pos_counter + 1 == positional_count;
+
+                // The last positional argument, or second to last positional
+                // argument may be set to .multiple_values(true) or `.multiple_occurrences(true)`
+                let low_index_mults = is_second_to_last
+                    && self
+                        .cmd
+                        .get_positionals()
+                        .any(|a| a.is_multiple() && (positional_count != a.index.unwrap_or(0)))
+                    && self
+                        .cmd
+                        .get_positionals()
+                        .last()
+                        .map_or(false, |p_name| !p_name.is_last_set());
+
+                let missing_pos = self.cmd.is_allow_missing_positional_set()
+                    && is_second_to_last
+                    && !trailing_values;
+
+                debug!(
+                    "Parser::get_matches_with: Positional counter...{}",
+                    pos_counter
+                );
+                debug!(
+                    "Parser::get_matches_with: Low index multiples...{:?}",
+                    low_index_mults
+                );
+
+                if low_index_mults || missing_pos {
+                    let skip_current = if let Some(n) = raw_args.peek(&args_cursor) {
+                        if let Some(arg) = self
+                            .cmd
+                            .get_positionals()
+                            .find(|a| a.index == Some(pos_counter))
+                        {
+                            // If next value looks like a new_arg or it's a
+                            // subcommand, skip positional argument under current
+                            // pos_counter(which means current value cannot be a
+                            // positional argument with a value next to it), assume
+                            // current value matches the next arg.
+                            self.is_new_arg(&n, arg)
+                                || self
+                                    .possible_subcommand(n.to_value(), valid_arg_found)
+                                    .is_some()
+                        } else {
+                            true
+                        }
+                    } else {
+                        true
+                    };
+
+                    if skip_current {
+                        debug!("Parser::get_matches_with: Bumping the positional counter...");
+                        pos_counter + 1
+                    } else {
+                        pos_counter
+                    }
+                } else if trailing_values
+                    && (self.cmd.is_allow_missing_positional_set() || contains_last)
+                {
+                    // Came to -- and one positional has .last(true) set, so we go immediately
+                    // to the last (highest index) positional
+                    debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
+                    positional_count
+                } else {
+                    pos_counter
+                }
+            };
 
             if let Some(arg) = self.cmd.get_keymap().get(&pos_counter) {
                 if arg.is_last_set() && !trailing_values {
