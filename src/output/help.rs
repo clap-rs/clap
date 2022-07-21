@@ -481,7 +481,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
-            let possible_vals = arg.get_possible_values2();
+            let possible_vals = arg.get_possible_values();
             if self.use_long
                 && !arg.is_hide_possible_values_set()
                 && possible_vals.iter().any(PossibleValue::should_show_help)
@@ -660,7 +660,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             }
         }
 
-        let possible_vals = a.get_possible_values2();
+        let possible_vals = a.get_possible_values();
         if !(a.is_hide_possible_values_set()
             || possible_vals.is_empty()
             || cfg!(feature = "unstable-v4")

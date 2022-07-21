@@ -50,7 +50,7 @@ impl<'help> PossibleValue<'help> {
     /// # ;
     /// ```
     /// [hidden]: PossibleValue::hide
-    /// [possible value]: crate::Arg::possible_values
+    /// [possible value]: crate::builder::PossibleValuesParser
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     pub fn new(name: &'help str) -> Self {
         PossibleValue {

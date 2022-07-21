@@ -91,30 +91,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
     fn validate_arg_values(&self, arg: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in ma.raw_vals_flatten() {
-            if !arg.possible_vals.is_empty() {
-                debug!(
-                    "Validator::validate_arg_values: possible_vals={:?}",
-                    arg.possible_vals
-                );
-                let val_str = val.to_string_lossy();
-                let ok = arg
-                    .possible_vals
-                    .iter()
-                    .any(|pv| pv.matches(&val_str, arg.is_ignore_case_set()));
-                if !ok {
-                    return Err(Error::invalid_value(
-                        self.cmd,
-                        val_str.into_owned(),
-                        &arg.possible_vals
-                            .iter()
-                            .filter(|pv| !pv.is_hide_set())
-                            .map(PossibleValue::get_name)
-                            .collect::<Vec<_>>(),
-                        arg.to_string(),
-                    ));
-                }
-            }
-
             if let Some(ref vtor) = arg.validator {
                 debug!("Validator::validate_arg_values: checking validator...");
                 let mut vtor = vtor.lock().unwrap();
@@ -643,13 +619,8 @@ impl Conflicts {
 }
 
 fn get_possible_values<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
-    #![allow(deprecated)]
     if !a.is_takes_value_set() {
         vec![]
-    } else if let Some(pvs) = a.get_possible_values() {
-        // Check old first in case the user explicitly set possible values and the derive inferred
-        // a `ValueParser` with some.
-        pvs.to_vec()
     } else {
         a.get_value_parser()
             .possible_values()

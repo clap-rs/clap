@@ -73,7 +73,6 @@ pub struct Arg<'help> {
     pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: DisplayOrder,
-    pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
     pub(crate) max_vals: Option<usize>,
@@ -1509,43 +1508,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
-        )
-    )]
-    #[must_use]
-    pub fn possible_value<T>(mut self, value: T) -> Self
-    where
-        T: Into<PossibleValue<'help>>,
-    {
-        self.possible_vals.push(value.into());
-        self.takes_value(true)
-    }
-
-    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
-        )
-    )]
-    #[must_use]
-    pub fn possible_values<I, T>(mut self, values: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<PossibleValue<'help>>,
-    {
-        self.possible_vals
-            .extend(values.into_iter().map(|value| value.into()));
-        self.takes_value(true)
-    }
-
-    /// Match values against [`Arg::possible_values`] without matching case.
+    /// Match values against [`PossibleValuesParser`][crate::builder::PossibleValuesParser] without matching case.
     ///
     /// When other arguments are conditionally required based on the
     /// value of a case-insensitive argument, the equality check done
@@ -4249,30 +4212,9 @@ impl<'help> Arg<'help> {
         Some(longs)
     }
 
-    /// Deprecated, replaced with [`Arg::get_value_parser().possible_values()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::get_value_parser().possible_values()`"
-        )
-    )]
-    pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
-        if self.possible_vals.is_empty() {
-            None
-        } else {
-            Some(&self.possible_vals)
-        }
-    }
-
-    pub(crate) fn get_possible_values2(&self) -> Vec<PossibleValue<'help>> {
-        #![allow(deprecated)]
+    pub(crate) fn get_possible_values(&self) -> Vec<PossibleValue<'help>> {
         if !self.is_takes_value_set() {
             vec![]
-        } else if let Some(pvs) = self.get_possible_values() {
-            // Check old first in case the user explicitly set possible values and the derive inferred
-            // a `ValueParser` with some.
-            pvs.to_vec()
         } else {
             self.get_value_parser()
                 .possible_values()
@@ -4721,7 +4663,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("aliases", &self.aliases)
             .field("short_aliases", &self.short_aliases)
             .field("disp_ord", &self.disp_ord)
-            .field("possible_vals", &self.possible_vals)
             .field("val_names", &self.val_names)
             .field("num_vals", &self.num_vals)
             .field("max_vals", &self.max_vals)

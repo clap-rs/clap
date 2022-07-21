@@ -341,7 +341,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///
 /// When deriving [`Parser`], a field whose type implements `ValueEnum` can have the attribute
 /// `#[clap(value_enum)]` which will
-/// - Call [`Arg::possible_values`][crate::Arg::possible_values]
+/// - Call [EnumValueParser`][crate::builder::EnumValueParser]`
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
 ///
 /// See the [derive reference](crate::_derive) for attributes and best practices.
@@ -354,7 +354,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(value_enum)]
+///     #[clap(value_enum, value_parser)]
 ///     level: Level,
 /// }
 ///

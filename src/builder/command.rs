@@ -4675,7 +4675,7 @@ impl<'help> Command<'help> {
                 || v.is_hide_long_help_set()
                 || v.is_hide_short_help_set()
                 || cfg!(feature = "unstable-v4")
-                    && v.get_possible_values2()
+                    && v.get_possible_values()
                         .iter()
                         .any(PossibleValue::should_show_help)
         };
