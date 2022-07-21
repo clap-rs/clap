@@ -60,7 +60,7 @@ default = [
   "suggestions",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
-unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-grouped"] # for docs.rs
+unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "unstable-replace", "unstable-grouped"] # for docs.rs
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
@@ -98,12 +98,10 @@ yaml-rust = { version = "0.4.1",  optional = true }
 atty = { version = "0.2",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.1.12", optional = true }
-regex = { version = "1.0", optional = true }
 backtrace = { version = "0.3", optional = true }
 once_cell = { version = "1.12.0", optional = true }
 
 [dev-dependencies]
-regex = "1.0"
 trybuild = "1.0.18"
 rustversion = "1"
 # Cutting out `filesystem` feature

@@ -38,7 +38,6 @@ mod positionals;
 mod posix_compatible;
 mod possible_values;
 mod propagate_globals;
-mod regex;
 mod require;
 mod subcommands;
 mod template_help;

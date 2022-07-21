@@ -14,7 +14,6 @@
 //! * **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
 //! * **cargo**: Turns on macros that read values from [`CARGO_*` environment variables](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates).
 //! * **env**: Turns on the usage of environment variables during parsing.
-//! * **regex**: Enables regex validators.
 //! * **unicode**: Turns on support for unicode characters (including emoji) in arguments and help messages.
 //! * **wrap_help**: Turns on the help text wrapping feature, based on the terminal size.
 //!

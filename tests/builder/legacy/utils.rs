@@ -3,8 +3,6 @@
 use std::io::{BufRead, Cursor, Write};
 use std::str;
 
-use regex::Regex;
-
 use clap::{arg, Arg, ArgGroup, Command};
 
 #[track_caller]

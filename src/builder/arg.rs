@@ -26,9 +26,6 @@ use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
 use crate::{ArgFlags, ArgSettings};
 
-#[cfg(feature = "regex")]
-use crate::builder::RegexRef;
-
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
 ///
@@ -1548,31 +1545,6 @@ impl<'help> Arg<'help> {
             f(s).map(|_| ()).map_err(|e| e.into())
         })));
         self
-    }
-
-    /// Deprecated in [Issue #3743](https://github.com/clap-rs/clap/issues/3743), replaced with [`Arg::value_parser(...)`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Deprecated in Issue #3743; eplaced with `Arg::value_parser(...)`"
-        )
-    )]
-    #[cfg(feature = "regex")]
-    #[must_use]
-    pub fn validator_regex(
-        self,
-        regex: impl Into<RegexRef<'help>>,
-        err_message: &'help str,
-    ) -> Self {
-        let regex = regex.into();
-        self.validator(move |s: &str| {
-            if regex.is_match(s) {
-                Ok(())
-            } else {
-                Err(err_message)
-            }
-        })
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]

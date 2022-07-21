@@ -175,9 +175,6 @@ mod macros;
 
 mod derive;
 
-#[cfg(feature = "regex")]
-pub use crate::builder::RegexRef;
-
 pub mod builder;
 pub mod error;
 pub mod parser;

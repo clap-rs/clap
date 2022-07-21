@@ -15,9 +15,6 @@ mod usage_parser;
 mod value_hint;
 mod value_parser;
 
-#[cfg(feature = "regex")]
-mod regex;
-
 #[cfg(debug_assertions)]
 mod debug_asserts;
 
@@ -52,9 +49,6 @@ pub use value_parser::PathBufValueParser;
 
 #[allow(deprecated)]
 pub use command::App;
-
-#[cfg(feature = "regex")]
-pub use self::regex::RegexRef;
 
 pub(crate) use action::CountType;
 pub(crate) use arg::display_arg_val;
