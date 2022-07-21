@@ -119,26 +119,6 @@ pub use crate::parser::{Indices, OsValues, ValueSource, Values};
 #[doc(hidden)]
 pub use clap_derive::{self, *};
 
-/// Deprecated, replaced with [`CommandFactory`]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(since = "3.0.0", note = "Replaced with `CommandFactory`")
-)]
-pub use CommandFactory as IntoApp;
-/// Deprecated, replaced with [`Parser`]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(since = "3.0.0", note = "Replaced with `Parser`")
-)]
-#[doc(hidden)]
-pub use Parser as StructOpt;
-/// Deprecated, replaced with [`ValueEnum`]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(since = "3.2.0", note = "Replaced with `ValueEnum`")
-)]
-pub use ValueEnum as ArgEnum;
-
 #[cfg(feature = "unstable-doc")]
 pub mod _cookbook;
 #[cfg(feature = "unstable-doc")]

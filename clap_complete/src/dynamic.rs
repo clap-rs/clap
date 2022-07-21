@@ -224,7 +224,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         Menu,
     }
 
-    impl clap::ArgEnum for CompType {
+    impl clap::ValueEnum for CompType {
         fn value_variants<'a>() -> &'a [Self] {
             &[
                 Self::Normal,

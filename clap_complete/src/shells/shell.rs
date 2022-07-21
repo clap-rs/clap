@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use clap::{ArgEnum, PossibleValue};
+use clap::{PossibleValue, ValueEnum};
 
 use crate::shells;
 use crate::Generator;
@@ -28,7 +28,7 @@ impl Shell {
     pub fn possible_values() -> impl Iterator<Item = PossibleValue<'static>> {
         Shell::value_variants()
             .iter()
-            .filter_map(ArgEnum::to_possible_value)
+            .filter_map(ValueEnum::to_possible_value)
     }
 }
 
@@ -55,7 +55,7 @@ impl FromStr for Shell {
 }
 
 // Hand-rolled so it can work even when `derive` feature is disabled
-impl ArgEnum for Shell {
+impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
         &[
             Shell::Bash,

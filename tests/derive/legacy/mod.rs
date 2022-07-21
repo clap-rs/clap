@@ -27,7 +27,6 @@ mod raw_bool_literal;
 mod raw_idents;
 mod rename_all_env;
 mod skip;
-mod structopt;
 mod subcommands;
 mod type_alias_regressions;
 mod utf8;
