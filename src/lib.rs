@@ -174,29 +174,3 @@ mod util;
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
                                   report at https://github.com/clap-rs/clap/issues";
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
-
-/// Deprecated, replaced with [`Command::new`], unless you were looking for [Subcommand]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(
-        since = "3.0.0",
-        note = "Replaced with `Command::new` unless you intended the `Subcommand` trait"
-    )
-)]
-#[doc(hidden)]
-#[derive(Debug, Copy, Clone)]
-pub struct SubCommand {}
-
-#[allow(deprecated)]
-impl SubCommand {
-    /// Deprecated, replaced with [`Command::new`].
-    /// Did you mean Subcommand (lower-case c)?
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::new`")
-    )]
-    #[doc(hidden)]
-    pub fn with_name<'help>(name: &str) -> App<'help> {
-        Command::new(name)
-    }
-}
