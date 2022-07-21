@@ -8,7 +8,6 @@ mod arg_predicate;
 mod arg_settings;
 mod command;
 mod possible_value;
-mod usage_parser;
 mod value_hint;
 mod value_parser;
 

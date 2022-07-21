@@ -14,7 +14,6 @@ use std::{
 use std::{env, ffi::OsString};
 
 // Internal
-use crate::builder::usage_parser::UsageParser;
 use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
 use crate::ArgAction;
@@ -4650,16 +4649,6 @@ impl<'help> Arg<'help> {
     #[doc(hidden)]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
-    }
-
-    /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
-    )]
-    #[doc(hidden)]
-    pub fn from_usage(u: &'help str) -> Self {
-        UsageParser::from_usage(u).parse()
     }
 
     /// Deprecated, replaced with [`Arg::required_unless_present`]

@@ -3910,37 +3910,6 @@ impl<'help> App<'help> {
         self.term_width(width)
     }
 
-    /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn arg_from_usage(self, usage: &'help str) -> Self {
-        #![allow(deprecated)]
-        self.arg(Arg::from_usage(usage))
-    }
-
-    /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn args_from_usage(mut self, usage: &'help str) -> Self {
-        #![allow(deprecated)]
-        for line in usage.lines() {
-            let l = line.trim();
-            if l.is_empty() {
-                continue;
-            }
-            self = self.arg(Arg::from_usage(l));
-        }
-        self
-    }
-
     /// Deprecated, replaced with [`Command::render_version`]
     #[cfg_attr(
         feature = "deprecated",
