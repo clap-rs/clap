@@ -45,5 +45,4 @@ mod unique_args;
 mod utf16;
 mod utf8;
 mod utils;
-mod validators;
 mod version;

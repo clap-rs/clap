@@ -21,7 +21,10 @@ pub struct Opts {
 
 #[derive(Subcommand, PartialEq, Debug)]
 enum Command {
-    DoSomething { arg: Option<String> },
+    DoSomething {
+        #[clap(value_parser)]
+        arg: Option<String>,
+    },
 }
 
 #[derive(ValueEnum, PartialEq, Debug, Clone)]

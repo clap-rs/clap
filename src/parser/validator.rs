@@ -88,43 +88,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         Ok(())
     }
 
-    fn validate_arg_values(&self, arg: &Arg, ma: &MatchedArg) -> ClapResult<()> {
-        debug!("Validator::validate_arg_values: arg={:?}", arg.name);
-        for val in ma.raw_vals_flatten() {
-            if let Some(ref vtor) = arg.validator {
-                debug!("Validator::validate_arg_values: checking validator...");
-                let mut vtor = vtor.lock().unwrap();
-                if let Err(e) = vtor(&*val.to_string_lossy()) {
-                    debug!("error");
-                    return Err(Error::value_validation(
-                        arg.to_string(),
-                        val.to_string_lossy().into_owned(),
-                        e,
-                    )
-                    .with_cmd(self.cmd));
-                } else {
-                    debug!("good");
-                }
-            }
-            if let Some(ref vtor) = arg.validator_os {
-                debug!("Validator::validate_arg_values: checking validator_os...");
-                let mut vtor = vtor.lock().unwrap();
-                if let Err(e) = vtor(val) {
-                    debug!("error");
-                    return Err(Error::value_validation(
-                        arg.to_string(),
-                        val.to_string_lossy().into(),
-                        e,
-                    )
-                    .with_cmd(self.cmd));
-                } else {
-                    debug!("good");
-                }
-            }
-        }
-        Ok(())
-    }
-
     fn validate_conflicts(
         &mut self,
         matcher: &ArgMatcher,
@@ -283,7 +246,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             );
             if let Some(arg) = self.cmd.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
-                self.validate_arg_values(arg, ma)?;
                 self.validate_arg_num_occurs(arg, ma)?;
             }
             Ok(())

@@ -36,10 +36,10 @@ use std::ffi::OsString;
 /// #[clap(name = "demo")]
 /// struct Context {
 ///     /// More verbose output
-///     #[clap(long)]
+///     #[clap(long, value_parser)]
 ///     verbose: bool,
 ///     /// An optional name
-///     #[clap(short, long)]
+///     #[clap(short, long, value_parser)]
 ///     name: Option<String>,
 /// }
 /// ```

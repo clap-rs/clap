@@ -123,7 +123,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, value_parser};
     /// fn is_numeric(val: &str) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
@@ -133,7 +133,7 @@ pub enum ErrorKind {
     ///
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("num")
-    ///          .validator(is_numeric))
+    ///          .value_parser(value_parser!(u8)))
     ///     .try_get_matches_from(vec!["prog", "NotANumber"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::ValueValidation);
