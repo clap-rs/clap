@@ -1663,25 +1663,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`Arg::value_parser(...)`] with either [`ValueParser::os_string()`][crate::builder::ValueParser::os_string]
-    /// or [`ValueParser::path_buf()`][crate::builder::ValueParser::path_buf]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
-        )
-    )]
-    pub fn allow_invalid_utf8(self, yes: bool) -> Self {
-        if yes {
-            self.setting(ArgSettings::AllowInvalidUtf8)
-        } else {
-            self.unset_setting(ArgSettings::AllowInvalidUtf8)
-        }
-    }
-
     /// Requires that options use the `--option=val` syntax
     ///
     /// i.e. an equals between the option and associated value.
@@ -4417,15 +4398,6 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::AllowHyphenValues)
     }
 
-    /// Deprecated, replaced with [`Arg::get_value_parser()`
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")
-    )]
-    pub fn is_allow_invalid_utf8_set(&self) -> bool {
-        self.is_set(ArgSettings::AllowInvalidUtf8)
-    }
-
     /// Behavior when parsing the argument
     pub fn get_action(&self) -> &super::ArgAction {
         const DEFAULT: super::ArgAction = super::ArgAction::StoreValue;
@@ -4450,9 +4422,6 @@ impl<'help> Arg<'help> {
     pub fn get_value_parser(&self) -> &super::ValueParser {
         if let Some(value_parser) = self.value_parser.as_ref() {
             value_parser
-        } else if self.is_allow_invalid_utf8_set() {
-            static DEFAULT: super::ValueParser = super::ValueParser::os_string();
-            &DEFAULT
         } else {
             static DEFAULT: super::ValueParser = super::ValueParser::string();
             &DEFAULT
@@ -4574,8 +4543,6 @@ impl<'help> Arg<'help> {
         if self.value_parser.is_none() {
             if let Some(default) = self.action.as_ref().and_then(|a| a.default_value_parser()) {
                 self.value_parser = Some(default);
-            } else if self.is_allow_invalid_utf8_set() {
-                self.value_parser = Some(super::ValueParser::os_string());
             } else {
                 self.value_parser = Some(super::ValueParser::string());
             }

@@ -271,7 +271,7 @@ pub enum ErrorKind {
     /// Occurs when the user provides a value containing invalid UTF-8.
     ///
     /// To allow arbitrary data
-    /// - Set [`Arg::allow_invalid_utf8`] for argument values
+    /// - Set [`Arg::value_parser(value_parser!(OsString))`] for argument values
     /// - Set [`Command::allow_invalid_utf8_for_external_subcommands`] for external-subcommand
     ///   values
     ///

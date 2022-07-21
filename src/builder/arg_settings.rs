@@ -204,15 +204,6 @@ pub enum ArgSettings {
         )
     )]
     HiddenLongHelp,
-    /// Deprecated, replaced with [`Arg::allow_invalid_utf8`] and [`Arg::is_allow_invalid_utf8_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::allow_invalid_utf8` and `Arg::is_allow_invalid_utf8_set`"
-        )
-    )]
-    AllowInvalidUtf8,
     /// Deprecated, replaced with [`Arg::exclusive`] and [`Arg::is_exclusive_set`]
     #[cfg_attr(
         feature = "deprecated",
@@ -249,7 +240,6 @@ bitflags! {
         const MULTIPLE         = Self::MULTIPLE_OCC.bits | Self::MULTIPLE_VALS.bits;
         #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
-        const UTF8_NONE        = 1 << 22;
         const EXCLUSIVE        = 1 << 23;
         const NO_OP            = 0;
     }
@@ -277,6 +267,5 @@ impl_settings! { ArgSettings, ArgFlags,
     HideDefaultValue => Flags::HIDE_DEFAULT_VAL,
     HiddenShortHelp => Flags::HIDDEN_SHORT_H,
     HiddenLongHelp => Flags::HIDDEN_LONG_H,
-    AllowInvalidUtf8 => Flags::UTF8_NONE,
     Exclusive => Flags::EXCLUSIVE
 }
