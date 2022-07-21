@@ -1,7 +1,6 @@
 #![allow(clippy::bool_assert_comparison)]
 
 mod action;
-mod app_from_crate;
 mod app_settings;
 mod arg_aliases;
 mod arg_aliases_short;
