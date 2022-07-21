@@ -1,6 +1,5 @@
 #![cfg(feature = "derive")]
 
-mod legacy;
 mod next;
 
 mod app_name;
