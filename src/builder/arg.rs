@@ -12,13 +12,13 @@ use std::{
 use std::{env, ffi::OsString};
 
 // Internal
+use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
 use crate::ArgAction;
 use crate::PossibleValue;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
-use crate::{ArgFlags, ArgSettings};
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -774,37 +774,14 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Check if the [`ArgSettings`] variant is currently set on the argument.
-    ///
-    /// [`ArgSettings`]: crate::ArgSettings
     #[inline]
-    pub fn is_set(&self, s: ArgSettings) -> bool {
+    pub(crate) fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
 
-    /// Apply a setting to the argument.
-    ///
-    /// See [`ArgSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .setting(ArgSettings::Required)
-    ///     .setting(ArgSettings::TakesValue)
-    /// # ;
-    /// ```
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .setting(ArgSettings::Required | ArgSettings::TakesValue)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn setting<F>(mut self, setting: F) -> Self
+    pub(crate) fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
     {
@@ -812,29 +789,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Remove a setting from the argument.
-    ///
-    /// See [`ArgSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .unset_setting(ArgSettings::Required)
-    ///     .unset_setting(ArgSettings::TakesValue)
-    /// # ;
-    /// ```
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .unset_setting(ArgSettings::Required | ArgSettings::TakesValue)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn unset_setting<F>(mut self, setting: F) -> Self
+    pub(crate) fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
     {

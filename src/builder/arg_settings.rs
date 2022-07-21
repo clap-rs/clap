@@ -9,9 +9,8 @@ use bitflags::bitflags;
 #[allow(unused)]
 use crate::Arg;
 
-#[doc(hidden)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct ArgFlags(Flags);
+pub(crate) struct ArgFlags(Flags);
 
 impl Default for ArgFlags {
     fn default() -> Self {
@@ -29,189 +28,28 @@ impl Default for ArgFlags {
 /// [`Arg::is_set`]: crate::Arg::is_set()
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[non_exhaustive]
-pub enum ArgSettings {
-    /// Deprecated, replaced with [`Arg::required`] and [`Arg::is_required_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::required` and `Arg::is_required_set`"
-        )
-    )]
+pub(crate) enum ArgSettings {
     Required,
-    /// Deprecated, replaced with [`Arg::multiple_values`] and [`Arg::is_multiple_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::multiple_values` and `Arg::`is_multiple_values_set`"
-        )
-    )]
     MultipleValues,
-    /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::action` (Issue #3772)")
-    )]
     MultipleOccurrences,
-    /// Deprecated, replaced with [`Arg::global`] and [`Arg::is_global_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::global` and `Arg::is_global_set`"
-        )
-    )]
     Global,
-    /// Deprecated, replaced with [`Arg::hide`] and [`Arg::is_hide_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide` and `Arg::is_hide_set`"
-        )
-    )]
     Hidden,
-    /// Deprecated, replaced with [`Arg::takes_value`] and [`Arg::is_takes_value_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::takes_value` and `Arg::is_takes_value_set`"
-        )
-    )]
     TakesValue,
-    /// Deprecated, replaced with [`Arg::use_value_delimiter`] and
-    /// [`Arg::is_use_value_delimiter_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::use_value_delimiter` and `Arg::is_use_value_delimiter_set`"
-        )
-    )]
     UseValueDelimiter,
-    /// Deprecated, replaced with [`Arg::next_line_help`] and [`Arg::is_next_line_help_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::next_line_help` and `Arg::is_next_line_help_set`"
-        )
-    )]
     NextLineHelp,
-    /// Deprecated, replaced with [`Arg::require_value_delimiter`] and
-    /// [`Arg::is_require_value_delimiter_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::require_value_delimiter` and `Arg::is_require_value_delimiter_set`"
-        )
-    )]
     RequireDelimiter,
-    /// Deprecated, replaced with [`Arg::hide_possible_values`] and
-    /// [`Arg::is_hide_possible_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide_possible_values` and `Arg::is_hide_possible_values_set`"
-        )
-    )]
     HidePossibleValues,
-    /// Deprecated, replaced with [`Arg::allow_hyphen_values`] and
-    /// [`Arg::is_allow_hyphen_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
-        )
-    )]
     AllowHyphenValues,
-    /// Deprecated, replaced with [`Arg::require_equals`] and [`Arg::is_require_equals_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::require_equals` and `Arg::is_require_equals_set`"
-        )
-    )]
     RequireEquals,
-    /// Deprecated, replaced with [`Arg::last`] and [`Arg::is_last_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::last` and `Arg::is_last_set`"
-        )
-    )]
     Last,
-    /// Deprecated, replaced with [`Arg::hide_default_value`] and [`Arg::is_hide_default_value_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide_default_value` and `Arg::is_hide_default_value_set`"
-        )
-    )]
     HideDefaultValue,
-    /// Deprecated, replaced with [`Arg::ignore_case`] and [`Arg::is_ignore_case_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`"
-        )
-    )]
     IgnoreCase,
-    /// Deprecated, replaced with [`Arg::hide_env`] and [`Arg::is_hide_env_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide_env` and `Arg::is_hide_env_set`"
-        )
-    )]
     #[cfg(feature = "env")]
     HideEnv,
-    /// Deprecated, replaced with [`Arg::hide_env_values`] and [`Arg::is_hide_env_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide_env_values` and `Arg::is_hide_env_values_set`"
-        )
-    )]
     #[cfg(feature = "env")]
     HideEnvValues,
-    /// Deprecated, replaced with [`Arg::hide_short_help`] and [`Arg::is_hide_short_help_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide_short_help` and `Arg::is_hide_short_help_set`"
-        )
-    )]
     HiddenShortHelp,
-    /// Deprecated, replaced with [`Arg::hide_long_help`] and [`Arg::is_hide_long_help_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::hide_long_help` and `Arg::is_hide_long_help_set`"
-        )
-    )]
     HiddenLongHelp,
-    /// Deprecated, replaced with [`Arg::exclusive`] and [`Arg::is_exclusive_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::exclusive` and `Arg::is_exclusive_set`"
-        )
-    )]
     Exclusive,
 }
 
@@ -268,4 +106,52 @@ impl_settings! { ArgSettings, ArgFlags,
     HiddenShortHelp => Flags::HIDDEN_SHORT_H,
     HiddenLongHelp => Flags::HIDDEN_LONG_H,
     Exclusive => Flags::EXCLUSIVE
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::Arg;
+
+    #[test]
+    fn setting() {
+        let m = Arg::new("setting").setting(ArgSettings::Required);
+        assert!(m.is_required_set());
+    }
+
+    #[test]
+    fn unset_setting() {
+        let m = Arg::new("unset_setting").setting(ArgSettings::Required);
+        assert!(m.is_required_set());
+
+        let m = m.unset_setting(ArgSettings::Required);
+        assert!(!m.is_required_set(), "{:#?}", m);
+    }
+
+    #[test]
+    fn setting_bitor() {
+        let m = Arg::new("setting_bitor")
+            .setting(ArgSettings::Required | ArgSettings::Hidden | ArgSettings::Last);
+
+        assert!(m.is_required_set());
+        assert!(m.is_hide_set());
+        assert!(m.is_last_set());
+    }
+
+    #[test]
+    fn unset_setting_bitor() {
+        let m = Arg::new("unset_setting_bitor")
+            .setting(ArgSettings::Required)
+            .setting(ArgSettings::Hidden)
+            .setting(ArgSettings::Last);
+
+        assert!(m.is_required_set());
+        assert!(m.is_hide_set());
+        assert!(m.is_last_set());
+
+        let m = m.unset_setting(ArgSettings::Required | ArgSettings::Hidden | ArgSettings::Last);
+        assert!(!m.is_required_set(), "{:#?}", m);
+        assert!(!m.is_hide_set(), "{:#?}", m);
+        assert!(!m.is_last_set(), "{:#?}", m);
+    }
 }
