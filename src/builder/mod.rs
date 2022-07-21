@@ -1,8 +1,5 @@
 //! Define [`Command`] line [arguments][`Arg`]
 
-#[macro_use]
-mod macros;
-
 mod action;
 mod app_settings;
 mod arg;

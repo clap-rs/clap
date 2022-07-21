@@ -115,18 +115,6 @@ pub use crate::error::{ErrorKind, Result};
 #[allow(deprecated)]
 pub use crate::parser::{Indices, OsValues, ValueSource, Values};
 
-#[cfg(feature = "yaml")]
-#[doc(hidden)]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(
-        since = "3.0.0",
-        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
-    )
-)]
-#[doc(hidden)]
-pub use yaml_rust::YamlLoader;
-
 #[cfg(feature = "derive")]
 #[doc(hidden)]
 pub use clap_derive::{self, *};
@@ -210,20 +198,5 @@ impl SubCommand {
     #[doc(hidden)]
     pub fn with_name<'help>(name: &str) -> App<'help> {
         Command::new(name)
-    }
-
-    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    #[cfg(feature = "yaml")]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
-        )
-    )]
-    #[doc(hidden)]
-    pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {
-        #![allow(deprecated)]
-        Command::from_yaml(yaml)
     }
 }

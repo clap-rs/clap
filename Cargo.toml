@@ -60,7 +60,7 @@ default = [
   "suggestions",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
-unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "unstable-replace", "unstable-grouped"] # for docs.rs
+unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "unstable-replace", "unstable-grouped"] # for docs.rs
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
@@ -73,7 +73,6 @@ deprecated = ["clap_derive/deprecated"] # Guided experience to prepare for next 
 derive = ["clap_derive", "once_cell"]
 cargo = ["once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
-yaml = ["yaml-rust"]
 env = [] # Use environment variables during arg parsing
 unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
 
@@ -94,7 +93,6 @@ textwrap = { version = "0.15.0", default-features = false, features = [] }
 unicase = { version = "2.6", optional = true }
 indexmap = "1.0"
 strsim = { version = "0.10",  optional = true }
-yaml-rust = { version = "0.4.1",  optional = true }
 atty = { version = "0.2",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.1.12", optional = true }

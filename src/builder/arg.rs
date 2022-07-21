@@ -13,9 +13,6 @@ use std::{
 #[cfg(feature = "env")]
 use std::{env, ffi::OsString};
 
-#[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
-
 // Internal
 use crate::builder::usage_parser::UsageParser;
 use crate::builder::ArgPredicate;
@@ -4653,83 +4650,6 @@ impl<'help> Arg<'help> {
     #[doc(hidden)]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
-    }
-
-    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    #[cfg(feature = "yaml")]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
-        )
-    )]
-    #[doc(hidden)]
-    pub fn from_yaml(y: &'help Yaml) -> Self {
-        #![allow(deprecated)]
-        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
-        // We WANT this to panic on error...so expect() is good.
-        let (name_yaml, yaml) = yaml_file_hash
-            .iter()
-            .next()
-            .expect("There must be one arg in the YAML file");
-        let name_str = name_yaml.as_str().expect("Arg name must be a string");
-        let mut a = Arg::new(name_str);
-
-        for (k, v) in yaml.as_hash().expect("Arg must be a hash") {
-            a = match k.as_str().expect("Arg fields must be strings") {
-                "short" => yaml_to_char!(a, v, short),
-                "long" => yaml_to_str!(a, v, long),
-                "aliases" => yaml_vec_or_str!(a, v, alias),
-                "help" => yaml_to_str!(a, v, help),
-                "long_help" => yaml_to_str!(a, v, long_help),
-                "required" => yaml_to_bool!(a, v, required),
-                "required_if" => yaml_tuple2!(a, v, required_if_eq),
-                "required_ifs" => yaml_tuple2!(a, v, required_if_eq),
-                "takes_value" => yaml_to_bool!(a, v, takes_value),
-                "index" => yaml_to_usize!(a, v, index),
-                "global" => yaml_to_bool!(a, v, global),
-                "multiple" => yaml_to_bool!(a, v, multiple),
-                "hidden" => yaml_to_bool!(a, v, hide),
-                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
-                "group" => yaml_to_str!(a, v, group),
-                "number_of_values" => yaml_to_usize!(a, v, number_of_values),
-                "max_values" => yaml_to_usize!(a, v, max_values),
-                "min_values" => yaml_to_usize!(a, v, min_values),
-                "value_name" => yaml_to_str!(a, v, value_name),
-                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
-                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
-                "last" => yaml_to_bool!(a, v, last),
-                "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
-                "value_delimiter" => yaml_to_char!(a, v, value_delimiter),
-                "required_unless" => yaml_to_str!(a, v, required_unless_present),
-                "display_order" => yaml_to_usize!(a, v, display_order),
-                "default_value" => yaml_to_str!(a, v, default_value),
-                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
-                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
-                #[cfg(feature = "env")]
-                "env" => yaml_to_str!(a, v, env),
-                "value_names" => yaml_vec_or_str!(a, v, value_name),
-                "groups" => yaml_vec_or_str!(a, v, group),
-                "requires" => yaml_vec_or_str!(a, v, requires),
-                "requires_if" => yaml_tuple2!(a, v, requires_if),
-                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
-                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
-                "overrides_with" => yaml_to_str!(a, v, overrides_with),
-                "possible_values" => yaml_vec_or_str!(a, v, possible_value),
-                "case_insensitive" => yaml_to_bool!(a, v, ignore_case),
-                "required_unless_one" => yaml_vec!(a, v, required_unless_present_any),
-                "required_unless_all" => yaml_vec!(a, v, required_unless_present_all),
-                s => {
-                    panic!(
-                        "Unknown setting '{}' in YAML file for arg '{}'",
-                        s, name_str
-                    )
-                }
-            }
-        }
-
-        a
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].

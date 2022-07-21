@@ -1,9 +1,6 @@
 // Internal
 use crate::util::{Id, Key};
 
-#[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
-
 /// Family of related [arguments].
 ///
 /// By placing arguments in a logical group, you can create easier requirement and
@@ -444,20 +441,6 @@ impl<'help> ArgGroup<'help> {
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
     }
-
-    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    #[cfg(feature = "yaml")]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Maybe clap::Parser would fit your use case? (Issue #3087)"
-        )
-    )]
-    #[doc(hidden)]
-    pub fn from_yaml(yaml: &'help Yaml) -> Self {
-        Self::from(yaml)
-    }
 }
 
 impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
@@ -474,65 +457,23 @@ impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
     }
 }
 
-/// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-#[cfg(feature = "yaml")]
-impl<'help> From<&'help Yaml> for ArgGroup<'help> {
-    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    fn from(y: &'help Yaml) -> Self {
-        let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
-        // We WANT this to panic on error...so expect() is good.
-        let mut a = ArgGroup::default();
-        let group_settings = if b.len() == 1 {
-            let name_yaml = b.keys().next().expect("failed to get name");
-            let name_str = name_yaml
-                .as_str()
-                .expect("failed to convert arg YAML name to str");
-            a.name = name_str;
-            a.id = Id::from(&a.name);
-            b.get(name_yaml)
-                .expect("failed to get name_str")
-                .as_hash()
-                .expect("failed to convert to a hash")
-        } else {
-            b
-        };
-
-        for (k, v) in group_settings {
-            a = match k.as_str().unwrap() {
-                "required" => a.required(v.as_bool().unwrap()),
-                "multiple" => a.multiple(v.as_bool().unwrap()),
-                "args" => yaml_vec_or_str!(a, v, arg),
-                "arg" => {
-                    if let Some(ys) = v.as_str() {
-                        a = a.arg(ys);
-                    }
-                    a
-                }
-                "requires" => yaml_vec_or_str!(a, v, requires),
-                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
-                "name" => {
-                    if let Some(ys) = v.as_str() {
-                        a = a.id(ys);
-                    }
-                    a
-                }
-                s => panic!(
-                    "Unknown ArgGroup setting '{}' in YAML file for \
-                     ArgGroup '{}'",
-                    s, a.name
-                ),
-            }
+impl Clone for ArgGroup<'_> {
+    fn clone(&self) -> Self {
+        ArgGroup {
+            id: self.id.clone(),
+            name: self.name,
+            required: self.required,
+            args: self.args.clone(),
+            requires: self.requires.clone(),
+            conflicts: self.conflicts.clone(),
+            multiple: self.multiple,
         }
-
-        a
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::ArgGroup;
-    #[cfg(feature = "yaml")]
-    use yaml_rust::YamlLoader;
 
     #[test]
     fn groups() {
@@ -581,53 +522,10 @@ mod test {
         assert_eq!(g2.conflicts, confs);
     }
 
-    #[cfg(feature = "yaml")]
-    #[test]
-    fn test_yaml() {
-        let g_yaml = "name: test
-args:
-- a1
-- a4
-- a2
-- a3
-conflicts_with:
-- c1
-- c2
-- c3
-- c4
-requires:
-- r1
-- r2
-- r3
-- r4";
-        let yaml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
-        let g = ArgGroup::from(yaml);
-        let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
-        let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
-        let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
-        assert_eq!(g.args, args);
-        assert_eq!(g.requires, reqs);
-        assert_eq!(g.conflicts, confs);
-    }
-
     // This test will *fail to compile* if ArgGroup is not Send + Sync
     #[test]
     fn arg_group_send_sync() {
         fn foo<T: Send + Sync>(_: T) {}
         foo(ArgGroup::new("test"))
-    }
-}
-
-impl Clone for ArgGroup<'_> {
-    fn clone(&self) -> Self {
-        ArgGroup {
-            id: self.id.clone(),
-            name: self.name,
-            required: self.required,
-            args: self.args.clone(),
-            requires: self.requires.clone(),
-            conflicts: self.conflicts.clone(),
-            multiple: self.multiple,
-        }
     }
 }

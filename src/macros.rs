@@ -1,21 +1,3 @@
-/// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-#[cfg(feature = "yaml")]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(
-        since = "3.0.0",
-        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
-    )
-)]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! load_yaml {
-    ($yaml:expr) => {
-        &$crate::YamlLoader::load_from_str(include_str!($yaml)).expect("failed to load YAML file")
-            [0]
-    };
-}
-
 /// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[cfg_attr(

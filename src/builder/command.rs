@@ -9,10 +9,6 @@ use std::io;
 use std::ops::Index;
 use std::path::Path;
 
-// Third Party
-#[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
-
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
@@ -1383,10 +1379,8 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```ignore
-    /// # use clap::{Command, load_yaml};
-    /// let yaml = load_yaml!("cmd.yaml");
-    /// let cmd = Command::from(yaml)
-    ///     .name(crate_name!());
+    /// let cmd = clap::command!()
+    ///     .name("foo");
     ///
     /// // continued logic goes here, such as `cmd.get_matches()` etc.
     /// ```
@@ -3785,101 +3779,6 @@ impl<'help> App<'help> {
 
 /// Deprecated
 impl<'help> App<'help> {
-    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    #[cfg(feature = "yaml")]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
-        )
-    )]
-    #[doc(hidden)]
-    pub fn from_yaml(y: &'help Yaml) -> Self {
-        #![allow(deprecated)]
-        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
-        // We WANT this to panic on error...so expect() is good.
-        let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
-            (App::new(name), yaml_file_hash, "cmd".into())
-        } else {
-            let (name_yaml, value_yaml) = yaml_file_hash
-                .iter()
-                .next()
-                .expect("There must be one subcommand in the YAML file");
-            let name_str = name_yaml
-                .as_str()
-                .expect("Subcommand name must be a string");
-
-            (
-                App::new(name_str),
-                value_yaml.as_hash().expect("Subcommand must be a hash"),
-                format!("subcommand '{}'", name_str),
-            )
-        };
-
-        for (k, v) in yaml {
-            a = match k.as_str().expect("App fields must be strings") {
-                "version" => yaml_to_str!(a, v, version),
-                "long_version" => yaml_to_str!(a, v, long_version),
-                "author" => yaml_to_str!(a, v, author),
-                "bin_name" => yaml_to_str!(a, v, bin_name),
-                "about" => yaml_to_str!(a, v, about),
-                "long_about" => yaml_to_str!(a, v, long_about),
-                "before_help" => yaml_to_str!(a, v, before_help),
-                "after_help" => yaml_to_str!(a, v, after_help),
-                "template" => yaml_to_str!(a, v, help_template),
-                "usage" => yaml_to_str!(a, v, override_usage),
-                "help" => yaml_to_str!(a, v, override_help),
-                "help_message" => yaml_to_str!(a, v, help_message),
-                "version_message" => yaml_to_str!(a, v, version_message),
-                "alias" => yaml_to_str!(a, v, alias),
-                "aliases" => yaml_vec_or_str!(a, v, alias),
-                "visible_alias" => yaml_to_str!(a, v, visible_alias),
-                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
-                "display_order" => yaml_to_usize!(a, v, display_order),
-                "args" => {
-                    if let Some(vec) = v.as_vec() {
-                        for arg_yaml in vec {
-                            a = a.arg(Arg::from_yaml(arg_yaml));
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value {:?} to a vec", v);
-                    }
-                    a
-                }
-                "subcommands" => {
-                    if let Some(vec) = v.as_vec() {
-                        for sc_yaml in vec {
-                            a = a.subcommand(App::from_yaml(sc_yaml));
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value {:?} to a vec", v);
-                    }
-                    a
-                }
-                "groups" => {
-                    if let Some(vec) = v.as_vec() {
-                        for ag_yaml in vec {
-                            a = a.group(ArgGroup::from(ag_yaml));
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value {:?} to a vec", v);
-                    }
-                    a
-                }
-                "setting" | "settings" => {
-                    yaml_to_setting!(a, v, setting, AppSettings, "AppSetting", err)
-                }
-                "global_setting" | "global_settings" => {
-                    yaml_to_setting!(a, v, global_setting, AppSettings, "AppSetting", err)
-                }
-                _ => a,
-            }
-        }
-
-        a
-    }
-
     /// Deprecated, replaced with [`Command::override_usage`]
     #[cfg_attr(
         feature = "deprecated",
