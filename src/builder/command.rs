@@ -947,19 +947,6 @@ impl<'help> Command<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`ArgAction::Set`][super::ArgAction::Set]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action(ArgAction::Set)`")
-    )]
-    pub fn args_override_self(self, yes: bool) -> Self {
-        if yes {
-            self.global_setting(AppSettings::AllArgsOverrideSelf)
-        } else {
-            self.unset_global_setting(AppSettings::AllArgsOverrideSelf)
-        }
-    }
-
     /// Disables the automatic delimiting of values after `--` or when [`Command::trailing_var_arg`]
     /// was used.
     ///
@@ -3872,7 +3859,6 @@ impl<'help> Command<'help> {
             self._derive_display_order();
 
             let mut pos_counter = 1;
-            let self_override = self.is_set(AppSettings::AllArgsOverrideSelf);
             let hide_pv = self.is_set(AppSettings::HidePossibleValues);
             let auto_help =
                 !self.is_set(AppSettings::NoAutoHelp) && !self.is_disable_help_flag_set();
@@ -3898,10 +3884,6 @@ impl<'help> Command<'help> {
                 }
                 if hide_pv && a.is_takes_value_set() {
                     a.settings.set(ArgSettings::HidePossibleValues);
-                }
-                if self_override {
-                    let self_id = a.id.clone();
-                    a.overrides.push(self_id);
                 }
                 a._build();
                 // HACK: Setting up action at this level while auto-help / disable help flag is

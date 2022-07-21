@@ -59,13 +59,6 @@ pub enum AppSettings {
     )]
     AllowNegativeNumbers,
 
-    /// Deprecated, replaced with [`Command::args_override_self`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::args_override_self`")
-    )]
-    AllArgsOverrideSelf,
-
     /// Deprecated, replaced with [`Command::allow_missing_positional`] and
     /// [`Command::is_allow_missing_positional_set`]
     #[cfg_attr(
@@ -429,7 +422,6 @@ bitflags! {
         const VALID_ARG_FOUND                = 1 << 35;
         const INFER_SUBCOMMANDS              = 1 << 36;
         const CONTAINS_LAST                  = 1 << 37;
-        const ARGS_OVERRIDE_SELF             = 1 << 38;
         const HELP_REQUIRED                  = 1 << 39;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 40;
         const DISABLE_HELP_FLAG              = 1 << 41;
@@ -514,8 +506,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::BIN_NAME_BUILT,
     InferSubcommands
         => Flags::INFER_SUBCOMMANDS,
-    AllArgsOverrideSelf
-        => Flags::ARGS_OVERRIDE_SELF,
     InferLongArgs
         => Flags::INFER_LONG_ARGS
 }
