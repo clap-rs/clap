@@ -4239,7 +4239,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                     Arg::new("subcommand")
                         .index(1)
                         .takes_value(true)
-                        .multiple_occurrences(true)
+                        .multiple_values(true)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),
                 );

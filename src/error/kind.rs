@@ -207,9 +207,6 @@ pub enum ErrorKind {
     /// [`Command::subcommand_required`]: crate::Command::subcommand_required
     MissingSubcommand,
 
-    /// Occurs when the user provides multiple values to an argument which doesn't allow that.
-    UnexpectedMultipleUsage,
-
     /// Occurs when the user provides a value containing invalid UTF-8.
     ///
     /// To allow arbitrary data
@@ -333,9 +330,6 @@ impl ErrorKind {
                 Some("One or more required arguments were not provided")
             }
             Self::MissingSubcommand => Some("A subcommand is required but one was not provided"),
-            Self::UnexpectedMultipleUsage => {
-                Some("An argument was provided more than once but cannot be used multiple times")
-            }
             Self::InvalidUtf8 => Some("Invalid UTF-8 was detected in one or more arguments"),
             Self::DisplayHelp => None,
             Self::DisplayHelpOnMissingArgumentOrSubcommand => None,

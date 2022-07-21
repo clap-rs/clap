@@ -87,6 +87,7 @@ const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       args: {
         name: "subcommand",
+        isVariadic: true,
         isOptional: true,
       },
     },

@@ -6,6 +6,7 @@ use crate::output::Usage;
 use crate::parser::{ArgMatcher, MatchedArg, ParseState};
 use crate::util::ChildGraph;
 use crate::util::Id;
+use crate::ArgAction;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Validator<'help, 'cmd> {
@@ -241,42 +242,20 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             );
             if let Some(arg) = self.cmd.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
-                self.validate_arg_num_occurs(arg, ma)?;
             }
             Ok(())
         })
-    }
-
-    fn validate_arg_num_occurs(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
-        #![allow(deprecated)]
-        debug!(
-            "Validator::validate_arg_num_occurs: {:?}={}",
-            a.name,
-            ma.get_occurrences()
-        );
-        // Occurrence of positional argument equals to number of values rather
-        // than number of grouped values.
-        if ma.get_occurrences() > 1 && !a.is_multiple_occurrences_set() && !a.is_positional() {
-            // Not the first time, and we don't allow multiples
-            return Err(Error::unexpected_multiple_usage(
-                self.cmd,
-                a.to_string(),
-                Usage::new(self.cmd)
-                    .required(&self.required)
-                    .create_usage_with_title(&[]),
-            ));
-        }
-
-        Ok(())
     }
 
     fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_num_vals");
         if let Some(num) = a.num_vals {
             let total_num = ma.num_vals();
-            debug!("Validator::validate_arg_num_vals: num_vals set...{}", num);
-            #[allow(deprecated)]
-            let should_err = if a.is_multiple_occurrences_set() {
+            debug!(
+                "Validator::validate_arg_num_vals: num_vals={}, actual={}",
+                num, total_num
+            );
+            let should_err = if matches!(a.get_action(), ArgAction::Append) && !a.is_positional() {
                 total_num % num != 0
             } else {
                 num != total_num
@@ -287,8 +266,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     self.cmd,
                     a.to_string(),
                     num,
-                    #[allow(deprecated)]
-                    if a.is_multiple_occurrences_set() {
+                    if matches!(a.get_action(), ArgAction::Append) && !a.is_positional() {
                         total_num % num
                     } else {
                         total_num

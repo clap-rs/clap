@@ -27,7 +27,7 @@ struct PathOpt {
     #[clap(short, default_value = "../")]
     default_path: PathBuf,
 
-    #[clap(short, multiple_occurrences(true))]
+    #[clap(short)]
     vector_path: Vec<PathBuf>,
 
     #[clap(short)]

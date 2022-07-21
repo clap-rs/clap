@@ -412,15 +412,6 @@ impl Error {
             ])
     }
 
-    pub(crate) fn unexpected_multiple_usage(cmd: &Command, arg: String, usage: String) -> Self {
-        Self::new(ErrorKind::UnexpectedMultipleUsage)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (ContextKind::Usage, ContextValue::String(usage)),
-            ])
-    }
-
     pub(crate) fn unknown_argument(
         cmd: &Command,
         arg: String,
@@ -710,17 +701,6 @@ impl Error {
                     c.none(" values, but ");
                     c.warning(actual_num_values.to_string());
                     c.none(were_provided);
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::UnexpectedMultipleUsage => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    c.none("The argument '");
-                    c.warning(invalid_arg.to_string());
-                    c.none("' was provided more than once, but cannot be used multiple times");
                     true
                 } else {
                     false
