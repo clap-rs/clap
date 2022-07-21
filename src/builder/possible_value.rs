@@ -162,16 +162,6 @@ impl<'help> PossibleValue<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`PossibleValue::is_hide_set`]
-    #[inline]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `PossibleValue::is_hide_set`")
-    )]
-    pub fn is_hidden(&self) -> bool {
-        self.is_hide_set()
-    }
-
     /// Report if [`PossibleValue::hide`] is set
     #[inline]
     pub fn is_hide_set(&self) -> bool {

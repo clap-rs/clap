@@ -1849,20 +1849,6 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated, replaced with [`Command::next_help_heading`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `App::next_help_heading`")
-    )]
-    pub fn help_heading<O>(self, heading: O) -> Self
-    where
-        O: Into<Option<&'help str>>,
-    {
-        self.next_help_heading(heading)
-    }
-
     /// Set the default section heading for future args.
     ///
     /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
@@ -3328,17 +3314,7 @@ impl<'help> App<'help> {
         self.long_about
     }
 
-    /// Deprecated, replaced with [`Command::get_next_help_heading`]
-    #[inline]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `App::get_next_help_heading`")
-    )]
-    pub fn get_help_heading(&self) -> Option<&'help str> {
-        self.get_next_help_heading()
-    }
-
-    /// Get the custom section heading specified via [`Command::help_heading`].
+    /// Get the custom section heading specified via [`Command::next_help_heading`].
     ///
     /// [`App::help_heading`]: Command::help_heading()
     #[inline]
@@ -3443,19 +3419,6 @@ impl<'help> App<'help> {
     #[inline]
     pub fn get_subcommand_help_heading(&self) -> Option<&str> {
         self.subcommand_heading
-    }
-
-    /// Deprecated, replaced with [`App::get_subcommand_help_heading`]
-    #[inline]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `App::get_subcommand_help_heading`"
-        )
-    )]
-    pub fn get_subommand_help_heading(&self) -> Option<&str> {
-        self.get_subcommand_help_heading()
     }
 
     /// Returns the subcommand value name.

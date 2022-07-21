@@ -113,7 +113,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        Arg::default().name(n)
+        Arg::default().id(n)
     }
 
     /// Set the identifier used for referencing this argument in the clap API.
@@ -125,15 +125,6 @@ impl<'help> Arg<'help> {
         self.id = Id::from(&*name);
         self.name = name;
         self
-    }
-
-    /// Deprecated, replaced with [`Arg::id`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::id`")
-    )]
-    pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
-        self.id(n)
     }
 
     /// Sets the short version of the argument without the preceding `-`.
@@ -1027,7 +1018,7 @@ impl<'help> Arg<'help> {
     /// - It finds another flag or option (i.e. something that starts with a `-`)
     /// - It reaches a [value terminator][Arg::value_terminator] is reached
     ///
-    /// Alternatively, [require a delimiter between values][Arg::require_delimiter].
+    /// Alternatively, [require a delimiter between values][Arg::require_value_delimiter].
     ///
     /// **WARNING:**
     ///
@@ -1843,17 +1834,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`Arg::use_value_delimiter`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::use_value_delimiter`")
-    )]
-    pub fn use_delimiter(self, yes: bool) -> Self {
-        self.use_value_delimiter(yes)
-    }
-
     /// Separator between the arguments values, defaults to `,` (comma).
     ///
     /// **NOTE:** implicitly sets [`Arg::use_value_delimiter(true)`]
@@ -1910,7 +1890,7 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .takes_value(true)
     ///         .use_value_delimiter(true)
-    ///         .require_delimiter(true)
+    ///         .require_value_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1,val2,val3",
@@ -1929,7 +1909,7 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .takes_value(true)
     ///         .use_value_delimiter(true)
-    ///         .require_delimiter(true))
+    ///         .require_value_delimiter(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
     ///     ]);
@@ -1968,17 +1948,6 @@ impl<'help> Arg<'help> {
         } else {
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
-    }
-
-    /// Deprecated, replaced with [`Arg::require_value_delimiter`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::require_value_delimiter`")
-    )]
-    pub fn require_delimiter(self, yes: bool) -> Self {
-        self.require_value_delimiter(yes)
     }
 
     /// Sentinel to **stop** parsing multiple values of a give argument.
@@ -2631,7 +2600,7 @@ impl<'help> Arg<'help> {
 
     /// Override the [current] help section.
     ///
-    /// [current]: crate::Command::help_heading
+    /// [current]: crate::Command::next_help_heading
     #[inline]
     #[must_use]
     pub fn help_heading<O>(mut self, heading: O) -> Self
@@ -4220,15 +4189,6 @@ impl<'help> Arg<'help> {
         self.name
     }
 
-    /// Deprecated, replaced with [`Arg::get_id`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::get_id`")
-    )]
-    pub fn get_name(&self) -> &'help str {
-        self.get_id()
-    }
-
     /// Get the help specified for this argument, if any
     #[inline]
     pub fn get_help(&self) -> Option<&'help str> {
@@ -4420,15 +4380,6 @@ impl<'help> Arg<'help> {
                 ValueHint::default()
             }
         })
-    }
-
-    /// Deprecated, replaced with [`Arg::is_global_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::is_global_set`")
-    )]
-    pub fn get_global(&self) -> bool {
-        self.is_global_set()
     }
 
     /// Get the environment variable name specified for this argument, if any

@@ -115,7 +115,7 @@ impl<'help> ArgGroup<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, ArgGroup};
-    /// ArgGroup::default().name("config")
+    /// ArgGroup::default().id("config")
     /// # ;
     /// ```
     #[must_use]
@@ -123,15 +123,6 @@ impl<'help> ArgGroup<'help> {
         self.name = n.into();
         self.id = Id::from(self.name);
         self
-    }
-
-    /// Deprecated, replaced with [`ArgGroup::id`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `ArgGroup::id`")
-    )]
-    pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
-        self.id(n)
     }
 
     /// Adds an [argument] to this group by name

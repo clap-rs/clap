@@ -462,7 +462,7 @@ macro_rules! arg_impl {
 ///  2. Long
 ///  3. Value Name
 ///
-/// See [`Arg::name`][crate::Arg::name].
+/// See [`Arg::id`][crate::Arg::id].
 ///
 /// ### Short
 ///
