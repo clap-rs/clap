@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- A `multple_values` positional followed by another positional now works with multiple flags
+
 ## [3.2.13] - 2022-07-19
 
 ### Documentation
