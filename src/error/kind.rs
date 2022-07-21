@@ -93,7 +93,7 @@ pub enum ErrorKind {
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("color")
     ///          .takes_value(true)
-    ///          .forbid_empty_values(true)
+    ///          .value_parser(clap::builder::NonEmptyStringValueParser::new())
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());

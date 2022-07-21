@@ -1702,24 +1702,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
-        )
-    )]
-    pub fn forbid_empty_values(self, yes: bool) -> Self {
-        if yes {
-            self.setting(ArgSettings::ForbidEmptyValues)
-        } else {
-            self.unset_setting(ArgSettings::ForbidEmptyValues)
-        }
-    }
-
     /// Requires that options use the `--option=val` syntax
     ///
     /// i.e. an equals between the option and associated value.
@@ -4453,15 +4435,6 @@ impl<'help> Arg<'help> {
     /// Report whether [`Arg::allow_hyphen_values`] is set
     pub fn is_allow_hyphen_values_set(&self) -> bool {
         self.is_set(ArgSettings::AllowHyphenValues)
-    }
-
-    /// Deprecated, replaced with [`Arg::get_value_parser()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")
-    )]
-    pub fn is_forbid_empty_values_set(&self) -> bool {
-        self.is_set(ArgSettings::ForbidEmptyValues)
     }
 
     /// Deprecated, replaced with [`Arg::get_value_parser()`

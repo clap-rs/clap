@@ -54,15 +54,6 @@ pub enum ArgSettings {
         deprecated(since = "3.1.0", note = "Replaced with `Arg::action` (Issue #3772)")
     )]
     MultipleOccurrences,
-    /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
-        )
-    )]
-    ForbidEmptyValues,
     /// Deprecated, replaced with [`Arg::global`] and [`Arg::is_global_set`]
     #[cfg_attr(
         feature = "deprecated",
@@ -237,7 +228,6 @@ bitflags! {
     struct Flags: u32 {
         const REQUIRED         = 1;
         const MULTIPLE_OCC     = 1 << 1;
-        const NO_EMPTY_VALS    = 1 << 2;
         const GLOBAL           = 1 << 3;
         const HIDDEN           = 1 << 4;
         const TAKES_VAL        = 1 << 5;
@@ -269,7 +259,6 @@ impl_settings! { ArgSettings, ArgFlags,
     Required => Flags::REQUIRED,
     MultipleOccurrences => Flags::MULTIPLE_OCC,
     MultipleValues => Flags::MULTIPLE_VALS,
-    ForbidEmptyValues => Flags::NO_EMPTY_VALS,
     Global => Flags::GLOBAL,
     Hidden => Flags::HIDDEN,
     TakesValue => Flags::TAKES_VAL,
