@@ -37,46 +37,6 @@ pub enum AppSettings {
     )]
     IgnoreErrors,
 
-    /// Deprecated, replace
-    /// ```rust,no_run
-    /// let cmd = clap::Command::new("cmd")
-    ///     .global_setting(clap::AppSettings::WaitOnError)
-    ///     .arg(clap::arg!(--flag));
-    /// let m = cmd.get_matches();
-    /// ```
-    /// with
-    /// ```rust
-    /// let cmd = clap::Command::new("cmd")
-    ///     .arg(clap::arg!(--flag));
-    /// let m = match cmd.try_get_matches() {
-    ///     Ok(m) => m,
-    ///     Err(err) => {
-    ///         if err.use_stderr() {
-    ///             let _ = err.print();
-    ///
-    ///             eprintln!("\nPress [ENTER] / [RETURN] to continue...");
-    ///             use std::io::BufRead;
-    ///             let mut s = String::new();
-    ///             let i = std::io::stdin();
-    ///             i.lock().read_line(&mut s).unwrap();
-    ///
-    ///             std::process::exit(2);
-    ///         } else {
-    ///             let _ = err.print();
-    ///             std::process::exit(0);
-    ///         }
-    ///     }
-    /// };
-    /// ```
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "See documentation for how to hand-implement this"
-        )
-    )]
-    WaitOnError,
-
     /// Deprecated, replaced with [`Command::allow_hyphen_values`] and
     /// [`Arg::is_allow_hyphen_values_set`]
     #[cfg_attr(
@@ -654,8 +614,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors
         => Flags::IGNORE_ERRORS,
-    WaitOnError
-        => Flags::WAIT_ON_ERROR,
     Built
         => Flags::BUILT,
     BinNameBuilt

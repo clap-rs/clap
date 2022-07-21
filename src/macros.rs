@@ -625,14 +625,6 @@ macro_rules! impl_settings {
     }
 }
 
-// Convenience for writing to stderr thanks to https://github.com/BurntSushi
-macro_rules! wlnerr {
-    ($($arg:tt)*) => ({
-        use std::io::{Write, stderr};
-        writeln!(&mut stderr(), $($arg)*).ok();
-    })
-}
-
 #[cfg(feature = "debug")]
 macro_rules! debug {
     ($($arg:tt)*) => ({

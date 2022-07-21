@@ -6,7 +6,7 @@ use std::{
     convert::From,
     error,
     fmt::{self, Debug, Display, Formatter},
-    io::{self, BufRead},
+    io::{self},
     result::Result as StdResult,
 };
 
@@ -15,7 +15,6 @@ use crate::output::fmt::Colorizer;
 use crate::output::fmt::Stream;
 use crate::parser::features::suggestions;
 use crate::util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE};
-use crate::AppSettings;
 use crate::Command;
 
 mod context;
@@ -48,7 +47,6 @@ struct ErrorInner {
     source: Option<Box<dyn error::Error + Send + Sync>>,
     help_flag: Option<&'static str>,
     color_when: ColorChoice,
-    wait_on_exit: bool,
     backtrace: Option<Backtrace>,
 }
 
@@ -108,13 +106,6 @@ impl Error {
             // Swallow broken pipe errors
             let _ = self.print();
 
-            if self.inner.wait_on_exit {
-                wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                let mut s = String::new();
-                let i = io::stdin();
-                i.lock().read_line(&mut s).unwrap();
-            }
-
             safe_exit(USAGE_CODE);
         }
 
@@ -164,7 +155,6 @@ impl Error {
                 source: None,
                 help_flag: None,
                 color_when: ColorChoice::Never,
-                wait_on_exit: false,
                 backtrace: Backtrace::new(),
             }),
         }
@@ -176,9 +166,7 @@ impl Error {
     }
 
     pub(crate) fn with_cmd(self, cmd: &Command) -> Self {
-        #[allow(deprecated)]
-        self.set_wait_on_exit(cmd.is_set(AppSettings::WaitOnError))
-            .set_color(cmd.get_color())
+        self.set_color(cmd.get_color())
             .set_help_flag(get_help_flag(cmd))
     }
 
@@ -199,11 +187,6 @@ impl Error {
 
     pub(crate) fn set_help_flag(mut self, help_flag: Option<&'static str>) -> Self {
         self.inner.help_flag = help_flag;
-        self
-    }
-
-    pub(crate) fn set_wait_on_exit(mut self, yes: bool) -> Self {
-        self.inner.wait_on_exit = yes;
         self
     }
 
