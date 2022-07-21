@@ -22,6 +22,3 @@ pub use self::matches::RawValues;
 pub use self::matches::ValuesRef;
 pub use self::matches::{ArgMatches, Indices, ValueSource};
 pub use error::MatchesError;
-
-#[allow(deprecated)]
-pub use self::matches::{OsValues, Values};

@@ -113,7 +113,7 @@ pub use crate::builder::App;
 pub use crate::builder::{AppFlags, AppSettings, ArgFlags, ArgSettings, PossibleValue, ValueHint};
 pub use crate::error::{ErrorKind, Result};
 #[allow(deprecated)]
-pub use crate::parser::{Indices, OsValues, ValueSource, Values};
+pub use crate::parser::{Indices, ValueSource};
 
 #[cfg(feature = "derive")]
 #[doc(hidden)]

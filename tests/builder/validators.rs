@@ -29,7 +29,10 @@ fn test_validator_fromstr_trait() {
         .try_get_matches_from(&["cmd", "1234"])
         .expect("match failed");
 
-    assert_eq!(matches.value_of_t::<u32>("from_str").ok(), Some(1234));
+    assert_eq!(
+        matches.get_one::<String>("from_str"),
+        Some(&"1234".to_owned())
+    );
 }
 
 #[test]

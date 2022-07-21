@@ -907,7 +907,7 @@ impl<'help> App<'help> {
     ///     .arg(arg!(<cmd> ... "commands to run"))
     ///     .get_matches_from(vec!["command", "set"]);
     ///
-    /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
+    /// let cmds: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
     /// assert_eq!(cmds, ["command", "set"]);
     /// ```
     /// [`try_get_matches_from_mut`]: crate::Command::try_get_matches_from_mut()
@@ -941,9 +941,9 @@ impl<'help> App<'help> {
     ///
     /// assert!(r.is_ok(), "unexpected error: {:?}", r);
     /// let m = r.unwrap();
-    /// assert_eq!(m.value_of("config"), Some("file"));
+    /// assert_eq!(m.get_one::<String>("config").unwrap(), "file");
     /// assert!(m.is_present("f"));
-    /// assert_eq!(m.value_of("stuff"), None);
+    /// assert_eq!(m.get_one::<String>("stuff"), None);
     /// ```
     #[inline]
     pub fn ignore_errors(self, yes: bool) -> Self {
@@ -1997,7 +1997,7 @@ impl<'help> App<'help> {
     ///
     /// assert!(*m.get_one::<bool>("save-context").expect("defaulted by clap"));
     /// assert!(*m.get_one::<bool>("save-runtime").expect("defaulted by clap"));
-    /// assert_eq!(m.value_of("format"), Some("json"));
+    /// assert_eq!(m.get_one::<String>("format").unwrap(), "json");
     /// ```
     ///
     /// [`App::replace`]: Command::replace()
@@ -2053,7 +2053,7 @@ impl<'help> App<'help> {
     ///         "nums", "-20"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("neg"), Some("-20"));
+    /// assert_eq!(m.get_one::<String>("neg").unwrap(), "-20");
     /// # ;
     /// ```
     /// [`Arg::allow_hyphen_values`]: crate::Arg::allow_hyphen_values()
@@ -2083,7 +2083,7 @@ impl<'help> App<'help> {
     ///     ]);
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// assert_eq!(m.value_of("num").unwrap(), "-20");
+    /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
     /// ```
     #[inline]
     pub fn allow_negative_numbers(self, yes: bool) -> Self {
@@ -2111,7 +2111,7 @@ impl<'help> App<'help> {
     ///     .arg(arg!(<cmd> ... "commands to run"))
     ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
     ///
-    /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
+    /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
     /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
@@ -2168,8 +2168,8 @@ impl<'help> App<'help> {
     ///         "prog", "other"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("arg1"), None);
-    /// assert_eq!(m.value_of("arg2"), Some("other"));
+    /// assert_eq!(m.get_one::<String>("arg1"), None);
+    /// assert_eq!(m.get_one::<String>("arg2").unwrap(), "other");
     /// ```
     ///
     /// Now the same example, but using a default value for the first optional positional argument
@@ -2187,8 +2187,8 @@ impl<'help> App<'help> {
     ///         "prog", "other"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("arg1"), Some("something"));
-    /// assert_eq!(m.value_of("arg2"), Some("other"));
+    /// assert_eq!(m.get_one::<String>("arg1").unwrap(), "something");
+    /// assert_eq!(m.get_one::<String>("arg2").unwrap(), "other");
     /// ```
     ///
     /// Style number two from above:
@@ -2205,9 +2205,9 @@ impl<'help> App<'help> {
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("foo"), Some("foo"));
-    /// assert_eq!(m.value_of("bar"), Some("bar"));
-    /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
+    /// assert_eq!(m.get_one::<String>("foo").unwrap(), "foo");
+    /// assert_eq!(m.get_one::<String>("bar").unwrap(), "bar");
+    /// assert_eq!(m.get_many::<String>("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
     ///
     /// Now nofice if we don't specify `foo` or `baz` but use the `--` operator.
@@ -2224,9 +2224,9 @@ impl<'help> App<'help> {
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("foo"), None);
-    /// assert_eq!(m.value_of("bar"), None);
-    /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
+    /// assert_eq!(m.get_one::<String>("foo"), None);
+    /// assert_eq!(m.get_one::<String>("bar"), None);
+    /// assert_eq!(m.get_many::<String>("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
     ///
     /// [required]: crate::Arg::required()
@@ -2778,7 +2778,7 @@ impl<'help> App<'help> {
     /// // string argument name
     /// match m.subcommand() {
     ///     Some((external, ext_m)) => {
-    ///          let ext_args: Vec<&str> = ext_m.values_of("").unwrap().collect();
+    ///          let ext_args: Vec<_> = ext_m.get_many::<String>("").unwrap().collect();
     ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
@@ -2800,7 +2800,7 @@ impl<'help> App<'help> {
     /// Specifies that external subcommands that are invalid UTF-8 should *not* be treated as an error.
     ///
     /// **NOTE:** Using external subcommand argument values with invalid UTF-8 requires using
-    /// [`ArgMatches::values_of_os`] or [`ArgMatches::values_of_lossy`] for those particular
+    /// [`ArgMatches::get_many::<OsString>`][crate::ArgMatches::get_many] for those particular
     /// arguments which may contain invalid UTF-8 values
     ///
     /// **NOTE:** Setting this requires [`Command::allow_external_subcommands`]
@@ -2813,6 +2813,7 @@ impl<'help> App<'help> {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
+    /// # use std::ffi::OsString;
     /// # use clap::Command;
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
@@ -2826,7 +2827,7 @@ impl<'help> App<'help> {
     /// // string argument name
     /// match m.subcommand() {
     ///     Some((external, ext_m)) => {
-    ///          let ext_args: Vec<&std::ffi::OsStr> = ext_m.values_of_os("").unwrap().collect();
+    ///          let ext_args: Vec<_> = ext_m.get_many::<OsString>("").unwrap().collect();
     ///          assert_eq!(external, "subcmd");
     ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
     ///     },
@@ -2834,8 +2835,6 @@ impl<'help> App<'help> {
     /// }
     /// ```
     ///
-    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
-    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
     /// [`subcommands`]: crate::Command::subcommand()
     pub fn allow_invalid_utf8_for_external_subcommands(self, yes: bool) -> Self {
         if yes {
@@ -2914,7 +2913,7 @@ impl<'help> App<'help> {
     ///     .try_get_matches_from(&["cmd", "--arg", "1", "2", "3", "sub"])
     ///     .unwrap();
     /// assert_eq!(
-    ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
+    ///     matches.get_many::<String>("arg").unwrap().collect::<Vec<_>>(),
     ///     &["1", "2", "3", "sub"]
     /// );
     /// assert!(matches.subcommand_matches("sub").is_none());
@@ -2924,7 +2923,7 @@ impl<'help> App<'help> {
     ///     .try_get_matches_from(&["cmd", "--arg", "1", "2", "3", "sub"])
     ///     .unwrap();
     /// assert_eq!(
-    ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
+    ///     matches.get_many::<String>("arg").unwrap().collect::<Vec<_>>(),
     ///     &["1", "2", "3"]
     /// );
     /// assert!(matches.subcommand_matches("sub").is_some());

@@ -229,8 +229,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
@@ -255,8 +254,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "-e", "cool"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
     pub fn short_alias(mut self, name: char) -> Self {
@@ -339,8 +337,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "--something-awesome", "coffee"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
     /// [`Command::alias`]: Arg::alias()
     #[must_use]
@@ -365,8 +362,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "-t", "coffee"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
     #[must_use]
     pub fn visible_short_alias(mut self, name: char) -> Self {
@@ -470,8 +466,8 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast")); // notice index(1) means "first positional"
-    ///                                               // *not* first argument
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast"); // notice index(1) means "first positional"
+    ///                                                           // *not* first argument
     /// ```
     /// [`Arg::short`]: Arg::short()
     /// [`Arg::long`]: Arg::long()
@@ -537,8 +533,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// assert_eq!(m.value_of("third"), Some("three"));
-    /// assert!(m.value_of("second").is_none());
+    /// assert_eq!(m.get_one::<String>("third").unwrap(), "three");
+    /// assert_eq!(m.get_one::<String>("second"), None);
     /// ```
     ///
     /// Even if the positional argument marked `Last` is the only argument left to parse,
@@ -910,7 +906,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast"));
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
     /// ```
     /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
     /// [multiple values]: Arg::multiple_values
@@ -1079,7 +1075,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
@@ -1116,7 +1112,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
     /// assert!(!m.contains_id("word")); // but we clearly used word!
     /// ```
@@ -1141,10 +1137,9 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// assert!(m.contains_id("word"));
-    /// assert_eq!(m.value_of("word"), Some("word"));
+    /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
     /// ```
     ///
     /// As a final example, let's fix the above error and get a pretty message to the user :)
@@ -1263,7 +1258,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2"]);
     /// ```
     ///
@@ -1333,7 +1328,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
@@ -1605,7 +1600,7 @@ impl<'help> Arg<'help> {
     ///         "pv", "--option", "TeSt123",
     ///     ]);
     ///
-    /// assert!(m.value_of("option").unwrap().eq_ignore_ascii_case("test123"));
+    /// assert!(m.get_one::<String>("option").unwrap().eq_ignore_ascii_case("test123"));
     /// ```
     ///
     /// This setting also works when multiple values can be defined:
@@ -1624,7 +1619,7 @@ impl<'help> Arg<'help> {
     ///         "pv", "--option", "TeSt123", "teST123", "tESt321"
     ///     ]);
     ///
-    /// let matched_vals = m.values_of("option").unwrap().collect::<Vec<_>>();
+    /// let matched_vals = m.get_many::<String>("option").unwrap().collect::<Vec<_>>();
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     #[inline]
@@ -1667,7 +1662,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--pattern", "-file"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("pat"), Some("-file"));
+    /// assert_eq!(m.get_one::<String>("pat").unwrap(), "-file");
     /// ```
     ///
     /// Not setting `Arg::allow_hyphen_values(true)` and supplying a value which starts with a
@@ -1814,7 +1809,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.contains_id("option"));
-    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert_eq!(delims.get_many::<String>("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
     /// behavior
@@ -1830,7 +1825,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(nodelims.contains_id("option"));
-    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
+    /// assert_eq!(nodelims.get_one::<String>("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
     #[inline]
@@ -1878,7 +1873,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--config=val1;val2;val3"
     ///     ]);
     ///
-    /// assert_eq!(m.values_of("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
+    /// assert_eq!(m.get_many::<String>("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
@@ -1922,7 +1917,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.contains_id("opt"));
-    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert_eq!(delims.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     ///
     /// In this next example, we will *not* use a delimiter. Notice it's now an error.
@@ -1963,7 +1958,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.contains_id("opt"));
-    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert_eq!(delims.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     #[inline]
     #[must_use]
@@ -2025,9 +2020,9 @@ impl<'help> Arg<'help> {
     ///     .get_matches_from(vec![
     ///         "prog", "find", "-type", "f", "-name", "special", ";", "/home/clap"
     ///     ]);
-    /// let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    /// let cmds: Vec<_> = m.get_many::<String>("cmds").unwrap().collect();
     /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
-    /// assert_eq!(m.value_of("location"), Some("/home/clap"));
+    /// assert_eq!(m.get_one::<String>("location").unwrap(), "/home/clap");
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
@@ -2076,7 +2071,8 @@ impl<'help> Arg<'help> {
     /// Value for the argument when not present.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
-    /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
+    /// will return `0` even though the [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
+    /// return the default specified.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::contains_id`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
@@ -2106,7 +2102,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("opt"), Some("myval"));
+    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "myval");
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::DefaultValue));
     /// ```
@@ -2123,12 +2119,11 @@ impl<'help> Arg<'help> {
     ///         "prog", "--myopt=non_default"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("opt"), Some("non_default"));
+    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "non_default");
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
-    /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
@@ -2208,21 +2203,21 @@ impl<'help> Arg<'help> {
     /// let m  = cli().get_matches_from(vec![
     ///         "prog"
     ///     ]);
-    /// assert_eq!(m.value_of("color"), Some("auto"));
+    /// assert_eq!(m.get_one::<String>("color").unwrap(), "auto");
     /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
     /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color=never"
     ///     ]);
-    /// assert_eq!(m.value_of("color"), Some("never"));
+    /// assert_eq!(m.get_one::<String>("color").unwrap(), "never");
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
     /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color"
     ///     ]);
-    /// assert_eq!(m.value_of("color"), Some("always"));
+    /// assert_eq!(m.get_one::<String>("color").unwrap(), "always");
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
     ///
@@ -2261,7 +2256,6 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
     /// ```
     ///
-    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
@@ -2314,12 +2308,14 @@ impl<'help> Arg<'help> {
     ///
     /// If user sets the argument in the environment:
     /// - When [`Arg::takes_value(true)`] is not set, the flag is considered raised.
-    /// - When [`Arg::takes_value(true)`] is set, [`ArgMatches::value_of`] will
+    /// - When [`Arg::takes_value(true)`] is set,
+    ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return value of the environment variable.
     ///
     /// If user doesn't set the argument in the environment:
     /// - When [`Arg::takes_value(true)`] is not set, the flag is considered off.
-    /// - When [`Arg::takes_value(true)`] is set, [`ArgMatches::value_of`] will
+    /// - When [`Arg::takes_value(true)`] is set,
+    ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return the default specified.
     ///
     /// # Examples
@@ -2341,7 +2337,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
     /// ```
     ///
     /// In this example, because [`Arg::takes_value(false)`] (by default),
@@ -2371,8 +2367,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert!(m.is_present("true_flag"));
-    /// assert_eq!(m.value_of("true_flag"), None);
+    /// assert_eq!(m.get_one::<String>("true_flag"), None);
     /// assert!(!m.is_present("false_flag"));
     /// assert!(!m.is_present("absent_flag"));
     /// ```
@@ -2394,7 +2389,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--flag", "opt"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("flag"), Some("opt"));
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "opt");
     /// ```
     ///
     /// In this example, we show the variable coming from the environment even with the
@@ -2416,7 +2411,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
     /// ```
     ///
     /// In this example, we show the use of multiple values in a single environment variable:
@@ -2438,9 +2433,8 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
+    /// assert_eq!(m.get_many::<String>("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     #[cfg(feature = "env")]
@@ -3128,7 +3122,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
@@ -3145,7 +3139,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     ///
     /// Now lets only use the default value if `--opt` contains the value `special`.
@@ -3163,7 +3157,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "special"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
     ///
     /// We can run the same test and provide any value *other than* `special` and we won't get a
@@ -3182,7 +3176,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "hahaha"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     ///
     /// If we want to unset the default value for an Arg based on the presence or
@@ -3201,7 +3195,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
@@ -3261,7 +3255,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "channal"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("chan"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "chan");
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
@@ -3281,7 +3275,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     ///
     /// We can also see that these values are applied in order, and if more than one condition is
@@ -3305,7 +3299,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "channal", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
@@ -4142,7 +4136,7 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--opt <val> "some option").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.value_of("opt"), Some("other"));
+    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "other");
     /// ```
     ///
     /// This will also work when [`Arg::multiple_values`] is enabled:
@@ -4159,7 +4153,7 @@ impl<'help> Arg<'help> {
     ///             )
     ///             .get_matches_from(vec!["", "--opt", "1", "2", "--opt", "3", "4", "5"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
+    /// assert_eq!(m.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
     /// ```
     ///
     /// Just like flags, options with [`Arg::multiple_occurrences`] set
@@ -4173,7 +4167,7 @@ impl<'help> Arg<'help> {
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
+    /// assert_eq!(m.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     #[must_use]
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {

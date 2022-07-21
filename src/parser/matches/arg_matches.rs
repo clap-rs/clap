@@ -1,11 +1,9 @@
 // Std
 use std::any::Any;
-use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::iter::{Cloned, Flatten, Map};
 use std::slice::Iter;
-use std::str::FromStr;
 
 // Third Party
 use indexmap::IndexMap;
@@ -17,7 +15,6 @@ use crate::parser::MatchedArg;
 use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::{Id, Key};
-use crate::Error;
 use crate::INTERNAL_ERROR_MSG;
 
 /// Container for parse results.
@@ -341,62 +338,6 @@ impl ArgMatches {
         !self.args.is_empty()
     }
 
-    /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        let v = unwrap_string_arg(&id, arg.first()?);
-        Some(v)
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        let v = unwrap_os_string_arg(&id, arg.first()?);
-        Some(v.to_string_lossy())
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        let v = unwrap_os_string_arg(&id, arg.first()?);
-        Some(v)
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
-        #![allow(deprecated)]
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        let v = Values {
-            iter: arg.vals_flatten().map(unwrap_string),
-            len: arg.num_vals(),
-        };
-        Some(v)
-    }
-
     /// Get an [`Iterator`] over groups of values of a specific option.
     ///
     /// specifically grouped by the occurrences of the options.
@@ -440,119 +381,6 @@ impl ArgMatches {
             len: arg.vals().len(),
         };
         Some(v)
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        let v = arg
-            .vals_flatten()
-            .map(|v| unwrap_os_string_arg(&id, v).to_string_lossy().into_owned())
-            .collect();
-        Some(v)
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
-        #![allow(deprecated)]
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
-        let v = OsValues {
-            iter: arg.vals_flatten().map(unwrap_os_string),
-            len: arg.num_vals(),
-        };
-        Some(v)
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
-    where
-        R: FromStr,
-        <R as FromStr>::Err: Display,
-    {
-        #![allow(deprecated)]
-        let v = self
-            .value_of(name)
-            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))?;
-        v.parse::<R>().map_err(|e| {
-            let message = format!(
-                "The argument '{}' isn't a valid value for '{}': {}",
-                v, name, e
-            );
-
-            Error::value_validation(name.to_string(), v.to_string(), message.into())
-        })
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_one()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_one()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
-    where
-        R: FromStr,
-        <R as FromStr>::Err: Display,
-    {
-        #![allow(deprecated)]
-        self.value_of_t(name).unwrap_or_else(|e| e.exit())
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
-    where
-        R: FromStr,
-        <R as FromStr>::Err: Display,
-    {
-        #![allow(deprecated)]
-        let v = self
-            .values_of(name)
-            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))?;
-        v.map(|v| {
-            v.parse::<R>().map_err(|e| {
-                let message = format!("The argument '{}' isn't a valid value: {}", v, e);
-
-                Error::value_validation(name.to_string(), v.to_string(), message.into())
-            })
-        })
-        .collect()
-    }
-
-    /// Deprecated, replaced with [`ArgMatches::get_many()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
-    where
-        R: FromStr,
-        <R as FromStr>::Err: Display,
-    {
-        #![allow(deprecated)]
-        self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
     /// Deprecated, replaced with [`ArgAction::SetTrue`][crate::ArgAction] or
@@ -1499,52 +1327,6 @@ impl Default for RawValues<'_> {
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
-/// Deprecated, replaced with [`ArgMatches::get_many()`]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-)]
-#[derive(Clone, Debug)]
-pub struct Values<'a> {
-    #[allow(clippy::type_complexity)]
-    iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, for<'r> fn(&'r AnyValue) -> &'r str>,
-    len: usize,
-}
-
-#[allow(deprecated)]
-impl<'a> Iterator for Values<'a> {
-    type Item = &'a str;
-
-    fn next(&mut self) -> Option<&'a str> {
-        self.iter.next()
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.len, Some(self.len))
-    }
-}
-
-#[allow(deprecated)]
-impl<'a> DoubleEndedIterator for Values<'a> {
-    fn next_back(&mut self) -> Option<&'a str> {
-        self.iter.next_back()
-    }
-}
-
-#[allow(deprecated)]
-impl<'a> ExactSizeIterator for Values<'a> {}
-
-/// Creates an empty iterator.
-#[allow(deprecated)]
-impl<'a> Default for Values<'a> {
-    fn default() -> Self {
-        static EMPTY: [Vec<AnyValue>; 0] = [];
-        Values {
-            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
-            len: 0,
-        }
-    }
-}
-
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct GroupedValues<'a> {
@@ -1579,52 +1361,6 @@ impl<'a> Default for GroupedValues<'a> {
         static EMPTY: [Vec<AnyValue>; 0] = [];
         GroupedValues {
             iter: EMPTY[..].iter().map(|_| unreachable!()),
-            len: 0,
-        }
-    }
-}
-
-/// Deprecated, replaced with [`ArgMatches::get_many()`]
-#[cfg_attr(
-    feature = "deprecated",
-    deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::get_many()`")
-)]
-#[derive(Clone, Debug)]
-pub struct OsValues<'a> {
-    #[allow(clippy::type_complexity)]
-    iter: Map<Flatten<Iter<'a, Vec<AnyValue>>>, fn(&AnyValue) -> &OsStr>,
-    len: usize,
-}
-
-#[allow(deprecated)]
-impl<'a> Iterator for OsValues<'a> {
-    type Item = &'a OsStr;
-
-    fn next(&mut self) -> Option<&'a OsStr> {
-        self.iter.next()
-    }
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.len, Some(self.len))
-    }
-}
-
-#[allow(deprecated)]
-impl<'a> DoubleEndedIterator for OsValues<'a> {
-    fn next_back(&mut self) -> Option<&'a OsStr> {
-        self.iter.next_back()
-    }
-}
-
-#[allow(deprecated)]
-impl<'a> ExactSizeIterator for OsValues<'a> {}
-
-/// Creates an empty iterator.
-#[allow(deprecated)]
-impl Default for OsValues<'_> {
-    fn default() -> Self {
-        static EMPTY: [Vec<AnyValue>; 0] = [];
-        OsValues {
-            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
             len: 0,
         }
     }
@@ -1687,6 +1423,7 @@ impl<'a> Default for Indices<'a> {
     }
 }
 
+#[cfg(feature = "unstable-grouped")]
 #[cfg_attr(debug_assertions, track_caller)]
 #[inline]
 fn unwrap_string(value: &AnyValue) -> &str {
@@ -1698,45 +1435,6 @@ fn unwrap_string(value: &AnyValue) -> &str {
     }
 }
 
-#[cfg_attr(debug_assertions, track_caller)]
-#[inline]
-fn unwrap_string_arg<'v>(id: &Id, value: &'v AnyValue) -> &'v str {
-    match value.downcast_ref::<String>() {
-        Some(value) => value,
-        None => {
-            panic!(
-                "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `{:?}`",
-                id
-            )
-        }
-    }
-}
-
-#[cfg_attr(debug_assertions, track_caller)]
-#[inline]
-fn unwrap_os_string(value: &AnyValue) -> &OsStr {
-    match value.downcast_ref::<OsString>() {
-        Some(value) => value,
-        None => {
-            panic!("Must use `Arg::allow_invalid_utf8` with `_os` lookups",)
-        }
-    }
-}
-
-#[cfg_attr(debug_assertions, track_caller)]
-#[inline]
-fn unwrap_os_string_arg<'v>(id: &Id, value: &'v AnyValue) -> &'v OsStr {
-    match value.downcast_ref::<OsString>() {
-        Some(value) => value,
-        None => {
-            panic!(
-                "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `{:?}`",
-                id
-            )
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1744,20 +1442,6 @@ mod tests {
     #[test]
     fn check_auto_traits() {
         static_assertions::assert_impl_all!(ArgMatches: Send, Sync, Unpin);
-    }
-
-    #[test]
-    fn test_default_values() {
-        #![allow(deprecated)]
-        let mut values: Values = Values::default();
-        assert_eq!(values.next(), None);
-    }
-
-    #[test]
-    fn test_default_osvalues() {
-        #![allow(deprecated)]
-        let mut values: OsValues = OsValues::default();
-        assert_eq!(values.next(), None);
     }
 
     #[test]

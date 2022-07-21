@@ -502,11 +502,6 @@ impl Error {
             ])
     }
 
-    pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        Self::new(ErrorKind::ArgumentNotFound)
-            .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))])
-    }
-
     fn formatted(&self) -> Cow<'_, Colorizer> {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted()
