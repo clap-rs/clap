@@ -43,9 +43,6 @@ pub use value_parser::NonEmptyStringValueParser;
 pub use value_parser::OsStringValueParser;
 pub use value_parser::PathBufValueParser;
 
-#[allow(deprecated)]
-pub use command::App;
-
 pub(crate) use action::CountType;
 pub(crate) use arg::display_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;

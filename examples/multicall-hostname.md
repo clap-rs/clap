@@ -1,4 +1,4 @@
-See the documentation for [`Command::multicall`][crate::App::multicall] for rationale.
+See the documentation for [`Command::multicall`][crate::Command::multicall] for rationale.
 
 This example omits the implementation of displaying address config
 

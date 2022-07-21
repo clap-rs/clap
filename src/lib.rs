@@ -109,7 +109,6 @@ pub(crate) use crate::util::color::ColorChoice;
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 
 #[allow(deprecated)]
-pub use crate::builder::App;
 pub use crate::builder::{AppFlags, AppSettings, ArgFlags, ArgSettings, PossibleValue, ValueHint};
 pub use crate::error::{ErrorKind, Result};
 #[allow(deprecated)]

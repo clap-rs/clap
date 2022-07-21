@@ -199,7 +199,7 @@
 //!
 //! clap reports most development errors as `debug_assert!`s.  Rather than checking every
 //! subcommand, you should have a test that calls
-//! [`Command::debug_assert`][crate::App::debug_assert]:
+//! [`Command::debug_assert`][crate::Command::debug_assert]:
 //! ```rust,no_run
 #![doc = include_str!("../../examples/tutorial_derive/05_01_assert.rs")]
 //! ```
