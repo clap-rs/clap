@@ -134,18 +134,6 @@ impl Error {
         self.formatted().print()
     }
 
-    /// Deprecated, replaced with [`Command::error`]
-    ///
-    /// [`Command::error`]: crate::Command::error
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::error`")
-    )]
-    #[doc(hidden)]
-    pub fn with_description(description: String, kind: ErrorKind) -> Self {
-        Error::raw(kind, description)
-    }
-
     fn new(kind: ErrorKind) -> Self {
         Self {
             inner: Box::new(ErrorInner {

@@ -54,17 +54,6 @@ pub enum ArgSettings {
         deprecated(since = "3.1.0", note = "Replaced with `Arg::action` (Issue #3772)")
     )]
     MultipleOccurrences,
-    /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
-    /// [`ArgSettings::MultipleValues`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
-        )
-    )]
-    #[doc(hidden)]
-    Multiple,
     /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
     #[cfg_attr(
         feature = "deprecated",
@@ -150,17 +139,6 @@ pub enum ArgSettings {
         )
     )]
     AllowHyphenValues,
-    /// Deprecated, replaced with [`Arg::allow_hyphen_values`] and
-    /// [`Arg::is_allow_hyphen_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
-        )
-    )]
-    #[doc(hidden)]
-    AllowLeadingHyphen,
     /// Deprecated, replaced with [`Arg::require_equals`] and [`Arg::is_require_equals_set`]
     #[cfg_attr(
         feature = "deprecated",
@@ -197,16 +175,6 @@ pub enum ArgSettings {
         )
     )]
     IgnoreCase,
-    /// Deprecated, replaced with [`Arg::ignore_case`] and [`Arg::is_ignore_case_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`"
-        )
-    )]
-    #[doc(hidden)]
-    CaseInsensitive,
     /// Deprecated, replaced with [`Arg::hide_env`] and [`Arg::is_hide_env_set`]
     #[cfg_attr(
         feature = "deprecated",
@@ -301,7 +269,6 @@ impl_settings! { ArgSettings, ArgFlags,
     Required => Flags::REQUIRED,
     MultipleOccurrences => Flags::MULTIPLE_OCC,
     MultipleValues => Flags::MULTIPLE_VALS,
-    Multiple => Flags::MULTIPLE,
     ForbidEmptyValues => Flags::NO_EMPTY_VALS,
     Global => Flags::GLOBAL,
     Hidden => Flags::HIDDEN,
@@ -311,11 +278,9 @@ impl_settings! { ArgSettings, ArgFlags,
     RequireDelimiter => Flags::REQ_DELIM,
     HidePossibleValues => Flags::HIDE_POS_VALS,
     AllowHyphenValues => Flags::ALLOW_TAC_VALS,
-    AllowLeadingHyphen => Flags::ALLOW_TAC_VALS,
     RequireEquals => Flags::REQUIRE_EQUALS,
     Last => Flags::LAST,
     IgnoreCase => Flags::CASE_INSENSITIVE,
-    CaseInsensitive => Flags::CASE_INSENSITIVE,
     #[cfg(feature = "env")]
     HideEnv => Flags::HIDE_ENV,
     #[cfg(feature = "env")]

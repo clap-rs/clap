@@ -431,16 +431,6 @@ impl<'help> ArgGroup<'help> {
         }
         self
     }
-
-    /// Deprecated, replaced with [`ArgGroup::new`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")
-    )]
-    #[doc(hidden)]
-    pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
-        Self::new(n)
-    }
 }
 
 impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {

@@ -358,41 +358,6 @@ pub enum AppSettings {
     )]
     NoAutoVersion,
 
-    /// Deprecated, replaced with [`Command::allow_hyphen_values`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::allow_hyphen_values`")
-    )]
-    #[doc(hidden)]
-    AllowLeadingHyphen,
-
-    /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`"
-        )
-    )]
-    #[doc(hidden)]
-    StrictUtf8,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
-    )]
-    #[doc(hidden)]
-    UnifiedHelpMessage,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
-    )]
-    #[doc(hidden)]
-    ColoredHelp,
-
     /// Deprecated, see [`Command::color`][crate::Command::color]
     #[cfg_attr(
         feature = "deprecated",
@@ -416,60 +381,6 @@ pub enum AppSettings {
     )]
     #[doc(hidden)]
     ColorNever,
-
-    /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
-        )
-    )]
-    #[doc(hidden)]
-    DisableHelpFlags,
-
-    /// Deprecated, replaced with [`Command::disable_version_flag`] and
-    /// [`Command::is_disable_version_flag_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
-        )
-    )]
-    #[doc(hidden)]
-    DisableVersion,
-
-    /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
-        )
-    )]
-    #[doc(hidden)]
-    GlobalVersion,
-
-    /// Deprecated, replaced with [`Command::hide_possible_values`] and
-    /// [`Arg::is_hide_possible_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
-        )
-    )]
-    #[doc(hidden)]
-    HidePossibleValuesInHelp,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
-    )]
-    #[doc(hidden)]
-    UnifiedHelp,
 
     /// If the cmd is already built, used for caching.
     #[doc(hidden)]
@@ -539,22 +450,14 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands
         => Flags::ALLOW_UNK_SC,
-    StrictUtf8
-        => Flags::NO_OP,
     AllowInvalidUtf8ForExternalSubcommands
         => Flags::SC_UTF8_NONE,
     AllowHyphenValues
-        => Flags::LEADING_HYPHEN,
-    AllowLeadingHyphen
         => Flags::LEADING_HYPHEN,
     AllowNegativeNumbers
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional
         => Flags::ALLOW_MISSING_POS,
-    UnifiedHelpMessage
-        => Flags::NO_OP,
-    ColoredHelp
-        => Flags::NO_OP,
     ColorAlways
         => Flags::COLOR_ALWAYS,
     ColorAuto
@@ -573,19 +476,11 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_SC,
     DisableHelpFlag
         => Flags::DISABLE_HELP_FLAG,
-    DisableHelpFlags
-        => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag
-        => Flags::DISABLE_VERSION_FLAG,
-    DisableVersion
         => Flags::DISABLE_VERSION_FLAG,
     PropagateVersion
         => Flags::PROPAGATE_VERSION,
-    GlobalVersion
-        => Flags::PROPAGATE_VERSION,
     HidePossibleValues
-        => Flags::NO_POS_VALUES,
-    HidePossibleValuesInHelp
         => Flags::NO_POS_VALUES,
     HelpExpected
         => Flags::HELP_REQUIRED,
@@ -609,7 +504,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg
         => Flags::TRAILING_VARARG,
-    UnifiedHelp => Flags::NO_OP,
     NextLineHelp
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors
