@@ -216,7 +216,7 @@
 //!   [`Subcommand`][crate::Subcommand])
 //!   - When `Option<T>`, the subcommand becomes optional
 //! - `from_global`: Read a [`Arg::global`][crate::Arg::global] argument (raw attribute), regardless of what subcommand you are in
-//! - `parse(<kind> [= <function>])`: [`Arg::validator`][crate::Arg::validator] and [`ArgMatches::values_of_t`][crate::ArgMatches::values_of_t]
+//! - `parse(<kind> [= <function>])`: `Arg::validator` and `ArgMatches::values_of_t`
 //!   - **Deprecated:**
 //!     - Use `value_parser(...)` for `from_str`, `try_from_str`, `from_os_str`, and `try_from_os_str`
 //!     - Use `action(ArgAction::Count` for `from_occurrences`
