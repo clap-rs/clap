@@ -22,16 +22,6 @@ pub enum Shell {
     Zsh,
 }
 
-impl Shell {
-    /// Deprecated, replaced with [`EnumValueParser`][clap::builder::EnumValueParser]
-    #[deprecated(since = "3.2.0", note = "Replaced with `EnumValueParser`")]
-    pub fn possible_values() -> impl Iterator<Item = PossibleValue<'static>> {
-        Shell::value_variants()
-            .iter()
-            .filter_map(ValueEnum::to_possible_value)
-    }
-}
-
 impl Display for Shell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.to_possible_value()
