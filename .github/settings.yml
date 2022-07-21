@@ -118,3 +118,13 @@ branches:
         contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
       enforce_admins: false
       restrictions: null
+  - name: v3-master
+    protection:
+      required_pull_request_reviews: null
+      required_conversation_resolution: true
+      required_status_checks:
+        # Required. Require branches to be up to date before merging.
+        strict: false
+        contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
+      enforce_admins: false
+      restrictions: null
