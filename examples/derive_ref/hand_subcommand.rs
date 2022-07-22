@@ -26,7 +26,7 @@ impl FromArgMatches for CliSub {
             Some(("add", args)) => Ok(Self::Add(AddArgs::from_arg_matches(args)?)),
             Some(("remove", args)) => Ok(Self::Remove(RemoveArgs::from_arg_matches(args)?)),
             Some((_, _)) => Err(Error::raw(
-                ErrorKind::UnrecognizedSubcommand,
+                ErrorKind::InvalidSubcommand,
                 "Valid subcommands are `add` and `remove`",
             )),
             None => Err(Error::raw(
@@ -41,7 +41,7 @@ impl FromArgMatches for CliSub {
             Some(("remove", args)) => *self = Self::Remove(RemoveArgs::from_arg_matches(args)?),
             Some((_, _)) => {
                 return Err(Error::raw(
-                    ErrorKind::UnrecognizedSubcommand,
+                    ErrorKind::InvalidSubcommand,
                     "Valid subcommands are `add` and `remove`",
                 ))
             }

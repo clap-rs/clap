@@ -528,7 +528,7 @@ fn gen_from_arg_matches(
         },
 
         None => quote! {
-            ::std::result::Result::Err(clap::Error::raw(clap::ErrorKind::UnrecognizedSubcommand, format!("The subcommand '{}' wasn't recognized", #subcommand_name_var)))
+            ::std::result::Result::Err(clap::Error::raw(clap::ErrorKind::InvalidSubcommand, format!("The subcommand '{}' wasn't recognized", #subcommand_name_var)))
         },
     };
 

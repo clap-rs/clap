@@ -234,7 +234,7 @@ fn infer_subcommands_fail_no_args() {
         .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[cfg(feature = "suggestions")]
@@ -333,7 +333,7 @@ fn infer_subcommands_fail_suggestions() {
         .subcommand(Command::new("temp"))
         .try_get_matches_from(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[test]

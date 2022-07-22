@@ -2599,7 +2599,7 @@ fn disabled_help_flag() {
         .try_get_matches_from("foo a".split(' '));
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[test]
@@ -2611,7 +2611,7 @@ fn disabled_help_flag_and_subcommand() {
         .try_get_matches_from("foo help".split(' '));
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
     assert!(
         err.to_string().ends_with('\n'),
         "Errors should have a trailing newline, got {:?}",

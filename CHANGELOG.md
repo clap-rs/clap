@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- `Error::EmptyValue` replaced with `Error::InvalidValue`
+- `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue`
+- `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand`
 
 ### Features
 

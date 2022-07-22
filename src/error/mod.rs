@@ -307,7 +307,7 @@ impl Error {
     }
 
     pub(crate) fn unrecognized_subcommand(cmd: &Command, subcmd: String, usage: String) -> Self {
-        Self::new(ErrorKind::UnrecognizedSubcommand)
+        Self::new(ErrorKind::InvalidSubcommand)
             .with_cmd(cmd)
             .extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
@@ -598,17 +598,6 @@ impl Error {
                         c.good(suggestion);
                         c.none("'");
                     }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::UnrecognizedSubcommand => {
-                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                    c.none("The subcommand '");
-                    c.warning(invalid_sub);
-                    c.none("' wasn't recognized");
                     true
                 } else {
                     false
