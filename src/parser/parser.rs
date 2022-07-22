@@ -1180,53 +1180,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
                 Ok(ParseResult::ValuesDone)
             }
-            #[allow(deprecated)]
-            ArgAction::StoreValue => {
-                if ident == Some(Identifier::Index)
-                    && arg.is_multiple_values_set()
-                    && matcher.contains(&arg.id)
-                {
-                    // HACK: Reuse existing occurrence
-                } else if source == ValueSource::CommandLine {
-                    if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
-                        // Record flag's index
-                        self.cur_idx.set(self.cur_idx.get() + 1);
-                        debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                    }
-                    self.start_occurrence_of_arg(matcher, arg);
-                } else {
-                    self.start_custom_arg(matcher, arg, source);
-                }
-                self.push_arg_values(arg, raw_vals, matcher)?;
-                if ident == Some(Identifier::Index) && arg.is_multiple_values_set() {
-                    // HACK: Maintain existing occurrence behavior
-                    let matched = matcher.get_mut(&arg.id).unwrap();
-                    #[allow(deprecated)]
-                    matched.set_occurrences(matched.num_vals() as u64);
-                }
-                if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
-                    debug!(
-                        "Parser::react not enough values passed in, leaving it to the validator to complain",
-                    );
-                }
-                Ok(ParseResult::ValuesDone)
-            }
-            #[allow(deprecated)]
-            ArgAction::IncOccurrence => {
-                debug_assert_eq!(raw_vals, Vec::<OsString>::new());
-                if source == ValueSource::CommandLine {
-                    if matches!(ident, Some(Identifier::Short) | Some(Identifier::Long)) {
-                        // Record flag's index
-                        self.cur_idx.set(self.cur_idx.get() + 1);
-                        debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
-                    }
-                    self.start_occurrence_of_arg(matcher, arg);
-                } else {
-                    self.start_custom_arg(matcher, arg, source);
-                }
-                matcher.add_index_to(&arg.id, self.cur_idx.get());
-                Ok(ParseResult::ValuesDone)
-            }
             ArgAction::SetTrue => {
                 let raw_vals = match raw_vals.len() {
                     0 => {
@@ -1338,7 +1291,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     #[cfg(feature = "env")]
     fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_env");
-        use crate::util::str_to_bool;
 
         let trailing_values = false; // defaults are independent of the commandline
         for arg in self.cmd.get_arguments() {
@@ -1368,46 +1320,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         }
                     }
                 } else {
-                    match arg.get_action() {
-                        #[allow(deprecated)]
-                        ArgAction::StoreValue => unreachable!("{:?} is not a flag", arg.get_id()),
-                        #[allow(deprecated)]
-                        ArgAction::IncOccurrence => {
-                            debug!("Parser::add_env: Found a flag with value `{:?}`", val);
-                            let predicate = str_to_bool(val.to_str_lossy());
-                            debug!("Parser::add_env: Found boolean literal `{:?}`", predicate);
-                            if predicate.unwrap_or(true) {
-                                let _ = self.react(
-                                    None,
-                                    ValueSource::EnvVariable,
-                                    arg,
-                                    vec![],
-                                    matcher,
-                                )?;
-                            }
-                        }
-                        ArgAction::Set
-                        | ArgAction::Append
-                        | ArgAction::SetTrue
-                        | ArgAction::SetFalse
-                        | ArgAction::Count
-                        | ArgAction::Help
-                        | ArgAction::Version => {
-                            let mut arg_values = Vec::new();
-                            let _parse_result =
-                                self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
-                            let _ = self.react(
-                                None,
-                                ValueSource::EnvVariable,
-                                arg,
-                                arg_values,
-                                matcher,
-                            )?;
-                            if let Some(_parse_result) = _parse_result {
-                                if _parse_result != ParseResult::ValuesDone {
-                                    debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
-                                }
-                            }
+                    let mut arg_values = Vec::new();
+                    let _parse_result =
+                        self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
+                    let _ = self.react(None, ValueSource::EnvVariable, arg, arg_values, matcher)?;
+                    if let Some(_parse_result) = _parse_result {
+                        if _parse_result != ParseResult::ValuesDone {
+                            debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
                         }
                     }
                 }

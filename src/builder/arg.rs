@@ -4400,10 +4400,7 @@ impl<'help> Arg<'help> {
                 self.settings.unset(ArgSettings::TakesValue);
             }
             match action {
-                ArgAction::StoreValue
-                | ArgAction::IncOccurrence
-                | ArgAction::Help
-                | ArgAction::Version => {}
+                ArgAction::Help | ArgAction::Version => {}
                 ArgAction::Set
                 | ArgAction::Append
                 | ArgAction::SetTrue

@@ -70,24 +70,6 @@ pub enum ArgAction {
     /// );
     /// ```
     Append,
-    /// Deprecated, replaced with [`ArgAction::Set`] or [`ArgAction::Append`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `ArgAction::Set` or `ArgAction::Append`"
-        )
-    )]
-    StoreValue,
-    /// Deprecated, replaced with [`ArgAction::SetTrue`] or [`ArgAction::Count`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `ArgAction::SetTrue` or `ArgAction::Count`"
-        )
-    )]
-    IncOccurrence,
     /// When encountered, act as if `"true"` was encountered on the command-line
     ///
     /// If no [`default_value`][super::Arg::default_value] is set, it will be `false`.
@@ -258,10 +240,6 @@ impl ArgAction {
         match self {
             Self::Set => true,
             Self::Append => true,
-            #[allow(deprecated)]
-            Self::StoreValue => true,
-            #[allow(deprecated)]
-            Self::IncOccurrence => false,
             Self::SetTrue => false,
             Self::SetFalse => false,
             Self::Count => false,
@@ -274,10 +252,6 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
-            #[allow(deprecated)]
-            Self::StoreValue => None,
-            #[allow(deprecated)]
-            Self::IncOccurrence => None,
             Self::SetTrue => Some(std::ffi::OsStr::new("false")),
             Self::SetFalse => Some(std::ffi::OsStr::new("true")),
             Self::Count => Some(std::ffi::OsStr::new("0")),
@@ -290,10 +264,6 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
-            #[allow(deprecated)]
-            Self::StoreValue => None,
-            #[allow(deprecated)]
-            Self::IncOccurrence => None,
             Self::SetTrue => Some(super::ValueParser::bool()),
             Self::SetFalse => Some(super::ValueParser::bool()),
             Self::Count => Some(crate::value_parser!(u8).into()),
@@ -309,10 +279,6 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
-            #[allow(deprecated)]
-            Self::StoreValue => None,
-            #[allow(deprecated)]
-            Self::IncOccurrence => None,
             Self::SetTrue => Some(AnyValueId::of::<bool>()),
             Self::SetFalse => Some(AnyValueId::of::<bool>()),
             Self::Count => Some(AnyValueId::of::<CountType>()),
