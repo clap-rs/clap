@@ -116,17 +116,6 @@ pub enum AppSettings {
     )]
     SubcommandRequired,
 
-    /// Deprecated, replaced with [`Command::subcommand_required`] combined with
-    /// [`Command::arg_required_else_help`].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::subcommand_required` combined with `Command::arg_required_else_help`"
-        )
-    )]
-    SubcommandRequiredElseHelp,
-
     /// Deprecated, replaced with [`Command::allow_external_subcommands`] and
     /// [`Command::is_allow_external_subcommands_set`]
     #[cfg_attr(
@@ -392,7 +381,6 @@ bitflags! {
         const PROPAGATE_VERSION              = 1 << 3;
         const DISABLE_VERSION_FOR_SC         = 1 << 4;
         const WAIT_ON_ERROR                  = 1 << 6;
-        const SC_REQUIRED_ELSE_HELP          = 1 << 7;
         const NO_AUTO_HELP                   = 1 << 8;
         const NO_AUTO_VERSION                = 1 << 9;
         const DISABLE_VERSION_FLAG           = 1 << 10;
@@ -490,8 +478,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::SC_NEGATE_REQS,
     SubcommandRequired
         => Flags::SC_REQUIRED,
-    SubcommandRequiredElseHelp
-        => Flags::SC_REQUIRED_ELSE_HELP,
     UseLongFormatForHelpSubcommand
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg

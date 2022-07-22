@@ -1,4 +1,3 @@
-use clap::AppSettings;
 use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> String {
@@ -188,8 +187,7 @@ pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
 }
 
 fn subcommand_markers(cmd: &clap::Command) -> (&'static str, &'static str) {
-    #[allow(deprecated)]
-    markers(cmd.is_subcommand_required_set() || cmd.is_set(AppSettings::SubcommandRequiredElseHelp))
+    markers(cmd.is_subcommand_required_set())
 }
 
 fn option_markers(opt: &clap::Arg) -> (&'static str, &'static str) {

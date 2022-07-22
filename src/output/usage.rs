@@ -1,7 +1,6 @@
 use indexmap::IndexSet;
 
 // Internal
-use crate::builder::AppSettings as AS;
 use crate::builder::{Arg, ArgPredicate, Command};
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
@@ -142,9 +141,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                 usage.push_str(" <");
                 usage.push_str(placeholder);
                 usage.push('>');
-            } else if self.cmd.is_subcommand_required_set()
-                || self.cmd.is_set(AS::SubcommandRequiredElseHelp)
-            {
+            } else if self.cmd.is_subcommand_required_set() {
                 usage.push_str(" <");
                 usage.push_str(placeholder);
                 usage.push('>');

@@ -1,5 +1,5 @@
 // Internal
-use crate::builder::{AppSettings, Arg, ArgPredicate, Command, PossibleValue};
+use crate::builder::{Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::fmt::Stream;
 use crate::output::Usage;
@@ -60,7 +60,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 return Err(Error::display_help_error(self.cmd, message));
             }
         }
-        #[allow(deprecated)]
         if !has_subcmd && self.cmd.is_subcommand_required_set() {
             let bn = self
                 .cmd
@@ -73,10 +72,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .required(&self.required)
                     .create_usage_with_title(&[]),
             ));
-        } else if !has_subcmd && self.cmd.is_set(AppSettings::SubcommandRequiredElseHelp) {
-            debug!("Validator::new::get_matches_with: SubcommandRequiredElseHelp=true");
-            let message = self.cmd.write_help_err(false, Stream::Stderr)?;
-            return Err(Error::display_help_error(self.cmd, message));
         }
 
         self.validate_conflicts(matcher, &mut conflicts)?;

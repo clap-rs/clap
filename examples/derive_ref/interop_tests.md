@@ -101,12 +101,19 @@ For more information try --help
 ```console
 $ interop_hand_subcommand
 ? failed
-error: 'interop_hand_subcommand[EXE]' requires a subcommand but one was not provided
+clap 
 
 USAGE:
     interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
 
-For more information try --help
+OPTIONS:
+    -h, --help         Print help information
+    -t, --top-level    
+
+SUBCOMMANDS:
+    add       
+    help      Print this message or the help of the given subcommand(s)
+    remove    
 
 ```
 
