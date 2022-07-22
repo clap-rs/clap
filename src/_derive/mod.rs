@@ -216,14 +216,6 @@
 //!   [`Subcommand`][crate::Subcommand])
 //!   - When `Option<T>`, the subcommand becomes optional
 //! - `from_global`: Read a [`Arg::global`][crate::Arg::global] argument (raw attribute), regardless of what subcommand you are in
-//! - `parse(<kind> [= <function>])`: `Arg::validator` and `ArgMatches::values_of_t`
-//!   - **Deprecated:**
-//!     - Use `value_parser(...)` for `from_str`, `try_from_str`, `from_os_str`, and `try_from_os_str`
-//!     - Use `action(ArgAction::Count` for `from_occurrences`
-//!     - Use `action(ArgAction::SetTrue` for `from_flag`
-//!   - Default: `try_from_str`
-//!   - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
-//!   - See [Arg Types](#arg-types) for more details
 //! - `value_enum`: Parse the value using the [`ValueEnum`][crate::ValueEnum]
 //! - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
 //!   - Without `<expr>`: fills the field with `Default::default()`
@@ -260,7 +252,7 @@
 //!
 //! | Type                | Effect                               | Implies                                                          |
 //! |---------------------|--------------------------------------|------------------------------------------------------------------|
-//! | `bool`              | flag                                 | `#[clap(parse(from_flag))]`                                     |
+//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)                                     |
 //! | `Option<T>`         | optional argument                    | `.takes_value(true).required(false)`                             |
 //! | `Option<Option<T>>` | optional value for optional argument | `.takes_value(true).required(false).min_values(0).max_values(1)` |
 //! | `T`                 | required argument                    | `.takes_value(true).required(!has_default)`                      |
@@ -272,35 +264,6 @@
 //!   - For example, see [custom-bool](./custom-bool.md)
 //! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
 //!   - This gives the user some flexibility in designing their argument, like with `min_values(0)`
-//!
-//! You can then support your custom type with `#[clap(parse(<kind> [= <function>]))]`:
-//!
-//! | `<kind>`                 | Signature                             | Default `<function>`            |
-//! |--------------------------|---------------------------------------|---------------------------------|
-//! | `from_str`               | `fn(&str) -> T`                       | `::std::convert::From::from`    |
-//! | `try_from_str` (default) | `fn(&str) -> Result<T, E>`            | `::std::str::FromStr::from_str` |
-//! | `from_os_str`            | `fn(&OsStr) -> T`                     | `::std::convert::From::from`    |
-//! | `try_from_os_str`        | `fn(&OsStr) -> Result<T, E>`          | (no default function)           |
-//! | `from_occurrences`       | `fn(u64) -> T`                        | `value as T`                    |
-//! | `from_flag`              | `fn(bool) -> T`                       | `::std::convert::From::from`    |
-//!
-//! Notes:
-//! - `from_os_str`:
-//!   - Implies `arg.takes_value(true).allow_invalid_utf8(true)`
-//! - `try_from_os_str`:
-//!   - Implies `arg.takes_value(true).allow_invalid_utf8(true)`
-//! - `from_occurrences`:
-//!   - Implies `arg.takes_value(false).multiple_occurrences(true)`
-//!   - Reads from `clap::ArgMatches::occurrences_of` rather than a `get_one` function
-//!     - Note: operations on values, like `default_value`, are unlikely to do what you want
-//! - `from_flag`
-//!   - Implies `arg.takes_value(false)`
-//!   - Reads from `clap::ArgMatches::is_present` rather than a `get_one` function
-//!     - Note: operations on values, like `default_value`, are unlikely to do what you want
-//!
-//! **Warning:**
-//! - To support non-UTF8 paths, you should use `#[clap(value_parser)]` otherwise
-//!   `clap` will parse it as a `String` which will fail on some paths.
 //!
 //! ## Doc Comments
 //!

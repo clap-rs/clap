@@ -276,7 +276,7 @@ pub trait FromArgMatches: Sized {
 ///
 /// #[derive(clap::Args)]
 /// struct LogArgs {
-///     #[clap(long, short = 'v', parse(from_occurrences))]
+///     #[clap(long, short = 'v', action = clap::ArgAction::Count)]
 ///     verbose: i8,
 /// }
 /// ```
