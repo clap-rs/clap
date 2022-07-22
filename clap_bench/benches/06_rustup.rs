@@ -27,7 +27,6 @@ fn build_cli() -> Command<'static> {
         .about("The Rust toolchain installer")
         .after_help(RUSTUP_HELP)
         .setting(AppSettings::DeriveDisplayOrder)
-        // .setting(AppSettings::SubcommandRequiredElseHelp)
         .arg(
             Arg::new("verbose")
                 .help("Enable verbose output")
@@ -69,7 +68,6 @@ fn build_cli() -> Command<'static> {
                 .about("Modify or query the installed toolchains")
                 .after_help(TOOLCHAIN_HELP)
                 .setting(AppSettings::DeriveDisplayOrder)
-                // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(Command::new("list").about("List installed toolchains"))
                 .subcommand(
                     Command::new("install")
@@ -107,7 +105,6 @@ fn build_cli() -> Command<'static> {
             Command::new("target")
                 .about("Modify a toolchain's supported targets")
                 .setting(AppSettings::DeriveDisplayOrder)
-                // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
                     Command::new("list")
                         .about("List installed and available targets")
@@ -142,7 +139,6 @@ fn build_cli() -> Command<'static> {
             Command::new("component")
                 .about("Modify a toolchain's installed components")
                 .setting(AppSettings::DeriveDisplayOrder)
-                // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
                     Command::new("list")
                         .about("List installed and available components")
@@ -168,7 +164,6 @@ fn build_cli() -> Command<'static> {
                 .about("Modify directory toolchain overrides")
                 .after_help(OVERRIDE_HELP)
                 .setting(AppSettings::DeriveDisplayOrder)
-                // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(Command::new("list").about("List directory toolchain overrides"))
                 .subcommand(
                     Command::new("set")

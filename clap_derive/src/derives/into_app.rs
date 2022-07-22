@@ -103,9 +103,9 @@ pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute])
         #[deny(clippy::correctness)]
         impl #impl_generics clap::CommandFactory for #enum_name #ty_generics #where_clause {
             fn command<'b>() -> clap::Command<'b> {
-                #[allow(deprecated)]
                 let #app_var = clap::Command::new(#name)
-                    .setting(clap::AppSettings::SubcommandRequiredElseHelp);
+                    .subcommand_required(true)
+                    .arg_required_else_help(true);
                 <Self as clap::Subcommand>::augment_subcommands(#app_var)
             }
 

@@ -2,7 +2,7 @@ use std::ffi::OsString;
 
 use super::utils;
 
-use clap::{arg, error::ErrorKind, AppSettings, Arg, ArgAction, Command};
+use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
@@ -65,20 +65,6 @@ OPTIONS:
     -h, --help       Print help information
     -i, --info       Provides more info
     -V, --version    Print version information
-";
-
-static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 1.0
-
-USAGE:
-    test <SUBCOMMAND>
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
-    info    
 ";
 
 #[test]
@@ -190,37 +176,6 @@ fn arg_required_else_help_error_message() {
         cmd,
         "test",
         ARG_REQUIRED_ELSE_HELP,
-        true, // Unlike normal displaying of help, we should provide a fatal exit code
-    );
-}
-
-#[test]
-fn subcommand_required_else_help() {
-    #![allow(deprecated)]
-    let result = Command::new("test")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(Command::new("info"))
-        .try_get_matches_from(&[""]);
-
-    assert!(result.is_err());
-    let err = result.err().unwrap();
-    assert_eq!(
-        err.kind(),
-        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
-    );
-}
-
-#[test]
-fn subcommand_required_else_help_error_message() {
-    #![allow(deprecated)]
-    let cmd = Command::new("test")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
-        .version("1.0")
-        .subcommand(Command::new("info").arg(Arg::new("filename")));
-    utils::assert_output(
-        cmd,
-        "test",
-        SUBCOMMAND_REQUIRED_ELSE_HELP,
         true, // Unlike normal displaying of help, we should provide a fatal exit code
     );
 }
