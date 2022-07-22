@@ -1395,7 +1395,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         | ArgAction::Append
                         | ArgAction::SetTrue
                         | ArgAction::SetFalse
-                        | ArgAction::Count => {
+                        | ArgAction::Count
+                        | ArgAction::Help
+                        | ArgAction::Version => {
                             let mut arg_values = Vec::new();
                             let _parse_result =
                                 self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
@@ -1411,11 +1413,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                     debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
                                 }
                             }
-                        }
-                        // Early return on `Help` or `Version`.
-                        ArgAction::Help | ArgAction::Version => {
-                            let _ =
-                                self.react(None, ValueSource::EnvVariable, arg, vec![], matcher)?;
                         }
                     }
                 }
