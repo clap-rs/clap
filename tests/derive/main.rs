@@ -1,7 +1,5 @@
 #![cfg(feature = "derive")]
 
-mod next;
-
 mod app_name;
 mod arguments;
 mod author_version_about;

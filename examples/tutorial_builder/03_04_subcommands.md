@@ -15,7 +15,7 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
 
 $ 03_04_subcommands help add
-03_04_subcommands[EXE]-add [..]
+clap-add 3.2.14
 Adds files to myapp
 
 USAGE:

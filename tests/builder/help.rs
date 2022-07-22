@@ -942,7 +942,6 @@ OPTIONS:
 #[test]
 #[cfg(all(feature = "wrap_help"))]
 fn possible_value_wrapped_help() {
-    #[cfg(feature = "unstable-v4")]
     static WRAPPED_HELP: &str = "test 
 
 USAGE:
@@ -971,18 +970,6 @@ OPTIONS:
               - name:   Short enough help message with no wrapping
               - second: short help
 ";
-    #[cfg(not(feature = "unstable-v4"))]
-    static WRAPPED_HELP: &str = r#"test 
-
-USAGE:
-    test [OPTIONS]
-
-OPTIONS:
-    -h, --help                                                                   Print help information
-        --possible-values <possible_values>                                      [possible values: short_name, second]
-        --possible-values-with-new-line <possible_values_with_new_line>          [possible values: "long enough name to trigger new line", second]
-        --possible-values-without-new-line <possible_values_without_new_line>    [possible values: name, second]
-"#;
     let cmd = Command::new("test")
         .term_width(67)
         .arg(
@@ -1100,7 +1087,6 @@ fn hide_single_possible_val() {
 
 #[test]
 fn possible_vals_with_help() {
-    #[cfg(feature = "unstable-v4")]
     static POS_VALS_HELP: &str = "ctest 0.1
 
 USAGE:
@@ -1122,18 +1108,6 @@ OPTIONS:
 
     -V, --version
             Print version information
-";
-    #[cfg(not(feature = "unstable-v4"))]
-    static POS_VALS_HELP: &str = "ctest 0.1
-
-USAGE:
-    ctest [OPTIONS]
-
-OPTIONS:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
-    -h, --help           Print help information
-    -p, --pos <VAL>      Some vals [possible values: fast, slow]
-    -V, --version        Print version information
 ";
     let app = Command::new("ctest")
         .version("0.1")
@@ -2603,22 +2577,6 @@ OPTIONS:
 }
 
 #[test]
-#[cfg(not(feature = "unstable-v4"))]
-fn too_many_value_names_panics() {
-    Command::new("test")
-        .arg(
-            Arg::new("foo")
-                .long("foo")
-                .required(true)
-                .takes_value(true)
-                .number_of_values(1)
-                .value_names(&["one", "two"]),
-        )
-        .debug_assert()
-}
-
-#[test]
-#[cfg(feature = "unstable-v4")]
 #[should_panic = "Argument foo: Too many value names (2) compared to number_of_values (1)"]
 fn too_many_value_names_panics() {
     Command::new("test")

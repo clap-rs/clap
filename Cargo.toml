@@ -79,8 +79,8 @@ unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode character
 # In-work features
 unstable-replace = []
 unstable-grouped = []
-# note: this will always enable clap_derive, change this to `clap_derive?/unstable-v4` when MSRV is bigger than 1.60
-unstable-v4 = ["clap_derive/unstable-v4", "deprecated"]
+# note: this will always enable clap_derive, change this to `clap_derive?/unstable-v5` when MSRV is bigger than 1.60
+unstable-v5 = ["clap_derive/unstable-v5", "deprecated"]
 
 [lib]
 bench = false

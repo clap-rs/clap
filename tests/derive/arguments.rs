@@ -19,7 +19,6 @@ use clap::Parser;
 fn required_argument() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser)]
         arg: i32,
     }
     assert_eq!(
@@ -34,7 +33,7 @@ fn required_argument() {
 fn argument_with_default() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser, default_value = "42")]
+        #[clap(default_value = "42")]
         arg: i32,
     }
     assert_eq!(
@@ -49,7 +48,6 @@ fn argument_with_default() {
 fn auto_value_name() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser)]
         my_special_arg: i32,
     }
 
@@ -69,7 +67,7 @@ fn auto_value_name() {
 fn explicit_value_name() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser, value_name = "BROWNIE_POINTS")]
+        #[clap(value_name = "BROWNIE_POINTS")]
         my_special_arg: i32,
     }
 
@@ -90,7 +88,6 @@ fn explicit_value_name() {
 fn option_type_is_optional() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser)]
         arg: Option<i32>,
     }
     assert_eq!(
@@ -105,7 +102,6 @@ fn option_type_is_optional() {
 fn vec_type_is_multiple_values() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser)]
         arg: Vec<i32>,
     }
     assert_eq!(

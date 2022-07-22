@@ -21,19 +21,19 @@ use std::path::PathBuf;
 
 #[derive(Parser, PartialEq, Debug)]
 struct PathOpt {
-    #[clap(short, long, value_parser)]
+    #[clap(short, long)]
     path: PathBuf,
 
-    #[clap(short, default_value = "../", value_parser)]
+    #[clap(short, default_value = "../")]
     default_path: PathBuf,
 
-    #[clap(short, value_parser, multiple_occurrences(true))]
+    #[clap(short, multiple_occurrences(true))]
     vector_path: Vec<PathBuf>,
 
-    #[clap(short, value_parser)]
+    #[clap(short)]
     option_path_1: Option<PathBuf>,
 
-    #[clap(short = 'q', value_parser)]
+    #[clap(short = 'q')]
     option_path_2: Option<PathBuf>,
 }
 
@@ -134,10 +134,10 @@ struct DefaultedOpt {
     #[clap(short, parse(from_str))]
     bytes: Bytes,
 
-    #[clap(short, value_parser)]
+    #[clap(short)]
     integer: u64,
 
-    #[clap(short, value_parser)]
+    #[clap(short)]
     path: PathBuf,
 }
 

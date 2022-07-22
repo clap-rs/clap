@@ -4,7 +4,6 @@ use clap::{Args, Parser};
 fn generic_struct_flatten() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        #[clap(value_parser)]
         pub answer: isize,
     }
 
@@ -26,7 +25,6 @@ fn generic_struct_flatten() {
 fn generic_struct_flatten_w_where_clause() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        #[clap(value_parser)]
         pub answer: isize,
     }
 
@@ -51,7 +49,6 @@ fn generic_struct_flatten_w_where_clause() {
 fn generic_enum() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        #[clap(value_parser)]
         pub answer: isize,
     }
 
@@ -71,7 +68,6 @@ fn generic_enum() {
 fn generic_enum_w_where_clause() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        #[clap(value_parser)]
         pub answer: isize,
     }
 
@@ -100,7 +96,6 @@ fn generic_w_fromstr_trait_bound() {
         T: FromStr + Send + Sync + Clone + 'static,
         <T as FromStr>::Err: std::error::Error + Sync + Send + 'static,
     {
-        #[clap(value_parser)]
         answer: T,
     }
 
@@ -116,7 +111,6 @@ fn generic_wo_trait_bound() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt<T> {
-        #[clap(value_parser)]
         answer: isize,
         #[clap(skip)]
         took: Option<T>,
@@ -141,7 +135,6 @@ fn generic_where_clause_w_trailing_comma() {
         T: FromStr + Send + Sync + Clone + 'static,
         <T as FromStr>::Err: std::error::Error + Sync + Send + 'static,
     {
-        #[clap(value_parser)]
         pub answer: T,
     }
 

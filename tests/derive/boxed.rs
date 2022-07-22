@@ -16,7 +16,6 @@ enum Sub {
 
 #[derive(Args, PartialEq, Debug)]
 struct Ext {
-    #[clap(value_parser)]
     arg: u32,
 }
 

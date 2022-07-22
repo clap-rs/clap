@@ -890,27 +890,6 @@ fn issue_1093_allow_ext_sc() {
 }
 
 #[test]
-#[cfg(not(feature = "unstable-v4"))]
-fn allow_ext_sc_empty_args() {
-    let res = Command::new("clap-test")
-        .version("v1.4.8")
-        .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
-        .try_get_matches_from(vec!["clap-test", "external-cmd"]);
-
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-
-    match res.unwrap().subcommand() {
-        Some((name, args)) => {
-            assert_eq!(name, "external-cmd");
-            assert!(args.get_many::<OsString>("").is_none());
-        }
-        _ => unreachable!(),
-    }
-}
-
-#[test]
-#[cfg(feature = "unstable-v4")]
 fn allow_ext_sc_empty_args() {
     let res = Command::new("clap-test")
         .version("v1.4.8")

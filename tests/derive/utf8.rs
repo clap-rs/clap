@@ -6,13 +6,12 @@ use std::os::unix::ffi::OsStringExt;
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct Positional {
-    #[clap(value_parser)]
     arg: String,
 }
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct Named {
-    #[clap(short, long, value_parser)]
+    #[clap(short, long)]
     arg: String,
 }
 
@@ -77,13 +76,12 @@ fn invalid_utf8_strict_option_long_equals() {
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct PositionalOs {
-    #[clap(value_parser)]
     arg: OsString,
 }
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct NamedOs {
-    #[clap(short, long, value_parser)]
+    #[clap(short, long)]
     arg: OsString,
 }
 

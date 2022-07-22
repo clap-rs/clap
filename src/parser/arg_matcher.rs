@@ -31,16 +31,6 @@ impl ArgMatcher {
                 },
                 #[cfg(debug_assertions)]
                 valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
-                // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
-                // since users can't detect it and avoid the asserts.
-                //
-                // See clap-rs/clap#3263
-                #[cfg(debug_assertions)]
-                #[cfg(not(feature = "unstable-v4"))]
-                disable_asserts: _cmd.is_allow_external_subcommands_set(),
-                #[cfg(debug_assertions)]
-                #[cfg(feature = "unstable-v4")]
-                disable_asserts: false,
                 ..Default::default()
             },
             pending: None,

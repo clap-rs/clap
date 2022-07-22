@@ -67,8 +67,6 @@ pub struct ArgMatches {
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
     pub(crate) valid_subcommands: Vec<Id>,
-    #[cfg(debug_assertions)]
-    pub(crate) disable_asserts: bool,
     pub(crate) args: IndexMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
@@ -685,7 +683,7 @@ impl ArgMatches {
         #[cfg(debug_assertions)]
         {
             let id = Id::from(_id);
-            self.disable_asserts || id == Id::empty_hash() || self.valid_args.contains(&id)
+            id == Id::empty_hash() || self.valid_args.contains(&id)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -890,7 +888,7 @@ impl ArgMatches {
         #[cfg(debug_assertions)]
         {
             let id = Id::from(_id);
-            self.disable_asserts || id == Id::empty_hash() || self.valid_subcommands.contains(&id)
+            id == Id::empty_hash() || self.valid_subcommands.contains(&id)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -1066,7 +1064,7 @@ impl ArgMatches {
     fn verify_arg(&self, _arg: &Id) -> Result<(), MatchesError> {
         #[cfg(debug_assertions)]
         {
-            if self.disable_asserts || *_arg == Id::empty_hash() || self.valid_args.contains(_arg) {
+            if *_arg == Id::empty_hash() || self.valid_args.contains(_arg) {
             } else if self.valid_subcommands.contains(_arg) {
                 debug!(
                     "Subcommand `{:?}` used where an argument or group name was expected.",
@@ -1091,7 +1089,7 @@ impl ArgMatches {
     fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
         #[cfg(debug_assertions)]
         {
-            if self.disable_asserts || *arg == Id::empty_hash() || self.valid_args.contains(arg) {
+            if *arg == Id::empty_hash() || self.valid_args.contains(arg) {
             } else if self.valid_subcommands.contains(arg) {
                 panic!(
                     "Subcommand `{:?}` used where an argument or group name was expected.",
@@ -1115,10 +1113,7 @@ impl ArgMatches {
     fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            if self.disable_asserts
-                || *id == Id::empty_hash()
-                || self.valid_subcommands.contains(id)
-            {
+            if *id == Id::empty_hash() || self.valid_subcommands.contains(id) {
             } else if self.valid_args.contains(id) {
                 panic!(
                     "Argument or group `{:?}` used where a subcommand name was expected.",

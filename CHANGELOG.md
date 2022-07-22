@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 4.0.0 - Upcoming
 
-_gated behind `unstable-v4`_
-
 ### Breaking Changes
 
 - `Error::EmptyValue` replaced with `Error::InvalidValue`

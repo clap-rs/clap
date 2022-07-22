@@ -23,7 +23,7 @@ fn doc_comments() {
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         foo: bool,
     }
 
@@ -39,12 +39,7 @@ fn help_is_better_than_comments() {
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[clap(
-            short,
-            long,
-            help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES",
-            action
-        )]
+        #[clap(short, long, help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
         foo: bool,
     }
 
@@ -76,11 +71,11 @@ fn field_long_doc_comment_both_help_long_help() {
         /// Dot is removed from multiline comments.
         ///
         /// Long help
-        #[clap(long, action)]
+        #[clap(long)]
         foo: bool,
 
         /// Dot is removed from one short comment.
-        #[clap(long, action)]
+        #[clap(long)]
         bar: bool,
     }
 
@@ -111,7 +106,7 @@ fn top_long_doc_comment_both_help_long_help() {
         ///
         /// Or something else
         Foo {
-            #[clap(value_parser, help = "foo")]
+            #[clap(help = "foo")]
             bars: String,
         },
     }
@@ -146,7 +141,7 @@ fn verbatim_doc_comment() {
     #[derive(Parser, Debug)]
     #[clap(verbatim_doc_comment)]
     struct SeeFigure1 {
-        #[clap(long, action)]
+        #[clap(long)]
         foo: bool,
     }
 
@@ -176,10 +171,10 @@ fn verbatim_doc_comment_field() {
     #[derive(Parser, Debug)]
     struct Command {
         /// This help ends in a period.
-        #[clap(long, verbatim_doc_comment, action)]
+        #[clap(long, verbatim_doc_comment)]
         foo: bool,
         /// This help does not end in a period.
-        #[clap(long, action)]
+        #[clap(long)]
         bar: bool,
     }
 
@@ -196,7 +191,7 @@ fn multiline_separates_default() {
         /// Multiline
         ///
         /// Doc comment
-        #[clap(long, default_value = "x", value_parser)]
+        #[clap(long, default_value = "x")]
         x: String,
     }
 
@@ -234,10 +229,7 @@ fn doc_comment_about_handles_both_abouts() {
     /// Sub doc comment body
     #[derive(Parser, PartialEq, Eq, Debug)]
     pub enum Sub {
-        Compress {
-            #[clap(value_parser)]
-            output: String,
-        },
+        Compress { output: String },
     }
 
     let cmd = Opts::command();

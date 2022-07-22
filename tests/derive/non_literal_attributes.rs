@@ -27,17 +27,16 @@ struct Opt {
         next_line_help = true,
         default_value = "0",
         require_equals = true,
-        value_parser
     )]
     x: i32,
 
-    #[clap(short = 'l', long = "level", value_parser, aliases = &["set-level", "lvl"])]
+    #[clap(short = 'l', long = "level", aliases = &["set-level", "lvl"])]
     level: String,
 
-    #[clap(long("values"), value_parser)]
+    #[clap(long("values"))]
     values: Vec<i32>,
 
-    #[clap(name = "FILE", value_parser, requires_if("FILE", "values"))]
+    #[clap(name = "FILE", requires_if("FILE", "values"))]
     files: Vec<String>,
 }
 

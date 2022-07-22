@@ -4,7 +4,7 @@ use clap::Parser;
 fn raw_idents() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(short, long, value_parser)]
+        #[clap(short, long)]
         r#type: String,
     }
 

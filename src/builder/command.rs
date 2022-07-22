@@ -2273,14 +2273,7 @@ impl<'help> Command<'help> {
     /// [`Arg::long`]: Arg::long()
     #[must_use]
     pub fn long_flag(mut self, long: &'help str) -> Self {
-        #[cfg(feature = "unstable-v4")]
-        {
-            self.long_flag = Some(long);
-        }
-        #[cfg(not(feature = "unstable-v4"))]
-        {
-            self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
-        }
+        self.long_flag = Some(long);
         self
     }
 
@@ -4674,10 +4667,9 @@ impl<'help> Command<'help> {
             v.long_help.is_some()
                 || v.is_hide_long_help_set()
                 || v.is_hide_short_help_set()
-                || cfg!(feature = "unstable-v4")
-                    && v.get_possible_values()
-                        .iter()
-                        .any(PossibleValue::should_show_help)
+                || v.get_possible_values()
+                    .iter()
+                    .any(PossibleValue::should_show_help)
         };
 
         // Subcommands aren't checked because we prefer short help for them, deferring to

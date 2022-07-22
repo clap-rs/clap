@@ -190,21 +190,6 @@ For more information try --help
 }
 
 #[test]
-#[cfg(not(feature = "unstable-v4"))]
-fn leading_dash_stripped() {
-    let cmd = Command::new("mycat").arg(
-        Arg::new("filename")
-            .long("--filename")
-            .action(ArgAction::SetTrue),
-    );
-    let matches = cmd.try_get_matches_from(["mycat", "--filename"]).unwrap();
-    assert!(*matches
-        .get_one::<bool>("filename")
-        .expect("defaulted by clap"));
-}
-
-#[test]
-#[cfg(feature = "unstable-v4")]
 #[cfg(debug_assertions)]
 #[should_panic = "Argument filename: long \"--filename\" must not start with a `-`, that will be handled by the parser"]
 fn leading_dash_stripped() {
