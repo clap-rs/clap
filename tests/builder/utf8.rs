@@ -288,57 +288,6 @@ fn allow_validated_utf8_value_of() {
 }
 
 #[test]
-#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `name`"]
-fn panic_validated_utf8_value_of_os() {
-    #![allow(deprecated)]
-    let a = Command::new("test").arg(arg!(--name <NAME>));
-    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.value_of_os("name");
-}
-
-#[test]
-#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `value`"]
-fn panic_validated_utf8_with_defaults() {
-    #![allow(deprecated)]
-    let a = Command::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
-    let m = a.try_get_matches_from(["test"]).unwrap();
-    let _ = m.get_one::<String>("value").map(|v| v.as_str());
-    let _ = m.value_of_os("value");
-}
-
-#[test]
-fn allow_invalid_utf8_value_of_os() {
-    #![allow(deprecated)]
-    let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
-    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.value_of_os("name");
-}
-
-#[test]
-#[should_panic = "Mismatch between definition and access of `name`. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
-fn panic_invalid_utf8_value_of() {
-    #![allow(deprecated)]
-    let a = Command::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
-    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
-    let _ = m.get_one::<String>("name").map(|v| v.as_str());
-}
-
-#[test]
-#[should_panic = "Mismatch between definition and access of `value`. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
-fn panic_invalid_utf8_with_defaults() {
-    #![allow(deprecated)]
-    let a = Command::new("test").arg(
-        arg!(--value <VALUE>)
-            .required(false)
-            .default_value("foo")
-            .allow_invalid_utf8(true),
-    );
-    let m = a.try_get_matches_from(["test"]).unwrap();
-    let _ = m.value_of_os("value");
-    let _ = m.get_one::<String>("value").map(|v| v.as_str());
-}
-
-#[test]
 fn allow_validated_utf8_external_subcommand_values_of() {
     let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();

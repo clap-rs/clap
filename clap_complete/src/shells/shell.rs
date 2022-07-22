@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use clap::{ArgEnum, PossibleValue};
+use clap::{PossibleValue, ValueEnum};
 
 use crate::shells;
 use crate::Generator;
@@ -20,16 +20,6 @@ pub enum Shell {
     PowerShell,
     /// Z SHell (zsh)
     Zsh,
-}
-
-impl Shell {
-    /// Deprecated, replaced with [`EnumValueParser`][clap::builder::EnumValueParser]
-    #[deprecated(since = "3.2.0", note = "Replaced with `EnumValueParser`")]
-    pub fn possible_values() -> impl Iterator<Item = PossibleValue<'static>> {
-        Shell::value_variants()
-            .iter()
-            .filter_map(ArgEnum::to_possible_value)
-    }
 }
 
 impl Display for Shell {
@@ -55,7 +45,7 @@ impl FromStr for Shell {
 }
 
 // Hand-rolled so it can work even when `derive` feature is disabled
-impl ArgEnum for Shell {
+impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
         &[
             Shell::Bash,

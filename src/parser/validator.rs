@@ -88,82 +88,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         Ok(())
     }
 
-    fn validate_arg_values(&self, arg: &Arg, ma: &MatchedArg) -> ClapResult<()> {
-        debug!("Validator::validate_arg_values: arg={:?}", arg.name);
-        for val in ma.raw_vals_flatten() {
-            if !arg.possible_vals.is_empty() {
-                debug!(
-                    "Validator::validate_arg_values: possible_vals={:?}",
-                    arg.possible_vals
-                );
-                let val_str = val.to_string_lossy();
-                let ok = arg
-                    .possible_vals
-                    .iter()
-                    .any(|pv| pv.matches(&val_str, arg.is_ignore_case_set()));
-                if !ok {
-                    return Err(Error::invalid_value(
-                        self.cmd,
-                        val_str.into_owned(),
-                        &arg.possible_vals
-                            .iter()
-                            .filter(|pv| !pv.is_hide_set())
-                            .map(PossibleValue::get_name)
-                            .collect::<Vec<_>>(),
-                        arg.to_string(),
-                    ));
-                }
-            }
-            {
-                #![allow(deprecated)]
-                if arg.is_forbid_empty_values_set() && val.is_empty() {
-                    debug!("Validator::validate_arg_values: illegal empty val found");
-                    return Err(Error::empty_value(
-                        self.cmd,
-                        &get_possible_values(arg)
-                            .iter()
-                            .filter(|pv| !pv.is_hide_set())
-                            .map(PossibleValue::get_name)
-                            .collect::<Vec<_>>(),
-                        arg.to_string(),
-                    ));
-                }
-            }
-
-            if let Some(ref vtor) = arg.validator {
-                debug!("Validator::validate_arg_values: checking validator...");
-                let mut vtor = vtor.lock().unwrap();
-                if let Err(e) = vtor(&*val.to_string_lossy()) {
-                    debug!("error");
-                    return Err(Error::value_validation(
-                        arg.to_string(),
-                        val.to_string_lossy().into_owned(),
-                        e,
-                    )
-                    .with_cmd(self.cmd));
-                } else {
-                    debug!("good");
-                }
-            }
-            if let Some(ref vtor) = arg.validator_os {
-                debug!("Validator::validate_arg_values: checking validator_os...");
-                let mut vtor = vtor.lock().unwrap();
-                if let Err(e) = vtor(val) {
-                    debug!("error");
-                    return Err(Error::value_validation(
-                        arg.to_string(),
-                        val.to_string_lossy().into(),
-                        e,
-                    )
-                    .with_cmd(self.cmd));
-                } else {
-                    debug!("good");
-                }
-            }
-        }
-        Ok(())
-    }
-
     fn validate_conflicts(
         &mut self,
         matcher: &ArgMatcher,
@@ -322,7 +246,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             );
             if let Some(arg) = self.cmd.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
-                self.validate_arg_values(arg, ma)?;
                 self.validate_arg_num_occurs(arg, ma)?;
             }
             Ok(())
@@ -347,24 +270,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     .required(&self.required)
                     .create_usage_with_title(&[]),
             ));
-        }
-        if let Some(max_occurs) = a.max_occurs {
-            debug!(
-                "Validator::validate_arg_num_occurs: max_occurs set...{}",
-                max_occurs
-            );
-            let occurs = ma.get_occurrences() as usize;
-            if occurs > max_occurs {
-                return Err(Error::too_many_occurrences(
-                    self.cmd,
-                    a.to_string(),
-                    max_occurs,
-                    occurs,
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
-            }
         }
 
         Ok(())
@@ -676,13 +581,8 @@ impl Conflicts {
 }
 
 fn get_possible_values<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
-    #![allow(deprecated)]
     if !a.is_takes_value_set() {
         vec![]
-    } else if let Some(pvs) = a.get_possible_values() {
-        // Check old first in case the user explicitly set possible values and the derive inferred
-        // a `ValueParser` with some.
-        pvs.to_vec()
     } else {
         a.get_value_parser()
             .possible_values()

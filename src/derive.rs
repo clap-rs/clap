@@ -36,10 +36,10 @@ use std::ffi::OsString;
 /// #[clap(name = "demo")]
 /// struct Context {
 ///     /// More verbose output
-///     #[clap(long)]
+///     #[clap(long, value_parser)]
 ///     verbose: bool,
 ///     /// An optional name
-///     #[clap(short, long)]
+///     #[clap(short, long, value_parser)]
 ///     name: Option<String>,
 /// }
 /// ```
@@ -153,95 +153,6 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         <Self as FromArgMatches>::update_from_arg_matches_mut(self, &mut matches)
             .map_err(format_error::<Self>)
     }
-
-    /// Deprecated, `StructOpt::clap` replaced with [`CommandFactory::command`] (derive as part of
-    /// [`Parser`])
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "`StructOpt::clap` is replaced with `CommandFactory::command` (derived as part of `Parser`)"
-        )
-    )]
-    #[doc(hidden)]
-    fn clap<'help>() -> Command<'help> {
-        <Self as CommandFactory>::command()
-    }
-
-    /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches_mut`] (derive as part of
-    /// [`Parser`])
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches_mut` (derived as part of `Parser`)"
-        )
-    )]
-    #[doc(hidden)]
-    fn from_clap(matches: &ArgMatches) -> Self {
-        <Self as FromArgMatches>::from_arg_matches(matches).unwrap()
-    }
-
-    /// Deprecated, `StructOpt::from_args` replaced with `Parser::parse` (note the change in derives)
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "`StructOpt::from_args` is replaced with `Parser::parse` (note the change in derives)"
-        )
-    )]
-    #[doc(hidden)]
-    fn from_args() -> Self {
-        Self::parse()
-    }
-
-    /// Deprecated, `StructOpt::from_args_safe` replaced with `Parser::try_parse` (note the change in derives)
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "`StructOpt::from_args_safe` is replaced with `Parser::try_parse` (note the change in derives)"
-        )
-    )]
-    #[doc(hidden)]
-    fn from_args_safe() -> Result<Self, Error> {
-        Self::try_parse()
-    }
-
-    /// Deprecated, `StructOpt::from_iter` replaced with `Parser::parse_from` (note the change in derives)
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "`StructOpt::from_iter` is replaced with `Parser::parse_from` (note the change in derives)"
-        )
-    )]
-    #[doc(hidden)]
-    fn from_iter<I, T>(itr: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        Self::parse_from(itr)
-    }
-
-    /// Deprecated, `StructOpt::from_iter_safe` replaced with `Parser::try_parse_from` (note the
-    /// change in derives)
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "`StructOpt::from_iter_safe` is replaced with `Parser::try_parse_from` (note the change in derives)"
-        )
-    )]
-    #[doc(hidden)]
-    fn from_iter_safe<I, T>(itr: I) -> Result<Self, Error>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        Self::try_parse_from(itr)
-    }
 }
 
 /// Create a [`Command`] relevant for a user-defined container.
@@ -251,32 +162,11 @@ pub trait CommandFactory: Sized {
     /// Build a [`Command`] that can instantiate `Self`.
     ///
     /// See [`FromArgMatches::from_arg_matches_mut`] for instantiating `Self`.
-    fn command<'help>() -> Command<'help> {
-        #[allow(deprecated)]
-        Self::into_app()
-    }
-    /// Deprecated, replaced with `CommandFactory::command`
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `CommandFactory::command")
-    )]
-    fn into_app<'help>() -> Command<'help>;
+    fn command<'help>() -> Command<'help>;
     /// Build a [`Command`] that can update `self`.
     ///
     /// See [`FromArgMatches::update_from_arg_matches_mut`] for updating `self`.
-    fn command_for_update<'help>() -> Command<'help> {
-        #[allow(deprecated)]
-        Self::into_app_for_update()
-    }
-    /// Deprecated, replaced with `CommandFactory::command_for_update`
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `CommandFactory::command_for_update"
-        )
-    )]
-    fn into_app_for_update<'help>() -> Command<'help>;
+    fn command_for_update<'help>() -> Command<'help>;
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
@@ -451,7 +341,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///
 /// When deriving [`Parser`], a field whose type implements `ValueEnum` can have the attribute
 /// `#[clap(value_enum)]` which will
-/// - Call [`Arg::possible_values`][crate::Arg::possible_values]
+/// - Call [EnumValueParser`][crate::builder::EnumValueParser]`
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
 ///
 /// See the [derive reference](crate::_derive) for attributes and best practices.
@@ -464,7 +354,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(value_enum)]
+///     #[clap(value_enum, value_parser)]
 ///     level: Level,
 /// }
 ///
@@ -525,13 +415,12 @@ impl<T: Parser> Parser for Box<T> {
     }
 }
 
-#[allow(deprecated)]
 impl<T: CommandFactory> CommandFactory for Box<T> {
-    fn into_app<'help>() -> Command<'help> {
-        <T as CommandFactory>::into_app()
+    fn command<'help>() -> Command<'help> {
+        <T as CommandFactory>::command()
     }
-    fn into_app_for_update<'help>() -> Command<'help> {
-        <T as CommandFactory>::into_app_for_update()
+    fn command_for_update<'help>() -> Command<'help> {
+        <T as CommandFactory>::command_for_update()
     }
 }
 

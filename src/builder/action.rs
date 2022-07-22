@@ -196,9 +196,9 @@ pub enum ArgAction {
     /// );
     /// ```
     Count,
-    /// When encountered, display [`Command::print_help`][super::App::print_help]
+    /// When encountered, display [`Command::print_help`][super::Command::print_help]
     ///
-    /// Depending on the flag, [`Command::print_long_help`][super::App::print_long_help] may be shown
+    /// Depending on the flag, [`Command::print_long_help`][super::Command::print_long_help] may be shown
     ///
     /// # Examples
     ///
@@ -221,9 +221,9 @@ pub enum ArgAction {
     /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
     /// ```
     Help,
-    /// When encountered, display [`Command::version`][super::App::version]
+    /// When encountered, display [`Command::version`][super::Command::version]
     ///
-    /// Depending on the flag, [`Command::long_version`][super::App::long_version] may be shown
+    /// Depending on the flag, [`Command::long_version`][super::Command::long_version] may be shown
     ///
     /// # Examples
     ///

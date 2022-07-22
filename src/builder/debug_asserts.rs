@@ -265,14 +265,6 @@ pub(crate) fn assert_app(cmd: &Command) {
             arg.name
         );
 
-        // validators
-        assert!(
-            arg.validator.is_none() || arg.validator_os.is_none(),
-            "Command {}: Argument '{}' has both `validator` and `validator_os` set which is not allowed",
-                    cmd.get_name(),
-            arg.name
-        );
-
         if arg.get_value_hint() == ValueHint::CommandWithArguments {
             assert!(
                 arg.is_positional(),
@@ -745,11 +737,6 @@ fn assert_arg_flags(arg: &Arg) {
     checker!(is_hide_default_value_set requires is_takes_value_set);
     checker!(is_multiple_values_set requires is_takes_value_set);
     checker!(is_ignore_case_set requires is_takes_value_set);
-    {
-        #![allow(deprecated)]
-        checker!(is_forbid_empty_values_set requires is_takes_value_set);
-        checker!(is_allow_invalid_utf8_set requires is_takes_value_set);
-    }
 }
 
 fn assert_defaults<'d>(
@@ -758,73 +745,6 @@ fn assert_defaults<'d>(
     defaults: impl IntoIterator<Item = &'d std::ffi::OsStr>,
 ) {
     for default_os in defaults {
-        if let Some(default_s) = default_os.to_str() {
-            if !arg.possible_vals.is_empty() {
-                if let Some(delim) = arg.get_value_delimiter() {
-                    for part in default_s.split(delim) {
-                        assert!(
-                            arg.possible_vals.iter().any(|possible_val| {
-                                possible_val.matches(part, arg.is_ignore_case_set())
-                            }),
-                            "Argument `{}`'s {}={} doesn't match possible values",
-                            arg.name,
-                            field,
-                            part
-                        )
-                    }
-                } else {
-                    assert!(
-                        arg.possible_vals.iter().any(|possible_val| {
-                            possible_val.matches(default_s, arg.is_ignore_case_set())
-                        }),
-                        "Argument `{}`'s {}={} doesn't match possible values",
-                        arg.name,
-                        field,
-                        default_s
-                    );
-                }
-            }
-
-            if let Some(validator) = arg.validator.as_ref() {
-                let mut validator = validator.lock().unwrap();
-                if let Some(delim) = arg.get_value_delimiter() {
-                    for part in default_s.split(delim) {
-                        if let Err(err) = validator(part) {
-                            panic!(
-                                "Argument `{}`'s {}={} failed validation: {}",
-                                arg.name, field, part, err
-                            );
-                        }
-                    }
-                } else if let Err(err) = validator(default_s) {
-                    panic!(
-                        "Argument `{}`'s {}={} failed validation: {}",
-                        arg.name, field, default_s, err
-                    );
-                }
-            }
-        }
-
-        if let Some(validator) = arg.validator_os.as_ref() {
-            let mut validator = validator.lock().unwrap();
-            if let Some(delim) = arg.get_value_delimiter() {
-                let default_os = RawOsStr::new(default_os);
-                for part in default_os.split(delim) {
-                    if let Err(err) = validator(&part.to_os_str()) {
-                        panic!(
-                            "Argument `{}`'s {}={:?} failed validation: {}",
-                            arg.name, field, part, err
-                        );
-                    }
-                }
-            } else if let Err(err) = validator(default_os) {
-                panic!(
-                    "Argument `{}`'s {}={:?} failed validation: {}",
-                    arg.name, field, default_os, err
-                );
-            }
-        }
-
         let value_parser = arg.get_value_parser();
         let assert_cmd = Command::new("assert");
         if let Some(delim) = arg.get_value_delimiter() {

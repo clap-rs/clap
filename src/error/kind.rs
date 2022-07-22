@@ -93,7 +93,7 @@ pub enum ErrorKind {
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("color")
     ///          .takes_value(true)
-    ///          .forbid_empty_values(true)
+    ///          .value_parser(clap::builder::NonEmptyStringValueParser::new())
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());
@@ -123,7 +123,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, value_parser};
     /// fn is_numeric(val: &str) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
@@ -133,7 +133,7 @@ pub enum ErrorKind {
     ///
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("num")
-    ///          .validator(is_numeric))
+    ///          .value_parser(value_parser!(u8)))
     ///     .try_get_matches_from(vec!["prog", "NotANumber"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::ValueValidation);
@@ -174,24 +174,6 @@ pub enum ErrorKind {
     /// ```
     /// [`Arg::min_values`]: crate::Arg::min_values()
     TooFewValues,
-
-    /// Occurs when a user provides more occurrences for an argument than were defined by setting
-    /// [`Arg::max_occurrences`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let result = Command::new("prog")
-    ///     .arg(Arg::new("verbosity")
-    ///         .short('v')
-    ///         .max_occurrences(2))
-    ///     .try_get_matches_from(vec!["prog", "-vvv"]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
-    /// ```
-    /// [`Arg::max_occurrences`]: crate::Arg::max_occurrences()
-    TooManyOccurrences,
 
     /// Occurs when the user provides a different number of values for an argument than what's
     /// been defined by setting [`Arg::number_of_values`] or than was implicitly set by
@@ -289,7 +271,7 @@ pub enum ErrorKind {
     /// Occurs when the user provides a value containing invalid UTF-8.
     ///
     /// To allow arbitrary data
-    /// - Set [`Arg::allow_invalid_utf8`] for argument values
+    /// - Set [`Arg::value_parser(value_parser!(OsString))`] for argument values
     /// - Set [`Command::allow_invalid_utf8_for_external_subcommands`] for external-subcommand
     ///   values
     ///
@@ -374,13 +356,6 @@ pub enum ErrorKind {
     /// ```
     DisplayVersion,
 
-    /// Occurs when using the [`ArgMatches::value_of_t`] and friends to convert an argument value
-    /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
-    /// with name `config` to be converted, but `config` wasn't used by the user.
-    ///
-    /// [`ArgMatches::value_of_t`]: crate::ArgMatches::value_of_t()
-    ArgumentNotFound,
-
     /// Represents an [I/O error].
     /// Can occur when writing to `stderr` or `stdout` or reading a configuration file.
     ///
@@ -410,7 +385,6 @@ impl ErrorKind {
             Self::ValueValidation => Some("Invalid value for one of the arguments"),
             Self::TooManyValues => Some("An argument received an unexpected value"),
             Self::TooFewValues => Some("An argument requires more values"),
-            Self::TooManyOccurrences => Some("An argument occurred too many times"),
             Self::WrongNumberOfValues => Some("An argument received too many or too few values"),
             Self::ArgumentConflict => {
                 Some("An argument cannot be used with one or more of the other specified arguments")
@@ -426,7 +400,6 @@ impl ErrorKind {
             Self::DisplayHelp => None,
             Self::DisplayHelpOnMissingArgumentOrSubcommand => None,
             Self::DisplayVersion => None,
-            Self::ArgumentNotFound => Some("An argument wasn't found"),
             Self::Io => None,
             Self::Format => None,
         }

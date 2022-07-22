@@ -50,7 +50,7 @@ impl<'help> PossibleValue<'help> {
     /// # ;
     /// ```
     /// [hidden]: PossibleValue::hide
-    /// [possible value]: crate::Arg::possible_values
+    /// [possible value]: crate::builder::PossibleValuesParser
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     pub fn new(name: &'help str) -> Self {
         PossibleValue {
@@ -160,16 +160,6 @@ impl<'help> PossibleValue<'help> {
         } else {
             None
         }
-    }
-
-    /// Deprecated, replaced with [`PossibleValue::is_hide_set`]
-    #[inline]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `PossibleValue::is_hide_set`")
-    )]
-    pub fn is_hidden(&self) -> bool {
-        self.is_hide_set()
     }
 
     /// Report if [`PossibleValue::hide`] is set

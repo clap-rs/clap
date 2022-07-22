@@ -137,25 +137,25 @@
 //! - e.g. `#[clap(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
 //!
 //! **Magic attributes:**
-//! - `name  = <expr>`: [`Command::name`][crate::App::name]
+//! - `name  = <expr>`: [`Command::name`][crate::Command::name]
 //!   - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (if on [`Parser`][crate::Parser] container), variant name (if on [`Subcommand`][crate::Subcommand] variant)
-//! - `version [= <expr>]`: [`Command::version`][crate::App::version]
+//! - `version [= <expr>]`: [`Command::version`][crate::Command::version]
 //!   - When not present: no version set
 //!   - Without `<expr>`: defaults to [crate `version`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-version-field)
-//! - `author [= <expr>]`: [`Command::author`][crate::App::author]
+//! - `author [= <expr>]`: [`Command::author`][crate::Command::author]
 //!   - When not present: no author set
 //!   - Without `<expr>`: defaults to [crate `authors`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-authors-field)
-//! - `about [= <expr>]`: [`Command::about`][crate::App::about]
+//! - `about [= <expr>]`: [`Command::about`][crate::Command::about]
 //!   - When not present: [Doc comment summary](#doc-comments)
 //!   - Without `<expr>`: [crate `description`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-description-field) ([`Parser`][crate::Parser] container)
 //!     - **TIP:** When a doc comment is also present, you most likely want to add
-//!       `#[clap(long_about = None)]` to clear the doc comment so only [`about`][crate::App::about]
+//!       `#[clap(long_about = None)]` to clear the doc comment so only [`about`][crate::Command::about]
 //!       gets shown with both `-h` and `--help`.
-//! - `long_about = <expr>`: [`Command::long_about`][crate::App::long_about]
+//! - `long_about = <expr>`: [`Command::long_about`][crate::Command::long_about]
 //!   - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
-//! - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to [`about`][crate::App::about] / [`long_about`][crate::App::long_about]
-//! - `next_display_order`: [`Command::next_display_order`][crate::App::next_display_order]
-//! - `next_help_heading`: [`Command::next_help_heading`][crate::App::next_help_heading]
+//! - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to [`about`][crate::Command::about] / [`long_about`][crate::Command::long_about]
+//! - `next_display_order`: [`Command::next_display_order`][crate::Command::next_display_order]
+//! - `next_help_heading`: [`Command::next_help_heading`][crate::Command::next_help_heading]
 //!   - When `flatten`ing [`Args`][crate::Args], this is scoped to just the args in this struct and any struct `flatten`ed into it
 //! - `rename_all = <string_literal>`: Override default field / variant name case conversion for [`Command::name`][crate::Command::name] / [`Arg::id`][crate::Arg::id]
 //!   - When not present: `"kebab-case"`
@@ -170,7 +170,7 @@
 //!   [`Subcommand`][crate::Subcommand])
 //! - `subcommand`: Nest subcommands under the current set of subcommands (must implement
 //!   [`Subcommand`][crate::Subcommand])
-//! - `external_subcommand`: [`Command::allow_external_subcommand(true)`][crate::App::allow_external_subcommands]
+//! - `external_subcommand`: [`Command::allow_external_subcommand(true)`][crate::Command::allow_external_subcommands]
 //!   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 //!
 //! ### Arg Attributes
@@ -216,7 +216,7 @@
 //!   [`Subcommand`][crate::Subcommand])
 //!   - When `Option<T>`, the subcommand becomes optional
 //! - `from_global`: Read a [`Arg::global`][crate::Arg::global] argument (raw attribute), regardless of what subcommand you are in
-//! - `parse(<kind> [= <function>])`: [`Arg::validator`][crate::Arg::validator] and [`ArgMatches::values_of_t`][crate::ArgMatches::values_of_t]
+//! - `parse(<kind> [= <function>])`: `Arg::validator` and `ArgMatches::values_of_t`
 //!   - **Deprecated:**
 //!     - Use `value_parser(...)` for `from_str`, `try_from_str`, `from_os_str`, and `try_from_os_str`
 //!     - Use `action(ArgAction::Count` for `from_occurrences`
@@ -305,7 +305,7 @@
 //! ## Doc Comments
 //!
 //! In clap, help messages for the whole binary can be specified
-//! via [`Command::about`][crate::App::about] and [`Command::long_about`][crate::App::long_about] while help messages
+//! via [`Command::about`][crate::Command::about] and [`Command::long_about`][crate::Command::long_about] while help messages
 //! for individual arguments can be specified via [`Arg::help`][crate::Arg::help] and [`Arg::long_help`][crate::Arg::long_help].
 //!
 //! `long_*` variants are used when user calls the program with
@@ -488,7 +488,7 @@
 //!   [`CommandFactory::command`][crate::CommandFactory::command] (implemented when deriving
 //!   [`Parser`][crate::Parser])
 //! - Proactively check for bad [`Command`][crate::Command] configurations by calling
-//!   [`Command::debug_assert`][crate::App::debug_assert] in a test
+//!   [`Command::debug_assert`][crate::Command::debug_assert] in a test
 //!   ([example](../tutorial_derive/05_01_assert.rs))
 
 pub mod _tutorial;

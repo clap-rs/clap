@@ -4,30 +4,21 @@
 use std::{
     borrow::Cow,
     cmp::{Ord, Ordering},
-    error::Error,
     ffi::OsStr,
     fmt::{self, Display, Formatter},
     str,
-    sync::{Arc, Mutex},
 };
 #[cfg(feature = "env")]
 use std::{env, ffi::OsString};
 
-#[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
-
 // Internal
-use crate::builder::usage_parser::UsageParser;
+use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
 use crate::util::{Id, Key};
 use crate::ArgAction;
 use crate::PossibleValue;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
-use crate::{ArgFlags, ArgSettings};
-
-#[cfg(feature = "regex")]
-use crate::builder::RegexRef;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -80,14 +71,10 @@ pub struct Arg<'help> {
     pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: DisplayOrder,
-    pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
-    pub(crate) max_occurs: Option<usize>,
     pub(crate) max_vals: Option<usize>,
     pub(crate) min_vals: Option<usize>,
-    pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
-    pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate<'help>, Option<&'help OsStr>)>,
@@ -120,7 +107,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        Arg::default().name(n)
+        Arg::default().id(n)
     }
 
     /// Set the identifier used for referencing this argument in the clap API.
@@ -132,15 +119,6 @@ impl<'help> Arg<'help> {
         self.id = Id::from(&*name);
         self.name = name;
         self
-    }
-
-    /// Deprecated, replaced with [`Arg::id`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::id`")
-    )]
-    pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
-        self.id(n)
     }
 
     /// Sets the short version of the argument without the preceding `-`.
@@ -236,8 +214,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
@@ -262,8 +239,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "-e", "cool"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
     pub fn short_alias(mut self, name: char) -> Self {
@@ -346,8 +322,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "--something-awesome", "coffee"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
     /// [`Command::alias`]: Arg::alias()
     #[must_use]
@@ -372,8 +347,7 @@ impl<'help> Arg<'help> {
     ///        .get_matches_from(vec![
     ///             "prog", "-t", "coffee"
     ///         ]);
-    /// assert!(m.contains_id("test"));
-    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
     #[must_use]
     pub fn visible_short_alias(mut self, name: char) -> Self {
@@ -477,8 +451,8 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast")); // notice index(1) means "first positional"
-    ///                                               // *not* first argument
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast"); // notice index(1) means "first positional"
+    ///                                                           // *not* first argument
     /// ```
     /// [`Arg::short`]: Arg::short()
     /// [`Arg::long`]: Arg::long()
@@ -544,8 +518,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// assert_eq!(m.value_of("third"), Some("three"));
-    /// assert!(m.value_of("second").is_none());
+    /// assert_eq!(m.get_one::<String>("third").unwrap(), "three");
+    /// assert_eq!(m.get_one::<String>("second"), None);
     /// ```
     ///
     /// Even if the positional argument marked `Last` is the only argument left to parse,
@@ -800,56 +774,14 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
     #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`"
-        )
-    )]
-    pub fn max_occurrences(mut self, qty: usize) -> Self {
-        self.max_occurs = Some(qty);
-        if qty > 1 {
-            self.multiple_occurrences(true)
-        } else {
-            self
-        }
-    }
-
-    /// Check if the [`ArgSettings`] variant is currently set on the argument.
-    ///
-    /// [`ArgSettings`]: crate::ArgSettings
-    #[inline]
-    pub fn is_set(&self, s: ArgSettings) -> bool {
+    pub(crate) fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
 
-    /// Apply a setting to the argument.
-    ///
-    /// See [`ArgSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .setting(ArgSettings::Required)
-    ///     .setting(ArgSettings::TakesValue)
-    /// # ;
-    /// ```
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .setting(ArgSettings::Required | ArgSettings::TakesValue)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn setting<F>(mut self, setting: F) -> Self
+    pub(crate) fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
     {
@@ -857,29 +789,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Remove a setting from the argument.
-    ///
-    /// See [`ArgSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .unset_setting(ArgSettings::Required)
-    ///     .unset_setting(ArgSettings::TakesValue)
-    /// # ;
-    /// ```
-    ///
-    /// ```no_run
-    /// # use clap::{Arg, ArgSettings};
-    /// Arg::new("config")
-    ///     .unset_setting(ArgSettings::Required | ArgSettings::TakesValue)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn unset_setting<F>(mut self, setting: F) -> Self
+    pub(crate) fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
     {
@@ -917,7 +829,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("mode"));
-    /// assert_eq!(m.value_of("mode"), Some("fast"));
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
     /// ```
     /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
     /// [multiple values]: Arg::multiple_values
@@ -1038,7 +950,7 @@ impl<'help> Arg<'help> {
     /// - It finds another flag or option (i.e. something that starts with a `-`)
     /// - It reaches a [value terminator][Arg::value_terminator] is reached
     ///
-    /// Alternatively, [require a delimiter between values][Arg::require_delimiter].
+    /// Alternatively, [require a delimiter between values][Arg::require_value_delimiter].
     ///
     /// **WARNING:**
     ///
@@ -1086,7 +998,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
@@ -1123,7 +1035,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
     /// assert!(!m.contains_id("word")); // but we clearly used word!
     /// ```
@@ -1148,10 +1060,9 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.contains_id("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// assert!(m.contains_id("word"));
-    /// assert_eq!(m.value_of("word"), Some("word"));
+    /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
     /// ```
     ///
     /// As a final example, let's fix the above error and get a pretty message to the user :)
@@ -1270,7 +1181,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2"]);
     /// ```
     ///
@@ -1340,7 +1251,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
@@ -1515,103 +1426,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Deprecated, replaced with [`Arg::value_parser(...)`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")
-    )]
-    pub fn validator<F, O, E>(mut self, mut f: F) -> Self
-    where
-        F: FnMut(&str) -> Result<O, E> + Send + 'help,
-        E: Into<Box<dyn Error + Send + Sync + 'static>>,
-    {
-        self.validator = Some(Arc::new(Mutex::new(move |s: &str| {
-            f(s).map(|_| ()).map_err(|e| e.into())
-        })));
-        self
-    }
-
-    /// Deprecated, replaced with [`Arg::value_parser(...)`]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")
-    )]
-    pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
-    where
-        F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,
-        E: Into<Box<dyn Error + Send + Sync + 'static>>,
-    {
-        self.validator_os = Some(Arc::new(Mutex::new(move |s: &OsStr| {
-            f(s).map(|_| ()).map_err(|e| e.into())
-        })));
-        self
-    }
-
-    /// Deprecated in [Issue #3743](https://github.com/clap-rs/clap/issues/3743), replaced with [`Arg::value_parser(...)`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Deprecated in Issue #3743; eplaced with `Arg::value_parser(...)`"
-        )
-    )]
-    #[cfg(feature = "regex")]
-    #[must_use]
-    pub fn validator_regex(
-        self,
-        regex: impl Into<RegexRef<'help>>,
-        err_message: &'help str,
-    ) -> Self {
-        let regex = regex.into();
-        self.validator(move |s: &str| {
-            if regex.is_match(s) {
-                Ok(())
-            } else {
-                Err(err_message)
-            }
-        })
-    }
-
-    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
-        )
-    )]
-    #[must_use]
-    pub fn possible_value<T>(mut self, value: T) -> Self
-    where
-        T: Into<PossibleValue<'help>>,
-    {
-        self.possible_vals.push(value.into());
-        self.takes_value(true)
-    }
-
-    /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
-        )
-    )]
-    #[must_use]
-    pub fn possible_values<I, T>(mut self, values: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<PossibleValue<'help>>,
-    {
-        self.possible_vals
-            .extend(values.into_iter().map(|value| value.into()));
-        self.takes_value(true)
-    }
-
-    /// Match values against [`Arg::possible_values`] without matching case.
+    /// Match values against [`PossibleValuesParser`][crate::builder::PossibleValuesParser] without matching case.
     ///
     /// When other arguments are conditionally required based on the
     /// value of a case-insensitive argument, the equality check done
@@ -1637,7 +1452,7 @@ impl<'help> Arg<'help> {
     ///         "pv", "--option", "TeSt123",
     ///     ]);
     ///
-    /// assert!(m.value_of("option").unwrap().eq_ignore_ascii_case("test123"));
+    /// assert!(m.get_one::<String>("option").unwrap().eq_ignore_ascii_case("test123"));
     /// ```
     ///
     /// This setting also works when multiple values can be defined:
@@ -1656,7 +1471,7 @@ impl<'help> Arg<'help> {
     ///         "pv", "--option", "TeSt123", "teST123", "tESt321"
     ///     ]);
     ///
-    /// let matched_vals = m.values_of("option").unwrap().collect::<Vec<_>>();
+    /// let matched_vals = m.get_many::<String>("option").unwrap().collect::<Vec<_>>();
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     #[inline]
@@ -1699,7 +1514,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--pattern", "-file"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("pat"), Some("-file"));
+    /// assert_eq!(m.get_one::<String>("pat").unwrap(), "-file");
     /// ```
     ///
     /// Not setting `Arg::allow_hyphen_values(true)` and supplying a value which starts with a
@@ -1726,43 +1541,6 @@ impl<'help> Arg<'help> {
             self.setting(ArgSettings::AllowHyphenValues)
         } else {
             self.unset_setting(ArgSettings::AllowHyphenValues)
-        }
-    }
-
-    /// Deprecated, replaced with [`Arg::value_parser(...)`] with either [`ValueParser::os_string()`][crate::builder::ValueParser::os_string]
-    /// or [`ValueParser::path_buf()`][crate::builder::ValueParser::path_buf]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
-        )
-    )]
-    pub fn allow_invalid_utf8(self, yes: bool) -> Self {
-        if yes {
-            self.setting(ArgSettings::AllowInvalidUtf8)
-        } else {
-            self.unset_setting(ArgSettings::AllowInvalidUtf8)
-        }
-    }
-
-    /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
-        )
-    )]
-    pub fn forbid_empty_values(self, yes: bool) -> Self {
-        if yes {
-            self.setting(ArgSettings::ForbidEmptyValues)
-        } else {
-            self.unset_setting(ArgSettings::ForbidEmptyValues)
         }
     }
 
@@ -1846,7 +1624,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.contains_id("option"));
-    /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert_eq!(delims.get_many::<String>("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
     /// behavior
@@ -1862,7 +1640,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(nodelims.contains_id("option"));
-    /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
+    /// assert_eq!(nodelims.get_one::<String>("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
     #[inline]
@@ -1878,17 +1656,6 @@ impl<'help> Arg<'help> {
             self.val_delim = None;
             self.unset_setting(ArgSettings::UseValueDelimiter)
         }
-    }
-
-    /// Deprecated, replaced with [`Arg::use_value_delimiter`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::use_value_delimiter`")
-    )]
-    pub fn use_delimiter(self, yes: bool) -> Self {
-        self.use_value_delimiter(yes)
     }
 
     /// Separator between the arguments values, defaults to `,` (comma).
@@ -1910,7 +1677,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--config=val1;val2;val3"
     ///     ]);
     ///
-    /// assert_eq!(m.values_of("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
+    /// assert_eq!(m.get_many::<String>("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
@@ -1947,14 +1714,14 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .takes_value(true)
     ///         .use_value_delimiter(true)
-    ///         .require_delimiter(true)
+    ///         .require_value_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1,val2,val3",
     ///     ]);
     ///
     /// assert!(delims.contains_id("opt"));
-    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert_eq!(delims.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     ///
     /// In this next example, we will *not* use a delimiter. Notice it's now an error.
@@ -1966,7 +1733,7 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .takes_value(true)
     ///         .use_value_delimiter(true)
-    ///         .require_delimiter(true))
+    ///         .require_value_delimiter(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
     ///     ]);
@@ -1995,7 +1762,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(delims.contains_id("opt"));
-    /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
+    /// assert_eq!(delims.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     #[inline]
     #[must_use]
@@ -2005,17 +1772,6 @@ impl<'help> Arg<'help> {
         } else {
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
-    }
-
-    /// Deprecated, replaced with [`Arg::require_value_delimiter`]
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::require_value_delimiter`")
-    )]
-    pub fn require_delimiter(self, yes: bool) -> Self {
-        self.require_value_delimiter(yes)
     }
 
     /// Sentinel to **stop** parsing multiple values of a give argument.
@@ -2057,9 +1813,9 @@ impl<'help> Arg<'help> {
     ///     .get_matches_from(vec![
     ///         "prog", "find", "-type", "f", "-name", "special", ";", "/home/clap"
     ///     ]);
-    /// let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    /// let cmds: Vec<_> = m.get_many::<String>("cmds").unwrap().collect();
     /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
-    /// assert_eq!(m.value_of("location"), Some("/home/clap"));
+    /// assert_eq!(m.get_one::<String>("location").unwrap(), "/home/clap");
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
@@ -2108,7 +1864,8 @@ impl<'help> Arg<'help> {
     /// Value for the argument when not present.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
-    /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
+    /// will return `0` even though the [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
+    /// return the default specified.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::contains_id`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
@@ -2138,7 +1895,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("opt"), Some("myval"));
+    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "myval");
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::DefaultValue));
     /// ```
@@ -2155,12 +1912,11 @@ impl<'help> Arg<'help> {
     ///         "prog", "--myopt=non_default"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("opt"), Some("non_default"));
+    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "non_default");
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
-    /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
@@ -2240,21 +1996,21 @@ impl<'help> Arg<'help> {
     /// let m  = cli().get_matches_from(vec![
     ///         "prog"
     ///     ]);
-    /// assert_eq!(m.value_of("color"), Some("auto"));
+    /// assert_eq!(m.get_one::<String>("color").unwrap(), "auto");
     /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
     /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color=never"
     ///     ]);
-    /// assert_eq!(m.value_of("color"), Some("never"));
+    /// assert_eq!(m.get_one::<String>("color").unwrap(), "never");
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
     /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color"
     ///     ]);
-    /// assert_eq!(m.value_of("color"), Some("always"));
+    /// assert_eq!(m.get_one::<String>("color").unwrap(), "always");
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
     ///
@@ -2293,7 +2049,6 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
     /// ```
     ///
-    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
@@ -2346,12 +2101,14 @@ impl<'help> Arg<'help> {
     ///
     /// If user sets the argument in the environment:
     /// - When [`Arg::takes_value(true)`] is not set, the flag is considered raised.
-    /// - When [`Arg::takes_value(true)`] is set, [`ArgMatches::value_of`] will
+    /// - When [`Arg::takes_value(true)`] is set,
+    ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return value of the environment variable.
     ///
     /// If user doesn't set the argument in the environment:
     /// - When [`Arg::takes_value(true)`] is not set, the flag is considered off.
-    /// - When [`Arg::takes_value(true)`] is set, [`ArgMatches::value_of`] will
+    /// - When [`Arg::takes_value(true)`] is set,
+    ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return the default specified.
     ///
     /// # Examples
@@ -2373,7 +2130,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
     /// ```
     ///
     /// In this example, because [`Arg::takes_value(false)`] (by default),
@@ -2403,8 +2160,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert!(m.is_present("true_flag"));
-    /// assert_eq!(m.value_of("true_flag"), None);
+    /// assert_eq!(m.get_one::<String>("true_flag"), None);
     /// assert!(!m.is_present("false_flag"));
     /// assert!(!m.is_present("absent_flag"));
     /// ```
@@ -2426,7 +2182,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--flag", "opt"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("flag"), Some("opt"));
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "opt");
     /// ```
     ///
     /// In this example, we show the variable coming from the environment even with the
@@ -2448,7 +2204,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("flag"), Some("env"));
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
     /// ```
     ///
     /// In this example, we show the use of multiple values in a single environment variable:
@@ -2470,9 +2226,8 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
+    /// assert_eq!(m.get_many::<String>("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     #[cfg(feature = "env")]
@@ -2669,7 +2424,7 @@ impl<'help> Arg<'help> {
 
     /// Override the [current] help section.
     ///
-    /// [current]: crate::Command::help_heading
+    /// [current]: crate::Command::next_help_heading
     #[inline]
     #[must_use]
     pub fn help_heading<O>(mut self, heading: O) -> Self
@@ -3160,7 +2915,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
@@ -3177,7 +2932,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     ///
     /// Now lets only use the default value if `--opt` contains the value `special`.
@@ -3195,7 +2950,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "special"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
     ///
     /// We can run the same test and provide any value *other than* `special` and we won't get a
@@ -3214,7 +2969,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "hahaha"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     ///
     /// If we want to unset the default value for an Arg based on the presence or
@@ -3233,7 +2988,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
@@ -3293,7 +3048,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "channal"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("chan"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "chan");
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
@@ -3313,7 +3068,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), None);
+    /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
     ///
     /// We can also see that these values are applied in order, and if more than one condition is
@@ -3337,7 +3092,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--opt", "channal", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.value_of("other"), Some("default"));
+    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
@@ -4174,7 +3929,7 @@ impl<'help> Arg<'help> {
     ///             .arg(arg!(--opt <val> "some option").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.value_of("opt"), Some("other"));
+    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "other");
     /// ```
     ///
     /// This will also work when [`Arg::multiple_values`] is enabled:
@@ -4191,7 +3946,7 @@ impl<'help> Arg<'help> {
     ///             )
     ///             .get_matches_from(vec!["", "--opt", "1", "2", "--opt", "3", "4", "5"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
+    /// assert_eq!(m.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
     /// ```
     ///
     /// Just like flags, options with [`Arg::multiple_occurrences`] set
@@ -4205,7 +3960,7 @@ impl<'help> Arg<'help> {
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
+    /// assert_eq!(m.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     #[must_use]
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
@@ -4256,15 +4011,6 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn get_id(&self) -> &'help str {
         self.name
-    }
-
-    /// Deprecated, replaced with [`Arg::get_id`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::get_id`")
-    )]
-    pub fn get_name(&self) -> &'help str {
-        self.get_id()
     }
 
     /// Get the help specified for this argument, if any
@@ -4384,30 +4130,9 @@ impl<'help> Arg<'help> {
         Some(longs)
     }
 
-    /// Deprecated, replaced with [`Arg::get_value_parser().possible_values()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with `Arg::get_value_parser().possible_values()`"
-        )
-    )]
-    pub fn get_possible_values(&self) -> Option<&[PossibleValue<'help>]> {
-        if self.possible_vals.is_empty() {
-            None
-        } else {
-            Some(&self.possible_vals)
-        }
-    }
-
-    pub(crate) fn get_possible_values2(&self) -> Vec<PossibleValue<'help>> {
-        #![allow(deprecated)]
+    pub(crate) fn get_possible_values(&self) -> Vec<PossibleValue<'help>> {
         if !self.is_takes_value_set() {
             vec![]
-        } else if let Some(pvs) = self.get_possible_values() {
-            // Check old first in case the user explicitly set possible values and the derive inferred
-            // a `ValueParser` with some.
-            pvs.to_vec()
         } else {
             self.get_value_parser()
                 .possible_values()
@@ -4458,15 +4183,6 @@ impl<'help> Arg<'help> {
                 ValueHint::default()
             }
         })
-    }
-
-    /// Deprecated, replaced with [`Arg::is_global_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::is_global_set`")
-    )]
-    pub fn get_global(&self) -> bool {
-        self.is_global_set()
     }
 
     /// Get the environment variable name specified for this argument, if any
@@ -4542,24 +4258,6 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::AllowHyphenValues)
     }
 
-    /// Deprecated, replaced with [`Arg::get_value_parser()`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")
-    )]
-    pub fn is_forbid_empty_values_set(&self) -> bool {
-        self.is_set(ArgSettings::ForbidEmptyValues)
-    }
-
-    /// Deprecated, replaced with [`Arg::get_value_parser()`
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::get_value_parser()`")
-    )]
-    pub fn is_allow_invalid_utf8_set(&self) -> bool {
-        self.is_set(ArgSettings::AllowInvalidUtf8)
-    }
-
     /// Behavior when parsing the argument
     pub fn get_action(&self) -> &super::ArgAction {
         const DEFAULT: super::ArgAction = super::ArgAction::StoreValue;
@@ -4584,9 +4282,6 @@ impl<'help> Arg<'help> {
     pub fn get_value_parser(&self) -> &super::ValueParser {
         if let Some(value_parser) = self.value_parser.as_ref() {
             value_parser
-        } else if self.is_allow_invalid_utf8_set() {
-            static DEFAULT: super::ValueParser = super::ValueParser::os_string();
-            &DEFAULT
         } else {
             static DEFAULT: super::ValueParser = super::ValueParser::string();
             &DEFAULT
@@ -4671,271 +4366,6 @@ impl<'help> Arg<'help> {
     }
 }
 
-/// # Deprecated
-impl<'help> Arg<'help> {
-    /// Deprecated, replaced with [`Arg::new`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")
-    )]
-    #[doc(hidden)]
-    pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
-        Self::new(n)
-    }
-
-    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    #[cfg(feature = "yaml")]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
-        )
-    )]
-    #[doc(hidden)]
-    pub fn from_yaml(y: &'help Yaml) -> Self {
-        #![allow(deprecated)]
-        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
-        // We WANT this to panic on error...so expect() is good.
-        let (name_yaml, yaml) = yaml_file_hash
-            .iter()
-            .next()
-            .expect("There must be one arg in the YAML file");
-        let name_str = name_yaml.as_str().expect("Arg name must be a string");
-        let mut a = Arg::new(name_str);
-
-        for (k, v) in yaml.as_hash().expect("Arg must be a hash") {
-            a = match k.as_str().expect("Arg fields must be strings") {
-                "short" => yaml_to_char!(a, v, short),
-                "long" => yaml_to_str!(a, v, long),
-                "aliases" => yaml_vec_or_str!(a, v, alias),
-                "help" => yaml_to_str!(a, v, help),
-                "long_help" => yaml_to_str!(a, v, long_help),
-                "required" => yaml_to_bool!(a, v, required),
-                "required_if" => yaml_tuple2!(a, v, required_if_eq),
-                "required_ifs" => yaml_tuple2!(a, v, required_if_eq),
-                "takes_value" => yaml_to_bool!(a, v, takes_value),
-                "index" => yaml_to_usize!(a, v, index),
-                "global" => yaml_to_bool!(a, v, global),
-                "multiple" => yaml_to_bool!(a, v, multiple),
-                "hidden" => yaml_to_bool!(a, v, hide),
-                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
-                "group" => yaml_to_str!(a, v, group),
-                "number_of_values" => yaml_to_usize!(a, v, number_of_values),
-                "max_values" => yaml_to_usize!(a, v, max_values),
-                "min_values" => yaml_to_usize!(a, v, min_values),
-                "value_name" => yaml_to_str!(a, v, value_name),
-                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
-                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
-                "last" => yaml_to_bool!(a, v, last),
-                "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
-                "value_delimiter" => yaml_to_char!(a, v, value_delimiter),
-                "required_unless" => yaml_to_str!(a, v, required_unless_present),
-                "display_order" => yaml_to_usize!(a, v, display_order),
-                "default_value" => yaml_to_str!(a, v, default_value),
-                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
-                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
-                #[cfg(feature = "env")]
-                "env" => yaml_to_str!(a, v, env),
-                "value_names" => yaml_vec_or_str!(a, v, value_name),
-                "groups" => yaml_vec_or_str!(a, v, group),
-                "requires" => yaml_vec_or_str!(a, v, requires),
-                "requires_if" => yaml_tuple2!(a, v, requires_if),
-                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
-                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
-                "overrides_with" => yaml_to_str!(a, v, overrides_with),
-                "possible_values" => yaml_vec_or_str!(a, v, possible_value),
-                "case_insensitive" => yaml_to_bool!(a, v, ignore_case),
-                "required_unless_one" => yaml_vec!(a, v, required_unless_present_any),
-                "required_unless_all" => yaml_vec!(a, v, required_unless_present_all),
-                s => {
-                    panic!(
-                        "Unknown setting '{}' in YAML file for arg '{}'",
-                        s, name_str
-                    )
-                }
-            }
-        }
-
-        a
-    }
-
-    /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")
-    )]
-    #[doc(hidden)]
-    pub fn from_usage(u: &'help str) -> Self {
-        UsageParser::from_usage(u).parse()
-    }
-
-    /// Deprecated, replaced with [`Arg::required_unless_present`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn required_unless<T: Key>(self, arg_id: T) -> Self {
-        self.required_unless_present(arg_id)
-    }
-
-    /// Deprecated, replaced with [`Arg::required_unless_present_all`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Arg::required_unless_present_all`"
-        )
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn required_unless_all<T, I>(self, names: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Key,
-    {
-        self.required_unless_present_all(names)
-    }
-
-    /// Deprecated, replaced with [`Arg::required_unless_present_any`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Arg::required_unless_present_any`"
-        )
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn required_unless_one<T, I>(self, names: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Key,
-    {
-        self.required_unless_present_any(names)
-    }
-
-    /// Deprecated, replaced with [`Arg::required_if_eq`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn required_if<T: Key>(self, arg_id: T, val: &'help str) -> Self {
-        self.required_if_eq(arg_id, val)
-    }
-
-    /// Deprecated, replaced with [`Arg::required_if_eq_any`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn required_ifs<T: Key>(self, ifs: &[(T, &'help str)]) -> Self {
-        self.required_if_eq_any(ifs)
-    }
-
-    /// Deprecated, replaced with [`Arg::hide`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")
-    )]
-    #[doc(hidden)]
-    #[inline]
-    #[must_use]
-    pub fn hidden(self, yes: bool) -> Self {
-        self.hide(yes)
-    }
-
-    /// Deprecated, replaced with [`Arg::ignore_case`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")
-    )]
-    #[doc(hidden)]
-    #[inline]
-    #[must_use]
-    pub fn case_insensitive(self, yes: bool) -> Self {
-        self.ignore_case(yes)
-    }
-
-    /// Deprecated, replaced with [`Arg::forbid_empty_values`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn empty_values(self, yes: bool) -> Self {
-        self.forbid_empty_values(!yes)
-    }
-
-    /// Deprecated, replaced with [`Arg::multiple_occurrences`] (most likely what you want) and
-    /// [`Arg::multiple_values`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
-        )
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn multiple(self, yes: bool) -> Self {
-        self.multiple_occurrences(yes).multiple_values(yes)
-    }
-
-    /// Deprecated, replaced with [`Arg::hide_short_help`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")
-    )]
-    #[doc(hidden)]
-    #[inline]
-    #[must_use]
-    pub fn hidden_short_help(self, yes: bool) -> Self {
-        self.hide_short_help(yes)
-    }
-
-    /// Deprecated, replaced with [`Arg::hide_long_help`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")
-    )]
-    #[doc(hidden)]
-    #[inline]
-    #[must_use]
-    pub fn hidden_long_help(self, yes: bool) -> Self {
-        self.hide_long_help(yes)
-    }
-
-    /// Deprecated, replaced with [`Arg::setting`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn set(self, s: ArgSettings) -> Self {
-        self.setting(s)
-    }
-
-    /// Deprecated, replaced with [`Arg::unset_setting`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")
-    )]
-    #[doc(hidden)]
-    #[must_use]
-    pub fn unset(self, s: ArgSettings) -> Self {
-        self.unset_setting(s)
-    }
-}
-
 /// # Internally used only
 impl<'help> Arg<'help> {
     pub(crate) fn _build(&mut self) {
@@ -4973,8 +4403,6 @@ impl<'help> Arg<'help> {
         if self.value_parser.is_none() {
             if let Some(default) = self.action.as_ref().and_then(|a| a.default_value_parser()) {
                 self.value_parser = Some(default);
-            } else if self.is_allow_invalid_utf8_set() {
-                self.value_parser = Some(super::ValueParser::os_string());
             } else {
                 self.value_parser = Some(super::ValueParser::string());
             }
@@ -5153,19 +4581,10 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("aliases", &self.aliases)
             .field("short_aliases", &self.short_aliases)
             .field("disp_ord", &self.disp_ord)
-            .field("possible_vals", &self.possible_vals)
             .field("val_names", &self.val_names)
             .field("num_vals", &self.num_vals)
             .field("max_vals", &self.max_vals)
             .field("min_vals", &self.min_vals)
-            .field(
-                "validator",
-                &self.validator.as_ref().map_or("None", |_| "Some(FnMut)"),
-            )
-            .field(
-                "validator_os",
-                &self.validator_os.as_ref().map_or("None", |_| "Some(FnMut)"),
-            )
             .field("val_delim", &self.val_delim)
             .field("default_vals", &self.default_vals)
             .field("default_vals_ifs", &self.default_vals_ifs)
@@ -5183,9 +4602,6 @@ impl<'help> fmt::Debug for Arg<'help> {
         ds.finish()
     }
 }
-
-type Validator<'a> = dyn FnMut(&str) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
-type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum ArgProvider {

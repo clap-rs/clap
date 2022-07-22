@@ -1,12 +1,10 @@
 #![allow(clippy::bool_assert_comparison)]
 
 mod action;
-mod app_from_crate;
 mod app_settings;
 mod arg_aliases;
 mod arg_aliases_short;
 mod arg_matcher_assertions;
-mod arg_settings;
 mod borrowed;
 mod cargo;
 mod command;
@@ -30,7 +28,6 @@ mod help_env;
 mod hidden_args;
 mod ignore_errors;
 mod indices;
-mod legacy;
 mod multiple_occurrences;
 mod multiple_values;
 mod opts;
@@ -38,7 +35,6 @@ mod positionals;
 mod posix_compatible;
 mod possible_values;
 mod propagate_globals;
-mod regex;
 mod require;
 mod subcommands;
 mod template_help;
@@ -48,5 +44,4 @@ mod unique_args;
 mod utf16;
 mod utf8;
 mod utils;
-mod validators;
 mod version;

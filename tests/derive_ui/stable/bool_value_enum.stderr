@@ -21,6 +21,12 @@ help: `bool` is a unit variant, you need to write it without the parenthesis
 7 |     opts: bool,
   |           ~~~~
 
+error[E0599]: no method named `possible_values` found for struct `Arg` in the current scope
+ --> tests/derive_ui/stable/bool_value_enum.rs:7:11
+  |
+7 |     opts: bool,
+  |           ^^^^ help: there is an associated function with a similar name: `hide_possible_values`
+
 error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
    --> tests/derive_ui/stable/bool_value_enum.rs:7:11
     |
@@ -32,22 +38,3 @@ note: required by `value_variants`
     |
     |     fn value_variants<'a>() -> &'a [Self];
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
-   --> tests/derive_ui/stable/bool_value_enum.rs:6:5
-    |
-6   | /     #[clap(short, value_enum)]
-7   | |     opts: bool,
-    | |______________^ the trait `ValueEnum` is not implemented for `bool`
-    |
-note: required by a bound in `ValueEnum`
-   --> src/derive.rs
-    |
-    | / pub trait ValueEnum: Sized + Clone {
-    | |     /// All possible argument values, in display order.
-    | |     fn value_variants<'a>() -> &'a [Self];
-    | |
-...   |
-    | |     fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>>;
-    | | }
-    | |_^ required by this bound in `ValueEnum`

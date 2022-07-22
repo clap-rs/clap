@@ -251,29 +251,6 @@ fn issue_1374() {
 }
 
 #[test]
-fn issue_2171_deprecated() {
-    #![allow(deprecated)]
-    let schema = Command::new("ripgrep#1701 reproducer")
-        .args_override_self(true)
-        .arg(Arg::new("pretty").short('p').long("pretty"))
-        .arg(Arg::new("search_zip").short('z').long("search-zip"));
-
-    let test_args = &[
-        vec!["reproducer", "-pz", "-p"],
-        vec!["reproducer", "-pzp"],
-        vec!["reproducer", "-zpp"],
-        vec!["reproducer", "-pp", "-z"],
-        vec!["reproducer", "-p", "-p", "-z"],
-        vec!["reproducer", "-p", "-pz"],
-        vec!["reproducer", "-ppz"],
-    ];
-
-    for argv in test_args {
-        let _ = schema.clone().try_get_matches_from(argv).unwrap();
-    }
-}
-
-#[test]
 fn issue_2171() {
     let schema = Command::new("ripgrep#1701 reproducer")
         .arg(

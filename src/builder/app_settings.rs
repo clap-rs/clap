@@ -2,8 +2,6 @@
 
 // Std
 use std::ops::BitOr;
-#[cfg(feature = "yaml")]
-use std::str::FromStr;
 
 #[allow(unused)]
 use crate::Arg;
@@ -39,46 +37,6 @@ pub enum AppSettings {
     )]
     IgnoreErrors,
 
-    /// Deprecated, replace
-    /// ```rust,no_run
-    /// let cmd = clap::Command::new("cmd")
-    ///     .global_setting(clap::AppSettings::WaitOnError)
-    ///     .arg(clap::arg!(--flag));
-    /// let m = cmd.get_matches();
-    /// ```
-    /// with
-    /// ```rust
-    /// let cmd = clap::Command::new("cmd")
-    ///     .arg(clap::arg!(--flag));
-    /// let m = match cmd.try_get_matches() {
-    ///     Ok(m) => m,
-    ///     Err(err) => {
-    ///         if err.use_stderr() {
-    ///             let _ = err.print();
-    ///
-    ///             eprintln!("\nPress [ENTER] / [RETURN] to continue...");
-    ///             use std::io::BufRead;
-    ///             let mut s = String::new();
-    ///             let i = std::io::stdin();
-    ///             i.lock().read_line(&mut s).unwrap();
-    ///
-    ///             std::process::exit(2);
-    ///         } else {
-    ///             let _ = err.print();
-    ///             std::process::exit(0);
-    ///         }
-    ///     }
-    /// };
-    /// ```
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "See documentation for how to hand-implement this"
-        )
-    )]
-    WaitOnError,
-
     /// Deprecated, replaced with [`Command::allow_hyphen_values`] and
     /// [`Arg::is_allow_hyphen_values_set`]
     #[cfg_attr(
@@ -100,13 +58,6 @@ pub enum AppSettings {
         )
     )]
     AllowNegativeNumbers,
-
-    /// Deprecated, replaced with [`Command::args_override_self`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::args_override_self`")
-    )]
-    AllArgsOverrideSelf,
 
     /// Deprecated, replaced with [`Command::allow_missing_positional`] and
     /// [`Command::is_allow_missing_positional_set`]
@@ -400,41 +351,6 @@ pub enum AppSettings {
     )]
     NoAutoVersion,
 
-    /// Deprecated, replaced with [`Command::allow_hyphen_values`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::allow_hyphen_values`")
-    )]
-    #[doc(hidden)]
-    AllowLeadingHyphen,
-
-    /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`"
-        )
-    )]
-    #[doc(hidden)]
-    StrictUtf8,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
-    )]
-    #[doc(hidden)]
-    UnifiedHelpMessage,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
-    )]
-    #[doc(hidden)]
-    ColoredHelp,
-
     /// Deprecated, see [`Command::color`][crate::Command::color]
     #[cfg_attr(
         feature = "deprecated",
@@ -458,60 +374,6 @@ pub enum AppSettings {
     )]
     #[doc(hidden)]
     ColorNever,
-
-    /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
-        )
-    )]
-    #[doc(hidden)]
-    DisableHelpFlags,
-
-    /// Deprecated, replaced with [`Command::disable_version_flag`] and
-    /// [`Command::is_disable_version_flag_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
-        )
-    )]
-    #[doc(hidden)]
-    DisableVersion,
-
-    /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
-        )
-    )]
-    #[doc(hidden)]
-    GlobalVersion,
-
-    /// Deprecated, replaced with [`Command::hide_possible_values`] and
-    /// [`Arg::is_hide_possible_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.0.0",
-            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
-        )
-    )]
-    #[doc(hidden)]
-    HidePossibleValuesInHelp,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
-    )]
-    #[doc(hidden)]
-    UnifiedHelp,
 
     /// If the cmd is already built, used for caching.
     #[doc(hidden)]
@@ -560,7 +422,6 @@ bitflags! {
         const VALID_ARG_FOUND                = 1 << 35;
         const INFER_SUBCOMMANDS              = 1 << 36;
         const CONTAINS_LAST                  = 1 << 37;
-        const ARGS_OVERRIDE_SELF             = 1 << 38;
         const HELP_REQUIRED                  = 1 << 39;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 40;
         const DISABLE_HELP_FLAG              = 1 << 41;
@@ -581,22 +442,14 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands
         => Flags::ALLOW_UNK_SC,
-    StrictUtf8
-        => Flags::NO_OP,
     AllowInvalidUtf8ForExternalSubcommands
         => Flags::SC_UTF8_NONE,
     AllowHyphenValues
-        => Flags::LEADING_HYPHEN,
-    AllowLeadingHyphen
         => Flags::LEADING_HYPHEN,
     AllowNegativeNumbers
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional
         => Flags::ALLOW_MISSING_POS,
-    UnifiedHelpMessage
-        => Flags::NO_OP,
-    ColoredHelp
-        => Flags::NO_OP,
     ColorAlways
         => Flags::COLOR_ALWAYS,
     ColorAuto
@@ -615,19 +468,11 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_SC,
     DisableHelpFlag
         => Flags::DISABLE_HELP_FLAG,
-    DisableHelpFlags
-        => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag
-        => Flags::DISABLE_VERSION_FLAG,
-    DisableVersion
         => Flags::DISABLE_VERSION_FLAG,
     PropagateVersion
         => Flags::PROPAGATE_VERSION,
-    GlobalVersion
-        => Flags::PROPAGATE_VERSION,
     HidePossibleValues
-        => Flags::NO_POS_VALUES,
-    HidePossibleValuesInHelp
         => Flags::NO_POS_VALUES,
     HelpExpected
         => Flags::HELP_REQUIRED,
@@ -651,214 +496,16 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg
         => Flags::TRAILING_VARARG,
-    UnifiedHelp => Flags::NO_OP,
     NextLineHelp
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors
         => Flags::IGNORE_ERRORS,
-    WaitOnError
-        => Flags::WAIT_ON_ERROR,
     Built
         => Flags::BUILT,
     BinNameBuilt
         => Flags::BIN_NAME_BUILT,
     InferSubcommands
         => Flags::INFER_SUBCOMMANDS,
-    AllArgsOverrideSelf
-        => Flags::ARGS_OVERRIDE_SELF,
     InferLongArgs
         => Flags::INFER_LONG_ARGS
-}
-
-/// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-#[cfg(feature = "yaml")]
-impl FromStr for AppSettings {
-    type Err = String;
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        #[allow(deprecated)]
-        #[allow(unreachable_patterns)]
-        match &*s.to_ascii_lowercase() {
-            "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
-            "subcommandprecedenceoverarg" => Ok(AppSettings::SubcommandPrecedenceOverArg),
-            "argsnegatesubcommands" => Ok(AppSettings::ArgsNegateSubcommands),
-            "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
-            "strictutf8" => Ok(AppSettings::StrictUtf8),
-            "allowinvalidutf8forexternalsubcommands" => {
-                Ok(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
-            }
-            "allowhyphenvalues" => Ok(AppSettings::AllowHyphenValues),
-            "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
-            "allownegativenumbers" => Ok(AppSettings::AllowNegativeNumbers),
-            "allowmissingpositional" => Ok(AppSettings::AllowMissingPositional),
-            "unifiedhelpmessage" => Ok(AppSettings::UnifiedHelpMessage),
-            "coloredhelp" => Ok(AppSettings::ColoredHelp),
-            "coloralways" => Ok(AppSettings::ColorAlways),
-            "colorauto" => Ok(AppSettings::ColorAuto),
-            "colornever" => Ok(AppSettings::ColorNever),
-            "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
-            "dontcollapseargsinusage" => Ok(AppSettings::DontCollapseArgsInUsage),
-            "derivedisplayorder" => Ok(AppSettings::DeriveDisplayOrder),
-            "disablecoloredhelp" => Ok(AppSettings::DisableColoredHelp),
-            "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
-            "disablehelpflag" => Ok(AppSettings::DisableHelpFlag),
-            "disablehelpflags" => Ok(AppSettings::DisableHelpFlags),
-            "disableversionflag" => Ok(AppSettings::DisableVersionFlag),
-            "disableversion" => Ok(AppSettings::DisableVersion),
-            "propagateversion" => Ok(AppSettings::PropagateVersion),
-            "propagateversion" => Ok(AppSettings::GlobalVersion),
-            "hidepossiblevalues" => Ok(AppSettings::HidePossibleValues),
-            "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),
-            "helpexpected" => Ok(AppSettings::HelpExpected),
-            "hidden" => Ok(AppSettings::Hidden),
-            "noautohelp" => Ok(AppSettings::NoAutoHelp),
-            "noautoversion" => Ok(AppSettings::NoAutoVersion),
-            "nobinaryname" => Ok(AppSettings::NoBinaryName),
-            "subcommandsnegatereqs" => Ok(AppSettings::SubcommandsNegateReqs),
-            "subcommandrequired" => Ok(AppSettings::SubcommandRequired),
-            "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
-            "uselongformatforhelpsubcommand" => Ok(AppSettings::UseLongFormatForHelpSubcommand),
-            "trailingvararg" => Ok(AppSettings::TrailingVarArg),
-            "unifiedhelp" => Ok(AppSettings::UnifiedHelp),
-            "nextlinehelp" => Ok(AppSettings::NextLineHelp),
-            "ignoreerrors" => Ok(AppSettings::IgnoreErrors),
-            "waitonerror" => Ok(AppSettings::WaitOnError),
-            "built" => Ok(AppSettings::Built),
-            "binnamebuilt" => Ok(AppSettings::BinNameBuilt),
-            "infersubcommands" => Ok(AppSettings::InferSubcommands),
-            "allargsoverrideself" => Ok(AppSettings::AllArgsOverrideSelf),
-            "inferlongargs" => Ok(AppSettings::InferLongArgs),
-            _ => Err(format!("unknown AppSetting: `{}`", s)),
-        }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    #[allow(clippy::cognitive_complexity)]
-    #[test]
-    #[cfg(feature = "yaml")]
-    fn app_settings_fromstr() {
-        use super::AppSettings;
-
-        assert_eq!(
-            "disablehelpflag".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableHelpFlag
-        );
-        assert_eq!(
-            "argsnegatesubcommands".parse::<AppSettings>().unwrap(),
-            AppSettings::ArgsNegateSubcommands
-        );
-        assert_eq!(
-            "argrequiredelsehelp".parse::<AppSettings>().unwrap(),
-            AppSettings::ArgRequiredElseHelp
-        );
-        assert_eq!(
-            "subcommandprecedenceoverarg"
-                .parse::<AppSettings>()
-                .unwrap(),
-            AppSettings::SubcommandPrecedenceOverArg
-        );
-        assert_eq!(
-            "allowexternalsubcommands".parse::<AppSettings>().unwrap(),
-            AppSettings::AllowExternalSubcommands
-        );
-        assert_eq!(
-            "allowinvalidutf8forexternalsubcommands"
-                .parse::<AppSettings>()
-                .unwrap(),
-            AppSettings::AllowInvalidUtf8ForExternalSubcommands
-        );
-        assert_eq!(
-            "allowhyphenvalues".parse::<AppSettings>().unwrap(),
-            AppSettings::AllowHyphenValues
-        );
-        assert_eq!(
-            "allownegativenumbers".parse::<AppSettings>().unwrap(),
-            AppSettings::AllowNegativeNumbers
-        );
-        assert_eq!(
-            "disablehelpsubcommand".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableHelpSubcommand
-        );
-        assert_eq!(
-            "disableversionflag".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableVersionFlag
-        );
-        assert_eq!(
-            "dontcollapseargsinusage".parse::<AppSettings>().unwrap(),
-            AppSettings::DontCollapseArgsInUsage
-        );
-        assert_eq!(
-            "dontdelimittrailingvalues".parse::<AppSettings>().unwrap(),
-            AppSettings::DontDelimitTrailingValues
-        );
-        assert_eq!(
-            "derivedisplayorder".parse::<AppSettings>().unwrap(),
-            AppSettings::DeriveDisplayOrder
-        );
-        assert_eq!(
-            "disablecoloredhelp".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableColoredHelp
-        );
-        assert_eq!(
-            "propagateversion".parse::<AppSettings>().unwrap(),
-            AppSettings::PropagateVersion
-        );
-        assert_eq!(
-            "hidden".parse::<AppSettings>().unwrap(),
-            AppSettings::Hidden
-        );
-        assert_eq!(
-            "hidepossiblevalues".parse::<AppSettings>().unwrap(),
-            AppSettings::HidePossibleValues
-        );
-        assert_eq!(
-            "helpexpected".parse::<AppSettings>().unwrap(),
-            AppSettings::HelpExpected
-        );
-        assert_eq!(
-            "nobinaryname".parse::<AppSettings>().unwrap(),
-            AppSettings::NoBinaryName
-        );
-        assert_eq!(
-            "nextlinehelp".parse::<AppSettings>().unwrap(),
-            AppSettings::NextLineHelp
-        );
-        assert_eq!(
-            "subcommandsnegatereqs".parse::<AppSettings>().unwrap(),
-            AppSettings::SubcommandsNegateReqs
-        );
-        assert_eq!(
-            "subcommandrequired".parse::<AppSettings>().unwrap(),
-            AppSettings::SubcommandRequired
-        );
-        assert_eq!(
-            "subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(),
-            AppSettings::SubcommandRequiredElseHelp
-        );
-        assert_eq!(
-            "uselongformatforhelpsubcommand"
-                .parse::<AppSettings>()
-                .unwrap(),
-            AppSettings::UseLongFormatForHelpSubcommand
-        );
-        assert_eq!(
-            "trailingvararg".parse::<AppSettings>().unwrap(),
-            AppSettings::TrailingVarArg
-        );
-        assert_eq!(
-            "waitonerror".parse::<AppSettings>().unwrap(),
-            AppSettings::WaitOnError
-        );
-        assert_eq!("built".parse::<AppSettings>().unwrap(), AppSettings::Built);
-        assert_eq!(
-            "binnamebuilt".parse::<AppSettings>().unwrap(),
-            AppSettings::BinNameBuilt
-        );
-        assert_eq!(
-            "infersubcommands".parse::<AppSettings>().unwrap(),
-            AppSettings::InferSubcommands
-        );
-        assert!("hahahaha".parse::<AppSettings>().is_err());
-    }
 }
