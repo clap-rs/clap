@@ -1004,7 +1004,6 @@ impl<'help> Command<'help> {
     #[inline]
     #[must_use]
     pub fn color(self, color: ColorChoice) -> Self {
-        #![allow(deprecated)]
         let cmd = self
             .unset_global_setting(AppSettings::ColorAuto)
             .unset_global_setting(AppSettings::ColorAlways)
@@ -1734,31 +1733,9 @@ impl<'help> Command<'help> {
         self
     }
 
-    /// Apply a setting for the current command or subcommand.
-    ///
-    /// See [`Command::global_setting`] to apply a setting to this command and all subcommands.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Command, AppSettings};
-    /// Command::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired)
-    ///     .setting(AppSettings::AllowHyphenValues)
-    /// # ;
-    /// ```
-    /// or
-    /// ```no_run
-    /// # use clap::{Command, AppSettings};
-    /// Command::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired | AppSettings::AllowHyphenValues)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn setting<F>(mut self, setting: F) -> Self
+    pub(crate) fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<AppFlags>,
     {
@@ -1766,29 +1743,9 @@ impl<'help> Command<'help> {
         self
     }
 
-    /// Remove a setting for the current command or subcommand.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Command, AppSettings};
-    /// Command::new("myprog")
-    ///     .unset_setting(AppSettings::SubcommandRequired)
-    ///     .setting(AppSettings::AllowHyphenValues)
-    /// # ;
-    /// ```
-    /// or
-    /// ```no_run
-    /// # use clap::{Command, AppSettings};
-    /// Command::new("myprog")
-    ///     .unset_setting(AppSettings::SubcommandRequired | AppSettings::AllowHyphenValues)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn unset_setting<F>(mut self, setting: F) -> Self
+    pub(crate) fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<AppFlags>,
     {
@@ -1796,44 +1753,17 @@ impl<'help> Command<'help> {
         self
     }
 
-    /// Apply a setting for the current command and all subcommands.
-    ///
-    /// See [`Command::setting`] to apply a setting only to this command.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Command, AppSettings};
-    /// Command::new("myprog")
-    ///     .global_setting(AppSettings::AllowNegativeNumbers)
-    /// # ;
-    /// ```
     #[inline]
     #[must_use]
-    pub fn global_setting(mut self, setting: AppSettings) -> Self {
+    pub(crate) fn global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self.g_settings.set(setting);
         self
     }
 
-    /// Remove a setting and stop propagating down to subcommands.
-    ///
-    /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Command, AppSettings};
-    /// Command::new("myprog")
-    ///     .unset_global_setting(AppSettings::AllowNegativeNumbers)
-    /// # ;
-    /// ```
-    /// [global]: Command::global_setting()
     #[inline]
     #[must_use]
-    pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
+    pub(crate) fn unset_global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
         self
@@ -3347,14 +3277,8 @@ impl<'help> Command<'help> {
         self.long_flag_aliases.iter().map(|a| a.0)
     }
 
-    /// Check if the given [`AppSettings`] variant is currently set on the `Command`.
-    ///
-    /// This checks both [local] and [global settings].
-    ///
-    /// [local]: Command::setting()
-    /// [global settings]: Command::global_setting()
     #[inline]
-    pub fn is_set(&self, s: AppSettings) -> bool {
+    pub(crate) fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
@@ -3364,7 +3288,6 @@ impl<'help> Command<'help> {
         debug!("Command::color: Color setting...");
 
         if cfg!(feature = "color") {
-            #[allow(deprecated)]
             if self.is_set(AppSettings::ColorNever) {
                 debug!("Never");
                 ColorChoice::Never

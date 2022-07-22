@@ -13,7 +13,7 @@ use bitflags::bitflags;
 
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct AppFlags(Flags);
+pub(crate) struct AppFlags(Flags);
 
 impl Default for AppFlags {
     fn default() -> Self {
@@ -29,328 +29,41 @@ impl Default for AppFlags {
 /// [`Command`]: crate::Command
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[non_exhaustive]
-pub enum AppSettings {
-    /// Deprecated, replaced with [`Command::ignore_errors`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::ignore_errors`")
-    )]
+pub(crate) enum AppSettings {
     IgnoreErrors,
-
-    /// Deprecated, replaced with [`Command::allow_hyphen_values`] and
-    /// [`Arg::is_allow_hyphen_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
-        )
-    )]
     AllowHyphenValues,
-
-    /// Deprecated, replaced with [`Command::allow_negative_numbers`] and
-    /// [`Command::is_allow_negative_numbers_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::allow_negative_numbers` and `Command::is_allow_negative_numbers_set`"
-        )
-    )]
     AllowNegativeNumbers,
-
-    /// Deprecated, replaced with [`Command::allow_missing_positional`] and
-    /// [`Command::is_allow_missing_positional_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::allow_missing_positional` and `Command::is_allow_missing_positional_set`"
-        )
-    )]
     AllowMissingPositional,
-
-    /// Deprecated, replaced with [`Command::trailing_var_arg`] and [`Command::is_trailing_var_arg_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::trailing_var_arg` and `Command::is_trailing_var_arg_set`"
-        )
-    )]
     TrailingVarArg,
-
-    /// Deprecated, replaced with [`Command::dont_delimit_trailing_values`] and
-    /// [`Command::is_dont_delimit_trailing_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::dont_delimit_trailing_values` and `Command::is_dont_delimit_trailing_values_set`"
-        )
-    )]
     DontDelimitTrailingValues,
-
-    /// Deprecated, replaced with [`Command::infer_long_args`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::infer_long_args`")
-    )]
     InferLongArgs,
-
-    /// Deprecated, replaced with [`Command::infer_subcommands`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::infer_subcommands`")
-    )]
     InferSubcommands,
-
-    /// Deprecated, replaced with [`Command::subcommand_required`] and
-    /// [`Command::is_subcommand_required_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::subcommand_required` and `Command::is_subcommand_required_set`"
-        )
-    )]
     SubcommandRequired,
-
-    /// Deprecated, replaced with [`Command::allow_external_subcommands`] and
-    /// [`Command::is_allow_external_subcommands_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::allow_external_subcommands` and `Command::is_allow_external_subcommands_set`"
-        )
-    )]
     AllowExternalSubcommands,
-
-    /// Deprecated, replaced with [`Command::multicall`] and [`Command::is_multicall_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::multicall` and `Command::is_multicall_set`"
-        )
-    )]
     Multicall,
-
-    /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`"
-        )
-    )]
     AllowInvalidUtf8ForExternalSubcommands,
-
-    /// Deprecated, this is now the default
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "This is now the default")
-    )]
-    UseLongFormatForHelpSubcommand,
-
-    /// Deprecated, replaced with [`Command::subcommand_negates_reqs`] and
-    /// [`Command::is_subcommand_negates_reqs_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::subcommand_negates_reqs` and `Command::is_subcommand_negates_reqs_set`"
-        )
-    )]
     SubcommandsNegateReqs,
-
-    /// Deprecated, replaced with [`Command::args_conflicts_with_subcommands`] and
-    /// [`Command::is_args_conflicts_with_subcommands_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::args_conflicts_with_subcommands` and `Command::is_args_conflicts_with_subcommands_set`"
-        )
-    )]
     ArgsNegateSubcommands,
-
-    /// Deprecated, replaced with [`Command::subcommand_precedence_over_arg`] and
-    /// [`Command::is_subcommand_precedence_over_arg_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::subcommand_precedence_over_arg` and `Command::is_subcommand_precedence_over_arg_set`"
-        )
-    )]
     SubcommandPrecedenceOverArg,
-
-    /// Deprecated, replaced with [`Command::arg_required_else_help`] and
-    /// [`Command::is_arg_required_else_help_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::arg_required_else_help` and `Command::is_arg_required_else_help_set`"
-        )
-    )]
     ArgRequiredElseHelp,
-
-    /// Deprecated, replaced with [`Command::dont_collapse_args_in_usage`] and
-    /// [`Command::is_dont_collapse_args_in_usage_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::dont_collapse_args_in_usage` and `Command::is_dont_collapse_args_in_usage_set`"
-        )
-    )]
     DontCollapseArgsInUsage,
-
-    /// Deprecated, replaced with [`Command::next_line_help`] and [`Command::is_next_line_help_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::next_line_help` and `Command::is_next_line_help_set`"
-        )
-    )]
     NextLineHelp,
-
-    /// Deprecated, replaced with [`Command::disable_colored_help`] and
-    /// [`Command::is_disable_colored_help_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::disable_colored_help` and `Command::is_disable_colored_help_set`"
-        )
-    )]
     DisableColoredHelp,
-
-    /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
-        )
-    )]
     DisableHelpFlag,
-
-    /// Deprecated, replaced with [`Command::disable_help_subcommand`] and
-    /// [`Command::is_disable_help_subcommand_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::disable_help_subcommand` and `Command::is_disable_help_subcommand_set`"
-        )
-    )]
     DisableHelpSubcommand,
-
-    /// Deprecated, replaced with [`Command::disable_version_flag`] and
-    /// [`Command::is_disable_version_flag_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
-        )
-    )]
     DisableVersionFlag,
-
-    /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
-        )
-    )]
     PropagateVersion,
-
-    /// Deprecated, replaced with [`Command::hide`] and [`Command::is_hide_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::hide` and `Command::is_hide_set`"
-        )
-    )]
     Hidden,
-
-    /// Deprecated, replaced with [`Command::hide_possible_values`] and
-    /// [`Arg::is_hide_possible_values_set`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.0",
-            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
-        )
-    )]
     HidePossibleValues,
-
-    /// Deprecated, replaced with [`Command::help_expected`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::help_expected`")
-    )]
     HelpExpected,
-
-    /// Deprecated, replaced with [`Command::no_binary_name`]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::no_binary_name`")
-    )]
     NoBinaryName,
-
-    /// Deprecated, replaced with [`Arg::action`][super::Arg::action]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action`")
-    )]
     NoAutoHelp,
-
-    /// Deprecated, replaced with [`Arg::action`][super::Arg::action]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action`")
-    )]
     NoAutoVersion,
-
-    /// Deprecated, see [`Command::color`][crate::Command::color]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::color`")
-    )]
-    #[doc(hidden)]
+    #[allow(dead_code)]
     ColorAuto,
-
-    /// Deprecated, replaced with [`Command::color`][crate::Command::color]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::color`")
-    )]
-    #[doc(hidden)]
     ColorAlways,
-
-    /// Deprecated, replaced with [`Command::color`][crate::Command::color]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::color`")
-    )]
-    #[doc(hidden)]
     ColorNever,
-
-    /// If the cmd is already built, used for caching.
-    #[doc(hidden)]
     Built,
-
-    /// If the cmd's bin name is already built, used for caching.
-    #[doc(hidden)]
     BinNameBuilt,
 }
 
@@ -393,7 +106,6 @@ bitflags! {
         const HELP_REQUIRED                  = 1 << 39;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 40;
         const DISABLE_HELP_FLAG              = 1 << 41;
-        const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 42;
         const INFER_LONG_ARGS                = 1 << 43;
         const IGNORE_ERRORS                  = 1 << 44;
         const MULTICALL                      = 1 << 45;
@@ -456,8 +168,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::SC_NEGATE_REQS,
     SubcommandRequired
         => Flags::SC_REQUIRED,
-    UseLongFormatForHelpSubcommand
-        => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg
         => Flags::TRAILING_VARARG,
     NextLineHelp
