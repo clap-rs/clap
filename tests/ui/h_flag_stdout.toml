@@ -8,9 +8,9 @@ USAGE:
     stdio-fixture[EXE] [OPTIONS] [SUBCOMMAND]
 
 OPTIONS:
+        --verbose    log
     -h, --help       Print help information
     -V, --version    Print version information
-        --verbose    log
 
 SUBCOMMANDS:
     more    

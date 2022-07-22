@@ -2,7 +2,7 @@
 //
 // CLI used is from rustup 408ed84f0e50511ed44a405dd91365e5da588790
 
-use clap::{AppSettings, Arg, ArgGroup, Command};
+use clap::{Arg, ArgGroup, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 pub fn build_rustup(c: &mut Criterion) {
@@ -26,7 +26,6 @@ fn build_cli() -> Command<'static> {
         .version("0.9.0") // Simulating
         .about("The Rust toolchain installer")
         .after_help(RUSTUP_HELP)
-        .setting(AppSettings::DeriveDisplayOrder)
         .arg(
             Arg::new("verbose")
                 .help("Enable verbose output")
@@ -67,7 +66,6 @@ fn build_cli() -> Command<'static> {
             Command::new("toolchain")
                 .about("Modify or query the installed toolchains")
                 .after_help(TOOLCHAIN_HELP)
-                .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(Command::new("list").about("List installed toolchains"))
                 .subcommand(
                     Command::new("install")
@@ -104,7 +102,6 @@ fn build_cli() -> Command<'static> {
         .subcommand(
             Command::new("target")
                 .about("Modify a toolchain's supported targets")
-                .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(
                     Command::new("list")
                         .about("List installed and available targets")
@@ -138,7 +135,6 @@ fn build_cli() -> Command<'static> {
         .subcommand(
             Command::new("component")
                 .about("Modify a toolchain's installed components")
-                .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(
                     Command::new("list")
                         .about("List installed and available components")
@@ -163,7 +159,6 @@ fn build_cli() -> Command<'static> {
             Command::new("override")
                 .about("Modify directory toolchain overrides")
                 .after_help(OVERRIDE_HELP)
-                .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(Command::new("list").about("List directory toolchain overrides"))
                 .subcommand(
                     Command::new("set")
@@ -246,7 +241,6 @@ fn build_cli() -> Command<'static> {
         .subcommand(
             Command::new("self")
                 .about("Modify the rustup installation")
-                .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(Command::new("update").about("Download and install updates to rustup"))
                 .subcommand(
                     Command::new("uninstall")
@@ -261,7 +255,6 @@ fn build_cli() -> Command<'static> {
             Command::new("telemetry")
                 .about("rustup telemetry commands")
                 .hide(true)
-                .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(Command::new("enable").about("Enable rustup telemetry"))
                 .subcommand(Command::new("disable").about("Disable rustup telemetry"))
                 .subcommand(Command::new("analyze").about("Analyze stored telemetry")),

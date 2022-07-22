@@ -83,8 +83,8 @@ USAGE:
     git[EXE] stash <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help                 Print help information
     -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 SUBCOMMANDS:
     push     
@@ -99,8 +99,8 @@ USAGE:
     git[EXE] stash push [OPTIONS]
 
 OPTIONS:
-    -h, --help                 Print help information
     -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 $ git stash pop -h
 git-stash-pop 

@@ -85,8 +85,8 @@ USAGE:
     git-derive[EXE] stash <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help                 Print help information
     -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 SUBCOMMANDS:
     push     
@@ -101,8 +101,8 @@ USAGE:
     git-derive[EXE] stash push [OPTIONS]
 
 OPTIONS:
-    -h, --help                 Print help information
     -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 $ git-derive stash pop -h
 git-stash-pop 

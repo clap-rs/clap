@@ -62,9 +62,9 @@ ARGS:
     <package>...    packages
 
 OPTIONS:
-    -h, --help                  Print help information
-    -i, --info                  view package information
     -s, --search <search>...    search remote repositories for matching strings
+    -i, --info                  view package information
+    -h, --help                  Print help information
 
 ```
 

@@ -2,32 +2,6 @@ use super::utils;
 
 use clap::{arg, Arg, ArgAction, Command};
 
-static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
-Some help
-
-USAGE:
-    ct test [OPTIONS]
-
-OPTIONS:
-    -f, --flag         [aliases: v_flg, flag2, flg3]
-    -h, --help         Print help information
-    -o, --opt <opt>    [aliases: visible]
-    -V, --version      Print version information
-";
-
-static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
-Some help
-
-USAGE:
-    ct test [OPTIONS]
-
-OPTIONS:
-    -f, --flag         
-    -h, --help         Print help information
-    -o, --opt <opt>    
-    -V, --version      Print version information
-";
-
 #[test]
 fn single_alias_of_option() {
     let a = Command::new("single_alias")
@@ -216,6 +190,19 @@ fn alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_arg_aliases_help_output() {
+    static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
+Some help
+
+USAGE:
+    ct test [OPTIONS]
+
+OPTIONS:
+    -o, --opt <opt>    
+    -f, --flag         
+    -h, --help         Print help information
+    -V, --version      Print version information
+";
+
     let cmd = Command::new("ct").author("Salim Afiune").subcommand(
         Command::new("test")
             .about("Some help")
@@ -234,6 +221,19 @@ fn invisible_arg_aliases_help_output() {
 
 #[test]
 fn visible_arg_aliases_help_output() {
+    static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
+Some help
+
+USAGE:
+    ct test [OPTIONS]
+
+OPTIONS:
+    -o, --opt <opt>    [aliases: visible]
+    -f, --flag         [aliases: v_flg, flag2, flg3]
+    -h, --help         Print help information
+    -V, --version      Print version information
+";
+
     let cmd = Command::new("ct").author("Salim Afiune").subcommand(
         Command::new("test")
             .about("Some help")

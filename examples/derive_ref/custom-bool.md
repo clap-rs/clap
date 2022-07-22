@@ -14,8 +14,8 @@ ARGS:
     <BOOM>    [possible values: true, false]
 
 OPTIONS:
-        --bar <BAR>    [default: false]
         --foo <FOO>    [possible values: true, false]
+        --bar <BAR>    [default: false]
     -h, --help         Print help information
     -V, --version      Print version information
 

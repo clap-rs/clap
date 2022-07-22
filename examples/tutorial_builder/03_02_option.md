@@ -7,8 +7,8 @@ USAGE:
     03_02_option[EXE] [OPTIONS]
 
 OPTIONS:
-    -h, --help           Print help information
     -n, --name <NAME>    
+    -h, --help           Print help information
     -V, --version        Print version information
 
 $ 03_02_option

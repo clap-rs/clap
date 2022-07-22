@@ -31,8 +31,8 @@ USAGE:
     busybox [OPTIONS] [APPLET]
 
 OPTIONS:
-    -h, --help                 Print help information
         --install <install>    Install hardlinks for all subcommands in path
+    -h, --help                 Print help information
 
 APPLETS:
     true     does nothing successfully

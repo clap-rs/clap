@@ -1,4 +1,4 @@
-use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand};
 
 #[test]
 fn arg_help_heading_applied() {
@@ -247,7 +247,6 @@ OPTIONS:
 
     #[derive(Parser, Debug)]
     #[clap(name = "test", version = "1.2")]
-    #[clap(setting = AppSettings::DeriveDisplayOrder)]
     struct Args {
         #[clap(flatten)]
         a: A,
@@ -303,7 +302,6 @@ OPTIONS:
 ";
 
     #[derive(Parser, Debug)]
-    #[clap(setting = AppSettings::DeriveDisplayOrder)]
     #[clap(name = "test", version = "1.2")]
     struct Args {
         #[clap(flatten)]
@@ -361,7 +359,6 @@ OPTIONS:
 
     #[derive(Parser, Debug)]
     #[clap(name = "test", version = "1.2")]
-    #[clap(setting = AppSettings::DeriveDisplayOrder)]
     #[clap(next_display_order = None)]
     struct Args {
         #[clap(flatten)]

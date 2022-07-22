@@ -26,8 +26,8 @@ USAGE:
     cargo example [OPTIONS]
 
 OPTIONS:
-    -h, --help                    Print help information
         --manifest-path <PATH>    
+    -h, --help                    Print help information
     -V, --version                 Print version information
 
 ```

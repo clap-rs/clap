@@ -176,7 +176,7 @@ impl<'help> Command<'help> {
         if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
             if !arg.is_positional() && arg.provider != ArgProvider::Generated {
                 let current = *current_disp_ord;
-                arg.disp_ord.set_implicit(current);
+                arg.disp_ord.get_or_insert(current);
                 *current_disp_ord = current + 1;
             }
         }
@@ -3863,7 +3863,6 @@ impl<'help> Command<'help> {
             self._propagate();
             self._check_help_and_version();
             self._propagate_global_args();
-            self._derive_display_order();
 
             let mut pos_counter = 1;
             let hide_pv = self.is_set(AppSettings::HidePossibleValues);
@@ -4373,24 +4372,6 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                 .unset_global_setting(AppSettings::PropagateVersion);
 
             self.subcommands.push(help_subcmd);
-        }
-    }
-
-    pub(crate) fn _derive_display_order(&mut self) {
-        debug!("Command::_derive_display_order:{}", self.name);
-
-        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
-            for a in self
-                .args
-                .args_mut()
-                .filter(|a| !a.is_positional())
-                .filter(|a| a.provider != ArgProvider::Generated)
-            {
-                a.disp_ord.make_explicit();
-            }
-        }
-        for sc in &mut self.subcommands {
-            sc._derive_display_order();
         }
     }
 

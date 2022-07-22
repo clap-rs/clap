@@ -11,8 +11,8 @@ USAGE:
 
 OPTIONS:
     -F, --flag2           some other flag
-    -h, --help            Print help information
         --option <opt>    some option
+    -h, --help            Print help information
     -V, --version         Print version information
 ";
 
@@ -39,30 +39,9 @@ USAGE:
     test [OPTIONS]
 
 OPTIONS:
-    -h, --help       Print help information
     -v, --visible    This text should be visible
+    -h, --help       Print help information
     -V, --version    Print version information
-";
-
-static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
-Steve P.
-hides short args
-
-USAGE:
-    test [OPTIONS]
-
-OPTIONS:
-    -c, --config
-            Some help text describing the --config arg
-
-    -h, --help
-            Print help information
-
-    -v, --visible
-            This text should be visible
-
-    -V, --version
-            Print version information
 ";
 
 /// Ensure hide with short option
@@ -90,6 +69,27 @@ fn hide_short_args() {
 /// Ensure visible with opposite option
 #[test]
 fn hide_short_args_long_help() {
+    static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
+Steve P.
+hides short args
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+    -c, --config
+            Some help text describing the --config arg
+
+    -v, --visible
+            This text should be visible
+
+    -h, --help
+            Print help information
+
+    -V, --version
+            Print version information
+";
+
     let cmd = Command::new("test")
         .about("hides short args")
         .author("Steve P.")
@@ -117,11 +117,11 @@ USAGE:
     test [OPTIONS]
 
 OPTIONS:
-    -h, --help
-            Print help information
-
     -v, --visible
             This text should be visible
+
+    -h, --help
+            Print help information
 
     -V, --version
             Print version information
@@ -157,8 +157,8 @@ USAGE:
 
 OPTIONS:
     -c, --config     Some help text describing the --config arg
-    -h, --help       Print help information
     -v, --visible    This text should be visible
+    -h, --help       Print help information
     -V, --version    Print version information
 ";
 

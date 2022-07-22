@@ -16,8 +16,8 @@ ARGS:
 
 OPTIONS:
     -f               
-    -h, --help       Print help information
     -p <PEAR>        
+    -h, --help       Print help information
     -V, --version    Print version information
 
 ```

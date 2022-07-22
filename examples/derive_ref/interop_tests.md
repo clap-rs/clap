@@ -107,8 +107,8 @@ USAGE:
     interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help         Print help information
     -t, --top-level    
+    -h, --help         Print help information
 
 SUBCOMMANDS:
     add       

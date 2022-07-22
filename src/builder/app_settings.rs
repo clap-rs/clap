@@ -198,25 +198,6 @@ pub enum AppSettings {
     )]
     ArgRequiredElseHelp,
 
-    /// Displays the arguments and [`subcommands`] in the help message in the order that they were
-    /// declared in, and not alphabetically which is the default.
-    ///
-    /// To override the declaration order, see [`Arg::display_order`] and [`Command::display_order`].
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Command, Arg, AppSettings};
-    /// Command::new("myprog")
-    ///     .global_setting(AppSettings::DeriveDisplayOrder)
-    ///     .get_matches();
-    /// ```
-    ///
-    /// [`subcommands`]: crate::Command::subcommand()
-    /// [`Arg::display_order`]: crate::Arg::display_order
-    /// [`Command::display_order`]: crate::Command::display_order
-    DeriveDisplayOrder,
-
     /// Deprecated, replaced with [`Command::dont_collapse_args_in_usage`] and
     /// [`Command::is_dont_collapse_args_in_usage_set`]
     #[cfg_attr(
@@ -392,7 +373,6 @@ bitflags! {
         const LEADING_HYPHEN                 = 1 << 16;
         const NO_POS_VALUES                  = 1 << 17;
         const NEXT_LINE_HELP                 = 1 << 18;
-        const DERIVE_DISP_ORDER              = 1 << 19;
         const DISABLE_COLORED_HELP           = 1 << 20;
         const COLOR_ALWAYS                   = 1 << 21;
         const COLOR_AUTO                     = 1 << 22;
@@ -448,8 +428,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DONT_DELIM_TRAIL,
     DontCollapseArgsInUsage
         => Flags::DONT_COLLAPSE_ARGS,
-    DeriveDisplayOrder
-        => Flags::DERIVE_DISP_ORDER,
     DisableColoredHelp
         => Flags::DISABLE_COLORED_HELP,
     DisableHelpSubcommand

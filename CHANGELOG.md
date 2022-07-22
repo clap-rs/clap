@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue`
-- `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand`
-- `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate
-- *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value
-- *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag
-- *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp`
+- `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` (#3676)
+- `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate (#3795)
+- *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
+- *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
+- *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
+- *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` (#3280)
 
 ### Features
 
