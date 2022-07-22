@@ -244,16 +244,7 @@ impl Error {
     }
 
     pub(crate) fn empty_value(cmd: &Command, good_vals: &[&str], arg: String) -> Self {
-        let mut err = Self::new(ErrorKind::EmptyValue)
-            .with_cmd(cmd)
-            .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))]);
-        if !good_vals.is_empty() {
-            err = err.insert_context_unchecked(
-                ContextKind::ValidValue,
-                ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
-            );
-        }
-        err
+        Self::invalid_value(cmd, "".to_owned(), good_vals, arg)
     }
 
     pub(crate) fn no_equals(cmd: &Command, arg: String, usage: String) -> Self {
@@ -531,30 +522,6 @@ impl Error {
                     false
                 }
             }
-            ErrorKind::EmptyValue => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    c.none("The argument '");
-                    c.warning(invalid_arg);
-                    c.none("' requires a value but none was supplied");
-
-                    let possible_values = self.get_context(ContextKind::ValidValue);
-                    if let Some(ContextValue::Strings(possible_values)) = possible_values {
-                        c.none("\n\t[possible values: ");
-                        if let Some((last, elements)) = possible_values.split_last() {
-                            for v in elements {
-                                c.good(escape(v));
-                                c.none(", ");
-                            }
-                            c.good(escape(last));
-                        }
-                        c.none("]");
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
             ErrorKind::NoEquals => {
                 let invalid_arg = self.get_context(ContextKind::InvalidArg);
                 if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
@@ -574,10 +541,16 @@ impl Error {
                     Some(ContextValue::String(invalid_value)),
                 ) = (invalid_arg, invalid_value)
                 {
-                    c.none(quote(invalid_value));
-                    c.none(" isn't a valid value for '");
-                    c.warning(invalid_arg);
-                    c.none("'");
+                    if invalid_value.is_empty() {
+                        c.none("The argument '");
+                        c.warning(invalid_arg);
+                        c.none("' requires a value but none was supplied");
+                    } else {
+                        c.none(quote(invalid_value));
+                        c.none(" isn't a valid value for '");
+                        c.warning(invalid_arg);
+                        c.none("'");
+                    }
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
                     if let Some(ContextValue::Strings(possible_values)) = possible_values {

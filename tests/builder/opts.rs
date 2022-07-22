@@ -112,7 +112,7 @@ fn require_equals_no_empty_values_fail() {
         .arg(Arg::new("some"))
         .try_get_matches_from(vec!["prog", "--config=", "file.conf"]);
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -541,7 +541,7 @@ fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> 
 fn issue_1105_empty_value_long_fail() {
     let r = issue_1105_setup(vec!["cmd", "--option", "--flag"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(r.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -564,7 +564,7 @@ fn issue_1105_empty_value_long_equals() {
 fn issue_1105_empty_value_short_fail() {
     let r = issue_1105_setup(vec!["cmd", "-o", "--flag"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(r.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]

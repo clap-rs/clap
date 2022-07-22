@@ -83,24 +83,6 @@ pub enum ErrorKind {
     /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     UnrecognizedSubcommand,
 
-    /// Occurs when the user provides an empty value for an option that does not allow empty
-    /// values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("color")
-    ///          .takes_value(true)
-    ///          .value_parser(clap::builder::NonEmptyStringValueParser::new())
-    ///          .long("color"))
-    ///     .try_get_matches_from(vec!["prog", "--color="]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
-    /// ```
-    EmptyValue,
-
     /// Occurs when the user doesn't use equals for an option that requires equal
     /// sign to provide values.
     ///
@@ -380,7 +362,6 @@ impl ErrorKind {
             }
             Self::InvalidSubcommand => Some("A subcommand wasn't recognized"),
             Self::UnrecognizedSubcommand => Some("A subcommand wasn't recognized"),
-            Self::EmptyValue => Some("An argument requires a value but none was supplied"),
             Self::NoEquals => Some("Equal is needed when assigning values to one of the arguments"),
             Self::ValueValidation => Some("Invalid value for one of the arguments"),
             Self::TooManyValues => Some("An argument received an unexpected value"),
