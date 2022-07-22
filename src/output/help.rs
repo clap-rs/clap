@@ -28,32 +28,16 @@ pub(crate) struct Help<'help, 'cmd, 'writer> {
 
 // Public Functions
 impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
-    #[cfg(feature = "unstable-v4")]
     const DEFAULT_TEMPLATE: &'static str = "\
         {before-help}{name} {version}\n\
-        {author-with-newline}{about-with-newline}\n\
-        {usage-heading}\n    {usage}\n\
-        \n\
-        {all-args}{after-help}\
-    ";
-    #[cfg(not(feature = "unstable-v4"))]
-    const DEFAULT_TEMPLATE: &'static str = "\
-        {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
         {usage-heading}\n    {usage}\n\
         \n\
         {all-args}{after-help}\
     ";
 
-    #[cfg(feature = "unstable-v4")]
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
         {before-help}{name} {version}\n\
-        {author-with-newline}{about-with-newline}\n\
-        {usage-heading}\n    {usage}{after-help}\
-    ";
-    #[cfg(not(feature = "unstable-v4"))]
-    const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
-        {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
         {usage-heading}\n    {usage}{after-help}\
     ";
@@ -477,7 +461,6 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             self.none(part)?;
         }
 
-        #[cfg(feature = "unstable-v4")]
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
@@ -663,9 +646,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         let possible_vals = a.get_possible_values();
         if !(a.is_hide_possible_values_set()
             || possible_vals.is_empty()
-            || cfg!(feature = "unstable-v4")
-                && self.use_long
-                && possible_vals.iter().any(PossibleValue::should_show_help))
+            || self.use_long && possible_vals.iter().any(PossibleValue::should_show_help))
         {
             debug!("Help::spec_vals: Found possible vals...{:?}", possible_vals);
 

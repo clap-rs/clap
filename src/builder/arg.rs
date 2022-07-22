@@ -186,14 +186,7 @@ impl<'help> Arg<'help> {
     #[inline]
     #[must_use]
     pub fn long(mut self, l: &'help str) -> Self {
-        #[cfg(feature = "unstable-v4")]
-        {
-            self.long = Some(l);
-        }
-        #[cfg(not(feature = "unstable-v4"))]
-        {
-            self.long = Some(l.trim_start_matches(|c| c == '-'));
-        }
+        self.long = Some(l);
         self
     }
 

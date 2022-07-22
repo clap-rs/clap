@@ -40,7 +40,7 @@ SUBCOMMANDS:
     stash    
 
 $ git-derive help add
-git-derive[EXE]-add 
+git-add 
 adds things
 
 USAGE:
@@ -58,7 +58,7 @@ A basic argument:
 ```console
 $ git-derive add
 ? failed
-git-derive[EXE]-add 
+git-add 
 adds things
 
 USAGE:
@@ -78,7 +78,7 @@ Adding ["Cargo.toml", "Cargo.lock"]
 Default subcommand:
 ```console
 $ git-derive stash -h
-git-derive[EXE]-stash 
+git-stash 
 
 USAGE:
     git-derive[EXE] stash [OPTIONS]
@@ -95,7 +95,7 @@ SUBCOMMANDS:
     push     
 
 $ git-derive stash push -h
-git-derive[EXE]-stash-push 
+git-stash-push 
 
 USAGE:
     git-derive[EXE] stash push [OPTIONS]
@@ -105,7 +105,7 @@ OPTIONS:
     -m, --message <MESSAGE>    
 
 $ git-derive stash pop -h
-git-derive[EXE]-stash-pop 
+git-stash-pop 
 
 USAGE:
     git-derive[EXE] stash pop [STASH]

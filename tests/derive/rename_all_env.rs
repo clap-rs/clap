@@ -9,7 +9,7 @@ fn it_works() {
     #[derive(Debug, PartialEq, Parser)]
     #[clap(rename_all_env = "kebab")]
     struct BehaviorModel {
-        #[clap(env, value_parser)]
+        #[clap(env)]
         be_nice: String,
     }
 
@@ -21,7 +21,7 @@ fn it_works() {
 fn default_is_screaming() {
     #[derive(Debug, PartialEq, Parser)]
     struct BehaviorModel {
-        #[clap(env, value_parser)]
+        #[clap(env)]
         be_nice: String,
     }
 
@@ -34,10 +34,10 @@ fn overridable() {
     #[derive(Debug, PartialEq, Parser)]
     #[clap(rename_all_env = "kebab")]
     struct BehaviorModel {
-        #[clap(env, value_parser)]
+        #[clap(env)]
         be_nice: String,
 
-        #[clap(rename_all_env = "pascal", env, value_parser)]
+        #[clap(rename_all_env = "pascal", env)]
         be_aggressive: String,
     }
 

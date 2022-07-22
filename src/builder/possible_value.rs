@@ -153,7 +153,6 @@ impl<'help> PossibleValue<'help> {
     /// Get the help specified for this argument, if any and the argument
     /// value is not hidden
     #[inline]
-    #[cfg(feature = "unstable-v4")]
     pub(crate) fn get_visible_help(&self) -> Option<&'help str> {
         if !self.hide {
             self.help

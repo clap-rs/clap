@@ -2273,14 +2273,7 @@ impl<'help> Command<'help> {
     /// [`Arg::long`]: Arg::long()
     #[must_use]
     pub fn long_flag(mut self, long: &'help str) -> Self {
-        #[cfg(feature = "unstable-v4")]
-        {
-            self.long_flag = Some(long);
-        }
-        #[cfg(not(feature = "unstable-v4"))]
-        {
-            self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
-        }
+        self.long_flag = Some(long);
         self
     }
 
@@ -4398,16 +4391,8 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
         } else {
             self.version.or(self.long_version).unwrap_or("")
         };
-        if let Some(bn) = self.bin_name.as_ref() {
-            if bn.contains(' ') {
-                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                format!("{} {}\n", bn.replace(' ', "-"), ver)
-            } else {
-                format!("{} {}\n", &self.name[..], ver)
-            }
-        } else {
-            format!("{} {}\n", &self.name[..], ver)
-        }
+        let display_name = self.get_display_name().unwrap_or_else(|| self.get_name());
+        format!("{} {}\n", display_name, ver)
     }
 
     pub(crate) fn format_group(&self, g: &Id) -> String {
@@ -4674,10 +4659,9 @@ impl<'help> Command<'help> {
             v.long_help.is_some()
                 || v.is_hide_long_help_set()
                 || v.is_hide_short_help_set()
-                || cfg!(feature = "unstable-v4")
-                    && v.get_possible_values()
-                        .iter()
-                        .any(PossibleValue::should_show_help)
+                || v.get_possible_values()
+                    .iter()
+                    .any(PossibleValue::should_show_help)
         };
 
         // Subcommands aren't checked because we prefer short help for them, deferring to

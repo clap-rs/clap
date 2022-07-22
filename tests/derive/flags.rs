@@ -20,7 +20,7 @@ use clap::Parser;
 fn bool_type_is_flag() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         alice: bool,
     }
 
@@ -113,7 +113,7 @@ fn non_bool_type_flag() {
 fn mixed_type_flags() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         alice: bool,
         #[clap(short, long, action = clap::ArgAction::Count)]
         bob: u8,
@@ -181,7 +181,6 @@ fn ignore_qualified_bool_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(action)]
         arg: inner::bool,
     }
 

@@ -1,5 +1,5 @@
 error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
-   --> tests/derive_ui/next/bool_value_enum.rs:6:31
+   --> tests/derive_ui/bool_value_enum.rs:6:31
     |
 6   |     #[clap(short, value_enum, default_value_t)]
     |                               ^^^^^^^^^^^^^^^ the trait `ValueEnum` is not implemented for `bool`

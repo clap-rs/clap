@@ -27,9 +27,6 @@ pub(crate) fn assert_app(cmd: &Command) {
             .get_arguments()
             .filter(|x| {
                 let action_set = matches!(x.get_action(), ArgAction::Version);
-                #[cfg(not(feature = "unstable-v4"))]
-                let provider_set = matches!(x.provider, ArgProvider::GeneratedMutated);
-                #[cfg(feature = "unstable-v4")]
                 let provider_set = matches!(
                     x.provider,
                     ArgProvider::User | ArgProvider::GeneratedMutated
@@ -54,10 +51,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         if let Some(l) = sc.get_long_flag().as_ref() {
-            #[cfg(feature = "unstable-v4")]
-            {
-                assert!(!l.starts_with('-'), "Command {}: long_flag {:?} must not start with a `-`, that will be handled by the parser", sc.get_name(), l);
-            }
+            assert!(!l.starts_with('-'), "Command {}: long_flag {:?} must not start with a `-`, that will be handled by the parser", sc.get_name(), l);
             long_flags.push(Flag::Command(format!("--{}", l), sc.get_name()));
         }
 
@@ -85,10 +79,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         if let Some(l) = arg.long.as_ref() {
-            #[cfg(feature = "unstable-v4")]
-            {
-                assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.name, l);
-            }
+            assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.name, l);
             long_flags.push(Flag::Arg(format!("--{}", l), &*arg.name));
         }
 
@@ -161,14 +152,11 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_ifs {
-            #[cfg(feature = "unstable-v4")]
-            {
-                assert!(
-                    !arg.is_required_set(),
-                    "Argument {}: `required` conflicts with `required_if_eq*`",
-                    arg.name
-                );
-            }
+            assert!(
+                !arg.is_required_set(),
+                "Argument {}: `required` conflicts with `required_if_eq*`",
+                arg.name
+            );
             assert!(
                 cmd.id_exists(&req.0),
                 "Command {}: Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
@@ -179,14 +167,11 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_ifs_all {
-            #[cfg(feature = "unstable-v4")]
-            {
-                assert!(
-                    !arg.is_required_set(),
-                    "Argument {}: `required` conflicts with `required_if_eq_all`",
-                    arg.name
-                );
-            }
+            assert!(
+                !arg.is_required_set(),
+                "Argument {}: `required` conflicts with `required_if_eq_all`",
+                arg.name
+            );
             assert!(
                 cmd.id_exists(&req.0),
                 "Command {}: Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
@@ -197,14 +182,11 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_unless {
-            #[cfg(feature = "unstable-v4")]
-            {
-                assert!(
-                    !arg.is_required_set(),
-                    "Argument {}: `required` conflicts with `required_unless*`",
-                    arg.name
-                );
-            }
+            assert!(
+                !arg.is_required_set(),
+                "Argument {}: `required` conflicts with `required_unless*`",
+                arg.name
+            );
             assert!(
                 cmd.id_exists(req),
                 "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
@@ -215,14 +197,11 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         for req in &arg.r_unless_all {
-            #[cfg(feature = "unstable-v4")]
-            {
-                assert!(
-                    !arg.is_required_set(),
-                    "Argument {}: `required` conflicts with `required_unless*`",
-                    arg.name
-                );
-            }
+            assert!(
+                !arg.is_required_set(),
+                "Argument {}: `required` conflicts with `required_unless*`",
+                arg.name
+            );
             assert!(
                 cmd.id_exists(req),
                 "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
@@ -680,16 +659,13 @@ fn assert_arg(arg: &Arg) {
         );
     }
 
-    #[cfg(feature = "unstable-v4")]
-    {
-        let num_vals = arg.get_num_vals().unwrap_or(usize::MAX);
-        let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
-        if num_vals < num_val_names {
-            panic!(
-                "Argument {}: Too many value names ({}) compared to number_of_values ({})",
-                arg.name, num_val_names, num_vals
-            );
-        }
+    let num_vals = arg.get_num_vals().unwrap_or(usize::MAX);
+    let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
+    if num_vals < num_val_names {
+        panic!(
+            "Argument {}: Too many value names ({}) compared to number_of_values ({})",
+            arg.name, num_val_names, num_vals
+        );
     }
 
     assert_arg_flags(arg);

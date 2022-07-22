@@ -38,7 +38,7 @@ SUBCOMMANDS:
     stash    
 
 $ git help add
-git[EXE]-add 
+git-add 
 adds things
 
 USAGE:
@@ -56,7 +56,7 @@ A basic argument:
 ```console
 $ git add
 ? failed
-git[EXE]-add 
+git-add 
 adds things
 
 USAGE:
@@ -76,7 +76,7 @@ Adding ["Cargo.toml", "Cargo.lock"]
 Default subcommand:
 ```console
 $ git stash -h
-git[EXE]-stash 
+git-stash 
 
 USAGE:
     git[EXE] stash [OPTIONS]
@@ -93,7 +93,7 @@ SUBCOMMANDS:
     push     
 
 $ git stash push -h
-git[EXE]-stash-push 
+git-stash-push 
 
 USAGE:
     git[EXE] stash push [OPTIONS]
@@ -103,7 +103,7 @@ OPTIONS:
     -m, --message <MESSAGE>    
 
 $ git stash pop -h
-git[EXE]-stash-pop 
+git-stash-pop 
 
 USAGE:
     git[EXE] stash pop [STASH]

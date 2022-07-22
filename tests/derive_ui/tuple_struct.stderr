@@ -1,5 +1,5 @@
 error: `#[derive(Parser)]` only supports non-tuple structs and enums
-  --> tests/derive_ui/next/tuple_struct.rs:11:10
+  --> tests/derive_ui/tuple_struct.rs:11:10
    |
 11 | #[derive(Parser, Debug)]
    |          ^^^^^^
@@ -7,7 +7,7 @@ error: `#[derive(Parser)]` only supports non-tuple structs and enums
    = note: this error originates in the derive macro `Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: no function or associated item named `parse` found for struct `Opt` in the current scope
-  --> tests/derive_ui/next/tuple_struct.rs:16:20
+  --> tests/derive_ui/tuple_struct.rs:16:20
    |
 13 | struct Opt(u32);
    | ---------------- function or associated item `parse` not found for this

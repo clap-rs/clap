@@ -750,14 +750,8 @@ impl Attrs {
         quote!( #(#next_help_heading)*  #(#help_heading)* )
     }
 
-    #[cfg(feature = "unstable-v4")]
     pub fn id(&self) -> TokenStream {
         self.name.clone().raw()
-    }
-
-    #[cfg(not(feature = "unstable-v4"))]
-    pub fn id(&self) -> TokenStream {
-        self.cased_name()
     }
 
     pub fn cased_name(&self) -> TokenStream {
@@ -780,7 +774,7 @@ impl Attrs {
                     let inner_type = inner_type(field_type);
                     let span = action.span();
                     default_value_parser(inner_type, span)
-                } else if !self.ignore_parser() || cfg!(not(feature = "unstable-v4")) {
+                } else if !self.ignore_parser() {
                     self.parser(field_type).value_parser()
                 } else {
                     let inner_type = inner_type(field_type);
@@ -802,7 +796,7 @@ impl Attrs {
                 if let Some(value_parser) = self.value_parser.as_ref() {
                     let span = value_parser.span();
                     default_action(field_type, span)
-                } else if !self.ignore_parser() || cfg!(not(feature = "unstable-v4")) {
+                } else if !self.ignore_parser() {
                     self.parser(field_type).action()
                 } else {
                     let span = self
@@ -815,14 +809,8 @@ impl Attrs {
             })
     }
 
-    #[cfg(feature = "unstable-v4")]
     pub fn ignore_parser(&self) -> bool {
         self.parser.is_none()
-    }
-
-    #[cfg(not(feature = "unstable-v4"))]
-    pub fn ignore_parser(&self) -> bool {
-        self.value_parser.is_some() || self.action.is_some()
     }
 
     pub fn explicit_parser(&self) -> bool {
@@ -1200,7 +1188,6 @@ pub enum Name {
 }
 
 impl Name {
-    #[cfg(feature = "unstable-v4")]
     pub fn raw(self) -> TokenStream {
         match self {
             Name::Assigned(tokens) => tokens,

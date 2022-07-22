@@ -484,17 +484,9 @@ fn gen_from_arg_matches(
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
         };
 
-        if cfg!(feature = "unstable-v4") {
-            quote! {
-                if #sub_name == #subcommand_name_var && !#sub_arg_matches_var.contains_id("") {
-                    return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
-                }
-            }
-        } else {
-            quote! {
-                if #sub_name == #subcommand_name_var {
-                    return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
-                }
+        quote! {
+            if #sub_name == #subcommand_name_var && !#sub_arg_matches_var.contains_id("") {
+                return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
             }
         }
     });
@@ -528,7 +520,7 @@ fn gen_from_arg_matches(
                     .chain(
                         #sub_arg_matches_var
                             .remove_many::<#str_ty>("")
-                            .into_iter().flatten()  // `""` isn't present, bug in `unstable-v4`
+                            .unwrap()
                             .map(#str_ty::from)
                     )
                     .collect::<::std::vec::Vec<_>>()

@@ -52,7 +52,7 @@ SUBCOMMANDS:
     sync -S --sync      Synchronize packages.
 
 $ pacman -S -h
-pacman[EXE]-sync 
+pacman-sync 
 Synchronize packages.
 
 USAGE:

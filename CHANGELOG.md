@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 4.0.0 - Upcoming
 
-_gated behind `unstable-v4`_
-
 ### Breaking Changes
 
 - `Error::EmptyValue` replaced with `Error::InvalidValue`
@@ -25,6 +23,7 @@ _gated behind `unstable-v4`_
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
+- *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
