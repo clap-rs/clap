@@ -2153,7 +2153,7 @@ impl<'help> Arg<'help> {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("true_flag"), None);
+    /// assert!(m.is_present("true_flag"));
     /// assert!(!m.is_present("false_flag"));
     /// assert!(!m.is_present("absent_flag"));
     /// ```
