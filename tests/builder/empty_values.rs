@@ -37,7 +37,7 @@ fn no_empty_values() {
         )
         .try_get_matches_from(&["config", "--config", ""]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 
     let m = Command::new("config")
         .arg(
@@ -48,7 +48,7 @@ fn no_empty_values() {
         )
         .try_get_matches_from(&["config", "-c", ""]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue)
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue)
 }
 
 #[test]
@@ -62,7 +62,7 @@ fn no_empty_values_with_equals() {
         )
         .try_get_matches_from(&["config", "--config="]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 
     let m = Command::new("config")
         .arg(
@@ -73,7 +73,7 @@ fn no_empty_values_with_equals() {
         )
         .try_get_matches_from(&["config", "-c="]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn no_empty_values_without_equals() {
         )
         .try_get_matches_from(&["config", "--config"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 
     let m = Command::new("config")
         .arg(
@@ -98,7 +98,7 @@ fn no_empty_values_without_equals() {
         )
         .try_get_matches_from(&["config", "-c"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue)
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue)
 }
 
 #[test]

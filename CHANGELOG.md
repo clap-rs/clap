@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 _gated behind `unstable-v4`_
 
+### Breaking Changes
+
+- `Error::EmptyValue` replaced with `Error::InvalidValue`
+
 ### Features
 
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
