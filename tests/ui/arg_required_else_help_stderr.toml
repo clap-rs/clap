@@ -14,6 +14,6 @@ OPTIONS:
         --verbose    log
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     more    
+    help    Print this message or the help of the given subcommand(s)
 """

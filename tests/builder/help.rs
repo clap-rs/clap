@@ -43,8 +43,8 @@ OPTIONS:
     -V, --version                    Print version information
 
 SUBCOMMANDS:
-    help      Print this message or the help of the given subcommand(s)
     subcmd    tests subcommands
+    help      Print this message or the help of the given subcommand(s)
 ";
 
 static SC_NEGATES_REQS: &str = "prog 1.0
@@ -62,8 +62,8 @@ OPTIONS:
     -V, --version       Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 static ARGS_NEGATE_SC: &str = "prog 1.0
@@ -82,8 +82,8 @@ OPTIONS:
     -V, --version       Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 static AFTER_HELP: &str = "some text that comes before the help
@@ -410,8 +410,8 @@ OPTIONS:
     -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    some
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 static LAST_ARG_REQ: &str = "last 0.1
@@ -445,8 +445,8 @@ OPTIONS:
     -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    some
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 static HIDE_DEFAULT_VAL: &str = "default 0.1
@@ -602,8 +602,8 @@ OPTIONS:
     -h, --help    Print help information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     sub     short about sub
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 fn setup() -> Command<'static> {

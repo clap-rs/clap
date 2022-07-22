@@ -12,8 +12,8 @@ OPTIONS:
     -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    Some help [aliases: dongle, done]
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
@@ -26,37 +26,7 @@ OPTIONS:
     -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    Some help
-";
-
-static SUBCMD_ALPHA_ORDER: &str = "test 1
-
-USAGE:
-    test [SUBCOMMAND]
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    a1      blah a1
-    b1      blah b1
-    help    Print this message or the help of the given subcommand(s)
-";
-
-static SUBCMD_DECL_ORDER: &str = "test 1
-
-USAGE:
-    test [SUBCOMMAND]
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    b1      blah b1
-    a1      blah a1
     help    Print this message or the help of the given subcommand(s)
 ";
 
@@ -166,44 +136,6 @@ fn subcommand_multiple() {
     assert_eq!(
         sub_m.get_one::<String>("test").map(|v| v.as_str()).unwrap(),
         "testing"
-    );
-}
-
-#[test]
-fn subcommand_display_order() {
-    let app_subcmd_alpha_order = Command::new("test").version("1").subcommands(vec![
-        Command::new("b1")
-            .about("blah b1")
-            .arg(Arg::new("test").short('t')),
-        Command::new("a1")
-            .about("blah a1")
-            .arg(Arg::new("roster").short('r')),
-    ]);
-
-    utils::assert_output(
-        app_subcmd_alpha_order,
-        "test --help",
-        SUBCMD_ALPHA_ORDER,
-        false,
-    );
-
-    let app_subcmd_decl_order = Command::new("test")
-        .version("1")
-        .setting(clap::AppSettings::DeriveDisplayOrder)
-        .subcommands(vec![
-            Command::new("b1")
-                .about("blah b1")
-                .arg(Arg::new("test").short('t')),
-            Command::new("a1")
-                .about("blah a1")
-                .arg(Arg::new("roster").short('r')),
-        ]);
-
-    utils::assert_output(
-        app_subcmd_decl_order,
-        "test --help",
-        SUBCMD_DECL_ORDER,
-        false,
     );
 }
 

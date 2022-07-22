@@ -47,9 +47,9 @@ OPTIONS:
     -V, --version    Print version information
 
 SUBCOMMANDS:
-    help                Print this message or the help of the given subcommand(s)
     query -Q --query    Query the package database.
     sync -S --sync      Synchronize packages.
+    help                Print this message or the help of the given subcommand(s)
 
 $ pacman -S -h
 pacman-sync 

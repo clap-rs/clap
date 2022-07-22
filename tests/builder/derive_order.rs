@@ -291,3 +291,74 @@ fn prefer_user_help_in_subcommand_with_derive_order() {
         false,
     );
 }
+
+#[test]
+fn subcommand_sorted_display_order() {
+    static SUBCMD_ALPHA_ORDER: &str = "test 1
+
+USAGE:
+    test [SUBCOMMAND]
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+SUBCOMMANDS:
+    a1      blah a1
+    b1      blah b1
+    help    Print this message or the help of the given subcommand(s)
+";
+
+    let app_subcmd_alpha_order = Command::new("test")
+        .version("1")
+        .next_display_order(None)
+        .subcommands(vec![
+            Command::new("b1")
+                .about("blah b1")
+                .arg(Arg::new("test").short('t')),
+            Command::new("a1")
+                .about("blah a1")
+                .arg(Arg::new("roster").short('r')),
+        ]);
+
+    utils::assert_output(
+        app_subcmd_alpha_order,
+        "test --help",
+        SUBCMD_ALPHA_ORDER,
+        false,
+    );
+}
+
+#[test]
+fn subcommand_derived_display_order() {
+    static SUBCMD_DECL_ORDER: &str = "test 1
+
+USAGE:
+    test [SUBCOMMAND]
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+SUBCOMMANDS:
+    b1      blah b1
+    a1      blah a1
+    help    Print this message or the help of the given subcommand(s)
+";
+
+    let app_subcmd_decl_order = Command::new("test").version("1").subcommands(vec![
+        Command::new("b1")
+            .about("blah b1")
+            .arg(Arg::new("test").short('t')),
+        Command::new("a1")
+            .about("blah a1")
+            .arg(Arg::new("roster").short('r')),
+    ]);
+
+    utils::assert_output(
+        app_subcmd_decl_order,
+        "test --help",
+        SUBCMD_DECL_ORDER,
+        false,
+    );
+}

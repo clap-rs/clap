@@ -402,7 +402,13 @@ impl<'help> Command<'help> {
     #[inline]
     #[must_use]
     pub fn subcommand<S: Into<Self>>(mut self, subcmd: S) -> Self {
-        self.subcommands.push(subcmd.into());
+        let mut subcmd = subcmd.into();
+        if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
+            let current = *current_disp_ord;
+            subcmd.disp_ord.get_or_insert(current);
+            *current_disp_ord = current + 1;
+        }
+        self.subcommands.push(subcmd);
         self
     }
 
@@ -426,8 +432,12 @@ impl<'help> Command<'help> {
         I: IntoIterator<Item = T>,
         T: Into<Self>,
     {
-        for subcmd in subcmds.into_iter() {
-            self.subcommands.push(subcmd.into());
+        let subcmds = subcmds.into_iter();
+        let (lower, _) = subcmds.size_hint();
+        self.subcommands.reserve(lower);
+
+        for subcmd in subcmds {
+            self = self.subcommand(subcmd);
         }
         self
     }
@@ -4377,9 +4387,6 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                 .filter(|a| a.provider != ArgProvider::Generated)
             {
                 a.disp_ord.make_explicit();
-            }
-            for (i, sc) in &mut self.subcommands.iter_mut().enumerate() {
-                sc.disp_ord.get_or_insert(i);
             }
         }
         for sc in &mut self.subcommands {

@@ -35,8 +35,8 @@ OPTIONS:
         --install <install>    Install hardlinks for all subcommands in path
 
 APPLETS:
+    true     does nothing successfully
     false    does nothing unsuccessfully
     help     Print this message or the help of the given subcommand(s)
-    true     does nothing successfully
 
 ```

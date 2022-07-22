@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue`
 - `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand`
 - `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate
+- *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp`
 
