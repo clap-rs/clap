@@ -56,33 +56,6 @@ pub enum ErrorKind {
     /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     InvalidSubcommand,
 
-    /// Occurs when the user provides an unrecognized [`Subcommand`] which either
-    /// doesn't meet the threshold for being similar enough to an existing subcommand,
-    /// or the 'suggestions' feature is disabled.
-    /// Otherwise the more detailed [`InvalidSubcommand`] error is returned.
-    ///
-    /// This error typically happens when passing additional subcommand names to the `help`
-    /// subcommand. Otherwise, the more general [`UnknownArgument`] error is used.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, };
-    /// let result = Command::new("prog")
-    ///     .subcommand(Command::new("config")
-    ///         .about("Used for configuration")
-    ///         .arg(Arg::new("config_file")
-    ///             .help("The configuration file to use")))
-    ///     .try_get_matches_from(vec!["prog", "help", "nothing"]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
-    /// ```
-    ///
-    /// [`Subcommand`]: crate::Subcommand
-    /// [`InvalidSubcommand`]: ErrorKind::InvalidSubcommand
-    /// [`UnknownArgument`]: ErrorKind::UnknownArgument
-    UnrecognizedSubcommand,
-
     /// Occurs when the user doesn't use equals for an option that requires equal
     /// sign to provide values.
     ///
@@ -361,7 +334,6 @@ impl ErrorKind {
                 Some("Found an argument which wasn't expected or isn't valid in this context")
             }
             Self::InvalidSubcommand => Some("A subcommand wasn't recognized"),
-            Self::UnrecognizedSubcommand => Some("A subcommand wasn't recognized"),
             Self::NoEquals => Some("Equal is needed when assigning values to one of the arguments"),
             Self::ValueValidation => Some("Invalid value for one of the arguments"),
             Self::TooManyValues => Some("An argument received an unexpected value"),

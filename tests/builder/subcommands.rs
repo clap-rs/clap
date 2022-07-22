@@ -539,7 +539,7 @@ fn busybox_like_multicall() {
 
     let m = cmd.clone().try_get_matches_from(&["a.out"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[test]
@@ -560,7 +560,7 @@ fn hostname_like_multicall() {
 
     let m = cmd.clone().try_get_matches_from(&["a.out"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 
     let m = cmd.try_get_matches_from_mut(&["hostname", "hostname"]);
     assert!(m.is_err());
@@ -581,7 +581,7 @@ fn bad_multicall_command_error() {
         .subcommand(Command::new("bar"));
 
     let err = cmd.clone().try_get_matches_from(&["world"]).unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
     static HELLO_EXPECTED: &str = "\
 error: The subcommand 'world' wasn't recognized
 
