@@ -59,6 +59,6 @@ $ 03_04_subcommands --version
 clap [..]
 
 $ 03_04_subcommands add --version
-03_04_subcommands[EXE]-add [..]
+clap-add [..]
 
 ```
