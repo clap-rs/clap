@@ -1,12 +1,11 @@
 use std::iter::FromIterator;
 
 use proc_macro_error::{abort, ResultExt};
-use quote::ToTokens;
 use syn::{
     self, parenthesized,
-    parse::{Parse, ParseBuffer, ParseStream},
+    parse::{Parse, ParseStream},
     punctuated::Punctuated,
-    Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token,
+    Attribute, Expr, ExprLit, Ident, Lit, LitStr, Token,
 };
 
 pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
@@ -152,27 +151,6 @@ impl Parse for ClapAttr {
                     }
                 }
 
-                "raw" => match nested.parse::<LitBool>() {
-                    Ok(bool_token) => {
-                        let expr = ExprLit {
-                            attrs: vec![],
-                            lit: Lit::Bool(bool_token),
-                        };
-                        let expr = Expr::Lit(expr);
-                        Ok(MethodCall(name, vec![expr]))
-                    }
-
-                    Err(_) => {
-                        abort!(name,
-                            "`#[clap(raw(...))` attributes are removed, \
-                            they are replaced with raw methods";
-                            help = "if you meant to call `clap::Arg::raw()` method \
-                                you should use bool literal, like `raw(true)` or `raw(false)`";
-                            note = raw_method_suggestion(nested);
-                        );
-                    }
-                },
-
                 _ => {
                     let method_args: Punctuated<_, Token![,]> =
                         nested.parse_terminated(Expr::parse)?;
@@ -237,48 +215,5 @@ impl Parse for ParserSpec {
             eq_token,
             parse_func,
         })
-    }
-}
-
-fn raw_method_suggestion(ts: ParseBuffer) -> String {
-    let do_parse = move || -> Result<(Ident, Punctuated<Expr, Token![,]>), syn::Error> {
-        let name = ts.parse()?;
-        let _eq: Token![=] = ts.parse()?;
-        let val: LitStr = ts.parse()?;
-        let exprs = val.parse_with(Punctuated::<Expr, Token![,]>::parse_terminated)?;
-        Ok((name, exprs))
-    };
-
-    fn to_string<T: ToTokens>(val: &T) -> String {
-        val.to_token_stream()
-            .to_string()
-            .replace(' ', "")
-            .replace(',', ", ")
-    }
-
-    if let Ok((name, exprs)) = do_parse() {
-        let suggestion = if exprs.len() == 1 {
-            let val = to_string(&exprs[0]);
-            format!(" = {}", val)
-        } else {
-            let val = exprs
-                .into_iter()
-                .map(|expr| to_string(&expr))
-                .collect::<Vec<_>>()
-                .join(", ");
-
-            format!("({})", val)
-        };
-
-        format!(
-            "if you need to call `clap::Arg/Command::{}` method you \
-             can do it like this: #[clap({}{})]",
-            name, name, suggestion
-        )
-    } else {
-        "if you need to call some method from `clap::Arg/Command` \
-         you should use raw method, see \
-         https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#raw-attributes"
-            .into()
     }
 }
