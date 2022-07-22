@@ -40,8 +40,8 @@ OPTIONS:
 ARGS:
     <output>    Sets an optional output file
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    does testing things
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 static SIMPLE_TEMPLATE: &str = "MyApp 1.0
@@ -61,8 +61,8 @@ OPTIONS:
     -V, --version          Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    does testing things
+    help    Print this message or the help of the given subcommand(s)
 ";
 
 #[test]

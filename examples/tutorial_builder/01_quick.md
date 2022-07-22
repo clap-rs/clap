@@ -16,8 +16,8 @@ OPTIONS:
     -V, --version          Print version information
 
 SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
     test    does testing things
+    help    Print this message or the help of the given subcommand(s)
 
 ```
 

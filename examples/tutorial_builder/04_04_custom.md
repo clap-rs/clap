@@ -10,13 +10,13 @@ ARGS:
     <INPUT_FILE>    some regular input
 
 OPTIONS:
-    -c <CONFIG>                
-    -h, --help                 Print help information
+        --set-ver <VER>        set version manually
         --major                auto inc major
         --minor                auto inc minor
         --patch                auto inc patch
-        --set-ver <VER>        set version manually
         --spec-in <SPEC_IN>    some special input argument
+    -c <CONFIG>                
+    -h, --help                 Print help information
     -V, --version              Print version information
 
 $ 04_04_custom

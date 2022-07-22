@@ -107,13 +107,13 @@ USAGE:
     interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help         Print help information
     -t, --top-level    
+    -h, --help         Print help information
 
 SUBCOMMANDS:
     add       
-    help      Print this message or the help of the given subcommand(s)
     remove    
+    help      Print this message or the help of the given subcommand(s)
 
 ```
 

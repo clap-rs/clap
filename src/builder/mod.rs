@@ -18,7 +18,6 @@ mod debug_asserts;
 mod tests;
 
 pub use action::ArgAction;
-pub use app_settings::{AppFlags, AppSettings};
 pub use arg::Arg;
 pub use arg_group::ArgGroup;
 pub use command::Command;
@@ -43,6 +42,7 @@ pub use value_parser::OsStringValueParser;
 pub use value_parser::PathBufValueParser;
 
 pub(crate) use action::CountType;
+pub(crate) use app_settings::AppSettings;
 pub(crate) use arg::display_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};

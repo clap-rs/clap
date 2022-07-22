@@ -499,9 +499,9 @@ USAGE:
     pacman {query|--query|-Q} [OPTIONS]
 
 OPTIONS:
-    -h, --help                  Print help information
-    -i, --info <info>...        view package information
     -s, --search <search>...    search locally installed packages for matching strings
+    -i, --info <info>...        view package information
+    -h, --help                  Print help information
 ";
 
 #[test]
@@ -548,9 +548,9 @@ USAGE:
     pacman {query|--query} [OPTIONS]
 
 OPTIONS:
-    -h, --help                  Print help information
-    -i, --info <info>...        view package information
     -s, --search <search>...    search locally installed packages for matching strings
+    -i, --info <info>...        view package information
+    -h, --help                  Print help information
 ";
 
 #[test]
@@ -601,9 +601,9 @@ USAGE:
     pacman {query|-Q} [OPTIONS]
 
 OPTIONS:
-    -h, --help                  Print help information
-    -i, --info <info>...        view package information
     -s, --search <search>...    search locally installed packages for matching strings
+    -i, --info <info>...        view package information
+    -h, --help                  Print help information
 ";
 
 #[test]

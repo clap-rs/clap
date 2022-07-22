@@ -26,8 +26,8 @@ USAGE:
     cargo example-derive [OPTIONS]
 
 OPTIONS:
-    -h, --help                             Print help information
         --manifest-path <MANIFEST_PATH>    
+    -h, --help                             Print help information
     -V, --version                          Print version information
 
 ```

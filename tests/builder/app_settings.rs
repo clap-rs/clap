@@ -29,44 +29,6 @@ OPTIONS:
     -V, --version    Print version information
 ";
 
-static REQUIRE_EQUALS: &str = "clap-test v1.4.8
-
-USAGE:
-    clap-test --opt=<FILE>
-
-OPTIONS:
-    -h, --help          Print help information
-    -o, --opt=<FILE>    some
-    -V, --version       Print version information
-";
-
-static SKIP_POS_VALS: &str = "test 1.3
-Kevin K.
-tests stuff
-
-USAGE:
-    test [OPTIONS] [arg1]
-
-ARGS:
-    <arg1>    some pos arg
-
-OPTIONS:
-    -h, --help         Print help information
-    -o, --opt <opt>    some option
-    -V, --version      Print version information
-";
-
-static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
-
-USAGE:
-    test [OPTIONS]
-
-OPTIONS:
-    -h, --help       Print help information
-    -i, --info       Provides more info
-    -V, --version    Print version information
-";
-
 #[test]
 fn sub_command_negate_required() {
     Command::new("sub_command_negate")
@@ -163,6 +125,17 @@ fn arg_required_else_help_with_default() {
 
 #[test]
 fn arg_required_else_help_error_message() {
+    static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+    -i, --info       Provides more info
+    -h, --help       Print help information
+    -V, --version    Print version information
+";
+
     let cmd = Command::new("test")
         .arg_required_else_help(true)
         .version("1.0")
@@ -310,6 +283,22 @@ fn no_bin_name() {
 
 #[test]
 fn skip_possible_values() {
+    static SKIP_POS_VALS: &str = "test 1.3
+Kevin K.
+tests stuff
+
+USAGE:
+    test [OPTIONS] [arg1]
+
+ARGS:
+    <arg1>    some pos arg
+
+OPTIONS:
+    -o, --opt <opt>    some option
+    -h, --help         Print help information
+    -V, --version      Print version information
+";
+
     let cmd = Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -575,6 +564,17 @@ fn dont_collapse_args() {
 
 #[test]
 fn require_eq() {
+    static REQUIRE_EQUALS: &str = "clap-test v1.4.8
+
+USAGE:
+    clap-test --opt=<FILE>
+
+OPTIONS:
+    -o, --opt=<FILE>    some
+    -h, --help          Print help information
+    -V, --version       Print version information
+";
+
     let cmd = Command::new("clap-test").version("v1.4.8").arg(
         Arg::new("opt")
             .long("opt")

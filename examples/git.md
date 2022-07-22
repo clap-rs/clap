@@ -14,11 +14,11 @@ OPTIONS:
     -h, --help    Print help information
 
 SUBCOMMANDS:
-    add      adds things
     clone    Clones repos
-    help     Print this message or the help of the given subcommand(s)
     push     pushes things
+    add      adds things
     stash    
+    help     Print this message or the help of the given subcommand(s)
 
 $ git help
 git 
@@ -31,11 +31,11 @@ OPTIONS:
     -h, --help    Print help information
 
 SUBCOMMANDS:
-    add      adds things
     clone    Clones repos
-    help     Print this message or the help of the given subcommand(s)
     push     pushes things
+    add      adds things
     stash    
+    help     Print this message or the help of the given subcommand(s)
 
 $ git help add
 git-add 
@@ -83,14 +83,14 @@ USAGE:
     git[EXE] stash <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help                 Print help information
     -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 SUBCOMMANDS:
+    push     
+    pop      
     apply    
     help     Print this message or the help of the given subcommand(s)
-    pop      
-    push     
 
 $ git stash push -h
 git-stash-push 
@@ -99,8 +99,8 @@ USAGE:
     git[EXE] stash push [OPTIONS]
 
 OPTIONS:
-    -h, --help                 Print help information
     -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 $ git stash pop -h
 git-stash-pop 

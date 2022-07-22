@@ -9,12 +9,12 @@ USAGE:
     typed-derive[EXE] [OPTIONS]
 
 OPTIONS:
+    -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
+    -I <DIR>                 Allow invalid UTF-8 paths
         --bind <BIND>        Handle IP addresses
+        --sleep <SLEEP>      Allow human-readable durations
     -D <DEFINES>             Hand-written parser for tuples
     -h, --help               Print help information
-    -I <DIR>                 Allow invalid UTF-8 paths
-    -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
-        --sleep <SLEEP>      Allow human-readable durations
 
 ```
 

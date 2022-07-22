@@ -7,8 +7,8 @@ USAGE:
     03_01_flag_bool[EXE] [OPTIONS]
 
 OPTIONS:
-    -h, --help       Print help information
     -v, --verbose    
+    -h, --help       Print help information
     -V, --version    Print version information
 
 $ 03_01_flag_bool

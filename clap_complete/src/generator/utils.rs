@@ -62,7 +62,7 @@ pub fn subcommands(p: &Command) -> Vec<(String, String)> {
 }
 
 /// Gets all the short options, their visible aliases and flags of a [`clap::Command`].
-/// Includes `h` and `V` depending on the [`clap::AppSettings`].
+/// Includes `h` and `V` depending on the [`clap::Command`] settings.
 pub fn shorts_and_visible_aliases(p: &Command) -> Vec<char> {
     debug!("shorts: name={}", p.get_name());
 
@@ -87,7 +87,7 @@ pub fn shorts_and_visible_aliases(p: &Command) -> Vec<char> {
 }
 
 /// Gets all the long options, their visible aliases and flags of a [`clap::Command`].
-/// Includes `help` and `version` depending on the [`clap::AppSettings`].
+/// Includes `help` and `version` depending on the [`clap::Command`] settings.
 pub fn longs_and_visible_aliases(p: &Command) -> Vec<String> {
     debug!("longs: name={}", p.get_name());
 
@@ -117,7 +117,7 @@ pub fn longs_and_visible_aliases(p: &Command) -> Vec<String> {
 }
 
 /// Gets all the flags of a [`clap::Command`](Command).
-/// Includes `help` and `version` depending on the [`clap::AppSettings`].
+/// Includes `help` and `version` depending on the [`clap::Command`] settings.
 pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
     debug!("flags: name={}", p.get_name());
     p.get_arguments()
