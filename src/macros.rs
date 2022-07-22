@@ -393,6 +393,8 @@ macro_rules! arg_impl {
             ({
                 if $arg.get_long().is_none() && $arg.get_short().is_none() {
                     $arg.multiple_values(true)
+                        // Allow collecting arguments interleaved with flags
+                        .action($crate::ArgAction::Append)
                 } else if $arg.is_takes_value_set() {
                     $arg.action($crate::ArgAction::Append)
                 } else {

@@ -184,7 +184,7 @@ mod arg {
         let arg = clap::arg!(<NUM> ...);
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(matches!(arg.get_action(), clap::ArgAction::Append));
         assert!(arg.is_multiple_values_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
