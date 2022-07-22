@@ -44,7 +44,6 @@ pub struct Attrs {
     methods: Vec<Method>,
     value_parser: Option<ValueParser>,
     action: Option<Action>,
-    parser: Option<Sp<Parser>>,
     verbatim_doc_comment: Option<Ident>,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
@@ -77,9 +76,6 @@ impl Attrs {
                 action.span(),
                 "`action` attribute is only allowed on fields"
             );
-        }
-        if let Some(parser) = res.parser.as_ref() {
-            abort!(parser.span(), "`parse` attribute is only allowed on fields");
         }
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
@@ -124,12 +120,6 @@ impl Attrs {
                         "`action` attribute is not allowed for flattened entry"
                     );
                 }
-                if let Some(parser) = res.parser.as_ref() {
-                    abort!(
-                        parser.span(),
-                        "parse attribute is not allowed for flattened entry"
-                    );
-                }
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -154,12 +144,6 @@ impl Attrs {
                     abort!(
                         action.span(),
                         "`action` attribute is not allowed for subcommand"
-                    );
-                }
-                if let Some(parser) = res.parser.as_ref() {
-                    abort!(
-                        parser.span(),
-                        "parse attribute is not allowed for subcommand"
                     );
                 }
 
@@ -236,9 +220,6 @@ impl Attrs {
                 "`action` attribute is only allowed on fields"
             );
         }
-        if let Some(parser) = res.parser.as_ref() {
-            abort!(parser.span(), "`parse` attribute is only allowed on fields");
-        }
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => res,
@@ -282,12 +263,6 @@ impl Attrs {
                         "`action` attribute is not allowed for flattened entry"
                     );
                 }
-                if let Some(parser) = res.parser.as_ref() {
-                    abort!(
-                        parser.span(),
-                        "parse attribute is not allowed for flattened entry"
-                    );
-                }
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -316,12 +291,6 @@ impl Attrs {
                     abort!(
                         action.span(),
                         "`action` attribute is not allowed for subcommand"
-                    );
-                }
-                if let Some(parser) = res.parser.as_ref() {
-                    abort!(
-                        parser.span(),
-                        "parse attribute is not allowed for subcommand"
                     );
                 }
                 if res.has_explicit_methods() {
@@ -363,25 +332,7 @@ impl Attrs {
                 res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
             }
             Kind::Arg(_) => {
-                let mut ty = Ty::from_syn_ty(&field.ty);
-                if res.parser.is_some() {
-                    if let Some(value_parser) = res.value_parser.as_ref() {
-                        abort!(
-                            value_parser.span(),
-                            "`value_parser` attribute conflicts with `parse` attribute"
-                        );
-                    }
-                    if let Some(action) = res.action.as_ref() {
-                        abort!(
-                            action.span(),
-                            "`action` attribute conflicts with `parse` attribute"
-                        );
-                    }
-                    match *ty {
-                        Ty::Option | Ty::Vec | Ty::OptionVec => (),
-                        _ => ty = Sp::new(Ty::Other, ty.span()),
-                    }
-                }
+                let ty = Ty::from_syn_ty(&field.ty);
 
                 match *ty {
                     Ty::Option => {
@@ -438,7 +389,6 @@ impl Attrs {
             methods: vec![],
             value_parser: None,
             action: None,
-            parser: None,
             verbatim_doc_comment: None,
             next_display_order: None,
             next_help_heading: None,
@@ -650,10 +600,6 @@ impl Attrs {
                 RenameAllEnv(_, casing_lit) => {
                     self.env_casing = CasingStyle::from_lit(casing_lit);
                 }
-
-                Parse(ident, spec) => {
-                    self.parser = Some(Parser::from_spec(ident, spec));
-                }
             }
         }
     }
@@ -689,10 +635,6 @@ impl Attrs {
                 "`subcommand`, `flatten`, `external_subcommand` and `skip` cannot be used together"
             );
         }
-    }
-
-    pub fn find_method(&self, name: &str) -> Option<&Method> {
-        self.methods.iter().find(|m| m.name == name)
     }
 
     pub fn find_default_method(&self) -> Option<&Method> {
@@ -770,14 +712,11 @@ impl Attrs {
                 p.resolve(inner_type)
             })
             .unwrap_or_else(|| {
+                let inner_type = inner_type(field_type);
                 if let Some(action) = self.action.as_ref() {
-                    let inner_type = inner_type(field_type);
                     let span = action.span();
                     default_value_parser(inner_type, span)
-                } else if !self.ignore_parser() {
-                    self.parser(field_type).value_parser()
                 } else {
-                    let inner_type = inner_type(field_type);
                     let span = self
                         .action
                         .as_ref()
@@ -796,8 +735,6 @@ impl Attrs {
                 if let Some(value_parser) = self.value_parser.as_ref() {
                     let span = value_parser.span();
                     default_action(field_type, span)
-                } else if !self.ignore_parser() {
-                    self.parser(field_type).action()
                 } else {
                     let span = self
                         .value_parser
@@ -809,40 +746,12 @@ impl Attrs {
             })
     }
 
-    pub fn ignore_parser(&self) -> bool {
-        self.parser.is_none()
-    }
-
-    pub fn explicit_parser(&self) -> bool {
-        self.parser.is_some()
-    }
-
-    pub fn parser(&self, field_type: &Type) -> Sp<Parser> {
-        self.parser
-            .clone()
-            .unwrap_or_else(|| Parser::from_type(field_type, self.kind.span()))
-    }
-
     pub fn kind(&self) -> Sp<Kind> {
         self.kind.clone()
     }
 
-    pub fn is_enum(&self) -> bool {
-        self.is_enum
-    }
-
     pub fn is_positional(&self) -> bool {
         self.is_positional
-    }
-
-    pub fn ignore_case(&self) -> TokenStream {
-        let method = self.find_method("ignore_case");
-
-        if let Some(method) = method {
-            method.args.clone()
-        } else {
-            quote! { false }
-        }
     }
 
     pub fn casing(&self) -> Sp<CasingStyle> {
@@ -1029,114 +938,6 @@ fn process_author_str(author: &str) -> String {
     }
 
     res
-}
-
-#[derive(Clone)]
-pub struct Parser {
-    pub kind: Sp<ParserKind>,
-    pub func: TokenStream,
-}
-
-impl Parser {
-    fn from_type(field_type: &Type, span: Span) -> Sp<Self> {
-        if is_simple_ty(field_type, "bool") {
-            let kind = Sp::new(ParserKind::FromFlag, span);
-            let func = quote_spanned!(span=> ::std::convert::From::from);
-            Sp::new(Parser { kind, func }, span)
-        } else {
-            let kind = Sp::new(ParserKind::TryFromStr, span);
-            let func = quote_spanned!(span=> ::std::str::FromStr::from_str);
-            Sp::new(Parser { kind, func }, span)
-        }
-    }
-
-    fn from_spec(parse_ident: Ident, spec: ParserSpec) -> Sp<Self> {
-        use self::ParserKind::*;
-
-        let kind = match &*spec.kind.to_string() {
-            "from_str" => FromStr,
-            "try_from_str" => TryFromStr,
-            "from_os_str" => FromOsStr,
-            "try_from_os_str" => TryFromOsStr,
-            "from_occurrences" => FromOccurrences,
-            "from_flag" => FromFlag,
-            s => abort!(spec.kind.span(), "unsupported parser `{}`", s),
-        };
-
-        let func = match spec.parse_func {
-            None => match kind {
-                FromStr | FromOsStr => {
-                    quote_spanned!(spec.kind.span()=> ::std::convert::From::from)
-                }
-                TryFromStr => quote_spanned!(spec.kind.span()=> ::std::str::FromStr::from_str),
-                TryFromOsStr => abort!(
-                    spec.kind.span(),
-                    "you must set parser for `try_from_os_str` explicitly"
-                ),
-                FromOccurrences => quote_spanned!(spec.kind.span()=> { |v| v as _ }),
-                FromFlag => quote_spanned!(spec.kind.span()=> ::std::convert::From::from),
-            },
-
-            Some(func) => match func {
-                Expr::Path(_) => quote!(#func),
-                _ => abort!(func, "`parse` argument must be a function path"),
-            },
-        };
-
-        let kind = Sp::new(kind, spec.kind.span());
-        let parser = Parser { kind, func };
-        Sp::new(parser, parse_ident.span())
-    }
-
-    fn value_parser(&self) -> Method {
-        let func = Ident::new("value_parser", self.kind.span());
-        match *self.kind {
-            ParserKind::FromStr | ParserKind::TryFromStr => Method::new(
-                func,
-                quote_spanned! { self.kind.span()=>
-                clap::builder::ValueParser::string()},
-            ),
-            ParserKind::FromOsStr | ParserKind::TryFromOsStr => Method::new(
-                func,
-                quote_spanned! { self.kind.span()=> clap::builder::ValueParser::os_string()},
-            ),
-            ParserKind::FromOccurrences => Method::new(
-                func,
-                quote_spanned! { self.kind.span()=> clap::value_parser!(u64)},
-            ),
-            ParserKind::FromFlag => Method::new(
-                func,
-                quote_spanned! { self.kind.span()=> clap::builder::ValueParser::bool()},
-            ),
-        }
-    }
-
-    fn action(&self) -> Method {
-        let func = Ident::new("action", self.kind.span());
-        match *self.kind {
-            ParserKind::FromStr
-            | ParserKind::TryFromStr
-            | ParserKind::FromOsStr
-            | ParserKind::TryFromOsStr => Method::new(
-                func,
-                quote_spanned! { self.kind.span()=> clap::ArgAction::StoreValue},
-            ),
-            ParserKind::FromOccurrences | ParserKind::FromFlag => Method::new(
-                func,
-                quote_spanned! { self.kind.span()=> clap::ArgAction::IncOccurrence},
-            ),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum ParserKind {
-    FromStr,
-    TryFromStr,
-    FromOsStr,
-    TryFromOsStr,
-    FromOccurrences,
-    FromFlag,
 }
 
 /// Defines the casing for the attributes long representation.

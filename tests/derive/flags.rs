@@ -79,37 +79,6 @@ fn count() {
 }
 
 #[test]
-fn non_bool_type_flag() {
-    fn parse_from_flag(b: bool) -> std::sync::atomic::AtomicBool {
-        std::sync::atomic::AtomicBool::new(b)
-    }
-
-    #[derive(Parser, Debug)]
-    struct Opt {
-        #[clap(short, long, parse(from_flag = parse_from_flag))]
-        alice: std::sync::atomic::AtomicBool,
-        #[clap(short, long, parse(from_flag))]
-        bob: std::sync::atomic::AtomicBool,
-    }
-
-    let falsey = Opt::try_parse_from(&["test"]).unwrap();
-    assert!(!falsey.alice.load(std::sync::atomic::Ordering::Relaxed));
-    assert!(!falsey.bob.load(std::sync::atomic::Ordering::Relaxed));
-
-    let alice = Opt::try_parse_from(&["test", "-a"]).unwrap();
-    assert!(alice.alice.load(std::sync::atomic::Ordering::Relaxed));
-    assert!(!alice.bob.load(std::sync::atomic::Ordering::Relaxed));
-
-    let bob = Opt::try_parse_from(&["test", "-b"]).unwrap();
-    assert!(!bob.alice.load(std::sync::atomic::Ordering::Relaxed));
-    assert!(bob.bob.load(std::sync::atomic::Ordering::Relaxed));
-
-    let both = Opt::try_parse_from(&["test", "-b", "-a"]).unwrap();
-    assert!(both.alice.load(std::sync::atomic::Ordering::Relaxed));
-    assert!(both.bob.load(std::sync::atomic::Ordering::Relaxed));
-}
-
-#[test]
 fn mixed_type_flags() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {

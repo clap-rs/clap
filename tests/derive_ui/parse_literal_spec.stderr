@@ -1,5 +1,0 @@
-error: parser specification must start with identifier
-  --> $DIR/parse_literal_spec.rs:14:18
-   |
-14 |     #[clap(parse("from_str"))]
-   |                  ^^^^^^^^^^

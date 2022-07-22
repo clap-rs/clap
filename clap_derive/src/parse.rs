@@ -43,9 +43,6 @@ pub enum ClapAttr {
     RenameAll(Ident, LitStr),
     NameLitStr(Ident, LitStr),
 
-    // parse(parser_kind [= parser_func])
-    Parse(Ident, ParserSpec),
-
     // ident [= arbitrary_expr]
     Skip(Ident, Option<Expr>),
 
@@ -139,24 +136,8 @@ impl Parse for ClapAttr {
             let nested;
             parenthesized!(nested in input);
 
-            match name_str.as_ref() {
-                "parse" => {
-                    let parser_specs: Punctuated<ParserSpec, Token![,]> =
-                        nested.parse_terminated(ParserSpec::parse)?;
-
-                    if parser_specs.len() == 1 {
-                        Ok(Parse(name, parser_specs[0].clone()))
-                    } else {
-                        abort!(name, "parse must have exactly one argument")
-                    }
-                }
-
-                _ => {
-                    let method_args: Punctuated<_, Token![,]> =
-                        nested.parse_terminated(Expr::parse)?;
-                    Ok(MethodCall(name, Vec::from_iter(method_args)))
-                }
-            }
+            let method_args: Punctuated<_, Token![,]> = nested.parse_terminated(Expr::parse)?;
+            Ok(MethodCall(name, Vec::from_iter(method_args)))
         } else {
             // Attributes represented with a sole identifier.
             match name_str.as_ref() {
@@ -190,30 +171,5 @@ impl Parse for ClapAttr {
                 _ => abort!(name, "unexpected attribute: {}", name_str),
             }
         }
-    }
-}
-
-#[derive(Clone)]
-pub struct ParserSpec {
-    pub kind: Ident,
-    pub eq_token: Option<Token![=]>,
-    pub parse_func: Option<Expr>,
-}
-
-impl Parse for ParserSpec {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let kind = input
-            .parse()
-            .map_err(|_| input.error("parser specification must start with identifier"))?;
-        let eq_token = input.parse()?;
-        let parse_func = match eq_token {
-            None => None,
-            Some(_) => Some(input.parse()?),
-        };
-        Ok(ParserSpec {
-            kind,
-            eq_token,
-            parse_func,
-        })
     }
 }

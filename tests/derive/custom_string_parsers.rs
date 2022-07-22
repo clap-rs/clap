@@ -125,15 +125,8 @@ fn update_every_custom_parser() {
     assert_eq!(NoOpOpt { b: "B" }, opt);
 }
 
-// Note: can't use `Vec<u8>` directly, as clap would instead look for
-// conversion function from `&str` to `u8`.
-type Bytes = Vec<u8>;
-
 #[derive(Parser, PartialEq, Debug)]
 struct DefaultedOpt {
-    #[clap(short, parse(from_str))]
-    bytes: Bytes,
-
     #[clap(short)]
     integer: u64,
 
@@ -145,61 +138,9 @@ struct DefaultedOpt {
 fn test_parser_with_default_value() {
     assert_eq!(
         DefaultedOpt {
-            bytes: b"E\xc2\xb2=p\xc2\xb2c\xc2\xb2+m\xc2\xb2c\xe2\x81\xb4".to_vec(),
             integer: 9000,
             path: PathBuf::from("src/lib.rs"),
         },
-        DefaultedOpt::try_parse_from(&[
-            "test",
-            "-b",
-            "E²=p²c²+m²c⁴",
-            "-i",
-            "9000",
-            "-p",
-            "src/lib.rs",
-        ])
-        .unwrap()
-    );
-}
-
-#[derive(PartialEq, Debug)]
-struct Foo(u8);
-
-fn foo(value: u64) -> Foo {
-    Foo(value as u8)
-}
-
-#[derive(Parser, PartialEq, Debug)]
-struct Occurrences {
-    #[clap(short, long, parse(from_occurrences))]
-    signed: i32,
-
-    #[clap(short, parse(from_occurrences))]
-    little_signed: i8,
-
-    #[clap(short, parse(from_occurrences))]
-    unsigned: usize,
-
-    #[clap(short = 'r', parse(from_occurrences))]
-    little_unsigned: u8,
-
-    #[clap(short, long, parse(from_occurrences = foo))]
-    custom: Foo,
-}
-
-#[test]
-fn test_parser_occurrences() {
-    assert_eq!(
-        Occurrences {
-            signed: 3,
-            little_signed: 1,
-            unsigned: 0,
-            little_unsigned: 4,
-            custom: Foo(5),
-        },
-        Occurrences::try_parse_from(&[
-            "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom",
-        ])
-        .unwrap()
+        DefaultedOpt::try_parse_from(&["test", "-i", "9000", "-p", "src/lib.rs",]).unwrap()
     );
 }
