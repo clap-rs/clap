@@ -72,10 +72,10 @@ pub fn complex_app() -> Command<'static> {
                 .required(false)
                 .value_parser(opt3_vals),
             arg!([positional3] ... "tests specific values").value_parser(pos3_vals),
-            arg!(--multvals "Tests multiple values, not mult occs")
+            arg!(--multvals <val> "Tests multiple values, not mult occs")
                 .value_names(&["one", "two"])
                 .required(false),
-            arg!(--multvalsmo ... "Tests multiple values, and mult occs")
+            arg!(--multvalsmo <val> ... "Tests multiple values, and mult occs")
                 .value_names(&["one", "two"])
                 .required(false),
             arg!(--minvals2 <minvals> "Tests 2 min vals")

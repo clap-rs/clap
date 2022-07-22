@@ -1731,7 +1731,7 @@ fn issue_1052_require_delim_help() {
         .about("tests stuff")
         .version("1.3")
         .arg(
-            arg!(-f --fake "some help")
+            arg!(-f --fake <s> "some help")
                 .required(true)
                 .value_names(&["some", "val"])
                 .takes_value(true)
@@ -1750,7 +1750,7 @@ fn custom_headers_headers() {
         .about("does stuff")
         .version("1.4")
         .arg(
-            arg!(-f --fake "some help")
+            arg!(-f --fake <s> "some help")
                 .required(true)
                 .value_names(&["some", "val"])
                 .takes_value(true)
@@ -1802,7 +1802,7 @@ fn multiple_custom_help_headers() {
         .about("does stuff")
         .version("1.4")
         .arg(
-            arg!(-f --fake "some help")
+            arg!(-f --fake <s> "some help")
                 .required(true)
                 .value_names(&["some", "val"])
                 .takes_value(true)

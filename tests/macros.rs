@@ -43,40 +43,32 @@ mod arg {
         let arg = clap::arg!(foo: -b);
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -'b');
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -b ...);
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Count));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: -b "How to use it");
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }
@@ -87,10 +79,8 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -98,10 +88,8 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -109,10 +97,8 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Count));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -120,11 +106,44 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
+        assert_eq!(arg.get_help(), Some("How to use it"));
+    }
+
+    #[test]
+    fn short_with_value() {
+        let arg = clap::arg!(foo: -b <NUM>);
+        assert_eq!(arg.get_id(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
+        assert!(arg.is_required_set());
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -'b' <NUM>);
+        assert_eq!(arg.get_id(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
+        assert!(arg.is_required_set());
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -b  <NUM> ...);
+        assert_eq!(arg.get_id(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(matches!(arg.get_action(), clap::ArgAction::Append));
+        assert!(!arg.is_multiple_values_set());
+        assert!(arg.is_required_set());
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -b  <NUM> "How to use it");
+        assert_eq!(arg.get_id(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
+        assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }
 
@@ -133,60 +152,48 @@ mod arg {
         let arg = clap::arg!(<NUM>);
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!([NUM]);
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(<NUM>);
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(foo: <NUM>);
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(<NUM> ...);
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        #[allow(deprecated)]
-        {
-            assert!(arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(arg.is_multiple_values_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
         let arg = clap::arg!(<NUM> "How to use it");
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
-        #[allow(deprecated)]
-        {
-            assert!(!arg.is_multiple_occurrences_set());
-        }
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+        assert!(!arg.is_multiple_values_set());
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }
