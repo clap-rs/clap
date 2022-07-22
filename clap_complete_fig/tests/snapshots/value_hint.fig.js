@@ -4,6 +4,7 @@ const completion: Fig.Spec = {
   options: [
     {
       name: "--choice",
+      isRepeatable: true,
       args: {
         name: "choice",
         isOptional: true,
@@ -16,6 +17,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--unknown",
+      isRepeatable: true,
       args: {
         name: "unknown",
         isOptional: true,
@@ -23,6 +25,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--other",
+      isRepeatable: true,
       args: {
         name: "other",
         isOptional: true,
@@ -30,6 +33,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-p", "--path"],
+      isRepeatable: true,
       args: {
         name: "path",
         isOptional: true,
@@ -38,6 +42,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-f", "--file"],
+      isRepeatable: true,
       args: {
         name: "file",
         isOptional: true,
@@ -46,6 +51,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-d", "--dir"],
+      isRepeatable: true,
       args: {
         name: "dir",
         isOptional: true,
@@ -54,6 +60,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-e", "--exe"],
+      isRepeatable: true,
       args: {
         name: "exe",
         isOptional: true,
@@ -62,6 +69,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--cmd-name",
+      isRepeatable: true,
       args: {
         name: "cmd_name",
         isOptional: true,
@@ -70,6 +78,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-c", "--cmd"],
+      isRepeatable: true,
       args: {
         name: "cmd",
         isOptional: true,
@@ -78,6 +87,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-u", "--user"],
+      isRepeatable: true,
       args: {
         name: "user",
         isOptional: true,
@@ -85,6 +95,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-h", "--host"],
+      isRepeatable: true,
       args: {
         name: "host",
         isOptional: true,
@@ -92,6 +103,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--url",
+      isRepeatable: true,
       args: {
         name: "url",
         isOptional: true,
@@ -99,6 +111,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--email",
+      isRepeatable: true,
       args: {
         name: "email",
         isOptional: true,

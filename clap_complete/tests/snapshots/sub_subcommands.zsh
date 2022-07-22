@@ -36,7 +36,7 @@ _my-app() {
         case $line[3] in
             (test)
 _arguments "${_arguments_options[@]}" /
-'--case=[the case to test]: : ' /
+'*--case=[the case to test]: : ' /
 '-h[Print help information]' /
 '--help[Print help information]' /
 '-V[Print version information]' /
@@ -61,7 +61,7 @@ _arguments "${_arguments_options[@]}" /
         case $line[1] in
             (sub_cmd)
 _arguments "${_arguments_options[@]}" /
-'--config=[the other case to test]: :(Lest quotes aren't escaped.)' /
+'*--config=[the other case to test]: :(Lest quotes aren't escaped.)' /
 '-h[Print help information]' /
 '--help[Print help information]' /
 '-V[Print version information]' /

@@ -17,8 +17,8 @@ _my-app() {
     _arguments "${_arguments_options[@]}" /
 '-h[Print help information]' /
 '--help[Print help information]' /
-'-c[]' /
-'(-c)-v[]' /
+'*-c[]' /
+'(-c)*-v[]' /
 ":: :_my-app_commands" /
 "*::: :->my-app" /
 && ret=0
@@ -33,12 +33,12 @@ _arguments "${_arguments_options[@]}" /
 '*-d[]' /
 '-h[Print help information]' /
 '--help[Print help information]' /
-'-c[]' /
+'*-c[]' /
 && ret=0
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'-c[]' /
+'*-c[]' /
 '*::subcommand -- The subcommand whose help message to display:' /
 && ret=0
 ;;
