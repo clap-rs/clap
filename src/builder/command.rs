@@ -3845,6 +3845,10 @@ impl<'help> Command<'help> {
                 self.settings.insert(AppSettings::DisableHelpFlag.into());
                 self.settings.insert(AppSettings::DisableVersionFlag.into());
             }
+            if self.is_set(AppSettings::ArgsNegateSubcommands) {
+                self.settings
+                    .insert(AppSettings::SubcommandsNegateReqs.into());
+            }
 
             self._propagate();
             self._check_help_and_version();

@@ -609,3 +609,20 @@ fn exclusive_with_required() {
 
     cmd.clone().try_get_matches_from(["bug", "--test"]).unwrap();
 }
+
+#[test]
+fn subcommand_conflict_negates_required() {
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand(Command::new("config"))
+        .arg(arg!(-p --place <"place id"> "Place ID to open"));
+
+    let result = cmd.try_get_matches_from(["test", "config"]);
+    assert!(
+        result.is_ok(),
+        "args_conflicts_with_subcommands should ignore required: {}",
+        result.unwrap_err()
+    );
+    let m = result.unwrap();
+    assert_eq!(m.subcommand_name().unwrap(), "config");
+}
