@@ -171,8 +171,12 @@ impl<'help> Command<'help> {
     /// ```
     /// [argument]: Arg
     #[must_use]
-    pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
-        let mut arg = a.into();
+    pub fn arg<A: Into<Arg<'help>>>(self, a: A) -> Self {
+        let arg = a.into();
+        self.arg_internal(arg)
+    }
+
+    fn arg_internal(mut self, mut arg: Arg<'help>) -> Self {
         if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
             if !arg.is_positional() && arg.provider != ArgProvider::Generated {
                 let current = *current_disp_ord;
@@ -401,8 +405,12 @@ impl<'help> Command<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn subcommand<S: Into<Self>>(mut self, subcmd: S) -> Self {
-        let mut subcmd = subcmd.into();
+    pub fn subcommand<S: Into<Self>>(self, subcmd: S) -> Self {
+        let subcmd = subcmd.into();
+        self.subcommand_internal(subcmd)
+    }
+
+    fn subcommand_internal(mut self, mut subcmd: Self) -> Self {
         if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
             let current = *current_disp_ord;
             subcmd.disp_ord.get_or_insert(current);
