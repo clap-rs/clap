@@ -8,7 +8,6 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
-use crate::builder::AppSettings as AS;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -107,11 +106,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     let sc_name = self.possible_subcommand(arg_os.to_value(), valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
                     if let Some(sc_name) = sc_name {
-                        #[allow(deprecated)]
-                        if sc_name == "help"
-                            && !self.is_set(AS::NoAutoHelp)
-                            && !self.cmd.is_disable_help_subcommand_set()
-                        {
+                        if sc_name == "help" && !self.cmd.is_disable_help_subcommand_set() {
                             self.parse_help_subcommand(raw_args.remaining(&mut args_cursor))?;
                             unreachable!("`parse_help_subcommand` always errors");
                         } else {
@@ -1662,13 +1657,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         let mut c = Colorizer::new(Stream::Stdout, self.cmd.color_help());
         c.none(msg);
         ClapError::display_version(self.cmd, c)
-    }
-}
-
-// Query Methods
-impl<'help, 'cmd> Parser<'help, 'cmd> {
-    pub(crate) fn is_set(&self, s: AS) -> bool {
-        self.cmd.is_set(s)
     }
 }
 

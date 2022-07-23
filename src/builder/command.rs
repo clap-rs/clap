@@ -3789,10 +3789,6 @@ impl<'help> Command<'help> {
 
             let mut pos_counter = 1;
             let hide_pv = self.is_set(AppSettings::HidePossibleValues);
-            let auto_help =
-                !self.is_set(AppSettings::NoAutoHelp) && !self.is_disable_help_flag_set();
-            let auto_version =
-                !self.is_set(AppSettings::NoAutoVersion) && !self.is_disable_version_flag_set();
             for a in self.args.args_mut() {
                 // Fill in the groups
                 for g in &a.groups {
@@ -3819,10 +3815,10 @@ impl<'help> Command<'help> {
                 // required.  Otherwise, most of this won't be needed because when we can break
                 // compat, actions will reign supreme (default to `Store`)
                 if a.action.is_none() {
-                    if a.get_id() == "help" && auto_help && !a.is_takes_value_set() {
+                    if a.get_id() == "help" && !a.is_takes_value_set() {
                         let action = super::ArgAction::Help;
                         a.action = Some(action);
-                    } else if a.get_id() == "version" && auto_version && !a.is_takes_value_set() {
+                    } else if a.get_id() == "version" && !a.is_takes_value_set() {
                         let action = super::ArgAction::Version;
                         a.action = Some(action);
                     } else if a.is_takes_value_set() {
