@@ -4,30 +4,29 @@ use clap::{CommandFactory, ErrorKind, Parser};
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// set version manually
-    #[clap(long, value_name = "VER", value_parser)]
+    #[clap(long, value_name = "VER")]
     set_ver: Option<String>,
 
     /// auto inc major
-    #[clap(long, action)]
+    #[clap(long)]
     major: bool,
 
     /// auto inc minor
-    #[clap(long, action)]
+    #[clap(long)]
     minor: bool,
 
     /// auto inc patch
-    #[clap(long, action)]
+    #[clap(long)]
     patch: bool,
 
     /// some regular input
-    #[clap(value_parser)]
     input_file: Option<String>,
 
     /// some special input argument
-    #[clap(long, value_parser)]
+    #[clap(long)]
     spec_in: Option<String>,
 
-    #[clap(short, value_parser)]
+    #[clap(short)]
     config: Option<String>,
 }
 

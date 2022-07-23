@@ -4,19 +4,19 @@ use std::error::Error;
 #[derive(Parser, Debug)] // requires `derive` feature
 struct Args {
     /// Implicitly using `std::str::FromStr`
-    #[clap(short = 'O', value_parser)]
+    #[clap(short = 'O')]
     optimization: Option<usize>,
 
     /// Allow invalid UTF-8 paths
-    #[clap(short = 'I', value_parser, value_name = "DIR", value_hint = clap::ValueHint::DirPath)]
+    #[clap(short = 'I', value_name = "DIR", value_hint = clap::ValueHint::DirPath)]
     include: Option<std::path::PathBuf>,
 
     /// Handle IP addresses
-    #[clap(long, value_parser)]
+    #[clap(long)]
     bind: Option<std::net::IpAddr>,
 
     /// Allow human-readable durations
-    #[clap(long, value_parser)]
+    #[clap(long)]
     sleep: Option<humantime::Duration>,
 
     /// Hand-written parser for tuples

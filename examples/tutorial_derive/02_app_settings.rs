@@ -4,9 +4,9 @@ use clap::Parser;
 #[clap(author, version, about, long_about = None)]
 #[clap(allow_negative_numbers = true)]
 struct Cli {
-    #[clap(long, value_parser)]
+    #[clap(long)]
     two: String,
-    #[clap(long, value_parser)]
+    #[clap(long)]
     one: String,
 }
 

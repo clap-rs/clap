@@ -11,7 +11,7 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[clap(name = "basic")]
 struct Opt {
-    #[clap(value_parser, default_value_t = -10)]
+    #[clap(default_value_t = -10)]
     value: u32,
 }
 

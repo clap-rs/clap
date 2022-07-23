@@ -10,7 +10,7 @@ enum Cargo {
 #[derive(clap::Args)]
 #[clap(author, version, about, long_about = None)]
 struct ExampleDerive {
-    #[clap(long, value_parser)]
+    #[clap(long)]
     manifest_path: Option<std::path::PathBuf>,
 }
 

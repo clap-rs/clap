@@ -3,13 +3,13 @@ use clap::Parser;
 #[derive(Parser)] // requires `derive` feature
 #[clap(author, version, about, long_about = None)]
 struct Cli {
-    #[clap(short = 'f', action)]
+    #[clap(short = 'f')]
     eff: bool,
 
-    #[clap(short = 'p', value_name = "PEAR", value_parser)]
+    #[clap(short = 'p', value_name = "PEAR")]
     pea: Option<String>,
 
-    #[clap(last = true, value_parser)]
+    #[clap(last = true)]
     slop: Vec<String>,
 }
 

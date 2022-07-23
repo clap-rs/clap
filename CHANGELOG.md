@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## 5.0.0 - Upcoming
+
+### Breaking Changes
+
+- *(derive)* Removed `#[clap(value_parser)]` and `#[clap(action)]` defaulted attributes (its the default) (#3976)
+
 ## 4.0.0 - Upcoming
 
 ### Breaking Changes
