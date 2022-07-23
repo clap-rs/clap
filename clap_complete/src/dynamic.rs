@@ -22,7 +22,7 @@ pub mod bash {
     #[derive(Clone, Debug)]
     pub struct CompleteArgs {
         /// Path to write completion-registration to
-        #[clap(long, required = true, value_parser)]
+        #[clap(long, required = true)]
         register: Option<std::path::PathBuf>,
 
         #[clap(
@@ -30,36 +30,33 @@ pub mod bash {
             required = true,
             value_name = "COMP_CWORD",
             hide_short_help = true,
-            group = "complete",
-            value_parser
+            group = "complete"
         )]
         index: Option<usize>,
 
-        #[clap(long, hide_short_help = true, group = "complete", value_parser)]
+        #[clap(long, hide_short_help = true, group = "complete")]
         ifs: Option<String>,
 
         #[clap(
             long = "type",
             required = true,
             hide_short_help = true,
-            group = "complete",
-            value_parser
+            group = "complete"
         )]
         comp_type: Option<CompType>,
 
-        #[clap(long, hide_short_help = true, group = "complete", action)]
+        #[clap(long, hide_short_help = true, group = "complete")]
         space: bool,
 
         #[clap(
             long,
             conflicts_with = "space",
             hide_short_help = true,
-            group = "complete",
-            action
+            group = "complete"
         )]
         no_space: bool,
 
-        #[clap(raw = true, hide_short_help = true, group = "complete", value_parser)]
+        #[clap(raw = true, hide_short_help = true, group = "complete")]
         comp_words: Vec<OsString>,
     }
 

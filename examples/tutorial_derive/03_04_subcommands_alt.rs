@@ -16,7 +16,6 @@ enum Commands {
 
 #[derive(Args)]
 struct Add {
-    #[clap(value_parser)]
     name: Option<String>,
 }
 

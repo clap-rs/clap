@@ -25,7 +25,9 @@ pub enum ClapAttr {
     // single-identifier attributes
     Short(Ident),
     Long(Ident),
+    #[cfg(not(feature = "unstable-v5"))]
     ValueParser(Ident),
+    #[cfg(not(feature = "unstable-v5"))]
     Action(Ident),
     Env(Ident),
     Flatten(Ident),
@@ -143,7 +145,9 @@ impl Parse for ClapAttr {
             match name_str.as_ref() {
                 "long" => Ok(Long(name)),
                 "short" => Ok(Short(name)),
+                #[cfg(not(feature = "unstable-v5"))]
                 "value_parser" => Ok(ValueParser(name)),
+                #[cfg(not(feature = "unstable-v5"))]
                 "action" => Ok(Action(name)),
                 "env" => Ok(Env(name)),
                 "flatten" => Ok(Flatten(name)),

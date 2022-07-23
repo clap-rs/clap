@@ -429,11 +429,13 @@ impl Attrs {
                     self.push_method(ident, self.name.clone().translate(*self.casing));
                 }
 
+                #[cfg(not(feature = "unstable-v5"))]
                 ValueParser(ident) => {
                     use crate::attrs::ValueParser;
                     self.value_parser = Some(ValueParser::Implicit(ident));
                 }
 
+                #[cfg(not(feature = "unstable-v5"))]
                 Action(ident) => {
                     use crate::attrs::Action;
                     self.action = Some(Action::Implicit(ident));

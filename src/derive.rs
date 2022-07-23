@@ -36,10 +36,10 @@ use std::ffi::OsString;
 /// #[clap(name = "demo")]
 /// struct Context {
 ///     /// More verbose output
-///     #[clap(long, value_parser)]
+///     #[clap(long)]
 ///     verbose: bool,
 ///     /// An optional name
-///     #[clap(short, long, value_parser)]
+///     #[clap(short, long)]
 ///     name: Option<String>,
 /// }
 /// ```
@@ -354,7 +354,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(value_enum, value_parser)]
+///     #[clap(value_enum)]
 ///     level: Level,
 /// }
 ///

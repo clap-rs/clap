@@ -3,7 +3,7 @@ use clap::{Command, FromArgMatches as _, Parser, Subcommand as _};
 #[derive(Parser, Debug)]
 enum Subcommands {
     Derived {
-        #[clap(short, long, action)]
+        #[clap(short, long)]
         derived_flag: bool,
     },
 }

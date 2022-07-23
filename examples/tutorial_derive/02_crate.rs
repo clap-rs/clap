@@ -3,9 +3,9 @@ use clap::Parser;
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)] // Read from `Cargo.toml`
 struct Cli {
-    #[clap(long, value_parser)]
+    #[clap(long)]
     two: String,
-    #[clap(long, value_parser)]
+    #[clap(long)]
     one: String,
 }
 

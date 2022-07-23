@@ -69,7 +69,7 @@ impl Args for CliArgs {
 
 #[derive(Parser, Debug)]
 struct Cli {
-    #[clap(short, long, action)]
+    #[clap(short, long)]
     top_level: bool,
     #[clap(flatten)]
     more_args: CliArgs,
