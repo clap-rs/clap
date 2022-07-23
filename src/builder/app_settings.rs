@@ -57,8 +57,6 @@ pub(crate) enum AppSettings {
     HidePossibleValues,
     HelpExpected,
     NoBinaryName,
-    NoAutoHelp,
-    NoAutoVersion,
     #[allow(dead_code)]
     ColorAuto,
     ColorAlways,
@@ -75,8 +73,6 @@ bitflags! {
         const PROPAGATE_VERSION              = 1 << 3;
         const DISABLE_VERSION_FOR_SC         = 1 << 4;
         const WAIT_ON_ERROR                  = 1 << 6;
-        const NO_AUTO_HELP                   = 1 << 8;
-        const NO_AUTO_VERSION                = 1 << 9;
         const DISABLE_VERSION_FLAG           = 1 << 10;
         const HIDDEN                         = 1 << 11;
         const TRAILING_VARARG                = 1 << 12;
@@ -158,10 +154,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::HIDDEN,
     Multicall
         => Flags::MULTICALL,
-    NoAutoHelp
-        => Flags::NO_AUTO_HELP,
-    NoAutoVersion
-        => Flags::NO_AUTO_VERSION,
     NoBinaryName
         => Flags::NO_BIN_NAME,
     SubcommandsNegateReqs

@@ -995,21 +995,22 @@ impl<'help> Arg<'help> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
-    /// Although `multiple_values` has been specified, we cannot use the argument more than once.
+    /// Although `multiple_values` has been specified, the last argument still wins
     ///
     /// ```rust
     /// # use clap::{Command, Arg, ErrorKind};
-    /// let res = Command::new("prog")
+    /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .takes_value(true)
     ///         .multiple_values(true)
     ///         .short('F'))
-    ///     .try_get_matches_from(vec![
+    ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
     ///     ]);
     ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnexpectedMultipleUsage)
+    /// assert!(m.contains_id("file"));
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
+    /// assert_eq!(files, ["file3"]);
     /// ```
     ///
     /// A common mistake is to define an option which allows multiple values, and a positional
@@ -2128,13 +2129,16 @@ impl<'help> Arg<'help> {
     ///
     /// In this example, because [`Arg::takes_value(false)`] (by default),
     /// `prog` is a flag that accepts an optional, case-insensitive boolean literal.
-    /// A `false` literal is `n`, `no`, `f`, `false`, `off` or `0`.
-    /// An absent environment variable will also be considered as `false`.
-    /// Anything else will considered as `true`.
+    ///
+    /// Note that the value parser controls how flags are parsed.  In this case we've selected
+    /// [`FalseyValueParser`][crate::builder::FalseyValueParser].  A `false` literal is `n`, `no`,
+    /// `f`, `false`, `off` or `0`.  An absent environment variable will also be considered as
+    /// `false`.  Anything else will considered as `true`.
     ///
     /// ```rust
     /// # use std::env;
     /// # use clap::{Command, Arg};
+    /// # use clap::builder::FalseyValueParser;
     ///
     /// env::set_var("TRUE_FLAG", "true");
     /// env::set_var("FALSE_FLAG", "0");
@@ -2142,20 +2146,23 @@ impl<'help> Arg<'help> {
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("true_flag")
     ///         .long("true_flag")
+    ///         .value_parser(FalseyValueParser::new())
     ///         .env("TRUE_FLAG"))
     ///     .arg(Arg::new("false_flag")
     ///         .long("false_flag")
+    ///         .value_parser(FalseyValueParser::new())
     ///         .env("FALSE_FLAG"))
     ///     .arg(Arg::new("absent_flag")
     ///         .long("absent_flag")
+    ///         .value_parser(FalseyValueParser::new())
     ///         .env("ABSENT_FLAG"))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("true_flag"), None);
-    /// assert!(!m.is_present("false_flag"));
-    /// assert!(!m.is_present("absent_flag"));
+    /// assert!(*m.get_one::<bool>("true_flag").unwrap());
+    /// assert!(!*m.get_one::<bool>("false_flag").unwrap());
+    /// assert!(!*m.get_one::<bool>("absent_flag").unwrap());
     /// ```
     ///
     /// In this example, we show the variable coming from an option on the CLI:
@@ -2920,7 +2927,7 @@ impl<'help> Arg<'help> {
     ///         .long("flag"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("flag", None, Some("default")))
+    ///         .default_value_if("flag", Some("true"), Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -2976,7 +2983,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value("default")
-    ///         .default_value_if("flag", None, None))
+    ///         .default_value_if("flag", Some("true"), None))
     ///     .get_matches_from(vec![
     ///         "prog", "--flag"
     ///     ]);
@@ -3034,7 +3041,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, Some("default")),
+    ///             ("flag", Some("true"), Some("default")),
     ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
@@ -3054,7 +3061,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, Some("default")),
+    ///             ("flag", Some("true"), Some("default")),
     ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
@@ -4249,7 +4256,7 @@ impl<'help> Arg<'help> {
 
     /// Behavior when parsing the argument
     pub fn get_action(&self) -> &super::ArgAction {
-        const DEFAULT: super::ArgAction = super::ArgAction::StoreValue;
+        const DEFAULT: super::ArgAction = super::ArgAction::Set;
         self.action.as_ref().unwrap_or(&DEFAULT)
     }
 
@@ -4361,6 +4368,26 @@ impl<'help> Arg<'help> {
         if self.is_positional() {
             self.settings.set(ArgSettings::TakesValue);
         }
+        if self.action.is_none() {
+            if self.get_id() == "help" && !self.is_takes_value_set() {
+                let action = super::ArgAction::Help;
+                self.action = Some(action);
+            } else if self.get_id() == "version" && !self.is_takes_value_set() {
+                let action = super::ArgAction::Version;
+                self.action = Some(action);
+            } else if self.is_takes_value_set() {
+                let action = if self.is_positional() && self.is_multiple_values_set() {
+                    // Allow collecting arguments interleaved with flags
+                    super::ArgAction::Append
+                } else {
+                    super::ArgAction::Set
+                };
+                self.action = Some(action);
+            } else {
+                let action = super::ArgAction::SetTrue;
+                self.action = Some(action);
+            }
+        }
         if let Some(action) = self.action.as_ref() {
             if let Some(default_value) = action.default_value() {
                 if self.default_vals.is_empty() {
@@ -4373,10 +4400,7 @@ impl<'help> Arg<'help> {
                 self.settings.unset(ArgSettings::TakesValue);
             }
             match action {
-                ArgAction::StoreValue
-                | ArgAction::IncOccurrence
-                | ArgAction::Help
-                | ArgAction::Version => {}
+                ArgAction::Help | ArgAction::Version => {}
                 ArgAction::Set
                 | ArgAction::Append
                 | ArgAction::SetTrue

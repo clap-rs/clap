@@ -520,10 +520,6 @@ fn issue_1047_min_zero_vals_default_val() {
         )
         .try_get_matches_from(vec!["foo", "-d"])
         .unwrap();
-    #[allow(deprecated)]
-    {
-        assert_eq!(m.occurrences_of("del"), 1);
-    }
     assert_eq!(
         m.get_one::<String>("del").map(|v| v.as_str()),
         Some("default")

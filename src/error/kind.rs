@@ -208,19 +208,6 @@ pub enum ErrorKind {
     MissingSubcommand,
 
     /// Occurs when the user provides multiple values to an argument which doesn't allow that.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
-    /// let result = Command::new("prog")
-    ///     .arg(Arg::new("debug")
-    ///         .long("debug")
-    ///         .multiple_occurrences(false))
-    ///     .try_get_matches_from(vec!["prog", "--debug", "--debug"]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::UnexpectedMultipleUsage);
-    /// ```
     UnexpectedMultipleUsage,
 
     /// Occurs when the user provides a value containing invalid UTF-8.

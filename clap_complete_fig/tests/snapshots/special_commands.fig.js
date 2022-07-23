@@ -9,6 +9,7 @@ const completion: Fig.Spec = {
         {
           name: "--case",
           description: "the case to test",
+          isRepeatable: true,
           args: {
             name: "case",
             isOptional: true,
@@ -32,6 +33,7 @@ const completion: Fig.Spec = {
           name: "--config",
           description: "the other case to test",
           hidden: true,
+          isRepeatable: true,
           requiresEquals: true,
           args: {
             name: "config",

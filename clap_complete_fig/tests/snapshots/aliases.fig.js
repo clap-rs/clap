@@ -5,6 +5,7 @@ const completion: Fig.Spec = {
     {
       name: ["-o", "-O", "--option", "--opt"],
       description: "cmd option",
+      isRepeatable: true,
       args: {
         name: "option",
         isOptional: true,
