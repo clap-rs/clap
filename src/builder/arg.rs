@@ -4361,6 +4361,21 @@ impl<'help> Arg<'help> {
         if self.is_positional() {
             self.settings.set(ArgSettings::TakesValue);
         }
+        if self.action.is_none() {
+            if self.get_id() == "help" && !self.is_takes_value_set() {
+                let action = super::ArgAction::Help;
+                self.action = Some(action);
+            } else if self.get_id() == "version" && !self.is_takes_value_set() {
+                let action = super::ArgAction::Version;
+                self.action = Some(action);
+            } else if self.is_takes_value_set() {
+                let action = super::ArgAction::StoreValue;
+                self.action = Some(action);
+            } else {
+                let action = super::ArgAction::IncOccurrence;
+                self.action = Some(action);
+            }
+        }
         if let Some(action) = self.action.as_ref() {
             if let Some(default_value) = action.default_value() {
                 if self.default_vals.is_empty() {

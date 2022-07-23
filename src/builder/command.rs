@@ -3811,24 +3811,6 @@ impl<'help> Command<'help> {
                     a.settings.set(ArgSettings::HidePossibleValues);
                 }
                 a._build();
-                // HACK: Setting up action at this level while auto-help / disable help flag is
-                // required.  Otherwise, most of this won't be needed because when we can break
-                // compat, actions will reign supreme (default to `Store`)
-                if a.action.is_none() {
-                    if a.get_id() == "help" && !a.is_takes_value_set() {
-                        let action = super::ArgAction::Help;
-                        a.action = Some(action);
-                    } else if a.get_id() == "version" && !a.is_takes_value_set() {
-                        let action = super::ArgAction::Version;
-                        a.action = Some(action);
-                    } else if a.is_takes_value_set() {
-                        let action = super::ArgAction::StoreValue;
-                        a.action = Some(action);
-                    } else {
-                        let action = super::ArgAction::IncOccurrence;
-                        a.action = Some(action);
-                    }
-                }
                 if a.is_positional() && a.index.is_none() {
                     a.index = Some(pos_counter);
                     pos_counter += 1;
