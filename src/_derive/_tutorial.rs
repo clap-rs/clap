@@ -56,7 +56,7 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.md")]
 //!
-//! You can use attributes to change the application level behavior of clap.  Any [`Command`][crate::Command]] builder function can be used as an attribute.
+//! You can use attributes to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_app_settings.rs")]
