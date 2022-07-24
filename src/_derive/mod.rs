@@ -223,9 +223,15 @@
 //! - `default_value_t [= <expr>]`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
 //!   - Requires `std::fmt::Display` or `#[clap(value_enum)]`
 //!   - Without `<expr>`, relies on `Default::default()`
+//! - `default_values_t = <expr>`: [`Arg::default_values`][crate::Arg::default_values] and [`Arg::required(false)`][crate::Arg::required]
+//!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::fmt::Display` or `#[clap(value_enum)]`
+//!   - `<expr>` must implement `IntoIterator<T>`
 //! - `default_value_os_t [= <expr>]`: [`Arg::default_value_os`][crate::Arg::default_value_os] and [`Arg::required(false)`][crate::Arg::required]
 //!   - Requires `std::convert::Into<OsString>` or `#[clap(value_enum)]`
 //!   - Without `<expr>`, relies on `Default::default()`
+//! - `default_values_os_t = <expr>`: [`Arg::default_values_os`][crate::Arg::default_values_os] and [`Arg::required(false)`][crate::Arg::required]
+//!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::convert::Into<OsString>` or `#[clap(value_enum)]`
+//!   - `<expr>` must implement `IntoIterator<T>`
 //!
 //! ### Value Enum Attributes
 //!
