@@ -172,22 +172,6 @@ impl<'help> PossibleValue<'help> {
         !self.hide && self.help.is_some()
     }
 
-    /// Get the name if argument value is not hidden, `None` otherwise
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.1.4",
-            note = "Use `PossibleValue::is_hide_set` and `PossibleValue::get_name`"
-        )
-    )]
-    pub fn get_visible_name(&self) -> Option<&'help str> {
-        if self.hide {
-            None
-        } else {
-            Some(self.name)
-        }
-    }
-
     /// Get the name if argument value is not hidden, `None` otherwise,
     /// but wrapped in quotes if it contains whitespace
     pub(crate) fn get_visible_quoted_name(&self) -> Option<Cow<'help, str>> {

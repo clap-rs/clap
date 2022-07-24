@@ -672,24 +672,6 @@ impl ArgMatches {
         };
         Some(i)
     }
-
-    #[inline]
-    #[doc(hidden)]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `ArgMatches::try_get_one()`")
-    )]
-    pub fn is_valid_arg(&self, _id: impl Key) -> bool {
-        #[cfg(debug_assertions)]
-        {
-            let id = Id::from(_id);
-            id == Id::empty_hash() || self.valid_args.contains(&id)
-        }
-        #[cfg(not(debug_assertions))]
-        {
-            true
-        }
-    }
 }
 
 /// # Subcommands
