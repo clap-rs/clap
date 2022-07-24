@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete"
-version = "3.2.3"
+version = "4.0.0-alpha.0"
 description = "Generate shell completion scripts for your clap::Command"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
 categories = ["command-line-interface"]
@@ -40,7 +40,7 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "3.2.1", default-features = false, features = ["std"] }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std"] }
 clap_lex = { path = "../clap_lex", version = "0.2.2", optional = true }
 is_executable = { version = "1.0.1", optional = true }
 os_str_bytes = { version = "6.0", default-features = false, features = ["raw_os_str"], optional = true }
@@ -53,7 +53,7 @@ pretty_assertions = "1.0"
 snapbox = { version = "0.2", features = ["diff"] }
 # Cutting out `filesystem` feature
 trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
-clap = { path = "../", version = "3.2.1", default-features = false, features = ["std", "derive"] }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std", "derive"] }
 
 [[example]]
 name = "dynamic"
