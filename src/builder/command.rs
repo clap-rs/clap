@@ -482,7 +482,7 @@ impl<'help> Command<'help> {
     /// }
     /// ```
     pub fn debug_assert(mut self) {
-        self._build_all();
+        self.build();
     }
 
     /// Custom error message for post-parsing validation
@@ -3730,33 +3730,6 @@ impl<'help> Command<'help> {
         matcher.propagate_globals(&global_arg_vec);
 
         Ok(matcher.into_inner())
-    }
-
-    #[doc(hidden)]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.10", note = "Replaced with `Command::build`")
-    )]
-    pub fn _build_all(&mut self) {
-        self.build();
-    }
-
-    #[doc(hidden)]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.10", note = "Replaced with `Command::build`")
-    )]
-    pub fn _build(&mut self) {
-        self._build_self()
-    }
-
-    #[doc(hidden)]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.1.13", note = "Replaced with `Command::build`")
-    )]
-    pub fn _build_bin_names(&mut self) {
-        self._build_bin_names_internal();
     }
 
     /// Prepare for introspecting on all included [`Command`]s
