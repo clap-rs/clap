@@ -53,7 +53,9 @@ pub enum ClapAttr {
     // ident = arbitrary_expr
     NameExpr(Ident, Expr),
     DefaultValueT(Ident, Option<Expr>),
+    DefaultValuesT(Ident, Expr),
     DefaultValueOsT(Ident, Option<Expr>),
+    DefaultValuesOsT(Ident, Expr),
     NextDisplayOrder(Ident, Expr),
     NextHelpHeading(Ident, Expr),
     HelpHeading(Ident, Expr),
@@ -122,7 +124,9 @@ impl Parse for ClapAttr {
                     Ok(expr) => match &*name_str {
                         "skip" => Ok(Skip(name, Some(expr))),
                         "default_value_t" => Ok(DefaultValueT(name, Some(expr))),
+                        "default_values_t" => Ok(DefaultValuesT(name, expr)),
                         "default_value_os_t" => Ok(DefaultValueOsT(name, Some(expr))),
+                        "default_values_os_t" => Ok(DefaultValuesOsT(name, expr)),
                         "next_display_order" => Ok(NextDisplayOrder(name, expr)),
                         "next_help_heading" => Ok(NextHelpHeading(name, expr)),
                         "help_heading" => Ok(HelpHeading(name, expr)),
