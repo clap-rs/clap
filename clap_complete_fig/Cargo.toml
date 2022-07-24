@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete_fig"
-version = "3.2.4"
+version = "4.0.0-alpha.0"
 description = "A generator library used with clap for Fig completion scripts"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete_fig"
 categories = ["command-line-interface"]
@@ -39,8 +39,8 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "3.2.1", default-features = false, features = ["std"] }
-clap_complete = { path = "../clap_complete", version = "3.2.1" }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std"] }
+clap_complete = { path = "../clap_complete", version = "4.0.0-alpha.0" }
 
 [dev-dependencies]
 snapbox = { version = "0.2", features = ["diff"] }

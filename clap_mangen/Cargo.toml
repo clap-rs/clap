@@ -41,11 +41,11 @@ bench = false
 
 [dependencies]
 roff = "0.2.1"
-clap = { path = "../", version = "3.2.1", default-features = false, features = ["std", "env"] }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std", "env"] }
 
 [dev-dependencies]
 snapbox = { version = "0.2", features = ["diff"] }
-clap = { path = "../", version = "3.2.1", default-features = false, features = ["std"] }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std"] }
 
 [features]
 default = []
