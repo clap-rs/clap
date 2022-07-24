@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
+- *(derive)* Changed the default for arguments from `parse` to `value_parser`., removing `parse` support
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` (#3280)
 
 ### Features
