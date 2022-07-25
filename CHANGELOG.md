@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(assert)* Ensure `overrides_with` IDs are valid
 - *(assert)* Ensure no self-`overrides_with` now that Actions replace it
+- *(assert)* Ensure subcommand names are not duplicated
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)

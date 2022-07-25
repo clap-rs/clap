@@ -309,6 +309,25 @@ pub(crate) fn assert_app(cmd: &Command) {
     detect_duplicate_flags(&long_flags, "long");
     detect_duplicate_flags(&short_flags, "short");
 
+    let mut subs = indexmap::IndexSet::new();
+    for sc in cmd.get_subcommands() {
+        assert!(
+            subs.insert(sc.get_name()),
+            "Command {}: command name `{}` is duplicated",
+            cmd.get_name(),
+            sc.get_name()
+        );
+        for alias in sc.get_all_aliases() {
+            assert!(
+                subs.insert(alias),
+                "Command {}: command `{}` alias `{}` is duplicated",
+                cmd.get_name(),
+                sc.get_name(),
+                alias
+            );
+        }
+    }
+
     _verify_positionals(cmd);
 
     if let Some(help_template) = cmd.get_help_template() {
