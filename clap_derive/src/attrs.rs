@@ -564,6 +564,81 @@ impl Attrs {
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
+                DefaultValuesT(ident, expr) => {
+                    let ty = if let Some(ty) = self.ty.as_ref() {
+                        ty
+                    } else {
+                        abort!(
+                            ident,
+                            "#[clap(default_values_t)] (without an argument) can be used \
+                            only on field level";
+
+                            note = "see \
+                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                    };
+
+                    let container_type = Ty::from_syn_ty(ty);
+                    if *container_type != Ty::Vec {
+                        abort!(
+                            ident,
+                            "#[clap(default_values_t)] can be used only on Vec types";
+
+                            note = "see \
+                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                    }
+                    let inner_type = inner_type(ty);
+
+                    // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
+                    // `Vec<#inner_type>`.
+                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
+                        quote_spanned!(ident.span()=> {
+                            {
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<&'static str>
+                                where
+                                    T: ::std::borrow::Borrow<#inner_type>
+                                {
+                                    iterable
+                                        .into_iter()
+                                        .map(|val| {
+                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name()
+                                        })
+                                        .collect()
+
+                                }
+
+                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                    iter_to_vals(#expr)
+                                });
+                                &*DEFAULT_VALUES.as_slice()
+                            }
+                        })
+                    } else {
+                        quote_spanned!(ident.span()=> {
+                            {
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<String>
+                                where
+                                    T: ::std::borrow::Borrow<#inner_type>
+                                {
+                                    iterable.into_iter().map(|val| val.borrow().to_string()).collect()
+
+                                }
+
+                                static DEFAULT_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                    iter_to_vals(#expr)
+                                });
+
+                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                    DEFAULT_STRINGS.iter().map(::std::string::String::as_str).collect()
+                                });
+                                &*DEFAULT_VALUES.as_slice()
+                            }
+                        })
+                    };
+
+                    self.methods
+                        .push(Method::new(Ident::new("default_values", ident.span()), val));
+                }
+
                 DefaultValueOsT(ident, expr) => {
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
@@ -602,6 +677,84 @@ impl Attrs {
 
                     let raw_ident = Ident::new("default_value_os", ident.span());
                     self.methods.push(Method::new(raw_ident, val));
+                }
+
+                DefaultValuesOsT(ident, expr) => {
+                    let ty = if let Some(ty) = self.ty.as_ref() {
+                        ty
+                    } else {
+                        abort!(
+                            ident,
+                            "#[clap(default_values_os_t)] (without an argument) can be used \
+                            only on field level";
+
+                            note = "see \
+                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                    };
+
+                    let container_type = Ty::from_syn_ty(ty);
+                    if *container_type != Ty::Vec {
+                        abort!(
+                            ident,
+                            "#[clap(default_values_os_t)] can be used only on Vec types";
+
+                            note = "see \
+                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                    }
+                    let inner_type = inner_type(ty);
+
+                    // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
+                    // `Vec<#inner_type>`.
+                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
+                        quote_spanned!(ident.span()=> {
+                            {
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<&'static ::std::ffi::OsStr>
+                                where
+                                    T: ::std::borrow::Borrow<#inner_type>
+                                {
+                                    iterable
+                                        .into_iter()
+                                        .map(|val| {
+                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name()
+                                        })
+                                        .map(::std::ffi::OsStr::new)
+                                        .collect()
+
+                                }
+
+                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                    iter_to_vals(#expr)
+                                });
+                                &*DEFAULT_VALUES.as_slice()
+                            }
+                        })
+                    } else {
+                        quote_spanned!(ident.span()=> {
+                            {
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<::std::ffi::OsString>
+                                where
+                                    T: ::std::borrow::Borrow<#inner_type>
+                                {
+                                    iterable.into_iter().map(|val| val.borrow().into()).collect()
+
+                                }
+
+                                static DEFAULT_OS_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                    iter_to_vals(#expr)
+                                });
+
+                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                    DEFAULT_OS_STRINGS.iter().map(::std::ffi::OsString::as_os_str).collect()
+                                });
+                                &*DEFAULT_VALUES.as_slice()
+                            }
+                        })
+                    };
+
+                    self.methods.push(Method::new(
+                        Ident::new("default_values_os", ident.span()),
+                        val,
+                    ));
                 }
 
                 NextDisplayOrder(ident, expr) => {
