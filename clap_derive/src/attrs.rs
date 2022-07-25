@@ -927,20 +927,23 @@ impl Attrs {
 #[derive(Clone)]
 enum ValueParser {
     Explicit(Method),
+    #[cfg(not(feature = "unstable-v5"))]
     Implicit(Ident),
 }
 
 impl ValueParser {
-    fn resolve(self, inner_type: &Type) -> Method {
+    fn resolve(self, _inner_type: &Type) -> Method {
         match self {
             Self::Explicit(method) => method,
-            Self::Implicit(ident) => default_value_parser(inner_type, ident.span()),
+            #[cfg(not(feature = "unstable-v5"))]
+            Self::Implicit(ident) => default_value_parser(_inner_type, ident.span()),
         }
     }
 
     fn span(&self) -> Span {
         match self {
             Self::Explicit(method) => method.name.span(),
+            #[cfg(not(feature = "unstable-v5"))]
             Self::Implicit(ident) => ident.span(),
         }
     }
@@ -959,20 +962,23 @@ fn default_value_parser(inner_type: &Type, span: Span) -> Method {
 #[derive(Clone)]
 pub enum Action {
     Explicit(Method),
+    #[cfg(not(feature = "unstable-v5"))]
     Implicit(Ident),
 }
 
 impl Action {
-    pub fn resolve(self, field_type: &Type) -> Method {
+    pub fn resolve(self, _field_type: &Type) -> Method {
         match self {
             Self::Explicit(method) => method,
-            Self::Implicit(ident) => default_action(field_type, ident.span()),
+            #[cfg(not(feature = "unstable-v5"))]
+            Self::Implicit(ident) => default_action(_field_type, ident.span()),
         }
     }
 
     pub fn span(&self) -> Span {
         match self {
             Self::Explicit(method) => method.name.span(),
+            #[cfg(not(feature = "unstable-v5"))]
             Self::Implicit(ident) => ident.span(),
         }
     }
