@@ -221,36 +221,6 @@ fn grouped_interleaved_positional_occurrences() {
 }
 
 #[test]
-fn issue_1374() {
-    let cmd = Command::new("MyApp").arg(
-        Arg::new("input")
-            .takes_value(true)
-            .long("input")
-            .overrides_with("input")
-            .min_values(0)
-            .action(ArgAction::Append),
-    );
-    let matches = cmd
-        .clone()
-        .try_get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"])
-        .unwrap();
-    let vs = matches
-        .get_many::<String>("input")
-        .unwrap()
-        .map(|v| v.as_str());
-    assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
-    let matches = cmd
-        .clone()
-        .try_get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"])
-        .unwrap();
-    let vs = matches
-        .get_many::<String>("input")
-        .unwrap()
-        .map(|v| v.as_str());
-    assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
-}
-
-#[test]
 fn issue_2171() {
     let schema = Command::new("ripgrep#1701 reproducer")
         .arg(

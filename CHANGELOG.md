@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Disallow more `value_names` than `number_of_values` (#2695)
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
+- *(assert)* Ensure `overrides_with` IDs are valid
+- *(assert)* Ensure no self-`overrides_with` now that Actions replace it
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)

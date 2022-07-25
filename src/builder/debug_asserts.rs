@@ -222,6 +222,17 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
         }
 
+        // overrides
+        for req in &arg.overrides {
+            assert!(
+                cmd.id_exists(req),
+                "Command {}: Argument or group '{:?}' specified in 'overrides_with*' for '{}' does not exist",
+                    cmd.get_name(),
+                req,
+                arg.name,
+            );
+        }
+
         if arg.is_last_set() {
             assert!(
                 arg.long.is_none(),
@@ -609,6 +620,11 @@ fn assert_arg(arg: &Arg) {
     assert!(
         !arg.blacklist.iter().any(|x| *x == arg.id),
         "Argument '{}' cannot conflict with itself",
+        arg.name,
+    );
+    assert!(
+        !arg.overrides.iter().any(|x| *x == arg.id),
+        "Argument '{}' cannot override itself, its the default",
         arg.name,
     );
 

@@ -3866,11 +3866,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** Overriding an argument implies they [conflict][Arg::conflicts_with`].
     ///
-    /// **WARNING:** Positional arguments and options which accept
-    /// [`Arg::multiple_occurrences`] cannot override themselves (or we
-    /// would never be able to advance to the next positional). If a positional
-    /// argument or option with one of the [`Arg::multiple_occurrences`]
-    /// settings lists itself as an override, it is simply ignored.
+    /// **NOTE:** All arguments implicitly override themselves.
     ///
     /// # Examples
     ///
@@ -3890,73 +3886,6 @@ impl<'help> Arg<'help> {
     /// assert!(*m.get_one::<bool>("debug").unwrap()); // even though flag conflicts with debug, it's as if flag
     ///                                 // was never used because it was overridden with color
     /// assert!(!*m.get_one::<bool>("flag").unwrap());
-    /// ```
-    /// Care must be taken when using this setting, and having an arg override with itself. This
-    /// is common practice when supporting things like shell aliases, config files, etc.
-    /// However, when combined with multiple values, it can get dicy.
-    /// Here is how clap handles such situations:
-    ///
-    /// When a flag overrides itself, it's as if the flag was only ever used once (essentially
-    /// preventing a "Unexpected multiple usage" error):
-    ///
-    /// ```rust
-    /// # use clap::{Command, arg};
-    /// let m = Command::new("posix")
-    ///             .arg(arg!(--flag  "some flag").overrides_with("flag"))
-    ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
-    /// assert!(*m.get_one::<bool>("flag").unwrap());
-    /// ```
-    ///
-    /// Making an arg [`Arg::multiple_occurrences`] and override itself
-    /// is essentially meaningless. Therefore clap ignores an override of self.
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let m = Command::new("posix")
-    ///             .arg(arg!(--flag ...  "some flag").overrides_with("flag"))
-    ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
-    /// assert_eq!(*m.get_one::<u8>("flag").unwrap(), 4);
-    /// ```
-    ///
-    /// Now notice with options (which *do not* set
-    /// [`Arg::multiple_occurrences`]), it's as if only the last
-    /// occurrence happened.
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let m = Command::new("posix")
-    ///             .arg(arg!(--opt <val> "some option").overrides_with("opt"))
-    ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
-    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "other");
-    /// ```
-    ///
-    /// This will also work when [`Arg::multiple_values`] is enabled:
-    ///
-    /// ```
-    /// # use clap::{Command, Arg};
-    /// let m = Command::new("posix")
-    ///             .arg(
-    ///                 Arg::new("opt")
-    ///                     .long("opt")
-    ///                     .takes_value(true)
-    ///                     .multiple_values(true)
-    ///                     .overrides_with("opt")
-    ///             )
-    ///             .get_matches_from(vec!["", "--opt", "1", "2", "--opt", "3", "4", "5"]);
-    /// assert_eq!(m.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
-    /// ```
-    ///
-    /// Just like flags, options with [`Arg::multiple_occurrences`] set
-    /// will ignore the "override self" setting.
-    ///
-    /// ```
-    /// # use clap::{Command, arg};
-    /// let m = Command::new("posix")
-    ///             .arg(arg!(--opt <val> ... "some option")
-    ///                 .multiple_values(true)
-    ///                 .overrides_with("opt"))
-    ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
-    /// assert_eq!(m.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     #[must_use]
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
@@ -4435,16 +4364,6 @@ impl<'help> Arg<'help> {
             if self.num_vals.is_none() {
                 self.num_vals = Some(val_names_len);
             }
-        }
-
-        let self_id = self.id.clone();
-        if self.is_positional() || self.is_multiple_occurrences_set() {
-            // Remove self-overrides where they don't make sense.
-            //
-            // We can evaluate switching this to a debug assert at a later time (though it will
-            // require changing propagation of `AllArgsOverrideSelf`).  Being conservative for now
-            // due to where we are at in the release.
-            self.overrides.retain(|e| *e != self_id);
         }
     }
 
