@@ -1403,7 +1403,7 @@ fn issue_2229() {
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
         ]);
 
-    assert!(m.is_err()); // This panics, because `m.is_err() == false`.
+    assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
 

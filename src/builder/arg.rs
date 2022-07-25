@@ -752,21 +752,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
-    #[inline]
-    #[must_use]
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action` (Issue #3772)")
-    )]
-    pub fn multiple_occurrences(self, yes: bool) -> Self {
-        if yes {
-            self.setting(ArgSettings::MultipleOccurrences)
-        } else {
-            self.unset_setting(ArgSettings::MultipleOccurrences)
-        }
-    }
-
     #[inline]
     pub(crate) fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
@@ -1100,10 +1085,6 @@ impl<'help> Arg<'help> {
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
-    /// **NOTE:** Does *not* require [`Arg::multiple_occurrences(true)`] to be set. Setting
-    /// [`Arg::multiple_occurrences(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>` where
-    /// as *not* setting it would only allow one occurrence of this argument.
-    ///
     /// **NOTE:** implicitly sets [`Arg::takes_value(true)`] and [`Arg::multiple_values(true)`].
     ///
     /// # Examples
@@ -1131,7 +1112,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
     /// ```
-    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
     #[must_use]
     pub fn number_of_values(mut self, qty: usize) -> Self {
@@ -1144,12 +1124,6 @@ impl<'help> Arg<'help> {
     /// For example, if you had a
     /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
     /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
-    ///
-    /// **NOTE:** This does *not* implicitly set [`Arg::multiple_occurrences(true)`]. This is because
-    /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurrence with multiple values. For positional arguments this **does** set
-    /// [`Arg::multiple_occurrences(true)`] because there is no way to determine the difference between multiple
-    /// occurrences and multiple values.
     ///
     /// # Examples
     ///
@@ -1195,7 +1169,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
-    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
     #[must_use]
     pub fn max_values(mut self, qty: usize) -> Self {
@@ -1209,12 +1182,6 @@ impl<'help> Arg<'help> {
     /// `-f <file>` argument where you wanted at least 2 'files' you would set
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
-    ///
-    /// **NOTE:** This does not implicitly set [`Arg::multiple_occurrences(true)`]. This is because
-    /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurrence with multiple values. For positional arguments this **does** set
-    /// [`Arg::multiple_occurrences(true)`] because there is no way to determine the difference between multiple
-    /// occurrences and multiple values.
     ///
     /// **NOTE:** Passing a non-zero value is not the same as specifying [`Arg::required(true)`].
     /// This is due to min and max validation only being performed for present arguments,
@@ -1265,7 +1232,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     /// [`Arg::required(true)`]: Arg::required()
     #[inline]
     #[must_use]
@@ -1485,8 +1451,7 @@ impl<'help> Arg<'help> {
     /// **WARNING**: Take caution when using this setting combined with
     /// [`Arg::multiple_values`], as this becomes ambiguous `$ prog --arg -- -- val`. All
     /// three `--, --, val` will be values when the user may have thought the second `--` would
-    /// constitute the normal, "Only positional args follow" idiom. To fix this, consider using
-    /// [`Arg::multiple_occurrences`] which only allows a single value at a time.
+    /// constitute the normal, "Only positional args follow" idiom.
     ///
     /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
     /// the user passing in a value that matches a valid short. For example, `prog -opt -F` where
@@ -4164,15 +4129,6 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::MultipleValues)
     }
 
-    /// [`Arg::multiple_occurrences`] is going away  ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(since = "3.2.0", note = "`multiple_occurrences` away (Issue #3772)")
-    )]
-    pub fn is_multiple_occurrences_set(&self) -> bool {
-        self.is_set(ArgSettings::MultipleOccurrences)
-    }
-
     /// Report whether [`Arg::is_takes_value_set`] is set
     pub fn is_takes_value_set(&self) -> bool {
         self.is_set(ArgSettings::TakesValue)
@@ -4328,18 +4284,6 @@ impl<'help> Arg<'help> {
             } else {
                 self.settings.unset(ArgSettings::TakesValue);
             }
-            match action {
-                ArgAction::Help | ArgAction::Version => {}
-                ArgAction::Set
-                | ArgAction::Append
-                | ArgAction::SetTrue
-                | ArgAction::SetFalse
-                | ArgAction::Count => {
-                    if !self.is_positional() {
-                        self.settings.set(ArgSettings::MultipleOccurrences);
-                    }
-                }
-            }
         }
 
         if self.value_parser.is_none() {
@@ -4379,7 +4323,9 @@ impl<'help> Arg<'help> {
     // Used for positionals when printing
     pub(crate) fn multiple_str(&self) -> &str {
         let mult_vals = self.val_names.len() > 1;
-        if (self.is_multiple_values_set() || self.is_multiple_occurrences_set()) && !mult_vals {
+        if (self.is_multiple_values_set() || matches!(*self.get_action(), ArgAction::Append))
+            && !mult_vals
+        {
             "..."
         } else {
             ""
@@ -4417,7 +4363,7 @@ impl<'help> Arg<'help> {
 
     /// Either multiple values or occurrences
     pub(crate) fn is_multiple(&self) -> bool {
-        self.is_multiple_values_set() | self.is_multiple_occurrences_set()
+        self.is_multiple_values_set() || matches!(*self.get_action(), ArgAction::Append)
     }
 
     pub(crate) fn get_display_order(&self) -> usize {
@@ -4554,7 +4500,7 @@ where
     F: FnMut(&str, bool) -> Result<T, E>,
 {
     let mult_val = arg.is_multiple_values_set();
-    let mult_occ = arg.is_multiple_occurrences_set();
+    let mult_occ = matches!(*arg.get_action(), ArgAction::Append);
     let delim = if arg.is_require_value_delimiter_set() {
         arg.val_delim.expect(INTERNAL_ERROR_MSG)
     } else {
@@ -4622,10 +4568,11 @@ where
 #[cfg(test)]
 mod test {
     use super::Arg;
+    use super::ArgAction;
 
     #[test]
     fn flag_display() {
-        let mut f = Arg::new("flg").multiple_occurrences(true);
+        let mut f = Arg::new("flg").action(ArgAction::Append);
         f.long = Some("flag");
 
         assert_eq!(f.to_string(), "--flag");
@@ -4682,7 +4629,7 @@ mod test {
         let o = Arg::new("opt")
             .long("option")
             .takes_value(true)
-            .multiple_occurrences(true);
+            .action(ArgAction::Append);
 
         assert_eq!(o.to_string(), "--option <opt>");
     }
@@ -4774,7 +4721,7 @@ mod test {
         let p = Arg::new("pos")
             .index(1)
             .takes_value(true)
-            .multiple_occurrences(true);
+            .action(ArgAction::Append);
 
         assert_eq!(p.to_string(), "<pos>...");
     }

@@ -515,13 +515,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
         // Next we check how many have both Multiple and not a specific number of values set
         let count = cmd
             .get_positionals()
-            .filter(|p| {
-                #[allow(deprecated)]
-                {
-                    p.is_multiple_occurrences_set()
-                        || (p.is_multiple_values_set() && p.num_vals.is_none())
-                }
-            })
+            .filter(|p| p.is_multiple_values_set() && p.num_vals.is_none())
             .count();
         let ok = count <= 1
             || (last.is_last_set()

@@ -15,8 +15,8 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" /
-'-h[Print help information]' /
-'--help[Print help information]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
 '*-c[]' /
 '(-c)*-v[]' /
 ":: :_my-app_commands" /
@@ -31,8 +31,8 @@ _my-app() {
             (test)
 _arguments "${_arguments_options[@]}" /
 '*-d[]' /
-'-h[Print help information]' /
-'--help[Print help information]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
 '*-c[]' /
 && ret=0
 ;;

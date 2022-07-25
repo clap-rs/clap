@@ -11,6 +11,7 @@ use crate::parser::Identifier;
 use crate::parser::PendingArg;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
+use crate::ArgAction;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Default)]
@@ -218,8 +219,7 @@ impl ArgMatcher {
             true
         } else if let Some(num) = o.num_vals {
             debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-            #[allow(deprecated)]
-            if o.is_multiple_occurrences_set() {
+            if matches!(o.get_action(), ArgAction::Append) && !o.is_positional() {
                 (current_num % num) != 0
             } else {
                 num != current_num

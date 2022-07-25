@@ -29,6 +29,7 @@ const completion: Fig.Spec = {
       ],
       args: {
         name: "subcommand",
+        isVariadic: true,
         isOptional: true,
       },
     },

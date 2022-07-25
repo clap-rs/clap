@@ -31,7 +31,6 @@ impl Default for ArgFlags {
 pub(crate) enum ArgSettings {
     Required,
     MultipleValues,
-    MultipleOccurrences,
     Global,
     Hidden,
     TakesValue,
@@ -56,7 +55,6 @@ pub(crate) enum ArgSettings {
 bitflags! {
     struct Flags: u32 {
         const REQUIRED         = 1;
-        const MULTIPLE_OCC     = 1 << 1;
         const GLOBAL           = 1 << 3;
         const HIDDEN           = 1 << 4;
         const TAKES_VAL        = 1 << 5;
@@ -75,7 +73,6 @@ bitflags! {
         const HIDDEN_SHORT_H   = 1 << 18;
         const HIDDEN_LONG_H    = 1 << 19;
         const MULTIPLE_VALS    = 1 << 20;
-        const MULTIPLE         = Self::MULTIPLE_OCC.bits | Self::MULTIPLE_VALS.bits;
         #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
         const EXCLUSIVE        = 1 << 23;
@@ -85,7 +82,6 @@ bitflags! {
 
 impl_settings! { ArgSettings, ArgFlags,
     Required => Flags::REQUIRED,
-    MultipleOccurrences => Flags::MULTIPLE_OCC,
     MultipleValues => Flags::MULTIPLE_VALS,
     Global => Flags::GLOBAL,
     Hidden => Flags::HIDDEN,

@@ -15,10 +15,10 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" /
-'-h[Print help information]' /
-'--help[Print help information]' /
-'-V[Print version information]' /
-'--version[Print version information]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 '*-c[some config file]' /
 '*-C[some config file]' /
 '*--config[some config file]' /
@@ -37,18 +37,18 @@ _my-app() {
             (test)
 _arguments "${_arguments_options[@]}" /
 '*--case=[the case to test]: : ' /
-'-h[Print help information]' /
-'--help[Print help information]' /
-'-V[Print version information]' /
-'--version[Print version information]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 && ret=0
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" /
-'-h[Print help information]' /
-'--help[Print help information]' /
-'-V[Print version information]' /
-'--version[Print version information]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 ":: :_my-app__some_cmd_commands" /
 "*::: :->some_cmd" /
 && ret=0
@@ -62,10 +62,10 @@ _arguments "${_arguments_options[@]}" /
             (sub_cmd)
 _arguments "${_arguments_options[@]}" /
 '*--config=[the other case to test]: :(Lest quotes aren't escaped.)' /
-'-h[Print help information]' /
-'--help[Print help information]' /
-'-V[Print version information]' /
-'--version[Print version information]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 && ret=0
 ;;
 (help)
