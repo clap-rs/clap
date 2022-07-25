@@ -941,7 +941,7 @@ impl<'help> Arg<'help> {
     /// - It reaches the [maximum number of values]
     /// - It reaches a [specific number of values]
     /// - It finds another flag or option (i.e. something that starts with a `-`)
-    /// - It reaches a [value terminator][Arg::value_terminator] is reached
+    /// - It reaches a [value terminator][Arg::value_terminator]
     ///
     /// Alternatively, [require a delimiter between values][Arg::require_value_delimiter].
     ///
