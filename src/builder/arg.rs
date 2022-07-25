@@ -1768,7 +1768,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Sentinel to **stop** parsing multiple values of a give argument.
+    /// Sentinel to **stop** parsing multiple values of a given argument.
     ///
     /// By default when
     /// one sets [`multiple_values(true)`] on an argument, clap will continue parsing values for that
