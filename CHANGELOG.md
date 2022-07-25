@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* New `default_values_t` and `default_values_os_t` attributes
+
 ## [3.2.14] - 2022-07-21
 
 ### Fixes
