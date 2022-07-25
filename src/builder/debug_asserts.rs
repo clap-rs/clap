@@ -222,6 +222,17 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
         }
 
+        // overrides
+        for req in &arg.overrides {
+            assert!(
+                cmd.id_exists(req),
+                "Command {}: Argument or group '{:?}' specified in 'overrides_with*' for '{}' does not exist",
+                    cmd.get_name(),
+                req,
+                arg.name,
+            );
+        }
+
         if arg.is_last_set() {
             assert!(
                 arg.long.is_none(),

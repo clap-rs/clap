@@ -501,3 +501,12 @@ fn incremental_override() {
     );
     assert!(!*m.get_one::<bool>("no-name").expect("defaulted by clap"));
 }
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument or group 'extra' specified in 'overrides_with*' for 'config' does not exist"]
+fn overrides_with_invalid_arg() {
+    let _ = Command::new("prog")
+        .arg(Arg::new("config").long("config").overrides_with("extra"))
+        .try_get_matches_from(vec!["", "--config"]);
+}
