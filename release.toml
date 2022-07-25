@@ -3,4 +3,4 @@ tag-message = "{{tag_name}}"
 tag-name = "{{prefix}}v{{version}}"
 consolidate-commits = true
 consolidate-pushes = true
-allow-branch = ["master"]
+allow-branch = ["master", "v*-master"]
