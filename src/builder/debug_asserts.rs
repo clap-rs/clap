@@ -622,6 +622,11 @@ fn assert_arg(arg: &Arg) {
         "Argument '{}' cannot conflict with itself",
         arg.name,
     );
+    assert!(
+        !arg.overrides.iter().any(|x| *x == arg.id),
+        "Argument '{}' cannot override itself, its the default",
+        arg.name,
+    );
 
     assert_eq!(
         arg.get_action().takes_values(),

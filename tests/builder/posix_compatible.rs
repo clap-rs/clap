@@ -1,145 +1,18 @@
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
+#[should_panic = "Argument 'flag' cannot override itself"]
 fn flag_overrides_itself() {
-    let res = Command::new("posix")
+    Command::new("posix")
         .arg(
             arg!(--flag  "some flag"
             )
             .action(ArgAction::SetTrue)
             .overrides_with("flag"),
         )
-        .try_get_matches_from(vec!["", "--flag", "--flag"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+        .build();
 }
 
-#[test]
-fn mult_flag_overrides_itself() {
-    let res = Command::new("posix")
-        .arg(
-            arg!(--flag ...  "some flag")
-                .overrides_with("flag")
-                .action(ArgAction::SetTrue),
-        )
-        .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
-}
-
-#[test]
-fn option_overrides_itself() {
-    let res = Command::new("posix")
-        .arg(
-            arg!(--opt <val> "some option")
-                .required(false)
-                .overrides_with("opt"),
-        )
-        .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_one::<String>("opt").map(|v| v.as_str()),
-        Some("other")
-    );
-}
-
-#[test]
-fn mult_option_require_delim_overrides_itself() {
-    let res = Command::new("posix")
-        .arg(
-            arg!(--opt <val> ... "some option")
-                .required(false)
-                .overrides_with("opt")
-                .number_of_values(1)
-                .takes_value(true)
-                .use_value_delimiter(true)
-                .require_value_delimiter(true),
-        )
-        .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_many::<String>("opt")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["some", "other", "one", "two"]
-    );
-}
-
-#[test]
-fn mult_option_overrides_itself() {
-    let res = Command::new("posix")
-        .arg(
-            arg!(--opt <val> ... "some option")
-                .required(false)
-                .multiple_values(true)
-                .overrides_with("opt"),
-        )
-        .try_get_matches_from(vec![
-            "",
-            "--opt",
-            "first",
-            "overrides",
-            "--opt",
-            "some",
-            "other",
-            "val",
-        ]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_many::<String>("opt")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["first", "overrides", "some", "other", "val"]
-    );
-}
-
-#[test]
-fn option_use_delim_false_override_itself() {
-    let m = Command::new("posix")
-        .arg(
-            arg!(--opt <val> "some option")
-                .required(false)
-                .overrides_with("opt"),
-        )
-        .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
-        .unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_many::<String>("opt")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["one,two"]
-    );
-}
-
-#[test]
-fn pos_mult_overrides_itself() {
-    // opts with multiple
-    let res = Command::new("posix")
-        .arg(arg!([val] ... "some pos").overrides_with("val"))
-        .try_get_matches_from(vec!["", "some", "other", "value"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("val"));
-    assert_eq!(
-        m.get_many::<String>("val")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["some", "other", "value"]
-    );
-}
 #[test]
 fn posix_compatible_flags_long() {
     let m = Command::new("posix")
@@ -445,39 +318,6 @@ fn require_overridden_4() {
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
-}
-
-#[test]
-fn issue_1374_overrides_self_with_multiple_values() {
-    let cmd = Command::new("test").arg(
-        Arg::new("input")
-            .long("input")
-            .takes_value(true)
-            .overrides_with("input")
-            .min_values(0),
-    );
-    let m = cmd
-        .clone()
-        .try_get_matches_from(&["test", "--input", "a", "b", "c", "--input", "d"])
-        .unwrap();
-    assert_eq!(
-        m.get_many::<String>("input")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["d"]
-    );
-    let m = cmd
-        .clone()
-        .try_get_matches_from(&["test", "--input", "a", "b", "--input", "c", "d"])
-        .unwrap();
-    assert_eq!(
-        m.get_many::<String>("input")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["c", "d"]
-    );
 }
 
 #[test]
