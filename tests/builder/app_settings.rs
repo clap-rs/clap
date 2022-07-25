@@ -849,7 +849,6 @@ fn allow_ext_sc_empty_args() {
     let res = Command::new("clap-test")
         .version("v1.4.8")
         .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec!["clap-test", "external-cmd"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -871,7 +870,6 @@ fn allow_ext_sc_when_sc_required() {
     let res = Command::new("clap-test")
         .version("v1.4.8")
         .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand_required(true)
         .try_get_matches_from(vec!["clap-test", "external-cmd", "foo"]);
 
@@ -897,7 +895,6 @@ fn external_subcommand_looks_like_built_in() {
     let res = Command::new("cargo")
         .version("1.26.0")
         .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand(Command::new("install"))
         .try_get_matches_from(vec!["cargo", "install-update", "foo"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -922,7 +919,6 @@ fn built_in_subcommand_escaped() {
     let res = Command::new("cargo")
         .version("1.26.0")
         .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
         .subcommand(Command::new("install"))
         .try_get_matches_from(vec!["cargo", "--", "install", "foo"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());

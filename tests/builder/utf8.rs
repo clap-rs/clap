@@ -210,6 +210,7 @@ fn invalid_utf8_option_long_equals() {
 fn refuse_invalid_utf8_subcommand_with_allow_external_subcommands() {
     let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
+        .external_subcommand_value_parser(value_parser!(String))
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0xe9]),
@@ -223,7 +224,6 @@ fn refuse_invalid_utf8_subcommand_with_allow_external_subcommands() {
 fn refuse_invalid_utf8_subcommand_when_args_are_allowed_with_allow_external_subcommands() {
     let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0xe9]),
@@ -237,6 +237,7 @@ fn refuse_invalid_utf8_subcommand_when_args_are_allowed_with_allow_external_subc
 fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
+        .external_subcommand_value_parser(value_parser!(String))
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("subcommand"),
@@ -252,7 +253,6 @@ fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     let m = Command::new("bad_utf8")
         .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true)
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("subcommand"),
@@ -289,7 +289,9 @@ fn allow_validated_utf8_value_of() {
 
 #[test]
 fn allow_validated_utf8_external_subcommand_values_of() {
-    let a = Command::new("test").allow_external_subcommands(true);
+    let a = Command::new("test")
+        .allow_external_subcommands(true)
+        .external_subcommand_value_parser(value_parser!(String));
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     args.get_many::<String>("").unwrap_or_default().count();
@@ -298,7 +300,9 @@ fn allow_validated_utf8_external_subcommand_values_of() {
 #[test]
 #[should_panic = "Mismatch between definition and access of ``. Could not downcast to std::ffi::os_str::OsString, need to downcast to alloc::string::String"]
 fn panic_validated_utf8_external_subcommand_values_of_os() {
-    let a = Command::new("test").allow_external_subcommands(true);
+    let a = Command::new("test")
+        .allow_external_subcommands(true)
+        .external_subcommand_value_parser(value_parser!(String));
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     args.get_many::<OsString>("").unwrap_or_default().count();
@@ -306,9 +310,7 @@ fn panic_validated_utf8_external_subcommand_values_of_os() {
 
 #[test]
 fn allow_invalid_utf8_external_subcommand_values_of_os() {
-    let a = Command::new("test")
-        .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true);
+    let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     args.get_many::<OsString>("").unwrap_or_default().count();
@@ -317,9 +319,7 @@ fn allow_invalid_utf8_external_subcommand_values_of_os() {
 #[test]
 #[should_panic = "Mismatch between definition and access of ``. Could not downcast to alloc::string::String, need to downcast to std::ffi::os_str::OsString"]
 fn panic_invalid_utf8_external_subcommand_values_of() {
-    let a = Command::new("test")
-        .allow_external_subcommands(true)
-        .allow_invalid_utf8_for_external_subcommands(true);
+    let a = Command::new("test").allow_external_subcommands(true);
     let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
     let (_ext, args) = m.subcommand().unwrap();
     args.get_many::<String>("").unwrap_or_default().count();

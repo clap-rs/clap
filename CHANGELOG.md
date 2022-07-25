@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` (#3676)
 - `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate (#3795)
 - Default actions are now `Set` and `SetTrue`
+- Removed `PartialEq` and `Eq` from `Command`
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
@@ -34,6 +35,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Leading dashes in `Arg::long` are no longer allowed (#3691)
 - Verify `required` is not used with conditional required settings (#3660)
 - Disallow more `value_names` than `number_of_values` (#2695)
+- Replaced `cmd.allow_invalid_for_utf8_external_subcommands` with `cmd.external_subcommand_value_parser` (#3733)
+- Changed the default type of `allow_external_subcommands` from `String` to `OsString`
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(assert)* Ensure `overrides_with` IDs are valid
