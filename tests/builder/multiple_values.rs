@@ -408,8 +408,7 @@ fn optional_value() {
         Arg::new("port")
             .short('p')
             .value_name("NUM")
-            .min_values(0)
-            .max_values(1),
+            .number_of_values(0..=1),
     );
 
     let r = cmd.try_get_matches_from_mut(["test", "-p42"]);

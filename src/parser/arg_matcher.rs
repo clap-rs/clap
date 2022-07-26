@@ -221,7 +221,7 @@ impl ArgMatcher {
                 "ArgMatcher::needs_more_vals: expected={}, actual={}",
                 expected, num_pending
             );
-            expected != num_pending
+            expected.accepts_more(num_pending)
         } else if let Some(num) = o.max_vals {
             debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
             current_num < num

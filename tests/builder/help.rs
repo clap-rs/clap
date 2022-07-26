@@ -1044,7 +1044,7 @@ OPTIONS:
 }
 
 #[test]
-#[should_panic = "Argument option: mismatch between `number_of_values` and `multiple_values`"]
+#[should_panic = "Argument option: mismatch between `number_of_values` (1) and `multiple_values`"]
 fn number_of_values_conflicts_with_multiple_values() {
     Command::new("ctest")
         .version("0.1")

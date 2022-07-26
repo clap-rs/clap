@@ -687,15 +687,32 @@ fn assert_arg(arg: &Arg) {
         );
     }
 
-    let num_vals = arg.get_num_vals().unwrap_or(usize::MAX);
-    let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
-    if num_vals < num_val_names {
-        panic!(
-            "Argument {}: Too many value names ({}) compared to number_of_values ({})",
-            arg.name, num_val_names, num_vals
+    if let Some(num_vals) = arg.get_num_vals() {
+        // This can be the cause of later asserts, so put this first
+        let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
+        if num_vals.max_values() < num_val_names {
+            panic!(
+                "Argument {}: Too many value names ({}) compared to number_of_values ({})",
+                arg.name, num_val_names, num_vals
+            );
+        }
+
+        assert_eq!(
+            num_vals.takes_values(),
+            arg.is_takes_value_set(),
+            "Argument {}: mismatch between `number_of_values` ({}) and `takes_value`",
+            arg.name,
+            num_vals,
+        );
+        assert_eq!(
+            num_vals.is_multiple(),
+            arg.is_multiple_values_set(),
+            "Argument {}: mismatch between `number_of_values` ({}) and `multiple_values`",
+            arg.name,
+            num_vals,
         );
     }
-    if arg.get_num_vals() == Some(1) {
+    if arg.get_num_vals() == Some(1.into()) {
         assert!(
             !arg.is_multiple_values_set(),
             "Argument {}: mismatch between `number_of_values` and `multiple_values`",

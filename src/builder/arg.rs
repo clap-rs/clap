@@ -14,6 +14,7 @@ use std::{env, ffi::OsString};
 // Internal
 use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
+use crate::builder::ValuesRange;
 use crate::util::{Id, Key};
 use crate::ArgAction;
 use crate::PossibleValue;
@@ -72,7 +73,7 @@ pub struct Arg<'help> {
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: Option<usize>,
     pub(crate) val_names: Vec<&'help str>,
-    pub(crate) num_vals: Option<usize>,
+    pub(crate) num_vals: Option<ValuesRange>,
     pub(crate) max_vals: Option<usize>,
     pub(crate) min_vals: Option<usize>,
     pub(crate) val_delim: Option<char>,
@@ -1080,45 +1081,160 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// The number of values allowed for this argument.
+    /// Specifies the number of values allowed per occurrence of this argument
     ///
-    /// For example, if you had a
-    /// `-f <file>` argument where you wanted exactly 3 'files' you would set
-    /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
-    /// 3 and only 3 values.
+    /// For example, if you had a `-f <file>` argument where you wanted exactly 3 'files' you would
+    /// set `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user
+    /// provided 3 and only 3 values.
     ///
-    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`] and [`Arg::multiple_values(true)`].
+    /// **NOTE:** Users may specify values for arguments in any of the following methods
+    ///
+    /// - Using a space such as `-o value` or `--option value`
+    /// - Using an equals and no space such as `-o=value` or `--option=value`
+    /// - Use a short and no space such as `-ovalue`
+    ///
+    /// **WARNING:**
+    ///
+    /// Setting a variable number of values (e.g. `..10`) for an argument without
+    /// other details can be dangerous in some circumstances. Because multiple values are
+    /// allowed, `--option val1 val2 val3` is perfectly valid. Be careful when designing a CLI
+    /// where **positional arguments** or **subcommands** are *also* expected as `clap` will continue
+    /// parsing *values* until one of the following happens:
+    ///
+    /// - It reaches the maximum number of values
+    /// - It reaches a specific number of values
+    /// - It finds another flag or option (i.e. something that starts with a `-`)
+    /// - It reaches the [`Arg::value_terminator`] if set
+    ///
+    /// Alternatively,
+    /// - Require a delimiter between values with [Arg::require_value_delimiter]
+    /// - Require a flag occurrence per value with [`ArgAction::Append`]
+    /// - Require positional arguments to appear after `--` with [`Arg::last`]
     ///
     /// # Examples
     ///
+    /// Option:
     /// ```rust
     /// # use clap::{Command, Arg};
-    /// Arg::new("file")
-    ///     .short('f')
-    ///     .number_of_values(3);
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("mode")
+    ///         .long("mode")
+    ///         .number_of_values(1))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--mode", "fast"
+    ///     ]);
+    ///
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
     /// ```
     ///
-    /// Not supplying the correct number of values is an error
-    ///
+    /// Flag/option hybrid (see also [default_missing_value][Arg::default_missing_value])
     /// ```rust
     /// # use clap::{Command, Arg, ErrorKind, ArgAction};
-    /// let res = Command::new("prog")
+    /// let cmd = Command::new("prog")
+    ///     .arg(Arg::new("mode")
+    ///         .long("mode")
+    ///         .default_missing_value("slow")
+    ///         .default_value("plaid")
+    ///         .number_of_values(0..=1));
+    ///
+    /// let m = cmd.clone()
+    ///     .get_matches_from(vec![
+    ///         "prog", "--mode", "fast"
+    ///     ]);
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
+    ///
+    /// let m = cmd.clone()
+    ///     .get_matches_from(vec![
+    ///         "prog", "--mode",
+    ///     ]);
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "slow");
+    ///
+    /// let m = cmd.clone()
+    ///     .get_matches_from(vec![
+    ///         "prog",
+    ///     ]);
+    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "plaid");
+    /// ```
+    ///
+    /// Tuples
+    /// ```rust
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Set)
     ///         .number_of_values(2)
-    ///         .short('F'))
+    ///         .short('F'));
+    ///
+    /// let m = cmd.clone()
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "in-file", "out-file"
+    ///     ]);
+    /// assert_eq!(
+    ///     m.get_many::<String>("file").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
+    ///     vec!["in-file", "out-file"]
+    /// );
+    ///
+    /// let res = cmd.clone()
     ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1"
     ///     ]);
-    ///
-    /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
     /// ```
+    ///
+    /// A common mistake is to define an option which allows multiple values and a positional
+    /// argument.
+    /// ```rust
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let cmd = Command::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .action(ArgAction::Set)
+    ///         .number_of_values(0..)
+    ///         .short('F'))
+    ///     .arg(Arg::new("word"));
+    ///
+    /// let m = cmd.clone().get_matches_from(vec![
+    ///     "prog", "-F", "file1", "file2", "file3", "word"
+    /// ]);
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
+    /// assert!(!m.contains_id("word")); // but we clearly used word!
+    ///
+    /// // but this works
+    /// let m = cmd.clone().get_matches_from(vec![
+    ///     "prog", "word", "-F", "file1", "file2", "file3",
+    /// ]);
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
+    /// ```
+    /// The problem is `clap` doesn't know when to stop parsing values for "file".
+    ///
+    /// A solution for the example above is to limit how many values with a maximum, or specific
+    /// number, or to say [`ArgAction::Append`] is ok, but multiple values are not.
+    /// ```rust
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .action(ArgAction::Append)
+    ///         .short('F'))
+    ///     .arg(Arg::new("word"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
+    ///     ]);
+    ///
+    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
+    /// ```
+    /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
+    /// [multiple values]: Arg::multiple_values
     #[inline]
     #[must_use]
-    pub fn number_of_values(mut self, qty: usize) -> Self {
+    pub fn number_of_values(mut self, qty: impl Into<ValuesRange>) -> Self {
+        let qty = qty.into();
         self.num_vals = Some(qty);
-        self.takes_value(qty != 0).multiple_values(1 < qty)
+        self.takes_value(qty.takes_values())
+            .multiple_values(qty.is_multiple())
     }
 
     /// The *maximum* number of values are for this argument.
@@ -4062,7 +4178,7 @@ impl<'help> Arg<'help> {
 
     /// Get the number of values for this argument.
     #[inline]
-    pub fn get_num_vals(&self) -> Option<usize> {
+    pub fn get_num_vals(&self) -> Option<ValuesRange> {
         self.num_vals
     }
 
@@ -4330,13 +4446,9 @@ impl<'help> Arg<'help> {
         }
 
         let val_names_len = self.val_names.len();
-
         if val_names_len > 1 {
             self.settings.set(ArgSettings::MultipleValues);
-
-            if self.num_vals.is_none() {
-                self.num_vals = Some(val_names_len);
-            }
+            self.num_vals.get_or_insert(val_names_len.into());
         }
     }
 
@@ -4435,7 +4547,8 @@ impl<'help> Display for Arg<'help> {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
-        let is_optional_val = self.get_min_vals() == Some(0);
+        let is_optional_val = self.get_min_vals() == Some(0)
+            || self.get_num_vals().map(|r| r.min_values()) == Some(0);
         if self.is_positional() {
             if is_optional_val {
                 let sep = "[";
@@ -4552,10 +4665,17 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let mut extra_values = false;
     debug_assert!(arg.is_takes_value_set());
-    let num_vals = arg.num_vals.unwrap_or(1);
+    let num_vals = arg.num_vals.unwrap_or_else(|| {
+        if arg.is_multiple_values_set() {
+            (1..).into()
+        } else {
+            1.into()
+        }
+    });
     if val_names.len() == 1 {
         let arg_name = format!("<{}>", val_names[0]);
-        for n in 1..=num_vals {
+        let min = num_vals.min_values().max(1);
+        for n in 1..=min {
             if n != 1 {
                 rendered.push_str(delim);
             }
@@ -4571,8 +4691,9 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
             }
             rendered.push_str(&arg_name);
         }
-        extra_values |= val_names.len() < num_vals;
+        extra_values |= val_names.len() < num_vals.max_values();
     }
+    extra_values |= !num_vals.is_fixed();
     if arg.is_positional() {
         if matches!(*arg.get_action(), ArgAction::Append) {
             extra_values = true;

@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Features
 
+- `Arg::number_of_values` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 
 ### Fixes
