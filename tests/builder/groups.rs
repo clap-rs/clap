@@ -283,8 +283,18 @@ OPTIONS:
 #[test]
 fn group_acts_like_arg() {
     let result = Command::new("prog")
-        .arg(Arg::new("debug").long("debug").group("mode"))
-        .arg(Arg::new("verbose").long("verbose").group("mode"))
+        .arg(
+            Arg::new("debug")
+                .long("debug")
+                .group("mode")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("verbose")
+                .long("verbose")
+                .group("mode")
+                .action(ArgAction::SetTrue),
+        )
         .try_get_matches_from(vec!["prog", "--debug"]);
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
@@ -298,8 +308,8 @@ fn issue_1794() {
     let cmd = clap::Command::new("hello")
         .bin_name("deno")
         .arg(Arg::new("option1").long("option1").takes_value(false).action(ArgAction::SetTrue))
-        .arg(Arg::new("pos1").takes_value(true))
-        .arg(Arg::new("pos2").takes_value(true))
+        .arg(Arg::new("pos1").action(ArgAction::Set))
+        .arg(Arg::new("pos2").action(ArgAction::Set))
         .group(
             ArgGroup::new("arg1")
                 .args(&["pos1", "option1"])

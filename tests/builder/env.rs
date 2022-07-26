@@ -10,7 +10,11 @@ fn env() {
     env::set_var("CLP_TEST_ENV", "env");
 
     let r = Command::new("df")
-        .arg(arg!([arg] "some opt").env("CLP_TEST_ENV").takes_value(true))
+        .arg(
+            arg!([arg] "some opt")
+                .env("CLP_TEST_ENV")
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -66,7 +70,7 @@ fn env_os() {
         .arg(
             arg!([arg] "some opt")
                 .env_os(OsStr::new("CLP_TEST_ENV_OS"))
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
 
@@ -89,7 +93,7 @@ fn no_env() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_NONE")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
 
@@ -123,7 +127,7 @@ fn with_default() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_WD")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .default_value("default"),
         )
         .try_get_matches_from(vec![""]);
@@ -145,7 +149,7 @@ fn opt_user_override() {
         .arg(
             arg!(--arg [FILE] "some arg")
                 .env("CLP_TEST_ENV_OR")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec!["", "--arg", "opt"]);
 
@@ -174,7 +178,7 @@ fn positionals() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_P")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
 
@@ -195,7 +199,7 @@ fn positionals_user_override() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_POR")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec!["", "opt"]);
 
@@ -224,7 +228,7 @@ fn multiple_one() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MO")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .multiple_values(true),
         )
@@ -250,7 +254,7 @@ fn multiple_three() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MULTI1")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .multiple_values(true),
         )
@@ -276,7 +280,7 @@ fn multiple_no_delimiter() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MULTI2")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec![""]);
@@ -301,7 +305,7 @@ fn possible_value() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_PV")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["env"]),
         )
         .try_get_matches_from(vec![""]);
@@ -323,7 +327,7 @@ fn not_possible_value() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_NPV")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["never"]),
         )
         .try_get_matches_from(vec![""]);
@@ -339,7 +343,7 @@ fn value_parser() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VDOR")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(|s: &str| -> Result<String, String> {
                     if s == "env" {
                         Ok(s.to_owned())
@@ -367,7 +371,7 @@ fn value_parser_output() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_VO")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::value_parser!(i32)),
         )
         .try_get_matches_from(vec![""])
@@ -384,7 +388,7 @@ fn value_parser_invalid() {
         .arg(
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_IV")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(|s: &str| -> Result<String, String> {
                     if s != "env" {
                         Ok(s.to_owned())

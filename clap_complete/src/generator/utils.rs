@@ -141,6 +141,7 @@ pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::PossibleValue<
 mod tests {
     use super::*;
     use clap::Arg;
+    use clap::ArgAction;
     use pretty_assertions::assert_eq;
 
     fn common_app() -> Command<'static> {
@@ -152,6 +153,7 @@ mod tests {
                         .short_alias('c')
                         .visible_short_alias('p')
                         .long("file")
+                        .action(ArgAction::SetTrue)
                         .visible_alias("path"),
                 ),
             )

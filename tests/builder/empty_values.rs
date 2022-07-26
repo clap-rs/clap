@@ -1,11 +1,11 @@
 use super::utils;
 
-use clap::{error::ErrorKind, Arg, Command};
+use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
 fn empty_values() {
     let m = Command::new("config")
-        .arg(Arg::new("config").long("config").takes_value(true))
+        .arg(Arg::new("config").long("config").action(ArgAction::Set))
         .try_get_matches_from(&["config", "--config", ""])
         .unwrap();
     assert_eq!(m.get_one::<String>("config").map(|v| v.as_str()), Some(""));
@@ -14,13 +14,13 @@ fn empty_values() {
 #[test]
 fn empty_values_with_equals() {
     let m = Command::new("config")
-        .arg(Arg::new("config").long("config").takes_value(true))
+        .arg(Arg::new("config").long("config").action(ArgAction::Set))
         .try_get_matches_from(&["config", "--config="])
         .unwrap();
     assert_eq!(m.get_one::<String>("config").map(|v| v.as_str()), Some(""));
 
     let m = Command::new("config")
-        .arg(Arg::new("config").short('c').takes_value(true))
+        .arg(Arg::new("config").short('c').action(ArgAction::Set))
         .try_get_matches_from(&["config", "-c="])
         .unwrap();
     assert_eq!(m.get_one::<String>("config").map(|v| v.as_str()), Some(""))
@@ -32,7 +32,7 @@ fn no_empty_values() {
         .arg(
             Arg::new("config")
                 .long("config")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(&["config", "--config", ""]);
@@ -43,7 +43,7 @@ fn no_empty_values() {
         .arg(
             Arg::new("config")
                 .short('c')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(&["config", "-c", ""]);
@@ -57,7 +57,7 @@ fn no_empty_values_with_equals() {
         .arg(
             Arg::new("config")
                 .long("config")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(&["config", "--config="]);
@@ -68,7 +68,7 @@ fn no_empty_values_with_equals() {
         .arg(
             Arg::new("config")
                 .short('c')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(&["config", "-c="]);
@@ -82,7 +82,7 @@ fn no_empty_values_without_equals() {
         .arg(
             Arg::new("config")
                 .long("config")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(&["config", "--config"]);
@@ -93,7 +93,7 @@ fn no_empty_values_without_equals() {
         .arg(
             Arg::new("config")
                 .short('c')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new()),
         )
         .try_get_matches_from(&["config", "-c"]);
@@ -106,7 +106,7 @@ fn no_empty_values_without_equals_but_requires_equals() {
     let cmd = Command::new("config").arg(
         Arg::new("config")
             .long("config")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .value_parser(clap::builder::NonEmptyStringValueParser::new())
             .require_equals(true),
     );

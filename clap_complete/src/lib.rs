@@ -22,7 +22,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use clap::{Command, Arg, ValueHint, value_parser};
+//! use clap::{Command, Arg, ValueHint, value_parser, ArgAction};
 //! use clap_complete::{generate, Generator, Shell};
 //! use std::io;
 //!
@@ -35,7 +35,7 @@
 //!        .arg(
 //!            Arg::new("generator")
 //!                .long("generate")
-//!                .takes_value(true)
+//!                .action(ArgAction::Set)
 //!                .value_parser(value_parser!(Shell)),
 //!        )
 //! }

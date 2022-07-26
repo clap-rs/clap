@@ -250,7 +250,6 @@ pub fn gen_augment(
                 let implicit_methods = match **ty {
                     Ty::Option => {
                         quote_spanned! { ty.span()=>
-                            .takes_value(true)
                             .value_name(#value_name)
                             #value_parser
                             #action
@@ -258,7 +257,6 @@ pub fn gen_augment(
                     }
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
-                        .takes_value(true)
                         .value_name(#value_name)
                         .min_values(0)
                         .max_values(1)
@@ -270,7 +268,6 @@ pub fn gen_augment(
                     Ty::OptionVec => {
                         if attrs.is_positional() {
                             quote_spanned! { ty.span()=>
-                                .takes_value(true)
                                 .value_name(#value_name)
                                 .multiple_values(true)  // action won't be sufficient for getting multiple
                                 #value_parser
@@ -278,7 +275,6 @@ pub fn gen_augment(
                             }
                         } else {
                             quote_spanned! { ty.span()=>
-                                .takes_value(true)
                                 .value_name(#value_name)
                                 #value_parser
                                 #action
@@ -289,7 +285,6 @@ pub fn gen_augment(
                     Ty::Vec => {
                         if attrs.is_positional() {
                             quote_spanned! { ty.span()=>
-                                .takes_value(true)
                                 .value_name(#value_name)
                                 .multiple_values(true)  // action won't be sufficient for getting multiple
                                 #value_parser
@@ -297,7 +292,6 @@ pub fn gen_augment(
                             }
                         } else {
                             quote_spanned! { ty.span()=>
-                                .takes_value(true)
                                 .value_name(#value_name)
                                 #value_parser
                                 #action
@@ -312,7 +306,6 @@ pub fn gen_augment(
                         // otherwise we'll report an "arg required" error when unwrapping.
                         let action_value = action.args();
                         quote_spanned! { ty.span()=>
-                            .takes_value(true)
                             .value_name(#value_name)
                             .required(#required && #action_value.takes_values())
                             #value_parser

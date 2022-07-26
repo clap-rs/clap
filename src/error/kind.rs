@@ -60,10 +60,10 @@ pub enum ErrorKind {
     /// sign to provide values.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("color")
-    ///          .takes_value(true)
+    ///          .action(ArgAction::Set)
     ///          .require_equals(true)
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color", "red"]);
@@ -137,11 +137,11 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .number_of_values(2))
     ///     .try_get_matches_from(vec!["prog", "--opt", "wrong"]);
     /// assert!(result.is_err());
@@ -158,13 +158,15 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
+    ///         .action(ArgAction::SetTrue)
     ///         .conflicts_with("color"))
     ///     .arg(Arg::new("color")
-    ///         .long("color"))
+    ///         .long("color")
+    ///         .action(ArgAction::SetTrue))
     ///     .try_get_matches_from(vec!["prog", "--debug", "--color"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
@@ -222,13 +224,13 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("utf8")
     ///         .short('u')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![OsString::from("myprog"),
     ///                                 OsString::from("-u"),
     ///                                 OsString::from_vec(vec![0xE9])]);

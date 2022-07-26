@@ -2,7 +2,7 @@
 
 use std::env;
 
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 
 use super::utils;
 
@@ -106,7 +106,7 @@ fn hide_env() {
             .hide_env(true)
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true),
+            .action(ArgAction::Set),
     );
 
     utils::assert_output(cmd, "ctest --help", HIDE_ENV, false);
@@ -123,7 +123,7 @@ fn show_env() {
             .value_name("FILE")
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true),
+            .action(ArgAction::Set),
     );
 
     utils::assert_output(cmd, "ctest --help", SHOW_ENV, false);
@@ -141,7 +141,7 @@ fn hide_env_vals() {
             .hide_env_values(true)
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true),
+            .action(ArgAction::Set),
     );
 
     utils::assert_output(cmd, "ctest --help", HIDE_ENV_VALS, false);
@@ -158,7 +158,7 @@ fn show_env_vals() {
             .value_name("FILE")
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café.")
-            .takes_value(true),
+            .action(ArgAction::Set),
     );
 
     utils::assert_output(cmd, "ctest --help", SHOW_ENV_VALS, false);

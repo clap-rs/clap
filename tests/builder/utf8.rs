@@ -1,6 +1,6 @@
 #![cfg(not(windows))]
 
-use clap::{arg, error::ErrorKind, value_parser, Arg, Command};
+use clap::{arg, error::ErrorKind, value_parser, Arg, ArgAction, Command};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
@@ -16,7 +16,12 @@ fn invalid_utf8_strict_positional() {
 #[test]
 fn invalid_utf8_strict_option_short_space() {
     let m = Command::new("bad_utf8")
-        .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
+        .arg(
+            Arg::new("arg")
+                .short('a')
+                .long("arg")
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("-a"),
@@ -29,7 +34,12 @@ fn invalid_utf8_strict_option_short_space() {
 #[test]
 fn invalid_utf8_strict_option_short_equals() {
     let m = Command::new("bad_utf8")
-        .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
+        .arg(
+            Arg::new("arg")
+                .short('a')
+                .long("arg")
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x61, 0x3d, 0xe9]),
@@ -41,7 +51,12 @@ fn invalid_utf8_strict_option_short_equals() {
 #[test]
 fn invalid_utf8_strict_option_short_no_space() {
     let m = Command::new("bad_utf8")
-        .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
+        .arg(
+            Arg::new("arg")
+                .short('a')
+                .long("arg")
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x61, 0xe9]),
@@ -53,7 +68,12 @@ fn invalid_utf8_strict_option_short_no_space() {
 #[test]
 fn invalid_utf8_strict_option_long_space() {
     let m = Command::new("bad_utf8")
-        .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
+        .arg(
+            Arg::new("arg")
+                .short('a')
+                .long("arg")
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from("--arg"),
@@ -66,7 +86,12 @@ fn invalid_utf8_strict_option_long_space() {
 #[test]
 fn invalid_utf8_strict_option_long_equals() {
     let m = Command::new("bad_utf8")
-        .arg(Arg::new("arg").short('a').long("arg").takes_value(true))
+        .arg(
+            Arg::new("arg")
+                .short('a')
+                .long("arg")
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec![
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x2d, 0x61, 0x72, 0x67, 0x3d, 0xe9]),
@@ -96,7 +121,7 @@ fn invalid_utf8_option_short_space() {
             Arg::new("arg")
                 .short('a')
                 .long("arg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
@@ -120,7 +145,7 @@ fn invalid_utf8_option_short_equals() {
             Arg::new("arg")
                 .short('a')
                 .long("arg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
@@ -143,7 +168,7 @@ fn invalid_utf8_option_short_no_space() {
             Arg::new("arg")
                 .short('a')
                 .long("arg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
@@ -166,7 +191,7 @@ fn invalid_utf8_option_long_space() {
             Arg::new("arg")
                 .short('a')
                 .long("arg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![
@@ -190,7 +215,7 @@ fn invalid_utf8_option_long_equals() {
             Arg::new("arg")
                 .short('a')
                 .long("arg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(value_parser!(OsString)),
         )
         .try_get_matches_from(vec![

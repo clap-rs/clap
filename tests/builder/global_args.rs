@@ -8,7 +8,7 @@ fn issue_1076() {
                 .long("global-arg")
                 .help("Specifies something needed by the subcommands")
                 .global(true)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .default_value("default_value"),
         )
         .arg(
@@ -16,7 +16,7 @@ fn issue_1076() {
                 .long("global-flag")
                 .help("Specifies something needed by the subcommands")
                 .global(true)
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .subcommand(Command::new("outer").subcommand(Command::new("inner")));
     let _ = cmd.try_get_matches_from_mut(vec!["myprog"]);
@@ -29,7 +29,12 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
     let m1 = Command::new("foo")
         .subcommand(
             Command::new("sub1")
-                .arg(Arg::new("arg1").long("arg1").takes_value(true).global(true))
+                .arg(
+                    Arg::new("arg1")
+                        .long("arg1")
+                        .action(ArgAction::Set)
+                        .global(true),
+                )
                 .subcommand(Command::new("sub1a")),
         )
         .try_get_matches_from(&["foo", "sub1", "--arg1", "v1", "sub1a"])
@@ -134,7 +139,7 @@ fn global_overrides_default() {
             Arg::new("name")
                 .long("name")
                 .global(true)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .default_value("from_default"),
         )
         .subcommand(Command::new("sub"));
@@ -174,7 +179,7 @@ fn global_overrides_env() {
             Arg::new("name")
                 .long("name")
                 .global(true)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .env("GLOBAL_OVERRIDES_ENV"),
         )
         .subcommand(Command::new("sub"));

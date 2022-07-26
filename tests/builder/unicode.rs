@@ -7,7 +7,7 @@ fn possible_values_ignore_case() {
             clap::Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(clap::ArgAction::Set)
                 .value_parser(["ä"])
                 .ignore_case(true),
         )

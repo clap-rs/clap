@@ -256,14 +256,14 @@
 //!
 //! `clap` assumes some intent based on the type used:
 //!
-//! | Type                | Effect                               | Implies                                                          |
-//! |---------------------|--------------------------------------|------------------------------------------------------------------|
-//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)                                     |
-//! | `Option<T>`         | optional argument                    | `.takes_value(true).required(false)`                             |
-//! | `Option<Option<T>>` | optional value for optional argument | `.takes_value(true).required(false).min_values(0).max_values(1)` |
-//! | `T`                 | required argument                    | `.takes_value(true).required(!has_default)`                      |
-//! | `Vec<T>`            | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
-//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
+//! | Type                | Effect                               | Implies                                                                  |
+//! |---------------------|--------------------------------------|--------------------------------------------------------------------------|
+//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)                                             |
+//! | `Option<T>`         | optional argument                    | `.action(ArgAction::Set).required(false)`                                |
+//! | `Option<Option<T>>` | optional value for optional argument | `.action(ArgAction::Set).required(false).min_values(0).max_values(1)`    |
+//! | `T`                 | required argument                    | `.action(ArgAction::Set).required(!has_default)`                         |
+//! | `Vec<T>`            | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).multiple_occurrences(true)`  |
+//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).multiple_occurrences(true)`  |
 //!
 //! Notes:
 //! - For custom type behavior, you can override the implied attributes/settings and/or set additional ones

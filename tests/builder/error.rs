@@ -2,6 +2,7 @@ use super::utils;
 
 use clap::{arg, error::ErrorKind, value_parser, Arg, Command, Error};
 
+#[track_caller]
 fn assert_error(err: Error, expected_kind: ErrorKind, expected_output: &str, stderr: bool) {
     let actual_output = err.to_string();
     assert_eq!(
@@ -30,6 +31,7 @@ For more information try --help
                 .short('a')
                 .long("all")
                 .required(true)
+                .action(clap::ArgAction::SetTrue)
                 .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(

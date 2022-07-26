@@ -26,16 +26,16 @@ use crate::INTERNAL_ERROR_MSG;
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{Command, Arg, ValueSource};
+/// # use clap::{Command, Arg, ValueSource, ArgAction};
 /// let matches = Command::new("MyApp")
 ///     .arg(Arg::new("out")
 ///         .long("output")
 ///         .required(true)
-///         .takes_value(true)
+///         .action(ArgAction::Set)
 ///         .default_value("-"))
 ///     .arg(Arg::new("cfg")
 ///         .short('c')
-///         .takes_value(true))
+///         .action(ArgAction::Set))
 ///     .get_matches(); // builds the instance of ArgMatches
 ///
 /// // to get information about the "cfg" argument we created, such as the value supplied we use
@@ -92,11 +92,11 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, value_parser};
+    /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("port")
     ///         .value_parser(value_parser!(usize))
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .required(true))
     ///     .get_matches_from(vec!["myapp", "2020"]);
     ///
@@ -136,7 +136,6 @@ impl ArgMatches {
     ///         .action(ArgAction::Append)
     ///         .value_parser(value_parser!(usize))
     ///         .short('p')
-    ///         .takes_value(true)
     ///         .required(true))
     ///     .get_matches_from(vec![
     ///         "myprog", "-p", "22", "-p", "80", "-p", "2020"
@@ -222,11 +221,11 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, value_parser};
+    /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let mut m = Command::new("myprog")
     ///     .arg(Arg::new("file")
     ///         .required(true)
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "myprog", "file.txt",
     ///     ]);
@@ -265,7 +264,7 @@ impl ArgMatches {
     ///         .action(ArgAction::Append)
     ///         .multiple_values(true)
     ///         .required(true)
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "myprog", "file1.txt", "file2.txt", "file3.txt", "file4.txt",
     ///     ]);
@@ -296,10 +295,11 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d"
     ///     ]);
@@ -318,10 +318,10 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let mut cmd = Command::new("myapp")
     ///     .arg(Arg::new("output")
-    ///         .takes_value(true));
+    ///         .action(ArgAction::Set));
     ///
     /// let m = cmd
     ///     .try_get_matches_from_mut(vec!["myapp", "something"])
@@ -409,10 +409,11 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ValueSource};
+    /// # use clap::{Command, Arg, ValueSource, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d"
     ///     ]);
@@ -475,13 +476,14 @@ impl ArgMatches {
     /// in an `ArgMatches` struct for querying.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
     ///            // ARGV indices: ^0       ^1    ^2    ^3
     ///            // clap indices:          ^1          ^3
@@ -493,13 +495,14 @@ impl ArgMatches {
     /// Now notice, if we use one of the other styles of options:
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
     ///            // ARGV indices: ^0       ^1    ^2
     ///            // clap indices:          ^1       ^3
@@ -512,17 +515,20 @@ impl ArgMatches {
     /// flags. Let's also throw in the final option style for good measure.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("flag2")
-    ///         .short('F'))
+    ///         .short('F')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("flag3")
-    ///         .short('z'))
+    ///         .short('z')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
     ///            // ARGV indices: ^0      ^1       ^2
     ///            // clap indices:         ^1,2,3    ^5
@@ -538,17 +544,20 @@ impl ArgMatches {
     /// One final combination of flags/options to see how they combine:
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("flag2")
-    ///         .short('F'))
+    ///         .short('F')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("flag3")
-    ///         .short('z'))
+    ///         .short('z')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec!["myapp", "-fzFoval"]);
     ///            // ARGV indices: ^0       ^1
     ///            // clap indices:          ^1,2,3^5
@@ -628,7 +637,7 @@ impl ArgMatches {
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .action(ArgAction::Append))
     ///     .arg(Arg::new("flag")
     ///         .short('f')
@@ -647,11 +656,11 @@ impl ArgMatches {
     /// index.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1
@@ -813,7 +822,7 @@ impl ArgMatches {
     ///     .subcommand(Command::new("test")
     ///         .arg(Arg::new("opt")
     ///             .long("option")
-    ///             .takes_value(true)))
+    ///             .action(ArgAction::Set)))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d", "test", "--option", "val"
     ///     ]);
@@ -1135,8 +1144,7 @@ pub(crate) struct SubCommand {
 /// let mut m = Command::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .action(ArgAction::Append)
-///         .takes_value(true))
+///         .action(ArgAction::Append))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
 ///
 /// let mut values = m.remove_many::<String>("output")
@@ -1192,8 +1200,7 @@ impl<T> Default for Values2<T> {
 /// let m = Command::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .action(ArgAction::Append)
-///         .takes_value(true))
+///         .action(ArgAction::Append))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
 ///
 /// let mut values = m.get_many::<String>("output")
@@ -1351,12 +1358,12 @@ impl<'a> Default for GroupedValues<'a> {
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Command, Arg};
+/// # use clap::{Command, Arg, ArgAction};
 /// let m = Command::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
 ///         .multiple_values(true)
-///         .takes_value(true))
+///         .action(ArgAction::Set))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
 /// let mut indices = m.indices_of("output").unwrap();
@@ -1419,6 +1426,8 @@ fn unwrap_string(value: &AnyValue) -> &str {
 mod tests {
     use super::*;
 
+    use crate::ArgAction;
+
     #[test]
     fn check_auto_traits() {
         static_assertions::assert_impl_all!(ArgMatches: Send, Sync, Unpin);
@@ -1448,7 +1457,7 @@ mod tests {
         let l = crate::Command::new("test")
             .arg(
                 crate::Arg::new("POTATO")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .multiple_values(true)
                     .required(true),
             )
@@ -1465,7 +1474,7 @@ mod tests {
         let l = crate::Command::new("test")
             .arg(
                 crate::Arg::new("POTATO")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .multiple_values(true)
                     .value_parser(crate::builder::ValueParser::os_string())
                     .required(true),
@@ -1483,7 +1492,7 @@ mod tests {
         let l = crate::Command::new("test")
             .arg(
                 crate::Arg::new("POTATO")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .multiple_values(true)
                     .required(true),
             )

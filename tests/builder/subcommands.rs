@@ -75,7 +75,7 @@ fn subcommand() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .help("testing testing"),
             ),
         )
@@ -100,7 +100,7 @@ fn subcommand_none_given() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .help("testing testing"),
             ),
         )
@@ -119,7 +119,7 @@ fn subcommand_multiple() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .help("testing testing"),
             ),
             Command::new("add").arg(Arg::new("roster").short('r')),
@@ -300,10 +300,10 @@ fn issue_1161_multiple_hyphen_hyphen() {
     // from example 22
     let res = Command::new("myprog")
         .arg(Arg::new("eff").short('f'))
-        .arg(Arg::new("pea").short('p').takes_value(true))
+        .arg(Arg::new("pea").short('p').action(ArgAction::Set))
         .arg(
             Arg::new("slop")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true),
         )

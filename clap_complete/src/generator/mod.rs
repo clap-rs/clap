@@ -83,9 +83,7 @@ pub trait Generator {
 ///
 /// ```
 /// // src/cli.rs
-///
-/// use clap::{Command, Arg};
-///
+/// # use clap::{Command, Arg, ArgAction};
 /// pub fn build_cli() -> Command<'static> {
 ///     Command::new("compl")
 ///         .about("Tests completions")
@@ -95,7 +93,7 @@ pub trait Generator {
 ///             .about("tests things")
 ///             .arg(Arg::new("case")
 ///                 .long("case")
-///                 .takes_value(true)
+///                 .action(ArgAction::Set)
 ///                 .help("the case to test")))
 /// }
 /// ```

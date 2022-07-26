@@ -48,7 +48,12 @@ impl Args for CliArgs {
                 .long("bar")
                 .action(ArgAction::SetTrue),
         )
-        .arg(Arg::new("quuz").short('q').long("quuz").takes_value(true))
+        .arg(
+            Arg::new("quuz")
+                .short('q')
+                .long("quuz")
+                .action(ArgAction::Set),
+        )
     }
     fn augment_args_for_update(cmd: Command<'_>) -> Command<'_> {
         cmd.arg(
@@ -63,7 +68,12 @@ impl Args for CliArgs {
                 .long("bar")
                 .action(ArgAction::SetTrue),
         )
-        .arg(Arg::new("quuz").short('q').long("quuz").takes_value(true))
+        .arg(
+            Arg::new("quuz")
+                .short('q')
+                .long("quuz")
+                .action(ArgAction::Set),
+        )
     }
 }
 

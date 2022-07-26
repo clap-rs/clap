@@ -89,14 +89,14 @@ fn subcommand() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .help("testing testing"),
                 )
                 .arg(
                     Arg::new("stuff")
                         .short('x')
                         .long("stuff")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .help("stuf value"),
                 ),
         )

@@ -1,11 +1,23 @@
 pub fn basic_command(name: &'static str) -> clap::Command<'static> {
     clap::Command::new(name)
-        .arg(clap::Arg::new("config").short('c').global(true))
-        .arg(clap::Arg::new("v").short('v').conflicts_with("config"))
+        .arg(
+            clap::Arg::new("config")
+                .short('c')
+                .global(true)
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
+            clap::Arg::new("v")
+                .short('v')
+                .conflicts_with("config")
+                .action(clap::ArgAction::SetTrue),
+        )
         .subcommand(
-            clap::Command::new("test")
-                .about("Subcommand")
-                .arg(clap::Arg::new("debug").short('d')),
+            clap::Command::new("test").about("Subcommand").arg(
+                clap::Arg::new("debug")
+                    .short('d')
+                    .action(clap::ArgAction::Count),
+            ),
         )
 }
 
@@ -21,6 +33,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
         )
         .arg(
             clap::Arg::new("config")
+                .action(clap::ArgAction::Count)
                 .help("some config file")
                 .short('c')
                 .visible_short_alias('C')
@@ -32,7 +45,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
             clap::Command::new("test").about("tests things").arg(
                 clap::Arg::new("case")
                     .long("case")
-                    .takes_value(true)
+                    .action(clap::ArgAction::Set)
                     .help("the case to test"),
             ),
         )
@@ -46,7 +59,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                 .arg(
                     clap::Arg::new("config")
                         .long("config")
-                        .takes_value(true)
+                        .action(clap::ArgAction::Set)
                         .help("the other case to test"),
                 ),
         )
@@ -59,31 +72,37 @@ pub fn quoting_command(name: &'static str) -> clap::Command<'static> {
         .arg(
             clap::Arg::new("single-quotes")
                 .long("single-quotes")
+                .action(clap::ArgAction::SetTrue)
                 .help("Can be 'always', 'auto', or 'never'"),
         )
         .arg(
             clap::Arg::new("double-quotes")
                 .long("double-quotes")
+                .action(clap::ArgAction::SetTrue)
                 .help("Can be \"always\", \"auto\", or \"never\""),
         )
         .arg(
             clap::Arg::new("backticks")
                 .long("backticks")
+                .action(clap::ArgAction::SetTrue)
                 .help("For more information see `echo test`"),
         )
         .arg(
             clap::Arg::new("backslash")
                 .long("backslash")
+                .action(clap::ArgAction::SetTrue)
                 .help("Avoid '\\n'"),
         )
         .arg(
             clap::Arg::new("brackets")
                 .long("brackets")
+                .action(clap::ArgAction::SetTrue)
                 .help("List packages [filter]"),
         )
         .arg(
             clap::Arg::new("expansions")
                 .long("expansions")
+                .action(clap::ArgAction::SetTrue)
                 .help("Execute the shell command with $SHELL"),
         )
         .subcommands([
@@ -106,6 +125,7 @@ pub fn aliases_command(name: &'static str) -> clap::Command<'static> {
                 .short('f')
                 .visible_short_alias('F')
                 .long("flag")
+                .action(clap::ArgAction::SetTrue)
                 .visible_alias("flg")
                 .help("cmd flag"),
         )
@@ -116,7 +136,7 @@ pub fn aliases_command(name: &'static str) -> clap::Command<'static> {
                 .long("option")
                 .visible_alias("opt")
                 .help("cmd option")
-                .takes_value(true),
+                .action(clap::ArgAction::Set),
         )
         .arg(clap::Arg::new("positional"))
 }
@@ -129,7 +149,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
                 clap::Command::new("sub_cmd").about("sub-subcommand").arg(
                     clap::Arg::new("config")
                         .long("config")
-                        .takes_value(true)
+                        .action(clap::ArgAction::Set)
                         .value_parser([clap::PossibleValue::new("Lest quotes aren't escaped.")])
                         .help("the other case to test"),
                 ),
@@ -143,7 +163,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         .arg(
             clap::Arg::new("choice")
                 .long("choice")
-                .takes_value(true)
+                .action(clap::ArgAction::Set)
                 .value_parser(["bash", "fish", "zsh"]),
         )
         .arg(
@@ -193,7 +213,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         )
         .arg(
             clap::Arg::new("command_with_args")
-                .takes_value(true)
+                .action(clap::ArgAction::Set)
                 .multiple_values(true)
                 .value_hint(clap::ValueHint::CommandWithArguments),
         )
@@ -223,7 +243,11 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
 
 pub fn hidden_option_command(name: &'static str) -> clap::Command<'static> {
     clap::Command::new(name)
-        .arg(clap::Arg::new("config").long("config").takes_value(true))
+        .arg(
+            clap::Arg::new("config")
+                .long("config")
+                .action(clap::ArgAction::Set),
+        )
         .arg(
             clap::Arg::new("no-config")
                 .long("no-config")
@@ -238,7 +262,7 @@ pub fn env_value_command(name: &'static str) -> clap::Command<'static> {
             .short('c')
             .long_help("Set configuration file path")
             .required(false)
-            .takes_value(true)
+            .action(clap::ArgAction::Set)
             .default_value("config.toml")
             .env("CONFIG_FILE"),
     )

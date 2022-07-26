@@ -2,7 +2,7 @@ use super::utils;
 
 use std::str;
 
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 
 #[test]
 fn no_derive_order() {
@@ -24,15 +24,21 @@ OPTIONS:
         .version("1.2")
         .next_display_order(None)
         .args(&[
-            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("flag_b")
+                .long("flag_b")
+                .help("first flag")
+                .action(ArgAction::SetTrue),
             Arg::new("option_b")
                 .long("option_b")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("first option"),
-            Arg::new("flag_a").long("flag_a").help("second flag"),
+            Arg::new("flag_a")
+                .long("flag_a")
+                .help("second flag")
+                .action(ArgAction::SetTrue),
             Arg::new("option_a")
                 .long("option_a")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("second option"),
         ]);
 
@@ -56,15 +62,21 @@ OPTIONS:
 ";
 
     let cmd = Command::new("test").version("1.2").args(&[
-        Arg::new("flag_b").long("flag_b").help("first flag"),
+        Arg::new("flag_b")
+            .long("flag_b")
+            .help("first flag")
+            .action(ArgAction::SetTrue),
         Arg::new("option_b")
             .long("option_b")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .help("first option"),
-        Arg::new("flag_a").long("flag_a").help("second flag"),
+        Arg::new("flag_a")
+            .long("flag_a")
+            .help("second flag")
+            .action(ArgAction::SetTrue),
         Arg::new("option_a")
             .long("option_a")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .help("second option"),
     ]);
 
@@ -90,19 +102,29 @@ OPTIONS:
     let cmd = Command::new("test")
         .version("1.2")
         .next_display_order(10000)
-        .arg(Arg::new("flag_a").long("flag_a").help("second flag"))
+        .arg(
+            Arg::new("flag_a")
+                .long("flag_a")
+                .help("second flag")
+                .action(ArgAction::SetTrue),
+        )
         .arg(
             Arg::new("option_a")
                 .long("option_a")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("second option"),
         )
         .next_display_order(10)
-        .arg(Arg::new("flag_b").long("flag_b").help("first flag"))
+        .arg(
+            Arg::new("flag_b")
+                .long("flag_b")
+                .help("first flag")
+                .action(ArgAction::SetTrue),
+        )
         .arg(
             Arg::new("option_b")
                 .long("option_b")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("first option"),
         );
 
@@ -128,18 +150,28 @@ OPTIONS:
     let cmd = Command::new("test")
         .version("1.2")
         .next_display_order(None)
-        .arg(Arg::new("flag_a").long("flag_a").help("first flag"))
+        .arg(
+            Arg::new("flag_a")
+                .long("flag_a")
+                .help("first flag")
+                .action(ArgAction::SetTrue),
+        )
         .arg(
             Arg::new("option_a")
                 .long("option_a")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("first option"),
         )
-        .arg(Arg::new("flag_b").long("flag_b").help("second flag"))
+        .arg(
+            Arg::new("flag_b")
+                .long("flag_b")
+                .help("second flag")
+                .action(ArgAction::SetTrue),
+        )
         .arg(
             Arg::new("option_b")
                 .long("option_b")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("second option"),
         );
 
@@ -164,15 +196,21 @@ OPTIONS:
 
     let cmd = Command::new("test").subcommand(
         Command::new("sub").version("1.2").args(&[
-            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("flag_b")
+                .long("flag_b")
+                .help("first flag")
+                .action(ArgAction::SetTrue),
             Arg::new("option_b")
                 .long("option_b")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("first option"),
-            Arg::new("flag_a").long("flag_a").help("second flag"),
+            Arg::new("flag_a")
+                .long("flag_a")
+                .help("second flag")
+                .action(ArgAction::SetTrue),
             Arg::new("option_a")
                 .long("option_a")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("second option"),
         ]),
     );
@@ -198,18 +236,22 @@ OPTIONS:
 
     let cmd = Command::new("test").subcommand(
         Command::new("sub").version("1.2").args(&[
-            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("flag_b")
+                .long("flag_b")
+                .help("first flag")
+                .action(ArgAction::SetTrue),
             Arg::new("option_b")
                 .long("option_b")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("first option"),
             Arg::new("flag_a")
                 .long("flag_a")
                 .help("second flag")
-                .display_order(0),
+                .display_order(0)
+                .action(ArgAction::SetTrue),
             Arg::new("option_a")
                 .long("option_a")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("second option"),
         ]),
     );
@@ -240,9 +282,16 @@ OPTIONS:
         Arg::new("help")
             .long("help")
             .short('h')
-            .help("Print help message"),
-        Arg::new("flag_b").long("flag_b").help("first flag"),
-        Arg::new("flag_a").long("flag_a").help("second flag"),
+            .help("Print help message")
+            .action(ArgAction::Help),
+        Arg::new("flag_b")
+            .long("flag_b")
+            .help("first flag")
+            .action(ArgAction::SetTrue),
+        Arg::new("flag_a")
+            .long("flag_a")
+            .help("second flag")
+            .action(ArgAction::SetTrue),
     ]);
 
     utils::assert_output(cmd, "test --help", PREFER_USER_HELP_DERIVE_ORDER, false);
@@ -267,9 +316,16 @@ OPTIONS:
             Arg::new("help")
                 .long("help")
                 .short('h')
-                .help("Print help message"),
-            Arg::new("flag_b").long("flag_b").help("first flag"),
-            Arg::new("flag_a").long("flag_a").help("second flag"),
+                .help("Print help message")
+                .action(ArgAction::Help),
+            Arg::new("flag_b")
+                .long("flag_b")
+                .help("first flag")
+                .action(ArgAction::SetTrue),
+            Arg::new("flag_a")
+                .long("flag_a")
+                .help("second flag")
+                .action(ArgAction::SetTrue),
         ]),
     );
 
@@ -304,10 +360,10 @@ SUBCOMMANDS:
         .subcommands(vec![
             Command::new("b1")
                 .about("blah b1")
-                .arg(Arg::new("test").short('t')),
+                .arg(Arg::new("test").short('t').action(ArgAction::SetTrue)),
             Command::new("a1")
                 .about("blah a1")
-                .arg(Arg::new("roster").short('r')),
+                .arg(Arg::new("roster").short('r').action(ArgAction::SetTrue)),
         ]);
 
     utils::assert_output(
@@ -338,10 +394,10 @@ SUBCOMMANDS:
     let app_subcmd_decl_order = Command::new("test").version("1").subcommands(vec![
         Command::new("b1")
             .about("blah b1")
-            .arg(Arg::new("test").short('t')),
+            .arg(Arg::new("test").short('t').action(ArgAction::SetTrue)),
         Command::new("a1")
             .about("blah a1")
-            .arg(Arg::new("roster").short('r')),
+            .arg(Arg::new("roster").short('r').action(ArgAction::SetTrue)),
     ]);
 
     utils::assert_output(

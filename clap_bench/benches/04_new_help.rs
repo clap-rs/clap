@@ -47,7 +47,7 @@ fn app_example3<'c>() -> Command<'c> {
         .args(&[
             Arg::new("config")
                 .help("sets the config file to use")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .short('c')
                 .long("config"),
             Arg::new("input")
@@ -118,7 +118,6 @@ fn app_example7<'c>() -> Command<'c> {
         .arg(
             Arg::new("input")
                 .help("the input file to use")
-                .takes_value(true)
                 .multiple_values(true)
                 .action(ArgAction::Append)
                 .required(true)
@@ -136,7 +135,6 @@ fn app_example8<'c>() -> Command<'c> {
         .arg(
             Arg::new("input")
                 .help("the input file to use")
-                .takes_value(true)
                 .multiple_values(true)
                 .action(ArgAction::Append)
                 .required(true)
@@ -152,7 +150,7 @@ fn app_example10<'c>() -> Command<'c> {
         Arg::new("CONFIG")
             .help("The config file to use (default is \"config.json\")")
             .short('c')
-            .takes_value(true),
+            .action(ArgAction::Set),
     )
 }
 

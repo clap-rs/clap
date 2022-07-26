@@ -2,7 +2,7 @@ use std::ffi::OsStr;
 use std::ffi::OsString;
 
 use super::utils;
-use clap::{arg, error::ErrorKind, value_parser, Arg, Command};
+use clap::{arg, error::ErrorKind, value_parser, Arg, ArgAction, Command};
 
 #[test]
 fn opts() {
@@ -606,7 +606,7 @@ fn default_value_ifs_os() {
             Arg::new("flag")
                 .long("flag")
                 .value_parser(value_parser!(OsString))
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("other")
@@ -638,19 +638,19 @@ fn conditional_reqs_pass() {
     let m = Command::new("Test cmd")
         .arg(
             Arg::new("target")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .default_value("file")
                 .long("target"),
         )
         .arg(
             Arg::new("input")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .long("input"),
         )
         .arg(
             Arg::new("output")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required_if_eq("target", "file")
                 .long("output"),
         )
@@ -712,7 +712,7 @@ fn default_vals_donnot_show_in_smart_usage() {
         .arg(
             Arg::new("foo")
                 .long("config")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .default_value("bar"),
         )
         .arg(Arg::new("input").required(true));
@@ -738,7 +738,7 @@ fn issue_1050_num_vals_and_defaults() {
         .arg(
             Arg::new("exit-code")
                 .long("exit-code")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .number_of_values(1)
                 .default_value("0"),
         )

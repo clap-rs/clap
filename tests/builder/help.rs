@@ -171,7 +171,7 @@ OPTIONS:
         .arg(
             Arg::new("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true)
                 .value_name("ARGS"),
@@ -506,7 +506,7 @@ OPTIONS:
         .arg(
             Arg::new("possible_values")
                 .long("possible-values")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     PossibleValue::new("short_name")
                         .help("Long enough help message, barely warrant wrapping"),
@@ -516,7 +516,7 @@ OPTIONS:
         .arg(
             Arg::new("possible_values_with_new_line")
                 .long("possible-values-with-new-line")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     PossibleValue::new("long enough name to trigger new line").help(
                         "Really long enough help message to clearly warrant wrapping believe me",
@@ -527,7 +527,7 @@ OPTIONS:
         .arg(
             Arg::new("possible_values_without_new_line")
                 .long("possible-values-without-new-line")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     PossibleValue::new("name").help("Short enough help message with no wrapping"),
                     PossibleValue::new("second").help("short help"),
@@ -593,7 +593,7 @@ OPTIONS:
                  iced coffee and iced tea. Many cafés also serve some type of \
                  food, such as light snacks, muffins, or pastries.",
             )
-            .takes_value(true),
+            .action(ArgAction::Set),
     );
     utils::assert_output(cmd, "ctest --help", ISSUE_626_CUTOFF, false);
 }
@@ -621,7 +621,7 @@ fn hide_possible_vals() {
                 .value_name("VAL")
                 .value_parser(["fast", "slow"])
                 .help("Some vals")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("cafe")
@@ -631,7 +631,7 @@ fn hide_possible_vals() {
                 .hide_possible_values(true)
                 .value_parser(["fast", "slow"])
                 .help("A coffeehouse, coffee shop, or café.")
-                .takes_value(true),
+                .action(ArgAction::Set),
         );
     utils::assert_output(cmd, "ctest --help", HIDE_POS_VALS, false);
 }
@@ -651,7 +651,7 @@ fn hide_single_possible_val() {
                     PossibleValue::new("secret speed").hide(true),
                 ])
                 .help("Some vals")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("cafe")
@@ -659,7 +659,7 @@ fn hide_single_possible_val() {
                 .long("cafe")
                 .value_name("FILE")
                 .help("A coffeehouse, coffee shop, or café.")
-                .takes_value(true),
+                .action(ArgAction::Set),
         );
     utils::assert_output(cmd, "ctest --help", HIDE_POS_VALS, false);
 }
@@ -701,7 +701,7 @@ OPTIONS:
                     PossibleValue::new("secret speed").hide(true),
                 ])
                 .help("Some vals")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("cafe")
@@ -709,7 +709,7 @@ OPTIONS:
                 .long("cafe")
                 .value_name("FILE")
                 .help("A coffeehouse, coffee shop, or café.")
-                .takes_value(true),
+                .action(ArgAction::Set),
         );
     utils::assert_output(app, "ctest --help", POS_VALS_HELP, false);
 }
@@ -748,7 +748,7 @@ OPTIONS:
            .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
-           .takes_value(true));
+           .action(ArgAction::Set));
     utils::assert_output(cmd, "ctest --help", ISSUE_626_PANIC, false);
 }
 
@@ -765,7 +765,7 @@ fn issue_626_variable_panic() {
                .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
                d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
                Le café est souvent une contribution majeure aux exportations des régions productrices.")
-               .takes_value(true))
+               .action(ArgAction::Set))
             .try_get_matches_from(vec!["ctest", "--help"]);
     }
 }
@@ -884,6 +884,7 @@ fn old_newline_chars() {
     let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("mode")
             .short('m')
+            .action(ArgAction::SetTrue)
             .help("Some help with some wrapping\n(Defaults to something)"),
     );
     utils::assert_output(cmd, "ctest --help", OLD_NEWLINE_CHARS, false);
@@ -894,6 +895,7 @@ fn old_newline_variables() {
     let cmd = Command::new("ctest").version("0.1").arg(
         Arg::new("mode")
             .short('m')
+            .action(ArgAction::SetTrue)
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
     utils::assert_output(cmd, "ctest --help", OLD_NEWLINE_CHARS, false);
@@ -925,7 +927,7 @@ OPTIONS:
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.value_parser(filter_values)
-				.takes_value(true));
+				.action(ArgAction::Set));
     utils::assert_output(app1, "ctest --help", ISSUE_688, false);
 
     let app2 = Command::new("ctest")
@@ -936,7 +938,7 @@ OPTIONS:
                 images. The default is Linear (Bilinear).")
 				.long("filter")
 				.value_parser(filter_values)
-				.takes_value(true));
+				.action(ArgAction::Set));
     utils::assert_output(app2, "ctest --help", ISSUE_688, false);
 
     let app3 = Command::new("ctest")
@@ -946,7 +948,7 @@ OPTIONS:
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
-				.takes_value(true));
+				.action(ArgAction::Set));
     utils::assert_output(app3, "ctest --help", ISSUE_688, false);
 }
 
@@ -978,7 +980,7 @@ OPTIONS:
         .arg(Arg::new("arg1").help("some option"))
         .arg(
             Arg::new("arg2")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .help("some option"),
         )
@@ -987,14 +989,14 @@ OPTIONS:
                 .help("some option")
                 .short('s')
                 .long("some")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("other")
                 .help("some other option")
                 .short('o')
                 .long("other")
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .arg(
             Arg::new("label")
@@ -1002,7 +1004,7 @@ OPTIONS:
                 .short('l')
                 .long("label")
                 .multiple_values(true)
-                .takes_value(true),
+                .action(ArgAction::Set),
         );
     utils::assert_output(cmd, "myapp --help", ISSUE_702, false);
 }
@@ -1063,7 +1065,7 @@ OPTIONS:
                 .help("tests options")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .number_of_values(1),
         )
@@ -1072,7 +1074,7 @@ OPTIONS:
                 .help("tests options")
                 .short('O')
                 .long("opt")
-                .takes_value(true),
+                .action(ArgAction::Set),
         );
     utils::assert_output(cmd, "ctest --help", ISSUE_760, false);
 }
@@ -1084,7 +1086,7 @@ fn issue_1571() {
             .long("package")
             .short('p')
             .number_of_values(1)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .multiple_values(true),
     );
     utils::assert_output(
@@ -1363,7 +1365,7 @@ OPTIONS:
         --help    Print help information
 ";
 
-    let cmd = Command::new("conflict").arg(Arg::new("home").short('h'));
+    let cmd = Command::new("conflict").arg(Arg::new("home").short('h').action(ArgAction::SetTrue));
 
     utils::assert_output(cmd, "conflict --help", HELP_CONFLICT, false);
 }
@@ -1401,7 +1403,7 @@ OPTIONS:
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true)
                 .help("some"),
@@ -1432,7 +1434,7 @@ OPTIONS:
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true)
                 .required(true)
@@ -1470,7 +1472,7 @@ SUBCOMMANDS:
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true)
                 .required(true)
@@ -1509,7 +1511,7 @@ SUBCOMMANDS:
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true)
                 .help("some"),
@@ -1661,7 +1663,7 @@ OPTIONS:
             arg!(-f --fake <s> "some help")
                 .required(true)
                 .value_names(&["some", "val"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
                 .value_delimiter(':'),
@@ -1697,7 +1699,7 @@ NETWORKING:
             arg!(-f --fake <s> "some help")
                 .required(true)
                 .value_names(&["some", "val"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
                 .value_delimiter(':'),
@@ -1707,9 +1709,10 @@ NETWORKING:
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
+                .action(ArgAction::SetTrue)
                 .help("Do not use system proxy settings"),
         )
-        .args(&[Arg::new("port").long("port")]);
+        .args(&[Arg::new("port").long("port").action(ArgAction::SetTrue)]);
 
     utils::assert_output(cmd, "test --help", CUSTOM_HELP_SECTION, false);
 }
@@ -1749,7 +1752,7 @@ fn multiple_custom_help_headers() {
             arg!(-f --fake <s> "some help")
                 .required(true)
                 .value_names(&["some", "val"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
                 .value_delimiter(':'),
@@ -1759,6 +1762,7 @@ fn multiple_custom_help_headers() {
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
+                .action(ArgAction::SetTrue)
                 .help("Do not use system proxy settings"),
         )
         .next_help_heading(Some("SPECIAL"))
@@ -1779,6 +1783,7 @@ fn multiple_custom_help_headers() {
             Arg::new("server-addr")
                 .short('a')
                 .long("server-addr")
+                .action(ArgAction::SetTrue)
                 .help("Set server address")
                 .help_heading(Some("NETWORKING")),
         )
@@ -1789,7 +1794,7 @@ fn multiple_custom_help_headers() {
                 .value_name("SPEED")
                 .value_parser(["fast", "slow"])
                 .help("How fast?")
-                .takes_value(true),
+                .action(ArgAction::Set),
         );
 
     utils::assert_output(cmd, "test --help", MULTIPLE_CUSTOM_HELP_SECTIONS, false);
@@ -1911,7 +1916,7 @@ OPTIONS:
 ";
 
     let cmd = Command::new("demo")
-        .arg(Arg::new("foo").short('f'))
+        .arg(Arg::new("foo").short('f').action(ArgAction::SetTrue))
         .arg(
             Arg::new("baz")
                 .short('z')
@@ -1921,7 +1926,7 @@ OPTIONS:
         .arg(
             Arg::new("files")
                 .value_name("FILES")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         );
 
@@ -2069,12 +2074,17 @@ OPTIONS:
             Print help information
 ";
 
-    let cmd = Command::new("prog").arg(Arg::new("cfg").long("config").long_help(
-        "The config file used by the myprog must be in JSON format
+    let cmd = Command::new("prog").arg(
+        Arg::new("cfg")
+            .long("config")
+            .action(ArgAction::SetTrue)
+            .long_help(
+                "The config file used by the myprog must be in JSON format
 with only valid keys and may not contain other nonsense
 that cannot be read by this program. Obviously I'm going on
 and on, so I'll stop now.",
-    ));
+            ),
+    );
     utils::assert_output(cmd, "prog --help", ISSUE_1642, false);
 }
 
@@ -2244,13 +2254,17 @@ OPTIONS:
 ";
 
     let cmd = Command::new("order").args(&[
-        Arg::new("a").short('a'),
-        Arg::new("B").short('B'),
-        Arg::new("b").short('b'),
-        Arg::new("save").short('s'),
-        Arg::new("select_file").long("select_file"),
-        Arg::new("select_folder").long("select_folder"),
-        Arg::new("x").short('x'),
+        Arg::new("a").short('a').action(ArgAction::SetTrue),
+        Arg::new("B").short('B').action(ArgAction::SetTrue),
+        Arg::new("b").short('b').action(ArgAction::SetTrue),
+        Arg::new("save").short('s').action(ArgAction::SetTrue),
+        Arg::new("select_file")
+            .long("select_file")
+            .action(ArgAction::SetTrue),
+        Arg::new("select_folder")
+            .long("select_folder")
+            .action(ArgAction::SetTrue),
+        Arg::new("x").short('x').action(ArgAction::SetTrue),
     ]);
 
     utils::assert_output(cmd, "order --help", OPTION_USAGE_ORDER, false);
@@ -2304,13 +2318,13 @@ OPTIONS:
     let cmd = clap::Command::new("hello")
         .bin_name("deno")
         .arg(Arg::new("option1").long("option1").takes_value(false))
-        .arg(Arg::new("pos1").takes_value(true))
+        .arg(Arg::new("pos1").action(ArgAction::Set))
         .group(
             ArgGroup::new("arg1")
                 .args(&["pos1", "option1"])
                 .required(true),
         )
-        .arg(Arg::new("pos2").takes_value(true));
+        .arg(Arg::new("pos2").action(ArgAction::Set));
 
     utils::assert_output(cmd, "deno --help", USAGE_WITH_GROUP, false);
 }
@@ -2442,7 +2456,7 @@ fn missing_positional_final_multiple() {
         .allow_missing_positional(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
-        .arg(Arg::new("baz").takes_value(true).multiple_values(true));
+        .arg(Arg::new("baz").action(ArgAction::Set).multiple_values(true));
     utils::assert_output(
         cmd,
         "test --help",
@@ -2468,7 +2482,7 @@ fn positional_multiple_values_is_dotted() {
     let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .multiple_values(true),
     );
     utils::assert_output(
@@ -2491,7 +2505,7 @@ OPTIONS:
     let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .value_name("BAR")
             .multiple_values(true),
     );
@@ -2518,7 +2532,7 @@ fn positional_multiple_occurrences_is_dotted() {
     let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .multiple_values(true)
             .action(ArgAction::Append),
     );
@@ -2542,7 +2556,7 @@ OPTIONS:
     let cmd = Command::new("test").arg(
         Arg::new("foo")
             .required(true)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .value_name("BAR")
             .multiple_values(true)
             .action(ArgAction::Append),
@@ -2571,7 +2585,7 @@ fn too_few_value_names_is_dotted() {
         Arg::new("foo")
             .long("foo")
             .required(true)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .number_of_values(3)
             .value_names(&["one", "two"]),
     );
@@ -2599,7 +2613,7 @@ fn too_many_value_names_panics() {
             Arg::new("foo")
                 .long("foo")
                 .required(true)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .number_of_values(1)
                 .value_names(&["one", "two"]),
         )
@@ -2637,8 +2651,8 @@ fn disabled_help_flag_and_subcommand() {
 #[test]
 fn override_help_subcommand() {
     let cmd = Command::new("bar")
-        .subcommand(Command::new("help").arg(Arg::new("arg").takes_value(true)))
-        .subcommand(Command::new("not_help").arg(Arg::new("arg").takes_value(true)))
+        .subcommand(Command::new("help").arg(Arg::new("arg").action(ArgAction::Set)))
+        .subcommand(Command::new("not_help").arg(Arg::new("arg").action(ArgAction::Set)))
         .disable_help_subcommand(true);
     let matches = cmd.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
     assert_eq!(
@@ -2769,7 +2783,7 @@ OPTIONS:
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .help("some"),
         )
@@ -2793,7 +2807,7 @@ OPTIONS:
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .help("some"),
         )
@@ -2817,7 +2831,7 @@ OPTIONS:
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(
             Arg::new("ARGS")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .help("some"),
         )

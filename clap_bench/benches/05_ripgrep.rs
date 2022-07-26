@@ -323,13 +323,12 @@ where
             "type-list",
             "version",
         ]))
-        .arg(arg("path").takes_value(true).multiple_values(true))
+        .arg(arg("path").multiple_values(true))
         .arg(
             flag("regexp")
                 .short('e')
                 .allow_hyphen_values(true)
                 .action(ArgAction::Append)
-                .takes_value(true)
                 .value_name("pattern"),
         )
         .arg(
@@ -345,22 +344,16 @@ where
         .arg(
             flag("color")
                 .value_name("WHEN")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .hide_possible_values(true)
                 .value_parser(["never", "auto", "always", "ansi"]),
         )
-        .arg(
-            flag("colors")
-                .value_name("SPEC")
-                .action(ArgAction::Append)
-                .takes_value(true),
-        )
+        .arg(flag("colors").value_name("SPEC").action(ArgAction::Append))
         .arg(flag("fixed-strings").short('F'))
         .arg(
             flag("glob")
                 .short('g')
                 .action(ArgAction::Append)
-                .takes_value(true)
                 .value_name("GLOB"),
         )
         .arg(flag("ignore-case").short('i'))
@@ -371,14 +364,12 @@ where
             flag("type")
                 .short('t')
                 .action(ArgAction::Append)
-                .takes_value(true)
                 .value_name("TYPE"),
         )
         .arg(
             flag("type-not")
                 .short('T')
                 .action(ArgAction::Append)
-                .takes_value(true)
                 .value_name("TYPE"),
         )
         .arg(flag("unrestricted").short('u').action(ArgAction::Append))
