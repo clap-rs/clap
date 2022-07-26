@@ -2,7 +2,7 @@
 //
 // CLI used is from rustup 408ed84f0e50511ed44a405dd91365e5da588790
 
-use clap::{Arg, ArgGroup, Command};
+use clap::{Arg, ArgAction, ArgGroup, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 pub fn build_rustup(c: &mut Criterion) {
@@ -105,31 +105,51 @@ fn build_cli() -> Command<'static> {
                 .subcommand(
                     Command::new("list")
                         .about("List installed and available targets")
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        ),
                 )
                 .subcommand(
                     Command::new("add")
                         .about("Add a target to a Rust toolchain")
                         .arg(Arg::new("target").required(true))
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        ),
                 )
                 .subcommand(
                     Command::new("remove")
                         .about("Remove a target  from a Rust toolchain")
                         .arg(Arg::new("target").required(true))
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        ),
                 )
                 .subcommand(
                     Command::new("install")
                         .hide(true) // synonym for 'add'
                         .arg(Arg::new("target").required(true))
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        ),
                 )
                 .subcommand(
                     Command::new("uninstall")
                         .hide(true) // synonym for 'remove'
                         .arg(Arg::new("target").required(true))
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        ),
                 ),
         )
         .subcommand(
@@ -138,21 +158,33 @@ fn build_cli() -> Command<'static> {
                 .subcommand(
                     Command::new("list")
                         .about("List installed and available components")
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        ),
                 )
                 .subcommand(
                     Command::new("add")
                         .about("Add a component to a Rust toolchain")
                         .arg(Arg::new("component").required(true))
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true))
-                        .arg(Arg::new("target").long("target").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        )
+                        .arg(Arg::new("target").long("target").action(ArgAction::Set)),
                 )
                 .subcommand(
                     Command::new("remove")
                         .about("Remove a component from a Rust toolchain")
                         .arg(Arg::new("component").required(true))
-                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true))
-                        .arg(Arg::new("target").long("target").takes_value(true)),
+                        .arg(
+                            Arg::new("toolchain")
+                                .long("toolchain")
+                                .action(ArgAction::Set),
+                        )
+                        .arg(Arg::new("target").long("target").action(ArgAction::Set)),
                 ),
         )
         .subcommand(
@@ -172,7 +204,7 @@ fn build_cli() -> Command<'static> {
                         .arg(
                             Arg::new("path")
                                 .long("path")
-                                .takes_value(true)
+                                .action(ArgAction::Set)
                                 .help("Path to the directory"),
                         )
                         .arg(
@@ -190,7 +222,7 @@ fn build_cli() -> Command<'static> {
                     Command::new("remove")
                         .hide(true) // synonym for 'unset'
                         .about("Remove the override toolchain for a directory")
-                        .arg(Arg::new("path").long("path").takes_value(true))
+                        .arg(Arg::new("path").long("path").action(ArgAction::Set))
                         .arg(
                             Arg::new("nonexistent")
                                 .long("nonexistent")
@@ -204,12 +236,7 @@ fn build_cli() -> Command<'static> {
                 .after_help(RUN_HELP)
                 .trailing_var_arg(true)
                 .arg(Arg::new("toolchain").required(true))
-                .arg(
-                    Arg::new("command")
-                        .required(true)
-                        .takes_value(true)
-                        .multiple_values(true),
-                ),
+                .arg(Arg::new("command").required(true).multiple_values(true)),
         )
         .subcommand(
             Command::new("which")
@@ -236,7 +263,11 @@ fn build_cli() -> Command<'static> {
             Command::new("man")
                 .about("View the man page for a given command")
                 .arg(Arg::new("command").required(true))
-                .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
+                .arg(
+                    Arg::new("toolchain")
+                        .long("toolchain")
+                        .action(ArgAction::Set),
+                ),
         )
         .subcommand(
             Command::new("self")

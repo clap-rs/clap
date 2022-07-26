@@ -360,16 +360,19 @@ fn conflict_output_three_conflicting() {
         .arg(
             Arg::new("one")
                 .long("one")
+                .action(ArgAction::SetTrue)
                 .conflicts_with_all(&["two", "three"]),
         )
         .arg(
             Arg::new("two")
                 .long("two")
+                .action(ArgAction::SetTrue)
                 .conflicts_with_all(&["one", "three"]),
         )
         .arg(
             Arg::new("three")
                 .long("three")
+                .action(ArgAction::SetTrue)
                 .conflicts_with_all(&["one", "two"]),
         );
     utils::assert_output(
@@ -386,11 +389,13 @@ fn two_conflicting_arguments() {
         .arg(
             Arg::new("develop")
                 .long("develop")
+                .action(ArgAction::SetTrue)
                 .conflicts_with("production"),
         )
         .arg(
             Arg::new("production")
                 .long("production")
+                .action(ArgAction::SetTrue)
                 .conflicts_with("develop"),
         )
         .try_get_matches_from(vec!["", "--develop", "--production"]);
@@ -411,16 +416,19 @@ fn three_conflicting_arguments() {
         .arg(
             Arg::new("one")
                 .long("one")
+                .action(ArgAction::SetTrue)
                 .conflicts_with_all(&["two", "three"]),
         )
         .arg(
             Arg::new("two")
                 .long("two")
+                .action(ArgAction::SetTrue)
                 .conflicts_with_all(&["one", "three"]),
         )
         .arg(
             Arg::new("three")
                 .long("three")
+                .action(ArgAction::SetTrue)
                 .conflicts_with_all(&["one", "two"]),
         )
         .try_get_matches_from(vec!["", "--one", "--two", "--three"]);
@@ -596,8 +604,13 @@ fn group_conflicts_with_default_arg() {
 #[test]
 fn exclusive_with_required() {
     let cmd = Command::new("bug")
-        .arg(Arg::new("test").long("test").exclusive(true))
-        .arg(Arg::new("input").takes_value(true).required(true));
+        .arg(
+            Arg::new("test")
+                .long("test")
+                .action(ArgAction::SetTrue)
+                .exclusive(true),
+        )
+        .arg(Arg::new("input").action(ArgAction::Set).required(true));
 
     cmd.clone()
         .try_get_matches_from(["bug", "--test", "required"])

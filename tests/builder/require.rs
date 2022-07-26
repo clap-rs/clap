@@ -313,7 +313,7 @@ fn required_unless_present() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present("dbg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
@@ -331,7 +331,7 @@ fn required_unless_present_err() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present("dbg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug"))
@@ -348,7 +348,7 @@ fn required_unless_present_with_optional_value() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present("dbg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug"))
@@ -366,11 +366,11 @@ fn required_unless_present_all() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present_all(&["dbg", "infile"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
-        .arg(Arg::new("infile").short('i').takes_value(true))
+        .arg(Arg::new("infile").short('i').action(ArgAction::Set))
         .try_get_matches_from(vec!["unlessall", "--debug", "-i", "file"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -386,11 +386,11 @@ fn required_unless_all_err() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present_all(&["dbg", "infile"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
-        .arg(Arg::new("infile").short('i').takes_value(true))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
+        .arg(Arg::new("infile").short('i').action(ArgAction::Set))
         .try_get_matches_from(vec!["unlessall", "--debug"]);
 
     assert!(res.is_err());
@@ -405,11 +405,11 @@ fn required_unless_present_any() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
-        .arg(Arg::new("infile").short('i').takes_value(true))
+        .arg(Arg::new("infile").short('i').action(ArgAction::Set))
         .try_get_matches_from(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -426,11 +426,11 @@ fn required_unless_any_2() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
-        .arg(Arg::new("infile").short('i').takes_value(true))
+        .arg(Arg::new("infile").short('i').action(ArgAction::Set))
         .try_get_matches_from(vec!["unlessone", "-i", "file"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -443,11 +443,17 @@ fn required_unless_any_2() {
 fn required_unless_any_works_with_short() {
     // GitHub issue: https://github.com/clap-rs/clap/issues/1135
     let res = Command::new("unlessone")
-        .arg(Arg::new("a").conflicts_with("b").short('a'))
-        .arg(Arg::new("b").short('b'))
+        .arg(
+            Arg::new("a")
+                .conflicts_with("b")
+                .short('a')
+                .action(ArgAction::SetTrue),
+        )
+        .arg(Arg::new("b").short('b').action(ArgAction::SetTrue))
         .arg(
             Arg::new("x")
                 .short('x')
+                .action(ArgAction::SetTrue)
                 .required_unless_present_any(&["a", "b"]),
         )
         .try_get_matches_from(vec!["unlessone", "-a"]);
@@ -458,11 +464,17 @@ fn required_unless_any_works_with_short() {
 #[test]
 fn required_unless_any_works_with_short_err() {
     let res = Command::new("unlessone")
-        .arg(Arg::new("a").conflicts_with("b").short('a'))
-        .arg(Arg::new("b").short('b'))
+        .arg(
+            Arg::new("a")
+                .conflicts_with("b")
+                .short('a')
+                .action(ArgAction::SetTrue),
+        )
+        .arg(Arg::new("b").short('b').action(ArgAction::SetTrue))
         .arg(
             Arg::new("x")
                 .short('x')
+                .action(ArgAction::SetTrue)
                 .required_unless_present_any(&["a", "b"]),
         )
         .try_get_matches_from(vec!["unlessone"]);
@@ -473,8 +485,13 @@ fn required_unless_any_works_with_short_err() {
 #[test]
 fn required_unless_any_works_without() {
     let res = Command::new("unlessone")
-        .arg(Arg::new("a").conflicts_with("b").short('a'))
-        .arg(Arg::new("b").short('b'))
+        .arg(
+            Arg::new("a")
+                .conflicts_with("b")
+                .short('a')
+                .action(ArgAction::SetTrue),
+        )
+        .arg(Arg::new("b").short('b').action(ArgAction::SetTrue))
         .arg(Arg::new("x").required_unless_present_any(&["a", "b"]))
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
@@ -484,11 +501,17 @@ fn required_unless_any_works_without() {
 #[test]
 fn required_unless_any_works_with_long() {
     let res = Command::new("unlessone")
-        .arg(Arg::new("a").conflicts_with("b").short('a'))
-        .arg(Arg::new("b").short('b'))
+        .arg(
+            Arg::new("a")
+                .conflicts_with("b")
+                .short('a')
+                .action(ArgAction::SetTrue),
+        )
+        .arg(Arg::new("b").short('b').action(ArgAction::SetTrue))
         .arg(
             Arg::new("x")
                 .long("x_is_the_option")
+                .action(ArgAction::SetTrue)
                 .required_unless_present_any(&["a", "b"]),
         )
         .try_get_matches_from(vec!["unlessone", "-a"]);
@@ -502,11 +525,11 @@ fn required_unless_any_1() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
-        .arg(Arg::new("infile").short('i').takes_value(true))
+        .arg(Arg::new("infile").short('i').action(ArgAction::Set))
         .try_get_matches_from(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -522,11 +545,11 @@ fn required_unless_any_err() {
         .arg(
             Arg::new("cfg")
                 .required_unless_present_any(&["dbg", "infile"])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("dbg").long("debug"))
-        .arg(Arg::new("infile").short('i').takes_value(true))
+        .arg(Arg::new("dbg").long("debug").action(ArgAction::SetTrue))
+        .arg(Arg::new("infile").short('i').action(ArgAction::Set))
         .try_get_matches_from(vec!["unlessone"]);
 
     assert!(res.is_err());
@@ -546,10 +569,10 @@ fn requires_if_present_val() {
         .arg(
             Arg::new("cfg")
                 .requires_if("my.cfg", "extra")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").long("extra"))
+        .arg(Arg::new("extra").long("extra").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["unlessone", "--config=my.cfg"]);
 
     assert!(res.is_err());
@@ -562,11 +585,11 @@ fn requires_if_present_mult() {
         .arg(
             Arg::new("cfg")
                 .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").long("extra"))
-        .arg(Arg::new("other").long("other"))
+        .arg(Arg::new("extra").long("extra").action(ArgAction::SetTrue))
+        .arg(Arg::new("other").long("other").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["unlessone", "--config=other.cfg"]);
 
     assert!(res.is_err());
@@ -579,11 +602,11 @@ fn requires_if_present_mult_pass() {
         .arg(
             Arg::new("cfg")
                 .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").long("extra"))
-        .arg(Arg::new("other").long("other"))
+        .arg(Arg::new("extra").long("extra").action(ArgAction::SetTrue))
+        .arg(Arg::new("other").long("other").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["unlessone", "--config=some.cfg"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -595,10 +618,10 @@ fn requires_if_present_val_no_present_pass() {
         .arg(
             Arg::new("cfg")
                 .requires_if("my.cfg", "extra")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").long("extra"))
+        .arg(Arg::new("extra").long("extra").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["unlessone"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -612,10 +635,10 @@ fn required_if_val_present_pass() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "val")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
         .try_get_matches_from(vec!["ri", "--extra", "val", "--config", "my.cfg"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -627,10 +650,10 @@ fn required_if_val_present_fail() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "val")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
         .try_get_matches_from(vec!["ri", "--extra", "val"]);
 
     assert!(res.is_err());
@@ -643,12 +666,12 @@ fn required_if_val_present_ignore_case_pass() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "Val")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(
             Arg::new("extra")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("extra")
                 .ignore_case(true),
         )
@@ -663,12 +686,12 @@ fn required_if_val_present_ignore_case_fail() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "Val")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .arg(
             Arg::new("extra")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("extra")
                 .ignore_case(true),
         )
@@ -684,11 +707,11 @@ fn required_if_all_values_present_pass() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec![
             "ri", "--extra", "val", "--option", "spec", "--config", "my.cfg",
         ]);
@@ -702,11 +725,11 @@ fn required_if_some_values_present_pass() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec!["ri", "--extra", "val"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -718,11 +741,11 @@ fn required_if_all_values_present_fail() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec!["ri", "--extra", "val", "--option", "spec"]);
 
     assert!(res.is_err());
@@ -736,11 +759,11 @@ fn required_if_any_all_values_present_pass() {
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
                 .required_if_eq_any(&[("extra", "val2"), ("option", "spec2")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec![
             "ri", "--extra", "val", "--option", "spec", "--config", "my.cfg",
         ]);
@@ -755,11 +778,11 @@ fn required_if_any_all_values_present_fail() {
             Arg::new("cfg")
                 .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
                 .required_if_eq_any(&[("extra", "val2"), ("option", "spec2")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec!["ri", "--extra", "val", "--option", "spec"]);
 
     assert!(res.is_err());
@@ -774,20 +797,20 @@ fn list_correct_required_args() {
         .about("Arg test")
         .arg(
             Arg::new("target")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .value_parser(["file", "stdout"])
                 .long("target"),
         )
         .arg(
             Arg::new("input")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .long("input"),
         )
         .arg(
             Arg::new("output")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .long("output"),
         );
@@ -808,20 +831,20 @@ fn required_if_val_present_fail_error_output() {
         .about("Arg test")
         .arg(
             Arg::new("target")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .value_parser(["file", "stdout"])
                 .long("target"),
         )
         .arg(
             Arg::new("input")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .long("input"),
         )
         .arg(
             Arg::new("output")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required_if_eq("target", "file")
                 .long("output"),
         );
@@ -840,10 +863,10 @@ fn required_if_wrong_val() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq("extra", "val")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
         .try_get_matches_from(vec!["ri", "--extra", "other"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -855,11 +878,11 @@ fn required_ifs_val_present_pass() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("option").takes_value(true).long("option"))
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
         .try_get_matches_from(vec!["ri", "--option", "spec", "--config", "my.cfg"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -871,11 +894,11 @@ fn required_ifs_val_present_fail() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec!["ri", "--option", "spec"]);
 
     assert!(res.is_err());
@@ -888,11 +911,11 @@ fn required_ifs_wrong_val() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec!["ri", "--option", "other"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -904,11 +927,11 @@ fn required_ifs_wrong_val_mult_fail() {
         .arg(
             Arg::new("cfg")
                 .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
-        .arg(Arg::new("extra").takes_value(true).long("extra"))
-        .arg(Arg::new("option").takes_value(true).long("option"))
+        .arg(Arg::new("extra").action(ArgAction::Set).long("extra"))
+        .arg(Arg::new("option").action(ArgAction::Set).long("option"))
         .try_get_matches_from(vec!["ri", "--extra", "other", "--option", "spec"]);
 
     assert!(res.is_err());
@@ -1047,28 +1070,28 @@ For more information try --help
         .arg(
             Arg::new("a")
                 .long("a")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required_unless_present("b")
                 .conflicts_with("b"),
         )
         .arg(
             Arg::new("b")
                 .long("b")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required_unless_present("a")
                 .conflicts_with("a"),
         )
         .arg(
             Arg::new("c")
                 .long("c")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required_unless_present("d")
                 .conflicts_with("d"),
         )
         .arg(
             Arg::new("d")
                 .long("d")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required_unless_present("c")
                 .conflicts_with("c"),
         );
@@ -1099,7 +1122,7 @@ fn issue_1643_args_mutually_require_each_other() {
                 .help("The relation id to get the data from")
                 .long("relation-id")
                 .short('r')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .requires("remote_unit_name"),
         )
         .arg(
@@ -1107,7 +1130,7 @@ fn issue_1643_args_mutually_require_each_other() {
                 .help("The name of the remote unit to get data from")
                 .long("remote-unit")
                 .short('u')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .requires("relation_id"),
         );
 
@@ -1394,13 +1417,13 @@ fn required_error_doesnt_duplicate() {
         .arg(
             Arg::new("b")
                 .short('b')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .conflicts_with("c"),
         )
         .arg(
             Arg::new("c")
                 .short('c')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .conflicts_with("b"),
         );
     const EXPECTED: &str = "\

@@ -88,7 +88,7 @@ fn possible_values_of_positional_multiple() {
         .arg(
             Arg::new("positional")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .multiple_values(true),
         )
@@ -113,7 +113,7 @@ fn possible_values_of_positional_multiple_fail() {
         .arg(
             Arg::new("positional")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .multiple_values(true),
         )
@@ -130,7 +130,7 @@ fn possible_values_of_option() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123"]),
         )
         .try_get_matches_from(vec!["myprog", "--option", "test123"]);
@@ -152,7 +152,7 @@ fn possible_values_of_option_fail() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123"]),
         )
         .try_get_matches_from(vec!["myprog", "--option", "notest"]);
@@ -168,7 +168,7 @@ fn possible_values_of_option_multiple() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .action(ArgAction::Append),
         )
@@ -194,7 +194,7 @@ fn possible_values_of_option_multiple_fail() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .action(ArgAction::Append),
         )
@@ -210,7 +210,7 @@ fn possible_values_output() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["slow", "fast", "ludicrous speed"]),
         ),
         "clap-test -O slo",
@@ -225,7 +225,7 @@ fn possible_values_alias_output() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     "slow".into(),
                     PossibleValue::new("fast").alias("fost"),
@@ -244,7 +244,7 @@ fn possible_values_hidden_output() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     "slow".into(),
                     "fast".into(),
@@ -264,7 +264,7 @@ fn escaped_possible_values_output() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["slow", "fast", "ludicrous speed"]),
         ),
         "clap-test -O ludicrous",
@@ -279,7 +279,7 @@ fn missing_possible_value_error() {
         Command::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     "slow".into(),
                     PossibleValue::new("fast").alias("fost"),
@@ -307,7 +307,7 @@ fn alias() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([PossibleValue::new("test123").alias("123"), "test321".into()])
                 .ignore_case(true),
         )
@@ -329,7 +329,7 @@ fn aliases() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser([
                     PossibleValue::new("test123").aliases(["1", "2", "3"]),
                     "test321".into(),
@@ -354,7 +354,7 @@ fn ignore_case() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .ignore_case(true),
         )
@@ -376,7 +376,7 @@ fn ignore_case_fail() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"]),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
@@ -392,7 +392,7 @@ fn ignore_case_multiple() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .multiple_values(true)
                 .ignore_case(true),
@@ -417,7 +417,7 @@ fn ignore_case_multiple_fail() {
             Arg::new("option")
                 .short('o')
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
                 .multiple_values(true),
         )

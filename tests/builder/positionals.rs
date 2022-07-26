@@ -23,7 +23,7 @@ fn issue_946() {
         .arg(
             clap::Arg::new("filter")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("filters to apply to output"),
         )
         .try_get_matches_from(vec!["compiletest", "--exact"]);
@@ -120,7 +120,7 @@ fn positional_multiple() {
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
@@ -144,7 +144,7 @@ fn positional_multiple_3() {
             arg!(-f  --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         ])
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
@@ -338,7 +338,7 @@ fn ignore_hyphen_values_on_last() {
             clap::Arg::new("name")
                 .long("name")
                 .short('n')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(false),
         );
 

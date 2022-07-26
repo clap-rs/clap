@@ -8,6 +8,7 @@ fn main() {
             clap::Arg::new("verbose")
                 .long("verbose")
                 .help("log")
+                .action(clap::ArgAction::SetTrue)
                 .long_help("more log"),
         );
     cmd.get_matches();

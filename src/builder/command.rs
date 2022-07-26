@@ -12,6 +12,7 @@ use std::path::Path;
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
+use crate::builder::ArgAction;
 use crate::builder::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -134,6 +135,7 @@ impl<'help> Command<'help> {
             .arg(
                 Arg::new("help")
                     .long("help")
+                    .action(ArgAction::Help)
                     .help("Print help information")
                     .global(true)
                     .generated(),
@@ -141,6 +143,7 @@ impl<'help> Command<'help> {
             .arg(
                 Arg::new("version")
                     .long("version")
+                    .action(ArgAction::Version)
                     .help("Print version information")
                     .global(true)
                     .generated(),
@@ -228,11 +231,12 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     ///
     /// let mut cmd = Command::new("foo")
     ///     .arg(Arg::new("bar")
-    ///         .short('b'))
+    ///         .short('b')
+    ///         .action(ArgAction::SetTrue))
     ///     .mut_arg("bar", |a| a.short('B'));
     ///
     /// let res = cmd.try_get_matches_from_mut(vec!["foo", "-b"]);
@@ -1905,7 +1909,7 @@ impl<'help> Command<'help> {
     ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("format")
     ///         .long("format")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .value_parser(["txt", "json"]))
     ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
     ///     .get_matches_from(vec!["cmd", "--save-all"]);
@@ -2109,13 +2113,13 @@ impl<'help> Command<'help> {
     /// Style number two from above:
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
     ///     .allow_missing_positional(true)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").takes_value(true).multiple_values(true))
+    ///     .arg(Arg::new("baz").action(ArgAction::Set).multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
@@ -2128,13 +2132,13 @@ impl<'help> Command<'help> {
     /// Now nofice if we don't specify `foo` or `baz` but use the `--` operator.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
     ///     .allow_missing_positional(true)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").takes_value(true).multiple_values(true))
+    ///     .arg(Arg::new("baz").action(ArgAction::Set).multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);
@@ -2826,12 +2830,12 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let cmd = Command::new("cmd").subcommand(Command::new("sub")).arg(
     ///     Arg::new("arg")
     ///         .long("arg")
     ///         .multiple_values(true)
-    ///         .takes_value(true),
+    ///         .action(ArgAction::Set),
     /// );
     ///
     /// let matches = cmd
@@ -3802,10 +3806,10 @@ impl<'help> Command<'help> {
                     // in the usage string don't get confused or left out.
                     self.settings.set(AppSettings::DontCollapseArgsInUsage);
                 }
+                a._build();
                 if hide_pv && a.is_takes_value_set() {
                     a.settings.set(ArgSettings::HidePossibleValues);
                 }
-                a._build();
                 if a.is_positional() && a.index.is_none() {
                     a.index = Some(pos_counter);
                     pos_counter += 1;
@@ -4252,7 +4256,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                 .arg(
                     Arg::new("subcommand")
                         .index(1)
-                        .takes_value(true)
+                        .action(ArgAction::Append)
                         .multiple_values(true)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),

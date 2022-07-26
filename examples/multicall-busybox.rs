@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::process::exit;
 
-use clap::{value_parser, Arg, Command};
+use clap::{value_parser, Arg, ArgAction, Command};
 
 fn applet_commands() -> [Command<'static>; 2] {
     [
@@ -23,7 +23,7 @@ fn main() {
                         .long("install")
                         .help("Install hardlinks for all subcommands in path")
                         .exclusive(true)
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .default_missing_value("/usr/local/bin")
                         .value_parser(value_parser!(PathBuf))
                         .use_value_delimiter(false),

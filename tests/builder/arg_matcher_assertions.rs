@@ -19,7 +19,7 @@ fn arg_matches_if_present_wrong_arg() {
 #[should_panic = "Mismatch between definition and access of `o`. Unknown argument or group id.  Make sure you are using the argument id and not the short or long flags"]
 fn arg_matches_value_of_wrong_arg() {
     let m = Command::new("test")
-        .arg(Arg::new("opt").short('o').takes_value(true))
+        .arg(Arg::new("opt").short('o').action(ArgAction::Set))
         .try_get_matches_from(&["test", "-o", "val"])
         .unwrap();
 

@@ -37,7 +37,7 @@ fn require_equals_fail() {
             Arg::new("cfg")
                 .require_equals(true)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new())
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config", "file.conf"]);
@@ -58,7 +58,7 @@ For more information try --help
     let cmd = Command::new("prog").arg(
         Arg::new("cfg")
             .require_equals(true)
-            .takes_value(true)
+            .action(ArgAction::Set)
             .long("config"),
     );
     utils::assert_output(cmd, "prog --config file.conf", NO_EQUALS, true);
@@ -69,7 +69,7 @@ fn require_equals_min_values_zero() {
     let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .require_equals(true)
                 .min_values(0)
                 .long("config"),
@@ -87,7 +87,7 @@ fn double_hyphen_as_value() {
     let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .allow_hyphen_values(true)
                 .long("config"),
         )
@@ -104,7 +104,7 @@ fn require_equals_no_empty_values_fail() {
     let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .require_equals(true)
                 .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .long("config"),
@@ -120,7 +120,7 @@ fn require_equals_empty_vals_pass() {
     let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .require_equals(true)
                 .long("config"),
         )
@@ -133,7 +133,7 @@ fn require_equals_pass() {
     let res = Command::new("prog")
         .arg(
             Arg::new("cfg")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .require_equals(true)
                 .long("config"),
         )
@@ -482,7 +482,7 @@ fn leading_hyphen_with_only_pos_follows() {
         .arg(
             arg!(o: -o [opt] ... "some opt")
                 .number_of_values(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .allow_hyphen_values(true),
         )
         .arg(arg!([arg] "some arg"))
@@ -513,7 +513,7 @@ fn issue_1047_min_zero_vals_default_val() {
             Arg::new("del")
                 .short('d')
                 .long("del")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .require_equals(true)
                 .min_values(0)
                 .default_missing_value("default"),
@@ -591,8 +591,16 @@ fn issue_1105_empty_value_short_explicit_no_space() {
 #[cfg(feature = "suggestions")]
 fn issue_1073_suboptimal_flag_suggestion() {
     let cmd = Command::new("ripgrep-616")
-        .arg(Arg::new("files-with-matches").long("files-with-matches"))
-        .arg(Arg::new("files-without-match").long("files-without-match"));
+        .arg(
+            Arg::new("files-with-matches")
+                .long("files-with-matches")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("files-without-match")
+                .long("files-without-match")
+                .action(ArgAction::SetTrue),
+        );
     utils::assert_output(
         cmd,
         "ripgrep-616 --files-without-matches",
@@ -697,7 +705,7 @@ fn infer_long_arg() {
                 .alias("autobahn")
                 .action(ArgAction::SetTrue),
         )
-        .arg(Arg::new("racecar").long("racecar").takes_value(true));
+        .arg(Arg::new("racecar").long("racecar").action(ArgAction::Set));
 
     let matches = cmd
         .clone()

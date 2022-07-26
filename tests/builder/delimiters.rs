@@ -1,9 +1,9 @@
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 
 #[test]
 fn opt_default_no_delim() {
     let m = Command::new("no_delim")
-        .arg(Arg::new("option").long("option").takes_value(true))
+        .arg(Arg::new("option").long("option").action(ArgAction::Set))
         .try_get_matches_from(vec!["", "--option", "val1,val2,val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -19,7 +19,7 @@ fn opt_default_no_delim() {
 #[test]
 fn opt_eq_no_delim() {
     let m = Command::new("no_delim")
-        .arg(Arg::new("option").long("option").takes_value(true))
+        .arg(Arg::new("option").long("option").action(ArgAction::Set))
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -35,7 +35,7 @@ fn opt_eq_no_delim() {
 #[test]
 fn opt_s_eq_no_delim() {
     let m = Command::new("no_delim")
-        .arg(Arg::new("option").short('o').takes_value(true))
+        .arg(Arg::new("option").short('o').action(ArgAction::Set))
         .try_get_matches_from(vec!["", "-o=val1,val2,val3"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err());
@@ -51,7 +51,7 @@ fn opt_s_eq_no_delim() {
 #[test]
 fn opt_s_default_no_delim() {
     let m = Command::new("no_delim")
-        .arg(Arg::new("option").short('o').takes_value(true))
+        .arg(Arg::new("option").short('o').action(ArgAction::Set))
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err());
@@ -67,7 +67,7 @@ fn opt_s_default_no_delim() {
 #[test]
 fn opt_s_no_space_no_delim() {
     let m = Command::new("no_delim")
-        .arg(Arg::new("option").short('o').takes_value(true))
+        .arg(Arg::new("option").short('o').action(ArgAction::Set))
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -86,7 +86,7 @@ fn opt_s_no_space_mult_no_delim() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
@@ -107,7 +107,7 @@ fn opt_eq_mult_def_delim() {
         .arg(
             Arg::new("option")
                 .long("opt")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .use_value_delimiter(true),
         )

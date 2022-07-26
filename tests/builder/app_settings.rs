@@ -143,7 +143,8 @@ OPTIONS:
             Arg::new("info")
                 .help("Provides more info")
                 .short('i')
-                .long("info"),
+                .long("info")
+                .action(ArgAction::SetTrue),
         );
     utils::assert_output(
         cmd,
@@ -473,7 +474,7 @@ fn leading_hyphen_long() {
 fn leading_hyphen_opt() {
     let res = Command::new("leadhy")
         .allow_hyphen_values(true)
-        .arg(Arg::new("some").takes_value(true).long("opt"))
+        .arg(Arg::new("some").action(ArgAction::Set).long("opt"))
         .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--opt", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
@@ -495,7 +496,7 @@ fn allow_negative_numbers() {
     let res = Command::new("negnum")
         .allow_negative_numbers(true)
         .arg(Arg::new("panum"))
-        .arg(Arg::new("onum").short('o').takes_value(true))
+        .arg(Arg::new("onum").short('o').action(ArgAction::Set))
         .try_get_matches_from(vec!["negnum", "-20", "-o", "-1.2"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
@@ -514,7 +515,7 @@ fn allow_negative_numbers_fail() {
     let res = Command::new("negnum")
         .allow_negative_numbers(true)
         .arg(Arg::new("panum"))
-        .arg(Arg::new("onum").short('o').takes_value(true))
+        .arg(Arg::new("onum").short('o').action(ArgAction::Set))
         .try_get_matches_from(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument)
@@ -826,7 +827,7 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
             Arg::new("pat")
                 .allow_hyphen_values(true)
                 .required(true)
-                .takes_value(true),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(["tmp", "-file"])
         .unwrap();
@@ -1149,7 +1150,7 @@ fn aaos_opts_mult_req_delims() {
         .arg(
             arg!(--opt <val> ... "some option")
                 .number_of_values(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
                 .action(ArgAction::Append),

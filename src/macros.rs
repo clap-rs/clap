@@ -207,7 +207,10 @@ macro_rules! arg_impl {
                 if arg.get_id().is_empty() {
                     arg = arg.id(long);
                 }
-                arg.long(long).action($crate::ArgAction::SetTrue)
+                arg
+                    .long(long)
+                    .action($crate::ArgAction::SetTrue)
+                    .takes_value(false)
             })
             $($tail)*
         }
@@ -229,7 +232,10 @@ macro_rules! arg_impl {
                 if arg.get_id().is_empty() {
                     arg = arg.id(long);
                 }
-                arg.long(long).action($crate::ArgAction::SetTrue)
+                arg
+                    .long(long)
+                    .action($crate::ArgAction::SetTrue)
+                    .takes_value(false)
             })
             $($tail)*
         }
@@ -247,7 +253,10 @@ macro_rules! arg_impl {
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
                 debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
-                $arg.short($crate::arg_impl! { @char $short }).action($crate::ArgAction::SetTrue)
+                $arg
+                    .short($crate::arg_impl! { @char $short })
+                    .action($crate::ArgAction::SetTrue)
+                    .takes_value(false)
             })
             $($tail)*
         }
@@ -265,7 +274,10 @@ macro_rules! arg_impl {
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
                 debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
-                $arg.short($crate::arg_impl! { @char $short }).action($crate::ArgAction::SetTrue)
+                $arg
+                    .short($crate::arg_impl! { @char $short })
+                    .action($crate::ArgAction::SetTrue)
+                    .takes_value(false)
             })
             $($tail)*
         }
@@ -285,13 +297,15 @@ macro_rules! arg_impl {
                 let mut arg = $arg;
 
                 arg = arg.required(true);
-                arg = arg.takes_value(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
                 if arg.get_id().is_empty() {
                     arg = arg.id(value_name);
                 }
-                arg.value_name(value_name).action($crate::ArgAction::Set)
+                arg
+                    .value_name(value_name)
+                    .action($crate::ArgAction::Set)
+                    .takes_value(true)
             })
             $($tail)*
         }
@@ -311,13 +325,15 @@ macro_rules! arg_impl {
                 let mut arg = $arg;
 
                 arg = arg.required(true);
-                arg = arg.takes_value(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
                 if arg.get_id().is_empty() {
                     arg = arg.id(value_name);
                 }
-                arg.value_name(value_name).action($crate::ArgAction::Set)
+                arg
+                    .value_name(value_name)
+                    .action($crate::ArgAction::Set)
+                    .takes_value(true)
             })
             $($tail)*
         }
@@ -341,13 +357,15 @@ macro_rules! arg_impl {
                 } else {
                     arg = arg.min_values(0).max_values(1);
                 }
-                arg = arg.takes_value(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
                 if arg.get_id().is_empty() {
                     arg = arg.id(value_name);
                 }
-                arg.value_name(value_name).action($crate::ArgAction::Set)
+                arg
+                    .value_name(value_name)
+                    .action($crate::ArgAction::Set)
+                    .takes_value(true)
             })
             $($tail)*
         }
@@ -371,13 +389,15 @@ macro_rules! arg_impl {
                 } else {
                     arg = arg.min_values(0).max_values(1);
                 }
-                arg = arg.takes_value(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
                 if arg.get_id().is_empty() {
                     arg = arg.id(value_name);
                 }
-                arg.value_name(value_name).action($crate::ArgAction::Set)
+                arg
+                    .value_name(value_name)
+                    .action($crate::ArgAction::Set)
+                    .takes_value(true)
             })
             $($tail)*
         }

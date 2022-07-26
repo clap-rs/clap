@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, Arg, Command};
+use clap::{arg, Arg, ArgAction, Command};
 
 static HIDDEN_ARGS: &str = "test 1.4
 Kevin K.
@@ -56,10 +56,12 @@ fn hide_short_args() {
                 .short('c')
                 .long("config")
                 .hide_short_help(true)
+                .action(ArgAction::SetTrue)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
+                .action(ArgAction::SetTrue)
                 .help("This text should be visible"),
         ]);
 
@@ -99,10 +101,12 @@ OPTIONS:
                 .short('c')
                 .long("config")
                 .hide_short_help(true)
+                .action(ArgAction::SetTrue)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
+                .action(ArgAction::SetTrue)
                 .help("This text should be visible"),
         ]);
 
@@ -138,10 +142,12 @@ fn hide_long_args() {
                 .short('c')
                 .long("config")
                 .hide_long_help(true)
+                .action(ArgAction::SetTrue)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
+                .action(ArgAction::SetTrue)
                 .help("This text should be visible"),
         ]);
 
@@ -173,10 +179,12 @@ fn hide_long_args_short_help() {
                 .short('c')
                 .long("config")
                 .hide_long_help(true)
+                .action(ArgAction::SetTrue)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
+                .action(ArgAction::SetTrue)
                 .help("This text should be visible"),
         ]);
 

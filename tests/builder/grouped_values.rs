@@ -8,7 +8,7 @@ fn grouped_value_works() {
         .arg(
             Arg::new("option")
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .action(ArgAction::Append),
         )
@@ -35,12 +35,12 @@ fn grouped_value_works() {
 #[test]
 fn issue_1026() {
     let m = Command::new("cli")
-        .arg(Arg::new("server").short('s').takes_value(true))
-        .arg(Arg::new("user").short('u').takes_value(true))
+        .arg(Arg::new("server").short('s').action(ArgAction::Set))
+        .arg(Arg::new("user").short('u').action(ArgAction::Set))
         .arg(
             Arg::new("target")
                 .long("target")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .action(ArgAction::Append),
         )
@@ -67,7 +67,7 @@ fn grouped_value_long_flag_delimiter() {
         .arg(
             Arg::new("option")
                 .long("option")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .multiple_values(true)
                 .action(ArgAction::Append),
@@ -97,7 +97,7 @@ fn grouped_value_short_flag_delimiter() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .multiple_values(true)
                 .action(ArgAction::Append),
@@ -117,7 +117,7 @@ fn grouped_value_positional_arg() {
         .arg(
             Arg::new("pos")
                 .help("multiple positionals")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec![
@@ -138,7 +138,7 @@ fn grouped_value_multiple_positional_arg() {
         .arg(
             Arg::new("pos2")
                 .help("multiple positionals")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec![
@@ -159,7 +159,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
         .arg(
             Arg::new("pos2")
                 .help("multiple positionals")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .last(true),
         )
@@ -182,7 +182,7 @@ fn grouped_interleaved_positional_values() {
             clap::Arg::new("flag")
                 .short('f')
                 .long("flag")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .action(ArgAction::Append),
         );
 
@@ -205,7 +205,7 @@ fn grouped_interleaved_positional_occurrences() {
             clap::Arg::new("flag")
                 .short('f')
                 .long("flag")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .action(ArgAction::Append),
         );
 

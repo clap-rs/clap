@@ -234,7 +234,7 @@ fn flag_subcommand_short_after_long_arg() {
                 .short_flag('S')
                 .arg(Arg::new("clean").short('c').action(ArgAction::SetTrue)),
         )
-        .arg(Arg::new("arg").long("arg").takes_value(true))
+        .arg(Arg::new("arg").long("arg").action(ArgAction::Set))
         .try_get_matches_from(vec!["pacman", "--arg", "foo", "-Sc"])
         .unwrap();
     let subm = m.subcommand_matches("sync");
@@ -525,7 +525,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                         .long("search")
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .multiple_values(true),
                 )
                 .arg(
@@ -534,7 +534,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                         .short('i')
                         .conflicts_with("search")
                         .help("view package information")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .multiple_values(true),
                 ),
         );
@@ -573,7 +573,7 @@ fn flag_subcommand_long_normal_usage_string() {
                         .long("search")
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .multiple_values(true),
                 )
                 .arg(
@@ -582,7 +582,7 @@ fn flag_subcommand_long_normal_usage_string() {
                         .short('i')
                         .conflicts_with("search")
                         .help("view package information")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .multiple_values(true),
                 ),
         );
@@ -626,7 +626,7 @@ fn flag_subcommand_short_normal_usage_string() {
                         .long("search")
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .multiple_values(true),
                 )
                 .arg(
@@ -635,7 +635,7 @@ fn flag_subcommand_short_normal_usage_string() {
                         .short('i')
                         .conflicts_with("search")
                         .help("view package information")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .multiple_values(true),
                 ),
         );

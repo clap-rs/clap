@@ -8,7 +8,7 @@ fn single_short_alias_of_option() {
         .arg(
             Arg::new("alias")
                 .long("alias")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("single short alias")
                 .short_alias('a'),
         )
@@ -27,7 +27,7 @@ fn multiple_short_aliases_of_option() {
     let a = Command::new("multiple_aliases").arg(
         Arg::new("aliases")
             .long("aliases")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .help("multiple aliases")
             .short_aliases(&['1', '2', '3']),
     );
@@ -133,7 +133,7 @@ fn short_alias_on_a_subcommand_option() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .short_alias('o')
                     .help("testing testing"),
             ),
@@ -178,7 +178,7 @@ OPTIONS:
                 Arg::new("opt")
                     .long("opt")
                     .short('o')
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .short_aliases(&['a', 'b', 'c']),
             )
             .arg(arg!(-f - -flag).short_aliases(&['x', 'y', 'z'])),
@@ -209,7 +209,7 @@ OPTIONS:
                 Arg::new("opt")
                     .long("opt")
                     .short('o')
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .short_alias('i')
                     .visible_short_alias('v'),
             )
@@ -217,6 +217,7 @@ OPTIONS:
                 Arg::new("flg")
                     .long("flag")
                     .short('f')
+                    .action(ArgAction::SetTrue)
                     .visible_alias("flag1")
                     .visible_short_aliases(&['a', 'b', '🦆']),
             ),

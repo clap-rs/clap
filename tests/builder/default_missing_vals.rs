@@ -1,4 +1,4 @@
-use clap::{arg, Arg, Command};
+use clap::{arg, Arg, ArgAction, Command};
 
 #[test]
 fn opt_missing() {
@@ -149,7 +149,7 @@ fn default_missing_value_flag_value() {
     let cmd = Command::new("test").arg(
         Arg::new("flag")
             .long("flag")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .default_value("false")
             .default_missing_value("true"),
     );
@@ -277,7 +277,7 @@ fn valid_index() {
                 .require_equals(true)
                 .default_missing_value("always"),
         )
-        .arg(Arg::new("sync").long("sync"))
+        .arg(Arg::new("sync").long("sync").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["df", "--color", "--sync"])
         .unwrap();
     assert!(m.contains_id("color"));

@@ -7,7 +7,7 @@ fn get_app() -> Command<'static> {
                 .long("global-arg")
                 .help("Specifies something needed by the subcommands")
                 .global(true)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .default_value("default_value"),
         )
         .arg(

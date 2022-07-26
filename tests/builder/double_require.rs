@@ -1,4 +1,4 @@
-use clap::{error::ErrorKind, Arg, Command};
+use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
 static HELP: &str = "prog 
 
@@ -35,18 +35,21 @@ fn cmd() -> Command<'static> {
         .arg(
             Arg::new("a")
                 .short('a')
+                .action(ArgAction::SetTrue)
                 .required_unless_present_any(&["b", "c"])
                 .conflicts_with_all(&["b", "c"]),
         )
         .arg(
             Arg::new("b")
                 .short('b')
+                .action(ArgAction::SetTrue)
                 .required_unless_present("a")
                 .requires("c"),
         )
         .arg(
             Arg::new("c")
                 .short('c')
+                .action(ArgAction::SetTrue)
                 .required_unless_present("a")
                 .requires("b"),
         )

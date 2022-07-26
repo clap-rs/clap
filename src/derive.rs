@@ -58,7 +58,7 @@ use std::ffi::OsString;
 ///         .long("name")
 ///         .short('n')
 ///         .help("An optional name")
-///         .takes_value(true));
+///         .action(ArgAction::Set));
 ///
 /// struct Context {
 ///     verbose: bool,

@@ -12,9 +12,9 @@ use crate::util::eq_ignore_case;
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Arg, PossibleValue};
+/// # use clap::{Arg, PossibleValue, ArgAction};
 /// let cfg = Arg::new("config")
-///     .takes_value(true)
+///     .action(ArgAction::Set)
 ///     .value_name("FILE")
 ///     .value_parser([
 ///         PossibleValue::new("fast"),

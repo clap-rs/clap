@@ -36,12 +36,12 @@ use crate::INTERNAL_ERROR_MSG;
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Arg, arg};
+/// # use clap::{Arg, arg, ArgAction};
 /// // Using the traditional builder pattern and setting each option manually
 /// let cfg = Arg::new("config")
 ///       .short('c')
 ///       .long("config")
-///       .takes_value(true)
+///       .action(ArgAction::Set)
 ///       .value_name("FILE")
 ///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
@@ -94,7 +94,7 @@ impl<'help> Arg<'help> {
     /// The name is used to check whether or not the argument was used at
     /// runtime, get values, set relationships with other args, etc..
     ///
-    /// **NOTE:** In the case of arguments that take values (i.e. [`Arg::takes_value(true)`])
+    /// **NOTE:** In the case of arguments that take values (i.e. [`Arg::action(ArgAction::Set)`])
     /// and positional arguments (i.e. those without a preceding `-` or `--`) the name will also
     /// be displayed when the user prints the usage/help information of the program.
     ///
@@ -105,7 +105,7 @@ impl<'help> Arg<'help> {
     /// Arg::new("config")
     /// # ;
     /// ```
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
         Arg::default().id(n)
     }
@@ -134,11 +134,11 @@ impl<'help> Arg<'help> {
     /// argument via a single hyphen (`-`) such as `-c`:
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg,  ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("config")
     ///         .short('c')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog", "-c", "file.toml"
     ///     ]);
@@ -172,11 +172,11 @@ impl<'help> Arg<'help> {
     /// Setting `long` allows using the argument via a double hyphen (`--`) such as `--config`
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog", "--config", "file.toml"
     ///     ]);
@@ -198,12 +198,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///             .long("test")
     ///             .alias("alias")
-    ///             .takes_value(true))
+    ///             .action(ArgAction::Set))
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
     ///         ]);
@@ -223,12 +223,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///             .short('t')
     ///             .short_alias('e')
-    ///             .takes_value(true))
+    ///             .action(ArgAction::Set))
     ///        .get_matches_from(vec![
     ///             "prog", "-e", "cool"
     ///         ]);
@@ -306,12 +306,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///                 .visible_alias("something-awesome")
     ///                 .long("test")
-    ///                 .takes_value(true))
+    ///                 .action(ArgAction::Set))
     ///        .get_matches_from(vec![
     ///             "prog", "--something-awesome", "coffee"
     ///         ]);
@@ -331,12 +331,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
     ///                 .long("test")
     ///                 .visible_short_alias('t')
-    ///                 .takes_value(true))
+    ///                 .action(ArgAction::Set))
     ///        .get_matches_from(vec![
     ///             "prog", "-t", "coffee"
     ///         ]);
@@ -433,12 +433,13 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .index(1))
     ///     .arg(Arg::new("debug")
-    ///         .long("debug"))
+    ///         .long("debug")
+    ///         .action(ArgAction::SetTrue))
     ///     .get_matches_from(vec![
     ///         "prog", "--debug", "fast"
     ///     ]);
@@ -487,9 +488,9 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::Arg;
+    /// # use clap::{Arg, ArgAction};
     /// Arg::new("args")
-    ///     .takes_value(true)
+    ///     .action(ArgAction::Set)
     ///     .last(true)
     /// # ;
     /// ```
@@ -498,12 +499,12 @@ impl<'help> Arg<'help> {
     /// and requires that the `--` syntax be used to access it early.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("first"))
     ///     .arg(Arg::new("second"))
     ///     .arg(Arg::new("third")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .last(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "one", "--", "three"
@@ -519,12 +520,12 @@ impl<'help> Arg<'help> {
     /// failing to use the `--` syntax results in an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("first"))
     ///     .arg(Arg::new("second"))
     ///     .arg(Arg::new("third")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .last(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "one", "two", "three"
@@ -569,11 +570,11 @@ impl<'help> Arg<'help> {
     /// Setting required requires that the argument be used at runtime.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required(true)
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf",
@@ -585,11 +586,11 @@ impl<'help> Arg<'help> {
     /// Setting required and then *not* supplying that argument at runtime is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required(true)
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
     ///         "prog"
@@ -628,10 +629,10 @@ impl<'help> Arg<'help> {
     /// required
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires("input")
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
@@ -645,10 +646,10 @@ impl<'help> Arg<'help> {
     /// Setting [`Arg::requires(name)`] and *not* supplying that argument is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires("input")
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
@@ -683,10 +684,10 @@ impl<'help> Arg<'help> {
     /// is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("exclusive")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .exclusive(true)
     ///         .long("exclusive"))
     ///     .arg(Arg::new("debug")
@@ -797,11 +798,11 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog", "--mode", "fast"
     ///     ]);
@@ -864,6 +865,7 @@ impl<'help> Arg<'help> {
     /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
     ///
     /// ```rust
+    /// # use clap::ArgAction;
     /// let mut cmd = clap::Command::new("raw")
     ///     .arg(
     ///         clap::Arg::new("color")
@@ -875,14 +877,14 @@ impl<'help> Arg<'help> {
     ///         clap::Arg::new("hostname")
     ///             .long("hostname")
     ///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
-    ///             .takes_value(true)
+    ///             .action(ArgAction::Set)
     ///             .required(true)
     ///     )
     ///     .arg(
     ///         clap::Arg::new("port")
     ///             .long("port")
     ///             .value_parser(clap::value_parser!(u16).range(3000..))
-    ///             .takes_value(true)
+    ///             .action(ArgAction::Set)
     ///             .required(true)
     ///     );
     ///
@@ -965,10 +967,10 @@ impl<'help> Arg<'help> {
     /// An example with options
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true)
     ///         .short('F'))
     ///     .get_matches_from(vec![
@@ -983,10 +985,10 @@ impl<'help> Arg<'help> {
     /// Although `multiple_values` has been specified, the last argument still wins
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true)
     ///         .short('F'))
     ///     .get_matches_from(vec![
@@ -1002,10 +1004,10 @@ impl<'help> Arg<'help> {
     /// argument.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
@@ -1030,7 +1032,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .action(ArgAction::Append)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
@@ -1050,7 +1052,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .action(ArgAction::Append)
     ///         .short('F'))
     ///     .arg(Arg::new("word"))
@@ -1085,7 +1087,7 @@ impl<'help> Arg<'help> {
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`] and [`Arg::multiple_values(true)`].
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`] and [`Arg::multiple_values(true)`].
     ///
     /// # Examples
     ///
@@ -1099,10 +1101,10 @@ impl<'help> Arg<'help> {
     /// Not supplying the correct number of values is an error
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .number_of_values(2)
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
@@ -1137,10 +1139,10 @@ impl<'help> Arg<'help> {
     /// Supplying less than the maximum number of values is allowed
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .max_values(3)
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
@@ -1156,10 +1158,10 @@ impl<'help> Arg<'help> {
     /// Supplying more than the maximum number of values is an error
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .max_values(2)
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
@@ -1200,10 +1202,10 @@ impl<'help> Arg<'help> {
     /// Supplying more than the minimum number of values is allowed
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .min_values(2)
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
@@ -1219,10 +1221,10 @@ impl<'help> Arg<'help> {
     /// Supplying less than the minimum number of values is an error
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .min_values(2)
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
@@ -1247,7 +1249,7 @@ impl<'help> Arg<'help> {
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`]
     ///
     /// # Examples
     ///
@@ -1285,7 +1287,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [option]: Arg::takes_value()
     /// [positional]: Arg::index()
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     #[inline]
     #[must_use]
     pub fn value_name(self, name: &'help str) -> Self {
@@ -1306,7 +1308,7 @@ impl<'help> Arg<'help> {
     /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
     /// multiple value names in order to not throw off the help text alignment of all options.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`] and [`Arg::multiple_values(true)`].
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`] and [`Arg::multiple_values(true)`].
     ///
     /// # Examples
     ///
@@ -1343,7 +1345,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::next_line_help(true)`]: Arg::next_line_help()
     /// [`Arg::number_of_values`]: Arg::number_of_values()
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     #[must_use]
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
@@ -1355,7 +1357,7 @@ impl<'help> Arg<'help> {
     ///
     /// See [`ValueHint`][crate::ValueHint] for more information.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`].
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`].
     ///
     /// For example, to take a username as argument:
     ///
@@ -1370,12 +1372,12 @@ impl<'help> Arg<'help> {
     /// To take a full command line and its arguments (for example, when writing a command wrapper):
     ///
     /// ```
-    /// # use clap::{Command, Arg, ValueHint};
+    /// # use clap::{Command, Arg, ValueHint, ArgAction};
     /// Command::new("prog")
     ///     .trailing_var_arg(true)
     ///     .arg(
     ///         Arg::new("command")
-    ///             .takes_value(true)
+    ///             .action(ArgAction::Set)
     ///             .multiple_values(true)
     ///             .value_hint(ValueHint::CommandWithArguments)
     ///     );
@@ -1401,11 +1403,11 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("pv")
     ///     .arg(Arg::new("option")
     ///         .long("option")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .ignore_case(true)
     ///         .value_parser(["test123"]))
     ///     .get_matches_from(vec![
@@ -1418,12 +1420,12 @@ impl<'help> Arg<'help> {
     /// This setting also works when multiple values can be defined:
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("pv")
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .long("option")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .ignore_case(true)
     ///         .multiple_values(true)
     ///         .value_parser(["test123", "test321"]))
@@ -1463,10 +1465,10 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("pat")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .allow_hyphen_values(true)
     ///         .long("pattern"))
     ///     .get_matches_from(vec![
@@ -1480,10 +1482,10 @@ impl<'help> Arg<'help> {
     /// hyphen is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("pat")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("pattern"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--pattern", "-file"
@@ -1515,10 +1517,10 @@ impl<'help> Arg<'help> {
     /// it and the associated value.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .require_equals(true)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
@@ -1532,10 +1534,10 @@ impl<'help> Arg<'help> {
     /// error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .require_equals(true)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
@@ -1572,12 +1574,12 @@ impl<'help> Arg<'help> {
     /// The following example shows the default behavior.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let delims = Command::new("prog")
     ///     .arg(Arg::new("option")
     ///         .long("option")
     ///         .use_value_delimiter(true)
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog", "--option=val1,val2,val3",
     ///     ]);
@@ -1589,11 +1591,11 @@ impl<'help> Arg<'help> {
     /// behavior
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let nodelims = Command::new("prog")
     ///     .arg(Arg::new("option")
     ///         .long("option")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog", "--option=val1,val2,val3",
     ///     ]);
@@ -1621,7 +1623,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** implicitly sets [`Arg::use_value_delimiter(true)`]
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`]
     ///
     /// # Examples
     ///
@@ -1639,7 +1641,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.get_many::<String>("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     #[inline]
     #[must_use]
     pub fn value_delimiter(mut self, d: char) -> Self {
@@ -1667,11 +1669,11 @@ impl<'help> Arg<'help> {
     /// everything works in this first example, as we use a delimiter, as expected.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let delims = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .use_value_delimiter(true)
     ///         .require_value_delimiter(true)
     ///         .multiple_values(true))
@@ -1686,11 +1688,11 @@ impl<'help> Arg<'help> {
     /// In this next example, we will *not* use a delimiter. Notice it's now an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .use_value_delimiter(true)
     ///         .require_value_delimiter(true))
     ///     .try_get_matches_from(vec![
@@ -1710,11 +1712,11 @@ impl<'help> Arg<'help> {
     /// is *not* an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let delims = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -1749,9 +1751,9 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("vals")
-    ///     .takes_value(true)
+    ///     .action(ArgAction::Set)
     ///     .multiple_values(true)
     ///     .value_terminator(";")
     /// # ;
@@ -1761,10 +1763,10 @@ impl<'help> Arg<'help> {
     /// to perform them
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cmds")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true)
     ///         .allow_hyphen_values(true)
     ///         .value_terminator(";"))
@@ -1804,10 +1806,10 @@ impl<'help> Arg<'help> {
     /// may not be exactly what you are expecting and using [`crate::Command::trailing_var_arg`]
     /// may be more appropriate.
     ///
-    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple_values(true)`],
+    /// **NOTE:** Implicitly sets [`Arg::action(ArgAction::Set)`] [`Arg::multiple_values(true)`],
     /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`.
     ///
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
@@ -1838,7 +1840,7 @@ impl<'help> Arg<'help> {
     /// at runtime, nor were the conditions met for `Arg::default_value_if`, the `Arg::default_value`
     /// will be applied.
     ///
-    /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
+    /// **NOTE:** This implicitly sets [`Arg::action(ArgAction::Set)`].
     ///
     /// # Examples
     ///
@@ -1876,7 +1878,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
     /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
@@ -2008,7 +2010,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
     /// ```
     ///
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
@@ -2059,14 +2061,14 @@ impl<'help> Arg<'help> {
     /// rules will apply.
     ///
     /// If user sets the argument in the environment:
-    /// - When [`Arg::takes_value(true)`] is not set, the flag is considered raised.
-    /// - When [`Arg::takes_value(true)`] is set,
+    /// - When [`Arg::action(ArgAction::Set)`] is not set, the flag is considered raised.
+    /// - When [`Arg::action(ArgAction::Set)`] is set,
     ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return value of the environment variable.
     ///
     /// If user doesn't set the argument in the environment:
-    /// - When [`Arg::takes_value(true)`] is not set, the flag is considered off.
-    /// - When [`Arg::takes_value(true)`] is set,
+    /// - When [`Arg::action(ArgAction::Set)`] is not set, the flag is considered off.
+    /// - When [`Arg::action(ArgAction::Set)`] is set,
     ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return the default specified.
     ///
@@ -2076,7 +2078,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use std::env;
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     ///
     /// env::set_var("MY_FLAG", "env");
     ///
@@ -2084,7 +2086,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
     ///         .env("MY_FLAG")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -2134,7 +2136,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use std::env;
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     ///
     /// env::set_var("MY_FLAG", "env");
     ///
@@ -2142,7 +2144,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
     ///         .env("MY_FLAG")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .get_matches_from(vec![
     ///         "prog", "--flag", "opt"
     ///     ]);
@@ -2155,7 +2157,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use std::env;
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     ///
     /// env::set_var("MY_FLAG", "env");
     ///
@@ -2163,7 +2165,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
     ///         .env("MY_FLAG")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .default_value("default"))
     ///     .get_matches_from(vec![
     ///         "prog"
@@ -2176,7 +2178,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use std::env;
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     ///
     /// env::set_var("MY_FLAG_MULTI", "env1,env2");
     ///
@@ -2184,7 +2186,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
     ///         .env("MY_FLAG_MULTI")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .multiple_values(true)
     ///         .use_value_delimiter(true))
     ///     .get_matches_from(vec![
@@ -2193,7 +2195,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_many::<String>("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
     #[cfg(feature = "env")]
     #[inline]
@@ -2341,19 +2343,19 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("a") // Typically args are grouped alphabetically by name.
     ///                              // Args without a display_order have a value of 999 and are
     ///                              // displayed alphabetically with all other 999 valued args.
     ///         .long("long-option")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .help("Some help and text"))
     ///     .arg(Arg::new("b")
     ///         .long("other-option")
     ///         .short('O')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .display_order(1)   // In order to force this arg to appear *first*
     ///                             // all we have to do is give it a value lower than 999.
     ///                             // Any other args with a value of 1 will be displayed
@@ -2411,12 +2413,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("long-option-flag")
     ///         .short('o')
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .next_line_help(true)
     ///         .value_names(&["value1", "value2"])
     ///         .help("Some really long help and complex\n\
@@ -2508,12 +2510,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .value_parser(["fast", "slow"])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .hide_possible_values(true));
     /// ```
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
@@ -2537,12 +2539,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("connect")
     ///     .arg(Arg::new("host")
     ///         .long("host")
     ///         .default_value("localhost")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .hide_default_value(true));
     ///
     /// ```
@@ -2566,12 +2568,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .env("MODE")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .hide_env(true));
     /// ```
     ///
@@ -2595,12 +2597,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("connect")
     ///     .arg(Arg::new("host")
     ///         .long("host")
     ///         .env("CONNECT")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .hide_env_values(true));
     ///
     /// ```
@@ -2778,9 +2780,10 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("debug")
     ///     .long("debug")
+    ///     .action(ArgAction::SetTrue)
     ///     .group("mode")
     /// # ;
     /// ```
@@ -2789,13 +2792,15 @@ impl<'help> Arg<'help> {
     /// was one of said arguments.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
+    ///         .action(ArgAction::SetTrue)
     ///         .group("mode"))
     ///     .arg(Arg::new("verbose")
     ///         .long("verbose")
+    ///         .action(ArgAction::SetTrue)
     ///         .group("mode"))
     ///     .get_matches_from(vec![
     ///         "prog", "--debug"
@@ -2815,9 +2820,10 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("debug")
     ///     .long("debug")
+    ///     .action(ArgAction::SetTrue)
     ///     .groups(&["mode", "verbosity"])
     /// # ;
     /// ```
@@ -2826,13 +2832,15 @@ impl<'help> Arg<'help> {
     /// was one of said arguments.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
+    ///         .action(ArgAction::SetTrue)
     ///         .groups(&["mode", "verbosity"]))
     ///     .arg(Arg::new("verbose")
     ///         .long("verbose")
+    ///         .action(ArgAction::SetTrue)
     ///         .groups(&["mode", "verbosity"]))
     ///     .get_matches_from(vec![
     ///         "prog", "--debug"
@@ -2862,17 +2870,18 @@ impl<'help> Arg<'help> {
     /// and `Arg::default_value_if`, and the user **did not** provide this arg at runtime, nor were
     /// the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be applied.
     ///
-    /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
+    /// **NOTE:** This implicitly sets [`Arg::action(ArgAction::Set)`].
     ///
     /// # Examples
     ///
     /// First we use the default value only if another arg is present at runtime.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
-    ///         .long("flag"))
+    ///         .long("flag")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_if("flag", None, Some("default")))
@@ -2886,10 +2895,11 @@ impl<'help> Arg<'help> {
     /// Next we run the same test, but without providing `--flag`.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
-    ///         .long("flag"))
+    ///         .long("flag")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_if("flag", Some("true"), Some("default")))
@@ -2903,10 +2913,10 @@ impl<'help> Arg<'help> {
     /// Now lets only use the default value if `--opt` contains the value `special`.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
@@ -2922,10 +2932,10 @@ impl<'help> Arg<'help> {
     /// default value.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
@@ -2941,10 +2951,11 @@ impl<'help> Arg<'help> {
     /// value of some other Arg.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
-    ///         .long("flag"))
+    ///         .long("flag")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value("default")
@@ -2955,7 +2966,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
     #[must_use]
     pub fn default_value_if<T: Key>(
@@ -2996,13 +3007,14 @@ impl<'help> Arg<'help> {
     /// First we use the default value only if another arg is present at runtime.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
-    ///         .long("flag"))
+    ///         .long("flag")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("opt")
     ///         .long("opt")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
@@ -3019,10 +3031,11 @@ impl<'help> Arg<'help> {
     /// Next we run the same test, but without providing `--flag`.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
-    ///         .long("flag"))
+    ///         .long("flag")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
@@ -3040,13 +3053,14 @@ impl<'help> Arg<'help> {
     /// true, only the first evaluated "wins"
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
-    ///         .long("flag"))
+    ///         .long("flag")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("opt")
     ///         .long("opt")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
@@ -3059,7 +3073,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
-    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[must_use]
     pub fn default_value_ifs<T: Key>(
@@ -3106,14 +3120,15 @@ impl<'help> Arg<'help> {
     /// but it's not an error because the `unless` arg has been supplied.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present("dbg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
-    ///         .long("debug"))
+    ///         .long("debug")
+    ///         .action(ArgAction::SetTrue))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
@@ -3124,11 +3139,11 @@ impl<'help> Arg<'help> {
     /// Setting `Arg::required_unless_present(name)` and *not* supplying `name` or this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present("dbg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
     ///         .long("debug"))
@@ -3168,17 +3183,18 @@ impl<'help> Arg<'help> {
     /// because *all* of the `names` args have been supplied.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present_all(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
-    ///         .long("debug"))
+    ///         .long("debug")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("infile")
     ///         .short('i')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--debug", "-i", "file"
     ///     ]);
@@ -3190,17 +3206,18 @@ impl<'help> Arg<'help> {
     /// either *all* of `unless` args or the `self` arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present_all(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
-    ///         .long("debug"))
+    ///         .long("debug")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("infile")
     ///         .short('i')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -3245,17 +3262,18 @@ impl<'help> Arg<'help> {
     /// have been supplied.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present_any(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
-    ///         .long("debug"))
+    ///         .long("debug")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("infile")
     ///         .short('i')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
@@ -3267,17 +3285,18 @@ impl<'help> Arg<'help> {
     /// or this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present_any(&["dbg", "infile"])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
-    ///         .long("debug"))
+    ///         .long("debug")
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("infile")
     ///         .short('i')
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -3311,15 +3330,15 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .required_if_eq("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "not-special"
     ///     ]);
@@ -3328,12 +3347,12 @@ impl<'help> Arg<'help> {
     ///
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .required_if_eq("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "special"
     ///     ]);
@@ -3344,12 +3363,12 @@ impl<'help> Arg<'help> {
     ///
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .required_if_eq("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "SPECIAL"
     ///     ]);
@@ -3359,13 +3378,13 @@ impl<'help> Arg<'help> {
     ///
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .required_if_eq("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .ignore_case(true)
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "SPECIAL"
     ///     ]);
@@ -3405,20 +3424,20 @@ impl<'help> Arg<'help> {
     /// anything other than `val`, this argument isn't required.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_if_eq_any(&[
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("extra")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("extra"))
     ///     .arg(Arg::new("option")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("option"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--option", "other"
@@ -3431,20 +3450,20 @@ impl<'help> Arg<'help> {
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_if_eq_any(&[
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("extra")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("extra"))
     ///     .arg(Arg::new("option")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("option"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--option", "spec"
@@ -3485,20 +3504,20 @@ impl<'help> Arg<'help> {
     /// anything other than `val`, this argument isn't required.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_if_eq_all(&[
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("extra")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("extra"))
     ///     .arg(Arg::new("option")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("option"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--option", "spec"
@@ -3511,20 +3530,20 @@ impl<'help> Arg<'help> {
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_if_eq_all(&[
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("extra")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("extra"))
     ///     .arg(Arg::new("option")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .long("option"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--extra", "val", "--option", "spec"
@@ -3561,10 +3580,10 @@ impl<'help> Arg<'help> {
     /// `val`, the other argument isn't required.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires_if("my.cfg", "other")
     ///         .long("config"))
     ///     .arg(Arg::new("other"))
@@ -3579,10 +3598,10 @@ impl<'help> Arg<'help> {
     /// `arg` is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires_if("my.cfg", "input")
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
@@ -3624,10 +3643,10 @@ impl<'help> Arg<'help> {
     /// than `val`, `arg` isn't required.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires_ifs(&[
     ///             ("special.conf", "opt"),
     ///             ("other.conf", "other"),
@@ -3635,7 +3654,7 @@ impl<'help> Arg<'help> {
     ///         .long("config"))
     ///     .arg(Arg::new("opt")
     ///         .long("option")
-    ///         .takes_value(true))
+    ///         .action(ArgAction::Set))
     ///     .arg(Arg::new("other"))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "special.conf"
@@ -3677,10 +3696,10 @@ impl<'help> Arg<'help> {
     /// argument isn't required
     ///
     /// ```rust
-    /// # use clap::{Command, Arg};
+    /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires("input")
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
@@ -3696,10 +3715,10 @@ impl<'help> Arg<'help> {
     /// error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .requires_all(&["input", "output"])
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
@@ -3746,10 +3765,10 @@ impl<'help> Arg<'help> {
     /// Setting conflicting argument, and having both arguments present at runtime is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .conflicts_with("debug")
     ///         .long("config"))
     ///     .arg(Arg::new("debug")
@@ -3796,10 +3815,10 @@ impl<'help> Arg<'help> {
     /// conflicting argument is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .takes_value(true)
+    ///         .action(ArgAction::Set)
     ///         .conflicts_with_all(&["debug", "input"])
     ///         .long("config"))
     ///     .arg(Arg::new("debug")
@@ -4572,53 +4591,57 @@ mod test {
 
     #[test]
     fn flag_display() {
-        let mut f = Arg::new("flg").action(ArgAction::Append);
-        f.long = Some("flag");
+        let mut f = Arg::new("flg").long("flag").action(ArgAction::SetTrue);
+        f._build();
 
         assert_eq!(f.to_string(), "--flag");
 
-        let mut f2 = Arg::new("flg");
-        f2.short = Some('f');
+        let mut f2 = Arg::new("flg").short('f').action(ArgAction::SetTrue);
+        f2._build();
 
         assert_eq!(f2.to_string(), "-f");
     }
 
     #[test]
     fn flag_display_single_alias() {
-        let mut f = Arg::new("flg");
-        f.long = Some("flag");
-        f.aliases = vec![("als", true)];
+        let mut f = Arg::new("flg")
+            .long("flag")
+            .visible_alias("als")
+            .action(ArgAction::SetTrue);
+        f._build();
 
         assert_eq!(f.to_string(), "--flag")
     }
 
     #[test]
     fn flag_display_multiple_aliases() {
-        let mut f = Arg::new("flg");
-        f.short = Some('f');
+        let mut f = Arg::new("flg").short('f').action(ArgAction::SetTrue);
         f.aliases = vec![
             ("alias_not_visible", false),
             ("f2", true),
             ("f3", true),
             ("f4", true),
         ];
+        f._build();
+
         assert_eq!(f.to_string(), "-f");
     }
 
     #[test]
     fn flag_display_single_short_alias() {
-        let mut f = Arg::new("flg");
-        f.short = Some('a');
+        let mut f = Arg::new("flg").short('a').action(ArgAction::SetTrue);
         f.short_aliases = vec![('b', true)];
+        f._build();
 
         assert_eq!(f.to_string(), "-a")
     }
 
     #[test]
     fn flag_display_multiple_short_aliases() {
-        let mut f = Arg::new("flg");
-        f.short = Some('a');
+        let mut f = Arg::new("flg").short('a').action(ArgAction::SetTrue);
         f.short_aliases = vec![('b', false), ('c', true), ('d', true), ('e', true)];
+        f._build();
+
         assert_eq!(f.to_string(), "-a");
     }
 
@@ -4626,80 +4649,88 @@ mod test {
 
     #[test]
     fn option_display_multiple_occurrences() {
-        let o = Arg::new("opt")
-            .long("option")
-            .takes_value(true)
-            .action(ArgAction::Append);
+        let mut o = Arg::new("opt").long("option").action(ArgAction::Append);
+        o._build();
 
         assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
     fn option_display_multiple_values() {
-        let o = Arg::new("opt")
+        let mut o = Arg::new("opt")
             .long("option")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .multiple_values(true);
+        o._build();
 
         assert_eq!(o.to_string(), "--option <opt>...");
     }
 
     #[test]
     fn option_display2() {
-        let o2 = Arg::new("opt").short('o').value_names(&["file", "name"]);
+        let mut o = Arg::new("opt")
+            .short('o')
+            .action(ArgAction::Set)
+            .value_names(&["file", "name"]);
+        o._build();
 
-        assert_eq!(o2.to_string(), "-o <file> <name>");
+        assert_eq!(o.to_string(), "-o <file> <name>");
     }
 
     #[test]
     fn option_display3() {
-        let o2 = Arg::new("opt")
+        let mut o = Arg::new("opt")
             .short('o')
-            .takes_value(true)
             .multiple_values(true)
+            .action(ArgAction::Set)
             .value_names(&["file", "name"]);
+        o._build();
 
-        assert_eq!(o2.to_string(), "-o <file> <name>");
+        assert_eq!(o.to_string(), "-o <file> <name>");
     }
 
     #[test]
     fn option_display_single_alias() {
-        let o = Arg::new("opt")
-            .takes_value(true)
+        let mut o = Arg::new("opt")
             .long("option")
+            .action(ArgAction::Set)
             .visible_alias("als");
+        o._build();
 
         assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
     fn option_display_multiple_aliases() {
-        let o = Arg::new("opt")
+        let mut o = Arg::new("opt")
             .long("option")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .visible_aliases(&["als2", "als3", "als4"])
             .alias("als_not_visible");
+        o._build();
 
         assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
     fn option_display_single_short_alias() {
-        let o = Arg::new("opt")
-            .takes_value(true)
+        let mut o = Arg::new("opt")
             .short('a')
+            .action(ArgAction::Set)
             .visible_short_alias('b');
+        o._build();
 
         assert_eq!(o.to_string(), "-a <opt>");
     }
 
     #[test]
     fn option_display_multiple_short_aliases() {
-        let o = Arg::new("opt")
+        let mut o = Arg::new("opt")
             .short('a')
-            .takes_value(true)
+            .action(ArgAction::Set)
             .visible_short_aliases(&['b', 'c', 'd'])
             .short_alias('e');
+        o._build();
 
         assert_eq!(o.to_string(), "-a <opt>");
     }
@@ -4708,45 +4739,44 @@ mod test {
 
     #[test]
     fn positional_display_multiple_values() {
-        let p = Arg::new("pos")
-            .index(1)
-            .takes_value(true)
-            .multiple_values(true);
+        let mut p = Arg::new("pos").index(1).multiple_values(true);
+        p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
     fn positional_display_multiple_occurrences() {
-        let p = Arg::new("pos")
-            .index(1)
-            .takes_value(true)
-            .action(ArgAction::Append);
+        let mut p = Arg::new("pos").index(1).action(ArgAction::Append);
+        p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
     fn positional_display_required() {
-        let p2 = Arg::new("pos").index(1).required(true);
+        let mut p = Arg::new("pos").index(1).required(true);
+        p._build();
 
-        assert_eq!(p2.to_string(), "<pos>");
+        assert_eq!(p.to_string(), "<pos>");
     }
 
     #[test]
     fn positional_display_val_names() {
-        let p2 = Arg::new("pos").index(1).value_names(&["file1", "file2"]);
+        let mut p = Arg::new("pos").index(1).value_names(&["file1", "file2"]);
+        p._build();
 
-        assert_eq!(p2.to_string(), "<file1> <file2>");
+        assert_eq!(p.to_string(), "<file1> <file2>");
     }
 
     #[test]
     fn positional_display_val_names_req() {
-        let p2 = Arg::new("pos")
+        let mut p = Arg::new("pos")
             .index(1)
             .required(true)
             .value_names(&["file1", "file2"]);
+        p._build();
 
-        assert_eq!(p2.to_string(), "<file1> <file2>");
+        assert_eq!(p.to_string(), "<file1> <file2>");
     }
 }

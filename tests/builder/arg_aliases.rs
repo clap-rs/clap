@@ -8,7 +8,7 @@ fn single_alias_of_option() {
         .arg(
             Arg::new("alias")
                 .long("alias")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("single alias")
                 .alias("new-opt"),
         )
@@ -27,7 +27,7 @@ fn multiple_aliases_of_option() {
     let a = Command::new("multiple_aliases").arg(
         Arg::new("aliases")
             .long("aliases")
-            .takes_value(true)
+            .action(ArgAction::Set)
             .help("multiple aliases")
             .aliases(&["alias1", "alias2", "alias3"]),
     );
@@ -89,7 +89,7 @@ fn multiple_aliases_of_option() {
 fn get_aliases() {
     let a = Arg::new("aliases")
         .long("aliases")
-        .takes_value(true)
+        .action(ArgAction::Set)
         .help("multiple aliases")
         .aliases(&["alias1", "alias2", "alias3"])
         .short_aliases(&['a', 'b', 'c'])
@@ -170,7 +170,7 @@ fn alias_on_a_subcommand_option() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .alias("opt")
                     .help("testing testing"),
             ),
@@ -211,7 +211,7 @@ OPTIONS:
                 Arg::new("opt")
                     .long("opt")
                     .short('o')
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .aliases(&["invisible", "als1", "more"]),
             )
             .arg(arg!(-f - -flag).aliases(&["unseeable", "flg1", "anyway"])),
@@ -242,7 +242,7 @@ OPTIONS:
                 Arg::new("opt")
                     .long("opt")
                     .short('o')
-                    .takes_value(true)
+                    .action(ArgAction::Set)
                     .alias("invisible")
                     .visible_alias("visible"),
             )
@@ -250,6 +250,7 @@ OPTIONS:
                 Arg::new("flg")
                     .long("flag")
                     .short('f')
+                    .action(ArgAction::SetTrue)
                     .visible_aliases(&["v_flg", "flag2", "flg3"]),
             ),
     );

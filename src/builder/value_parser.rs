@@ -29,14 +29,14 @@ use crate::parser::AnyValueId;
 ///         clap::Arg::new("hostname")
 ///             .long("hostname")
 ///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     )
 ///     .arg(
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(clap::value_parser!(u16).range(3000..))
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -269,7 +269,7 @@ impl ValueParser {
 ///         clap::Arg::new("hostname")
 ///             .long("hostname")
 ///             .value_parser(clap::builder::NonEmptyStringValueParser::new())
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -311,7 +311,7 @@ impl From<_AnonymousValueParser> for ValueParser {
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(3000..4000)
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -341,7 +341,7 @@ impl From<std::ops::Range<i64>> for ValueParser {
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(3000..=4000)
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -371,7 +371,7 @@ impl From<std::ops::RangeInclusive<i64>> for ValueParser {
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(3000..)
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -401,7 +401,7 @@ impl From<std::ops::RangeFrom<i64>> for ValueParser {
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(..3000)
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -431,7 +431,7 @@ impl From<std::ops::RangeTo<i64>> for ValueParser {
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(..=3000)
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -461,7 +461,7 @@ impl From<std::ops::RangeToInclusive<i64>> for ValueParser {
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(..)
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -1062,7 +1062,7 @@ where
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(clap::value_parser!(u16).range(3000..))
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///
@@ -1260,7 +1260,7 @@ impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> Default for RangedI64V
 ///         clap::Arg::new("port")
 ///             .long("port")
 ///             .value_parser(clap::value_parser!(u64).range(3000..))
-///             .takes_value(true)
+///             .action(clap::ArgAction::Set)
 ///             .required(true)
 ///     );
 ///

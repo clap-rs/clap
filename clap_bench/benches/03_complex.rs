@@ -57,7 +57,6 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .help("tests options")
                         .short('o')
                         .long("option")
-                        .takes_value(true)
                         .multiple_values(true)
                         .action(ArgAction::Append),
                 )
@@ -82,7 +81,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .help("tests long options with exclusions")
                         .conflicts_with("option")
                         .requires("positional2")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .long("long-option-2"),
                 )
                 .arg(
@@ -94,13 +93,12 @@ pub fn build_from_builder(c: &mut Criterion) {
                     Arg::new("option3")
                         .short('O')
                         .long("Option")
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .help("tests options with specific value sets")
                         .value_parser(OPT3_VALS),
                 )
                 .arg(
                     Arg::new("positional3")
-                        .takes_value(true)
                         .multiple_values(true)
                         .help("tests positionals with specific values")
                         .index(4)
@@ -115,7 +113,6 @@ pub fn build_from_builder(c: &mut Criterion) {
                 .arg(
                     Arg::new("multvalsmo")
                         .long("multvalsmo")
-                        .takes_value(true)
                         .multiple_values(true)
                         .action(ArgAction::Append)
                         .help("Tests multiple values, not mult occs")
@@ -124,7 +121,6 @@ pub fn build_from_builder(c: &mut Criterion) {
                 .arg(
                     Arg::new("minvals")
                         .long("minvals2")
-                        .takes_value(true)
                         .multiple_values(true)
                         .action(ArgAction::Append)
                         .help("Tests 2 min vals")
@@ -133,7 +129,6 @@ pub fn build_from_builder(c: &mut Criterion) {
                 .arg(
                     Arg::new("maxvals")
                         .long("maxvals3")
-                        .takes_value(true)
                         .multiple_values(true)
                         .action(ArgAction::Append)
                         .help("Tests 3 max vals")
@@ -148,7 +143,6 @@ pub fn build_from_builder(c: &mut Criterion) {
                             Arg::new("scoption")
                                 .short('o')
                                 .long("option")
-                                .takes_value(true)
                                 .multiple_values(true)
                                 .action(ArgAction::Append)
                                 .help("tests options"),

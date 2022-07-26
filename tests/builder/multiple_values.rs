@@ -7,7 +7,7 @@ fn option_long() {
             Arg::new("option")
                 .long("option")
                 .help("multiple options")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .action(ArgAction::Append),
         )
@@ -35,7 +35,7 @@ fn option_short() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .action(ArgAction::Append),
         )
@@ -62,7 +62,7 @@ fn option_mixed() {
                 .long("option")
                 .short('o')
                 .help("multiple options")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .action(ArgAction::Append),
         )
@@ -365,7 +365,7 @@ fn positional() {
         .arg(
             Arg::new("pos")
                 .help("multiple positionals")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
@@ -727,7 +727,7 @@ fn no_sep() {
             Arg::new("option")
                 .long("option")
                 .help("multiple options")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(false),
         )
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
@@ -748,7 +748,7 @@ fn no_sep_positional() {
         .arg(
             Arg::new("option")
                 .help("multiple options")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .use_value_delimiter(false),
         )
         .try_get_matches_from(vec!["", "val1,val2,val3"]);
@@ -775,7 +775,7 @@ fn req_delimiter_long() {
         )
         .arg(
             Arg::new("args")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .index(1),
         )
@@ -813,7 +813,7 @@ fn req_delimiter_long_with_equal() {
         )
         .arg(
             Arg::new("args")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .index(1),
         )
@@ -851,7 +851,7 @@ fn req_delimiter_short_with_space() {
         )
         .arg(
             Arg::new("args")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .index(1),
         )
@@ -889,7 +889,7 @@ fn req_delimiter_short_with_no_space() {
         )
         .arg(
             Arg::new("args")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .index(1),
         )
@@ -927,7 +927,7 @@ fn req_delimiter_short_with_equal() {
         )
         .arg(
             Arg::new("args")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .index(1),
         )
@@ -965,12 +965,7 @@ fn req_delimiter_complex() {
                 .use_value_delimiter(true)
                 .require_value_delimiter(true),
         )
-        .arg(
-            Arg::new("args")
-                .takes_value(true)
-                .multiple_values(true)
-                .index(1),
-        )
+        .arg(Arg::new("args").multiple_values(true).index(1))
         .try_get_matches_from(vec![
             "",
             "val1",
@@ -1038,7 +1033,7 @@ fn low_index_positional_not_required() {
         .arg(
             Arg::new("files")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .multiple_values(true),
         )
@@ -1056,14 +1051,14 @@ fn low_index_positional_last_multiple_too() {
         .arg(
             Arg::new("files")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .multiple_values(true),
         )
         .arg(
             Arg::new("target")
                 .index(2)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .multiple_values(true),
         )
@@ -1080,7 +1075,7 @@ fn low_index_positional_too_far_back() {
         .arg(
             Arg::new("files")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .multiple_values(true),
         )
@@ -1095,7 +1090,7 @@ fn low_index_positional() {
         .arg(
             Arg::new("files")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .multiple_values(true),
         )
@@ -1128,7 +1123,7 @@ fn low_index_positional_in_subcmd() {
                 .arg(
                     Arg::new("files")
                         .index(1)
-                        .takes_value(true)
+                        .action(ArgAction::Set)
                         .required(true)
                         .multiple_values(true),
                 )
@@ -1162,11 +1157,11 @@ fn low_index_positional_with_option() {
             Arg::new("files")
                 .required(true)
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .arg(Arg::new("target").index(2).required(true))
-        .arg(Arg::new("opt").long("option").takes_value(true))
+        .arg(Arg::new("opt").long("option").action(ArgAction::Set))
         .try_get_matches_from(vec![
             "lip", "file1", "file2", "file3", "target", "--option", "test",
         ]);
@@ -1199,7 +1194,7 @@ fn low_index_positional_with_flag() {
         .arg(
             Arg::new("files")
                 .index(1)
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .required(true)
                 .multiple_values(true),
         )
@@ -1268,7 +1263,7 @@ fn multiple_value_terminator_option() {
             Arg::new("files")
                 .short('f')
                 .value_terminator(";")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .arg(Arg::new("other"))
@@ -1299,7 +1294,7 @@ fn multiple_value_terminator_option_other_arg() {
             Arg::new("files")
                 .short('f')
                 .value_terminator(";")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true),
         )
         .arg(Arg::new("other"))
@@ -1330,7 +1325,7 @@ fn multiple_vals_with_hyphen() {
     let res = Command::new("do")
         .arg(
             Arg::new("cmds")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .multiple_values(true)
                 .allow_hyphen_values(true)
                 .value_terminator(";"),

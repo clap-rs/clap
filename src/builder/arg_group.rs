@@ -130,12 +130,14 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup};
+    /// # use clap::{Command, Arg, ArgGroup, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .arg("flag")
     ///         .arg("color"))
@@ -157,12 +159,14 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup};
+    /// # use clap::{Command, Arg, ArgGroup, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
     ///     .get_matches_from(vec!["myprog", "-f"]);
@@ -188,12 +192,14 @@ impl<'help> ArgGroup<'help> {
     /// group
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup};
+    /// # use clap::{Command, Arg, ArgGroup, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .multiple(true))
@@ -205,12 +211,14 @@ impl<'help> ArgGroup<'help> {
     /// an error if more than one of the args in the group was used.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
     ///     .try_get_matches_from(vec!["myprog", "-f", "-c"]);
@@ -244,12 +252,14 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .required(true))
@@ -281,14 +291,17 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires("debug"))
@@ -318,16 +331,20 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("verb")
-    ///         .short('v'))
+    ///         .short('v')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires_all(&["debug", "verb"]))
@@ -359,14 +376,17 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with("debug"))
@@ -393,16 +413,20 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind};
+    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
-    ///         .short('f'))
+    ///         .short('f')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("color")
-    ///         .short('c'))
+    ///         .short('c')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("debug")
-    ///         .short('d'))
+    ///         .short('d')
+    ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("verb")
-    ///         .short('v'))
+    ///         .short('v')
+    ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with_all(&["debug", "verb"]))
