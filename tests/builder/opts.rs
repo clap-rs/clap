@@ -481,7 +481,6 @@ fn leading_hyphen_with_only_pos_follows() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o [opt] ... "some opt")
-                .number_of_values(1)
                 .action(ArgAction::Set)
                 .allow_hyphen_values(true),
         )
