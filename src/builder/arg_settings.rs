@@ -14,7 +14,7 @@ pub(crate) struct ArgFlags(Flags);
 
 impl Default for ArgFlags {
     fn default() -> Self {
-        Self::empty()
+        ArgFlags(Flags::TAKES_VAL)
     }
 }
 
