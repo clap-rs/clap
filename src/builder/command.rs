@@ -12,6 +12,7 @@ use std::path::Path;
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
+use crate::builder::ArgAction;
 use crate::builder::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -134,6 +135,7 @@ impl<'help> Command<'help> {
             .arg(
                 Arg::new("help")
                     .long("help")
+                    .action(ArgAction::Help)
                     .help("Print help information")
                     .global(true)
                     .generated(),
@@ -141,6 +143,7 @@ impl<'help> Command<'help> {
             .arg(
                 Arg::new("version")
                     .long("version")
+                    .action(ArgAction::Version)
                     .help("Print version information")
                     .global(true)
                     .generated(),
