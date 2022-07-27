@@ -6,7 +6,6 @@ use crate::output::Usage;
 use crate::parser::{ArgMatcher, MatchedArg, ParseState};
 use crate::util::ChildGraph;
 use crate::util::Id;
-use crate::ArgAction;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Validator<'help, 'cmd> {
@@ -249,32 +248,25 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_num_vals");
-        if let Some(num) = a.num_vals {
-            let total_num = ma.num_vals();
-            debug!(
-                "Validator::validate_arg_num_vals: num_vals={}, actual={}",
-                num, total_num
-            );
-            let should_err = if matches!(a.get_action(), ArgAction::Append) && !a.is_positional() {
-                total_num % num != 0
-            } else {
-                num != total_num
-            };
-            if should_err {
-                debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
-                return Err(Error::wrong_number_of_values(
-                    self.cmd,
-                    a.to_string(),
-                    num,
-                    if matches!(a.get_action(), ArgAction::Append) && !a.is_positional() {
-                        total_num % num
-                    } else {
-                        total_num
-                    },
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
+        if let Some(expected) = a.num_vals {
+            for (_i, group) in ma.vals().enumerate() {
+                let actual = group.len();
+                debug!(
+                    "Validator::validate_arg_num_vals: group={}, num_vals={}, actual={}",
+                    _i, expected, actual
+                );
+                if expected != actual {
+                    debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
+                    return Err(Error::wrong_number_of_values(
+                        self.cmd,
+                        a.to_string(),
+                        expected,
+                        actual,
+                        Usage::new(self.cmd)
+                            .required(&self.required)
+                            .create_usage_with_title(&[]),
+                    ));
+                }
             }
         }
         if let Some(num) = a.max_vals {

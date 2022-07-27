@@ -93,7 +93,9 @@ fn option_exact_exact() {
                 .number_of_values(3)
                 .action(ArgAction::Append),
         )
-        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec![
+            "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6",
+        ]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
@@ -104,7 +106,7 @@ fn option_exact_exact() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        ["val1", "val2", "val3"]
+        ["val1", "val2", "val3", "val4", "val5", "val6"]
     );
 }
 
