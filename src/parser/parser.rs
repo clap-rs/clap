@@ -964,25 +964,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         if arg.is_require_equals_set() && !has_eq {
             if arg.min_vals == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
-                let mut arg_values = Vec::new();
-                // We assume this case is valid: require equals, but min_vals == 0.
-                if !arg.default_missing_vals.is_empty() {
-                    debug!("Parser::parse_opt_value: has default_missing_vals");
-                    for v in arg.default_missing_vals.iter() {
-                        let trailing_values = false; // CLI should not be affecting default_missing_values
-                        let _parse_result = self.split_arg_values(
-                            arg,
-                            &RawOsStr::new(v),
-                            trailing_values,
-                            &mut arg_values,
-                        );
-                        if let Some(_parse_result) = _parse_result {
-                            if _parse_result != ParseResult::ValuesDone {
-                                debug!("Parser::parse_opt_value: Ignoring state {:?}; no values accepted after default_missing_values", _parse_result);
-                            }
-                        }
-                    }
-                };
+                let arg_values = Vec::new();
                 let react_result = self.react(
                     Some(ident),
                     ValueSource::CommandLine,
@@ -1133,10 +1115,31 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         ident: Option<Identifier>,
         source: ValueSource,
         arg: &Arg<'help>,
-        raw_vals: Vec<OsString>,
+        mut raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         self.resolve_pending(matcher)?;
+
+        if raw_vals.is_empty() {
+            // We assume this case is valid: require equals, but min_vals == 0.
+            if !arg.default_missing_vals.is_empty() {
+                debug!("Parser::react: has default_missing_vals");
+                for v in arg.default_missing_vals.iter() {
+                    let trailing_values = false; // CLI should not be affecting default_missing_values
+                    let _parse_result = self.split_arg_values(
+                        arg,
+                        &RawOsStr::new(v),
+                        trailing_values,
+                        &mut raw_vals,
+                    );
+                    if let Some(_parse_result) = _parse_result {
+                        if _parse_result != ParseResult::ValuesDone {
+                            debug!("Parser::parse_opt_value: Ignoring state {:?}; no values accepted after default_missing_values", _parse_result);
+                        }
+                    }
+                }
+            };
+        }
 
         debug!(
             "Parser::react action={:?}, identifier={:?}, source={:?}",
@@ -1349,55 +1352,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     fn add_default_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<()> {
         let trailing_values = false; // defaults are independent of the commandline
-
-        if !arg.default_missing_vals.is_empty() {
-            debug!(
-                "Parser::add_default_value:iter:{}: has default missing vals",
-                arg.name
-            );
-            match matcher.get(&arg.id) {
-                Some(ma) if ma.all_val_groups_empty() => {
-                    debug!(
-                        "Parser::add_default_value:iter:{}: has no user defined vals",
-                        arg.name
-                    );
-                    // The flag occurred, we just want to add the val groups
-                    let mut arg_values = Vec::new();
-                    for v in arg.default_missing_vals.iter() {
-                        let _parse_result = self.split_arg_values(
-                            arg,
-                            &RawOsStr::new(v),
-                            trailing_values,
-                            &mut arg_values,
-                        );
-                        if let Some(_parse_result) = _parse_result {
-                            if _parse_result != ParseResult::ValuesDone {
-                                debug!("Parser::add_default_value: Ignoring state {:?}; defaults are outside of the parse loop", _parse_result);
-                            }
-                        }
-                    }
-                    self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
-                    self.push_arg_values(arg, arg_values, matcher)?;
-                }
-                None => {
-                    debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
-                    // do nothing
-                }
-                _ => {
-                    debug!(
-                        "Parser::add_default_value:iter:{}: has user defined vals",
-                        arg.name
-                    );
-                    // do nothing
-                }
-            }
-        } else {
-            debug!(
-                "Parser::add_default_value:iter:{}: doesn't have default missing vals",
-                arg.name
-            );
-            // do nothing
-        }
 
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
