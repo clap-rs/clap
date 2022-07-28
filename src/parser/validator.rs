@@ -34,7 +34,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
             let o = &self.cmd[&a];
             let should_err = if let Some(v) = matcher.args.get(&o.id) {
-                v.all_val_groups_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
+                v.all_val_groups_empty() && o.get_min_vals() != Some(0)
             } else {
                 true
             };
@@ -296,7 +296,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 ));
             }
         }
-        let min_vals_zero = if let Some(num) = a.min_vals {
+        let min_vals_zero = if let Some(num) = a.get_min_vals() {
             debug!("Validator::validate_arg_num_vals: min_vals set: {}", num);
             if ma.num_vals() < num && num != 0 {
                 debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");

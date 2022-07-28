@@ -1118,7 +1118,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
-        self.takes_value(true).multiple_values(true)
+        self.takes_value(qty != 0).multiple_values(1 < qty)
     }
 
     /// The *maximum* number of values are for this argument.
@@ -4066,6 +4066,11 @@ impl<'help> Arg<'help> {
         self.num_vals
     }
 
+    #[inline]
+    pub(crate) fn get_min_vals(&self) -> Option<usize> {
+        self.min_vals
+    }
+
     /// Get the delimiter between multiple values
     #[inline]
     pub fn get_value_delimiter(&self) -> Option<char> {
@@ -4425,8 +4430,14 @@ impl<'help> Display for Arg<'help> {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
-        if !self.is_positional() && self.is_takes_value_set() {
-            let is_optional_val = self.min_vals == Some(0);
+        let is_optional_val = self.get_min_vals() == Some(0);
+        if self.is_positional() {
+            if is_optional_val {
+                let sep = "[";
+                need_closing_bracket = true;
+                f.write_str(sep)?;
+            }
+        } else if self.is_takes_value_set() {
             let sep = if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
@@ -4443,7 +4454,8 @@ impl<'help> Display for Arg<'help> {
             f.write_str(sep)?;
         }
         if self.is_takes_value_set() || self.is_positional() {
-            display_arg_val(self, |s, _| f.write_str(s))?;
+            let arg_val = render_arg_val(self);
+            f.write_str(&arg_val)?;
         }
         if need_closing_bracket {
             f.write_str("]")?;
@@ -4514,73 +4526,63 @@ impl Default for ArgProvider {
 }
 
 /// Write the values such as <name1> <name2>
-pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
-where
-    F: FnMut(&str, bool) -> Result<T, E>,
-{
-    let mult_val = arg.is_multiple_values_set();
-    let mult_occ = matches!(*arg.get_action(), ArgAction::Append);
-    let delim = if arg.is_require_value_delimiter_set() {
-        arg.val_delim.expect(INTERNAL_ERROR_MSG)
-    } else {
-        ' '
-    }
-    .to_string();
-    if !arg.val_names.is_empty() {
-        // If have val_name.
-        match (arg.val_names.len(), arg.num_vals) {
-            (1, Some(num_vals)) => {
-                // If single value name with multiple num_of_vals, display all
-                // the values with the single value name.
-                let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
-                for n in 1..=num_vals {
-                    write(&arg_name, true)?;
-                    if n != num_vals {
-                        write(&delim, false)?;
-                    }
-                }
-            }
-            (num_val_names, _) => {
-                // If multiple value names, display them sequentially(ignore num of vals).
-                let mut it = arg.val_names.iter().peekable();
-                while let Some(val) = it.next() {
-                    write(&format!("<{}>", val), true)?;
-                    if it.peek().is_some() {
-                        write(&delim, false)?;
-                    }
-                }
-                if (num_val_names == 1 && mult_val)
-                    || (arg.is_positional() && mult_occ)
-                    || num_val_names < arg.num_vals.unwrap_or(0)
-                {
-                    write("...", true)?;
-                }
-            }
-        }
-    } else if let Some(num_vals) = arg.num_vals {
-        // If number_of_values is specified, display the value multiple times.
-        let arg_name = format!("<{}>", arg.name);
-        for n in 1..=num_vals {
-            write(&arg_name, true)?;
-            if n != num_vals {
-                write(&delim, false)?;
-            }
-        }
-    } else if arg.is_positional() {
-        // Value of positional argument with no num_vals and val_names.
-        write(&format!("<{}>", arg.name), true)?;
+pub(crate) fn render_arg_val(arg: &Arg) -> String {
+    let mut rendered = String::new();
 
-        if mult_val || mult_occ {
-            write("...", true)?;
+    let delim_storage;
+    let delim = if arg.is_require_value_delimiter_set() {
+        delim_storage = arg.val_delim.expect(INTERNAL_ERROR_MSG).to_string();
+        &delim_storage
+    } else {
+        " "
+    };
+
+    let arg_name_storage;
+    let val_names = if arg.val_names.is_empty() {
+        arg_name_storage = [arg.name];
+        &arg_name_storage
+    } else {
+        arg.val_names.as_slice()
+    };
+
+    let mut extra_values = false;
+    debug_assert!(arg.is_takes_value_set());
+    let num_vals = arg.num_vals.unwrap_or(1);
+    if val_names.len() == 1 {
+        let arg_name = format!("<{}>", val_names[0]);
+        for n in 1..=num_vals {
+            if n != 1 {
+                rendered.push_str(delim);
+            }
+            rendered.push_str(&arg_name);
+        }
+        extra_values |= arg.num_vals.is_none() && arg.is_multiple_values_set();
+    } else {
+        debug_assert!(1 < val_names.len());
+        for (n, val_name) in val_names.iter().enumerate() {
+            let arg_name = format!("<{}>", val_name);
+            if n != 0 {
+                rendered.push_str(delim);
+            }
+            rendered.push_str(&arg_name);
+        }
+        extra_values |= val_names.len() < num_vals;
+    }
+    if arg.is_positional() {
+        if matches!(*arg.get_action(), ArgAction::Append) {
+            extra_values = true;
         }
     } else {
-        // value of flag argument with no num_vals and val_names.
-        write(&format!("<{}>", arg.name), true)?;
-        if mult_val {
-            write("...", true)?;
+        if matches!(*arg.get_action(), ArgAction::Count) {
+            extra_values = true;
         }
     }
-    Ok(())
+
+    if extra_values {
+        rendered.push_str("...");
+    }
+
+    rendered
 }
 
 // Flags
@@ -4667,7 +4669,53 @@ mod test {
     }
 
     #[test]
-    fn option_display2() {
+    fn option_display_zero_or_more_values() {
+        let mut o = Arg::new("opt")
+            .long("option")
+            .action(ArgAction::Set)
+            .min_values(0);
+        o._build();
+
+        assert_eq!(o.to_string(), "--option [<opt>...]");
+    }
+
+    #[test]
+    fn option_display_one_or_more_values() {
+        let mut o = Arg::new("opt")
+            .long("option")
+            .action(ArgAction::Set)
+            .min_values(1);
+        o._build();
+
+        assert_eq!(o.to_string(), "--option <opt>...");
+    }
+
+    #[test]
+    fn option_display_zero_or_more_values_with_value_name() {
+        let mut o = Arg::new("opt")
+            .short('o')
+            .action(ArgAction::Set)
+            .min_values(0)
+            .value_names(&["file"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "-o [<file>...]");
+    }
+
+    #[test]
+    fn option_display_one_or_more_values_with_value_name() {
+        let mut o = Arg::new("opt")
+            .short('o')
+            .action(ArgAction::Set)
+            .min_values(1)
+            .value_names(&["file"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "-o <file>...");
+    }
+
+    #[test]
+    fn option_display_value_names() {
         let mut o = Arg::new("opt")
             .short('o')
             .action(ArgAction::Set)
@@ -4740,6 +4788,22 @@ mod test {
     #[test]
     fn positional_display_multiple_values() {
         let mut p = Arg::new("pos").index(1).multiple_values(true);
+        p._build();
+
+        assert_eq!(p.to_string(), "<pos>...");
+    }
+
+    #[test]
+    fn positional_display_zero_or_more_values() {
+        let mut p = Arg::new("pos").index(1).min_values(0);
+        p._build();
+
+        assert_eq!(p.to_string(), "[<pos>...]");
+    }
+
+    #[test]
+    fn positional_display_one_or_more_values() {
+        let mut p = Arg::new("pos").index(1).min_values(1);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");

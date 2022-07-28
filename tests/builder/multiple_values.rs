@@ -236,7 +236,7 @@ fn option_min_less() {
 
 #[test]
 fn option_short_min_more_mult_occurs() {
-    let res = Command::new("multiple_values")
+    let m = Command::new("multiple_values")
         .arg(Arg::new("arg").required(true))
         .arg(
             Arg::new("option")
@@ -249,8 +249,8 @@ fn option_short_min_more_mult_occurs() {
             "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
-    let m = res.unwrap();
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
 
     assert!(m.contains_id("option"));
     assert!(m.contains_id("arg"));
@@ -266,7 +266,7 @@ fn option_short_min_more_mult_occurs() {
 
 #[test]
 fn option_short_min_more_single_occur() {
-    let res = Command::new("multiple_values")
+    let m = Command::new("multiple_values")
         .arg(Arg::new("arg").required(true))
         .arg(
             Arg::new("option")
@@ -276,8 +276,8 @@ fn option_short_min_more_single_occur() {
         )
         .try_get_matches_from(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
-    let m = res.unwrap();
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
 
     assert!(m.contains_id("option"));
     assert!(m.contains_id("arg"));
@@ -1387,22 +1387,6 @@ fn issue_1480_max_values_consumes_extra_arg_3() {
 }
 
 #[test]
-fn issue_2229() {
-    let m = Command::new("multiple_values")
-        .arg(
-            Arg::new("pos")
-                .help("multiple positionals")
-                .number_of_values(3),
-        )
-        .try_get_matches_from(vec![
-            "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
-        ]);
-
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
-}
-
-#[test]
 fn value_names_building_num_vals() {
     let m = Command::new("test")
         .arg(
@@ -1412,7 +1396,7 @@ fn value_names_building_num_vals() {
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert_eq!(
@@ -1430,7 +1414,7 @@ fn value_names_building_num_vals_for_positional() {
         .arg(Arg::new("pos").value_names(&["who", "what", "why"]))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert_eq!(
@@ -1453,7 +1437,7 @@ fn number_of_values_preferred_over_value_names() {
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3", "val4"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert_eq!(
@@ -1475,10 +1459,8 @@ fn values_per_occurrence_named() {
     );
 
     let m = a.try_get_matches_from_mut(vec!["myprog", "--pos", "val1", "val2"]);
-    let m = match m {
-        Ok(m) => m,
-        Err(err) => panic!("{}", err),
-    };
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -1512,10 +1494,8 @@ fn values_per_occurrence_positional() {
     );
 
     let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2"]);
-    let m = match m {
-        Ok(m) => m,
-        Err(err) => panic!("{}", err),
-    };
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
     assert_eq!(
         m.get_many::<String>("pos")
             .unwrap()
@@ -1523,4 +1503,20 @@ fn values_per_occurrence_positional() {
             .collect::<Vec<_>>(),
         ["val1", "val2"]
     );
+}
+
+#[test]
+fn issue_2229() {
+    let m = Command::new("multiple_values")
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(3),
+        )
+        .try_get_matches_from(vec![
+            "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
+        ]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }

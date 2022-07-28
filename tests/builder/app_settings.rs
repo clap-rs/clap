@@ -1149,7 +1149,6 @@ fn aaos_opts_mult_req_delims() {
     let res = Command::new("posix")
         .arg(
             arg!(--opt <val> ... "some option")
-                .number_of_values(1)
                 .action(ArgAction::Set)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true)
