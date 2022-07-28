@@ -258,8 +258,7 @@ pub fn gen_augment(
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         .value_name(#value_name)
-                        .min_values(0)
-                        .max_values(1)
+                        .number_of_values(0..=1)
                         #value_parser
                         #action
                     },
