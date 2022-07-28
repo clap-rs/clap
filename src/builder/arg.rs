@@ -4066,6 +4066,11 @@ impl<'help> Arg<'help> {
         self.num_vals
     }
 
+    #[inline]
+    pub(crate) fn get_min_vals(&self) -> Option<usize> {
+        self.min_vals
+    }
+
     /// Get the delimiter between multiple values
     #[inline]
     pub fn get_value_delimiter(&self) -> Option<char> {
@@ -4426,7 +4431,7 @@ impl<'help> Display for Arg<'help> {
         }
         let mut need_closing_bracket = false;
         if !self.is_positional() && self.is_takes_value_set() {
-            let is_optional_val = self.min_vals == Some(0);
+            let is_optional_val = self.get_min_vals() == Some(0);
             let sep = if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;

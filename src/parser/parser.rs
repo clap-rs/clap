@@ -962,7 +962,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::parse_opt_value; Checking for val...");
         // require_equals is set, but no '=' is provided, try throwing error.
         if arg.is_require_equals_set() && !has_eq {
-            if arg.min_vals == Some(0) {
+            if arg.get_min_vals() == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
                 let arg_values = Vec::new();
                 let react_result = self.react(
