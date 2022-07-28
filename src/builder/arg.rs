@@ -4678,7 +4678,53 @@ mod test {
     }
 
     #[test]
-    fn option_display2() {
+    fn option_display_zero_or_more_values() {
+        let mut o = Arg::new("opt")
+            .long("option")
+            .action(ArgAction::Set)
+            .min_values(0);
+        o._build();
+
+        assert_eq!(o.to_string(), "--option [<opt>...]");
+    }
+
+    #[test]
+    fn option_display_one_or_more_values() {
+        let mut o = Arg::new("opt")
+            .long("option")
+            .action(ArgAction::Set)
+            .min_values(1);
+        o._build();
+
+        assert_eq!(o.to_string(), "--option <opt>...");
+    }
+
+    #[test]
+    fn option_display_zero_or_more_values_with_value_name() {
+        let mut o = Arg::new("opt")
+            .short('o')
+            .action(ArgAction::Set)
+            .min_values(0)
+            .value_names(&["file"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "-o [<file>...]");
+    }
+
+    #[test]
+    fn option_display_one_or_more_values_with_value_name() {
+        let mut o = Arg::new("opt")
+            .short('o')
+            .action(ArgAction::Set)
+            .min_values(1)
+            .value_names(&["file"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "-o <file>...");
+    }
+
+    #[test]
+    fn option_display_value_names() {
         let mut o = Arg::new("opt")
             .short('o')
             .action(ArgAction::Set)
@@ -4751,6 +4797,22 @@ mod test {
     #[test]
     fn positional_display_multiple_values() {
         let mut p = Arg::new("pos").index(1).multiple_values(true);
+        p._build();
+
+        assert_eq!(p.to_string(), "<pos>...");
+    }
+
+    #[test]
+    fn positional_display_zero_or_more_values() {
+        let mut p = Arg::new("pos").index(1).min_values(0);
+        p._build();
+
+        assert_eq!(p.to_string(), "[<pos>...]");
+    }
+
+    #[test]
+    fn positional_display_one_or_more_values() {
+        let mut p = Arg::new("pos").index(1).min_values(1);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
