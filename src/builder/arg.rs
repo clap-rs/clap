@@ -4430,8 +4430,14 @@ impl<'help> Display for Arg<'help> {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
-        if !self.is_positional() && self.is_takes_value_set() {
-            let is_optional_val = self.get_min_vals() == Some(0);
+        let is_optional_val = self.get_min_vals() == Some(0);
+        if self.is_positional() {
+            if is_optional_val {
+                let sep = "[";
+                need_closing_bracket = true;
+                f.write_str(sep)?;
+            }
+        } else if self.is_takes_value_set() {
             let sep = if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
