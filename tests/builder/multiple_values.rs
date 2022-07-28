@@ -401,6 +401,49 @@ fn option_max_more() {
 }
 
 #[test]
+fn optional_value() {
+    let mut cmd = Command::new("test").arg(
+        Arg::new("port")
+            .short('p')
+            .value_name("NUM")
+            .min_values(0)
+            .max_values(1),
+    );
+
+    let r = cmd.try_get_matches_from_mut(["test", "-p42"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(m.contains_id("port"));
+    assert_eq!(m.get_one::<String>("port").unwrap(), "42");
+
+    let r = cmd.try_get_matches_from_mut(["test", "-p"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(m.contains_id("port"));
+    assert!(m.get_one::<String>("port").is_none());
+
+    let r = cmd.try_get_matches_from_mut(["test", "-p", "24", "-p", "42"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(m.contains_id("port"));
+    assert_eq!(m.get_one::<String>("port").unwrap(), "42");
+
+    let mut help = Vec::new();
+    cmd.write_help(&mut help).unwrap();
+    const HELP: &str = "\
+test 
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+    -p [<NUM>...]        
+    -h, --help           Print help information
+";
+    snapbox::assert_eq(HELP, help);
+}
+
+#[test]
 fn positional() {
     let m = Command::new("multiple_values")
         .arg(
