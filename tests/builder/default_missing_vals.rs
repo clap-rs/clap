@@ -144,6 +144,28 @@ fn opt_default_user_override() {
 }
 
 #[test]
+fn default_missing_value_per_occurrence() {
+    // assert no change to usual argument handling when adding default_missing_value()
+    let r = Command::new("cmd")
+        .arg(
+            arg!(o: -o <opt> ... "some opt")
+                .min_values(0)
+                .default_value("default")
+                .default_missing_value("default_missing"),
+        )
+        .try_get_matches_from(vec!["", "-o", "-o=value", "-o"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(
+        m.get_many::<String>("o")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        vec!["default_missing", "value", "default_missing"]
+    );
+}
+
+#[test]
 #[allow(clippy::bool_assert_comparison)]
 fn default_missing_value_flag_value() {
     let cmd = Command::new("test").arg(
