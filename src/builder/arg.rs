@@ -4529,68 +4529,59 @@ pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
 where
     F: FnMut(&str, bool) -> Result<T, E>,
 {
-    let mult_val = arg.is_multiple_values_set();
-    let mult_occ = matches!(*arg.get_action(), ArgAction::Append);
+    let delim_storage;
     let delim = if arg.is_require_value_delimiter_set() {
-        arg.val_delim.expect(INTERNAL_ERROR_MSG)
+        delim_storage = arg.val_delim.expect(INTERNAL_ERROR_MSG).to_string();
+        &delim_storage
     } else {
-        ' '
-    }
-    .to_string();
-    if !arg.val_names.is_empty() {
-        // If have val_name.
-        match (arg.val_names.len(), arg.num_vals) {
-            (1, Some(num_vals)) => {
-                // If single value name with multiple num_of_vals, display all
-                // the values with the single value name.
-                let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
-                for n in 1..=num_vals {
-                    write(&arg_name, true)?;
-                    if n != num_vals {
-                        write(&delim, false)?;
-                    }
-                }
-            }
-            (num_val_names, _) => {
-                // If multiple value names, display them sequentially(ignore num of vals).
-                let mut it = arg.val_names.iter().peekable();
-                while let Some(val) = it.next() {
-                    write(&format!("<{}>", val), true)?;
-                    if it.peek().is_some() {
-                        write(&delim, false)?;
-                    }
-                }
-                if (num_val_names == 1 && mult_val)
-                    || (arg.is_positional() && mult_occ)
-                    || num_val_names < arg.num_vals.unwrap_or(0)
-                {
-                    write("...", true)?;
-                }
-            }
-        }
-    } else if let Some(num_vals) = arg.num_vals {
-        // If number_of_values is specified, display the value multiple times.
-        let arg_name = format!("<{}>", arg.name);
+        " "
+    };
+
+    let arg_name_storage;
+    let val_names = if arg.val_names.is_empty() {
+        arg_name_storage = [arg.name];
+        &arg_name_storage
+    } else {
+        arg.val_names.as_slice()
+    };
+
+    let mut extra_values = false;
+    debug_assert!(arg.is_takes_value_set());
+    let num_vals = arg.num_vals.unwrap_or(1);
+    if val_names.len() == 1 {
+        let arg_name = format!("<{}>", val_names[0]);
         for n in 1..=num_vals {
-            write(&arg_name, true)?;
-            if n != num_vals {
+            if n != 1 {
                 write(&delim, false)?;
             }
+            write(&arg_name, true)?;
         }
-    } else if arg.is_positional() {
-        // Value of positional argument with no num_vals and val_names.
-        write(&format!("<{}>", arg.name), true)?;
-
-        if mult_val || mult_occ {
-            write("...", true)?;
+        extra_values |= arg.num_vals.is_none() && arg.is_multiple_values_set();
+    } else {
+        debug_assert!(1 < val_names.len());
+        for (n, val_name) in val_names.iter().enumerate() {
+            let arg_name = format!("<{}>", val_name);
+            if n != 0 {
+                write(&delim, false)?;
+            }
+            write(&arg_name, true)?;
+        }
+        extra_values |= val_names.len() < num_vals;
+    }
+    if arg.is_positional() {
+        if matches!(*arg.get_action(), ArgAction::Append) {
+            extra_values = true;
         }
     } else {
-        // value of flag argument with no num_vals and val_names.
-        write(&format!("<{}>", arg.name), true)?;
-        if mult_val {
-            write("...", true)?;
+        if matches!(*arg.get_action(), ArgAction::Count) {
+            extra_values = true;
         }
     }
+
+    if extra_values {
+        write("...", true)?;
+    }
+
     Ok(())
 }
 
