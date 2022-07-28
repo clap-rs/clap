@@ -6,7 +6,7 @@ use std::io::{self, Write};
 use std::usize;
 
 // Internal
-use crate::builder::{display_arg_val, Arg, Command};
+use crate::builder::{render_arg_val, Arg, Command};
 use crate::output::{fmt::Colorizer, Usage};
 use crate::PossibleValue;
 
@@ -314,10 +314,8 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         }
 
         if arg.is_takes_value_set() || arg.is_positional() {
-            display_arg_val(
-                arg,
-                |s, good| if good { self.good(s) } else { self.none(s) },
-            )?;
+            let arg_val = render_arg_val(arg);
+            self.good(arg_val)?;
         }
 
         if need_closing_bracket {

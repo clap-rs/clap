@@ -42,6 +42,6 @@ pub use value_parser::OsStringValueParser;
 pub use value_parser::PathBufValueParser;
 
 pub(crate) use action::CountType;
-pub(crate) use arg::display_arg_val;
+pub(crate) use arg::render_arg_val;
 pub(crate) use arg_predicate::ArgPredicate;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};

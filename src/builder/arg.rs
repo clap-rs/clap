@@ -4454,7 +4454,8 @@ impl<'help> Display for Arg<'help> {
             f.write_str(sep)?;
         }
         if self.is_takes_value_set() || self.is_positional() {
-            display_arg_val(self, |s, _| f.write_str(s))?;
+            let arg_val = render_arg_val(self);
+            f.write_str(&arg_val)?;
         }
         if need_closing_bracket {
             f.write_str("]")?;
@@ -4525,10 +4526,9 @@ impl Default for ArgProvider {
 }
 
 /// Write the values such as <name1> <name2>
-pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
-where
-    F: FnMut(&str, bool) -> Result<T, E>,
-{
+pub(crate) fn render_arg_val(arg: &Arg) -> String {
+    let mut rendered = String::new();
+
     let delim_storage;
     let delim = if arg.is_require_value_delimiter_set() {
         delim_storage = arg.val_delim.expect(INTERNAL_ERROR_MSG).to_string();
@@ -4552,9 +4552,9 @@ where
         let arg_name = format!("<{}>", val_names[0]);
         for n in 1..=num_vals {
             if n != 1 {
-                write(&delim, false)?;
+                rendered.push_str(delim);
             }
-            write(&arg_name, true)?;
+            rendered.push_str(&arg_name);
         }
         extra_values |= arg.num_vals.is_none() && arg.is_multiple_values_set();
     } else {
@@ -4562,9 +4562,9 @@ where
         for (n, val_name) in val_names.iter().enumerate() {
             let arg_name = format!("<{}>", val_name);
             if n != 0 {
-                write(&delim, false)?;
+                rendered.push_str(delim);
             }
-            write(&arg_name, true)?;
+            rendered.push_str(&arg_name);
         }
         extra_values |= val_names.len() < num_vals;
     }
@@ -4579,10 +4579,10 @@ where
     }
 
     if extra_values {
-        write("...", true)?;
+        rendered.push_str("...");
     }
 
-    Ok(())
+    rendered
 }
 
 // Flags
