@@ -34,7 +34,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
             let o = &self.cmd[&a];
             let should_err = if let Some(v) = matcher.args.get(&o.id) {
-                v.all_val_groups_empty() && !(o.get_min_vals() == Some(0))
+                v.all_val_groups_empty() && o.get_min_vals() != Some(0)
             } else {
                 true
             };

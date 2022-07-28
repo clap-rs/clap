@@ -91,6 +91,8 @@
 #![allow(clippy::branches_sharing_code)]
 // Doesn't allow for debug statements, etc to be unique
 #![allow(clippy::if_same_then_else)]
+// Breaks up parallelism that clarifies intent
+#![allow(clippy::collapsible_else_if)]
 
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
