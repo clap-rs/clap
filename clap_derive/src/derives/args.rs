@@ -260,7 +260,6 @@ pub fn gen_augment(
                         .value_name(#value_name)
                         .min_values(0)
                         .max_values(1)
-                        .multiple_values(false)
                         #value_parser
                         #action
                     },

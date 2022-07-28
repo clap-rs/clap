@@ -271,8 +271,7 @@ fn option_option_type_help() {
         arg: Option<Option<i32>>,
     }
     let help = utils::get_help::<Opt>();
-    assert!(help.contains("--arg [<val>]"));
-    assert!(!help.contains("--arg [<val>]..."));
+    assert!(help.contains("--arg [<val>...]"));
 }
 
 #[test]
