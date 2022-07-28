@@ -148,8 +148,7 @@ fn default_missing_value_per_occurrence() {
     // assert no change to usual argument handling when adding default_missing_value()
     let r = Command::new("cmd")
         .arg(
-            arg!(o: -o <opt> ... "some opt")
-                .min_values(0)
+            arg!(o: -o [opt] ... "some opt")
                 .default_value("default")
                 .default_missing_value("default_missing"),
         )
