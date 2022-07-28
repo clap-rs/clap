@@ -218,19 +218,19 @@ ARGS:
     <positional3>...    tests specific values [possible values: vi, emacs]
 
 OPTIONS:
-    -o, --option <opt>...            tests options
-    -f, --flag                       tests flags
-    -F                               tests flags with exclusions
-        --long-option-2 <option2>    tests long options with exclusions
-    -O, --option3 <option3>          specific vals [possible values: fast, slow]
-        --multvals <one> <two>       Tests multiple values, not mult occs
-        --multvalsmo <one> <two>     Tests multiple values, and mult occs
-        --minvals2 <minvals>...      Tests 2 min vals
-        --maxvals3 <maxvals>...      Tests 3 max vals
-        --optvaleq[=<optval>]        Tests optional value, require = sign
-        --optvalnoeq [<optval>]      Tests optional value
-    -h, --help                       Print help information
-    -V, --version                    Print version information
+    -o, --option <opt>...             tests options
+    -f, --flag                        tests flags
+    -F                                tests flags with exclusions
+        --long-option-2 <option2>     tests long options with exclusions
+    -O, --option3 <option3>           specific vals [possible values: fast, slow]
+        --multvals <one> <two>        Tests multiple values, not mult occs
+        --multvalsmo <one> <two>      Tests multiple values, and mult occs
+        --minvals2 <minvals>...       Tests 2 min vals
+        --maxvals3 <maxvals>...       Tests 3 max vals
+        --optvaleq[=<optval>...]      Tests optional value, require = sign
+        --optvalnoeq [<optval>...]    Tests optional value
+    -h, --help                        Print help information
+    -V, --version                     Print version information
 
 SUBCOMMANDS:
     subcmd    tests subcommands
@@ -1044,21 +1044,9 @@ OPTIONS:
 }
 
 #[test]
-fn issue_760() {
-    // Using number_of_values(1) with multiple_values(true) misaligns help message
-    static ISSUE_760: &str = "ctest 0.1
-
-USAGE:
-    ctest [OPTIONS]
-
-OPTIONS:
-    -o, --option <option>    tests options
-    -O, --opt <opt>          tests options
-    -h, --help               Print help information
-    -V, --version            Print version information
-";
-
-    let cmd = Command::new("ctest")
+#[should_panic = "Argument option: mismatch between `number_of_values` and `multiple_values`"]
+fn number_of_values_conflicts_with_multiple_values() {
+    Command::new("ctest")
         .version("0.1")
         .arg(
             Arg::new("option")
@@ -1066,43 +1054,10 @@ OPTIONS:
                 .short('o')
                 .long("option")
                 .action(ArgAction::Set)
-                .multiple_values(true)
-                .number_of_values(1),
+                .number_of_values(1)
+                .multiple_values(true),
         )
-        .arg(
-            Arg::new("opt")
-                .help("tests options")
-                .short('O')
-                .long("opt")
-                .action(ArgAction::Set),
-        );
-    utils::assert_output(cmd, "ctest --help", ISSUE_760, false);
-}
-
-#[test]
-fn issue_1571() {
-    let cmd = Command::new("hello").arg(
-        Arg::new("name")
-            .long("package")
-            .short('p')
-            .number_of_values(1)
-            .action(ArgAction::Set)
-            .multiple_values(true),
-    );
-    utils::assert_output(
-        cmd,
-        "hello --help",
-        "hello 
-
-USAGE:
-    hello [OPTIONS]
-
-OPTIONS:
-    -p, --package <name>    
-    -h, --help              Print help information
-",
-        false,
-    );
+        .build();
 }
 
 static RIPGREP_USAGE: &str = "ripgrep 0.5

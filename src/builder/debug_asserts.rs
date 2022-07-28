@@ -695,6 +695,13 @@ fn assert_arg(arg: &Arg) {
             arg.name, num_val_names, num_vals
         );
     }
+    if arg.get_num_vals() == Some(1) {
+        assert!(
+            !arg.is_multiple_values_set(),
+            "Argument {}: mismatch between `number_of_values` and `multiple_values`",
+            arg.name
+        );
+    }
 
     assert_arg_flags(arg);
 

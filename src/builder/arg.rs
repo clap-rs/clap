@@ -1118,7 +1118,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
-        self.takes_value(true).multiple_values(true)
+        self.takes_value(qty != 0).multiple_values(1 < qty)
     }
 
     /// The *maximum* number of values are for this argument.
