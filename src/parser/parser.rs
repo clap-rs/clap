@@ -1184,17 +1184,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::SetTrue => {
-                let raw_vals = match raw_vals.len() {
-                    0 => {
-                        vec![OsString::from("true")]
-                    }
-                    1 => raw_vals,
-                    _ => {
-                        debug!("Parser::react ignoring trailing values: {:?}", raw_vals);
-                        let mut raw_vals = raw_vals;
-                        raw_vals.resize(1, Default::default());
-                        raw_vals
-                    }
+                let raw_vals = if raw_vals.is_empty() {
+                    vec![OsString::from("true")]
+                } else {
+                    raw_vals
                 };
 
                 matcher.remove(&arg.id);
@@ -1203,17 +1196,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::SetFalse => {
-                let raw_vals = match raw_vals.len() {
-                    0 => {
-                        vec![OsString::from("false")]
-                    }
-                    1 => raw_vals,
-                    _ => {
-                        debug!("Parser::react ignoring trailing values: {:?}", raw_vals);
-                        let mut raw_vals = raw_vals;
-                        raw_vals.resize(1, Default::default());
-                        raw_vals
-                    }
+                let raw_vals = if raw_vals.is_empty() {
+                    vec![OsString::from("false")]
+                } else {
+                    raw_vals
                 };
 
                 matcher.remove(&arg.id);
@@ -1222,21 +1208,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::Count => {
-                let raw_vals = match raw_vals.len() {
-                    0 => {
-                        let existing_value = *matcher
-                            .get_one::<crate::builder::CountType>(arg.get_id())
-                            .unwrap_or(&0);
-                        let next_value = existing_value.saturating_add(1);
-                        vec![OsString::from(next_value.to_string())]
-                    }
-                    1 => raw_vals,
-                    _ => {
-                        debug!("Parser::react ignoring trailing values: {:?}", raw_vals);
-                        let mut raw_vals = raw_vals;
-                        raw_vals.resize(1, Default::default());
-                        raw_vals
-                    }
+                let raw_vals = if raw_vals.is_empty() {
+                    let existing_value = *matcher
+                        .get_one::<crate::builder::CountType>(arg.get_id())
+                        .unwrap_or(&0);
+                    let next_value = existing_value.saturating_add(1);
+                    vec![OsString::from(next_value.to_string())]
+                } else {
+                    raw_vals
                 };
 
                 matcher.remove(&arg.id);
