@@ -225,9 +225,6 @@ impl ArgMatcher {
         } else if let Some(num) = o.max_vals {
             debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
             current_num < num
-        } else if o.get_min_vals().is_some() {
-            debug!("ArgMatcher::needs_more_vals: min_vals...true");
-            true
         } else {
             o.is_multiple_values_set()
         }

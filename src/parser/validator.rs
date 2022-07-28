@@ -33,9 +33,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
             let o = &self.cmd[&a];
             let should_err = if let Some(v) = matcher.args.get(&o.id) {
-                v.all_val_groups_empty()
-                    && (o.get_min_vals() != Some(0)
-                        && o.get_num_vals().map(|r| r.min_values()) != Some(0))
+                v.all_val_groups_empty() && o.get_min_vals() != Some(0)
             } else {
                 true
             };
@@ -250,16 +248,29 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_num_vals");
-        let mut min_vals_zero = false;
+        for (_i, group) in ma.vals().enumerate() {
+            let actual = group.len();
+            debug!(
+                "Validator::validate_arg_num_vals: group={}, actual={}",
+                _i, actual
+            );
 
-        if let Some(expected) = a.num_vals {
-            for (_i, group) in ma.vals().enumerate() {
-                let actual = group.len();
-                debug!(
-                    "Validator::validate_arg_num_vals: group={}, num_vals={}, actual={}",
-                    _i, expected, actual
-                );
-                min_vals_zero |= expected.min_values() == 0;
+            let min_vals = a.get_min_vals().unwrap_or(1);
+            if a.is_takes_value_set() && 0 < min_vals && actual == 0 {
+                // Issue 665 (https://github.com/clap-rs/clap/issues/665)
+                // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
+                return Err(Error::empty_value(
+                    self.cmd,
+                    &get_possible_values(a)
+                        .iter()
+                        .filter(|pv| !pv.is_hide_set())
+                        .map(PossibleValue::get_name)
+                        .collect::<Vec<_>>(),
+                    a.to_string(),
+                ));
+            }
+
+            if let Some(expected) = a.num_vals {
                 if let Some(expected) = expected.num_values() {
                     if expected != actual {
                         debug!(
@@ -321,35 +332,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                         .create_usage_with_title(&[]),
                 ));
             }
-        }
-        if let Some(num) = a.get_min_vals() {
-            debug!("Validator::validate_arg_num_vals: min_vals set: {}", num);
-            if ma.num_vals() < num && num != 0 {
-                debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");
-                return Err(Error::too_few_values(
-                    self.cmd,
-                    a.to_string(),
-                    num,
-                    ma.num_vals(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
-            }
-            min_vals_zero |= num == 0;
-        };
-        // Issue 665 (https://github.com/clap-rs/clap/issues/665)
-        // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
-        if a.is_takes_value_set() && !min_vals_zero && ma.all_val_groups_empty() {
-            return Err(Error::empty_value(
-                self.cmd,
-                &get_possible_values(a)
-                    .iter()
-                    .filter(|pv| !pv.is_hide_set())
-                    .map(PossibleValue::get_name)
-                    .collect::<Vec<_>>(),
-                a.to_string(),
-            ));
         }
         Ok(())
     }

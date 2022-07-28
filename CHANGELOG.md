@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `Arg::number_of_values` now applies per occurrence rather than the average across all occurrences
 - `number_of_values(0)` no longer implies `takes_value(true).multiple_values(true)`
 - `number_of_values(1)` no longer implies `multiple_values(true)`
+- Remove `Arg::min_values` (across all occurrences) with `Arg::number_of_values` (per occurrence)
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)

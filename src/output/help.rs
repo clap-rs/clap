@@ -296,8 +296,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         debug!("Help::val: arg={}", arg.name);
         let mut need_closing_bracket = false;
         if arg.is_takes_value_set() && !arg.is_positional() {
-            let is_optional_val = arg.get_min_vals() == Some(0)
-                || arg.get_num_vals().map(|r| r.min_values()) == Some(0);
+            let is_optional_val = arg.get_min_vals() == Some(0);
             let sep = if arg.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;

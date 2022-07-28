@@ -31,7 +31,7 @@ macro_rules! create_app {
                 arg!(
                     --multvalsmo <s> "Tests multiple values, not mult occs"
                 ).multiple_values(true).required(false).value_names(&["one", "two"]),
-                arg!(--minvals2 <minvals> ... "Tests 2 min vals").min_values(2).multiple_values(true).required(false),
+                arg!(--minvals2 <minvals> ... "Tests 2 min vals").number_of_values(2..).multiple_values(true).required(false),
                 arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").max_values(3).multiple_values(true).required(false),
             ])
             .subcommand(
@@ -124,7 +124,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .multiple_values(true)
                         .action(ArgAction::Append)
                         .help("Tests 2 min vals")
-                        .min_values(2),
+                        .number_of_values(2..),
                 )
                 .arg(
                     Arg::new("maxvals")

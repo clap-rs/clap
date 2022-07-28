@@ -75,7 +75,6 @@ pub struct Arg<'help> {
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<ValuesRange>,
     pub(crate) max_vals: Option<usize>,
-    pub(crate) min_vals: Option<usize>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate<'help>, Option<&'help OsStr>)>,
@@ -1294,70 +1293,6 @@ impl<'help> Arg<'help> {
         self.takes_value(true).multiple_values(true)
     }
 
-    /// The *minimum* number of values for this argument.
-    ///
-    /// For example, if you had a
-    /// `-f <file>` argument where you wanted at least 2 'files' you would set
-    /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
-    /// values.
-    ///
-    /// **NOTE:** Passing a non-zero value is not the same as specifying [`Arg::required(true)`].
-    /// This is due to min and max validation only being performed for present arguments,
-    /// marking them as required will thus perform validation and a min value of 1
-    /// is unnecessary, ignored if not required.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("file")
-    ///     .short('f')
-    ///     .min_values(3);
-    /// ```
-    ///
-    /// Supplying more than the minimum number of values is allowed
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .action(ArgAction::Set)
-    ///         .min_values(2)
-    ///         .short('F'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-F", "file1", "file2", "file3"
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// ```
-    ///
-    /// Supplying less than the minimum number of values is an error
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .action(ArgAction::Set)
-    ///         .min_values(2)
-    ///         .short('F'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-F", "file1"
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooFewValues);
-    /// ```
-    /// [`Arg::required(true)`]: Arg::required()
-    #[inline]
-    #[must_use]
-    pub fn min_values(mut self, qty: usize) -> Self {
-        self.min_vals = Some(qty);
-        self.takes_value(true).multiple_values(true)
-    }
-
     /// Placeholder for the argument's value in the help message / usage.
     ///
     /// This name is cosmetic only; the name is **not** used to access arguments.
@@ -1856,8 +1791,7 @@ impl<'help> Arg<'help> {
     /// By default when
     /// one sets [`multiple_values(true)`] on an argument, clap will continue parsing values for that
     /// argument until it reaches another valid argument, or one of the other more specific settings
-    /// for multiple values is used (such as [`min_values`], [`max_values`] or
-    /// [`number_of_values`]).
+    /// for multiple values is used (such as [`max_values`] or [`number_of_values`]).
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
@@ -1897,7 +1831,6 @@ impl<'help> Arg<'help> {
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
     /// [`multiple_values(true)`]: Arg::multiple_values()
-    /// [`min_values`]: Arg::min_values()
     /// [`number_of_values`]: Arg::number_of_values()
     /// [`max_values`]: Arg::max_values()
     #[inline]
@@ -2047,9 +1980,10 @@ impl<'help> Arg<'help> {
     /// argument is a common example. By, supplying an default, such as `default_missing_value("always")`,
     /// the user can quickly just add `--color` to the command line to produce the desired color output.
     ///
-    /// **NOTE:** using this configuration option requires the use of the `.min_values(0)` and the
-    /// `.require_equals(true)` configuration option. These are required in order to unambiguously
-    /// determine what, if any, value was supplied for the argument.
+    /// **NOTE:** using this configuration option requires the use of the
+    /// [`.number_of_values(0..N)`][Arg::number_of_values] and the
+    /// [`.require_equals(true)`][Arg::require_equals] configuration option. These are required in
+    /// order to unambiguously determine what, if any, value was supplied for the argument.
     ///
     /// # Examples
     ///
@@ -2062,7 +1996,7 @@ impl<'help> Arg<'help> {
     ///             .value_name("WHEN")
     ///             .value_parser(["always", "auto", "never"])
     ///             .default_value("auto")
-    ///             .min_values(0)
+    ///             .number_of_values(0..=1)
     ///             .require_equals(true)
     ///             .default_missing_value("always")
     ///             .help("Specify WHEN to colorize output.")
@@ -2099,7 +2033,7 @@ impl<'help> Arg<'help> {
     ///         .arg(Arg::new("create").long("create")
     ///             .value_name("BOOL")
     ///             .value_parser(value_parser!(bool))
-    ///             .min_values(0)
+    ///             .number_of_values(0..=1)
     ///             .require_equals(true)
     ///             .default_missing_value("true")
     ///         )
@@ -4184,7 +4118,7 @@ impl<'help> Arg<'help> {
 
     #[inline]
     pub(crate) fn get_min_vals(&self) -> Option<usize> {
-        self.min_vals
+        self.get_num_vals().map(|r| r.min_values())
     }
 
     /// Get the delimiter between multiple values
@@ -4547,8 +4481,7 @@ impl<'help> Display for Arg<'help> {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
-        let is_optional_val = self.get_min_vals() == Some(0)
-            || self.get_num_vals().map(|r| r.min_values()) == Some(0);
+        let is_optional_val = self.get_min_vals() == Some(0);
         if self.is_positional() {
             if is_optional_val {
                 let sep = "[";
@@ -4611,7 +4544,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("val_names", &self.val_names)
             .field("num_vals", &self.num_vals)
             .field("max_vals", &self.max_vals)
-            .field("min_vals", &self.min_vals)
             .field("val_delim", &self.val_delim)
             .field("default_vals", &self.default_vals)
             .field("default_vals_ifs", &self.default_vals_ifs)
@@ -4799,7 +4731,7 @@ mod test {
         let mut o = Arg::new("opt")
             .long("option")
             .action(ArgAction::Set)
-            .min_values(0);
+            .number_of_values(0..);
         o._build();
 
         assert_eq!(o.to_string(), "--option [<opt>...]");
@@ -4810,7 +4742,7 @@ mod test {
         let mut o = Arg::new("opt")
             .long("option")
             .action(ArgAction::Set)
-            .min_values(1);
+            .number_of_values(1..);
         o._build();
 
         assert_eq!(o.to_string(), "--option <opt>...");
@@ -4821,7 +4753,7 @@ mod test {
         let mut o = Arg::new("opt")
             .short('o')
             .action(ArgAction::Set)
-            .min_values(0)
+            .number_of_values(0..)
             .value_names(&["file"]);
         o._build();
 
@@ -4833,7 +4765,7 @@ mod test {
         let mut o = Arg::new("opt")
             .short('o')
             .action(ArgAction::Set)
-            .min_values(1)
+            .number_of_values(1..)
             .value_names(&["file"]);
         o._build();
 
@@ -4921,7 +4853,7 @@ mod test {
 
     #[test]
     fn positional_display_zero_or_more_values() {
-        let mut p = Arg::new("pos").index(1).min_values(0);
+        let mut p = Arg::new("pos").index(1).number_of_values(0..);
         p._build();
 
         assert_eq!(p.to_string(), "[<pos>...]");
@@ -4929,7 +4861,7 @@ mod test {
 
     #[test]
     fn positional_display_one_or_more_values() {
-        let mut p = Arg::new("pos").index(1).min_values(1);
+        let mut p = Arg::new("pos").index(1).number_of_values(1..);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");

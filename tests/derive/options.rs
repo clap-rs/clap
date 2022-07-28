@@ -428,7 +428,7 @@ fn option_vec_type() {
 fn option_vec_type_structopt_behavior() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, multiple_values(true), min_values(0))]
+        #[clap(short, long, multiple_values(true), number_of_values(0..))]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(
