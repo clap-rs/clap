@@ -545,15 +545,17 @@ impl Error {
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
                     if let Some(ContextValue::Strings(possible_values)) = possible_values {
-                        c.none("\n\t[possible values: ");
-                        if let Some((last, elements)) = possible_values.split_last() {
-                            for v in elements {
-                                c.good(escape(v));
-                                c.none(", ");
+                        if !possible_values.is_empty() {
+                            c.none("\n\t[possible values: ");
+                            if let Some((last, elements)) = possible_values.split_last() {
+                                for v in elements {
+                                    c.good(escape(v));
+                                    c.none(", ");
+                                }
+                                c.good(escape(last));
                             }
-                            c.good(escape(last));
+                            c.none("]");
                         }
-                        c.none("]");
                     }
 
                     let suggestion = self.get_context(ContextKind::SuggestedValue);
