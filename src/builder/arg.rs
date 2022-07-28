@@ -4303,6 +4303,11 @@ impl<'help> Arg<'help> {
                     self.default_vals = vec![default_value];
                 }
             }
+            if let Some(default_value) = action.default_missing_value() {
+                if self.default_missing_vals.is_empty() {
+                    self.default_missing_vals = vec![default_value];
+                }
+            }
             if action.takes_values() {
                 self.settings.set(ArgSettings::TakesValue);
             } else {

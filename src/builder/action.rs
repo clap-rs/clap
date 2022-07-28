@@ -260,6 +260,18 @@ impl ArgAction {
         }
     }
 
+    pub(crate) fn default_missing_value(&self) -> Option<&'static std::ffi::OsStr> {
+        match self {
+            Self::Set => None,
+            Self::Append => None,
+            Self::SetTrue => Some(std::ffi::OsStr::new("true")),
+            Self::SetFalse => Some(std::ffi::OsStr::new("false")),
+            Self::Count => None,
+            Self::Help => None,
+            Self::Version => None,
+        }
+    }
+
     pub(crate) fn default_value_parser(&self) -> Option<super::ValueParser> {
         match self {
             Self::Set => None,
