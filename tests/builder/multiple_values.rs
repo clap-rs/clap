@@ -342,6 +342,47 @@ fn option_max_less() {
 }
 
 #[test]
+fn option_max_zero() {
+    let m = Command::new("multiple_values")
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .help("multiple options")
+                .max_values(3)
+                .action(ArgAction::Append),
+        )
+        .try_get_matches_from(vec!["", "-o"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
+}
+
+#[test]
+fn option_max_zero_eq() {
+    let m = Command::new("multiple_values")
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .help("multiple options")
+                .max_values(3)
+                .action(ArgAction::Append),
+        )
+        .try_get_matches_from(vec!["", "-o="]);
+
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+
+    assert!(m.contains_id("option"));
+    assert_eq!(
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        [""]
+    );
+}
+
+#[test]
 fn option_max_more() {
     let m = Command::new("multiple_values")
         .arg(
