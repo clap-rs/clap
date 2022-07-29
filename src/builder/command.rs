@@ -2016,8 +2016,7 @@ impl<'help> Command<'help> {
     ///
     /// The values of the trailing positional argument will contain all args from itself on.
     ///
-    /// **NOTE:** The final positional argument **must** have [`Arg::multiple_values(true)`] or the usage
-    /// string equivalent.
+    /// **NOTE:** The final positional argument **must** have [`Arg::number_of_values(..)`].
     ///
     /// # Examples
     ///
@@ -2031,7 +2030,7 @@ impl<'help> Command<'help> {
     /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
-    /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
+    /// [`Arg::number_of_values(true)`]: crate::Arg::number_of_values()
     pub fn trailing_var_arg(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::TrailingVarArg)
@@ -2117,7 +2116,7 @@ impl<'help> Command<'help> {
     ///     .allow_missing_positional(true)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").action(ArgAction::Set).multiple_values(true))
+    ///     .arg(Arg::new("baz").action(ArgAction::Set).number_of_values(1..))
     ///     .get_matches_from(vec![
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
@@ -2136,7 +2135,7 @@ impl<'help> Command<'help> {
     ///     .allow_missing_positional(true)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").action(ArgAction::Set).multiple_values(true))
+    ///     .arg(Arg::new("baz").action(ArgAction::Set).number_of_values(1..))
     ///     .get_matches_from(vec![
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);
@@ -2832,7 +2831,7 @@ impl<'help> Command<'help> {
     /// let cmd = Command::new("cmd").subcommand(Command::new("sub")).arg(
     ///     Arg::new("arg")
     ///         .long("arg")
-    ///         .multiple_values(true)
+    ///         .number_of_values(1..)
     ///         .action(ArgAction::Set),
     /// );
     ///
@@ -4255,7 +4254,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                     Arg::new("subcommand")
                         .index(1)
                         .action(ArgAction::Append)
-                        .multiple_values(true)
+                        .number_of_values(..)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),
                 );

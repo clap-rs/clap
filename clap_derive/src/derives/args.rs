@@ -267,7 +267,7 @@ pub fn gen_augment(
                         if attrs.is_positional() {
                             quote_spanned! { ty.span()=>
                                 .value_name(#value_name)
-                                .multiple_values(true)  // action won't be sufficient for getting multiple
+                                .number_of_values(1..)  // action won't be sufficient for getting multiple
                                 #value_parser
                                 #action
                             }
@@ -284,7 +284,7 @@ pub fn gen_augment(
                         if attrs.is_positional() {
                             quote_spanned! { ty.span()=>
                                 .value_name(#value_name)
-                                .multiple_values(true)  // action won't be sufficient for getting multiple
+                                .number_of_values(1..)  // action won't be sufficient for getting multiple
                                 #value_parser
                                 #action
                             }

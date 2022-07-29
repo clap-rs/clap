@@ -68,7 +68,7 @@ fn build_cli() -> Command<'static> {
         )
         .arg(
             Arg::new("command_with_args")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .value_hint(ValueHint::CommandWithArguments),
         )
         .arg(

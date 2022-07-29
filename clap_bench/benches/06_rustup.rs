@@ -236,7 +236,7 @@ fn build_cli() -> Command<'static> {
                 .after_help(RUN_HELP)
                 .trailing_var_arg(true)
                 .arg(Arg::new("toolchain").required(true))
-                .arg(Arg::new("command").required(true).multiple_values(true)),
+                .arg(Arg::new("command").required(true).number_of_values(1..)),
         )
         .subcommand(
             Command::new("which")

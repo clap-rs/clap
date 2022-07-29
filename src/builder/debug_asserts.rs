@@ -131,7 +131,7 @@ pub(crate) fn assert_app(cmd: &Command) {
                 panic!(
                     "Command {}: Argument '{}' has the same index as '{}' \
                     and they are both positional arguments\n\n\t \
-                    Use Arg::multiple_values(true) to allow one \
+                    Use Arg::number_of_values(1..) to allow one \
                     positional argument to take multiple values",
                     cmd.get_name(),
                     first.name,
@@ -517,7 +517,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
             || last.is_last_set();
         assert!(
             ok,
-            "When using a positional argument with .multiple_values(true) that is *not the \
+            "When using a positional argument with .number_of_values(1..) that is *not the \
                  last* positional argument, the last positional argument (i.e. the one \
                  with the highest index) *must* have .required(true) or .last(true) set."
         );
@@ -527,7 +527,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
         assert!(
             ok,
             "Only the last positional argument, or second to last positional \
-                 argument may be set to .multiple_values(true)"
+                 argument may be set to .number_of_values(1..)"
         );
 
         // Next we check how many have both Multiple and not a specific number of values set
@@ -544,7 +544,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
                 && count == 2);
         assert!(
             ok,
-            "Only one positional argument with .multiple_values(true) set is allowed per \
+            "Only one positional argument with .number_of_values(1..) set is allowed per \
                  command, unless the second one also has .last(true) set"
         );
     }

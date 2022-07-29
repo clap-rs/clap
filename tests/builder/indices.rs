@@ -7,14 +7,14 @@ fn indices_mult_opts() {
             Arg::new("exclude")
                 .short('e')
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .action(ArgAction::Append),
         )
         .arg(
             Arg::new("include")
                 .short('i')
                 .action(ArgAction::Set)
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["ind", "-e", "A", "B", "-i", "B", "C", "-e", "C"])
         .unwrap();
@@ -36,14 +36,14 @@ fn index_mult_opts() {
             Arg::new("exclude")
                 .short('e')
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .action(ArgAction::Append),
         )
         .arg(
             Arg::new("include")
                 .short('i')
                 .action(ArgAction::Set)
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["ind", "-e", "A", "B", "-i", "B", "C", "-e", "C"])
         .unwrap();
@@ -136,7 +136,7 @@ fn indices_mult_opt_value_delim_eq() {
                 .short('o')
                 .action(ArgAction::Set)
                 .use_value_delimiter(true)
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["myapp", "-o=val1,val2,val3"])
         .unwrap();
@@ -153,7 +153,7 @@ fn indices_mult_opt_value_no_delim_eq() {
             Arg::new("option")
                 .short('o')
                 .action(ArgAction::Set)
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["myapp", "-o=val1,val2,val3"])
         .unwrap();

@@ -369,7 +369,7 @@ fn vec_type_with_required() {
 fn vec_type_with_multiple_values_only() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, multiple_values(true))]
+        #[clap(short, long, number_of_values(1..))]
         arg: Vec<i32>,
     }
     assert_eq!(
@@ -429,7 +429,7 @@ fn option_vec_type() {
 fn option_vec_type_structopt_behavior() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, multiple_values(true), number_of_values(0..))]
+        #[clap(short, long, number_of_values(0..))]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(

@@ -304,7 +304,7 @@ fn issue_1161_multiple_hyphen_hyphen() {
         .arg(
             Arg::new("slop")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true),
         )
         .try_get_matches_from(vec![

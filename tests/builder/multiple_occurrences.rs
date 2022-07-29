@@ -30,7 +30,7 @@ fn multiple_occurrences_of_flags_short() {
 fn multiple_occurrences_of_positional() {
     let cmd = Command::new("test").arg(
         Arg::new("multi")
-            .multiple_values(true)
+            .number_of_values(1..)
             .action(ArgAction::Append),
     );
 

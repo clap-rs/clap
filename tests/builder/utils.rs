@@ -49,7 +49,7 @@ pub fn complex_app() -> Command<'static> {
                 -o --option <opt> "tests options"
             )
             .required(false)
-            .multiple_values(true)
+            .number_of_values(1..)
             .action(ArgAction::Append),
         )
         .arg(arg!([positional] "tests positionals"))
@@ -100,7 +100,7 @@ pub fn complex_app() -> Command<'static> {
                 .arg(
                     arg!(-o --option <scoption> "tests options")
                         .required(false)
-                        .multiple_values(true),
+                        .number_of_values(1..),
                 )
                 .arg(arg!(-s --subcmdarg <subcmdarg> "tests other args").required(false))
                 .arg(arg!([scpositional] "tests positionals")),
