@@ -1093,7 +1093,7 @@ impl<'help> Arg<'help> {
     ///
     /// **WARNING:**
     ///
-    /// Setting a variable number of values (e.g. `..10`) for an argument without
+    /// Setting a variable number of values (e.g. `1..=10`) for an argument without
     /// other details can be dangerous in some circumstances. Because multiple values are
     /// allowed, `--option val1 val2 val3` is perfectly valid. Be careful when designing a CLI
     /// where **positional arguments** or **subcommands** are *also* expected as `clap` will continue
