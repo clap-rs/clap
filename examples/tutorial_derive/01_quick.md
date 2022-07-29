@@ -11,7 +11,7 @@ ARGS:
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
-    -d, --debug            Turn debugging information on
+    -d, --debug...         Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
 

@@ -2,32 +2,6 @@ use super::utils;
 
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
-static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
-
-USAGE:
-    clap-test --flag --long-option-2 <option2> <positional> <positional2>
-
-For more information try --help
-";
-
-static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
-
-USAGE:
-    clap-test -F --long-option-2 <option2> <positional> <positional2>
-
-For more information try --help
-";
-
-static CONFLICT_ERR_THREE: &str = "error: The argument '--one' cannot be used with:
-    --two
-    --three
-
-USAGE:
-    three_conflicting_arguments --one
-
-For more information try --help
-";
-
 #[test]
 fn flag_conflict() {
     let result = Command::new("flag_conflict")
@@ -316,6 +290,14 @@ fn get_arg_conflicts_with_group() {
 
 #[test]
 fn conflict_output() {
+    static CONFLICT_ERR: &str = "error: The argument '--flag...' cannot be used with '-F'
+
+USAGE:
+    clap-test --flag... --long-option-2 <option2> <positional> <positional2>
+
+For more information try --help
+";
+
     utils::assert_output(
         utils::complex_app(),
         "clap-test val1 fa --flag --long-option-2 val2 -F",
@@ -326,6 +308,14 @@ fn conflict_output() {
 
 #[test]
 fn conflict_output_rev() {
+    static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag...'
+
+USAGE:
+    clap-test -F --long-option-2 <option2> <positional> <positional2>
+
+For more information try --help
+";
+
     utils::assert_output(
         utils::complex_app(),
         "clap-test val1 fa -F --long-option-2 val2 --flag",
@@ -336,6 +326,14 @@ fn conflict_output_rev() {
 
 #[test]
 fn conflict_output_with_required() {
+    static CONFLICT_ERR: &str = "error: The argument '--flag...' cannot be used with '-F'
+
+USAGE:
+    clap-test --flag... --long-option-2 <option2> <positional> <positional2>
+
+For more information try --help
+";
+
     utils::assert_output(
         utils::complex_app(),
         "clap-test val1 --flag --long-option-2 val2 -F",
@@ -346,6 +344,14 @@ fn conflict_output_with_required() {
 
 #[test]
 fn conflict_output_rev_with_required() {
+    static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag...'
+
+USAGE:
+    clap-test -F --long-option-2 <option2> <positional> <positional2>
+
+For more information try --help
+";
+
     utils::assert_output(
         utils::complex_app(),
         "clap-test val1 -F --long-option-2 val2 --flag",
@@ -356,6 +362,16 @@ fn conflict_output_rev_with_required() {
 
 #[test]
 fn conflict_output_three_conflicting() {
+    static CONFLICT_ERR_THREE: &str = "error: The argument '--one' cannot be used with:
+    --two
+    --three
+
+USAGE:
+    three_conflicting_arguments --one
+
+For more information try --help
+";
+
     let cmd = Command::new("three_conflicting_arguments")
         .arg(
             Arg::new("one")

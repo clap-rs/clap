@@ -219,7 +219,7 @@ ARGS:
 
 OPTIONS:
     -o, --option <opt>...                    tests options
-    -f, --flag                               tests flags
+    -f, --flag...                            tests flags
     -F                                       tests flags with exclusions
         --long-option-2 <option2>            tests long options with exclusions
     -O, --option3 <option3>                  specific vals [possible values: fast, slow]
@@ -550,7 +550,7 @@ ARGS:
 
 OPTIONS:
     -o, --option <scoption>...     tests options
-    -f, --flag                     tests flags
+    -f, --flag...                  tests flags
     -s, --subcmdarg <subcmdarg>    tests other args
     -h, --help                     Print help information
     -V, --version                  Print version information

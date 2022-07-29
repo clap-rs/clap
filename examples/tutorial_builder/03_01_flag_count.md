@@ -7,9 +7,9 @@ USAGE:
     03_01_flag_count[EXE] [OPTIONS]
 
 OPTIONS:
-    -v, --verbose    
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -v, --verbose...    
+    -h, --help          Print help information
+    -V, --version       Print version information
 
 $ 03_01_flag_count
 verbose: 0

@@ -4448,6 +4448,8 @@ impl<'help> Display for Arg<'help> {
         if self.is_takes_value_set() || self.is_positional() {
             let arg_val = render_arg_val(self);
             f.write_str(&arg_val)?;
+        } else if matches!(*self.get_action(), ArgAction::Count) {
+            f.write_str("...")?;
         }
         if need_closing_bracket {
             f.write_str("]")?;
@@ -4566,14 +4568,8 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
         }
         extra_values |= val_names.len() < num_vals.max_values();
     }
-    if arg.is_positional() {
-        if matches!(*arg.get_action(), ArgAction::Append) {
-            extra_values = true;
-        }
-    } else {
-        if matches!(*arg.get_action(), ArgAction::Count) {
-            extra_values = true;
-        }
+    if arg.is_positional() && matches!(*arg.get_action(), ArgAction::Append) {
+        extra_values = true;
     }
 
     if extra_values {
@@ -4590,16 +4586,27 @@ mod test {
     use super::ArgAction;
 
     #[test]
-    fn flag_display() {
+    fn flag_display_long() {
         let mut f = Arg::new("flg").long("flag").action(ArgAction::SetTrue);
         f._build();
 
         assert_eq!(f.to_string(), "--flag");
+    }
 
+    #[test]
+    fn flag_display_short() {
         let mut f2 = Arg::new("flg").short('f').action(ArgAction::SetTrue);
         f2._build();
 
         assert_eq!(f2.to_string(), "-f");
+    }
+
+    #[test]
+    fn flag_display_count() {
+        let mut f2 = Arg::new("flg").long("flag").action(ArgAction::Count);
+        f2._build();
+
+        assert_eq!(f2.to_string(), "--flag...");
     }
 
     #[test]

@@ -34,7 +34,7 @@ USAGE:
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
-    -d                     Turn debugging information on
+    -d...                  Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
 ARGS:
@@ -56,7 +56,7 @@ ARGS:
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
-    -d                     Turn debugging information on
+    -d...                  Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
 
