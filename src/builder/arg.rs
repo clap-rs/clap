@@ -74,7 +74,6 @@ pub struct Arg<'help> {
     pub(crate) disp_ord: Option<usize>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<ValuesRange>,
-    pub(crate) max_vals: Option<usize>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate<'help>, Option<&'help OsStr>)>,
@@ -1066,9 +1065,9 @@ impl<'help> Arg<'help> {
     ///
     /// [`subcommands`]: crate::Command::subcommand()
     /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
-    /// [maximum number of values]: Arg::max_values()
+    /// [maximum number of values]: Arg::number_of_values()
     /// [specific number of values]: Arg::number_of_values()
-    /// [maximum]: Arg::max_values()
+    /// [maximum]: Arg::number_of_values()
     /// [specific]: Arg::number_of_values()
     #[inline]
     #[must_use]
@@ -1234,63 +1233,6 @@ impl<'help> Arg<'help> {
         self.num_vals = Some(qty);
         self.takes_value(qty.takes_values())
             .multiple_values(qty.is_multiple())
-    }
-
-    /// The *maximum* number of values are for this argument.
-    ///
-    /// For example, if you had a
-    /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
-    /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// Arg::new("file")
-    ///     .short('f')
-    ///     .max_values(3);
-    /// ```
-    ///
-    /// Supplying less than the maximum number of values is allowed
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .action(ArgAction::Set)
-    ///         .max_values(3)
-    ///         .short('F'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-F", "file1", "file2"
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2"]);
-    /// ```
-    ///
-    /// Supplying more than the maximum number of values is an error
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .action(ArgAction::Set)
-    ///         .max_values(2)
-    ///         .short('F'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-F", "file1", "file2", "file3"
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn max_values(mut self, qty: usize) -> Self {
-        self.max_vals = Some(qty);
-        self.takes_value(true).multiple_values(true)
     }
 
     /// Placeholder for the argument's value in the help message / usage.
@@ -1791,7 +1733,7 @@ impl<'help> Arg<'help> {
     /// By default when
     /// one sets [`multiple_values(true)`] on an argument, clap will continue parsing values for that
     /// argument until it reaches another valid argument, or one of the other more specific settings
-    /// for multiple values is used (such as [`max_values`] or [`number_of_values`]).
+    /// for multiple values is used (such as [`number_of_values`]).
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
@@ -1832,7 +1774,6 @@ impl<'help> Arg<'help> {
     /// [positional arguments]: Arg::index()
     /// [`multiple_values(true)`]: Arg::multiple_values()
     /// [`number_of_values`]: Arg::number_of_values()
-    /// [`max_values`]: Arg::max_values()
     #[inline]
     #[must_use]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
@@ -4543,7 +4484,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("disp_ord", &self.disp_ord)
             .field("val_names", &self.val_names)
             .field("num_vals", &self.num_vals)
-            .field("max_vals", &self.max_vals)
             .field("val_delim", &self.val_delim)
             .field("default_vals", &self.default_vals)
             .field("default_vals_ifs", &self.default_vals_ifs)

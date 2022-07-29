@@ -83,7 +83,7 @@ pub fn complex_app() -> Command<'static> {
                 .number_of_values(2..),
             arg!(--maxvals3 <maxvals> "Tests 3 max vals")
                 .required(false)
-                .max_values(3),
+                .number_of_values(1..=3),
             arg!(--optvaleq <optval> "Tests optional value, require = sign")
                 .required(false)
                 .number_of_values(0..=1)
