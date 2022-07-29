@@ -8,6 +8,7 @@ use std::usize;
 // Internal
 use crate::builder::{render_arg_val, Arg, Command};
 use crate::output::{fmt::Colorizer, Usage};
+use crate::ArgAction;
 use crate::PossibleValue;
 
 // Third party
@@ -316,8 +317,9 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
         if arg.is_takes_value_set() || arg.is_positional() {
             let arg_val = render_arg_val(arg);
             self.good(arg_val)?;
+        } else if matches!(*arg.get_action(), ArgAction::Count) {
+            self.good("...")?;
         }
-
         if need_closing_bracket {
             self.none("]")?;
         }

@@ -290,10 +290,10 @@ fn get_arg_conflicts_with_group() {
 
 #[test]
 fn conflict_output() {
-    static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
+    static CONFLICT_ERR: &str = "error: The argument '--flag...' cannot be used with '-F'
 
 USAGE:
-    clap-test --flag --long-option-2 <option2> <positional> <positional2>
+    clap-test --flag... --long-option-2 <option2> <positional> <positional2>
 
 For more information try --help
 ";
@@ -308,7 +308,7 @@ For more information try --help
 
 #[test]
 fn conflict_output_rev() {
-    static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
+    static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag...'
 
 USAGE:
     clap-test -F --long-option-2 <option2> <positional> <positional2>
@@ -326,10 +326,10 @@ For more information try --help
 
 #[test]
 fn conflict_output_with_required() {
-    static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
+    static CONFLICT_ERR: &str = "error: The argument '--flag...' cannot be used with '-F'
 
 USAGE:
-    clap-test --flag --long-option-2 <option2> <positional> <positional2>
+    clap-test --flag... --long-option-2 <option2> <positional> <positional2>
 
 For more information try --help
 ";
@@ -344,7 +344,7 @@ For more information try --help
 
 #[test]
 fn conflict_output_rev_with_required() {
-    static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
+    static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag...'
 
 USAGE:
     clap-test -F --long-option-2 <option2> <positional> <positional2>
