@@ -4531,7 +4531,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let mut extra_values = false;
     debug_assert!(arg.is_takes_value_set());
-    let num_vals = arg.num_vals.unwrap_or_else(|| {
+    let num_vals = arg.get_num_vals().unwrap_or_else(|| {
         if arg.is_multiple_values_set() {
             (1..).into()
         } else {
@@ -4547,7 +4547,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
             }
             rendered.push_str(&arg_name);
         }
-        extra_values |= arg.num_vals.is_none() && arg.is_multiple_values_set();
+        extra_values |= arg.get_num_vals().is_none() && arg.is_multiple_values_set();
         extra_values |= min < num_vals.max_values();
     } else {
         debug_assert!(1 < val_names.len());

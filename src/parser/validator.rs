@@ -270,7 +270,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 ));
             }
 
-            if let Some(expected) = a.num_vals {
+            if let Some(expected) = a.get_num_vals() {
                 if let Some(expected) = expected.num_values() {
                     if expected != actual {
                         debug!(
