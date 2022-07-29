@@ -94,7 +94,6 @@ fn multiple_occurrences_of_before_env() {
             .env("VERBOSE")
             .short('v')
             .long("verbose")
-            .takes_value(false)
             .action(ArgAction::Count),
     );
 
@@ -126,7 +125,6 @@ fn multiple_occurrences_of_after_env() {
         Arg::new("verbose")
             .short('v')
             .long("verbose")
-            .takes_value(false)
             .action(ArgAction::Count)
             .env("VERBOSE"),
     );

@@ -76,7 +76,7 @@ pub struct ArgMatches {
 impl ArgMatches {
     /// Gets the value of a specific option or positional argument.
     ///
-    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
+    /// i.e. an argument that [takes an additional value][crate::Arg::num_args] at runtime.
     ///
     /// Returns an error if the wrong type was used.
     ///
@@ -106,7 +106,6 @@ impl ArgMatches {
     ///     .expect("`port`is required");
     /// assert_eq!(port, 2020);
     /// ```
-    /// [option]: crate::Arg::takes_value()
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
@@ -205,7 +204,7 @@ impl ArgMatches {
 
     /// Returns the value of a specific option or positional argument.
     ///
-    /// i.e. an argument that [takes an additional value][crate::Arg::takes_value] at runtime.
+    /// i.e. an argument that [takes an additional value][crate::Arg::num_args] at runtime.
     ///
     /// Returns an error if the wrong type was used.  No item will have been removed.
     ///
@@ -234,7 +233,6 @@ impl ArgMatches {
     ///     .expect("`file`is required");
     /// assert_eq!(vals, "file.txt");
     /// ```
-    /// [option]: crate::Arg::takes_value()
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]

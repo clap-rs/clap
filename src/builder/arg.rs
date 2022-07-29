@@ -102,7 +102,7 @@ impl<'help> Arg<'help> {
     /// Arg::new("config")
     /// # ;
     /// ```
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
         Arg::default().id(n)
     }
@@ -474,7 +474,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE**: This setting only applies to positional arguments, and has no effect on OPTIONS
     ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// **CAUTION:** Using this setting *and* having child subcommands is not
     /// recommended with the exception of *also* using
@@ -778,33 +778,9 @@ impl<'help> Arg<'help> {
 
 /// # Value Handling
 impl<'help> Arg<'help> {
-    /// Specifies that the argument takes a value at run time.
-    ///
-    /// **NOTE:** values for arguments may be specified in any of the following methods
-    ///
-    /// - Using a space such as `-o value` or `--option value`
-    /// - Using an equals and no space such as `-o=value` or `--option=value`
-    /// - Use a short and no space such as `-ovalue`
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let m = Command::new("prog")
-    ///     .arg(Arg::new("mode")
-    ///         .long("mode")
-    ///         .action(ArgAction::Set))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--mode", "fast"
-    ///     ]);
-    ///
-    /// assert!(m.contains_id("mode"));
-    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
-    /// ```
-    /// [multiple values]: Arg::num_args
     #[inline]
     #[must_use]
-    pub fn takes_value(self, yes: bool) -> Self {
+    fn takes_value(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::TakesValue)
         } else {
@@ -1105,9 +1081,8 @@ impl<'help> Arg<'help> {
     ///     -h, --help          Print help information
     ///     -V, --version       Print version information
     /// ```
-    /// [option]: Arg::takes_value()
     /// [positional]: Arg::index()
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
     #[must_use]
     pub fn value_name(self, name: &'help str) -> Self {
@@ -1165,7 +1140,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::next_line_help(true)`]: Arg::next_line_help()
     /// [`Arg::num_args`]: Arg::num_args()
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::num_args(1..)`]: Arg::num_args()
     #[must_use]
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
@@ -1216,7 +1191,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_if_eq_all`] is case-insensitive.
     ///
     ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// **NOTE:** To do unicode case folding, enable the `unicode` feature flag.
     ///
@@ -1268,7 +1243,7 @@ impl<'help> Arg<'help> {
 
     /// Allows values which start with a leading hyphen (`-`)
     ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// **WARNING**: Take caution when using this setting combined with
     /// [`Arg::num_args`], as this becomes ambiguous `$ prog --arg -- -- val`. All
@@ -1329,7 +1304,7 @@ impl<'help> Arg<'help> {
     ///
     /// i.e. an equals between the option and associated value.
     ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// # Examples
     ///
@@ -1400,8 +1375,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_many::<String>("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
-    /// [`Arg::value_delimiter(',')`]: Arg::use_value_delimiter()
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::value_delimiter(',')`]: Arg::value_delimiter()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
     #[must_use]
     pub fn value_delimiter(mut self, d: impl Into<Option<char>>) -> Self {
@@ -1451,7 +1426,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
     /// assert_eq!(m.get_one::<String>("location").unwrap(), "/home/clap");
     /// ```
-    /// [options]: Arg::takes_value()
+    /// [options]: Arg::action
     /// [positional arguments]: Arg::index()
     /// [`num_args(1..)`]: Arg::num_args()
     /// [`num_args`]: Arg::num_args()
@@ -1480,7 +1455,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Implicitly sets [`Arg::action(ArgAction::Set)`] [`Arg::num_args(1..)`],
     /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`.
     ///
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::num_args(1..)`]: Arg::num_args()
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
@@ -1544,7 +1519,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
@@ -1677,7 +1652,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_source("create"), Some(ValueSource::CommandLine));
     /// ```
     ///
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
@@ -1761,8 +1736,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
     /// ```
     ///
-    /// In this example, because [`Arg::takes_value(false)`] (by default),
-    /// `prog` is a flag that accepts an optional, case-insensitive boolean literal.
+    /// In this example, because `prog` is a flag that accepts an optional, case-insensitive
+    /// boolean literal.
     ///
     /// Note that the value parser controls how flags are parsed.  In this case we've selected
     /// [`FalseyValueParser`][crate::builder::FalseyValueParser].  A `false` literal is `n`, `no`,
@@ -1862,8 +1837,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_many::<String>("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
-    /// [`Arg::value_delimiter(',')`]: Arg::use_value_delimiter()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
+    /// [`Arg::value_delimiter(',')`]: Arg::value_delimiter()
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
@@ -2169,7 +2144,7 @@ impl<'help> Arg<'help> {
     /// This is useful for args with many values, or ones which are explained elsewhere in the
     /// help text.
     ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// To set this for all arguments, see
     /// [`Command::hide_possible_values`][crate::Command::hide_possible_values].
@@ -2201,7 +2176,7 @@ impl<'help> Arg<'help> {
     ///
     /// This is useful when default behavior of an arg is explained elsewhere in the help text.
     ///
-    /// **NOTE:** Setting this requires [`Arg::takes_value`]
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// # Examples
     ///
@@ -2633,7 +2608,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_one::<String>("other"), None);
     /// ```
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value`]: Arg::default_value()
     #[must_use]
     pub fn default_value_if<T: Key>(
@@ -2740,7 +2715,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
     /// ```
-    /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[must_use]
     pub fn default_value_ifs<T: Key>(

@@ -210,7 +210,6 @@ macro_rules! arg_impl {
                 arg
                     .long(long)
                     .action($crate::ArgAction::SetTrue)
-                    .takes_value(false)
             })
             $($tail)*
         }
@@ -235,7 +234,6 @@ macro_rules! arg_impl {
                 arg
                     .long(long)
                     .action($crate::ArgAction::SetTrue)
-                    .takes_value(false)
             })
             $($tail)*
         }
@@ -256,7 +254,6 @@ macro_rules! arg_impl {
                 $arg
                     .short($crate::arg_impl! { @char $short })
                     .action($crate::ArgAction::SetTrue)
-                    .takes_value(false)
             })
             $($tail)*
         }
@@ -277,7 +274,6 @@ macro_rules! arg_impl {
                 $arg
                     .short($crate::arg_impl! { @char $short })
                     .action($crate::ArgAction::SetTrue)
-                    .takes_value(false)
             })
             $($tail)*
         }
@@ -305,7 +301,6 @@ macro_rules! arg_impl {
                 arg
                     .value_name(value_name)
                     .action($crate::ArgAction::Set)
-                    .takes_value(true)
             })
             $($tail)*
         }
@@ -333,7 +328,6 @@ macro_rules! arg_impl {
                 arg
                     .value_name(value_name)
                     .action($crate::ArgAction::Set)
-                    .takes_value(true)
             })
             $($tail)*
         }
@@ -365,7 +359,6 @@ macro_rules! arg_impl {
                 arg
                     .value_name(value_name)
                     .action($crate::ArgAction::Set)
-                    .takes_value(true)
             })
             $($tail)*
         }
@@ -397,7 +390,6 @@ macro_rules! arg_impl {
                 arg
                     .value_name(value_name)
                     .action($crate::ArgAction::Set)
-                    .takes_value(true)
             })
             $($tail)*
         }

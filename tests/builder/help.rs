@@ -839,7 +839,7 @@ fn dont_wrap_urls() {
             Arg::new("force-non-host")
                 .help("Install toolchains that require an emulator. See https://github.com/rust-lang/rustup/wiki/Non-host-toolchains")
                 .long("force-non-host")
-                .takes_value(false))
+                .action(ArgAction::SetTrue))
     );
 
     const EXPECTED: &str = "\
@@ -2244,7 +2244,11 @@ OPTIONS:
 
     let cmd = clap::Command::new("hello")
         .bin_name("deno")
-        .arg(Arg::new("option1").long("option1").takes_value(false))
+        .arg(
+            Arg::new("option1")
+                .long("option1")
+                .action(ArgAction::SetTrue),
+        )
         .arg(Arg::new("pos1").action(ArgAction::Set))
         .group(
             ArgGroup::new("arg1")
