@@ -435,8 +435,8 @@ USAGE:
     test [OPTIONS]
 
 OPTIONS:
-    -p [<NUM>...]        
-    -h, --help           Print help information
+    -p [<NUM>]        
+    -h, --help        Print help information
 ";
     snapbox::assert_eq(HELP, help);
 }

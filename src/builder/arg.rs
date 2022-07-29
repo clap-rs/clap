@@ -4554,6 +4554,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
             rendered.push_str(&arg_name);
         }
         extra_values |= arg.num_vals.is_none() && arg.is_multiple_values_set();
+        extra_values |= min < num_vals.max_values();
     } else {
         debug_assert!(1 < val_names.len());
         for (n, val_name) in val_names.iter().enumerate() {
@@ -4565,7 +4566,6 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
         }
         extra_values |= val_names.len() < num_vals.max_values();
     }
-    extra_values |= !num_vals.is_fixed();
     if arg.is_positional() {
         if matches!(*arg.get_action(), ArgAction::Append) {
             extra_values = true;
@@ -4713,6 +4713,17 @@ mod test {
     }
 
     #[test]
+    fn option_display_optional_value() {
+        let mut o = Arg::new("opt")
+            .long("option")
+            .action(ArgAction::Set)
+            .number_of_values(0..=1);
+        o._build();
+
+        assert_eq!(o.to_string(), "--option [<opt>]");
+    }
+
+    #[test]
     fn option_display_value_names() {
         let mut o = Arg::new("opt")
             .short('o')
@@ -4805,6 +4816,17 @@ mod test {
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
+    }
+
+    #[test]
+    fn positional_display_optional_value() {
+        let mut p = Arg::new("pos")
+            .index(1)
+            .number_of_values(0..=1)
+            .action(ArgAction::Set);
+        p._build();
+
+        assert_eq!(p.to_string(), "[<pos>]");
     }
 
     #[test]
