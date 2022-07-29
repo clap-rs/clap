@@ -11,7 +11,6 @@ use crate::parser::Identifier;
 use crate::parser::PendingArg;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
 use crate::util::Id;
-use crate::ArgAction;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Default)]
@@ -217,19 +216,12 @@ impl ArgMatcher {
         );
         if current_num == 0 {
             true
-        } else if let Some(num) = o.num_vals {
-            debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-            if matches!(o.get_action(), ArgAction::Append) && !o.is_positional() {
-                (current_num % num) != 0
-            } else {
-                num != current_num
-            }
-        } else if let Some(num) = o.max_vals {
-            debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-            current_num < num
-        } else if o.get_min_vals().is_some() {
-            debug!("ArgMatcher::needs_more_vals: min_vals...true");
-            true
+        } else if let Some(expected) = o.num_vals {
+            debug!(
+                "ArgMatcher::needs_more_vals: expected={}, actual={}",
+                expected, num_pending
+            );
+            expected.accepts_more(num_pending)
         } else {
             o.is_multiple_values_set()
         }

@@ -93,7 +93,9 @@ fn option_exact_exact() {
                 .number_of_values(3)
                 .action(ArgAction::Append),
         )
-        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec![
+            "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6",
+        ]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
@@ -104,7 +106,7 @@ fn option_exact_exact() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        ["val1", "val2", "val3"]
+        ["val1", "val2", "val3", "val4", "val5", "val6"]
     );
 }
 
@@ -200,10 +202,10 @@ fn option_min_exact() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .min_values(3)
-                .action(ArgAction::Append),
+                .number_of_values(3..)
+                .action(ArgAction::Set),
         )
-        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
@@ -225,10 +227,10 @@ fn option_min_less() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .min_values(3)
-                .action(ArgAction::Append),
+                .number_of_values(3..)
+                .action(ArgAction::Set),
         )
-        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::TooFewValues);
@@ -242,12 +244,10 @@ fn option_short_min_more_mult_occurs() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .min_values(3)
-                .action(ArgAction::Append),
+                .number_of_values(3..)
+                .action(ArgAction::Set),
         )
-        .try_get_matches_from(vec![
-            "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
-        ]);
+        .try_get_matches_from(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
@@ -272,7 +272,7 @@ fn option_short_min_more_single_occur() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .min_values(3),
+                .number_of_values(3..),
         )
         .try_get_matches_from(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
 
@@ -298,10 +298,10 @@ fn option_max_exact() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .max_values(3)
-                .action(ArgAction::Append),
+                .number_of_values(1..=3)
+                .action(ArgAction::Set),
         )
-        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
@@ -323,10 +323,10 @@ fn option_max_less() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .max_values(3)
-                .action(ArgAction::Append),
+                .number_of_values(1..=3)
+                .action(ArgAction::Set),
         )
-        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
@@ -342,21 +342,103 @@ fn option_max_less() {
 }
 
 #[test]
+fn option_max_zero() {
+    let m = Command::new("multiple_values")
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .help("multiple options")
+                .number_of_values(1..=3)
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(vec!["", "-o"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
+}
+
+#[test]
+fn option_max_zero_eq() {
+    let m = Command::new("multiple_values")
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .help("multiple options")
+                .number_of_values(1..=3)
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(vec!["", "-o="]);
+
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+
+    assert!(m.contains_id("option"));
+    assert_eq!(
+        m.get_many::<String>("option")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        [""]
+    );
+}
+
+#[test]
 fn option_max_more() {
     let m = Command::new("multiple_values")
         .arg(
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .max_values(3)
-                .action(ArgAction::Append),
+                .number_of_values(1..=3)
+                .action(ArgAction::Set),
         )
-        .try_get_matches_from(vec![
-            "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
-        ]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyValues);
+    // Can end up being TooManyValues or UnknownArgument
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn optional_value() {
+    let mut cmd = Command::new("test").arg(
+        Arg::new("port")
+            .short('p')
+            .value_name("NUM")
+            .number_of_values(0..=1),
+    );
+
+    let r = cmd.try_get_matches_from_mut(["test", "-p42"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(m.contains_id("port"));
+    assert_eq!(m.get_one::<String>("port").unwrap(), "42");
+
+    let r = cmd.try_get_matches_from_mut(["test", "-p"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(m.contains_id("port"));
+    assert!(m.get_one::<String>("port").is_none());
+
+    let r = cmd.try_get_matches_from_mut(["test", "-p", "24", "-p", "42"]);
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(m.contains_id("port"));
+    assert_eq!(m.get_one::<String>("port").unwrap(), "42");
+
+    let mut help = Vec::new();
+    cmd.write_help(&mut help).unwrap();
+    const HELP: &str = "\
+test 
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+    -p [<NUM>...]        
+    -h, --help           Print help information
+";
+    snapbox::assert_eq(HELP, help);
 }
 
 #[test]
@@ -437,7 +519,11 @@ fn positional_exact_more() {
 #[test]
 fn positional_min_exact() {
     let m = Command::new("multiple_values")
-        .arg(Arg::new("pos").help("multiple positionals").min_values(3))
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(3..),
+        )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -456,7 +542,11 @@ fn positional_min_exact() {
 #[test]
 fn positional_min_less() {
     let m = Command::new("multiple_values")
-        .arg(Arg::new("pos").help("multiple positionals").min_values(3))
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(3..),
+        )
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
@@ -466,7 +556,11 @@ fn positional_min_less() {
 #[test]
 fn positional_min_more() {
     let m = Command::new("multiple_values")
-        .arg(Arg::new("pos").help("multiple positionals").min_values(3))
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(3..),
+        )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -485,7 +579,11 @@ fn positional_min_more() {
 #[test]
 fn positional_max_exact() {
     let m = Command::new("multiple_values")
-        .arg(Arg::new("pos").help("multiple positionals").max_values(3))
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(1..=3),
+        )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -504,7 +602,11 @@ fn positional_max_exact() {
 #[test]
 fn positional_max_less() {
     let m = Command::new("multiple_values")
-        .arg(Arg::new("pos").help("multiple positionals").max_values(3))
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(1..=3),
+        )
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -523,7 +625,11 @@ fn positional_max_less() {
 #[test]
 fn positional_max_more() {
     let m = Command::new("multiple_values")
-        .arg(Arg::new("pos").help("multiple positionals").max_values(3))
+        .arg(
+            Arg::new("pos")
+                .help("multiple positionals")
+                .number_of_values(1..=3),
+        )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
@@ -1359,7 +1465,7 @@ fn multiple_vals_with_hyphen() {
 #[test]
 fn issue_1480_max_values_consumes_extra_arg_1() {
     let res = Command::new("prog")
-        .arg(Arg::new("field").max_values(1).long("field"))
+        .arg(Arg::new("field").number_of_values(..=1).long("field"))
         .arg(Arg::new("positional").required(true).index(1))
         .try_get_matches_from(vec!["prog", "--field", "1", "file"]);
 
@@ -1369,7 +1475,7 @@ fn issue_1480_max_values_consumes_extra_arg_1() {
 #[test]
 fn issue_1480_max_values_consumes_extra_arg_2() {
     let res = Command::new("prog")
-        .arg(Arg::new("field").max_values(1).long("field"))
+        .arg(Arg::new("field").number_of_values(..=1).long("field"))
         .try_get_matches_from(vec!["prog", "--field", "1", "2"]);
 
     assert!(res.is_err());
@@ -1379,7 +1485,7 @@ fn issue_1480_max_values_consumes_extra_arg_2() {
 #[test]
 fn issue_1480_max_values_consumes_extra_arg_3() {
     let res = Command::new("prog")
-        .arg(Arg::new("field").max_values(1).long("field"))
+        .arg(Arg::new("field").number_of_values(..=1).long("field"))
         .try_get_matches_from(vec!["prog", "--field", "1", "2", "3"]);
 
     assert!(res.is_err());

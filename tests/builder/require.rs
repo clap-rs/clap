@@ -344,7 +344,7 @@ fn required_unless_present_err() {
 #[test]
 fn required_unless_present_with_optional_value() {
     let res = Command::new("unlesstest")
-        .arg(Arg::new("opt").long("opt").min_values(0).max_values(1))
+        .arg(Arg::new("opt").long("opt").number_of_values(0..=1))
         .arg(
             Arg::new("cfg")
                 .required_unless_present("dbg")
@@ -1144,7 +1144,7 @@ fn short_flag_require_equals_with_minvals_zero() {
         .arg(
             Arg::new("check")
                 .short('c')
-                .min_values(0)
+                .number_of_values(0..)
                 .require_equals(true),
         )
         .arg(Arg::new("unique").short('u').action(ArgAction::SetTrue))
@@ -1162,7 +1162,7 @@ fn issue_2624() {
                 .short('c')
                 .long("check")
                 .require_equals(true)
-                .min_values(0)
+                .number_of_values(0..)
                 .value_parser(["silent", "quiet", "diagnose-first"]),
         )
         .arg(

@@ -355,7 +355,7 @@ macro_rules! arg_impl {
                 if arg.get_long().is_none() && arg.get_short().is_none() {
                     arg = arg.required(false);
                 } else {
-                    arg = arg.min_values(0).max_values(1);
+                    arg = arg.number_of_values(0..=1);
                 }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
@@ -387,7 +387,7 @@ macro_rules! arg_impl {
                 if arg.get_long().is_none() && arg.get_short().is_none() {
                     arg = arg.required(false);
                 } else {
-                    arg = arg.min_values(0).max_values(1);
+                    arg = arg.number_of_values(0..=1);
                 }
 
                 let value_name = $crate::arg_impl! { @string $value_name };

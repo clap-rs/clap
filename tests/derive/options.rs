@@ -271,8 +271,7 @@ fn option_option_type_help() {
         arg: Option<Option<i32>>,
     }
     let help = utils::get_help::<Opt>();
-    assert!(help.contains("--arg [<val>]"));
-    assert!(!help.contains("--arg [<val>]..."));
+    assert!(help.contains("--arg [<val>...]"));
 }
 
 #[test]
@@ -429,7 +428,7 @@ fn option_vec_type() {
 fn option_vec_type_structopt_behavior() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, multiple_values(true), min_values(0))]
+        #[clap(short, long, multiple_values(true), number_of_values(0..))]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(

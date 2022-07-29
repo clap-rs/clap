@@ -71,7 +71,7 @@ fn require_equals_min_values_zero() {
             Arg::new("cfg")
                 .action(ArgAction::Set)
                 .require_equals(true)
-                .min_values(0)
+                .number_of_values(0..)
                 .long("config"),
         )
         .arg(Arg::new("cmd"))
@@ -514,7 +514,7 @@ fn issue_1047_min_zero_vals_default_val() {
                 .long("del")
                 .action(ArgAction::Set)
                 .require_equals(true)
-                .min_values(0)
+                .number_of_values(0..)
                 .default_missing_value("default"),
         )
         .try_get_matches_from(vec!["foo", "-d"])

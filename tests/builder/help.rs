@@ -218,19 +218,19 @@ ARGS:
     <positional3>...    tests specific values [possible values: vi, emacs]
 
 OPTIONS:
-    -o, --option <opt>...             tests options
-    -f, --flag                        tests flags
-    -F                                tests flags with exclusions
-        --long-option-2 <option2>     tests long options with exclusions
-    -O, --option3 <option3>           specific vals [possible values: fast, slow]
-        --multvals <one> <two>        Tests multiple values, not mult occs
-        --multvalsmo <one> <two>      Tests multiple values, and mult occs
-        --minvals2 <minvals>...       Tests 2 min vals
-        --maxvals3 <maxvals>...       Tests 3 max vals
-        --optvaleq[=<optval>...]      Tests optional value, require = sign
-        --optvalnoeq [<optval>...]    Tests optional value
-    -h, --help                        Print help information
-    -V, --version                     Print version information
+    -o, --option <opt>...                    tests options
+    -f, --flag                               tests flags
+    -F                                       tests flags with exclusions
+        --long-option-2 <option2>            tests long options with exclusions
+    -O, --option3 <option3>                  specific vals [possible values: fast, slow]
+        --multvals <one> <two>               Tests multiple values, not mult occs
+        --multvalsmo <one> <two>             Tests multiple values, and mult occs
+        --minvals2 <minvals> <minvals>...    Tests 2 min vals
+        --maxvals3 <maxvals>...              Tests 3 max vals
+        --optvaleq[=<optval>...]             Tests optional value, require = sign
+        --optvalnoeq [<optval>...]           Tests optional value
+    -h, --help                               Print help information
+    -V, --version                            Print version information
 
 SUBCOMMANDS:
     subcmd    tests subcommands
@@ -1044,7 +1044,7 @@ OPTIONS:
 }
 
 #[test]
-#[should_panic = "Argument option: mismatch between `number_of_values` and `multiple_values`"]
+#[should_panic = "Argument option: mismatch between `number_of_values` (1) and `multiple_values`"]
 fn number_of_values_conflicts_with_multiple_values() {
     Command::new("ctest")
         .version("0.1")

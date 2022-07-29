@@ -96,7 +96,7 @@ pub enum ErrorKind {
     ValueValidation,
 
     /// Occurs when a user provides more values for an argument than were defined by setting
-    /// [`Arg::max_values`].
+    /// [`Arg::number_of_values`].
     ///
     /// # Examples
     ///
@@ -104,16 +104,18 @@ pub enum ErrorKind {
     /// # use clap::{Command, Arg, ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("arg")
-    ///         .max_values(2))
-    ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);
+    ///         .number_of_values(1..=2)
+    ///         .use_value_delimiter(true)
+    ///         .require_value_delimiter(true))
+    ///     .try_get_matches_from(vec!["prog", "too,many,values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyValues);
     /// ```
-    /// [`Arg::max_values`]: crate::Arg::max_values()
+    /// [`Arg::number_of_values`]: crate::Arg::number_of_values()
     TooManyValues,
 
     /// Occurs when the user provides fewer values for an argument than were defined by setting
-    /// [`Arg::min_values`].
+    /// [`Arg::number_of_values`].
     ///
     /// # Examples
     ///
@@ -122,12 +124,12 @@ pub enum ErrorKind {
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
-    ///         .min_values(3))
+    ///         .number_of_values(3..))
     ///     .try_get_matches_from(vec!["prog", "--opt", "too", "few"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::min_values`]: crate::Arg::min_values()
+    /// [`Arg::number_of_values`]: crate::Arg::number_of_values()
     TooFewValues,
 
     /// Occurs when the user provides a different number of values for an argument than what's

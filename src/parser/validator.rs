@@ -6,7 +6,6 @@ use crate::output::Usage;
 use crate::parser::{ArgMatcher, MatchedArg, ParseState};
 use crate::util::ChildGraph;
 use crate::util::Id;
-use crate::ArgAction;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Validator<'help, 'cmd> {
@@ -249,83 +248,71 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_num_vals");
-        if let Some(num) = a.num_vals {
-            let total_num = ma.num_vals();
+        for (_i, group) in ma.vals().enumerate() {
+            let actual = group.len();
             debug!(
-                "Validator::validate_arg_num_vals: num_vals={}, actual={}",
-                num, total_num
+                "Validator::validate_arg_num_vals: group={}, actual={}",
+                _i, actual
             );
-            let should_err = if matches!(a.get_action(), ArgAction::Append) && !a.is_positional() {
-                total_num % num != 0
-            } else {
-                num != total_num
-            };
-            if should_err {
-                debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
-                return Err(Error::wrong_number_of_values(
+
+            let min_vals = a.get_min_vals().unwrap_or(1);
+            if a.is_takes_value_set() && 0 < min_vals && actual == 0 {
+                // Issue 665 (https://github.com/clap-rs/clap/issues/665)
+                // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
+                return Err(Error::empty_value(
                     self.cmd,
+                    &get_possible_values(a)
+                        .iter()
+                        .filter(|pv| !pv.is_hide_set())
+                        .map(PossibleValue::get_name)
+                        .collect::<Vec<_>>(),
                     a.to_string(),
-                    num,
-                    if matches!(a.get_action(), ArgAction::Append) && !a.is_positional() {
-                        total_num % num
-                    } else {
-                        total_num
-                    },
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
                 ));
             }
-        }
-        if let Some(num) = a.max_vals {
-            debug!("Validator::validate_arg_num_vals: max_vals set...{}", num);
-            if ma.num_vals() > num {
-                debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
-                return Err(Error::too_many_values(
-                    self.cmd,
-                    ma.raw_vals_flatten()
-                        .last()
-                        .expect(INTERNAL_ERROR_MSG)
-                        .to_str()
-                        .expect(INVALID_UTF8)
-                        .to_string(),
-                    a.to_string(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
+
+            if let Some(expected) = a.num_vals {
+                if let Some(expected) = expected.num_values() {
+                    if expected != actual {
+                        debug!(
+                            "Validator::validate_arg_num_vals: Sending error WrongNumberOfValues"
+                        );
+                        return Err(Error::wrong_number_of_values(
+                            self.cmd,
+                            a.to_string(),
+                            expected,
+                            actual,
+                            Usage::new(self.cmd)
+                                .required(&self.required)
+                                .create_usage_with_title(&[]),
+                        ));
+                    }
+                } else if actual < expected.min_values() {
+                    return Err(Error::too_few_values(
+                        self.cmd,
+                        a.to_string(),
+                        expected.min_values(),
+                        actual,
+                        Usage::new(self.cmd)
+                            .required(&self.required)
+                            .create_usage_with_title(&[]),
+                    ));
+                } else if expected.max_values() < actual {
+                    debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
+                    return Err(Error::too_many_values(
+                        self.cmd,
+                        ma.raw_vals_flatten()
+                            .last()
+                            .expect(INTERNAL_ERROR_MSG)
+                            .to_str()
+                            .expect(INVALID_UTF8)
+                            .to_string(),
+                        a.to_string(),
+                        Usage::new(self.cmd)
+                            .required(&self.required)
+                            .create_usage_with_title(&[]),
+                    ));
+                }
             }
-        }
-        let min_vals_zero = if let Some(num) = a.get_min_vals() {
-            debug!("Validator::validate_arg_num_vals: min_vals set: {}", num);
-            if ma.num_vals() < num && num != 0 {
-                debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");
-                return Err(Error::too_few_values(
-                    self.cmd,
-                    a.to_string(),
-                    num,
-                    ma.num_vals(),
-                    Usage::new(self.cmd)
-                        .required(&self.required)
-                        .create_usage_with_title(&[]),
-                ));
-            }
-            num == 0
-        } else {
-            false
-        };
-        // Issue 665 (https://github.com/clap-rs/clap/issues/665)
-        // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
-        if a.is_takes_value_set() && !min_vals_zero && ma.all_val_groups_empty() {
-            return Err(Error::empty_value(
-                self.cmd,
-                &get_possible_values(a)
-                    .iter()
-                    .filter(|pv| !pv.is_hide_set())
-                    .map(PossibleValue::get_name)
-                    .collect::<Vec<_>>(),
-                a.to_string(),
-            ));
         }
         Ok(())
     }

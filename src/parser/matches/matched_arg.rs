@@ -89,7 +89,6 @@ impl MatchedArg {
         self.indices.push(index)
     }
 
-    #[cfg(feature = "unstable-grouped")]
     pub(crate) fn vals(&self) -> Iter<Vec<AnyValue>> {
         self.vals.iter()
     }

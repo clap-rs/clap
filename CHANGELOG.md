@@ -20,8 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate (#3795)
 - Default actions are now `Set` and `SetTrue`
 - Removed `PartialEq` and `Eq` from `Command`
+- `Arg::number_of_values` now applies per occurrence rather than the average across all occurrences
 - `number_of_values(0)` no longer implies `takes_value(true).multiple_values(true)`
 - `number_of_values(1)` no longer implies `multiple_values(true)`
+- Remove `Arg::min_values` (across all occurrences) with `Arg::number_of_values(N..)` (per occurrence)
+- Remove `Arg::max_values` (across all occurrences) with `Arg::number_of_values(1..=M)` (per occurrence)
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
@@ -31,6 +34,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Features
 
+- `Arg::number_of_values` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 
 ### Fixes
@@ -41,6 +45,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Replaced `cmd.allow_invalid_for_utf8_external_subcommands` with `cmd.external_subcommand_value_parser` (#3733)
 - Changed the default type of `allow_external_subcommands` from `String` to `OsString`
 - `Arg::default_missing_value` now applies per occurrence rather than if a value is missing across all occurrences
+- `arg!(--long [value])` to accept `0..=1` per occurrence rather than across all occurrences, making it safe to use with `ArgAction::Append`
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(assert)* Ensure `overrides_with` IDs are valid

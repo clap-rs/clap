@@ -360,7 +360,7 @@ impl ArgMatches {
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("exec")
     ///         .short('x')
-    ///         .min_values(1)
+    ///         .number_of_values(1..)
     ///         .action(ArgAction::Append)
     ///         .value_terminator(";"))
     ///     .get_matches_from(vec![

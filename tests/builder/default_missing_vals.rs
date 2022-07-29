@@ -7,7 +7,7 @@ fn opt_missing() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .min_values(0)
+                .number_of_values(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )
@@ -33,7 +33,7 @@ fn opt_present_with_missing_value() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .min_values(0)
+                .number_of_values(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )
@@ -59,7 +59,7 @@ fn opt_present_with_value() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .min_values(0)
+                .number_of_values(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )
@@ -148,8 +148,7 @@ fn default_missing_value_per_occurrence() {
     // assert no change to usual argument handling when adding default_missing_value()
     let r = Command::new("cmd")
         .arg(
-            arg!(o: -o <opt> ... "some opt")
-                .min_values(0)
+            arg!(o: -o [opt] ... "some opt")
                 .default_value("default")
                 .default_missing_value("default_missing"),
         )
@@ -234,7 +233,7 @@ fn delimited_missing_value() {
             .long("flag")
             .default_value("one,two")
             .default_missing_value("three,four")
-            .min_values(0)
+            .number_of_values(0..)
             .value_delimiter(',')
             .require_equals(true),
     );
@@ -295,7 +294,7 @@ fn valid_index() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .min_values(0)
+                .number_of_values(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )

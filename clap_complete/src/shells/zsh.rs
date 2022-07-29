@@ -462,7 +462,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
             None => format!(":{}: ", vn),
         };
         let vc = match o.get_num_vals() {
-            Some(num_vals) => vc.repeat(num_vals),
+            Some(num_vals) => vc.repeat(num_vals.min_values()),
             None => vc,
         };
 
