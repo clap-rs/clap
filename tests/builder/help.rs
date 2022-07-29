@@ -227,8 +227,8 @@ OPTIONS:
         --multvalsmo <one> <two>             Tests multiple values, and mult occs
         --minvals2 <minvals> <minvals>...    Tests 2 min vals
         --maxvals3 <maxvals>...              Tests 3 max vals
-        --optvaleq[=<optval>...]             Tests optional value, require = sign
-        --optvalnoeq [<optval>...]           Tests optional value
+        --optvaleq[=<optval>]                Tests optional value, require = sign
+        --optvalnoeq [<optval>]              Tests optional value
     -h, --help                               Print help information
     -V, --version                            Print version information
 
