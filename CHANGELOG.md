@@ -63,6 +63,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.2.16] - 2022-07-30
+
+### Fixes
+
+- Ensure required arguments appear in errors when they are also members of a group (#4004)
+
+## [3.2.15] - 2022-07-25
+
 ### Features
 
 - *(derive)* New `default_values_t` and `default_values_os_t` attributes
