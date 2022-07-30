@@ -389,6 +389,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             .flat_map(|g| self.cmd.unroll_args_in_group(&g.id))
             .collect::<Vec<_>>();
 
+        let mut required_opts = IndexSet::new();
         for a in unrolled_reqs
             .iter()
             .chain(incls.iter())
@@ -405,9 +406,11 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         {
             debug!("Usage::get_required_usage_from:iter:{:?}", a);
             let arg = self.cmd.find(a).expect(INTERNAL_ERROR_MSG).to_string();
-            ret_val.insert(arg);
+            required_opts.insert(arg);
         }
-        let mut g_vec: Vec<String> = vec![];
+        ret_val.extend(required_opts);
+
+        let mut required_groups = IndexSet::new();
         for g in unrolled_reqs
             .iter()
             .filter(|n| self.cmd.get_groups().any(|g| g.id == **n))
@@ -425,13 +428,11 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             }
 
             let elem = self.cmd.format_group(g);
-            if !g_vec.contains(&elem) {
-                g_vec.push(elem);
-            }
+            required_groups.insert(elem);
         }
-        ret_val.extend(g_vec);
+        ret_val.extend(required_groups);
 
-        let mut pvec = unrolled_reqs
+        let mut required_positionals = unrolled_reqs
             .iter()
             .chain(incls.iter())
             .filter(|a| self.cmd.get_positionals().any(|p| &&p.id == a))
@@ -443,13 +444,10 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             .filter(|pos| !args_in_groups.contains(&pos.id))
             .map(|pos| (pos.index.unwrap(), pos))
             .collect::<Vec<(usize, &Arg)>>();
-        pvec.sort_by_key(|(ind, _)| *ind); // sort by index
-
-        for (_, p) in pvec {
+        required_positionals.sort_by_key(|(ind, _)| *ind); // sort by index
+        for (_, p) in required_positionals {
             debug!("Usage::get_required_usage_from:push:{:?}", p.id);
-            if !args_in_groups.contains(&p.id) {
-                ret_val.insert(p.to_string());
-            }
+            ret_val.insert(p.to_string());
         }
 
         debug!("Usage::get_required_usage_from: ret_val={:?}", ret_val);
