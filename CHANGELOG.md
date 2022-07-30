@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Ensure required arguments appear in errors when they are also members of a group (#4004)
+
 ## [3.2.15] - 2022-07-25
 
 ### Features
