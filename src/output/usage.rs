@@ -382,73 +382,64 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             unrolled_reqs
         );
 
-        let args_in_groups = self
-            .cmd
-            .get_groups()
-            .filter(|gn| required.contains(&gn.id))
-            .flat_map(|g| self.cmd.unroll_args_in_group(&g.id))
-            .collect::<Vec<_>>();
-
-        for a in unrolled_reqs
-            .iter()
-            .chain(incls.iter())
-            .filter(|name| !self.cmd.get_positionals().any(|p| &&p.id == name))
-            .filter(|name| !self.cmd.get_groups().any(|g| &&g.id == name))
-            .filter(|name| !args_in_groups.contains(name))
-            .filter(|name| {
-                !(matcher.is_some()
-                    && matcher
-                        .as_ref()
-                        .unwrap()
-                        .check_explicit(name, ArgPredicate::IsPresent))
-            })
-        {
-            debug!("Usage::get_required_usage_from:iter:{:?}", a);
-            let arg = self.cmd.find(a).expect(INTERNAL_ERROR_MSG).to_string();
-            ret_val.insert(arg);
-        }
-        let mut g_vec: Vec<String> = vec![];
-        for g in unrolled_reqs
-            .iter()
-            .filter(|n| self.cmd.get_groups().any(|g| g.id == **n))
-        {
-            // don't print requirement for required groups that have an arg.
-            if let Some(m) = matcher {
-                let have_group_entry = self
-                    .cmd
-                    .unroll_args_in_group(g)
-                    .iter()
-                    .any(|arg| m.check_explicit(arg, ArgPredicate::IsPresent));
-                if have_group_entry {
-                    continue;
+        let mut required_groups_members = IndexSet::new();
+        let mut required_opts = IndexSet::new();
+        let mut required_groups = IndexSet::new();
+        let mut required_positionals = Vec::new();
+        for req in unrolled_reqs.iter().chain(incls.iter()) {
+            if let Some(arg) = self.cmd.find(req) {
+                let is_present = matcher
+                    .map(|m| m.check_explicit(req, ArgPredicate::IsPresent))
+                    .unwrap_or(false);
+                debug!(
+                    "Usage::get_required_usage_from:iter:{:?} arg is_present={}",
+                    req, is_present
+                );
+                if !is_present {
+                    if arg.is_positional() {
+                        if incl_last || !arg.is_last_set() {
+                            required_positionals.push((arg.index.unwrap(), arg.to_string()));
+                        }
+                    } else {
+                        required_opts.insert(arg.to_string());
+                    }
+                }
+            } else {
+                debug_assert!(self.cmd.find_group(req).is_some());
+                let group_members = self.cmd.unroll_args_in_group(req);
+                let is_present = matcher
+                    .map(|m| {
+                        group_members
+                            .iter()
+                            .any(|arg| m.check_explicit(arg, ArgPredicate::IsPresent))
+                    })
+                    .unwrap_or(false);
+                debug!(
+                    "Usage::get_required_usage_from:iter:{:?} group is_present={}",
+                    req, is_present
+                );
+                if !is_present {
+                    let elem = self.cmd.format_group(req);
+                    required_groups.insert(elem);
+                    required_groups_members.extend(
+                        group_members
+                            .iter()
+                            .flat_map(|id| self.cmd.find(id))
+                            .map(|arg| arg.to_string()),
+                    );
                 }
             }
-
-            let elem = self.cmd.format_group(g);
-            if !g_vec.contains(&elem) {
-                g_vec.push(elem);
-            }
         }
-        ret_val.extend(g_vec);
 
-        let mut pvec = unrolled_reqs
-            .iter()
-            .chain(incls.iter())
-            .filter(|a| self.cmd.get_positionals().any(|p| &&p.id == a))
-            .filter(|&pos| {
-                matcher.map_or(true, |m| !m.check_explicit(pos, ArgPredicate::IsPresent))
-            })
-            .filter_map(|pos| self.cmd.find(pos))
-            .filter(|&pos| incl_last || !pos.is_last_set())
-            .filter(|pos| !args_in_groups.contains(&pos.id))
-            .map(|pos| (pos.index.unwrap(), pos))
-            .collect::<Vec<(usize, &Arg)>>();
-        pvec.sort_by_key(|(ind, _)| *ind); // sort by index
+        required_opts.retain(|arg| !required_groups_members.contains(arg));
+        ret_val.extend(required_opts);
 
-        for (_, p) in pvec {
-            debug!("Usage::get_required_usage_from:push:{:?}", p.id);
-            if !args_in_groups.contains(&p.id) {
-                ret_val.insert(p.to_string());
+        ret_val.extend(required_groups);
+
+        required_positionals.sort_by_key(|(ind, _)| *ind); // sort by index
+        for (_, p) in required_positionals {
+            if !required_groups_members.contains(&p) {
+                ret_val.insert(p);
             }
         }
 
