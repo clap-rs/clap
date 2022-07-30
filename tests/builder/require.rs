@@ -1436,3 +1436,26 @@ For more information try --help
 ";
     utils::assert_output(cmd, "clap-test aaa -b bbb -c ccc", EXPECTED, true);
 }
+
+#[test]
+fn required_require_with_group_shows_flag() {
+    let cmd = Command::new("test")
+        .arg(arg!(--"require-first").requires("first"))
+        .arg(arg!(--first).group("either_or_both"))
+        .arg(arg!(--second).group("either_or_both"))
+        .group(
+            ArgGroup::new("either_or_both")
+                .multiple(true)
+                .required(true),
+        );
+    const EXPECTED: &str = "\
+error: The following required arguments were not provided:
+    --first
+
+USAGE:
+    test --require-first <--first|--second>
+
+For more information try --help
+";
+    utils::assert_output(cmd, "test --require-first --second", EXPECTED, true);
+}
