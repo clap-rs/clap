@@ -181,7 +181,7 @@
 //! - e.g. `#[clap(max_values(3))]` would translate to `arg.max_values(3)`
 //!
 //! **Magic attributes**:
-//! - `name = <expr>`: [`Arg::id`][crate::Arg::id]
+//! - `id = <expr>`: [`Arg::id`][crate::Arg::id]
 //!   - When not present: case-converted field name is used
 //! - `value_parser [= <expr>]`: [`Arg::value_parser`][crate::Arg::value_parser]
 //!   - When not present: will auto-select an implementation based on the field type using
