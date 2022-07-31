@@ -58,6 +58,34 @@ fn test_standalone_long_ignores_afterwards_defined_custom_name() {
 }
 
 #[test]
+fn test_standalone_long_uses_previous_defined_custom_id() {
+    #[derive(Parser, Debug, PartialEq)]
+    struct Opt {
+        #[clap(id = "foo", long)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "--foo"]).unwrap()
+    );
+}
+
+#[test]
+fn test_standalone_long_ignores_afterwards_defined_custom_id() {
+    #[derive(Parser, Debug, PartialEq)]
+    struct Opt {
+        #[clap(long, id = "foo")]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "--foo-option"]).unwrap()
+    );
+}
+
+#[test]
 fn test_standalone_short_generates_kebab_case() {
     #[derive(Parser, Debug, PartialEq)]
     #[allow(non_snake_case)]
@@ -105,6 +133,34 @@ fn test_standalone_short_ignores_afterwards_defined_custom_name() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(short, name = "option", action)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "-f"]).unwrap()
+    );
+}
+
+#[test]
+fn test_standalone_short_uses_previous_defined_custom_id() {
+    #[derive(Parser, Debug, PartialEq)]
+    struct Opt {
+        #[clap(id = "option", short)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "-o"]).unwrap()
+    );
+}
+
+#[test]
+fn test_standalone_short_ignores_afterwards_defined_custom_id() {
+    #[derive(Parser, Debug, PartialEq)]
+    struct Opt {
+        #[clap(short, id = "option")]
         foo_option: bool,
     }
 
