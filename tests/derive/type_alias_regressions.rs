@@ -1,5 +1,4 @@
 //! Regression test to ensure that type aliases do not cause compilation failures.
-#![allow(deprecated)]
 
 use clap::{Parser, Subcommand, ValueEnum};
 

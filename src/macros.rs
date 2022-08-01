@@ -562,7 +562,6 @@ macro_rules! impl_settings {
 
             #[allow(dead_code)]
             pub(crate) fn set(&mut self, s: $settings) {
-                #[allow(deprecated)]  // some Settings might be deprecated
                 match s {
                     $(
                         $(#[$inner $($args)*])*
@@ -573,7 +572,6 @@ macro_rules! impl_settings {
 
             #[allow(dead_code)]
             pub(crate) fn unset(&mut self, s: $settings) {
-                #[allow(deprecated)]  // some Settings might be deprecated
                 match s {
                     $(
                         $(#[$inner $($args)*])*
@@ -584,7 +582,6 @@ macro_rules! impl_settings {
 
             #[allow(dead_code)]
             pub(crate) fn is_set(&self, s: $settings) -> bool {
-                #[allow(deprecated)]  // some Settings might be deprecated
                 match s {
                     $(
                         $(#[$inner $($args)*])*

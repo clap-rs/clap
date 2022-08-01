@@ -1,5 +1,3 @@
-#![allow(deprecated)]
-
 // Std
 use std::ops::BitOr;
 

@@ -21,7 +21,7 @@ fn opt_missing() {
     );
     assert_eq!(
         m.value_source("color").unwrap(),
-        clap::ValueSource::DefaultValue
+        clap::parser::ValueSource::DefaultValue
     );
     assert_eq!(m.index_of("color"), Some(1));
 }
@@ -47,7 +47,7 @@ fn opt_present_with_missing_value() {
     );
     assert_eq!(
         m.value_source("color").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
     assert_eq!(m.index_of("color"), Some(2));
 }
@@ -73,7 +73,7 @@ fn opt_present_with_value() {
     );
     assert_eq!(
         m.value_source("color").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
     assert_eq!(m.index_of("color"), Some(2));
 }
@@ -98,7 +98,7 @@ fn opt_present_with_empty_value() {
     );
     assert_eq!(
         m.value_source("color").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
     assert_eq!(m.index_of("color"), Some(2));
 }
@@ -183,7 +183,7 @@ fn default_missing_value_flag_value() {
     );
     assert_eq!(
         m.value_source("flag").unwrap(),
-        clap::ValueSource::DefaultValue
+        clap::parser::ValueSource::DefaultValue
     );
 
     let m = cmd
@@ -197,7 +197,7 @@ fn default_missing_value_flag_value() {
     );
     assert_eq!(
         m.value_source("flag").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
 
     let m = cmd
@@ -211,7 +211,7 @@ fn default_missing_value_flag_value() {
     );
     assert_eq!(
         m.value_source("flag").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
 
     let m = cmd.try_get_matches_from(&["test", "--flag=false"]).unwrap();
@@ -222,7 +222,7 @@ fn default_missing_value_flag_value() {
     );
     assert_eq!(
         m.value_source("flag").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
 }
 
@@ -308,7 +308,7 @@ fn valid_index() {
     );
     assert_eq!(
         m.value_source("color").unwrap(),
-        clap::ValueSource::CommandLine
+        clap::parser::ValueSource::CommandLine
     );
 
     // Make sure the index reflects `--color`s position and not something else

@@ -128,7 +128,6 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             || self.cmd.is_allow_external_subcommands_set()
         {
             let placeholder = self.cmd.get_subcommand_value_name().unwrap_or("SUBCOMMAND");
-            #[allow(deprecated)]
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {

@@ -34,7 +34,7 @@ use crate::util::{Id, Key};
 /// the arguments from the specified group is present at runtime.
 ///
 /// ```rust
-/// # use clap::{Command, arg, ArgGroup, ErrorKind};
+/// # use clap::{Command, arg, ArgGroup, error::ErrorKind};
 /// let result = Command::new("cmd")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
 ///     .arg(arg!(--major           "auto increase major"))
@@ -211,7 +211,7 @@ impl<'help> ArgGroup<'help> {
     /// an error if more than one of the args in the group was used.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f')
@@ -252,7 +252,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f')
@@ -291,7 +291,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f')
@@ -331,7 +331,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f')
@@ -376,7 +376,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f')
@@ -413,7 +413,7 @@ impl<'help> ArgGroup<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ArgGroup, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
     ///         .short('f')

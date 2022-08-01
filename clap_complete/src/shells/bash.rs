@@ -1,5 +1,6 @@
 use std::{fmt::Write as _, io::Write};
 
+use clap::builder::PossibleValue;
 use clap::*;
 
 use crate::generator::{utils, Generator};

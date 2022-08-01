@@ -549,7 +549,7 @@ fn gen_parsers(
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
                     .map(#deref)
-                    .ok_or_else(|| clap::Error::raw(clap::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
+                    .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
                     .and_then(#parse)?
             }
         }

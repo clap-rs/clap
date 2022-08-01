@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{error::ErrorKind, Arg, ArgAction, Command, PossibleValue};
+use clap::{builder::PossibleValue, error::ErrorKind, Arg, ArgAction, Command};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'

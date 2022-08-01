@@ -1,5 +1,3 @@
-#![allow(deprecated)]
-
 // Std
 use std::collections::HashMap;
 use std::env;
@@ -13,6 +11,7 @@ use std::path::Path;
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
 use crate::builder::ArgAction;
+use crate::builder::PossibleValue;
 use crate::builder::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -22,7 +21,6 @@ use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id, Key};
-use crate::PossibleValue;
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]
@@ -495,7 +493,7 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let mut cmd = Command::new("myprog");
     /// let err = cmd.error(ErrorKind::InvalidValue, "Some failure case");
     /// ```
@@ -574,8 +572,8 @@ impl<'help> Command<'help> {
     /// [`clap::Result`]: Result
     /// [`clap::Error`]: crate::Error
     /// [`kind`]: crate::Error
-    /// [`ErrorKind::DisplayHelp`]: crate::ErrorKind::DisplayHelp
-    /// [`ErrorKind::DisplayVersion`]: crate::ErrorKind::DisplayVersion
+    /// [`ErrorKind::DisplayHelp`]: crate::error::ErrorKind::DisplayHelp
+    /// [`ErrorKind::DisplayVersion`]: crate::error::ErrorKind::DisplayVersion
     #[inline]
     pub fn try_get_matches(self) -> ClapResult<ArgMatches> {
         // Start the parsing
@@ -647,8 +645,8 @@ impl<'help> Command<'help> {
     /// [`clap::Error`]: crate::Error
     /// [`Error::exit`]: crate::Error::exit()
     /// [`kind`]: crate::Error
-    /// [`ErrorKind::DisplayHelp`]: crate::ErrorKind::DisplayHelp
-    /// [`ErrorKind::DisplayVersion`]: crate::ErrorKind::DisplayVersion
+    /// [`ErrorKind::DisplayHelp`]: crate::error::ErrorKind::DisplayHelp
+    /// [`ErrorKind::DisplayVersion`]: crate::error::ErrorKind::DisplayVersion
     /// [`clap::Result`]: Result
     pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
     where
@@ -958,7 +956,7 @@ impl<'help> Command<'help> {
     /// assert!(r.is_ok(), "unexpected error: {:?}", r);
     /// let m = r.unwrap();
     /// assert_eq!(m.get_one::<String>("config").unwrap(), "file");
-    /// assert!(m.is_present("f"));
+    /// assert!(*m.get_one::<bool>("f").expect("defaulted"));
     /// assert_eq!(m.get_one::<String>("stuff"), None);
     /// ```
     #[inline]
@@ -1081,7 +1079,7 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
     ///     .disable_version_flag(true)
     ///     .try_get_matches_from(vec![
@@ -1159,7 +1157,7 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
     ///     .disable_help_flag(true)
     ///     .try_get_matches_from(vec![
@@ -1182,7 +1180,7 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
     ///     .disable_help_subcommand(true)
     ///     // Normally, creating a subcommand causes a `help` subcommand to automatically
@@ -2642,7 +2640,7 @@ impl<'help> Command<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let err = Command::new("myprog")
     ///     .subcommand_required(true)
     ///     .subcommand(Command::new("test"))
@@ -2701,7 +2699,7 @@ impl<'help> Command<'help> {
     ///
     /// [`subcommand`]: crate::Command::subcommand()
     /// [`ArgMatches`]: crate::ArgMatches
-    /// [`ErrorKind::UnknownArgument`]: crate::ErrorKind::UnknownArgument
+    /// [`ErrorKind::UnknownArgument`]: crate::error::ErrorKind::UnknownArgument
     pub fn allow_external_subcommands(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::AllowExternalSubcommands)
@@ -2880,7 +2878,7 @@ impl<'help> Command<'help> {
     /// This first example shows that it is an error to not use a required argument
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let err = Command::new("myprog")
     ///     .subcommand_negates_reqs(true)
     ///     .arg(Arg::new("opt").required(true))
@@ -2897,7 +2895,7 @@ impl<'help> Command<'help> {
     /// valid subcommand is used.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let noerr = Command::new("myprog")
     ///     .subcommand_negates_reqs(true)
     ///     .arg(Arg::new("opt").required(true))
@@ -2981,7 +2979,7 @@ impl<'help> Command<'help> {
     /// This does not allow the subcommand to be passed as the first non-path argument.
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let mut cmd = Command::new("hostname")
     ///     .multicall(true)
     ///     .subcommand(Command::new("hostname"))

@@ -8,7 +8,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("speed")
     ///         .value_parser(["fast", "slow"]))
@@ -23,7 +23,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, arg, ErrorKind};
+    /// # use clap::{Command, arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(arg!(--flag "some flag"))
     ///     .try_get_matches_from(vec!["prog", "--other"]);
@@ -41,7 +41,7 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(feature = "suggestions"), doc = " ```no_run")]
     #[cfg_attr(feature = "suggestions", doc = " ```")]
-    /// # use clap::{Command, Arg, ErrorKind, };
+    /// # use clap::{Command, Arg, error::ErrorKind, };
     /// let result = Command::new("prog")
     ///     .subcommand(Command::new("config")
     ///         .about("Used for configuration")
@@ -60,7 +60,7 @@ pub enum ErrorKind {
     /// sign to provide values.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("color")
     ///          .action(ArgAction::Set)
@@ -78,7 +78,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, value_parser};
+    /// # use clap::{Command, Arg, error::ErrorKind, value_parser};
     /// fn is_numeric(val: &str) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
@@ -101,7 +101,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("arg")
     ///         .number_of_values(1..=2)
@@ -120,7 +120,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
@@ -139,7 +139,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
@@ -160,7 +160,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
@@ -180,7 +180,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .required(true))
@@ -196,7 +196,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, ErrorKind};
+    /// # use clap::{Command, error::ErrorKind};
     /// let err = Command::new("prog")
     ///     .subcommand_required(true)
     ///     .subcommand(Command::new("test"))
@@ -226,7 +226,7 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = Command::new("prog")
@@ -253,7 +253,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--help"]);
     /// assert!(result.is_err());
@@ -268,7 +268,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, };
+    /// # use clap::{Command, Arg, error::ErrorKind, };
     /// let result = Command::new("prog")
     ///     .arg_required_else_help(true)
     ///     .subcommand(Command::new("config")
@@ -290,7 +290,7 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind};
+    /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .version("3.0")
     ///     .try_get_matches_from(vec!["prog", "--version"]);

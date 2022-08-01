@@ -68,7 +68,7 @@ pub mod bash {
         }
 
         /// Process the completion request
-        pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::Result<()> {
+        pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
             debug!("CompleteCommand::try_complete: {:?}", self);
             let CompleteCommand::Complete(args) = self;
             if let Some(out_path) = args.register.as_deref() {
@@ -231,13 +231,13 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 Self::Menu,
             ]
         }
-        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::PossibleValue<'a>> {
+        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue<'a>> {
             match self {
                 Self::Normal => {
                     let value = "9";
                     debug_assert_eq!(b'\t'.to_string(), value);
                     Some(
-                        clap::PossibleValue::new(value)
+                        clap::builder::PossibleValue::new(value)
                             .alias("normal")
                             .help("Normal completion"),
                     )
@@ -246,7 +246,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "63";
                     debug_assert_eq!(b'?'.to_string(), value);
                     Some(
-                        clap::PossibleValue::new(value)
+                        clap::builder::PossibleValue::new(value)
                             .alias("successive")
                             .help("List completions after successive tabs"),
                     )
@@ -255,7 +255,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "33";
                     debug_assert_eq!(b'!'.to_string(), value);
                     Some(
-                        clap::PossibleValue::new(value)
+                        clap::builder::PossibleValue::new(value)
                             .alias("alternatives")
                             .help("List alternatives on partial word completion"),
                     )
@@ -264,7 +264,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "64";
                     debug_assert_eq!(b'@'.to_string(), value);
                     Some(
-                        clap::PossibleValue::new(value)
+                        clap::builder::PossibleValue::new(value)
                             .alias("unmodified")
                             .help("List completions if the word is not unmodified"),
                     )
@@ -273,7 +273,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "37";
                     debug_assert_eq!(b'%'.to_string(), value);
                     Some(
-                        clap::PossibleValue::new(value)
+                        clap::builder::PossibleValue::new(value)
                             .alias("menu")
                             .help("Menu completion"),
                     )

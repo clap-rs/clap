@@ -1,7 +1,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use clap::{PossibleValue, ValueEnum};
+use clap::builder::PossibleValue;
+use clap::ValueEnum;
 
 use crate::shells;
 use crate::Generator;
