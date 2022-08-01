@@ -3666,7 +3666,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Require these arguments names when this one is presen
+    /// Require these arguments names when this one is present
     ///
     /// i.e. when using this argument, the following arguments *must* be present.
     ///
