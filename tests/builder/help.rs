@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command, PossibleValue};
+use clap::{arg, builder::PossibleValue, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 fn setup() -> Command<'static> {
     Command::new("test")

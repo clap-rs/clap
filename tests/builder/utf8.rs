@@ -306,7 +306,6 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 
 #[test]
 fn allow_validated_utf8_value_of() {
-    #![allow(deprecated)]
     let a = Command::new("test").arg(arg!(--name <NAME>));
     let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
     let _ = m.get_one::<String>("name").map(|v| v.as_str());

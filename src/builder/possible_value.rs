@@ -12,7 +12,7 @@ use crate::util::eq_ignore_case;
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Arg, PossibleValue, ArgAction};
+/// # use clap::{Arg, builder::PossibleValue, ArgAction};
 /// let cfg = Arg::new("config")
 ///     .action(ArgAction::Set)
 ///     .value_name("FILE")
@@ -45,7 +45,7 @@ impl<'help> PossibleValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::PossibleValue;
+    /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("fast")
     /// # ;
     /// ```
@@ -67,7 +67,7 @@ impl<'help> PossibleValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::PossibleValue;
+    /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("slow")
     ///     .help("not fast")
     /// # ;
@@ -87,7 +87,7 @@ impl<'help> PossibleValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::PossibleValue;
+    /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("secret")
     ///     .hide(true)
     /// # ;
@@ -105,7 +105,7 @@ impl<'help> PossibleValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::PossibleValue;
+    /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("slow")
     ///     .alias("not-fast")
     /// # ;
@@ -121,7 +121,7 @@ impl<'help> PossibleValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::PossibleValue;
+    /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("slow")
     ///     .aliases(["not-fast", "snake-like"])
     /// # ;
@@ -200,7 +200,7 @@ impl<'help> PossibleValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::PossibleValue;
+    /// # use clap::builder::PossibleValue;
     /// let arg_value = PossibleValue::new("fast").alias("not-slow");
     ///
     /// assert!(arg_value.matches("fast", false));

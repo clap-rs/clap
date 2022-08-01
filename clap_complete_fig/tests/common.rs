@@ -154,7 +154,9 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
                     clap::Arg::new("config")
                         .long("config")
                         .action(clap::ArgAction::Set)
-                        .value_parser([clap::PossibleValue::new("Lest quotes aren't escaped.")])
+                        .value_parser([clap::builder::PossibleValue::new(
+                            "Lest quotes aren't escaped.",
+                        )])
                         .help("the other case to test"),
                 ),
             ),

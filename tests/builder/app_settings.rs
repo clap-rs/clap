@@ -1218,7 +1218,6 @@ fn aaos_pos_mult() {
 
 #[test]
 fn aaos_option_use_delim_false() {
-    #![allow(deprecated)]
     let m = Command::new("posix")
         .arg(
             arg!(--opt <val> "some option")

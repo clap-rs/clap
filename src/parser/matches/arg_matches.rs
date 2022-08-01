@@ -26,7 +26,8 @@ use crate::INTERNAL_ERROR_MSG;
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{Command, Arg, ValueSource, ArgAction};
+/// # use clap::{Command, Arg, ArgAction};
+/// # use clap::parser::ValueSource;
 /// let matches = Command::new("MyApp")
 ///     .arg(Arg::new("out")
 ///         .long("output")
@@ -381,25 +382,6 @@ impl ArgMatches {
         Some(v)
     }
 
-    /// Deprecated, replaced with [`ArgAction::SetTrue`][crate::ArgAction] or
-    /// [`ArgMatches::contains_id`].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with either `ArgAction::SetTrue` or `ArgMatches::contains_id(...)`"
-        )
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn is_present<T: Key>(&self, id: T) -> bool {
-        let id = Id::from(id);
-
-        #[cfg(debug_assertions)]
-        self.get_arg(&id);
-
-        self.args.contains_key(&id)
-    }
-
     /// Report where argument value came from
     ///
     /// # Panics
@@ -409,7 +391,8 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ValueSource, ArgAction};
+    /// # use clap::{Command, Arg, ArgAction};
+    /// # use clap::parser::ValueSource;
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
     ///         .short('d')
@@ -429,22 +412,6 @@ impl ArgMatches {
         let value = self.get_arg(&id);
 
         value.and_then(MatchedArg::source)
-    }
-
-    /// Deprecated, replaced with  [`ArgAction::Count`][crate::ArgAction],
-    /// [`ArgMatches::get_many`]`.len()`, or [`ArgMatches::value_source`].
-    #[cfg_attr(
-        feature = "deprecated",
-        deprecated(
-            since = "3.2.0",
-            note = "Replaced with either `ArgAction::Count`, `ArgMatches::get_many(...).len()`, or `ArgMatches::value_source`"
-        )
-    )]
-    #[cfg_attr(debug_assertions, track_caller)]
-    pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
-        #![allow(deprecated)]
-        self.get_arg(&Id::from(id))
-            .map_or(0, |a| a.get_occurrences())
     }
 
     /// The first index of that an argument showed up.
@@ -1344,7 +1311,6 @@ impl<'a> ExactSizeIterator for GroupedValues<'a> {}
 /// Creates an empty iterator. Used for `unwrap_or_default()`.
 impl<'a> Default for GroupedValues<'a> {
     fn default() -> Self {
-        #![allow(deprecated)]
         static EMPTY: [Vec<AnyValue>; 0] = [];
         GroupedValues {
             iter: EMPTY[..].iter().map(|_| unreachable!()),

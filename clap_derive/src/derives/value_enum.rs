@@ -90,7 +90,7 @@ fn lits(
                 let name = attrs.cased_name();
                 Some((
                     quote_spanned! { variant.span()=>
-                        clap::PossibleValue::new(#name)
+                        clap::builder::PossibleValue::new(#name)
                         #fields
                     },
                     variant.ident.clone(),
@@ -114,7 +114,7 @@ fn gen_to_possible_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
-        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::PossibleValue<'a>> {
+        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue<'a>> {
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None

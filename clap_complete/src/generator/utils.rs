@@ -127,7 +127,7 @@ pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
 }
 
 /// Get the possible values for completion
-pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::PossibleValue<'help>>> {
+pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::builder::PossibleValue<'help>>> {
     if !a.is_takes_value_set() {
         None
     } else {

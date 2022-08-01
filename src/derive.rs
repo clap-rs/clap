@@ -1,7 +1,8 @@
 //! This module contains traits that are usable with the `#[derive(...)].`
 //! macros in [`clap_derive`].
 
-use crate::{ArgMatches, Command, Error, PossibleValue};
+use crate::builder::PossibleValue;
+use crate::{ArgMatches, Command, Error};
 
 use std::ffi::OsString;
 

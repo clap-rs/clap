@@ -549,7 +549,10 @@ fn skip_subcommand() {
     );
 
     let res = Opt::try_parse_from(&["test", "skip"]);
-    assert_eq!(res.unwrap_err().kind(), clap::ErrorKind::UnknownArgument,);
+    assert_eq!(
+        res.unwrap_err().kind(),
+        clap::error::ErrorKind::UnknownArgument,
+    );
 }
 
 #[test]

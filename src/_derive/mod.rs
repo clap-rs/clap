@@ -5,7 +5,7 @@
 //!     1. [Terminology](#terminology)
 //!     2. [Command Attributes](#command-attributes)
 //!     3. [Arg Attributes](#arg-attributes)
-//!     4. [Arg Enum Attributes](#arg-enum-attributes)
+//!     4. [ValueEnum Attributes](#valueenum-attributes)
 //!     5. [Possible Value Attributes](#possible-value-attributes)
 //! 3. [Arg Types](#arg-types)
 //! 4. [Doc Comments](#doc-comments)
@@ -98,7 +98,7 @@
 //! ### Terminology
 //!
 //! **Raw attributes** are forwarded directly to the underlying [`clap` builder][crate::builder].  Any
-//! [`Command`][crate::Command], [`Arg`][crate::Arg], or [`PossibleValue`][crate::PossibleValue] method can be used as an attribute.
+//! [`Command`][crate::Command], [`Arg`][crate::Arg], or [`PossibleValue`][crate::builder::PossibleValue] method can be used as an attribute.
 //!
 //! Raw attributes come in two different syntaxes:
 //! ```rust,ignore
@@ -233,23 +233,23 @@
 //!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::convert::Into<OsString>` or `#[clap(value_enum)]`
 //!   - `<expr>` must implement `IntoIterator<T>`
 //!
-//! ### Value Enum Attributes
+//! ### ValueEnum Attributes
 //!
-//! - `rename_all = <string_literal>`: Override default field / variant name case conversion for [`PossibleValue::new`][crate::PossibleValue]
+//! - `rename_all = <string_literal>`: Override default field / variant name case conversion for [`PossibleValue::new`][crate::builder::PossibleValue]
 //!   - When not present: `"kebab-case"`
 //!   - Available values: `"camelCase"`, `"kebab-case"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"snake_case"`, `"lower"`, `"UPPER"`, `"verbatim"`
 //!
 //! ### Possible Value Attributes
 //!
-//! These correspond to a [`PossibleValue`][crate::PossibleValue].
+//! These correspond to a [`PossibleValue`][crate::builder::PossibleValue].
 //!
-//! **Raw attributes:**  Any [`PossibleValue` method][crate::PossibleValue] can also be used as an attribute, see [Terminology](#terminology) for syntax.
+//! **Raw attributes:**  Any [`PossibleValue` method][crate::builder::PossibleValue] can also be used as an attribute, see [Terminology](#terminology) for syntax.
 //! - e.g. `#[clap(alias("foo"))]` would translate to `pv.alias("foo")`
 //!
 //! **Magic attributes**:
-//! - `name = <expr>`: [`PossibleValue::new`][crate::PossibleValue::new]
+//! - `name = <expr>`: [`PossibleValue::new`][crate::builder::PossibleValue::new]
 //!   - When not present: case-converted field name is used
-//! - `help = <expr>`: [`PossibleValue::help`][crate::PossibleValue::help]
+//! - `help = <expr>`: [`PossibleValue::help`][crate::builder::PossibleValue::help]
 //!   - When not present: [Doc comment summary](#doc-comments)
 //!
 //! ## Arg Types

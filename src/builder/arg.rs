@@ -1,5 +1,3 @@
-#![allow(deprecated)]
-
 // Std
 use std::{
     borrow::Cow,
@@ -14,10 +12,10 @@ use std::{env, ffi::OsString};
 // Internal
 use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
+use crate::builder::PossibleValue;
 use crate::builder::ValuesRange;
 use crate::util::{Id, Key};
 use crate::ArgAction;
-use crate::PossibleValue;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -519,7 +517,7 @@ impl<'help> Arg<'help> {
     /// failing to use the `--` syntax results in an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("first"))
     ///     .arg(Arg::new("second"))
@@ -534,7 +532,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     /// [index]: Arg::index()
-    /// [`UnknownArgument`]: crate::ErrorKind::UnknownArgument
+    /// [`UnknownArgument`]: crate::error::ErrorKind::UnknownArgument
     #[inline]
     #[must_use]
     pub fn last(self, yes: bool) -> Self {
@@ -585,7 +583,7 @@ impl<'help> Arg<'help> {
     /// Setting required and then *not* supplying that argument at runtime is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required(true)
@@ -645,7 +643,7 @@ impl<'help> Arg<'help> {
     /// Setting [`Arg::requires(name)`] and *not* supplying that argument is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -683,7 +681,7 @@ impl<'help> Arg<'help> {
     /// is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("exclusive")
     ///         .action(ArgAction::Set)
@@ -837,7 +835,6 @@ impl<'help> Arg<'help> {
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
     /// assert!(matches.contains_id("flag"));
-    /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
     ///     matches.get_many::<String>("flag").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
     ///     vec!["value"]
@@ -984,7 +981,7 @@ impl<'help> Arg<'help> {
     /// Although `multiple_values` has been specified, the last argument still wins
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Set)
@@ -1048,7 +1045,7 @@ impl<'help> Arg<'help> {
     /// As a final example, let's fix the above error and get a pretty message to the user :)
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Set)
@@ -1127,7 +1124,7 @@ impl<'help> Arg<'help> {
     ///
     /// Flag/option hybrid (see also [default_missing_value][Arg::default_missing_value])
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
@@ -1156,7 +1153,7 @@ impl<'help> Arg<'help> {
     ///
     /// Tuples
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Set)
@@ -1475,7 +1472,7 @@ impl<'help> Arg<'help> {
     /// hyphen is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("pat")
     ///         .action(ArgAction::Set)
@@ -1527,7 +1524,7 @@ impl<'help> Arg<'help> {
     /// error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -1681,7 +1678,7 @@ impl<'help> Arg<'help> {
     /// In this next example, we will *not* use a delimiter. Notice it's now an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
@@ -1814,10 +1811,6 @@ impl<'help> Arg<'help> {
 
     /// Value for the argument when not present.
     ///
-    /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
-    /// will return `0` even though the [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
-    /// return the default specified.
-    ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::contains_id`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
     /// not, consider [`ArgMatches::value_source`][crate::ArgMatches::value_source].
@@ -1837,7 +1830,7 @@ impl<'help> Arg<'help> {
     /// First we use the default value without providing any value at runtime.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ValueSource};
+    /// # use clap::{Command, Arg, parser::ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("myopt")
@@ -1854,7 +1847,7 @@ impl<'help> Arg<'help> {
     /// Next we provide a value at runtime to override the default.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ValueSource};
+    /// # use clap::{Command, Arg, parser::ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .long("myopt")
@@ -1867,7 +1860,6 @@ impl<'help> Arg<'help> {
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
-    /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
     /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
@@ -1930,7 +1922,7 @@ impl<'help> Arg<'help> {
     ///
     /// For POSIX style `--color`:
     /// ```rust
-    /// # use clap::{Command, Arg, ValueSource};
+    /// # use clap::{Command, Arg, parser::ValueSource};
     /// fn cli() -> Command<'static> {
     ///     Command::new("prog")
     ///         .arg(Arg::new("color").long("color")
@@ -1968,7 +1960,7 @@ impl<'help> Arg<'help> {
     ///
     /// For bool literals:
     /// ```rust
-    /// # use clap::{Command, Arg, ValueSource, value_parser};
+    /// # use clap::{Command, Arg, parser::ValueSource, value_parser};
     /// fn cli() -> Command<'static> {
     ///     Command::new("prog")
     ///         .arg(Arg::new("create").long("create")
@@ -3130,7 +3122,7 @@ impl<'help> Arg<'help> {
     /// Setting `Arg::required_unless_present(name)` and *not* supplying `name` or this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present("dbg")
@@ -3197,7 +3189,7 @@ impl<'help> Arg<'help> {
     /// either *all* of `unless` args or the `self` arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present_all(&["dbg", "infile"])
@@ -3276,7 +3268,7 @@ impl<'help> Arg<'help> {
     /// or this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_unless_present_any(&["dbg", "infile"])
@@ -3321,7 +3313,7 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -3441,7 +3433,7 @@ impl<'help> Arg<'help> {
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_if_eq_any(&[
@@ -3521,7 +3513,7 @@ impl<'help> Arg<'help> {
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .required_if_eq_all(&[
@@ -3589,7 +3581,7 @@ impl<'help> Arg<'help> {
     /// `arg` is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -3634,7 +3626,7 @@ impl<'help> Arg<'help> {
     /// than `val`, `arg` isn't required.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -3706,7 +3698,7 @@ impl<'help> Arg<'help> {
     /// error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -3756,7 +3748,7 @@ impl<'help> Arg<'help> {
     /// Setting conflicting argument, and having both arguments present at runtime is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
@@ -3806,7 +3798,7 @@ impl<'help> Arg<'help> {
     /// conflicting argument is an error.
     ///
     /// ```rust
-    /// # use clap::{Command, Arg, ErrorKind, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)

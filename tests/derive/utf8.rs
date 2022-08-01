@@ -1,6 +1,7 @@
 #![cfg(not(windows))]
 
-use clap::{ErrorKind, Parser};
+use clap::error::ErrorKind;
+use clap::Parser;
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 

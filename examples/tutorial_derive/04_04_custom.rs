@@ -1,4 +1,5 @@
-use clap::{CommandFactory, ErrorKind, Parser};
+use clap::error::ErrorKind;
+use clap::{CommandFactory, Parser};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]

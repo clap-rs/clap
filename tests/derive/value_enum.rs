@@ -410,8 +410,8 @@ fn skip_variant() {
             .map(Option::unwrap)
             .collect::<Vec<_>>(),
         vec![
-            clap::PossibleValue::new("foo"),
-            clap::PossibleValue::new("bar")
+            clap::builder::PossibleValue::new("foo"),
+            clap::builder::PossibleValue::new("bar")
         ]
     );
 
@@ -441,8 +441,8 @@ fn skip_non_unit_variant() {
             .map(Option::unwrap)
             .collect::<Vec<_>>(),
         vec![
-            clap::PossibleValue::new("foo"),
-            clap::PossibleValue::new("bar")
+            clap::builder::PossibleValue::new("foo"),
+            clap::builder::PossibleValue::new("bar")
         ]
     );
 

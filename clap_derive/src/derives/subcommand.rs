@@ -523,7 +523,7 @@ fn gen_from_arg_matches(
         },
 
         None => quote! {
-            ::std::result::Result::Err(clap::Error::raw(clap::ErrorKind::InvalidSubcommand, format!("The subcommand '{}' wasn't recognized", #subcommand_name_var)))
+            ::std::result::Result::Err(clap::Error::raw(clap::error::ErrorKind::InvalidSubcommand, format!("The subcommand '{}' wasn't recognized", #subcommand_name_var)))
         },
     };
 
@@ -540,7 +540,7 @@ fn gen_from_arg_matches(
 
                 #wildcard
             } else {
-                ::std::result::Result::Err(clap::Error::raw(clap::ErrorKind::MissingSubcommand, "A subcommand is required but one was not provided."))
+                ::std::result::Result::Err(clap::Error::raw(clap::error::ErrorKind::MissingSubcommand, "A subcommand is required but one was not provided."))
             }
         }
     }

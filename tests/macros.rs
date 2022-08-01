@@ -275,10 +275,6 @@ mod arg_impl {
             .arg(arg)
             .try_get_matches_from(vec!["", "some-val"])
             .unwrap();
-        #[allow(deprecated)]
-        {
-            assert!(m.is_present("some-arg"));
-        }
         assert_eq!(m.get_one::<String>("some-arg").unwrap(), "some-val");
     }
 
@@ -299,10 +295,6 @@ mod arg_impl {
             .arg(arg)
             .try_get_matches_from(vec!["", "-a", "val"])
             .unwrap();
-        #[allow(deprecated)]
-        {
-            assert!(m.is_present("some-val"));
-        }
         assert_eq!(m.get_one::<String>("some-val").unwrap(), "val");
     }
 
@@ -323,10 +315,6 @@ mod arg_impl {
             .arg(arg)
             .try_get_matches_from(vec!["", "--arg", "some-val"])
             .unwrap();
-        #[allow(deprecated)]
-        {
-            assert!(m.is_present("arg"));
-        }
         assert_eq!(m.get_one::<String>("arg").unwrap(), "some-val");
     }
 }

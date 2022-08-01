@@ -99,6 +99,7 @@ compile_error!("`std` feature is currently required to build `clap`");
 
 pub use crate::builder::ArgAction;
 pub use crate::builder::Command;
+pub use crate::builder::ValueHint;
 pub use crate::builder::{Arg, ArgGroup};
 pub use crate::error::Error;
 pub use crate::parser::ArgMatches;
@@ -109,12 +110,6 @@ pub use crate::util::color::ColorChoice;
 pub(crate) use crate::util::color::ColorChoice;
 
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
-
-#[allow(deprecated)]
-pub use crate::builder::{PossibleValue, ValueHint};
-pub use crate::error::{ErrorKind, Result};
-#[allow(deprecated)]
-pub use crate::parser::{Indices, ValueSource};
 
 #[cfg(feature = "derive")]
 #[doc(hidden)]

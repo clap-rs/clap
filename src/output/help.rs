@@ -6,10 +6,10 @@ use std::io::{self, Write};
 use std::usize;
 
 // Internal
+use crate::builder::PossibleValue;
 use crate::builder::{render_arg_val, Arg, Command};
 use crate::output::{fmt::Colorizer, Usage};
 use crate::ArgAction;
-use crate::PossibleValue;
 
 // Third party
 use indexmap::IndexSet;
