@@ -5,7 +5,7 @@
 //!     1. [Terminology](#terminology)
 //!     2. [Command Attributes](#command-attributes)
 //!     3. [Arg Attributes](#arg-attributes)
-//!     4. [Arg Enum Attributes](#arg-enum-attributes)
+//!     4. [ValueEnum Attributes](#valueenum-attributes)
 //!     5. [Possible Value Attributes](#possible-value-attributes)
 //! 3. [Arg Types](#arg-types)
 //! 4. [Doc Comments](#doc-comments)
@@ -241,7 +241,7 @@
 //!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::convert::Into<OsString>` or `#[clap(value_enum)]`
 //!   - `<expr>` must implement `IntoIterator<T>`
 //!
-//! ### Value Enum Attributes
+//! ### ValueEnum Attributes
 //!
 //! - `rename_all = <string_literal>`: Override default field / variant name case conversion for [`PossibleValue::new`][crate::PossibleValue]
 //!   - When not present: `"kebab-case"`
