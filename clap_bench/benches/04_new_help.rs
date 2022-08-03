@@ -118,7 +118,7 @@ fn app_example7<'c>() -> Command<'c> {
         .arg(
             Arg::new("input")
                 .help("the input file to use")
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append)
                 .required(true)
                 .short('i')
@@ -135,7 +135,7 @@ fn app_example8<'c>() -> Command<'c> {
         .arg(
             Arg::new("input")
                 .help("the input file to use")
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append)
                 .required(true)
                 .short('i')

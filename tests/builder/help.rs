@@ -67,7 +67,7 @@ fn help_multi_subcommand_error() {
                         -o --option <scoption>    "tests options"
                     )
                     .required(false)
-                    .number_of_values(1..)
+                    .num_args(1..)
                     .action(ArgAction::Append),
                 ),
         ),
@@ -104,16 +104,11 @@ OPTIONS:
 
     let cmd = Command::new("example")
         .version("1.0")
-        .arg(
-            Arg::new("FIRST")
-                .help("First")
-                .number_of_values(1..)
-                .required(true),
-        )
+        .arg(Arg::new("FIRST").help("First").num_args(1..).required(true))
         .arg(
             Arg::new("SECOND")
                 .help("Second")
-                .number_of_values(1..)
+                .num_args(1..)
                 .required(true)
                 .last(true),
         );
@@ -172,7 +167,7 @@ OPTIONS:
             Arg::new("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true)
                 .value_name("ARGS"),
         );
@@ -342,7 +337,7 @@ fn multi_level_sc_help() {
                         -o --option <scoption>    "tests options"
                     )
                     .required(false)
-                    .number_of_values(1..)
+                    .num_args(1..)
                     .action(ArgAction::Append),
                 ),
         ),
@@ -981,7 +976,7 @@ OPTIONS:
         .arg(
             Arg::new("arg2")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .help("some option"),
         )
         .arg(
@@ -1003,7 +998,7 @@ OPTIONS:
                 .help("a label")
                 .short('l')
                 .long("label")
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Set),
         );
     utils::assert_output(cmd, "myapp --help", ISSUE_702, false);
@@ -1342,7 +1337,7 @@ OPTIONS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true)
                 .help("some"),
         );
@@ -1373,7 +1368,7 @@ OPTIONS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true)
                 .required(true)
                 .help("some"),
@@ -1411,7 +1406,7 @@ SUBCOMMANDS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true)
                 .required(true)
                 .help("some"),
@@ -1450,7 +1445,7 @@ SUBCOMMANDS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true)
                 .help("some"),
         )
@@ -1865,7 +1860,7 @@ OPTIONS:
             Arg::new("files")
                 .value_name("FILES")
                 .action(ArgAction::Set)
-                .number_of_values(1..),
+                .num_args(1..),
         );
 
     utils::assert_output(cmd, "demo -h", ISSUE_1364, false);
@@ -2339,11 +2334,11 @@ fn only_custom_heading_pos_no_args() {
 #[test]
 fn issue_2508_number_of_values_with_single_value_name() {
     let cmd = Command::new("my_app")
-        .arg(Arg::new("some_arg").long("some_arg").number_of_values(2))
+        .arg(Arg::new("some_arg").long("some_arg").num_args(2))
         .arg(
             Arg::new("some_arg_issue")
                 .long("some_arg_issue")
-                .number_of_values(2)
+                .num_args(2)
                 .value_name("ARG"),
         );
     utils::assert_output(
@@ -2394,7 +2389,7 @@ fn missing_positional_final_multiple() {
         .allow_missing_positional(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
-        .arg(Arg::new("baz").action(ArgAction::Set).number_of_values(1..));
+        .arg(Arg::new("baz").action(ArgAction::Set).num_args(1..));
     utils::assert_output(
         cmd,
         "test --help",
@@ -2421,7 +2416,7 @@ fn positional_multiple_values_is_dotted() {
         Arg::new("foo")
             .required(true)
             .action(ArgAction::Set)
-            .number_of_values(1..),
+            .num_args(1..),
     );
     utils::assert_output(
         cmd,
@@ -2445,7 +2440,7 @@ OPTIONS:
             .required(true)
             .action(ArgAction::Set)
             .value_name("BAR")
-            .number_of_values(1..),
+            .num_args(1..),
     );
     utils::assert_output(
         cmd,
@@ -2471,7 +2466,7 @@ fn positional_multiple_occurrences_is_dotted() {
         Arg::new("foo")
             .required(true)
             .action(ArgAction::Set)
-            .number_of_values(1..)
+            .num_args(1..)
             .action(ArgAction::Append),
     );
     utils::assert_output(
@@ -2496,7 +2491,7 @@ OPTIONS:
             .required(true)
             .action(ArgAction::Set)
             .value_name("BAR")
-            .number_of_values(1..)
+            .num_args(1..)
             .action(ArgAction::Append),
     );
     utils::assert_output(
@@ -2524,7 +2519,7 @@ fn too_few_value_names_is_dotted() {
             .long("foo")
             .required(true)
             .action(ArgAction::Set)
-            .number_of_values(3)
+            .num_args(3)
             .value_names(&["one", "two"]),
     );
     utils::assert_output(
@@ -2552,7 +2547,7 @@ fn too_many_value_names_panics() {
                 .long("foo")
                 .required(true)
                 .action(ArgAction::Set)
-                .number_of_values(1)
+                .num_args(1)
                 .value_names(&["one", "two"]),
         )
         .debug_assert()

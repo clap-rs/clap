@@ -355,7 +355,7 @@ macro_rules! arg_impl {
                 if arg.get_long().is_none() && arg.get_short().is_none() {
                     arg = arg.required(false);
                 } else {
-                    arg = arg.number_of_values(0..=1);
+                    arg = arg.num_args(0..=1);
                 }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
@@ -387,7 +387,7 @@ macro_rules! arg_impl {
                 if arg.get_long().is_none() && arg.get_short().is_none() {
                     arg = arg.required(false);
                 } else {
-                    arg = arg.number_of_values(0..=1);
+                    arg = arg.num_args(0..=1);
                 }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
@@ -412,7 +412,7 @@ macro_rules! arg_impl {
             @arg
             ({
                 if $arg.get_long().is_none() && $arg.get_short().is_none() {
-                    $arg.number_of_values(1..)
+                    $arg.num_args(1..)
                         // Allow collecting arguments interleaved with flags
                         .action($crate::ArgAction::Append)
                 } else if $arg.is_takes_value_set() {

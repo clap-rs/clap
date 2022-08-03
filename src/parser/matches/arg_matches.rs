@@ -263,7 +263,7 @@ impl ArgMatches {
     /// let mut m = Command::new("myprog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Append)
-    ///         .number_of_values(1..)
+    ///         .num_args(1..)
     ///         .required(true))
     ///     .get_matches_from(vec![
     ///         "myprog", "file1.txt", "file2.txt", "file3.txt", "file4.txt",
@@ -360,7 +360,7 @@ impl ArgMatches {
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("exec")
     ///         .short('x')
-    ///         .number_of_values(1..)
+    ///         .num_args(1..)
     ///         .action(ArgAction::Append)
     ///         .value_terminator(";"))
     ///     .get_matches_from(vec![
@@ -544,7 +544,7 @@ impl ArgMatches {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .value_delimiter(',')
-    ///         .number_of_values(1..))
+    ///         .num_args(1..))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1
     ///            // clap indices:             ^2   ^3   ^4
@@ -626,7 +626,7 @@ impl ArgMatches {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(1..))
+    ///         .num_args(1..))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1
     ///            // clap indices:             ^2
@@ -1326,7 +1326,7 @@ impl<'a> Default for GroupedValues<'a> {
 /// let m = Command::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .number_of_values(1..)
+///         .num_args(1..)
 ///         .action(ArgAction::Set))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
@@ -1422,7 +1422,7 @@ mod tests {
             .arg(
                 crate::Arg::new("POTATO")
                     .action(ArgAction::Set)
-                    .number_of_values(1..)
+                    .num_args(1..)
                     .required(true),
             )
             .try_get_matches_from(["test", "one"])
@@ -1439,7 +1439,7 @@ mod tests {
             .arg(
                 crate::Arg::new("POTATO")
                     .action(ArgAction::Set)
-                    .number_of_values(1..)
+                    .num_args(1..)
                     .value_parser(crate::builder::ValueParser::os_string())
                     .required(true),
             )
@@ -1457,7 +1457,7 @@ mod tests {
             .arg(
                 crate::Arg::new("POTATO")
                     .action(ArgAction::Set)
-                    .number_of_values(1..)
+                    .num_args(1..)
                     .required(true),
             )
             .try_get_matches_from(["test", "one"])

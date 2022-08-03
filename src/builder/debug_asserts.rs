@@ -517,7 +517,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
             || last.is_last_set();
         assert!(
             ok,
-            "When using a positional argument with .number_of_values(1..) that is *not the \
+            "When using a positional argument with .num_args(1..) that is *not the \
                  last* positional argument, the last positional argument (i.e. the one \
                  with the highest index) *must* have .required(true) or .last(true) set."
         );
@@ -527,14 +527,15 @@ fn _verify_positionals(cmd: &Command) -> bool {
         assert!(
             ok,
             "Only the last positional argument, or second to last positional \
-                 argument may be set to .number_of_values(1..)"
+                 argument may be set to .num_args(1..)"
         );
 
         // Next we check how many have both Multiple and not a specific number of values set
         let count = cmd
             .get_positionals()
             .filter(|p| {
-                p.is_multiple_values_set() && !p.num_vals.map(|r| r.is_fixed()).unwrap_or(false)
+                p.is_multiple_values_set()
+                    && !p.get_num_args().map(|r| r.is_fixed()).unwrap_or(false)
             })
             .count();
         let ok = count <= 1
@@ -544,7 +545,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
                 && count == 2);
         assert!(
             ok,
-            "Only one positional argument with .number_of_values(1..) set is allowed per \
+            "Only one positional argument with .num_args(1..) set is allowed per \
                  command, unless the second one also has .last(true) set"
         );
     }
@@ -689,7 +690,7 @@ fn assert_arg(arg: &Arg) {
         );
     }
 
-    if let Some(num_vals) = arg.get_num_vals() {
+    if let Some(num_vals) = arg.get_num_args() {
         // This can be the cause of later asserts, so put this first
         let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
         if num_vals.max_values() < num_val_names {
@@ -714,7 +715,7 @@ fn assert_arg(arg: &Arg) {
             num_vals,
         );
     }
-    if arg.get_num_vals() == Some(1.into()) {
+    if arg.get_num_args() == Some(1.into()) {
         assert!(
             !arg.is_multiple_values_set(),
             "Argument {}: mismatch between `number_of_values` and `multiple_values`",

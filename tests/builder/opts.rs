@@ -71,7 +71,7 @@ fn require_equals_min_values_zero() {
             Arg::new("cfg")
                 .action(ArgAction::Set)
                 .require_equals(true)
-                .number_of_values(0..)
+                .num_args(0..)
                 .long("config"),
         )
         .arg(Arg::new("cmd"))
@@ -177,7 +177,7 @@ fn opts_using_short() {
 #[test]
 fn lots_o_vals() {
     let r = Command::new("opts")
-        .arg(arg!(o: -o <opt> "some opt").number_of_values(1..))
+        .arg(arg!(o: -o <opt> "some opt").num_args(1..))
         .try_get_matches_from(vec![
             "", "-o", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -338,7 +338,7 @@ fn multiple_vals_pos_arg_delim() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .number_of_values(1..)
+                .num_args(1..)
                 .value_delimiter(','),
         )
         .arg(arg!([file] "some file"))
@@ -380,7 +380,7 @@ fn require_delims() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .number_of_values(1..)
+                .num_args(1..)
                 .value_delimiter(',')
                 .require_value_delimiter(true),
         )
@@ -408,7 +408,7 @@ fn leading_hyphen_pass() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .number_of_values(1..)
+                .num_args(1..)
                 .allow_hyphen_values(true),
         )
         .try_get_matches_from(vec!["", "-o", "-2", "3"]);
@@ -439,7 +439,7 @@ fn leading_hyphen_with_flag_after() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .number_of_values(1..)
+                .num_args(1..)
                 .allow_hyphen_values(true),
         )
         .arg(arg!(f: -f "some flag").action(ArgAction::SetTrue))
@@ -514,7 +514,7 @@ fn issue_1047_min_zero_vals_default_val() {
                 .long("del")
                 .action(ArgAction::Set)
                 .require_equals(true)
-                .number_of_values(0..)
+                .num_args(0..)
                 .default_missing_value("default"),
         )
         .try_get_matches_from(vec!["foo", "-d"])

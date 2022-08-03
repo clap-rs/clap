@@ -526,7 +526,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 )
                 .arg(
                     Arg::new("info")
@@ -535,7 +535,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                         .conflicts_with("search")
                         .help("view package information")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 ),
         );
     utils::assert_output(cmd, "pacman -Qh", FLAG_SUBCOMMAND_HELP, false);
@@ -574,7 +574,7 @@ fn flag_subcommand_long_normal_usage_string() {
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 )
                 .arg(
                     Arg::new("info")
@@ -583,7 +583,7 @@ fn flag_subcommand_long_normal_usage_string() {
                         .conflicts_with("search")
                         .help("view package information")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 ),
         );
     utils::assert_output(
@@ -627,7 +627,7 @@ fn flag_subcommand_short_normal_usage_string() {
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 )
                 .arg(
                     Arg::new("info")
@@ -636,7 +636,7 @@ fn flag_subcommand_short_normal_usage_string() {
                         .conflicts_with("search")
                         .help("view package information")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 ),
         );
     utils::assert_output(

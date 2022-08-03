@@ -28,11 +28,7 @@ fn multiple_occurrences_of_flags_short() {
 
 #[test]
 fn multiple_occurrences_of_positional() {
-    let cmd = Command::new("test").arg(
-        Arg::new("multi")
-            .number_of_values(1..)
-            .action(ArgAction::Append),
-    );
+    let cmd = Command::new("test").arg(Arg::new("multi").num_args(1..).action(ArgAction::Append));
 
     let m = cmd
         .clone()

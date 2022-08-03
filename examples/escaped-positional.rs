@@ -11,7 +11,7 @@ fn main() {
         .arg(
             // Indicates that `slop` is only accessible after `--`.
             arg!(slop: [SLOP])
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true)
                 .value_parser(value_parser!(String)),
         )

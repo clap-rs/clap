@@ -206,7 +206,7 @@ impl ArgMatcher {
             "ArgMatcher::needs_more_vals: o={}, pending={}",
             o.name, num_pending
         );
-        if let Some(expected) = o.get_num_vals() {
+        if let Some(expected) = o.get_num_args() {
             debug!(
                 "ArgMatcher::needs_more_vals: expected={}, actual={}",
                 expected, num_pending

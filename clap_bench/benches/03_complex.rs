@@ -31,8 +31,8 @@ macro_rules! create_app {
                 arg!(
                     --multvalsmo <s> "Tests multiple values, not mult occs"
                 ).required(false).value_names(&["one", "two"]),
-                arg!(--minvals2 <minvals> ... "Tests 2 min vals").number_of_values(2..).required(false),
-                arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").number_of_values(1..=3).required(false),
+                arg!(--minvals2 <minvals> ... "Tests 2 min vals").num_args(2..).required(false),
+                arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").num_args(1..=3).required(false),
             ])
             .subcommand(
                 Command::new("subcmd")
@@ -57,7 +57,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .help("tests options")
                         .short('o')
                         .long("option")
-                        .number_of_values(1..)
+                        .num_args(1..)
                         .action(ArgAction::Append),
                 )
                 .arg(Arg::new("positional").help("tests positionals").index(1))
@@ -99,7 +99,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                 )
                 .arg(
                     Arg::new("positional3")
-                        .number_of_values(1..)
+                        .num_args(1..)
                         .help("tests positionals with specific values")
                         .index(4)
                         .value_parser(POS3_VALS),
@@ -122,14 +122,14 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .long("minvals2")
                         .action(ArgAction::Append)
                         .help("Tests 2 min vals")
-                        .number_of_values(2..),
+                        .num_args(2..),
                 )
                 .arg(
                     Arg::new("maxvals")
                         .long("maxvals3")
                         .action(ArgAction::Append)
                         .help("Tests 3 max vals")
-                        .number_of_values(1..=3),
+                        .num_args(1..=3),
                 )
                 .subcommand(
                     Command::new("subcmd")
@@ -140,7 +140,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                             Arg::new("scoption")
                                 .short('o')
                                 .long("option")
-                                .number_of_values(1..)
+                                .num_args(1..)
                                 .action(ArgAction::Append)
                                 .help("tests options"),
                         )

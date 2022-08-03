@@ -133,7 +133,7 @@ fn group_required_flags_empty() {
 #[test]
 fn group_multi_value_single_arg() {
     let res = Command::new("group")
-        .arg(arg!(-c --color <color> "some option").number_of_values(1..))
+        .arg(arg!(-c --color <color> "some option").num_args(1..))
         .arg(arg!(-h --hostname <name> "another option").required(false))
         .group(ArgGroup::new("grp").args(&["hostname", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue", "red", "green"]);

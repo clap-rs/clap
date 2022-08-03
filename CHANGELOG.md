@@ -20,12 +20,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate (#3795)
 - Default actions are now `Set` and `SetTrue`
 - Removed `PartialEq` and `Eq` from `Command`
-- `Arg::number_of_values` now applies per occurrence rather than the average across all occurrences
-- `number_of_values(0)` no longer implies `takes_value(true).multiple_values(true)`
-- `number_of_values(1)` no longer implies `multiple_values(true)`
-- Remove `Arg::min_values` (across all occurrences) with `Arg::number_of_values(N..)` (per occurrence)
-- Remove `Arg::max_values` (across all occurrences) with `Arg::number_of_values(1..=M)` (per occurrence)
-- Remove `Arg::multiple_values(true)` with `Arg::number_of_values(1..)` and `Arg::multiple_values(false)` with `Arg::number_of_values(0)`
+- Replace `Arg::number_of_values` (average across occurrences) with `Arg::num_args` (per occurrence)
+  - `num_args(0)` no longer implies `takes_value(true).multiple_values(true)`
+  - `num_args(1)` no longer implies `multiple_values(true)`
+- Replace `Arg::min_values` (across all occurrences) with `Arg::num_args(N..)` (per occurrence)
+- Replace `Arg::max_values` (across all occurrences) with `Arg::num_args(1..=M)` (per occurrence)
+- Replace `Arg::multiple_values(true)` with `Arg::num_args(1..)` and `Arg::multiple_values(false)` with `Arg::num_args(0)`
 - Remove `Arg::use_value_delimiter` in favor of `Arg::value_delimiter`
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
@@ -36,14 +36,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Features
 
-- `Arg::number_of_values` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence
+- `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 
 ### Fixes
 
 - Leading dashes in `Arg::long` are no longer allowed (#3691)
 - Verify `required` is not used with conditional required settings (#3660)
-- Disallow more `value_names` than `number_of_values` (#2695)
+- Disallow more `value_names` than `num_args` (#2695)
 - Replaced `cmd.allow_invalid_for_utf8_external_subcommands` with `cmd.external_subcommand_value_parser` (#3733)
 - Changed the default type of `allow_external_subcommands` from `String` to `OsString`
 - `Arg::default_missing_value` now applies per occurrence rather than if a value is missing across all occurrences
