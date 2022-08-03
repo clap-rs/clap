@@ -1351,29 +1351,17 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             if let Some((_, Some(ref val))) = arg.env {
                 let val = RawOsStr::new(val);
 
-                if arg.is_takes_value_set() {
-                    debug!(
-                        "Parser::add_env: Found an opt with value={:?}, trailing={:?}",
-                        val, trailing_values
-                    );
-                    let mut arg_values = Vec::new();
-                    let _parse_result =
-                        self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
-                    let _ = self.react(None, ValueSource::EnvVariable, arg, arg_values, matcher)?;
-                    if let Some(_parse_result) = _parse_result {
-                        if _parse_result != ParseResult::ValuesDone {
-                            debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
-                        }
-                    }
-                } else {
-                    let mut arg_values = Vec::new();
-                    let _parse_result =
-                        self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
-                    let _ = self.react(None, ValueSource::EnvVariable, arg, arg_values, matcher)?;
-                    if let Some(_parse_result) = _parse_result {
-                        if _parse_result != ParseResult::ValuesDone {
-                            debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
-                        }
+                debug!(
+                    "Parser::add_env: Found an opt with value={:?}",
+                    val, trailing_values
+                );
+                let mut arg_values = Vec::new();
+                let _parse_result =
+                    self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
+                let _ = self.react(None, ValueSource::EnvVariable, arg, arg_values, matcher)?;
+                if let Some(_parse_result) = _parse_result {
+                    if _parse_result != ParseResult::ValuesDone {
+                        debug!("Parser::add_env: Ignoring state {:?}; env variables are outside of the parse loop", _parse_result);
                     }
                 }
             }
