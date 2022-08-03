@@ -1128,8 +1128,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             source
         );
 
-        // `default_missing_values` does not count (ie to avoid problems with flags)
-        self.verify_num_args(arg, &raw_vals)?;
+        // Process before `default_missing_values` to avoid it counting as values from the command
+        // line
+        if source == ValueSource::CommandLine {
+            self.verify_num_args(arg, &raw_vals)?;
+        }
 
         if raw_vals.is_empty() {
             // We assume this case is valid: require equals, but min_vals == 0.
