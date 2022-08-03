@@ -908,13 +908,13 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies the number of values allowed per occurrence of this argument
+    /// Specifies the number of arguments parsed per occurrence
     ///
     /// For example, if you had a `-f <file>` argument where you wanted exactly 3 'files' you would
     /// set `.num_args(3)`, and this argument wouldn't be satisfied unless the user
     /// provided 3 and only 3 values.
     ///
-    /// **NOTE:** Users may specify values for arguments in any of the following methods
+    /// Users may specify values for arguments in any of the following methods
     ///
     /// - Using a space such as `-o value` or `--option value`
     /// - Using an equals and no space such as `-o=value` or `--option=value`
@@ -934,7 +934,7 @@ impl<'help> Arg<'help> {
     /// - It reaches the [`Arg::value_terminator`] if set
     ///
     /// Alternatively,
-    /// - Require a delimiter between values with [Arg::require_value_delimiter]
+    /// - Use a delimiter between values with [Arg::value_delimiter]
     /// - Require a flag occurrence per value with [`ArgAction::Append`]
     /// - Require positional arguments to appear after `--` with [`Arg::last`]
     ///

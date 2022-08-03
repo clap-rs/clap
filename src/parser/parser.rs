@@ -8,6 +8,7 @@ use std::{
 use clap_lex::RawOsStr;
 
 // Internal
+use crate::builder::PossibleValue;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -1120,6 +1121,12 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     ) -> ClapResult<ParseResult> {
         self.resolve_pending(matcher)?;
 
+        debug!(
+            "Parser::react action={:?}, identifier={:?}, source={:?}",
+            arg.get_action(),
+            ident,
+            source
+        );
         if raw_vals.is_empty() {
             // We assume this case is valid: require equals, but min_vals == 0.
             if !arg.default_missing_vals.is_empty() {
@@ -1141,12 +1148,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             };
         }
 
-        debug!(
-            "Parser::react action={:?}, identifier={:?}, source={:?}",
-            arg.get_action(),
-            ident,
-            source
-        );
+        self.verify_num_args(arg, &raw_vals)?;
+
         match arg.get_action() {
             ArgAction::Set => {
                 if source == ValueSource::CommandLine
@@ -1246,6 +1249,65 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 Err(self.version_err(use_long))
             }
         }
+    }
+
+    fn verify_num_args(&self, arg: &Arg<'help>, raw_vals: &[OsString]) -> ClapResult<()> {
+        if self.cmd.is_ignore_errors_set() {
+            return Ok(());
+        }
+
+        let actual = raw_vals.len();
+
+        let min_vals = arg.get_min_vals().unwrap_or(1);
+        if arg.is_takes_value_set() && 0 < min_vals && actual == 0 {
+            // Issue 665 (https://github.com/clap-rs/clap/issues/665)
+            // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
+            return Err(ClapError::empty_value(
+                self.cmd,
+                &super::get_possible_values_cli(arg)
+                    .iter()
+                    .filter(|pv| !pv.is_hide_set())
+                    .map(PossibleValue::get_name)
+                    .collect::<Vec<_>>(),
+                arg.to_string(),
+            ));
+        }
+
+        if let Some(expected) = arg.get_num_args() {
+            if let Some(expected) = expected.num_values() {
+                if expected != actual {
+                    debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
+                    return Err(ClapError::wrong_number_of_values(
+                        self.cmd,
+                        arg.to_string(),
+                        expected,
+                        actual,
+                        Usage::new(self.cmd).create_usage_with_title(&[]),
+                    ));
+                }
+            } else if actual < expected.min_values() {
+                return Err(ClapError::too_few_values(
+                    self.cmd,
+                    arg.to_string(),
+                    expected.min_values(),
+                    actual,
+                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                ));
+            } else if expected.max_values() < actual {
+                debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
+                return Err(ClapError::too_many_values(
+                    self.cmd,
+                    raw_vals
+                        .last()
+                        .expect(INTERNAL_ERROR_MSG)
+                        .to_string_lossy()
+                        .into_owned(),
+                    arg.to_string(),
+                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                ));
+            }
+        }
+        Ok(())
     }
 
     fn remove_overrides(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) {
