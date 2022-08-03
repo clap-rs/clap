@@ -104,9 +104,8 @@ pub enum ErrorKind {
     /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("arg")
-    ///         .num_args(1..=2)
-    ///         .require_value_delimiter(true))
-    ///     .try_get_matches_from(vec!["prog", "too,many,values"]);
+    ///         .num_args(1..=2))
+    ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyValues);
     /// ```

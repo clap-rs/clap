@@ -202,7 +202,9 @@ impl ArgMatcher {
             "ArgMatcher::needs_more_vals: o={}, pending={}",
             o.name, num_pending
         );
-        if let Some(expected) = o.get_num_args() {
+        if num_pending == 1 && o.is_require_value_delimiter_set() {
+            false
+        } else if let Some(expected) = o.get_num_args() {
             debug!(
                 "ArgMatcher::needs_more_vals: expected={}, actual={}",
                 expected, num_pending
@@ -221,17 +223,33 @@ impl ArgMatcher {
         &mut self,
         id: &Id,
         ident: Option<Identifier>,
+        trailing_values: bool,
     ) -> &mut Vec<OsString> {
         let pending = self.pending.get_or_insert_with(|| PendingArg {
             id: id.clone(),
             ident,
             raw_vals: Default::default(),
+            trailing_idx: None,
         });
         debug_assert_eq!(pending.id, *id, "{}", INTERNAL_ERROR_MSG);
         if ident.is_some() {
             debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
         }
+        if trailing_values {
+            pending
+                .trailing_idx
+                .get_or_insert_with(|| pending.raw_vals.len());
+        }
         &mut pending.raw_vals
+    }
+
+    pub(crate) fn start_trailing(&mut self) {
+        if let Some(pending) = &mut self.pending {
+            // Allow asserting its started on subsequent calls
+            pending
+                .trailing_idx
+                .get_or_insert_with(|| pending.raw_vals.len());
+        }
     }
 
     pub(crate) fn take_pending(&mut self) -> Option<PendingArg> {

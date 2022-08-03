@@ -334,33 +334,6 @@ fn multiple_vals_pos_arg_equals() {
 }
 
 #[test]
-fn multiple_vals_pos_arg_delim() {
-    let r = Command::new("mvae")
-        .arg(
-            arg!(o: -o <opt> "some opt")
-                .num_args(1..)
-                .value_delimiter(','),
-        )
-        .arg(arg!([file] "some file"))
-        .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
-    assert!(r.is_ok(), "{}", r.unwrap_err());
-    let m = r.unwrap();
-    assert!(m.contains_id("o"));
-    assert_eq!(
-        m.get_many::<String>("o")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["1", "2"]
-    );
-    assert!(m.contains_id("file"));
-    assert_eq!(
-        m.get_one::<String>("file").map(|v| v.as_str()).unwrap(),
-        "some"
-    );
-}
-
-#[test]
 fn require_delims_no_delim() {
     let r = Command::new("mvae")
         .arg(
