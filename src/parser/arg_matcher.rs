@@ -197,20 +197,16 @@ impl ArgMatcher {
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
-        let num_resolved = self.get(&o.id).map(|ma| ma.num_vals()).unwrap_or(0);
         let num_pending = self
             .pending
             .as_ref()
             .and_then(|p| (p.id == o.id).then(|| p.raw_vals.len()))
             .unwrap_or(0);
-        let current_num = num_resolved + num_pending;
         debug!(
-            "ArgMatcher::needs_more_vals: o={}, resolved={}, pending={}",
-            o.name, num_resolved, num_pending
+            "ArgMatcher::needs_more_vals: o={}, pending={}",
+            o.name, num_pending
         );
-        if current_num == 0 {
-            true
-        } else if let Some(expected) = o.num_vals {
+        if let Some(expected) = o.get_num_vals() {
             debug!(
                 "ArgMatcher::needs_more_vals: expected={}, actual={}",
                 expected, num_pending

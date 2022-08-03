@@ -64,7 +64,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
                         .require_equals(true)
                         .help("the other case to test"),
                 )
-                .arg(clap::Arg::new("path").multiple_values(true)),
+                .arg(clap::Arg::new("path").number_of_values(1..)),
         )
         .subcommand(clap::Command::new("some-cmd-with-hyphens").alias("hyphen"))
         .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
@@ -220,7 +220,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         .arg(
             clap::Arg::new("command_with_args")
                 .action(clap::ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .value_hint(clap::ValueHint::CommandWithArguments),
         )
         .arg(

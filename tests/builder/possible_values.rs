@@ -90,7 +90,7 @@ fn possible_values_of_positional_multiple() {
                 .index(1)
                 .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["myprog", "test123", "test321"]);
 
@@ -115,7 +115,7 @@ fn possible_values_of_positional_multiple_fail() {
                 .index(1)
                 .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["myprog", "test123", "notest"]);
 
@@ -394,7 +394,7 @@ fn ignore_case_multiple() {
                 .long("option")
                 .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
-                .multiple_values(true)
+                .number_of_values(1..)
                 .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123", "teST123", "tESt321"]);
@@ -419,7 +419,7 @@ fn ignore_case_multiple_fail() {
                 .long("option")
                 .action(ArgAction::Set)
                 .value_parser(["test123", "test321"])
-                .multiple_values(true),
+                .number_of_values(1..),
         )
         .try_get_matches_from(vec!["pv", "--option", "test123", "teST123", "test321"]);
 

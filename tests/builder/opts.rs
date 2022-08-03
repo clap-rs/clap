@@ -177,7 +177,7 @@ fn opts_using_short() {
 #[test]
 fn lots_o_vals() {
     let r = Command::new("opts")
-        .arg(arg!(o: -o <opt> "some opt").multiple_values(true))
+        .arg(arg!(o: -o <opt> "some opt").number_of_values(1..))
         .try_get_matches_from(vec![
             "", "-o", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -338,7 +338,7 @@ fn multiple_vals_pos_arg_delim() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .use_value_delimiter(true),
         )
         .arg(arg!([file] "some file"))
@@ -380,7 +380,7 @@ fn require_delims() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .use_value_delimiter(true)
                 .require_value_delimiter(true),
         )
@@ -408,7 +408,7 @@ fn leading_hyphen_pass() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .allow_hyphen_values(true),
         )
         .try_get_matches_from(vec!["", "-o", "-2", "3"]);
@@ -439,7 +439,7 @@ fn leading_hyphen_with_flag_after() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .allow_hyphen_values(true),
         )
         .arg(arg!(f: -f "some flag").action(ArgAction::SetTrue))

@@ -121,7 +121,7 @@ fn positional_multiple() {
             Arg::new("positional")
                 .index(1)
                 .action(ArgAction::Set)
-                .multiple_values(true),
+                .number_of_values(1..),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -145,7 +145,7 @@ fn positional_multiple_3() {
             Arg::new("positional")
                 .index(1)
                 .action(ArgAction::Set)
-                .multiple_values(true),
+                .number_of_values(1..),
         ])
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -330,7 +330,7 @@ fn ignore_hyphen_values_on_last() {
     let cmd = clap::Command::new("foo")
         .arg(
             clap::Arg::new("cmd")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true)
                 .allow_hyphen_values(true),
         )

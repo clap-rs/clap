@@ -67,7 +67,7 @@ fn help_multi_subcommand_error() {
                         -o --option <scoption>    "tests options"
                     )
                     .required(false)
-                    .multiple_values(true)
+                    .number_of_values(1..)
                     .action(ArgAction::Append),
                 ),
         ),
@@ -107,13 +107,13 @@ OPTIONS:
         .arg(
             Arg::new("FIRST")
                 .help("First")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .required(true),
         )
         .arg(
             Arg::new("SECOND")
                 .help("Second")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .required(true)
                 .last(true),
         );
@@ -172,7 +172,7 @@ OPTIONS:
             Arg::new("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true)
                 .value_name("ARGS"),
         );
@@ -342,7 +342,7 @@ fn multi_level_sc_help() {
                         -o --option <scoption>    "tests options"
                     )
                     .required(false)
-                    .multiple_values(true)
+                    .number_of_values(1..)
                     .action(ArgAction::Append),
                 ),
         ),
@@ -981,7 +981,7 @@ OPTIONS:
         .arg(
             Arg::new("arg2")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .help("some option"),
         )
         .arg(
@@ -1003,7 +1003,7 @@ OPTIONS:
                 .help("a label")
                 .short('l')
                 .long("label")
-                .multiple_values(true)
+                .number_of_values(1..)
                 .action(ArgAction::Set),
         );
     utils::assert_output(cmd, "myapp --help", ISSUE_702, false);
@@ -1041,23 +1041,6 @@ OPTIONS:
         )
         .arg(Arg::new("arg1").help("some option"));
     utils::assert_output(cmd, "myapp --help", LONG_ABOUT, false);
-}
-
-#[test]
-#[should_panic = "Argument option: mismatch between `number_of_values` (1) and `multiple_values`"]
-fn number_of_values_conflicts_with_multiple_values() {
-    Command::new("ctest")
-        .version("0.1")
-        .arg(
-            Arg::new("option")
-                .help("tests options")
-                .short('o')
-                .long("option")
-                .action(ArgAction::Set)
-                .number_of_values(1)
-                .multiple_values(true),
-        )
-        .build();
 }
 
 static RIPGREP_USAGE: &str = "ripgrep 0.5
@@ -1359,7 +1342,7 @@ OPTIONS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true)
                 .help("some"),
         );
@@ -1390,7 +1373,7 @@ OPTIONS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true)
                 .required(true)
                 .help("some"),
@@ -1428,7 +1411,7 @@ SUBCOMMANDS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true)
                 .required(true)
                 .help("some"),
@@ -1467,7 +1450,7 @@ SUBCOMMANDS:
         .arg(
             Arg::new("ARGS")
                 .action(ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .last(true)
                 .help("some"),
         )
@@ -1882,7 +1865,7 @@ OPTIONS:
             Arg::new("files")
                 .value_name("FILES")
                 .action(ArgAction::Set)
-                .multiple_values(true),
+                .number_of_values(1..),
         );
 
     utils::assert_output(cmd, "demo -h", ISSUE_1364, false);
@@ -2411,7 +2394,7 @@ fn missing_positional_final_multiple() {
         .allow_missing_positional(true)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
-        .arg(Arg::new("baz").action(ArgAction::Set).multiple_values(true));
+        .arg(Arg::new("baz").action(ArgAction::Set).number_of_values(1..));
     utils::assert_output(
         cmd,
         "test --help",
@@ -2438,7 +2421,7 @@ fn positional_multiple_values_is_dotted() {
         Arg::new("foo")
             .required(true)
             .action(ArgAction::Set)
-            .multiple_values(true),
+            .number_of_values(1..),
     );
     utils::assert_output(
         cmd,
@@ -2462,7 +2445,7 @@ OPTIONS:
             .required(true)
             .action(ArgAction::Set)
             .value_name("BAR")
-            .multiple_values(true),
+            .number_of_values(1..),
     );
     utils::assert_output(
         cmd,
@@ -2488,7 +2471,7 @@ fn positional_multiple_occurrences_is_dotted() {
         Arg::new("foo")
             .required(true)
             .action(ArgAction::Set)
-            .multiple_values(true)
+            .number_of_values(1..)
             .action(ArgAction::Append),
     );
     utils::assert_output(
@@ -2513,7 +2496,7 @@ OPTIONS:
             .required(true)
             .action(ArgAction::Set)
             .value_name("BAR")
-            .multiple_values(true)
+            .number_of_values(1..)
             .action(ArgAction::Append),
     );
     utils::assert_output(

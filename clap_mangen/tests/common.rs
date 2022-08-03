@@ -216,7 +216,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         .arg(
             clap::Arg::new("command_with_args")
                 .action(clap::ArgAction::Set)
-                .multiple_values(true)
+                .number_of_values(1..)
                 .value_hint(clap::ValueHint::CommandWithArguments),
         )
         .arg(

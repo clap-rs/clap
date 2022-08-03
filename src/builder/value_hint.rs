@@ -48,12 +48,12 @@ pub enum ValueHint {
     /// common when writing shell wrappers that execute anther command, for example `sudo` or `env`.
     ///
     /// This hint is special, the argument must be a positional argument and have
-    /// [`.multiple_values(true)`] and Command must use [`Command::trailing_var_arg(true)`]. The result is that the
+    /// [`.number_of_values(1..)`] and Command must use [`Command::trailing_var_arg(true)`]. The result is that the
     /// command line `my_app ls -la /` will be parsed as `["ls", "-la", "/"]` and clap won't try to
     /// parse the `-la` argument itself.
     ///
     /// [`Command::trailing_var_arg(true)`]: crate::Command::trailing_var_arg
-    /// [`.multiple_values(true)`]: crate::Arg::multiple_values()
+    /// [`.number_of_values(1..)`]: crate::Arg::number_of_values()
     CommandWithArguments,
     /// Name of a local operating system user.
     Username,
