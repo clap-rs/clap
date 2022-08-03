@@ -134,7 +134,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         long_value,
                         &parse_state,
                         &mut valid_arg_found,
-                        trailing_values,
                     )?;
                     debug!(
                         "Parser::get_matches_with: After parse_long_arg {:?}",
@@ -204,7 +203,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         &parse_state,
                         pos_counter,
                         &mut valid_arg_found,
-                        trailing_values,
                     )?;
                     // If it's None, we then check if one of those two AppSettings was set
                     debug!(
@@ -278,6 +276,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     // get the option so we can check the settings
                     let arg_values = matcher.pending_values_mut(id, None);
                     let arg = &self.cmd[id];
+                    let trailing_values = false;
                     let parse_result = self.split_arg_values(
                         arg,
                         arg_os.to_value_os(),
@@ -711,7 +710,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         long_value: Option<&RawOsStr>,
         parse_state: &ParseState,
         valid_arg_found: &mut bool,
-        trailing_values: bool,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -768,7 +766,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     long_arg, &long_value
                 );
                 let has_eq = long_value.is_some();
-                self.parse_opt_value(ident, long_value, arg, matcher, trailing_values, has_eq)
+                self.parse_opt_value(ident, long_value, arg, matcher, has_eq)
             } else if let Some(rest) = long_value {
                 let required = self.cmd.required_graph();
                 debug!(
@@ -816,7 +814,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,
         valid_arg_found: &mut bool,
-        trailing_values: bool,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_short_arg: short_arg={:?}", short_arg);
 
@@ -912,7 +909,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 } else {
                     (val, false)
                 };
-                match self.parse_opt_value(ident, val, arg, matcher, trailing_values, has_eq)? {
+                match self.parse_opt_value(ident, val, arg, matcher, has_eq)? {
                     ParseResult::AttachedValueNotConsumed => continue,
                     x => return Ok(x),
                 }
@@ -951,7 +948,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         attached_value: Option<&RawOsStr>,
         arg: &Arg<'help>,
         matcher: &mut ArgMatcher,
-        trailing_values: bool,
         has_eq: bool,
     ) -> ClapResult<ParseResult> {
         debug!(
@@ -987,6 +983,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             }
         } else if let Some(v) = attached_value {
             let mut arg_values = Vec::new();
+            let trailing_values = false;
             let parse_result = self.split_arg_values(arg, v, trailing_values, &mut arg_values);
             let react_result = self.react(
                 Some(ident),
