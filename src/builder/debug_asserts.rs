@@ -714,6 +714,15 @@ fn assert_arg(arg: &Arg) {
             arg.name,
             num_vals,
         );
+
+        if 1 < num_vals.min_values() {
+            assert!(
+                !arg.is_require_equals_set(),
+                "Argument {}: cannot accept more than 1 arg (num_args={}) with require_equals",
+                arg.name,
+                num_vals
+            );
+        }
     }
     if arg.get_num_args() == Some(1.into()) {
         assert!(
