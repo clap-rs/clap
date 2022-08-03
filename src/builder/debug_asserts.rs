@@ -768,7 +768,6 @@ fn assert_arg_flags(arg: &Arg) {
         }
     }
 
-    checker!(is_require_value_delimiter_set requires is_takes_value_set);
     checker!(is_hide_possible_values_set requires is_takes_value_set);
     checker!(is_allow_hyphen_values_set requires is_takes_value_set);
     checker!(is_require_equals_set requires is_takes_value_set);

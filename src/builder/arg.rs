@@ -1409,88 +1409,6 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies that *multiple values* may only be set using the delimiter.
-    ///
-    /// This means if an option is encountered, and no delimiter is found, it is assumed that no
-    /// additional values for that option follow. This is unlike the default, where it is generally
-    /// assumed that more values will follow regardless of whether or not a delimiter is used.
-    ///
-    /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
-    /// through help text or other means.
-    ///
-    /// # Examples
-    ///
-    /// These examples demonstrate what happens when `require_delimiter(true)` is used. Notice
-    /// everything works in this first example, as we use a delimiter, as expected.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let delims = Command::new("prog")
-    ///     .arg(Arg::new("opt")
-    ///         .short('o')
-    ///         .action(ArgAction::Set)
-    ///         .value_delimiter(',')
-    ///         .require_value_delimiter(true)
-    ///         .num_args(1..))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-o", "val1,val2,val3",
-    ///     ]);
-    ///
-    /// assert!(delims.contains_id("opt"));
-    /// assert_eq!(delims.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
-    /// ```
-    ///
-    /// In this next example, we will *not* use a delimiter. Notice it's now an error.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("opt")
-    ///         .short('o')
-    ///         .action(ArgAction::Set)
-    ///         .require_value_delimiter(true))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-o", "val1", "val2", "val3",
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// let err = res.unwrap_err();
-    /// assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    /// ```
-    ///
-    /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
-    /// were present, it stops parsing `-o`. At this point it reaches `val2` and because no
-    /// positional arguments have been defined, it's an error of an unexpected argument.
-    ///
-    /// In this final example, we contrast the above with `clap`'s default behavior where the above
-    /// is *not* an error.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let delims = Command::new("prog")
-    ///     .arg(Arg::new("opt")
-    ///         .short('o')
-    ///         .action(ArgAction::Set)
-    ///         .num_args(1..))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-o", "val1", "val2", "val3",
-    ///     ]);
-    ///
-    /// assert!(delims.contains_id("opt"));
-    /// assert_eq!(delims.get_many::<String>("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn require_value_delimiter(mut self, yes: bool) -> Self {
-        if yes {
-            self.val_delim.get_or_insert(',');
-            self.setting(ArgSettings::RequireDelimiter)
-                .takes_value(true)
-        } else {
-            self.unset_setting(ArgSettings::RequireDelimiter)
-        }
-    }
-
     /// Sentinel to **stop** parsing multiple values of a given argument.
     ///
     /// By default when
@@ -3989,11 +3907,6 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::HiddenLongHelp)
     }
 
-    /// Report whether [`Arg::require_value_delimiter`] is set
-    pub fn is_require_value_delimiter_set(&self) -> bool {
-        self.is_set(ArgSettings::RequireDelimiter)
-    }
-
     /// Report whether [`Arg::require_equals`] is set
     pub fn is_require_equals_set(&self) -> bool {
         self.is_set(ArgSettings::RequireEquals)
@@ -4098,12 +4011,7 @@ impl<'help> Arg<'help> {
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
         debug!("Arg::name_no_brackets:{}", self.name);
-        let delim = if self.is_require_value_delimiter_set() {
-            self.val_delim.expect(INTERNAL_ERROR_MSG)
-        } else {
-            ' '
-        }
-        .to_string();
+        let delim = " ";
         if !self.val_names.is_empty() {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
 
@@ -4268,13 +4176,7 @@ impl Default for ArgProvider {
 pub(crate) fn render_arg_val(arg: &Arg) -> String {
     let mut rendered = String::new();
 
-    let delim_storage;
-    let delim = if arg.is_require_value_delimiter_set() {
-        delim_storage = arg.val_delim.expect(INTERNAL_ERROR_MSG).to_string();
-        &delim_storage
-    } else {
-        " "
-    };
+    let delim = " ";
 
     let arg_name_storage;
     let val_names = if arg.val_names.is_empty() {
