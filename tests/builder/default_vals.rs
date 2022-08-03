@@ -822,7 +822,7 @@ fn valid_delimited_default_values() {
         .arg(
             Arg::new("arg")
                 .value_parser(clap::value_parser!(u32))
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true)
                 .default_value("1,2,3"),
         )
@@ -839,7 +839,7 @@ fn invalid_delimited_default_values() {
         .arg(
             Arg::new("arg")
                 .value_parser(clap::value_parser!(u32))
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true)
                 .default_value("one,two"),
         )

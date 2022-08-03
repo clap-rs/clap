@@ -786,12 +786,6 @@ impl<'help> Arg<'help> {
     /// - Using an equals and no space such as `-o=value` or `--option=value`
     /// - Use a short and no space such as `-ovalue`
     ///
-    /// **NOTE:** By default, args which allow [multiple values] are delimited by commas, meaning
-    /// `--option=val1,val2,val3` is three values for the `--option` argument. If you wish to
-    /// change the delimiter to another character you can use [`Arg::value_delimiter(char)`],
-    /// alternatively you can turn delimiting values **OFF** by using
-    /// [`Arg::use_value_delimiter(false)`][Arg::use_value_delimiter]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -807,7 +801,6 @@ impl<'help> Arg<'help> {
     /// assert!(m.contains_id("mode"));
     /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
     /// ```
-    /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
     /// [multiple values]: Arg::number_of_values
     #[inline]
     #[must_use]
@@ -1060,7 +1053,6 @@ impl<'help> Arg<'help> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
     /// ```
-    /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
     #[inline]
     #[must_use]
     pub fn number_of_values(mut self, qty: impl Into<ValuesRange>) -> Self {
@@ -1385,71 +1377,11 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that an argument should allow grouping of multiple values via a
-    /// delimiter.
+    /// Allow grouping of multiple values via a delimiter.
     ///
     /// i.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
     /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
     /// value delimiter for all arguments that accept values (options and positional arguments)
-    ///
-    /// **NOTE:** When this setting is used, it will default [`Arg::value_delimiter`]
-    /// to the comma `,`.
-    ///
-    /// **NOTE:** Implicitly sets [`Arg::takes_value`]
-    ///
-    /// # Examples
-    ///
-    /// The following example shows the default behavior.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let delims = Command::new("prog")
-    ///     .arg(Arg::new("option")
-    ///         .long("option")
-    ///         .use_value_delimiter(true)
-    ///         .action(ArgAction::Set))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--option=val1,val2,val3",
-    ///     ]);
-    ///
-    /// assert!(delims.contains_id("option"));
-    /// assert_eq!(delims.get_many::<String>("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
-    /// ```
-    /// The next example shows the difference when turning delimiters off. This is the default
-    /// behavior
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let nodelims = Command::new("prog")
-    ///     .arg(Arg::new("option")
-    ///         .long("option")
-    ///         .action(ArgAction::Set))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--option=val1,val2,val3",
-    ///     ]);
-    ///
-    /// assert!(nodelims.contains_id("option"));
-    /// assert_eq!(nodelims.get_one::<String>("option").unwrap(), "val1,val2,val3");
-    /// ```
-    /// [`Arg::value_delimiter`]: Arg::value_delimiter()
-    #[inline]
-    #[must_use]
-    pub fn use_value_delimiter(mut self, yes: bool) -> Self {
-        if yes {
-            if self.val_delim.is_none() {
-                self.val_delim = Some(',');
-            }
-            self.takes_value(true)
-                .setting(ArgSettings::UseValueDelimiter)
-        } else {
-            self.val_delim = None;
-            self.unset_setting(ArgSettings::UseValueDelimiter)
-        }
-    }
-
-    /// Separator between the arguments values, defaults to `,` (comma).
-    ///
-    /// **NOTE:** implicitly sets [`Arg::use_value_delimiter(true)`]
     ///
     /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`]
     ///
@@ -1461,20 +1393,20 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("config")
     ///         .short('c')
     ///         .long("config")
-    ///         .value_delimiter(';'))
+    ///         .value_delimiter(','))
     ///     .get_matches_from(vec![
-    ///         "prog", "--config=val1;val2;val3"
+    ///         "prog", "--config=val1,val2,val3"
     ///     ]);
     ///
     /// assert_eq!(m.get_many::<String>("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
-    /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
+    /// [`Arg::value_delimiter(',')`]: Arg::use_value_delimiter()
     /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
     #[inline]
     #[must_use]
-    pub fn value_delimiter(mut self, d: char) -> Self {
-        self.val_delim = Some(d);
-        self.takes_value(true).use_value_delimiter(true)
+    pub fn value_delimiter(mut self, d: impl Into<Option<char>>) -> Self {
+        self.val_delim = d.into();
+        self.takes_value(true)
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter.
@@ -1482,11 +1414,6 @@ impl<'help> Arg<'help> {
     /// This means if an option is encountered, and no delimiter is found, it is assumed that no
     /// additional values for that option follow. This is unlike the default, where it is generally
     /// assumed that more values will follow regardless of whether or not a delimiter is used.
-    ///
-    /// **NOTE:** The default is `false`.
-    ///
-    /// **NOTE:** Setting this requires [`Arg::use_value_delimiter`] and
-    /// [`Arg::takes_value`]
     ///
     /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
     /// through help text or other means.
@@ -1502,7 +1429,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("opt")
     ///         .short('o')
     ///         .action(ArgAction::Set)
-    ///         .use_value_delimiter(true)
+    ///         .value_delimiter(',')
     ///         .require_value_delimiter(true)
     ///         .number_of_values(1..))
     ///     .get_matches_from(vec![
@@ -1521,7 +1448,6 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("opt")
     ///         .short('o')
     ///         .action(ArgAction::Set)
-    ///         .use_value_delimiter(true)
     ///         .require_value_delimiter(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -1555,9 +1481,11 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn require_value_delimiter(self, yes: bool) -> Self {
+    pub fn require_value_delimiter(mut self, yes: bool) -> Self {
         if yes {
+            self.val_delim.get_or_insert(',');
             self.setting(ArgSettings::RequireDelimiter)
+                .takes_value(true)
         } else {
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
@@ -2009,7 +1937,7 @@ impl<'help> Arg<'help> {
     ///         .env("MY_FLAG_MULTI")
     ///         .action(ArgAction::Set)
     ///         .number_of_values(1..)
-    ///         .use_value_delimiter(true))
+    ///         .value_delimiter(','))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -2017,7 +1945,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.get_many::<String>("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
-    /// [`Arg::use_value_delimiter(true)`]: Arg::use_value_delimiter()
+    /// [`Arg::value_delimiter(',')`]: Arg::use_value_delimiter()
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
@@ -4061,11 +3989,6 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::HiddenLongHelp)
     }
 
-    /// Report whether [`Arg::use_value_delimiter`] is set
-    pub fn is_use_value_delimiter_set(&self) -> bool {
-        self.is_set(ArgSettings::UseValueDelimiter)
-    }
-
     /// Report whether [`Arg::require_value_delimiter`] is set
     pub fn is_require_value_delimiter_set(&self) -> bool {
         self.is_set(ArgSettings::RequireDelimiter)
@@ -4142,12 +4065,6 @@ impl<'help> Arg<'help> {
             } else {
                 self.value_parser = Some(super::ValueParser::string());
             }
-        }
-
-        if (self.is_use_value_delimiter_set() || self.is_require_value_delimiter_set())
-            && self.val_delim.is_none()
-        {
-            self.val_delim = Some(',');
         }
 
         let val_names_len = self.val_names.len();

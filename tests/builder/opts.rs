@@ -339,7 +339,7 @@ fn multiple_vals_pos_arg_delim() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .number_of_values(1..)
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
@@ -365,7 +365,7 @@ fn require_delims_no_delim() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o [opt] ... "some opt")
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(arg!([file] "some file"))
@@ -381,7 +381,7 @@ fn require_delims() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .number_of_values(1..)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(arg!([file] "some file"))

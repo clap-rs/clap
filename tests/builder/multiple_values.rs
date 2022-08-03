@@ -643,7 +643,7 @@ fn sep_long_equals() {
             Arg::new("option")
                 .long("option")
                 .help("multiple options")
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
@@ -667,7 +667,7 @@ fn sep_long_space() {
             Arg::new("option")
                 .long("option")
                 .help("multiple options")
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "--option", "val1,val2,val3"]);
 
@@ -691,7 +691,7 @@ fn sep_short_equals() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "-o=val1,val2,val3"]);
 
@@ -715,7 +715,7 @@ fn sep_short_space() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
@@ -739,7 +739,7 @@ fn sep_short_no_space() {
             Arg::new("option")
                 .short('o')
                 .help("multiple options")
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "-oval1,val2,val3"]);
 
@@ -762,7 +762,7 @@ fn sep_positional() {
         .arg(
             Arg::new("option")
                 .help("multiple options")
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "val1,val2,val3"]);
 
@@ -833,8 +833,7 @@ fn no_sep() {
             Arg::new("option")
                 .long("option")
                 .help("multiple options")
-                .action(ArgAction::Set)
-                .use_value_delimiter(false),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
@@ -854,8 +853,7 @@ fn no_sep_positional() {
         .arg(
             Arg::new("option")
                 .help("multiple options")
-                .action(ArgAction::Set)
-                .use_value_delimiter(false),
+                .action(ArgAction::Set),
         )
         .try_get_matches_from(vec!["", "val1,val2,val3"]);
 
@@ -876,7 +874,7 @@ fn req_delimiter_long() {
             Arg::new("option")
                 .long("option")
                 .number_of_values(1..)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(
@@ -914,7 +912,7 @@ fn req_delimiter_long_with_equal() {
             Arg::new("option")
                 .long("option")
                 .number_of_values(1..)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(
@@ -952,7 +950,7 @@ fn req_delimiter_short_with_space() {
             Arg::new("option")
                 .short('o')
                 .number_of_values(1..)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(
@@ -990,7 +988,7 @@ fn req_delimiter_short_with_no_space() {
             Arg::new("option")
                 .short('o')
                 .number_of_values(1..)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(
@@ -1028,7 +1026,7 @@ fn req_delimiter_short_with_equal() {
             Arg::new("option")
                 .short('o')
                 .number_of_values(1..)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(
@@ -1068,7 +1066,7 @@ fn req_delimiter_complex() {
                 .short('o')
                 .number_of_values(1..)
                 .action(ArgAction::Append)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true),
         )
         .arg(Arg::new("args").number_of_values(1..).index(1))

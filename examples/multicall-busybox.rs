@@ -25,8 +25,7 @@ fn main() {
                         .exclusive(true)
                         .action(ArgAction::Set)
                         .default_missing_value("/usr/local/bin")
-                        .value_parser(value_parser!(PathBuf))
-                        .use_value_delimiter(false),
+                        .value_parser(value_parser!(PathBuf)),
                 )
                 .subcommands(applet_commands()),
         )

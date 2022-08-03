@@ -109,7 +109,7 @@ fn opt_eq_mult_def_delim() {
                 .long("opt")
                 .action(ArgAction::Set)
                 .number_of_values(1..)
-                .use_value_delimiter(true),
+                .value_delimiter(','),
         )
         .try_get_matches_from(vec!["", "--opt=val1,val2,val3"]);
 

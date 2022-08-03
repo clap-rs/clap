@@ -972,7 +972,7 @@ impl<'help> Command<'help> {
     /// was used.
     ///
     /// **NOTE:** The same thing can be done manually by setting the final positional argument to
-    /// [`Arg::use_value_delimiter(false)`]. Using this setting is safer, because it's easier to locate
+    /// [`Arg::value_delimiter(None)`]. Using this setting is safer, because it's easier to locate
     /// when making changes.
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
@@ -986,7 +986,7 @@ impl<'help> Command<'help> {
     ///     .get_matches();
     /// ```
     ///
-    /// [`Arg::use_value_delimiter(false)`]: crate::Arg::use_value_delimiter()
+    /// [`Arg::value_delimiter(None)`]: crate::Arg::value_delimiter()
     #[inline]
     pub fn dont_delimit_trailing_values(self, yes: bool) -> Self {
         if yes {
