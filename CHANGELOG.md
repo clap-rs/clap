@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Replace `Arg::number_of_values` (average across occurrences) with `Arg::num_args` (per occurrence, raw CLI args, not parsed values)
   - `num_args(0)` no longer implies `takes_value(true).multiple_values(true)`
   - `num_args(1)` no longer implies `multiple_values(true)`
+  - Does not check default values, only what the user explicitly passes in
+- Sometimes `Arg::default_missing_value` didn't require `num_args(0..=1)`, now it does
 - Replace `Arg::min_values` (across all occurrences) with `Arg::num_args(N..)` (per occurrence)
 - Replace `Arg::max_values` (across all occurrences) with `Arg::num_args(1..=M)` (per occurrence)
 - Replace `Arg::multiple_values(true)` with `Arg::num_args(1..)` and `Arg::multiple_values(false)` with `Arg::num_args(0)`

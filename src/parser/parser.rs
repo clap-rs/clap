@@ -1127,6 +1127,10 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             ident,
             source
         );
+
+        // `default_missing_values` does not count (ie to avoid problems with flags)
+        self.verify_num_args(arg, &raw_vals)?;
+
         if raw_vals.is_empty() {
             // We assume this case is valid: require equals, but min_vals == 0.
             if !arg.default_missing_vals.is_empty() {
@@ -1147,8 +1151,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
             };
         }
-
-        self.verify_num_args(arg, &raw_vals)?;
 
         match arg.get_action() {
             ArgAction::Set => {

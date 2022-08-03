@@ -171,6 +171,7 @@ fn default_missing_value_flag_value() {
         Arg::new("flag")
             .long("flag")
             .action(ArgAction::Set)
+            .num_args(0..=1)
             .default_value("false")
             .default_missing_value("true"),
     );

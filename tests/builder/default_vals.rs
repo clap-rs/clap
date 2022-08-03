@@ -874,6 +874,7 @@ fn missing_with_value_delimiter() {
         Arg::new("option")
             .long("option")
             .value_delimiter(';')
+            .num_args(0..=1)
             .default_missing_values(&["value1;value2;value3", "value4;value5"]),
     );
 
