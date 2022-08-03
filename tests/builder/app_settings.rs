@@ -395,7 +395,7 @@ fn delim_values_only_pos_follows_with_delim() {
     let r = Command::new("onlypos")
         .args(&[
             arg!(f: -f [flag] "some opt"),
-            arg!([arg] ... "some arg").use_value_delimiter(true),
+            arg!([arg] ... "some arg").value_delimiter(','),
         ])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -415,7 +415,7 @@ fn delim_values_only_pos_follows_with_delim() {
 fn delim_values_trailingvararg_with_delim() {
     let m = Command::new("positional")
         .trailing_var_arg(true)
-        .arg(arg!([opt] ... "some pos").use_value_delimiter(true))
+        .arg(arg!([opt] ... "some pos").value_delimiter(','))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
     assert!(m.contains_id("opt"));
@@ -1150,7 +1150,7 @@ fn aaos_opts_mult_req_delims() {
         .arg(
             arg!(--opt <val> ... "some option")
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true)
                 .action(ArgAction::Append),
         )
@@ -1219,11 +1219,7 @@ fn aaos_pos_mult() {
 #[test]
 fn aaos_option_use_delim_false() {
     let m = Command::new("posix")
-        .arg(
-            arg!(--opt <val> "some option")
-                .use_value_delimiter(false)
-                .action(ArgAction::Set),
-        )
+        .arg(arg!(--opt <val> "some option").action(ArgAction::Set))
         .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
         .unwrap();
     assert!(m.contains_id("opt"));

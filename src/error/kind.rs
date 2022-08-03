@@ -105,7 +105,6 @@ pub enum ErrorKind {
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("arg")
     ///         .number_of_values(1..=2)
-    ///         .use_value_delimiter(true)
     ///         .require_value_delimiter(true))
     ///     .try_get_matches_from(vec!["prog", "too,many,values"]);
     /// assert!(result.is_err());

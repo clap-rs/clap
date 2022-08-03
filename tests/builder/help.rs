@@ -1602,7 +1602,7 @@ OPTIONS:
                 .required(true)
                 .value_names(&["some", "val"])
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true)
                 .value_delimiter(':'),
         );
@@ -1638,7 +1638,7 @@ NETWORKING:
                 .required(true)
                 .value_names(&["some", "val"])
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true)
                 .value_delimiter(':'),
         )
@@ -1691,7 +1691,7 @@ fn multiple_custom_help_headers() {
                 .required(true)
                 .value_names(&["some", "val"])
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .require_value_delimiter(true)
                 .value_delimiter(':'),
         )

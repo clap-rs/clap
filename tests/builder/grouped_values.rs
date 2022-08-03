@@ -68,7 +68,7 @@ fn grouped_value_long_flag_delimiter() {
             Arg::new("option")
                 .long("option")
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .number_of_values(1..)
                 .action(ArgAction::Append),
         )
@@ -98,7 +98,7 @@ fn grouped_value_short_flag_delimiter() {
             Arg::new("option")
                 .short('o')
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .number_of_values(1..)
                 .action(ArgAction::Append),
         )

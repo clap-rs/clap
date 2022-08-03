@@ -229,7 +229,7 @@ fn multiple_one() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MO")
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .number_of_values(1..),
         )
         .try_get_matches_from(vec![""]);
@@ -255,7 +255,7 @@ fn multiple_three() {
             arg!([arg] "some opt")
                 .env("CLP_TEST_ENV_MULTI1")
                 .action(ArgAction::Set)
-                .use_value_delimiter(true)
+                .value_delimiter(',')
                 .number_of_values(1..),
         )
         .try_get_matches_from(vec![""]);

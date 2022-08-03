@@ -543,7 +543,7 @@ impl ArgMatches {
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .use_value_delimiter(true)
+    ///         .value_delimiter(',')
     ///         .number_of_values(1..))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1
@@ -585,7 +585,7 @@ impl ArgMatches {
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .use_value_delimiter(true))
+    ///         .value_delimiter(','))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///            // ARGV indices: ^0       ^1
     ///            // clap indices:             ^2   ^3   ^4

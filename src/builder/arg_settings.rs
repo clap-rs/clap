@@ -32,7 +32,6 @@ pub(crate) enum ArgSettings {
     Global,
     Hidden,
     TakesValue,
-    UseValueDelimiter,
     NextLineHelp,
     RequireDelimiter,
     HidePossibleValues,
@@ -56,7 +55,6 @@ bitflags! {
         const GLOBAL           = 1 << 3;
         const HIDDEN           = 1 << 4;
         const TAKES_VAL        = 1 << 5;
-        const USE_DELIM        = 1 << 6;
         const NEXT_LINE_HELP   = 1 << 7;
         const REQ_DELIM        = 1 << 9;
         const DELIM_NOT_SET    = 1 << 10;
@@ -84,7 +82,6 @@ impl_settings! { ArgSettings, ArgFlags,
     Global => Flags::GLOBAL,
     Hidden => Flags::HIDDEN,
     TakesValue => Flags::TAKES_VAL,
-    UseValueDelimiter => Flags::USE_DELIM,
     NextLineHelp => Flags::NEXT_LINE_HELP,
     RequireDelimiter => Flags::REQ_DELIM,
     HidePossibleValues => Flags::HIDE_POS_VALS,
