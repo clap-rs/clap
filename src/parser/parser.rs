@@ -1351,10 +1351,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             if let Some((_, Some(ref val))) = arg.env {
                 let val = RawOsStr::new(val);
 
-                debug!(
-                    "Parser::add_env: Found an opt with value={:?}",
-                    val, trailing_values
-                );
+                debug!("Parser::add_env: Found an opt with value={:?}", val,);
                 let mut arg_values = Vec::new();
                 let _parse_result =
                     self.split_arg_values(arg, &val, trailing_values, &mut arg_values);
