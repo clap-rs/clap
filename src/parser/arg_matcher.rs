@@ -202,15 +202,12 @@ impl ArgMatcher {
             "ArgMatcher::needs_more_vals: o={}, pending={}",
             o.name, num_pending
         );
-        if let Some(expected) = o.get_num_args() {
-            debug!(
-                "ArgMatcher::needs_more_vals: expected={}, actual={}",
-                expected, num_pending
-            );
-            expected.accepts_more(num_pending)
-        } else {
-            o.is_multiple_values_set()
-        }
+        let expected = o.get_num_args().expect(INTERNAL_ERROR_MSG);
+        debug!(
+            "ArgMatcher::needs_more_vals: expected={}, actual={}",
+            expected, num_pending
+        );
+        expected.accepts_more(num_pending)
     }
 
     pub(crate) fn pending_arg_id(&self) -> Option<&Id> {

@@ -5,6 +5,7 @@ use clap_lex::RawOsStr;
 use crate::builder::arg::ArgProvider;
 use crate::mkeymap::KeyType;
 use crate::ArgAction;
+use crate::INTERNAL_ERROR_MSG;
 use crate::{Arg, Command, ValueHint};
 
 pub(crate) fn assert_app(cmd: &Command) {
@@ -535,7 +536,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
             .get_positionals()
             .filter(|p| {
                 p.is_multiple_values_set()
-                    && !p.get_num_args().map(|r| r.is_fixed()).unwrap_or(false)
+                    && !p.get_num_args().expect(INTERNAL_ERROR_MSG).is_fixed()
             })
             .count();
         let ok = count <= 1
@@ -690,44 +691,44 @@ fn assert_arg(arg: &Arg) {
         );
     }
 
-    if let Some(num_vals) = arg.get_num_args() {
-        // This can be the cause of later asserts, so put this first
-        if num_vals != 0.into() {
-            // HACK: Don't check for flags to make the derive easier
-            let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
-            if num_vals.max_values() < num_val_names {
-                panic!(
-                    "Argument {}: Too many value names ({}) compared to `num_args` ({})",
-                    arg.name, num_val_names, num_vals
-                );
-            }
-        }
-
-        assert_eq!(
-            num_vals.takes_values(),
-            arg.is_takes_value_set(),
-            "Argument {}: mismatch between `num_args` ({}) and `takes_value`",
-            arg.name,
-            num_vals,
-        );
-        assert_eq!(
-            num_vals.is_multiple(),
-            arg.is_multiple_values_set(),
-            "Argument {}: mismatch between `num_args` ({}) and `multiple_values`",
-            arg.name,
-            num_vals,
-        );
-
-        if 1 < num_vals.min_values() {
-            assert!(
-                !arg.is_require_equals_set(),
-                "Argument {}: cannot accept more than 1 arg (num_args={}) with require_equals",
-                arg.name,
-                num_vals
+    let num_vals = arg.get_num_args().expect(INTERNAL_ERROR_MSG);
+    // This can be the cause of later asserts, so put this first
+    if num_vals != 0.into() {
+        // HACK: Don't check for flags to make the derive easier
+        let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
+        if num_vals.max_values() < num_val_names {
+            panic!(
+                "Argument {}: Too many value names ({}) compared to `num_args` ({})",
+                arg.name, num_val_names, num_vals
             );
         }
     }
-    if arg.get_num_args() == Some(1.into()) {
+
+    assert_eq!(
+        num_vals.takes_values(),
+        arg.is_takes_value_set(),
+        "Argument {}: mismatch between `num_args` ({}) and `takes_value`",
+        arg.name,
+        num_vals,
+    );
+    assert_eq!(
+        num_vals.is_multiple(),
+        arg.is_multiple_values_set(),
+        "Argument {}: mismatch between `num_args` ({}) and `multiple_values`",
+        arg.name,
+        num_vals,
+    );
+
+    if 1 < num_vals.min_values() {
+        assert!(
+            !arg.is_require_equals_set(),
+            "Argument {}: cannot accept more than 1 arg (num_args={}) with require_equals",
+            arg.name,
+            num_vals
+        );
+    }
+
+    if num_vals == 1.into() {
         assert!(
             !arg.is_multiple_values_set(),
             "Argument {}: mismatch between `num_args` and `multiple_values`",

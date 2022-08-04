@@ -462,10 +462,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
             Some(val) => format!(":{}:{}", vn, val),
             None => format!(":{}: ", vn),
         };
-        let vc = match o.get_num_args() {
-            Some(num_vals) => vc.repeat(num_vals.min_values()),
-            None => vc,
-        };
+        let vc = vc.repeat(o.get_num_args().expect("built").min_values());
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
             for short in shorts {
@@ -625,7 +622,8 @@ fn write_positionals_of(p: &Command) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
-        let cardinality = if arg.is_multiple_values_set() {
+        let num_args = arg.get_num_args().expect("built");
+        let cardinality = if num_args != 1.into() && num_args != 0.into() {
             "*:"
         } else if !arg.is_required_set() {
             ":"

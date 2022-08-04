@@ -121,14 +121,14 @@ pub fn longs_and_visible_aliases(p: &Command) -> Vec<String> {
 pub fn flags<'help>(p: &Command<'help>) -> Vec<Arg<'help>> {
     debug!("flags: name={}", p.get_name());
     p.get_arguments()
-        .filter(|a| !a.is_takes_value_set() && !a.is_positional())
+        .filter(|a| !a.get_num_args().expect("built").takes_values() && !a.is_positional())
         .cloned()
         .collect()
 }
 
 /// Get the possible values for completion
 pub fn possible_values<'help>(a: &Arg<'help>) -> Option<Vec<clap::builder::PossibleValue<'help>>> {
-    if !a.is_takes_value_set() {
+    if !a.get_num_args().expect("built").takes_values() {
         None
     } else {
         a.get_value_parser()
