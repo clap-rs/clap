@@ -2116,7 +2116,7 @@ impl<'help> Command<'help> {
     ///     .allow_missing_positional(true)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").action(ArgAction::Set).number_of_values(1..))
+    ///     .arg(Arg::new("baz").action(ArgAction::Set).num_args(1..))
     ///     .get_matches_from(vec![
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
@@ -2135,7 +2135,7 @@ impl<'help> Command<'help> {
     ///     .allow_missing_positional(true)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").action(ArgAction::Set).number_of_values(1..))
+    ///     .arg(Arg::new("baz").action(ArgAction::Set).num_args(1..))
     ///     .get_matches_from(vec![
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);
@@ -2831,7 +2831,7 @@ impl<'help> Command<'help> {
     /// let cmd = Command::new("cmd").subcommand(Command::new("sub")).arg(
     ///     Arg::new("arg")
     ///         .long("arg")
-    ///         .number_of_values(1..)
+    ///         .num_args(1..)
     ///         .action(ArgAction::Set),
     /// );
     ///
@@ -4254,7 +4254,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                     Arg::new("subcommand")
                         .index(1)
                         .action(ArgAction::Append)
-                        .number_of_values(..)
+                        .num_args(..)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),
                 );

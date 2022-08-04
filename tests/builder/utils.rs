@@ -49,7 +49,7 @@ pub fn complex_app() -> Command<'static> {
                 -o --option <opt> "tests options"
             )
             .required(false)
-            .number_of_values(1..)
+            .num_args(1..)
             .action(ArgAction::Append),
         )
         .arg(arg!([positional] "tests positionals"))
@@ -80,17 +80,17 @@ pub fn complex_app() -> Command<'static> {
                 .required(false),
             arg!(--minvals2 <minvals> "Tests 2 min vals")
                 .required(false)
-                .number_of_values(2..),
+                .num_args(2..),
             arg!(--maxvals3 <maxvals> "Tests 3 max vals")
                 .required(false)
-                .number_of_values(1..=3),
+                .num_args(1..=3),
             arg!(--optvaleq <optval> "Tests optional value, require = sign")
                 .required(false)
-                .number_of_values(0..=1)
+                .num_args(0..=1)
                 .require_equals(true),
             arg!(--optvalnoeq <optval> "Tests optional value")
                 .required(false)
-                .number_of_values(0..=1),
+                .num_args(0..=1),
         ])
         .subcommand(
             Command::new("subcmd")
@@ -100,7 +100,7 @@ pub fn complex_app() -> Command<'static> {
                 .arg(
                     arg!(-o --option <scoption> "tests options")
                         .required(false)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 )
                 .arg(arg!(-s --subcmdarg <subcmdarg> "tests other args").required(false))
                 .arg(arg!([scpositional] "tests positionals")),

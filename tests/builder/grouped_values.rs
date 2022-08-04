@@ -9,7 +9,7 @@ fn grouped_value_works() {
             Arg::new("option")
                 .long("option")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append),
         )
         .try_get_matches_from(&[
@@ -41,7 +41,7 @@ fn issue_1026() {
             Arg::new("target")
                 .long("target")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append),
         )
         .try_get_matches_from(&[
@@ -69,7 +69,7 @@ fn grouped_value_long_flag_delimiter() {
                 .long("option")
                 .action(ArgAction::Set)
                 .value_delimiter(',')
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![
@@ -99,7 +99,7 @@ fn grouped_value_short_flag_delimiter() {
                 .short('o')
                 .action(ArgAction::Set)
                 .value_delimiter(',')
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["myapp", "-o=foo", "-o=val1,val2,val3", "-o=bar"])
@@ -118,7 +118,7 @@ fn grouped_value_positional_arg() {
             Arg::new("pos")
                 .help("multiple positionals")
                 .action(ArgAction::Set)
-                .number_of_values(1..),
+                .num_args(1..),
         )
         .try_get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
@@ -139,7 +139,7 @@ fn grouped_value_multiple_positional_arg() {
             Arg::new("pos2")
                 .help("multiple positionals")
                 .action(ArgAction::Set)
-                .number_of_values(1..),
+                .num_args(1..),
         )
         .try_get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
@@ -160,7 +160,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
             Arg::new("pos2")
                 .help("multiple positionals")
                 .action(ArgAction::Set)
-                .number_of_values(1..)
+                .num_args(1..)
                 .last(true),
         )
         .try_get_matches_from(vec![
@@ -177,7 +177,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
 #[test]
 fn grouped_interleaved_positional_values() {
     let cmd = clap::Command::new("foo")
-        .arg(clap::Arg::new("pos").number_of_values(1..))
+        .arg(clap::Arg::new("pos").num_args(1..))
         .arg(
             clap::Arg::new("flag")
                 .short('f')
@@ -200,7 +200,7 @@ fn grouped_interleaved_positional_values() {
 #[test]
 fn grouped_interleaved_positional_occurrences() {
     let cmd = clap::Command::new("foo")
-        .arg(clap::Arg::new("pos").number_of_values(1..))
+        .arg(clap::Arg::new("pos").num_args(1..))
         .arg(
             clap::Arg::new("flag")
                 .short('f')

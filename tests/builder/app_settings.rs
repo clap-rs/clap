@@ -1173,7 +1173,7 @@ fn aaos_opts_mult() {
     let res = Command::new("posix")
         .arg(
             arg!(--opt <val> ... "some option")
-                .number_of_values(1..)
+                .num_args(1..)
                 .action(ArgAction::Append),
         )
         .try_get_matches_from(vec![

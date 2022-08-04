@@ -3,10 +3,10 @@ use crate::builder::{Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::fmt::Stream;
 use crate::output::Usage;
-use crate::parser::{ArgMatcher, MatchedArg, ParseState};
+use crate::parser::{ArgMatcher, ParseState};
 use crate::util::ChildGraph;
 use crate::util::Id;
-use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
+use crate::INTERNAL_ERROR_MSG;
 
 pub(crate) struct Validator<'help, 'cmd> {
     cmd: &'cmd Command<'help>,
@@ -40,7 +40,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             if should_err {
                 return Err(Error::empty_value(
                     self.cmd,
-                    &get_possible_values(o)
+                    &get_possible_values_cli(o)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
                         .map(PossibleValue::get_name)
@@ -78,7 +78,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         if !(self.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
             self.validate_required(matcher, &mut conflicts)?;
         }
-        self.validate_matched_args(matcher)?;
 
         Ok(())
     }
@@ -229,92 +228,6 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                 }
             }
         }
-    }
-
-    fn validate_matched_args(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debug!("Validator::validate_matched_args");
-        matcher.iter().try_for_each(|(name, ma)| {
-            debug!(
-                "Validator::validate_matched_args:iter:{:?}: vals={:#?}",
-                name,
-                ma.vals_flatten()
-            );
-            if let Some(arg) = self.cmd.find(name) {
-                self.validate_arg_num_vals(arg, ma)?;
-            }
-            Ok(())
-        })
-    }
-
-    fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
-        debug!("Validator::validate_arg_num_vals");
-        for (_i, group) in ma.vals().enumerate() {
-            let actual = group.len();
-            debug!(
-                "Validator::validate_arg_num_vals: group={}, actual={}",
-                _i, actual
-            );
-
-            let min_vals = a.get_min_vals().unwrap_or(1);
-            if a.is_takes_value_set() && 0 < min_vals && actual == 0 {
-                // Issue 665 (https://github.com/clap-rs/clap/issues/665)
-                // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
-                return Err(Error::empty_value(
-                    self.cmd,
-                    &get_possible_values(a)
-                        .iter()
-                        .filter(|pv| !pv.is_hide_set())
-                        .map(PossibleValue::get_name)
-                        .collect::<Vec<_>>(),
-                    a.to_string(),
-                ));
-            }
-
-            if let Some(expected) = a.get_num_vals() {
-                if let Some(expected) = expected.num_values() {
-                    if expected != actual {
-                        debug!(
-                            "Validator::validate_arg_num_vals: Sending error WrongNumberOfValues"
-                        );
-                        return Err(Error::wrong_number_of_values(
-                            self.cmd,
-                            a.to_string(),
-                            expected,
-                            actual,
-                            Usage::new(self.cmd)
-                                .required(&self.required)
-                                .create_usage_with_title(&[]),
-                        ));
-                    }
-                } else if actual < expected.min_values() {
-                    return Err(Error::too_few_values(
-                        self.cmd,
-                        a.to_string(),
-                        expected.min_values(),
-                        actual,
-                        Usage::new(self.cmd)
-                            .required(&self.required)
-                            .create_usage_with_title(&[]),
-                    ));
-                } else if expected.max_values() < actual {
-                    debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
-                    return Err(Error::too_many_values(
-                        self.cmd,
-                        ma.raw_vals_flatten()
-                            .last()
-                            .expect(INTERNAL_ERROR_MSG)
-                            .to_str()
-                            .expect(INVALID_UTF8)
-                            .to_string(),
-                        a.to_string(),
-                        Usage::new(self.cmd)
-                            .required(&self.required)
-                            .create_usage_with_title(&[]),
-                    ));
-                }
-            }
-        }
-        Ok(())
     }
 
     fn validate_required(
@@ -540,7 +453,7 @@ impl Conflicts {
     }
 }
 
-fn get_possible_values<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
+pub(crate) fn get_possible_values_cli<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
     if !a.is_takes_value_set() {
         vec![]
     } else {

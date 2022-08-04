@@ -411,7 +411,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** This is only meant to be used for positional arguments and shouldn't to be used
     /// with [`Arg::short`] or [`Arg::long`].
     ///
-    /// **NOTE:** When utilized with [`Arg::number_of_values(1..)`], only the **last** positional argument
+    /// **NOTE:** When utilized with [`Arg::num_args(1..)`], only the **last** positional argument
     /// may be defined as having a variable number of arguments (i.e. with the highest index)
     ///
     /// # Panics
@@ -447,7 +447,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::short`]: Arg::short()
     /// [`Arg::long`]: Arg::long()
-    /// [`Arg::number_of_values(true)`]: Arg::number_of_values()
+    /// [`Arg::num_args(true)`]: Arg::num_args()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     /// [`Command`]: crate::Command
     #[inline]
@@ -801,7 +801,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.contains_id("mode"));
     /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
     /// ```
-    /// [multiple values]: Arg::number_of_values
+    /// [multiple values]: Arg::num_args
     #[inline]
     #[must_use]
     pub fn takes_value(self, yes: bool) -> Self {
@@ -908,13 +908,13 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies the number of values allowed per occurrence of this argument
+    /// Specifies the number of arguments parsed per occurrence
     ///
     /// For example, if you had a `-f <file>` argument where you wanted exactly 3 'files' you would
-    /// set `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user
+    /// set `.num_args(3)`, and this argument wouldn't be satisfied unless the user
     /// provided 3 and only 3 values.
     ///
-    /// **NOTE:** Users may specify values for arguments in any of the following methods
+    /// Users may specify values for arguments in any of the following methods
     ///
     /// - Using a space such as `-o value` or `--option value`
     /// - Using an equals and no space such as `-o=value` or `--option=value`
@@ -934,7 +934,7 @@ impl<'help> Arg<'help> {
     /// - It reaches the [`Arg::value_terminator`] if set
     ///
     /// Alternatively,
-    /// - Require a delimiter between values with [Arg::require_value_delimiter]
+    /// - Use a delimiter between values with [Arg::value_delimiter]
     /// - Require a flag occurrence per value with [`ArgAction::Append`]
     /// - Require positional arguments to appear after `--` with [`Arg::last`]
     ///
@@ -946,7 +946,7 @@ impl<'help> Arg<'help> {
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .number_of_values(1))
+    ///         .num_args(1))
     ///     .get_matches_from(vec![
     ///         "prog", "--mode", "fast"
     ///     ]);
@@ -962,7 +962,7 @@ impl<'help> Arg<'help> {
     ///         .long("mode")
     ///         .default_missing_value("slow")
     ///         .default_value("plaid")
-    ///         .number_of_values(0..=1));
+    ///         .num_args(0..=1));
     ///
     /// let m = cmd.clone()
     ///     .get_matches_from(vec![
@@ -989,7 +989,7 @@ impl<'help> Arg<'help> {
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(2)
+    ///         .num_args(2)
     ///         .short('F'));
     ///
     /// let m = cmd.clone()
@@ -1015,7 +1015,7 @@ impl<'help> Arg<'help> {
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("file")
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(0..)
+    ///         .num_args(0..)
     ///         .short('F'))
     ///     .arg(Arg::new("word"));
     ///
@@ -1055,7 +1055,7 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn number_of_values(mut self, qty: impl Into<ValuesRange>) -> Self {
+    pub fn num_args(mut self, qty: impl Into<ValuesRange>) -> Self {
         let qty = qty.into();
         self.num_vals = Some(qty);
         self.takes_value(qty.takes_values())
@@ -1128,7 +1128,7 @@ impl<'help> Arg<'help> {
     /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
     /// multiple value names in order to not throw off the help text alignment of all options.
     ///
-    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`] and [`Arg::number_of_values(1..)`].
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`] and [`Arg::num_args(1..)`].
     ///
     /// # Examples
     ///
@@ -1164,9 +1164,9 @@ impl<'help> Arg<'help> {
     ///     -V, --version                    Print version information
     /// ```
     /// [`Arg::next_line_help(true)`]: Arg::next_line_help()
-    /// [`Arg::number_of_values`]: Arg::number_of_values()
+    /// [`Arg::num_args`]: Arg::num_args()
     /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
-    /// [`Arg::number_of_values(1..)`]: Arg::number_of_values()
+    /// [`Arg::num_args(1..)`]: Arg::num_args()
     #[must_use]
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
         self.val_names = names.to_vec();
@@ -1198,7 +1198,7 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("command")
     ///             .action(ArgAction::Set)
-    ///             .number_of_values(1..)
+    ///             .num_args(1..)
     ///             .value_hint(ValueHint::CommandWithArguments)
     ///     );
     /// ```
@@ -1247,7 +1247,7 @@ impl<'help> Arg<'help> {
     ///         .long("option")
     ///         .action(ArgAction::Set)
     ///         .ignore_case(true)
-    ///         .number_of_values(1..)
+    ///         .num_args(1..)
     ///         .value_parser(["test123", "test321"]))
     ///     .get_matches_from(vec![
     ///         "pv", "--option", "TeSt123", "teST123", "tESt321"
@@ -1271,7 +1271,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Setting this requires [`Arg::takes_value`]
     ///
     /// **WARNING**: Take caution when using this setting combined with
-    /// [`Arg::number_of_values`], as this becomes ambiguous `$ prog --arg -- -- val`. All
+    /// [`Arg::num_args`], as this becomes ambiguous `$ prog --arg -- -- val`. All
     /// three `--, --, val` will be values when the user may have thought the second `--` would
     /// constitute the normal, "Only positional args follow" idiom.
     ///
@@ -1314,7 +1314,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
-    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
+    /// [`Arg::num_args(1)`]: Arg::num_args()
     #[inline]
     #[must_use]
     pub fn allow_hyphen_values(self, yes: bool) -> Self {
@@ -1431,7 +1431,7 @@ impl<'help> Arg<'help> {
     ///         .action(ArgAction::Set)
     ///         .value_delimiter(',')
     ///         .require_value_delimiter(true)
-    ///         .number_of_values(1..))
+    ///         .num_args(1..))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1,val2,val3",
     ///     ]);
@@ -1471,7 +1471,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("opt")
     ///         .short('o')
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(1..))
+    ///         .num_args(1..))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
     ///     ]);
@@ -1494,9 +1494,9 @@ impl<'help> Arg<'help> {
     /// Sentinel to **stop** parsing multiple values of a given argument.
     ///
     /// By default when
-    /// one sets [`number_of_values(1..)`] on an argument, clap will continue parsing values for that
+    /// one sets [`num_args(1..)`] on an argument, clap will continue parsing values for that
     /// argument until it reaches another valid argument, or one of the other more specific settings
-    /// for multiple values is used (such as [`number_of_values`]).
+    /// for multiple values is used (such as [`num_args`]).
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
@@ -1509,7 +1509,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("vals")
     ///     .action(ArgAction::Set)
-    ///     .number_of_values(1..)
+    ///     .num_args(1..)
     ///     .value_terminator(";")
     /// # ;
     /// ```
@@ -1522,7 +1522,7 @@ impl<'help> Arg<'help> {
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cmds")
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(1..)
+    ///         .num_args(1..)
     ///         .allow_hyphen_values(true)
     ///         .value_terminator(";"))
     ///     .arg(Arg::new("location"))
@@ -1535,8 +1535,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
-    /// [`number_of_values(1..)`]: Arg::number_of_values()
-    /// [`number_of_values`]: Arg::number_of_values()
+    /// [`num_args(1..)`]: Arg::num_args()
+    /// [`num_args`]: Arg::num_args()
     #[inline]
     #[must_use]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
@@ -1559,11 +1559,11 @@ impl<'help> Arg<'help> {
     /// may not be exactly what you are expecting and using [`crate::Command::trailing_var_arg`]
     /// may be more appropriate.
     ///
-    /// **NOTE:** Implicitly sets [`Arg::action(ArgAction::Set)`] [`Arg::number_of_values(1..)`],
+    /// **NOTE:** Implicitly sets [`Arg::action(ArgAction::Set)`] [`Arg::num_args(1..)`],
     /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`.
     ///
     /// [`Arg::action(ArgAction::Set)`]: Arg::takes_value()
-    /// [`Arg::number_of_values(1..)`]: Arg::number_of_values()
+    /// [`Arg::num_args(1..)`]: Arg::num_args()
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
     #[inline]
@@ -1680,7 +1680,7 @@ impl<'help> Arg<'help> {
     /// the user can quickly just add `--color` to the command line to produce the desired color output.
     ///
     /// **NOTE:** using this configuration option requires the use of the
-    /// [`.number_of_values(0..N)`][Arg::number_of_values] and the
+    /// [`.num_args(0..N)`][Arg::num_args] and the
     /// [`.require_equals(true)`][Arg::require_equals] configuration option. These are required in
     /// order to unambiguously determine what, if any, value was supplied for the argument.
     ///
@@ -1695,7 +1695,7 @@ impl<'help> Arg<'help> {
     ///             .value_name("WHEN")
     ///             .value_parser(["always", "auto", "never"])
     ///             .default_value("auto")
-    ///             .number_of_values(0..=1)
+    ///             .num_args(0..=1)
     ///             .require_equals(true)
     ///             .default_missing_value("always")
     ///             .help("Specify WHEN to colorize output.")
@@ -1732,7 +1732,7 @@ impl<'help> Arg<'help> {
     ///         .arg(Arg::new("create").long("create")
     ///             .value_name("BOOL")
     ///             .value_parser(value_parser!(bool))
-    ///             .number_of_values(0..=1)
+    ///             .num_args(0..=1)
     ///             .require_equals(true)
     ///             .default_missing_value("true")
     ///         )
@@ -1936,7 +1936,7 @@ impl<'help> Arg<'help> {
     ///         .long("flag")
     ///         .env("MY_FLAG_MULTI")
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(1..)
+    ///         .num_args(1..)
     ///         .value_delimiter(','))
     ///     .get_matches_from(vec![
     ///         "prog"
@@ -3811,13 +3811,13 @@ impl<'help> Arg<'help> {
 
     /// Get the number of values for this argument.
     #[inline]
-    pub fn get_num_vals(&self) -> Option<ValuesRange> {
+    pub fn get_num_args(&self) -> Option<ValuesRange> {
         self.num_vals
     }
 
     #[inline]
     pub(crate) fn get_min_vals(&self) -> Option<usize> {
-        self.get_num_vals().map(|r| r.min_values())
+        self.get_num_args().map(|r| r.min_values())
     }
 
     /// Get the delimiter between multiple values
@@ -3897,7 +3897,7 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::Required)
     }
 
-    /// Report whether [`Arg::number_of_values`] allows multiple values
+    /// Report whether [`Arg::num_args`] allows multiple values
     pub fn is_multiple_values_set(&self) -> bool {
         self.is_set(ArgSettings::MultipleValues)
     }
@@ -4286,7 +4286,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let mut extra_values = false;
     debug_assert!(arg.is_takes_value_set());
-    let num_vals = arg.get_num_vals().unwrap_or_else(|| {
+    let num_vals = arg.get_num_args().unwrap_or_else(|| {
         if arg.is_multiple_values_set() {
             (1..).into()
         } else {
@@ -4302,7 +4302,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
             }
             rendered.push_str(&arg_name);
         }
-        extra_values |= arg.get_num_vals().is_none() && arg.is_multiple_values_set();
+        extra_values |= arg.get_num_args().is_none() && arg.is_multiple_values_set();
         extra_values |= min < num_vals.max_values();
     } else {
         debug_assert!(1 < val_names.len());
@@ -4414,7 +4414,7 @@ mod test {
         let mut o = Arg::new("opt")
             .long("option")
             .action(ArgAction::Set)
-            .number_of_values(1..);
+            .num_args(1..);
         o._build();
 
         assert_eq!(o.to_string(), "--option <opt>...");
@@ -4425,7 +4425,7 @@ mod test {
         let mut o = Arg::new("opt")
             .long("option")
             .action(ArgAction::Set)
-            .number_of_values(0..);
+            .num_args(0..);
         o._build();
 
         assert_eq!(o.to_string(), "--option [<opt>...]");
@@ -4436,7 +4436,7 @@ mod test {
         let mut o = Arg::new("opt")
             .long("option")
             .action(ArgAction::Set)
-            .number_of_values(1..);
+            .num_args(1..);
         o._build();
 
         assert_eq!(o.to_string(), "--option <opt>...");
@@ -4447,7 +4447,7 @@ mod test {
         let mut o = Arg::new("opt")
             .short('o')
             .action(ArgAction::Set)
-            .number_of_values(0..)
+            .num_args(0..)
             .value_names(&["file"]);
         o._build();
 
@@ -4459,7 +4459,7 @@ mod test {
         let mut o = Arg::new("opt")
             .short('o')
             .action(ArgAction::Set)
-            .number_of_values(1..)
+            .num_args(1..)
             .value_names(&["file"]);
         o._build();
 
@@ -4471,7 +4471,7 @@ mod test {
         let mut o = Arg::new("opt")
             .long("option")
             .action(ArgAction::Set)
-            .number_of_values(0..=1);
+            .num_args(0..=1);
         o._build();
 
         assert_eq!(o.to_string(), "--option [<opt>]");
@@ -4492,7 +4492,7 @@ mod test {
     fn option_display3() {
         let mut o = Arg::new("opt")
             .short('o')
-            .number_of_values(1..)
+            .num_args(1..)
             .action(ArgAction::Set)
             .value_names(&["file", "name"]);
         o._build();
@@ -4550,7 +4550,7 @@ mod test {
 
     #[test]
     fn positional_display_multiple_values() {
-        let mut p = Arg::new("pos").index(1).number_of_values(1..);
+        let mut p = Arg::new("pos").index(1).num_args(1..);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
@@ -4558,7 +4558,7 @@ mod test {
 
     #[test]
     fn positional_display_zero_or_more_values() {
-        let mut p = Arg::new("pos").index(1).number_of_values(0..);
+        let mut p = Arg::new("pos").index(1).num_args(0..);
         p._build();
 
         assert_eq!(p.to_string(), "[<pos>...]");
@@ -4566,7 +4566,7 @@ mod test {
 
     #[test]
     fn positional_display_one_or_more_values() {
-        let mut p = Arg::new("pos").index(1).number_of_values(1..);
+        let mut p = Arg::new("pos").index(1).num_args(1..);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
@@ -4576,7 +4576,7 @@ mod test {
     fn positional_display_optional_value() {
         let mut p = Arg::new("pos")
             .index(1)
-            .number_of_values(0..=1)
+            .num_args(0..=1)
             .action(ArgAction::Set);
         p._build();
 

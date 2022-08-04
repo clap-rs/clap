@@ -96,7 +96,7 @@ pub enum ErrorKind {
     ValueValidation,
 
     /// Occurs when a user provides more values for an argument than were defined by setting
-    /// [`Arg::number_of_values`].
+    /// [`Arg::num_args`].
     ///
     /// # Examples
     ///
@@ -104,17 +104,17 @@ pub enum ErrorKind {
     /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("arg")
-    ///         .number_of_values(1..=2)
+    ///         .num_args(1..=2)
     ///         .require_value_delimiter(true))
     ///     .try_get_matches_from(vec!["prog", "too,many,values"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyValues);
     /// ```
-    /// [`Arg::number_of_values`]: crate::Arg::number_of_values()
+    /// [`Arg::num_args`]: crate::Arg::num_args()
     TooManyValues,
 
     /// Occurs when the user provides fewer values for an argument than were defined by setting
-    /// [`Arg::number_of_values`].
+    /// [`Arg::num_args`].
     ///
     /// # Examples
     ///
@@ -123,16 +123,16 @@ pub enum ErrorKind {
     /// let result = Command::new("prog")
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
-    ///         .number_of_values(3..))
+    ///         .num_args(3..))
     ///     .try_get_matches_from(vec!["prog", "--opt", "too", "few"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::number_of_values`]: crate::Arg::number_of_values()
+    /// [`Arg::num_args`]: crate::Arg::num_args()
     TooFewValues,
 
     /// Occurs when the user provides a different number of values for an argument than what's
-    /// been defined by setting [`Arg::number_of_values`] or than was implicitly set by
+    /// been defined by setting [`Arg::num_args`] or than was implicitly set by
     /// [`Arg::value_names`].
     ///
     /// # Examples
@@ -143,13 +143,13 @@ pub enum ErrorKind {
     ///     .arg(Arg::new("some_opt")
     ///         .long("opt")
     ///         .action(ArgAction::Set)
-    ///         .number_of_values(2))
+    ///         .num_args(2))
     ///     .try_get_matches_from(vec!["prog", "--opt", "wrong"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
     /// ```
     ///
-    /// [`Arg::number_of_values`]: crate::Arg::number_of_values()
+    /// [`Arg::num_args`]: crate::Arg::num_args()
     /// [`Arg::value_names`]: crate::Arg::value_names()
     WrongNumberOfValues,
 

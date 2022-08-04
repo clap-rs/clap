@@ -7,7 +7,7 @@ fn opt_missing() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .number_of_values(0..=1)
+                .num_args(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )
@@ -33,7 +33,7 @@ fn opt_present_with_missing_value() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .number_of_values(0..=1)
+                .num_args(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )
@@ -59,7 +59,7 @@ fn opt_present_with_value() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .number_of_values(0..=1)
+                .num_args(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )
@@ -171,6 +171,7 @@ fn default_missing_value_flag_value() {
         Arg::new("flag")
             .long("flag")
             .action(ArgAction::Set)
+            .num_args(0..=1)
             .default_value("false")
             .default_missing_value("true"),
     );
@@ -233,7 +234,7 @@ fn delimited_missing_value() {
             .long("flag")
             .default_value("one,two")
             .default_missing_value("three,four")
-            .number_of_values(0..)
+            .num_args(0..)
             .value_delimiter(',')
             .require_equals(true),
     );
@@ -294,7 +295,7 @@ fn valid_index() {
             Arg::new("color")
                 .long("color")
                 .default_value("auto")
-                .number_of_values(0..=1)
+                .num_args(0..=1)
                 .require_equals(true)
                 .default_missing_value("always"),
         )

@@ -674,7 +674,7 @@ fn multiple_defaults() {
         .arg(
             Arg::new("files")
                 .long("files")
-                .number_of_values(2)
+                .num_args(2)
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec![""]);
@@ -693,7 +693,7 @@ fn multiple_defaults_override() {
         .arg(
             Arg::new("files")
                 .long("files")
-                .number_of_values(2)
+                .num_args(2)
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec!["", "--files", "other", "mine"]);
@@ -739,7 +739,7 @@ fn issue_1050_num_vals_and_defaults() {
             Arg::new("exit-code")
                 .long("exit-code")
                 .action(ArgAction::Set)
-                .number_of_values(1)
+                .num_args(1)
                 .default_value("0"),
         )
         .try_get_matches_from(vec!["hello", "--exit-code=1"]);
@@ -874,6 +874,7 @@ fn missing_with_value_delimiter() {
         Arg::new("option")
             .long("option")
             .value_delimiter(';')
+            .num_args(0..=1)
             .default_missing_values(&["value1;value2;value3", "value4;value5"]),
     );
 

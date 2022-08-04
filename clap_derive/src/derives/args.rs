@@ -258,7 +258,7 @@ pub fn gen_augment(
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         .value_name(#value_name)
-                        .number_of_values(0..=1)
+                        .num_args(0..=1)
                         #value_parser
                         #action
                     },
@@ -267,7 +267,7 @@ pub fn gen_augment(
                         if attrs.is_positional() {
                             quote_spanned! { ty.span()=>
                                 .value_name(#value_name)
-                                .number_of_values(1..)  // action won't be sufficient for getting multiple
+                                .num_args(1..)  // action won't be sufficient for getting multiple
                                 #value_parser
                                 #action
                             }
@@ -284,7 +284,7 @@ pub fn gen_augment(
                         if attrs.is_positional() {
                             quote_spanned! { ty.span()=>
                                 .value_name(#value_name)
-                                .number_of_values(1..)  // action won't be sufficient for getting multiple
+                                .num_args(1..)  // action won't be sufficient for getting multiple
                                 #value_parser
                                 #action
                             }

@@ -323,7 +323,7 @@ where
             "type-list",
             "version",
         ]))
-        .arg(arg("path").number_of_values(1..))
+        .arg(arg("path").num_args(1..))
         .arg(
             flag("regexp")
                 .short('e')

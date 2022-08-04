@@ -22,7 +22,7 @@ fn main() {
                         .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 )
                 .arg(
                     Arg::new("info")
@@ -31,7 +31,7 @@ fn main() {
                         .conflicts_with("search")
                         .help("view package information")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 ),
         )
         // Sync subcommand
@@ -48,7 +48,7 @@ fn main() {
                         .long("search")
                         .conflicts_with("info")
                         .action(ArgAction::Set)
-                        .number_of_values(1..)
+                        .num_args(1..)
                         .help("search remote repositories for matching strings"),
                 )
                 .arg(
@@ -64,7 +64,7 @@ fn main() {
                         .help("packages")
                         .required_unless_present("search")
                         .action(ArgAction::Set)
-                        .number_of_values(1..),
+                        .num_args(1..),
                 ),
         )
         .get_matches();
