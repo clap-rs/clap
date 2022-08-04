@@ -3709,8 +3709,8 @@ impl<'help> Arg<'help> {
     }
 
     #[inline]
-    pub(crate) fn get_min_vals(&self) -> Option<usize> {
-        self.get_num_args().map(|r| r.min_values())
+    pub(crate) fn get_min_vals(&self) -> usize {
+        self.get_num_args().expect(INTERNAL_ERROR_MSG).min_values()
     }
 
     /// Get the delimiter between multiple values
@@ -4060,7 +4060,7 @@ impl<'help> Display for Arg<'help> {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
-        let is_optional_val = self.get_min_vals() == Some(0);
+        let is_optional_val = self.get_min_vals() == 0;
         if self.is_positional() {
             if is_optional_val {
                 let sep = "[";
@@ -4171,13 +4171,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let mut extra_values = false;
     debug_assert!(arg.is_takes_value_set());
-    let num_vals = arg.get_num_args().unwrap_or_else(|| {
-        if arg.is_multiple_values_set() {
-            (1..).into()
-        } else {
-            1.into()
-        }
-    });
+    let num_vals = arg.get_num_args().expect(INTERNAL_ERROR_MSG);
     if val_names.len() == 1 {
         let arg_name = format!("<{}>", val_names[0]);
         let min = num_vals.min_values().max(1);
@@ -4187,7 +4181,6 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
             }
             rendered.push_str(&arg_name);
         }
-        extra_values |= arg.get_num_args().is_none() && arg.is_multiple_values_set();
         extra_values |= min < num_vals.max_values();
     } else {
         debug_assert!(1 < val_names.len());

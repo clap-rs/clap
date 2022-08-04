@@ -978,7 +978,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::parse_opt_value; Checking for val...");
         // require_equals is set, but no '=' is provided, try throwing error.
         if arg.is_require_equals_set() && !has_eq {
-            if arg.get_min_vals() == Some(0) {
+            if arg.get_min_vals() == 0 {
                 debug!("Requires equals, but min_vals == 0");
                 let arg_values = Vec::new();
                 let trailing_idx = None;
@@ -1252,9 +1252,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
 
         let actual = raw_vals.len();
+        let expected = arg.get_num_args().expect(INTERNAL_ERROR_MSG);
 
-        let min_vals = arg.get_min_vals().unwrap_or(1);
-        if arg.is_takes_value_set() && 0 < min_vals && actual == 0 {
+        if 0 < expected.min_values() && actual == 0 {
             // Issue 665 (https://github.com/clap-rs/clap/issues/665)
             // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
             return Err(ClapError::empty_value(
@@ -1266,42 +1266,39 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     .collect::<Vec<_>>(),
                 arg.to_string(),
             ));
-        }
-
-        if let Some(expected) = arg.get_num_args() {
-            if let Some(expected) = expected.num_values() {
-                if expected != actual {
-                    debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
-                    return Err(ClapError::wrong_number_of_values(
-                        self.cmd,
-                        arg.to_string(),
-                        expected,
-                        actual,
-                        Usage::new(self.cmd).create_usage_with_title(&[]),
-                    ));
-                }
-            } else if actual < expected.min_values() {
-                return Err(ClapError::too_few_values(
+        } else if let Some(expected) = expected.num_values() {
+            if expected != actual {
+                debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
+                return Err(ClapError::wrong_number_of_values(
                     self.cmd,
                     arg.to_string(),
-                    expected.min_values(),
+                    expected,
                     actual,
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 ));
-            } else if expected.max_values() < actual {
-                debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
-                return Err(ClapError::too_many_values(
-                    self.cmd,
-                    raw_vals
-                        .last()
-                        .expect(INTERNAL_ERROR_MSG)
-                        .to_string_lossy()
-                        .into_owned(),
-                    arg.to_string(),
-                    Usage::new(self.cmd).create_usage_with_title(&[]),
-                ));
             }
+        } else if actual < expected.min_values() {
+            return Err(ClapError::too_few_values(
+                self.cmd,
+                arg.to_string(),
+                expected.min_values(),
+                actual,
+                Usage::new(self.cmd).create_usage_with_title(&[]),
+            ));
+        } else if expected.max_values() < actual {
+            debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
+            return Err(ClapError::too_many_values(
+                self.cmd,
+                raw_vals
+                    .last()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .to_string_lossy()
+                    .into_owned(),
+                arg.to_string(),
+                Usage::new(self.cmd).create_usage_with_title(&[]),
+            ));
         }
+
         Ok(())
     }
 
