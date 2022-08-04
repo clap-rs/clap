@@ -3790,8 +3790,7 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::Required)
     }
 
-    /// Report whether [`Arg::num_args`] allows multiple values
-    pub fn is_multiple_values_set(&self) -> bool {
+    pub(crate) fn is_multiple_values_set(&self) -> bool {
         self.is_set(ArgSettings::MultipleValues)
     }
 

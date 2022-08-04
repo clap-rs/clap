@@ -44,7 +44,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -52,7 +52,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -60,7 +60,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Count));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -68,7 +68,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }
@@ -80,7 +80,7 @@ mod arg {
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -89,7 +89,7 @@ mod arg {
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -98,7 +98,7 @@ mod arg {
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Count));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -107,7 +107,7 @@ mod arg {
         assert_eq!(arg.get_long(), Some("hello"));
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::SetTrue));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }
@@ -118,7 +118,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -126,7 +126,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -134,7 +134,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Append));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -142,7 +142,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }
@@ -153,7 +153,7 @@ mod arg {
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -161,7 +161,7 @@ mod arg {
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -169,7 +169,7 @@ mod arg {
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -177,7 +177,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -185,7 +185,7 @@ mod arg {
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Append));
-        assert!(arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), Some((1..).into()));
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), None);
 
@@ -193,7 +193,7 @@ mod arg {
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
-        assert!(!arg.is_multiple_values_set());
+        assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
         assert_eq!(arg.get_help(), Some("How to use it"));
     }

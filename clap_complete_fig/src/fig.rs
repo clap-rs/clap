@@ -334,7 +334,8 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         indent = indent
     ));
 
-    if arg.is_multiple_values_set() {
+    let num_args = arg.get_num_args().expect("built");
+    if num_args != 0.into() && num_args != 1.into() {
         buffer.push_str(&format!(
             "{:indent$}isVariadic: true,\n",
             "",

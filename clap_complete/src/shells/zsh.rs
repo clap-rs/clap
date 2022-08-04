@@ -622,7 +622,8 @@ fn write_positionals_of(p: &Command) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
-        let cardinality = if arg.is_multiple_values_set() {
+        let num_args = arg.get_num_args().expect("built");
+        let cardinality = if num_args != 1.into() && num_args != 0.into() {
             "*:"
         } else if !arg.is_required_set() {
             ":"
