@@ -1580,10 +1580,10 @@ Kevin K.
 tests stuff
 
 USAGE:
-    test --fake <some>:<val>
+    test --fake <some> <val>
 
 OPTIONS:
-    -f, --fake <some>:<val>    some help
+    -f, --fake <some> <val>    some help
     -h, --help                 Print help information
     -V, --version              Print version information
 ";
@@ -1597,8 +1597,6 @@ OPTIONS:
                 .required(true)
                 .value_names(&["some", "val"])
                 .action(ArgAction::Set)
-                .value_delimiter(',')
-                .require_value_delimiter(true)
                 .value_delimiter(':'),
         );
 
@@ -1612,10 +1610,10 @@ Will M.
 does stuff
 
 USAGE:
-    test [OPTIONS] --fake <some>:<val>
+    test [OPTIONS] --fake <some> <val>
 
 OPTIONS:
-    -f, --fake <some>:<val>    some help
+    -f, --fake <some> <val>    some help
     -h, --help                 Print help information
     -V, --version              Print version information
 
@@ -1633,8 +1631,6 @@ NETWORKING:
                 .required(true)
                 .value_names(&["some", "val"])
                 .action(ArgAction::Set)
-                .value_delimiter(',')
-                .require_value_delimiter(true)
                 .value_delimiter(':'),
         )
         .next_help_heading(Some("NETWORKING"))
@@ -1655,10 +1651,10 @@ Will M.
 does stuff
 
 USAGE:
-    test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
+    test [OPTIONS] --fake <some> <val> --birthday-song <song> --birthday-song-volume <volume>
 
 OPTIONS:
-    -f, --fake <some>:<val>    some help
+    -f, --fake <some> <val>    some help
         --style <style>        Choose musical style to play the song
     -s, --speed <SPEED>        How fast? [possible values: fast, slow]
     -h, --help                 Print help information
@@ -1686,8 +1682,6 @@ fn multiple_custom_help_headers() {
                 .required(true)
                 .value_names(&["some", "val"])
                 .action(ArgAction::Set)
-                .value_delimiter(',')
-                .require_value_delimiter(true)
                 .value_delimiter(':'),
         )
         .next_help_heading(Some("NETWORKING"))

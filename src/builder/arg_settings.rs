@@ -33,7 +33,6 @@ pub(crate) enum ArgSettings {
     Hidden,
     TakesValue,
     NextLineHelp,
-    RequireDelimiter,
     HidePossibleValues,
     AllowHyphenValues,
     RequireEquals,
@@ -56,7 +55,6 @@ bitflags! {
         const HIDDEN           = 1 << 4;
         const TAKES_VAL        = 1 << 5;
         const NEXT_LINE_HELP   = 1 << 7;
-        const REQ_DELIM        = 1 << 9;
         const DELIM_NOT_SET    = 1 << 10;
         const HIDE_POS_VALS    = 1 << 11;
         const ALLOW_TAC_VALS   = 1 << 12;
@@ -83,7 +81,6 @@ impl_settings! { ArgSettings, ArgFlags,
     Hidden => Flags::HIDDEN,
     TakesValue => Flags::TAKES_VAL,
     NextLineHelp => Flags::NEXT_LINE_HELP,
-    RequireDelimiter => Flags::REQ_DELIM,
     HidePossibleValues => Flags::HIDE_POS_VALS,
     AllowHyphenValues => Flags::ALLOW_TAC_VALS,
     RequireEquals => Flags::REQUIRE_EQUALS,

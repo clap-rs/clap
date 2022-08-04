@@ -202,9 +202,7 @@ impl ArgMatcher {
             "ArgMatcher::needs_more_vals: o={}, pending={}",
             o.name, num_pending
         );
-        if num_pending == 1 && o.is_require_value_delimiter_set() {
-            false
-        } else if let Some(expected) = o.get_num_args() {
+        if let Some(expected) = o.get_num_args() {
             debug!(
                 "ArgMatcher::needs_more_vals: expected={}, actual={}",
                 expected, num_pending

@@ -336,11 +336,7 @@ fn multiple_vals_pos_arg_equals() {
 #[test]
 fn require_delims_no_delim() {
     let r = Command::new("mvae")
-        .arg(
-            arg!(o: -o [opt] ... "some opt")
-                .value_delimiter(',')
-                .require_value_delimiter(true),
-        )
+        .arg(arg!(o: -o [opt] ... "some opt").value_delimiter(','))
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["mvae", "-o", "1", "2", "some"]);
     assert!(r.is_err());
@@ -351,12 +347,7 @@ fn require_delims_no_delim() {
 #[test]
 fn require_delims() {
     let r = Command::new("mvae")
-        .arg(
-            arg!(o: -o <opt> "some opt")
-                .num_args(1..)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
-        )
+        .arg(arg!(o: -o <opt> "some opt").value_delimiter(','))
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());

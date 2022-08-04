@@ -837,9 +837,8 @@ fn req_delimiter_long() {
         .arg(
             Arg::new("option")
                 .long("option")
-                .num_args(1..)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
+                .num_args(1)
+                .value_delimiter(','),
         )
         .arg(
             Arg::new("args")
@@ -875,9 +874,8 @@ fn req_delimiter_long_with_equal() {
         .arg(
             Arg::new("option")
                 .long("option")
-                .num_args(1..)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
+                .num_args(1)
+                .value_delimiter(','),
         )
         .arg(
             Arg::new("args")
@@ -913,9 +911,8 @@ fn req_delimiter_short_with_space() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .num_args(1..)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
+                .num_args(1)
+                .value_delimiter(','),
         )
         .arg(
             Arg::new("args")
@@ -951,9 +948,8 @@ fn req_delimiter_short_with_no_space() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .num_args(1..)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
+                .num_args(1)
+                .value_delimiter(','),
         )
         .arg(
             Arg::new("args")
@@ -989,9 +985,8 @@ fn req_delimiter_short_with_equal() {
         .arg(
             Arg::new("option")
                 .short('o')
-                .num_args(1..)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
+                .num_args(1)
+                .value_delimiter(','),
         )
         .arg(
             Arg::new("args")
@@ -1028,10 +1023,9 @@ fn req_delimiter_complex() {
             Arg::new("option")
                 .long("option")
                 .short('o')
-                .num_args(1..)
+                .num_args(1)
                 .action(ArgAction::Append)
-                .value_delimiter(',')
-                .require_value_delimiter(true),
+                .value_delimiter(','),
         )
         .arg(Arg::new("args").num_args(1..).index(1))
         .try_get_matches_from(vec![

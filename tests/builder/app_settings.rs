@@ -1151,7 +1151,6 @@ fn aaos_opts_mult_req_delims() {
             arg!(--opt <val> ... "some option")
                 .action(ArgAction::Set)
                 .value_delimiter(',')
-                .require_value_delimiter(true)
                 .action(ArgAction::Append),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);

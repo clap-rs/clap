@@ -818,15 +818,14 @@ fn invalid_default_values() {
 fn valid_delimited_default_values() {
     use clap::{Arg, Command};
 
-    let _ = Command::new("test")
+    Command::new("test")
         .arg(
             Arg::new("arg")
                 .value_parser(clap::value_parser!(u32))
                 .value_delimiter(',')
-                .require_value_delimiter(true)
                 .default_value("1,2,3"),
         )
-        .try_get_matches();
+        .debug_assert();
 }
 
 #[cfg(debug_assertions)]
@@ -835,15 +834,14 @@ fn valid_delimited_default_values() {
 fn invalid_delimited_default_values() {
     use clap::{Arg, Command};
 
-    let _ = Command::new("test")
+    Command::new("test")
         .arg(
             Arg::new("arg")
                 .value_parser(clap::value_parser!(u32))
                 .value_delimiter(',')
-                .require_value_delimiter(true)
                 .default_value("one,two"),
         )
-        .try_get_matches();
+        .debug_assert();
 }
 
 #[test]
