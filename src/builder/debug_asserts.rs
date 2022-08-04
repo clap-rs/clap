@@ -692,12 +692,15 @@ fn assert_arg(arg: &Arg) {
 
     if let Some(num_vals) = arg.get_num_args() {
         // This can be the cause of later asserts, so put this first
-        let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
-        if num_vals.max_values() < num_val_names {
-            panic!(
-                "Argument {}: Too many value names ({}) compared to number_of_values ({})",
-                arg.name, num_val_names, num_vals
-            );
+        if num_vals != 0.into() {
+            // HACK: Don't check for flags to make the derive easier
+            let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
+            if num_vals.max_values() < num_val_names {
+                panic!(
+                    "Argument {}: Too many value names ({}) compared to number_of_values ({})",
+                    arg.name, num_val_names, num_vals
+                );
+            }
         }
 
         assert_eq!(

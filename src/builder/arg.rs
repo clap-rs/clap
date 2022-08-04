@@ -3984,6 +3984,14 @@ impl<'help> Arg<'help> {
         if val_names_len > 1 {
             self.settings.set(ArgSettings::MultipleValues);
             self.num_vals.get_or_insert(val_names_len.into());
+        } else {
+            if self.is_multiple_values_set() {
+                self.num_vals.get_or_insert((1..).into());
+            } else if self.is_takes_value_set() {
+                self.num_vals.get_or_insert(1.into());
+            } else {
+                self.num_vals.get_or_insert(0.into());
+            }
         }
     }
 
