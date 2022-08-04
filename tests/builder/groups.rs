@@ -307,7 +307,7 @@ fn group_acts_like_arg() {
 fn issue_1794() {
     let cmd = clap::Command::new("hello")
         .bin_name("deno")
-        .arg(Arg::new("option1").long("option1").takes_value(false).action(ArgAction::SetTrue))
+        .arg(Arg::new("option1").long("option1").action(ArgAction::SetTrue))
         .arg(Arg::new("pos1").action(ArgAction::Set))
         .arg(Arg::new("pos2").action(ArgAction::Set))
         .group(
