@@ -131,7 +131,7 @@ pub(crate) fn assert_app(cmd: &Command) {
                 panic!(
                     "Command {}: Argument '{}' has the same index as '{}' \
                     and they are both positional arguments\n\n\t \
-                    Use Arg::number_of_values(1..) to allow one \
+                    Use `Arg::num_args(1..)` to allow one \
                     positional argument to take multiple values",
                     cmd.get_name(),
                     first.name,
@@ -517,7 +517,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
             || last.is_last_set();
         assert!(
             ok,
-            "When using a positional argument with .num_args(1..) that is *not the \
+            "When using a positional argument with `.num_args(1..)` that is *not the \
                  last* positional argument, the last positional argument (i.e. the one \
                  with the highest index) *must* have .required(true) or .last(true) set."
         );
@@ -527,7 +527,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
         assert!(
             ok,
             "Only the last positional argument, or second to last positional \
-                 argument may be set to .num_args(1..)"
+                 argument may be set to `.num_args(1..)`"
         );
 
         // Next we check how many have both Multiple and not a specific number of values set
@@ -545,7 +545,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
                 && count == 2);
         assert!(
             ok,
-            "Only one positional argument with .num_args(1..) set is allowed per \
+            "Only one positional argument with `.num_args(1..)` set is allowed per \
                  command, unless the second one also has .last(true) set"
         );
     }
@@ -697,7 +697,7 @@ fn assert_arg(arg: &Arg) {
             let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
             if num_vals.max_values() < num_val_names {
                 panic!(
-                    "Argument {}: Too many value names ({}) compared to number_of_values ({})",
+                    "Argument {}: Too many value names ({}) compared to `num_args` ({})",
                     arg.name, num_val_names, num_vals
                 );
             }
@@ -706,14 +706,14 @@ fn assert_arg(arg: &Arg) {
         assert_eq!(
             num_vals.takes_values(),
             arg.is_takes_value_set(),
-            "Argument {}: mismatch between `number_of_values` ({}) and `takes_value`",
+            "Argument {}: mismatch between `num_args` ({}) and `takes_value`",
             arg.name,
             num_vals,
         );
         assert_eq!(
             num_vals.is_multiple(),
             arg.is_multiple_values_set(),
-            "Argument {}: mismatch between `number_of_values` ({}) and `multiple_values`",
+            "Argument {}: mismatch between `num_args` ({}) and `multiple_values`",
             arg.name,
             num_vals,
         );
@@ -730,7 +730,7 @@ fn assert_arg(arg: &Arg) {
     if arg.get_num_args() == Some(1.into()) {
         assert!(
             !arg.is_multiple_values_set(),
-            "Argument {}: mismatch between `number_of_values` and `multiple_values`",
+            "Argument {}: mismatch between `num_args` and `multiple_values`",
             arg.name
         );
     }

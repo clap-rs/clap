@@ -2016,7 +2016,7 @@ impl<'help> Command<'help> {
     ///
     /// The values of the trailing positional argument will contain all args from itself on.
     ///
-    /// **NOTE:** The final positional argument **must** have [`Arg::number_of_values(..)`].
+    /// **NOTE:** The final positional argument **must** have [`Arg::num_args(..)`].
     ///
     /// # Examples
     ///
@@ -2030,7 +2030,7 @@ impl<'help> Command<'help> {
     /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
-    /// [`Arg::number_of_values(true)`]: crate::Arg::number_of_values()
+    /// [`Arg::num_args(..)`]: crate::Arg::num_args()
     pub fn trailing_var_arg(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::TrailingVarArg)

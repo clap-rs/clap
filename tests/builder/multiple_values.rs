@@ -1087,7 +1087,7 @@ fn req_delimiter_complex() {
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "When using a positional argument with \
-.num_args(1..) that is *not the last* positional argument, the last \
+`.num_args(1..)` that is *not the last* positional argument, the last \
 positional argument (i.e. the one with the highest index) *must* have \
 .required(true) or .last(true) set."]
 fn low_index_positional_not_required() {
@@ -1106,7 +1106,7 @@ fn low_index_positional_not_required() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Only one positional argument with .num_args(1..) \
+#[should_panic = "Only one positional argument with `.num_args(1..)` \
 set is allowed per command, unless the second one also has .last(true) set"]
 fn low_index_positional_last_multiple_too() {
     let _ = Command::new("lip")
@@ -1131,7 +1131,7 @@ fn low_index_positional_last_multiple_too() {
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Only the last positional argument, or second to \
-last positional argument may be set to .num_args(1..)"]
+last positional argument may be set to `.num_args(1..)`"]
 fn low_index_positional_too_far_back() {
     let _ = Command::new("lip")
         .arg(

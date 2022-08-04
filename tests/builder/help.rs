@@ -2533,7 +2533,7 @@ OPTIONS:
 }
 
 #[test]
-#[should_panic = "Argument foo: Too many value names (2) compared to number_of_values (1)"]
+#[should_panic = "Argument foo: Too many value names (2) compared to `num_args` (1)"]
 fn too_many_value_names_panics() {
     Command::new("test")
         .arg(
