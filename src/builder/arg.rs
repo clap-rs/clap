@@ -3795,8 +3795,7 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::MultipleValues)
     }
 
-    /// Report whether [`Arg::is_takes_value_set`] is set
-    pub fn is_takes_value_set(&self) -> bool {
+    pub(crate) fn is_takes_value_set(&self) -> bool {
         self.is_set(ArgSettings::TakesValue)
     }
 

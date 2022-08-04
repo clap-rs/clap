@@ -403,14 +403,22 @@ macro_rules! arg_impl {
         $crate::arg_impl! {
             @arg
             ({
-                if $arg.get_long().is_none() && $arg.get_short().is_none() {
-                    $arg.num_args(1..)
-                        // Allow collecting arguments interleaved with flags
-                        .action($crate::ArgAction::Append)
-                } else if $arg.is_takes_value_set() {
-                    $arg.action($crate::ArgAction::Append)
-                } else {
-                    $arg.action($crate::ArgAction::Count)
+                match $arg.get_action() {
+                    $crate::ArgAction::Set => {
+                        if $arg.get_long().is_none() && $arg.get_short().is_none() {
+                            $arg.num_args(1..)
+                                // Allow collecting arguments interleaved with flags
+                                .action($crate::ArgAction::Append)
+                        } else {
+                            $arg.action($crate::ArgAction::Append)
+                        }
+                    },
+                    $crate::ArgAction::SetTrue => {
+                        $arg.action($crate::ArgAction::Count)
+                    }
+                    action => {
+                        panic!("Unexpected action {:?}", action)
+                    }
                 }
             })
             $($tail)*

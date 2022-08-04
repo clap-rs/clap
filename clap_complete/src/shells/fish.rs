@@ -148,7 +148,7 @@ fn gen_fish_inner(
 }
 
 fn value_completion(option: &Arg) -> String {
-    if !option.is_takes_value_set() {
+    if !option.get_num_args().expect("built").takes_values() {
         return "".to_string();
     }
 
