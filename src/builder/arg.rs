@@ -874,16 +874,6 @@ impl<'help> Arg<'help> {
         self
     }
 
-    #[inline]
-    #[must_use]
-    fn multiple_values(self, yes: bool) -> Self {
-        if yes {
-            self.setting(ArgSettings::MultipleValues)
-        } else {
-            self.unset_setting(ArgSettings::MultipleValues)
-        }
-    }
-
     /// Specifies the number of arguments parsed per occurrence
     ///
     /// For example, if you had a `-f <file>` argument where you wanted exactly 3 'files' you would
@@ -1035,7 +1025,6 @@ impl<'help> Arg<'help> {
         let qty = qty.into();
         self.num_vals = Some(qty);
         self.takes_value(qty.takes_values())
-            .multiple_values(qty.is_multiple())
     }
 
     /// Placeholder for the argument's value in the help message / usage.
@@ -1461,11 +1450,9 @@ impl<'help> Arg<'help> {
     /// [`Arg::last(true)`]: Arg::last()
     #[inline]
     #[must_use]
-    pub fn raw(self, yes: bool) -> Self {
-        self.takes_value(yes)
-            .multiple_values(yes)
-            .allow_hyphen_values(yes)
-            .last(yes)
+    pub fn raw(mut self, yes: bool) -> Self {
+        self.num_vals.get_or_insert_with(|| (1..).into());
+        self.takes_value(yes).allow_hyphen_values(yes).last(yes)
     }
 
     /// Value for the argument when not present.
@@ -3791,7 +3778,7 @@ impl<'help> Arg<'help> {
     }
 
     pub(crate) fn is_multiple_values_set(&self) -> bool {
-        self.is_set(ArgSettings::MultipleValues)
+        self.get_num_args().unwrap_or_default().is_multiple()
     }
 
     pub(crate) fn is_takes_value_set(&self) -> bool {
@@ -3955,12 +3942,9 @@ impl<'help> Arg<'help> {
 
         let val_names_len = self.val_names.len();
         if val_names_len > 1 {
-            self.settings.set(ArgSettings::MultipleValues);
             self.num_vals.get_or_insert(val_names_len.into());
         } else {
-            if self.is_multiple_values_set() {
-                self.num_vals.get_or_insert((1..).into());
-            } else if self.is_takes_value_set() {
+            if self.is_takes_value_set() {
                 self.num_vals.get_or_insert(1.into());
             } else {
                 self.num_vals.get_or_insert(0.into());
