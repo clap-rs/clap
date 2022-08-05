@@ -172,6 +172,7 @@ fn hide_env_flag() {
         Arg::new("cafe")
             .short('c')
             .long("cafe")
+            .action(ArgAction::SetTrue)
             .hide_env(true)
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café."),
@@ -188,6 +189,7 @@ fn show_env_flag() {
         Arg::new("cafe")
             .short('c')
             .long("cafe")
+            .action(ArgAction::SetTrue)
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café."),
     );
@@ -203,6 +205,7 @@ fn hide_env_vals_flag() {
         Arg::new("cafe")
             .short('c')
             .long("cafe")
+            .action(ArgAction::SetTrue)
             .hide_env_values(true)
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café."),
@@ -219,6 +222,7 @@ fn show_env_vals_flag() {
         Arg::new("cafe")
             .short('c')
             .long("cafe")
+            .action(ArgAction::SetTrue)
             .env("ENVVAR")
             .help("A coffeehouse, coffee shop, or café."),
     );

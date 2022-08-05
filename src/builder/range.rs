@@ -108,7 +108,7 @@ impl std::ops::RangeBounds<usize> for ValueRange {
 
 impl Default for ValueRange {
     fn default() -> Self {
-        Self::EMPTY
+        Self::SINGLE
     }
 }
 

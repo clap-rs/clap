@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `arg!` now sets `ArgAction::SetTrue`, `ArgAction::Count`, `ArgAction::Set`, or `ArgAction::Append` as appropriate (#3795)
 - Default actions are now `Set` and `SetTrue`
 - Removed `PartialEq` and `Eq` from `Command`
+- By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::SetTrue`
 - Replace `Arg::number_of_values` (average across occurrences) with `Arg::num_args` (per occurrence, raw CLI args, not parsed values)
   - `num_args(0)` no longer implies `takes_value(true).multiple_values(true)`
   - `num_args(1)` no longer implies `multiple_values(true)`
