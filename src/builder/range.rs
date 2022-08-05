@@ -79,6 +79,10 @@ impl ValueRange {
         self.end_inclusive != 0
     }
 
+    pub(crate) fn is_unbounded(&self) -> bool {
+        self.end_inclusive == usize::MAX
+    }
+
     pub(crate) fn is_fixed(&self) -> bool {
         self.start_inclusive == self.end_inclusive
     }
