@@ -12,6 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+use clap::CommandFactory;
 use clap::Parser;
 
 #[test]
@@ -40,6 +41,43 @@ fn bool_type_is_flag() {
     );
     assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
+}
+
+#[test]
+#[ignore] // Not a good path for supporting this atm
+fn inferred_help() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        /// Foo
+        #[clap(short, long)]
+        help: bool,
+    }
+
+    let mut cmd = Opt::command();
+    cmd.build();
+    let arg = cmd.get_arguments().find(|a| a.get_id() == "help").unwrap();
+    assert_eq!(arg.get_help(), Some("Foo"), "Incorrect help");
+    assert!(matches!(arg.get_action(), clap::ArgAction::Help));
+}
+
+#[test]
+#[ignore] // Not a good path for supporting this atm
+fn inferred_version() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        /// Foo
+        #[clap(short, long)]
+        version: bool,
+    }
+
+    let mut cmd = Opt::command();
+    cmd.build();
+    let arg = cmd
+        .get_arguments()
+        .find(|a| a.get_id() == "version")
+        .unwrap();
+    assert_eq!(arg.get_help(), Some("Foo"), "Incorrect help");
+    assert!(matches!(arg.get_action(), clap::ArgAction::Version));
 }
 
 #[test]
