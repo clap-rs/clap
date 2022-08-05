@@ -3945,9 +3945,9 @@ impl<'help> Arg<'help> {
             self.num_vals.get_or_insert(val_names_len.into());
         } else {
             if self.is_takes_value_set() {
-                self.num_vals.get_or_insert(1.into());
+                self.num_vals.get_or_insert(ValueRange::SINGLE);
             } else {
-                self.num_vals.get_or_insert(0.into());
+                self.num_vals.get_or_insert(ValueRange::EMPTY);
             }
         }
     }

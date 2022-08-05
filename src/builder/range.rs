@@ -6,6 +6,18 @@ pub struct ValueRange {
 }
 
 impl ValueRange {
+    /// Nor argument values, or a flag
+    pub const EMPTY: Self = Self {
+        start_inclusive: 0,
+        end_inclusive: 0,
+    };
+
+    /// A single argument value, the most common case for options
+    pub const SINGLE: Self = Self {
+        start_inclusive: 1,
+        end_inclusive: 1,
+    };
+
     /// Create a range
     ///
     /// # Panics
@@ -96,7 +108,7 @@ impl std::ops::RangeBounds<usize> for ValueRange {
 
 impl Default for ValueRange {
     fn default() -> Self {
-        0.into()
+        Self::EMPTY
     }
 }
 
