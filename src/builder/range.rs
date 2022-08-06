@@ -1,11 +1,23 @@
 /// Values per occurrence for an argument
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub struct ValuesRange {
+pub struct ValueRange {
     start_inclusive: usize,
     end_inclusive: usize,
 }
 
-impl ValuesRange {
+impl ValueRange {
+    /// Nor argument values, or a flag
+    pub const EMPTY: Self = Self {
+        start_inclusive: 0,
+        end_inclusive: 0,
+    };
+
+    /// A single argument value, the most common case for options
+    pub const SINGLE: Self = Self {
+        start_inclusive: 1,
+        end_inclusive: 1,
+    };
+
     /// Create a range
     ///
     /// # Panics
@@ -15,19 +27,19 @@ impl ValuesRange {
     /// # Examples
     ///
     /// ```
-    /// # use clap::builder::ValuesRange;
-    /// let range = ValuesRange::new(5);
-    /// let range = ValuesRange::new(5..10);
-    /// let range = ValuesRange::new(5..=10);
-    /// let range = ValuesRange::new(5..);
-    /// let range = ValuesRange::new(..10);
-    /// let range = ValuesRange::new(..=10);
+    /// # use clap::builder::ValueRange;
+    /// let range = ValueRange::new(5);
+    /// let range = ValueRange::new(5..10);
+    /// let range = ValueRange::new(5..=10);
+    /// let range = ValueRange::new(5..);
+    /// let range = ValueRange::new(..10);
+    /// let range = ValueRange::new(..=10);
     /// ```
     ///
     /// While this will panic:
     /// ```should_panic
-    /// # use clap::builder::ValuesRange;
-    /// let range = ValuesRange::new(10..5);  // Panics!
+    /// # use clap::builder::ValueRange;
+    /// let range = ValueRange::new(10..5);  // Panics!
     /// ```
     pub fn new(range: impl Into<Self>) -> Self {
         range.into()
@@ -56,15 +68,19 @@ impl ValuesRange {
     /// # Examples
     ///
     /// ```
-    /// # use clap::builder::ValuesRange;
-    /// let range = ValuesRange::new(5);
+    /// # use clap::builder::ValueRange;
+    /// let range = ValueRange::new(5);
     /// assert!(range.takes_values());
     ///
-    /// let range = ValuesRange::new(0);
+    /// let range = ValueRange::new(0);
     /// assert!(!range.takes_values());
     /// ```
     pub fn takes_values(&self) -> bool {
         self.end_inclusive != 0
+    }
+
+    pub(crate) fn is_unbounded(&self) -> bool {
+        self.end_inclusive == usize::MAX
     }
 
     pub(crate) fn is_fixed(&self) -> bool {
@@ -84,7 +100,7 @@ impl ValuesRange {
     }
 }
 
-impl std::ops::RangeBounds<usize> for ValuesRange {
+impl std::ops::RangeBounds<usize> for ValueRange {
     fn start_bound(&self) -> std::ops::Bound<&usize> {
         std::ops::Bound::Included(&self.start_inclusive)
     }
@@ -94,19 +110,19 @@ impl std::ops::RangeBounds<usize> for ValuesRange {
     }
 }
 
-impl Default for ValuesRange {
+impl Default for ValueRange {
     fn default() -> Self {
-        0.into()
+        Self::SINGLE
     }
 }
 
-impl From<usize> for ValuesRange {
+impl From<usize> for ValueRange {
     fn from(fixed: usize) -> Self {
         (fixed..=fixed).into()
     }
 }
 
-impl From<std::ops::Range<usize>> for ValuesRange {
+impl From<std::ops::Range<usize>> for ValueRange {
     fn from(range: std::ops::Range<usize>) -> Self {
         let start_inclusive = range.start;
         let end_inclusive = range.end.saturating_sub(1);
@@ -114,7 +130,7 @@ impl From<std::ops::Range<usize>> for ValuesRange {
     }
 }
 
-impl From<std::ops::RangeFull> for ValuesRange {
+impl From<std::ops::RangeFull> for ValueRange {
     fn from(_: std::ops::RangeFull) -> Self {
         let start_inclusive = 0;
         let end_inclusive = usize::MAX;
@@ -122,7 +138,7 @@ impl From<std::ops::RangeFull> for ValuesRange {
     }
 }
 
-impl From<std::ops::RangeFrom<usize>> for ValuesRange {
+impl From<std::ops::RangeFrom<usize>> for ValueRange {
     fn from(range: std::ops::RangeFrom<usize>) -> Self {
         let start_inclusive = range.start;
         let end_inclusive = usize::MAX;
@@ -130,7 +146,7 @@ impl From<std::ops::RangeFrom<usize>> for ValuesRange {
     }
 }
 
-impl From<std::ops::RangeTo<usize>> for ValuesRange {
+impl From<std::ops::RangeTo<usize>> for ValueRange {
     fn from(range: std::ops::RangeTo<usize>) -> Self {
         let start_inclusive = 0;
         let end_inclusive = range.end.saturating_sub(1);
@@ -138,7 +154,7 @@ impl From<std::ops::RangeTo<usize>> for ValuesRange {
     }
 }
 
-impl From<std::ops::RangeInclusive<usize>> for ValuesRange {
+impl From<std::ops::RangeInclusive<usize>> for ValueRange {
     fn from(range: std::ops::RangeInclusive<usize>) -> Self {
         let start_inclusive = *range.start();
         let end_inclusive = *range.end();
@@ -146,7 +162,7 @@ impl From<std::ops::RangeInclusive<usize>> for ValuesRange {
     }
 }
 
-impl From<std::ops::RangeToInclusive<usize>> for ValuesRange {
+impl From<std::ops::RangeToInclusive<usize>> for ValueRange {
     fn from(range: std::ops::RangeToInclusive<usize>) -> Self {
         let start_inclusive = 0;
         let end_inclusive = range.end;
@@ -154,7 +170,7 @@ impl From<std::ops::RangeToInclusive<usize>> for ValuesRange {
     }
 }
 
-impl std::fmt::Display for ValuesRange {
+impl std::fmt::Display for ValueRange {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         self.start_inclusive.fmt(f)?;
         if !self.is_fixed() {
@@ -165,7 +181,7 @@ impl std::fmt::Display for ValuesRange {
     }
 }
 
-impl std::fmt::Debug for ValuesRange {
+impl std::fmt::Debug for ValueRange {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self)
     }
@@ -179,7 +195,7 @@ mod test {
 
     #[test]
     fn from_fixed() {
-        let range: ValuesRange = 5.into();
+        let range: ValueRange = 5.into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&5));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&5));
         assert!(range.is_fixed());
@@ -190,7 +206,7 @@ mod test {
 
     #[test]
     fn from_fixed_empty() {
-        let range: ValuesRange = 0.into();
+        let range: ValueRange = 0.into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&0));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&0));
         assert!(range.is_fixed());
@@ -201,7 +217,7 @@ mod test {
 
     #[test]
     fn from_range() {
-        let range: ValuesRange = (5..10).into();
+        let range: ValueRange = (5..10).into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&5));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&9));
         assert!(!range.is_fixed());
@@ -212,7 +228,7 @@ mod test {
 
     #[test]
     fn from_range_inclusive() {
-        let range: ValuesRange = (5..=10).into();
+        let range: ValueRange = (5..=10).into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&5));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&10));
         assert!(!range.is_fixed());
@@ -223,7 +239,7 @@ mod test {
 
     #[test]
     fn from_range_full() {
-        let range: ValuesRange = (..).into();
+        let range: ValueRange = (..).into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&0));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&usize::MAX));
         assert!(!range.is_fixed());
@@ -234,7 +250,7 @@ mod test {
 
     #[test]
     fn from_range_from() {
-        let range: ValuesRange = (5..).into();
+        let range: ValueRange = (5..).into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&5));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&usize::MAX));
         assert!(!range.is_fixed());
@@ -245,7 +261,7 @@ mod test {
 
     #[test]
     fn from_range_to() {
-        let range: ValuesRange = (..10).into();
+        let range: ValueRange = (..10).into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&0));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&9));
         assert!(!range.is_fixed());
@@ -256,7 +272,7 @@ mod test {
 
     #[test]
     fn from_range_to_inclusive() {
-        let range: ValuesRange = (..=10).into();
+        let range: ValueRange = (..=10).into();
         assert_eq!(range.start_bound(), std::ops::Bound::Included(&0));
         assert_eq!(range.end_bound(), std::ops::Bound::Included(&10));
         assert!(!range.is_fixed());

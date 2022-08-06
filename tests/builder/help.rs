@@ -401,21 +401,25 @@ OPTIONS:
             Arg::new("all")
                 .short('a')
                 .long("all")
+                .action(ArgAction::SetTrue)
                 .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(
             Arg::new("exact")
                 .long("exact")
+                .action(ArgAction::SetTrue)
                 .help("Specify inter dependency version numbers exactly with `=`"),
         )
         .arg(
             Arg::new("no_git_commit")
                 .long("no-git-commit")
+                .action(ArgAction::SetTrue)
                 .help("Do not commit version changes"),
         )
         .arg(
             Arg::new("no_git_push")
                 .long("no-git-push")
+                .action(ArgAction::SetTrue)
                 .help("Do not push generated commit and tags to git remote"),
         );
     utils::assert_output(cmd, "test --help", WRAPPED_HELP, false);
@@ -445,21 +449,25 @@ OPTIONS:
             Arg::new("all")
                 .short('a')
                 .long("all")
+                .action(ArgAction::SetTrue)
                 .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(
             Arg::new("exact")
                 .long("exact")
+                .action(ArgAction::SetTrue)
                 .help("Specify inter dependency version numbers exactly with `=`"),
         )
         .arg(
             Arg::new("no_git_commit")
                 .long("no-git-commit")
+                .action(ArgAction::SetTrue)
                 .help("Do not commit version changes"),
         )
         .arg(
             Arg::new("no_git_push")
                 .long("no-git-push")
+                .action(ArgAction::SetTrue)
                 .help("Do not push generated commit and tags to git remote"),
         );
     utils::assert_output(cmd, "test --help", UNWRAPPED_HELP, false);

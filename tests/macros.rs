@@ -113,6 +113,54 @@ mod arg {
     }
 
     #[test]
+    fn short_help() {
+        let arg = clap::arg!(help: -b);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Help));
+
+        let arg = clap::arg!(help: -b ...);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Count));
+
+        let arg = clap::arg!(help: -b <NUM>);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+    }
+
+    #[test]
+    fn long_help() {
+        let arg = clap::arg!(-'?' - -help);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Help));
+
+        let arg = clap::arg!(-'?' --help ...);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Count));
+
+        let arg = clap::arg!(-'?' --help <NUM>);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+    }
+
+    #[test]
+    fn short_version() {
+        let arg = clap::arg!(version: -b);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Version));
+
+        let arg = clap::arg!(version: -b ...);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Count));
+
+        let arg = clap::arg!(version: -b <NUM>);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+    }
+
+    #[test]
+    fn long_version() {
+        let arg = clap::arg!(-'?' - -version);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Version));
+
+        let arg = clap::arg!(-'?' --version ...);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Count));
+
+        let arg = clap::arg!(-'?' --version <NUM>);
+        assert!(matches!(arg.get_action(), clap::ArgAction::Set));
+    }
+
+    #[test]
     fn short_with_value() {
         let arg = clap::arg!(foo: -b <NUM>);
         assert_eq!(arg.get_id(), "foo");
