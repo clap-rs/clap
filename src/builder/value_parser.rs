@@ -811,6 +811,34 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     {
         TryMapValueParser::new(self, func)
     }
+
+    /// Restrict the valid values for the parser to a range.
+    ///
+    /// See [`InRange`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use clap::builder::TypedValueParser;
+    ///
+    /// let mut cmd =clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .long("port")
+    ///             .value_parser(clap::value_parser!(u16).in_range(3000..4000))
+    ///             .action(clap::ArgAction::Set)
+    ///             .required(true)
+    ///     );
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+    /// let port: u16 = *m.get_one("port").expect("required");
+    /// assert_eq!(port, 3001);
+    /// ```
+    fn in_range<R: RangeBounds<Self::Value>>(self, range: R) -> InRange<Self>
+    where
+        Self::Value: PartialOrd + Clone + std::fmt::Display,
+    {
+        InRange::with_parser(self, range)
+    }
 }
 
 impl<F, T, E> TypedValueParser for F
@@ -1205,6 +1233,136 @@ where
 {
     fn from(values: I) -> Self {
         Self(values.into_iter().map(|t| t.into()).collect())
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct InRange<P>
+where
+    P: TypedValueParser,
+    P::Value: PartialOrd,
+{
+    parser: P,
+    bounds: (std::ops::Bound<P::Value>, std::ops::Bound<P::Value>),
+}
+
+impl<P: TypedValueParser> InRange<P>
+where
+    P::Value: PartialOrd + Clone,
+{
+    pub fn new<T, R: RangeBounds<P::Value>>(range: R) -> Self
+    where
+        T: ValueParserFactory<Parser = P>,
+    {
+        Self::with_parser(T::value_parser(), range)
+    }
+
+    pub fn with_parser<R: RangeBounds<P::Value>>(parser: P, range: R) -> Self {
+        Self {
+            parser,
+            bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
+        }
+    }
+
+    pub fn in_range<R: RangeBounds<P::Value>>(self, range: R) -> InRange<P>
+    where P::Value: std::fmt::Debug {
+        debug_assert!(
+            is_sub_bound(&self.bounds, &range),
+            "({:?}, {:?}) must be a subrange of {:?}",
+            range.start_bound(),
+            range.end_bound(),
+            self.bounds
+        );
+
+        Self::with_parser(self.parser, range)
+    }
+}
+
+fn is_sub_bound<T, R: RangeBounds<T>>(
+    base: &(std::ops::Bound<T>, std::ops::Bound<T>),
+    sub: &R,
+) -> bool
+where
+    T: PartialOrd,
+{
+    use std::ops::Bound::*;
+
+    match base.0 {
+        Included(ref a) => match sub.start_bound() {
+            Included(b) | Excluded(b) if a <= b => {}
+            _ => return false,
+        },
+        Excluded(ref a) => match sub.start_bound() {
+            Included(b) if a < b => {}
+            Excluded(b) if a <= b => {}
+            _ => return false,
+        },
+        Unbounded => {}
+    };
+
+    match base.1 {
+        Included(ref a) => match sub.end_bound() {
+            Included(b) | Excluded(b) if a >= b => {}
+            _ => return false,
+        },
+        Excluded(ref a) => match sub.end_bound() {
+            Included(b) if a > b => {}
+            Excluded(b) if a >= b => {}
+            _ => return false,
+        },
+        Unbounded => {}
+    }
+
+    true
+}
+
+impl<P: TypedValueParser> std::fmt::Display for InRange<P>
+where
+    P::Value: PartialOrd + std::fmt::Display,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        use std::ops::Bound::*;
+        match &self.bounds.0 {
+            Included(i) => write!(f, "{}", i)?,
+            Excluded(i) => write!(f, "{}<", i)?,
+            Unbounded => {}
+        };
+        write!(f, "..")?;
+        match &self.bounds.1 {
+            Included(i) => write!(f, "={}", i)?,
+            Excluded(i) => write!(f, "{}", i)?,
+            Unbounded => {}
+        };
+        Ok(())
+    }
+}
+
+impl<P> TypedValueParser for InRange<P>
+where
+    P: TypedValueParser,
+    P::Value: PartialOrd + std::fmt::Display + Sync + Send + Clone,
+{
+    type Value = P::Value;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        raw_value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = self.parser.parse_ref(cmd, arg, raw_value)?;
+        if !self.bounds.contains(&value) {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            return Err(crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                format!("{} is not in {}", value, &self).into(),
+            )
+            .with_cmd(cmd));
+        }
+        Ok(value)
     }
 }
 
