@@ -188,8 +188,18 @@ path = "examples/tutorial_builder/03_02_option.rs"
 required-features = ["cargo"]
 
 [[example]]
+name = "03_02_option_mult"
+path = "examples/tutorial_builder/03_02_option_mult.rs"
+required-features = ["cargo"]
+
+[[example]]
 name = "03_03_positional"
 path = "examples/tutorial_builder/03_03_positional.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_03_positional_mult"
+path = "examples/tutorial_builder/03_03_positional_mult.rs"
 required-features = ["cargo"]
 
 [[example]]
@@ -274,8 +284,18 @@ path = "examples/tutorial_derive/03_02_option.rs"
 required-features = ["derive"]
 
 [[example]]
+name = "03_02_option_mult_derive"
+path = "examples/tutorial_derive/03_02_option_mult.rs"
+required-features = ["derive"]
+
+[[example]]
 name = "03_03_positional_derive"
 path = "examples/tutorial_derive/03_03_positional.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_03_positional_mult_derive"
+path = "examples/tutorial_derive/03_03_positional_mult.rs"
 required-features = ["derive"]
 
 [[example]]
