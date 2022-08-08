@@ -15,16 +15,16 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
 '*--single-quotes[Can be '/''always'/'', '/''auto'/'', or '/''never'/'']' /
 '*--double-quotes[Can be "always", "auto", or "never"]' /
 '*--backticks[For more information see `echo test`]' /
 '*--backslash[Avoid '/''//n'/'']' /
 '*--brackets[List packages /[filter/]]' /
 '*--expansions[Execute the shell command with $SHELL]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 ":: :_my-app_commands" /
 "*::: :->my-app" /
 && ret=0

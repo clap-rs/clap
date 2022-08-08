@@ -94,7 +94,7 @@ const completion: Fig.Spec = {
       },
     },
     {
-      name: ["-h", "--host"],
+      name: ["-H", "--host"],
       isRepeatable: true,
       args: {
         name: "host",
@@ -118,7 +118,7 @@ const completion: Fig.Spec = {
       },
     },
     {
-      name: "--help",
+      name: ["-h", "--help"],
       description: "Print help information",
     },
   ],

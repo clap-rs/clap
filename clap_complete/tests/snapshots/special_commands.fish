@@ -1,6 +1,6 @@
+complete -c my-app -n "__fish_use_subcommand" -s c -s C -l config -l conf -d 'some config file'
 complete -c my-app -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
 complete -c my-app -n "__fish_use_subcommand" -s V -l version -d 'Print version information'
-complete -c my-app -n "__fish_use_subcommand" -s c -s C -l config -l conf -d 'some config file'
 complete -c my-app -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c my-app -n "__fish_use_subcommand" -f -a "some_cmd" -d 'tests other things'
 complete -c my-app -n "__fish_use_subcommand" -f -a "some-cmd-with-hyphens"

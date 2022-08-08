@@ -246,8 +246,10 @@ fn hide_opt_args_only() {
     let cmd = Command::new("test")
         .version("1.4")
         .after_help("After help")
-        .mut_arg("help", |a| a.hide(true))
-        .mut_arg("version", |a| a.hide(true))
+        .disable_help_flag(true)
+        .disable_version_flag(true)
+        .arg(arg!(-h - -help).hide(true))
+        .arg(arg!(-v - -version).hide(true))
         .arg(
             arg!(--option <opt> "some option")
                 .required(false)
@@ -270,8 +272,10 @@ fn hide_pos_args_only() {
     let cmd = Command::new("test")
         .version("1.4")
         .after_help("After help")
-        .mut_arg("help", |a| a.hide(true))
-        .mut_arg("version", |a| a.hide(true))
+        .disable_help_flag(true)
+        .disable_version_flag(true)
+        .arg(arg!(-h - -help).hide(true))
+        .arg(arg!(-v - -version).hide(true))
         .args(&[Arg::new("pos").help("some pos").hide(true)]);
 
     utils::assert_output(cmd, "test --help", HIDDEN_POS_ARGS_ONLY, false);
@@ -290,8 +294,10 @@ fn hide_subcmds_only() {
     let cmd = Command::new("test")
         .version("1.4")
         .after_help("After help")
-        .mut_arg("help", |a| a.hide(true))
-        .mut_arg("version", |a| a.hide(true))
+        .disable_help_flag(true)
+        .disable_version_flag(true)
+        .arg(arg!(-h - -help).hide(true))
+        .arg(arg!(-v - -version).hide(true))
         .subcommand(Command::new("sub").hide(true));
 
     utils::assert_output(cmd, "test --help", HIDDEN_SUBCMDS_ONLY, false);

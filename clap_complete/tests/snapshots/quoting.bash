@@ -40,7 +40,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-h -V --help --version --single-quotes --double-quotes --backticks --backslash --brackets --expansions cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
+            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

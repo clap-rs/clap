@@ -25,14 +25,14 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             [CompletionResult]::new('-O', 'O', [CompletionResultType]::ParameterName, 'cmd option')
             [CompletionResult]::new('--option', 'option', [CompletionResultType]::ParameterName, 'cmd option')
             [CompletionResult]::new('--opt', 'opt', [CompletionResultType]::ParameterName, 'cmd option')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             [CompletionResult]::new('-f', 'f', [CompletionResultType]::ParameterName, 'cmd flag')
             [CompletionResult]::new('-F', 'F', [CompletionResultType]::ParameterName, 'cmd flag')
             [CompletionResult]::new('--flag', 'flag', [CompletionResultType]::ParameterName, 'cmd flag')
             [CompletionResult]::new('--flg', 'flg', [CompletionResultType]::ParameterName, 'cmd flag')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             break
         }
     })

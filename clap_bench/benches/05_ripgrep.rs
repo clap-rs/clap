@@ -310,6 +310,8 @@ where
         .help_template(TEMPLATE)
         // Handle help/version manually to make their output formatting
         // consistent with short/long views.
+        .disable_help_flag(true)
+        .disable_version_flag(true)
         .arg(arg("help-short").short('h'))
         .arg(flag("help"))
         .arg(flag("version").short('V'))

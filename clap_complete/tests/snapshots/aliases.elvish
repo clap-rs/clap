@@ -22,14 +22,14 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand -O 'cmd option'
             cand --option 'cmd option'
             cand --opt 'cmd option'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
             cand -f 'cmd flag'
             cand -F 'cmd flag'
             cand --flag 'cmd flag'
             cand --flg 'cmd flag'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
     ]
     $completions[$command]

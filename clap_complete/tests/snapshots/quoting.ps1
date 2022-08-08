@@ -21,16 +21,16 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
 
     $completions = @(switch ($command) {
         'my-app' {
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             [CompletionResult]::new('--single-quotes', 'single-quotes', [CompletionResultType]::ParameterName, 'Can be ''always'', ''auto'', or ''never''')
             [CompletionResult]::new('--double-quotes', 'double-quotes', [CompletionResultType]::ParameterName, 'Can be "always", "auto", or "never"')
             [CompletionResult]::new('--backticks', 'backticks', [CompletionResultType]::ParameterName, 'For more information see `echo test`')
             [CompletionResult]::new('--backslash', 'backslash', [CompletionResultType]::ParameterName, 'Avoid ''/n''')
             [CompletionResult]::new('--brackets', 'brackets', [CompletionResultType]::ParameterName, 'List packages [filter]')
             [CompletionResult]::new('--expansions', 'expansions', [CompletionResultType]::ParameterName, 'Execute the shell command with $SHELL')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             [CompletionResult]::new('cmd-single-quotes', 'cmd-single-quotes', [CompletionResultType]::ParameterValue, 'Can be ''always'', ''auto'', or ''never''')
             [CompletionResult]::new('cmd-double-quotes', 'cmd-double-quotes', [CompletionResultType]::ParameterValue, 'Can be "always", "auto", or "never"')
             [CompletionResult]::new('cmd-backticks', 'cmd-backticks', [CompletionResultType]::ParameterValue, 'For more information see `echo test`')

@@ -25,7 +25,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-h -c -v --help test help"
+            opts="-c -v -h --help test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -53,7 +53,7 @@ _my-app() {
             return 0
             ;;
         my__app__test)
-            opts="-d -h -c --help"
+            opts="-d -c -h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

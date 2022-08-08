@@ -19,14 +19,14 @@ _my-app() {
 '*-O+[cmd option]: : ' /
 '*--option=[cmd option]: : ' /
 '*--opt=[cmd option]: : ' /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
 '*-f[cmd flag]' /
 '*-F[cmd flag]' /
 '*--flag[cmd flag]' /
 '*--flg[cmd flag]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 '::positional:' /
 && ret=0
 }

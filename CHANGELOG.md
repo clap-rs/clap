@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Remove `Arg::use_value_delimiter` in favor of `Arg::value_delimiter`
 - Remove `Arg::require_value_delimiter`, either users could use `Arg::value_delimiter` or implement a custom parser with `TypedValueParser`
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior
+- `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own
+- `Arg::new("help")` and `Arg::new("version")` no longer implicitly disable the
+  built-in flags and be copied to all subcommands, instead disable
+  the built-in flags (`Command::disable_help_flag`,
+  `Command::disable_version_flag`) and mark the custom flags as `global(true)`.
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)

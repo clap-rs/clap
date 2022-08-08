@@ -34,7 +34,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-h -V -C -c --help --version --conf --config <file> first second test some_cmd some-cmd-with-hyphens some-hidden-cmd help"
+            opts="-C -c -h -V --conf --config --help --version <file> first second test some_cmd some-cmd-with-hyphens some-hidden-cmd help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

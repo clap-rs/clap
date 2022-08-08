@@ -74,14 +74,6 @@ const completion: Fig.Spec = {
   ],
   options: [
     {
-      name: ["-h", "--help"],
-      description: "Print help information",
-    },
-    {
-      name: ["-V", "--version"],
-      description: "Print version information",
-    },
-    {
       name: "--single-quotes",
       description: "Can be 'always', 'auto', or 'never'",
     },
@@ -104,6 +96,14 @@ const completion: Fig.Spec = {
     {
       name: "--expansions",
       description: "Execute the shell command with $SHELL",
+    },
+    {
+      name: ["-h", "--help"],
+      description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
     },
   ],
 };

@@ -88,17 +88,17 @@ const completion: Fig.Spec = {
   ],
   options: [
     {
+      name: ["-c", "-C", "--config", "--conf"],
+      description: "some config file",
+      isRepeatable: true,
+    },
+    {
       name: ["-h", "--help"],
       description: "Print help information",
     },
     {
       name: ["-V", "--version"],
       description: "Print version information",
-    },
-    {
-      name: ["-c", "-C", "--config", "--conf"],
-      description: "some config file",
-      isRepeatable: true,
     },
   ],
   args: [
