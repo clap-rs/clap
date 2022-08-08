@@ -187,10 +187,8 @@
 //!   - When not present: will auto-select an implementation based on the field type using
 //!     [`value_parser!][crate::value_parser!]
 //!   - To register a custom type's [`ValueParser`][crate::builder::ValueParser], implement [`ValueParserFactory`][crate::builder::ValueParserFactory]
-//!   - When present, implies `#[clap(action)]`
 //! - `action [= <expr>]`: [`Arg::action`][crate::Arg::action]
 //!   - When not present: will auto-select an action based on the field type
-//!   - When present, implies `#[clap(value_parser)]`
 //! - `help = <expr>`: [`Arg::help`][crate::Arg::help]
 //!   - When not present: [Doc comment summary](#doc-comments)
 //! - `long_help = <expr>`: [`Arg::long_help`][crate::Arg::long_help]
