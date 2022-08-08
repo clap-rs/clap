@@ -521,22 +521,148 @@ fn allow_negative_numbers_fail() {
     assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument)
 }
 
+fn gen_permutations<T>(possible_elements: &[T]) -> Vec<Vec<T>>
+where
+    T: Copy,
+{
+    if possible_elements.is_empty() {
+        return Vec::new();
+    }
+
+    if possible_elements.len() == 1 {
+        return vec![vec![possible_elements[0]]];
+    }
+
+    possible_elements
+        .iter()
+        .enumerate()
+        .flat_map(|(idx, elem)| {
+            let elements_wo_elem = possible_elements
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| *i != idx)
+                .map(|(_, elem)| *elem)
+                .collect::<Vec<_>>();
+
+            gen_permutations(&elements_wo_elem)
+                .into_iter()
+                .map(|mut v| {
+                    v.insert(0, *elem);
+                    v
+                })
+        })
+        .collect()
+}
+
 #[test]
-fn leading_double_hyphen_trailingvararg() {
-    let m = Command::new("positional")
+fn single_arg_trailingvararg_hyphen_values_comprehensive() {
+    let mut cmd = Command::new("positional")
         .trailing_var_arg(true)
         .allow_hyphen_values(true)
-        .arg(arg!([opt] ... "some pos"))
-        .try_get_matches_from(vec!["", "--foo", "-Wl", "bar"])
-        .unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_many::<String>("opt")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["--foo", "-Wl", "bar"]
-    );
+        .arg(arg!([opt] ... "some pos"));
+
+    // Split these up into two groups to avoid factorial explosion.
+    let possible_argss = vec![
+        vec!["--foo", "-a", "--", "bar"],
+        vec!["--foo", "-Wl", "--", "-", "-1"],
+    ];
+
+    for possible_args in possible_argss {
+        for permutations in gen_permutations(&possible_args)
+            .into_iter()
+            .map(|mut args| {
+                args.insert(0, "");
+
+                args
+            })
+        {
+            let m = cmd.try_get_matches_from_mut(&permutations);
+            assert!(
+                m.is_ok(),
+                "failed with args {:?}: {}",
+                permutations,
+                m.unwrap_err()
+            );
+            let m = m.unwrap();
+
+            assert!(m.contains_id("opt"), "failed with args {:?}", permutations);
+            assert_eq!(
+                m.get_many::<String>("opt")
+                    .unwrap()
+                    .map(|v| v.as_str())
+                    .collect::<Vec<_>>(),
+                if permutations[1] == "--" {
+                    &permutations[2..]
+                } else {
+                    &permutations[1..]
+                }
+            );
+        }
+    }
+}
+
+#[test]
+fn multi_arg_trailingvararg_comprehensive() {
+    let mut cmd = Command::new("positional")
+        .trailing_var_arg(true)
+        .arg(
+            Arg::new("prog-flag")
+                .long("prog-flag")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(<EXE>))
+        .arg(arg!([ARGS] ... "some args").allow_hyphen_values(true));
+
+    // Split these up into two groups to avoid factorial explosion.
+    let possible_argss = vec![
+        vec!["--foo", "-a", "--", "bar", "--prog-flag"],
+        vec!["--foo", "-Wl", "--", "-", "-1"],
+    ];
+
+    for possible_args in possible_argss {
+        for permutations in gen_permutations(&possible_args)
+            .into_iter()
+            .flat_map(|args| {
+                let mut with_prog_flag = vec!["", "--prog-flag", "busybox"];
+                let mut without_prog_flag = vec!["", "busybox"];
+                with_prog_flag.extend(&args);
+                without_prog_flag.extend(&args);
+
+                vec![with_prog_flag, without_prog_flag]
+            })
+        {
+            let m = cmd.try_get_matches_from_mut(&permutations);
+            assert!(
+                m.is_ok(),
+                "failed with args {:?}: {}",
+                permutations,
+                m.unwrap_err()
+            );
+            let m = m.unwrap();
+
+            assert_eq!(
+                m.get_one::<String>("EXE").map(|v| v.as_str()).unwrap(),
+                "busybox"
+            );
+            assert!(m.contains_id("ARGS"), "failed with args {:?}", permutations);
+
+            let args_start = if permutations[1] == "--prog-flag" && permutations[3] == "--" {
+                4
+            } else if permutations[1] == "--prog-flag" || permutations[2] == "--" {
+                3
+            } else {
+                2
+            };
+
+            assert_eq!(
+                m.get_many::<String>("ARGS")
+                    .unwrap()
+                    .map(|v| v.as_str())
+                    .collect::<Vec<_>>(),
+                permutations[args_start..]
+            );
+        }
+    }
 }
 
 #[test]
@@ -834,6 +960,24 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
     assert_eq!(
         m.get_one::<String>("pat").map(|v| v.as_str()),
         Some("-file")
+    );
+}
+
+#[test]
+fn issue_3880_allow_long_flag_hyphen_value_for_positional_arg() {
+    let m = Command::new("prog")
+        .arg(
+            Arg::new("pat")
+                .allow_hyphen_values(true)
+                .required(true)
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(["", "--file"])
+        .unwrap();
+
+    assert_eq!(
+        m.get_one::<String>("pat").map(|v| v.as_str()),
+        Some("--file")
     );
 }
 
