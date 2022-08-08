@@ -44,7 +44,7 @@ fn main() {
     let mut minor = 2;
     let mut patch = 3;
 
-    // See if --set-ver was used to set the version manually
+    // See if --set_ver was used to set the version manually
     let version = if let Some(ver) = cli.set_ver.as_deref() {
         ver.to_string()
     } else {

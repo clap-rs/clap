@@ -1,32 +1,32 @@
 ```console
-$ 03_02_option --help
+$ 03_02_option_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    03_02_option[EXE] [OPTIONS]
+    03_02_option_derive[EXE] [OPTIONS]
 
 OPTIONS:
     -h, --help           Print help information
     -n, --name <NAME>    
     -V, --version        Print version information
 
-$ 03_02_option
+$ 03_02_option_derive
 name: None
 
-$ 03_02_option --name bob
+$ 03_02_option_derive --name bob
 name: Some("bob")
 
-$ 03_02_option --name=bob
+$ 03_02_option_derive --name=bob
 name: Some("bob")
 
-$ 03_02_option -n bob
+$ 03_02_option_derive -n bob
 name: Some("bob")
 
-$ 03_02_option -n=bob
+$ 03_02_option_derive -n=bob
 name: Some("bob")
 
-$ 03_02_option -nbob
+$ 03_02_option_derive -nbob
 name: Some("bob")
 
 ```
