@@ -74,6 +74,13 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_03_positional.md")]
 //!
+//! Note that the default [`ArgAction`][crate::ArgAction]` is [`Set`][crate::ArgAction::Set].  To
+//! accept multiple values, use [`Append`][crate::ArgAction::Append]:
+//! ```rust
+#![doc = include_str!("../../examples/tutorial_derive/03_03_positional_mult.rs")]
+//! ```
+#![doc = include_str!("../../examples/tutorial_derive/03_03_positional_mult.md")]
+//!
 //! ### Options
 //!
 //! You can name your arguments with a flag:
@@ -90,6 +97,13 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option.md")]
 //!
+//! Note that the default [`ArgAction`][crate::ArgAction]` is [`Set`][crate::ArgAction::Set].  To
+//! accept multiple occurrences, use [`Append`][crate::ArgAction::Append]:
+//! ```rust
+#![doc = include_str!("../../examples/tutorial_derive/03_02_option_mult.rs")]
+//! ```
+#![doc = include_str!("../../examples/tutorial_derive/03_02_option_mult.md")]
+//!
 //! ### Flags
 //!
 //! Flags can also be switches that can be on/off.  This is enabled via the
@@ -101,7 +115,9 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_bool.md")]
 //!
-//! Or counted with `#[clap(action = clap::ArgAction::Count)]`:
+//! Note that the default [`ArgAction`][crate::ArgAction]` for a `bool` field is
+//! [`SetTrue`][crate::ArgAction::SetTrue].  To accept multiple values, use
+//! [`Append`][crate::ArgAction::Append]:
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_count.rs")]
