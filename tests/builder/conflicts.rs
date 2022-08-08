@@ -47,6 +47,17 @@ fn exclusive_flag() {
 }
 
 #[test]
+fn exclusive_flag_with_help_action() {
+    let result = Command::new("flag_conflict")
+        .arg(arg!(--myhelp).exclusive(true).action(ArgAction::Help))
+        .arg(arg!(--myversion))
+        .try_get_matches_from(vec!["myprog", "--myhelp", "--myversion"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
 fn exclusive_option() {
     let result = Command::new("flag_conflict")
         .arg(

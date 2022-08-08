@@ -9,7 +9,6 @@ use clap_lex::RawOsStr;
 use clap_lex::RawOsString;
 
 // Internal
-use crate::builder::PossibleValue;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -21,6 +20,7 @@ use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
 use crate::ArgAction;
+use crate::{builder::PossibleValue, error::ErrorKind};
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'cmd> {
@@ -45,6 +45,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 }
 
+enum ErrorAction {
+    DisplayHelp { use_long: bool },
+    DisplayVersion { use_long: bool },
+}
+
 // Parsing Methods
 impl<'help, 'cmd> Parser<'help, 'cmd> {
     // The actual parsing function
@@ -62,6 +67,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         let mut keep_state = false;
         let mut parse_state = ParseState::ValuesDone;
         let mut pos_counter = 1;
+
+        let mut maybe_error_action: Option<ErrorAction> = None;
 
         // Already met any valid arg(then we shouldn't expect subcommands after it).
         let mut valid_arg_found = false;
@@ -192,6 +199,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                         ParseResult::AttachedValueNotConsumed => {
                             unreachable!()
                         }
+                        ParseResult::DisplayHelp { use_long } => {
+                            maybe_error_action = Some(ErrorAction::DisplayHelp { use_long });
+                            continue;
+                        }
+                        ParseResult::DisplayVersion { use_long } => {
+                            maybe_error_action = Some(ErrorAction::DisplayVersion { use_long });
+                            continue;
+                        }
                     }
                 } else if let Some(short_arg) = arg_os.to_short() {
                     // Arg looks like a short flag, and not a possible number
@@ -263,6 +278,14 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                                 None,
                                 Usage::new(self.cmd).create_usage_with_title(&[]),
                             ));
+                        }
+                        ParseResult::DisplayHelp { use_long } => {
+                            maybe_error_action = Some(ErrorAction::DisplayHelp { use_long });
+                            continue;
+                        }
+                        ParseResult::DisplayVersion { use_long } => {
+                            maybe_error_action = Some(ErrorAction::DisplayVersion { use_long });
+                            continue;
                         }
                         ParseResult::MaybeHyphenValue => {
                             // Maybe a hyphen value, do nothing.
@@ -469,7 +492,23 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         #[cfg(feature = "env")]
         self.add_env(matcher)?;
         self.add_defaults(matcher)?;
-        Validator::new(self.cmd).validate(parse_state, matcher)
+
+        let validation_result = Validator::new(self.cmd).validate(parse_state, matcher);
+
+        match maybe_error_action {
+            Some(error_action) => match validation_result {
+                Err(validation_error) if validation_error.kind() == ErrorKind::ArgumentConflict => {
+                    Err(validation_error)
+                }
+                Err(_) | Ok(_) => match error_action {
+                    ErrorAction::DisplayHelp { use_long } => {
+                        Err(self.help_err(use_long, Stream::Stdout))
+                    }
+                    ErrorAction::DisplayVersion { use_long } => Err(self.version_err(use_long)),
+                },
+            },
+            None => validation_result,
+        }
     }
 
     fn match_arg_error(
@@ -1230,7 +1269,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     None => true,
                 };
                 debug!("Help: use_long={}", use_long);
-                Err(self.help_err(use_long, Stream::Stdout))
+                self.start_custom_arg(matcher, arg, source);
+                Ok(ParseResult::DisplayHelp { use_long })
             }
             ArgAction::Version => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
@@ -1241,7 +1281,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     None => true,
                 };
                 debug!("Version: use_long={}", use_long);
-                Err(self.version_err(use_long))
+                self.start_custom_arg(matcher, arg, source);
+                Ok(ParseResult::DisplayVersion { use_long })
             }
         }
     }
@@ -1573,6 +1614,12 @@ enum ParseResult {
     },
     /// No argument found e.g. parser is given `-` when parsing a flag.
     NoArg,
+    DisplayHelp {
+        use_long: bool,
+    },
+    DisplayVersion {
+        use_long: bool,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
