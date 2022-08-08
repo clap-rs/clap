@@ -248,6 +248,12 @@ pub(crate) fn assert_app(cmd: &Command) {
                     cmd.get_name(),
                 arg.name
             );
+            assert!(
+                !cmd.is_disable_escape_arg_set(),
+                "Command {}: Argument {} has last(true) which conflicts with `disable_escape_arg(true)`",
+                cmd.get_name(),
+                arg.name
+            );
         }
 
         assert!(

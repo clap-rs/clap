@@ -49,6 +49,7 @@ pub(crate) enum AppSettings {
     DisableHelpFlag,
     DisableHelpSubcommand,
     DisableVersionFlag,
+    DisableEscapeArg,
     PropagateVersion,
     Hidden,
     HidePossibleValues,
@@ -101,6 +102,7 @@ bitflags! {
         const INFER_LONG_ARGS                = 1 << 43;
         const IGNORE_ERRORS                  = 1 << 44;
         const MULTICALL                      = 1 << 45;
+        const DISABLE_ESCAPE_ARG             = 1 << 46;
         const NO_OP                          = 0;
     }
 }
@@ -138,6 +140,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag
         => Flags::DISABLE_VERSION_FLAG,
+    DisableEscapeArg
+        => Flags::DISABLE_ESCAPE_ARG,
     PropagateVersion
         => Flags::PROPAGATE_VERSION,
     HidePossibleValues

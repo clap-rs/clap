@@ -540,6 +540,28 @@ fn leading_double_hyphen_trailingvararg() {
 }
 
 #[test]
+fn disable_escape_arg() {
+    let m = Command::new("extsubcmd")
+        .trailing_var_arg(true)
+        .disable_escape_arg(true)
+        .arg(arg!(<VAL>))
+        .arg(arg!([ARGS] ... "some args").allow_hyphen_values(true))
+        .try_get_matches_from(vec!["", "do-the-thing", "--", "--foo", "bar"])
+        .unwrap();
+
+    assert!(m.contains_id("VAL"));
+    assert!(m.contains_id("ARGS"));
+    assert_eq!(m.get_one::<String>("VAL").unwrap(), "do-the-thing");
+    assert_eq!(
+        m.get_many::<String>("ARGS")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        &["--", "--foo", "bar"]
+    );
+}
+
+#[test]
 fn disable_help_subcommand() {
     let result = Command::new("disablehelp")
         .disable_help_subcommand(true)

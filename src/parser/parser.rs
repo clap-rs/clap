@@ -119,7 +119,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
 
                 if arg_os.is_escape() {
-                    if matches!(&parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
+                    if self.cmd.is_disable_escape_arg_set()
+                        || matches!(&parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
                         self.cmd[opt].is_allow_hyphen_values_set())
                     {
                         // ParseResult::MaybeHyphenValue, do nothing

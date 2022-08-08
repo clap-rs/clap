@@ -2011,6 +2011,64 @@ impl<'help> Command<'help> {
         }
     }
 
+    /// Disables the `--` escape argument, always parsing it as if it were an argument value.
+    ///
+    /// This can be used to ensure that when `--` is passed on the CLI, it is captured as part of
+    /// the final positional (e.g. with [`Command::trailing_var_arg`]).
+    ///
+    /// Otherwise, when enabled, the `--` escape argument can be used to skip to the final
+    /// positional argument (see [`Command::allow_missing_positional`] and [`Arg::last`]).
+    ///
+    /// NOTE: this cannot be used if the [`Command`] has an [`Arg`] with [`last(true)`] set.
+    ///
+    /// # Examples
+    /// Suppose you want to capture *every* argument for a subcommand, e.g. to pass it off to an
+    /// external subcommand. Without disabling the `--` escape argument, the following would
+    /// exclude it from the final position arg as it is used to escape to the final positional arg.
+    /// ```rust
+    /// # use clap::{arg, Command, Arg};
+    /// let m = Command::new("myprog")
+    ///     .trailing_var_arg(true)
+    ///     .arg(arg!([opt] ...).allow_hyphen_values(true))
+    ///     .get_matches_from(vec!["", "--", "--foo", "bar"]);
+    ///
+    /// assert_eq!(
+    ///     m.get_many::<String>("opt")
+    ///         .unwrap()
+    ///         .map(|s| s.as_str())
+    ///         .collect::<Vec<_>>(),
+    ///     vec!["--foo", "bar"]
+    /// );
+    /// ```
+    /// whereas
+    /// ```rust
+    /// # use clap::{arg, Command, Arg};
+    /// let m = Command::new("myprog")
+    ///     .trailing_var_arg(true)
+    ///     .disable_escape_arg(true)
+    ///     .arg(arg!([opt] ...).allow_hyphen_values(true))
+    ///     .get_matches_from(vec!["", "--", "--foo", "bar"]);
+    ///
+    /// assert_eq!(
+    ///     m.get_many::<String>("opt")
+    ///         .unwrap()
+    ///         .map(|s| s.as_str())
+    ///         .collect::<Vec<_>>(),
+    ///     vec!["--", "--foo", "bar"]
+    /// );
+    /// ```
+    /// captures it.
+    ///
+    /// [`last(true)`]: Arg::last()
+    #[inline]
+    pub fn disable_escape_arg(self, yes: bool) -> Self {
+        if yes {
+            self.setting(AppSettings::DisableEscapeArg)
+        } else {
+            self.unset_setting(AppSettings::DisableEscapeArg)
+        }
+    }
+
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
     /// attempt to parse any further args.
     ///
@@ -3597,6 +3655,11 @@ impl<'help> Command<'help> {
     /// Report whether [`Command::allow_negative_numbers`] is set
     pub fn is_allow_negative_numbers_set(&self) -> bool {
         self.is_set(AppSettings::AllowNegativeNumbers)
+    }
+
+    /// Report whether [`Command::disable_escape_arg`] is set
+    pub fn is_disable_escape_arg_set(&self) -> bool {
+        self.is_set(AppSettings::DisableEscapeArg)
     }
 
     /// Report whether [`Command::trailing_var_arg`] is set
