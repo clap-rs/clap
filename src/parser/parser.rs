@@ -135,6 +135,7 @@ impl<'cmd> Parser<'cmd> {
                         long_arg,
                         long_value,
                         &parse_state,
+                        pos_counter,
                         &mut valid_arg_found,
                     )?;
                     debug!(
@@ -710,11 +711,13 @@ impl<'cmd> Parser<'cmd> {
         long_arg: Result<&str, &RawOsStr>,
         long_value: Option<&RawOsStr>,
         parse_state: &ParseState,
+        pos_counter: usize,
         valid_arg_found: &mut bool,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
 
+        #[allow(clippy::blocks_in_if_conditions)]
         if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
             self.cmd[opt].is_allow_hyphen_values_set())
         {
@@ -806,6 +809,19 @@ impl<'cmd> Parser<'cmd> {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
         } else if self.cmd.is_allow_hyphen_values_set() {
             debug!("Parser::parse_long_arg: contains non-long flag");
+            Ok(ParseResult::MaybeHyphenValue)
+        } else if self
+            .cmd
+            .get_keymap()
+            .get(&pos_counter)
+            .map_or(false, |arg| {
+                arg.is_allow_hyphen_values_set() && !arg.is_last_set()
+            })
+        {
+            debug!(
+                "Parser::parse_long_args: positional at {} allows hyphens",
+                pos_counter
+            );
             Ok(ParseResult::MaybeHyphenValue)
         } else {
             Ok(ParseResult::NoMatchingArg {

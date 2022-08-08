@@ -519,20 +519,76 @@ fn allow_negative_numbers_fail() {
 }
 
 #[test]
-fn leading_double_hyphen_trailingvararg() {
-    let m = Command::new("positional")
-        .allow_hyphen_values(true)
-        .arg(arg!([opt] ... "some pos").trailing_var_arg(true))
-        .try_get_matches_from(vec!["", "--foo", "-Wl", "bar"])
-        .unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_many::<String>("opt")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        &["--foo", "-Wl", "bar"]
+fn trailing_var_arg_with_hyphen_values_escape_first() {
+    assert_trailing_var_args(&["test", "--", "foo", "bar"], Some(&["foo", "bar"]), false);
+}
+
+#[test]
+fn trailing_var_arg_with_hyphen_values_escape_middle() {
+    assert_trailing_var_args(
+        &["test", "foo", "--", "bar"],
+        Some(&["foo", "--", "bar"]),
+        false,
     );
+}
+
+#[test]
+fn trailing_var_arg_with_hyphen_values_short_first() {
+    assert_trailing_var_args(&["test", "-p", "foo", "bar"], Some(&["foo", "bar"]), true);
+}
+
+#[test]
+fn trailing_var_arg_with_hyphen_values_short_middle() {
+    assert_trailing_var_args(
+        &["test", "foo", "-p", "bar"],
+        Some(&["foo", "-p", "bar"]),
+        false,
+    );
+}
+
+#[test]
+fn trailing_var_arg_with_hyphen_values_long_first() {
+    assert_trailing_var_args(
+        &["test", "--prog", "foo", "bar"],
+        Some(&["foo", "bar"]),
+        true,
+    );
+}
+
+#[test]
+fn trailing_var_arg_with_hyphen_values_long_middle() {
+    assert_trailing_var_args(
+        &["test", "foo", "--prog", "bar"],
+        Some(&["foo", "--prog", "bar"]),
+        false,
+    );
+}
+
+#[track_caller]
+fn assert_trailing_var_args(
+    input: &[&str],
+    expected_var_arg: Option<&[&str]>,
+    expected_flag: bool,
+) {
+    let cmd = Command::new("test").arg(arg!(-p - -prog)).arg(
+        arg!([opt] ... "some pos")
+            .trailing_var_arg(true)
+            .allow_hyphen_values(true),
+    );
+    let m = cmd.try_get_matches_from(input);
+    assert!(
+        m.is_ok(),
+        "failed with args {:?}: {}",
+        input,
+        m.unwrap_err()
+    );
+    let m = m.unwrap();
+
+    let actual_var_args = m
+        .get_many::<String>("opt")
+        .map(|v| v.map(|s| s.as_str()).collect::<Vec<_>>());
+    assert_eq!(actual_var_args.as_deref(), expected_var_arg);
+    assert_eq!(m.get_flag("prog"), expected_flag);
 }
 
 #[test]
@@ -826,6 +882,24 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
     assert_eq!(
         m.get_one::<String>("pat").map(|v| v.as_str()),
         Some("-file")
+    );
+}
+
+#[test]
+fn issue_3880_allow_long_flag_hyphen_value_for_positional_arg() {
+    let m = Command::new("prog")
+        .arg(
+            Arg::new("pat")
+                .allow_hyphen_values(true)
+                .required(true)
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(["", "--file"])
+        .unwrap();
+
+    assert_eq!(
+        m.get_one::<String>("pat").map(|v| v.as_str()),
+        Some("--file")
     );
 }
 
