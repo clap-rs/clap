@@ -4,19 +4,19 @@ clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    03_03_positional[EXE] [NAME]
+    03_03_positional[EXE] [name]
 
 ARGS:
-    <NAME>    
+    <name>    
 
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
 $ 03_03_positional
-NAME: None
+name: None
 
 $ 03_03_positional bob
-NAME: Some("bob")
+name: Some("bob")
 
 ```

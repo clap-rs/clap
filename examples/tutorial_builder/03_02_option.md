@@ -7,7 +7,7 @@ USAGE:
     03_02_option[EXE] [OPTIONS]
 
 OPTIONS:
-    -n, --name <NAME>    
+    -n, --name <name>    
     -h, --help           Print help information
     -V, --version        Print version information
 
