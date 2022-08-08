@@ -931,7 +931,14 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specify the behavior when parsing an argument
+    /// Specify how to react to an argument when parsing it.
+    ///
+    /// [ArgAction][crate::ArgAction] controls things like
+    /// - Overwriting previous values with new ones
+    /// - Appending new values to all previous ones
+    /// - Counting how many times a flag occurs
+    ///
+    /// The default action is `ArgAction::StoreValue`
     ///
     /// # Examples
     ///
@@ -942,7 +949,7 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("flag")
     ///             .long("flag")
-    ///             .action(clap::ArgAction::Set)
+    ///             .action(clap::ArgAction::Append)
     ///     );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "value"]).unwrap();
@@ -964,6 +971,8 @@ impl<'help> Arg<'help> {
     ///
     /// This allows parsing and validating a value before storing it into
     /// [`ArgMatches`][crate::ArgMatches].
+    ///
+    /// The default value is [`ValueParser::string`][crate::builder::ValueParser::string].
     ///
     /// See also
     /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
