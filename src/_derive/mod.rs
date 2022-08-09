@@ -186,11 +186,17 @@
 //! - `value_parser [= <expr>]`: [`Arg::value_parser`][crate::Arg::value_parser]
 //!   - When not present: will auto-select an implementation based on the field type using
 //!     [`value_parser!][crate::value_parser!]
-//!   - To register a custom type's [`ValueParser`][crate::builder::ValueParser], implement [`ValueParserFactory`][crate::builder::ValueParserFactory]
+//!   - When present but defaulted: opt-in to clap v4 semantics
+//!     - Env parsing is now dependent on inferred parser
+//!     - `PathBuf` will implicitly skip UTF-8 validation (before it required specifying
+//!       `try_from_os_str`)
 //!   - When present, implies `#[clap(action)]`
+//!   - To register a custom type's [`ValueParser`][crate::builder::ValueParser], implement [`ValueParserFactory`][crate::builder::ValueParserFactory]
 //! - `action [= <expr>]`: [`Arg::action`][crate::Arg::action]
 //!   - When not present: will auto-select an action based on the field type
+//!   - When present but defaulted: opt-in to clap v4 semantics
 //!   - When present, implies `#[clap(value_parser)]`
+//!     - `args_override_self` is forced on for single flags
 //! - `help = <expr>`: [`Arg::help`][crate::Arg::help]
 //!   - When not present: [Doc comment summary](#doc-comments)
 //! - `long_help = <expr>`: [`Arg::long_help`][crate::Arg::long_help]
