@@ -400,7 +400,7 @@ impl Attrs {
     }
 
     fn push_method(&mut self, name: Ident, arg: impl ToTokens) {
-        if name == "name" {
+        if name == "name" || name == "id" {
             self.name = Name::Assigned(quote!(#arg));
         } else if name == "value_parser" {
             self.value_parser = Some(ValueParser::Explicit(Method::new(name, quote!(#arg))));
