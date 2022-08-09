@@ -13,12 +13,9 @@ fn main() {
             .required(false)
             .value_parser(value_parser!(PathBuf)),
         )
-        .arg(
-            arg!(
-                -d --debug "Turn debugging information on"
-            )
-            .action(ArgAction::Count),
-        )
+        .arg(arg!(
+            -d --debug ... "Turn debugging information on"
+        ))
         .subcommand(
             Command::new("test")
                 .about("does testing things")
