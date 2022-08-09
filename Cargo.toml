@@ -206,7 +206,7 @@ required-features = ["cargo"]
 [[example]]
 name = "04_01_enum"
 path = "examples/tutorial_builder/04_01_enum.rs"
-required-features = ["cargo", "derive"]
+required-features = ["cargo"]
 
 [[example]]
 name = "04_02_parse"

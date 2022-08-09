@@ -1,23 +1,23 @@
 ```console
-$ 03_01_flag_count --help
+$ 03_01_flag_count_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    03_01_flag_count[EXE] [OPTIONS]
+    03_01_flag_count_derive[EXE] [OPTIONS]
 
 OPTIONS:
     -v, --verbose...    
     -h, --help          Print help information
     -V, --version       Print version information
 
-$ 03_01_flag_count
+$ 03_01_flag_count_derive
 verbose: 0
 
-$ 03_01_flag_count --verbose
+$ 03_01_flag_count_derive --verbose
 verbose: 1
 
-$ 03_01_flag_count --verbose --verbose
+$ 03_01_flag_count_derive --verbose --verbose
 verbose: 2
 
 ```
