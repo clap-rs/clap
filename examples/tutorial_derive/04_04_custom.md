@@ -1,10 +1,10 @@
 ```console
-$ 04_04_custom --help
+$ 04_04_custom_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    04_04_custom[EXE] [OPTIONS] [INPUT_FILE]
+    04_04_custom_derive[EXE] [OPTIONS] [INPUT_FILE]
 
 ARGS:
     <INPUT_FILE>    some regular input
@@ -19,38 +19,38 @@ OPTIONS:
         --spec-in <SPEC_IN>    some special input argument
     -V, --version              Print version information
 
-$ 04_04_custom
+$ 04_04_custom_derive
 ? failed
 error: Can only modify one version field
 
 USAGE:
-    04_04_custom[EXE] [OPTIONS] [INPUT_FILE]
+    clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
 
-$ 04_04_custom --major
+$ 04_04_custom_derive --major
 Version: 2.2.3
 
-$ 04_04_custom --major --minor
+$ 04_04_custom_derive --major --minor
 ? failed
 error: Can only modify one version field
 
 USAGE:
-    04_04_custom[EXE] [OPTIONS] [INPUT_FILE]
+    clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
 
-$ 04_04_custom --major -c config.toml
+$ 04_04_custom_derive --major -c config.toml
 ? failed
 Version: 2.2.3
 error: INPUT_FILE or --spec-in is required when using --config
 
 USAGE:
-    04_04_custom[EXE] [OPTIONS] [INPUT_FILE]
+    clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
 
-$ 04_04_custom --major -c config.toml --spec-in input.txt
+$ 04_04_custom_derive --major -c config.toml --spec-in input.txt
 Version: 2.2.3
 Doing work using input input.txt and config config.toml
 
