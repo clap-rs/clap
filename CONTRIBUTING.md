@@ -54,6 +54,9 @@ Some practices to avoid breaking changes
 - Duplicate functionality, with old functionality marked as "deprecated"
   - Common documentation pattern: `/// Deprecated in [Issue #XXX](https://github.com/clap-rs/clap/issues/XXX), replaced with [intra-doc-link]`
   - Common deprecation pattern: `#[cfg_attr(feature = "deprecated", deprecated(since = "X.Y.Z", note = "Replaced with `ITEM` in Issue #XXX"))]`
+    - `deprecated` feature flag is to allow people to process them on their
+      time table and allow us to process feedback from early adopters before
+      requiring everyone to process them on the next major version.
   - Please keep API addition and deprecation in separate commits in a PR to make it easier to review
 - Develop the feature behind an `unstable-<name>` feature flag with a stablization tracking issue (e.g. [Multicall Tracking issue](https://github.com/clap-rs/clap/issues/2861))
 

@@ -6,7 +6,7 @@ fn main() {
         .get_matches();
 
     println!(
-        "NAME: {:?}",
+        "name: {:?}",
         matches
             .get_one::<String>("NAME")
             .expect("default ensures there is always a value")

@@ -14,9 +14,9 @@ OPTIONS:
     -V, --version    Print version information
 
 $ 03_05_default_values
-NAME: "alice"
+name: "alice"
 
 $ 03_05_default_values bob
-NAME: "bob"
+name: "bob"
 
 ```
