@@ -889,14 +889,14 @@ impl Attrs {
             .unwrap_or_else(|| {
                 if let Some(value_parser) = self.value_parser.as_ref() {
                     let span = value_parser.span();
-                    default_action(field_type, span)
+                    default_action(self.name.raw_literal().as_deref(), field_type, span)
                 } else {
                     let span = self
                         .value_parser
                         .as_ref()
                         .map(|a| a.span())
                         .unwrap_or_else(|| self.kind.span());
-                    default_action(field_type, span)
+                    default_action(self.name.raw_literal().as_deref(), field_type, span)
                 }
             })
     }
@@ -949,14 +949,27 @@ impl ValueParser {
     }
 }
 
-fn default_value_parser(inner_type: &Type, span: Span) -> Method {
+fn default_value_parser(name: Option<&str>, inner_type: &Type, span: Span) -> Method {
     let func = Ident::new("value_parser", span);
-    Method::new(
-        func,
+    let call = if crate::utils::is_unit_type(inner_type) {
+        match name {
+            Some("help") | Some("version") => {
+                quote_spanned! { span=>
+                    clap::value_parser!(bool)
+                }
+            }
+            _ => {
+                quote_spanned! { span=>
+                    clap::value_parser!(String)
+                }
+            }
+        }
+    } else {
         quote_spanned! { span=>
             clap::value_parser!(#inner_type)
-        },
-    )
+        }
+    };
+    Method::new(func, call)
 }
 
 #[derive(Clone)]
@@ -971,7 +984,7 @@ impl Action {
         match self {
             Self::Explicit(method) => method,
             #[cfg(not(feature = "unstable-v5"))]
-            Self::Implicit(ident) => default_action(_field_type, ident.span()),
+            Self::Implicit(ident) => default_action(None, _field_type, ident.span()),
         }
     }
 
@@ -984,9 +997,20 @@ impl Action {
     }
 }
 
-fn default_action(field_type: &Type, span: Span) -> Method {
+fn default_action(name: Option<&str>, field_type: &Type, span: Span) -> Method {
     let ty = Ty::from_syn_ty(field_type);
     let args = match *ty {
+        Ty::Unit => match name {
+            Some("help") => quote_spanned! { span=>
+                clap::ArgAction::Help
+            },
+            Some("version") => quote_spanned! { span=>
+                clap::ArgAction::Version
+            },
+            _ => quote_spanned! { span=>
+                clap::ArgAction::Set
+            },
+        },
         Ty::Vec | Ty::OptionVec => {
             quote_spanned! { span=>
                 clap::ArgAction::Append
@@ -1157,6 +1181,13 @@ impl Name {
                 let s = ident.unraw().to_string();
                 quote_spanned!(ident.span()=> #s)
             }
+        }
+    }
+
+    pub fn raw_literal(&self) -> Option<String> {
+        match self {
+            Name::Assigned(_) => None,
+            Name::Derived(ident) => Some(ident.unraw().to_string()),
         }
     }
 

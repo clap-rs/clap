@@ -13,6 +13,7 @@ pub enum Ty {
     Option,
     OptionOption,
     OptionVec,
+    Unit,
     Other,
 }
 
@@ -21,7 +22,9 @@ impl Ty {
         use self::Ty::*;
         let t = |kind| Sp::new(kind, ty.span());
 
-        if is_generic_ty(ty, "Vec") {
+        if is_unit_type(ty) {
+            t(Unit)
+        } else if is_generic_ty(ty, "Vec") {
             t(Vec)
         } else if let Some(subty) = subty_if_name(ty, "Option") {
             if is_generic_ty(subty, "Option") {
@@ -50,6 +53,14 @@ pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {
 
 pub fn sub_type(ty: &syn::Type) -> Option<&syn::Type> {
     subty_if(ty, |_| true)
+}
+
+pub fn is_unit_type(ty: &syn::Type) -> bool {
+    if let syn::Type::Tuple(tuple) = ty {
+        tuple.elems.is_empty()
+    } else {
+        false
+    }
 }
 
 fn only_last_segment(mut ty: &syn::Type) -> Option<&PathSegment> {
