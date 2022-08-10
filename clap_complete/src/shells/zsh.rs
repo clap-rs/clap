@@ -287,7 +287,7 @@ fn parser_of<'help, 'cmd>(
 ) -> Option<&'cmd Command<'help>> {
     debug!("parser_of: p={}, bin_name={}", parent.get_name(), bin_name);
 
-    if bin_name == parent.get_bin_name().unwrap_or(&String::new()) {
+    if bin_name == parent.get_bin_name().unwrap_or("") {
         return Some(parent);
     }
 
