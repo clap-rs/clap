@@ -140,9 +140,9 @@ fn propagate_version_short() {
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "`ArgAction::Version` used without providing Command::version or Command::long_version"]
-fn mut_arg_version_panic() {
+fn version_required() {
     let _res = common()
-        .mut_arg("version", |v| v.short('z'))
+        .arg(clap::arg!(--version).action(ArgAction::Version))
         .try_get_matches_from("foo -z".split(' '));
 }
 

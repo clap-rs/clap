@@ -3896,17 +3896,7 @@ impl<'help> Arg<'help> {
 impl<'help> Arg<'help> {
     pub(crate) fn _build(&mut self) {
         if self.action.is_none() {
-            if self.get_id() == "help"
-                && matches!(self.get_num_args(), Some(ValueRange::EMPTY) | None)
-            {
-                let action = super::ArgAction::Help;
-                self.action = Some(action);
-            } else if self.get_id() == "version"
-                && matches!(self.get_num_args(), Some(ValueRange::EMPTY) | None)
-            {
-                let action = super::ArgAction::Version;
-                self.action = Some(action);
-            } else if self.num_vals == Some(ValueRange::EMPTY) {
+            if self.num_vals == Some(ValueRange::EMPTY) {
                 let action = super::ArgAction::SetTrue;
                 self.action = Some(action);
             } else {

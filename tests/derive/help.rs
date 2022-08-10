@@ -1,4 +1,4 @@
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{ArgAction, Args, CommandFactory, Parser, Subcommand};
 
 #[test]
 fn arg_help_heading_applied() {
@@ -440,4 +440,32 @@ OPTIONS:
     cmd.write_long_help(&mut buffer).unwrap();
     let help = String::from_utf8(buffer).unwrap();
     snapbox::assert_eq(HELP, help);
+}
+
+#[test]
+fn custom_help_flag() {
+    #[derive(Debug, Clone, Parser)]
+    #[clap(disable_help_flag = true)]
+    struct CliOptions {
+        #[clap(short = 'h', long = "verbose-help", action = ArgAction::Help)]
+        help: bool,
+    }
+
+    let result = CliOptions::try_parse_from(["cmd", "--verbose-help"]);
+    let err = result.unwrap_err();
+    assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+}
+
+#[test]
+fn custom_version_flag() {
+    #[derive(Debug, Clone, Parser)]
+    #[clap(disable_version_flag = true, version = "2.0.0")]
+    struct CliOptions {
+        #[clap(short = 'V', long = "verbose-version", action = ArgAction::Version)]
+        version: bool,
+    }
+
+    let result = CliOptions::try_parse_from(["cmd", "--verbose-version"]);
+    let err = result.unwrap_err();
+    assert_eq!(err.kind(), clap::error::ErrorKind::DisplayVersion);
 }
