@@ -106,9 +106,23 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             header.push(roman(&defs));
         }
 
+
         let mut body = vec![];
         if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
             body.push(roman(help));
+        }
+
+        let possibles = &opt.get_possible_values();
+        if !possibles.is_empty() {
+            let pos_options: Vec<&str> = possibles
+                .iter()
+                .filter(|pos| !pos.is_hide_set())
+                .map(|pos| pos.get_name())
+                .collect();
+            body.push(Inline::LineBreak);
+            body.push(roman("[possible values: "));
+            body.push(italic(pos_options.join(", ")));
+            body.push(roman("]"));
         }
 
         roff.control("TP", []);
