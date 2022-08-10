@@ -112,6 +112,24 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             body.push(roman(help));
         }
 
+        let possibles: Vec<clap::builder::PossibleValue> = opt
+            .get_value_parser()
+            .possible_values()
+            .map(|pvs| pvs.collect())
+            .unwrap_or_default();
+
+        if !possibles.is_empty() {
+            let pos_options: Vec<&str> = possibles
+                .iter()
+                .filter(|pos| !pos.is_hide_set())
+                .map(|pos| pos.get_name())
+                .collect();
+            body.push(Inline::LineBreak);
+            body.push(roman("[possible values: "));
+            body.push(italic(pos_options.join(", ")));
+            body.push(roman("]"));
+        }
+
         roff.control("TP", []);
         roff.text(header);
         roff.text(body);
