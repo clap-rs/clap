@@ -436,7 +436,8 @@ fn assert_app_flags(cmd: &Command) {
 
                 $(
                     if !cmd.$b() {
-                        s.push_str(&format!("  AppSettings::{} is required when AppSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
+                        use std::fmt::Write;
+                        write!(&mut s, "  AppSettings::{} is required when AppSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)).unwrap();
                     }
                 )+
 
@@ -451,7 +452,8 @@ fn assert_app_flags(cmd: &Command) {
 
                 $(
                     if cmd.$b() {
-                        s.push_str(&format!("  AppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)));
+                        use std::fmt::Write;
+                        write!(&mut s, "  AppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)).unwrap();
                     }
                 )+
 
@@ -762,7 +764,8 @@ fn assert_arg_flags(arg: &Arg) {
 
                 $(
                     if !arg.$b() {
-                        s.push_str(&format!("  Arg::{} is required when Arg::{} is set.\n", std::stringify!($b), std::stringify!($a)));
+                        use std::fmt::Write;
+                        write!(&mut s, "  Arg::{} is required when Arg::{} is set.\n", std::stringify!($b), std::stringify!($a)).unwrap();
                     }
                 )+
 

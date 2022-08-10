@@ -231,9 +231,7 @@ impl ArgMatcher {
             debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
         }
         if trailing_values {
-            pending
-                .trailing_idx
-                .get_or_insert_with(|| pending.raw_vals.len());
+            pending.trailing_idx.get_or_insert(pending.raw_vals.len());
         }
         &mut pending.raw_vals
     }
@@ -241,9 +239,7 @@ impl ArgMatcher {
     pub(crate) fn start_trailing(&mut self) {
         if let Some(pending) = &mut self.pending {
             // Allow asserting its started on subsequent calls
-            pending
-                .trailing_idx
-                .get_or_insert_with(|| pending.raw_vals.len());
+            pending.trailing_idx.get_or_insert(pending.raw_vals.len());
         }
     }
 
