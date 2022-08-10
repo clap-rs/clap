@@ -4142,14 +4142,13 @@ impl<'help> Command<'help> {
                 .iter()
                 .any(|sc| sc.long_flag == Some("help"))
         {
-            debug!("Command::_check_help_and_version: Removing generated help");
-
             let generated_help_pos = self
                 .args
                 .args()
                 .position(|x| x.id == Id::help_hash() && x.provider == ArgProvider::Generated);
 
             if let Some(index) = generated_help_pos {
+                debug!("Command::_check_help_and_version: Removing generated help");
                 self.args.remove(index);
             }
         } else {
@@ -4206,8 +4205,6 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                 .iter()
                 .any(|sc| sc.long_flag == Some("version"))
         {
-            debug!("Command::_check_help_and_version: Removing generated version");
-
             // This is the check mentioned above that only checks for Generated, not
             // GeneratedMutated args by design.
             let generated_version_pos = self
@@ -4216,6 +4213,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
                 .position(|x| x.id == Id::version_hash() && x.provider == ArgProvider::Generated);
 
             if let Some(index) = generated_version_pos {
+                debug!("Command::_check_help_and_version: Removing generated version");
                 self.args.remove(index);
             }
         }
@@ -4525,7 +4523,8 @@ impl<'help> Command<'help> {
         stream: Stream,
     ) -> ClapResult<Colorizer> {
         debug!(
-            "Parser::write_help_err: use_long={:?}, stream={:?}",
+            "Command::write_help_err: {}, use_long={:?}, stream={:?}",
+            self.get_display_name().unwrap_or_else(|| self.get_name()),
             use_long && self.use_long_help(),
             stream
         );
