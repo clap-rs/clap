@@ -4,6 +4,7 @@ use clap_lex::RawOsStr;
 
 use crate::builder::ValueRange;
 use crate::mkeymap::KeyType;
+use crate::util::FlatSet;
 use crate::util::Id;
 use crate::ArgAction;
 use crate::INTERNAL_ERROR_MSG;
@@ -308,7 +309,7 @@ pub(crate) fn assert_app(cmd: &Command) {
     detect_duplicate_flags(&long_flags, "long");
     detect_duplicate_flags(&short_flags, "short");
 
-    let mut subs = indexmap::IndexSet::new();
+    let mut subs = FlatSet::new();
     for sc in cmd.get_subcommands() {
         assert!(
             subs.insert(sc.get_name()),

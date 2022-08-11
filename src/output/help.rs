@@ -9,10 +9,10 @@ use std::usize;
 use crate::builder::PossibleValue;
 use crate::builder::{render_arg_val, Arg, Command};
 use crate::output::{fmt::Colorizer, Usage};
+use crate::util::FlatSet;
 use crate::ArgAction;
 
 // Third party
-use indexmap::IndexSet;
 use textwrap::core::display_width;
 
 /// `clap` Help Writer.
@@ -821,7 +821,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             .cmd
             .get_arguments()
             .filter_map(|arg| arg.get_help_heading())
-            .collect::<IndexSet<_>>();
+            .collect::<FlatSet<_>>();
 
         let mut first = if !pos.is_empty() {
             // Write positional args if any

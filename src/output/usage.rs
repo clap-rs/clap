@@ -1,9 +1,8 @@
-use indexmap::IndexSet;
-
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command};
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
+use crate::util::FlatSet;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -329,16 +328,16 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         incls: &[Id],
         matcher: Option<&ArgMatcher>,
         incl_last: bool,
-    ) -> IndexSet<String> {
+    ) -> FlatSet<String> {
         debug!(
             "Usage::get_required_usage_from: incls={:?}, matcher={:?}, incl_last={:?}",
             incls,
             matcher.is_some(),
             incl_last
         );
-        let mut ret_val = IndexSet::new();
+        let mut ret_val = FlatSet::new();
 
-        let mut unrolled_reqs = IndexSet::new();
+        let mut unrolled_reqs = FlatSet::new();
 
         let required_owned;
         let required = if let Some(required) = self.required {
@@ -378,9 +377,9 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             unrolled_reqs
         );
 
-        let mut required_groups_members = IndexSet::new();
-        let mut required_opts = IndexSet::new();
-        let mut required_groups = IndexSet::new();
+        let mut required_groups_members = FlatSet::new();
+        let mut required_opts = FlatSet::new();
+        let mut required_groups = FlatSet::new();
         let mut required_positionals = Vec::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if let Some(arg) = self.cmd.find(req) {
