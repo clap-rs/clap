@@ -127,7 +127,6 @@ dependencies = [
  "clap_derive",
  "clap_lex",
  "humantime",
- "indexmap",
  "once_cell",
  "rustversion",
  "shlex",

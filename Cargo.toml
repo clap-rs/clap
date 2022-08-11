@@ -63,7 +63,7 @@ debug = ["clap_derive/debug", "dep:backtrace"] # Enables debug messages
 unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "unstable-replace", "unstable-grouped"] # for docs.rs
 
 # Used in default
-std = ["indexmap/std"] # support for no_std in a backwards-compatible way
+std = [] # support for no_std in a backwards-compatible way
 color = ["dep:atty", "dep:termcolor"]
 suggestions = ["dep:strsim"]
 
@@ -89,7 +89,6 @@ clap_lex = { path = "./clap_lex", version = "0.2.2" }
 bitflags = "1.2"
 textwrap = { version = "0.15.0", default-features = false, features = [] }
 unicase = { version = "2.6", optional = true }
-indexmap = "1.0"
 strsim = { version = "0.10",  optional = true }
 atty = { version = "0.2",  optional = true }
 termcolor = { version = "1.1.1", optional = true }

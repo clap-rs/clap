@@ -5,6 +5,8 @@ use crate::output::fmt::Stream;
 use crate::output::Usage;
 use crate::parser::{ArgMatcher, ParseState};
 use crate::util::ChildGraph;
+use crate::util::FlatMap;
+use crate::util::FlatSet;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -153,7 +155,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         }
 
         debug!("Validator::build_conflict_err: name={:?}", name);
-        let mut seen = std::collections::HashSet::new();
+        let mut seen = FlatSet::new();
         let conflicts = conflict_ids
             .iter()
             .flat_map(|c_id| {
@@ -382,7 +384,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
 #[derive(Default, Clone, Debug)]
 struct Conflicts {
-    potential: std::collections::HashMap<Id, Vec<Id>>,
+    potential: FlatMap<Id, Vec<Id>>,
 }
 
 impl Conflicts {

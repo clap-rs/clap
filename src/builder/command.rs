@@ -1,5 +1,4 @@
 // Std
-use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
@@ -20,6 +19,7 @@ use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
+use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
@@ -93,7 +93,7 @@ pub struct Command<'help> {
     g_settings: AppFlags,
     args: MKeyMap<'help>,
     subcommands: Vec<Command<'help>>,
-    replacers: HashMap<&'help str, &'help [&'help str]>,
+    replacers: FlatMap<&'help str, &'help [&'help str]>,
     groups: Vec<ArgGroup<'help>>,
     current_help_heading: Option<&'help str>,
     current_disp_ord: Option<usize>,
