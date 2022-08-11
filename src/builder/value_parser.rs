@@ -12,7 +12,7 @@ use crate::parser::AnyValueId;
 /// use within an application.
 ///
 /// See
-/// - [`value_parser!`] for automatically selecting an implementation for a given type
+/// - [`value_parser!`][crate::value_parser] for automatically selecting an implementation for a given type
 /// - [`ValueParser::new`] for additional [`TypedValueParser`] that can be used
 ///
 /// # Example
