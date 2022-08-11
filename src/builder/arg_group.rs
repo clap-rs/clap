@@ -49,10 +49,10 @@ use crate::util::Id;
 /// let err = result.unwrap_err();
 /// assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 /// ```
-/// This next example shows a passing parse of the same scenario
 ///
+/// This next example shows a passing parse of the same scenario
 /// ```rust
-/// # use clap::{Command, arg, ArgGroup};
+/// # use clap::{Command, arg, ArgGroup, Id};
 /// let result = Command::new("cmd")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
 ///     .arg(arg!(--major           "auto increase major"))
@@ -66,6 +66,13 @@ use crate::util::Id;
 /// let matches = result.unwrap();
 /// // We may not know which of the args was used, so we can test for the group...
 /// assert!(matches.contains_id("vers"));
+/// // We can also ask the group which arg was used
+/// assert_eq!(matches
+///     .get_one::<Id>("vers")
+///     .expect("`vers` is required")
+///     .as_str(),
+///     "major"
+/// );
 /// // we could also alternatively check each arg individually (not shown here)
 /// ```
 /// [`ArgGroup::multiple(true)`]: ArgGroup::multiple()

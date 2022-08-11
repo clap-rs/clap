@@ -17,6 +17,7 @@ use crate::mkeymap::KeyType;
 use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Usage};
 use crate::parser::features::suggestions;
+use crate::parser::AnyValue;
 use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
@@ -1052,13 +1053,17 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             let value_parser = arg.get_value_parser();
             let val = value_parser.parse_ref(self.cmd, Some(arg), &raw_val)?;
 
-            // Increment or create the group "args"
-            for group in self.cmd.groups_for_arg(&arg.id) {
-                matcher.add_val_to(&group, val.clone(), raw_val.clone());
-            }
-
             matcher.add_val_to(&arg.id, val, raw_val);
             matcher.add_index_to(&arg.id, self.cur_idx.get());
+        }
+
+        // Increment or create the group "args"
+        for group in self.cmd.groups_for_arg(&arg.id) {
+            matcher.add_val_to(
+                &group,
+                AnyValue::new(arg.get_id().clone()),
+                OsString::from(arg.get_id().as_str()),
+            );
         }
 
         Ok(())
