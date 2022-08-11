@@ -1248,7 +1248,7 @@ OPTIONS:
 fn override_help_short() {
     let cmd = Command::new("test")
         .version("0.1")
-        .arg(arg!(-H --help "Print help information"))
+        .arg(arg!(-H --help "Print help information").action(ArgAction::Help))
         .disable_help_flag(true);
 
     utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_SHORT, false);
@@ -1290,7 +1290,7 @@ OPTIONS:
 fn override_help_about() {
     let cmd = Command::new("test")
         .version("0.1")
-        .arg(arg!(-h --help "Print custom help information"))
+        .arg(arg!(-h --help "Print custom help information").action(ArgAction::Help))
         .disable_help_flag(true);
 
     utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_ABOUT, false);
@@ -2237,7 +2237,7 @@ fn only_custom_heading_opts_no_args() {
         .version("1.4")
         .disable_version_flag(true)
         .disable_help_flag(true)
-        .arg(arg!(--help).hide(true))
+        .arg(arg!(--help).action(ArgAction::Help).hide(true))
         .next_help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
@@ -2259,7 +2259,7 @@ fn only_custom_heading_pos_no_args() {
         .version("1.4")
         .disable_version_flag(true)
         .disable_help_flag(true)
-        .arg(arg!(--help).hide(true))
+        .arg(arg!(--help).action(ArgAction::Help).hide(true))
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
@@ -2624,7 +2624,7 @@ ARGS:
 fn help_without_short() {
     let mut cmd = clap::Command::new("test")
         .arg(arg!(-h --hex <NUM>))
-        .arg(arg!(--help))
+        .arg(arg!(--help).action(ArgAction::Help))
         .disable_help_flag(true);
 
     cmd.build();

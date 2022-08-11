@@ -248,7 +248,7 @@ fn hide_opt_args_only() {
         .after_help("After help")
         .disable_help_flag(true)
         .disable_version_flag(true)
-        .arg(arg!(-h - -help).hide(true))
+        .arg(arg!(-h - -help).action(ArgAction::Help).hide(true))
         .arg(arg!(-v - -version).hide(true))
         .arg(
             arg!(--option <opt> "some option")
@@ -274,7 +274,7 @@ fn hide_pos_args_only() {
         .after_help("After help")
         .disable_help_flag(true)
         .disable_version_flag(true)
-        .arg(arg!(-h - -help).hide(true))
+        .arg(arg!(-h - -help).action(ArgAction::Help).hide(true))
         .arg(arg!(-v - -version).hide(true))
         .args(&[Arg::new("pos").help("some pos").hide(true)]);
 
@@ -296,7 +296,7 @@ fn hide_subcmds_only() {
         .after_help("After help")
         .disable_help_flag(true)
         .disable_version_flag(true)
-        .arg(arg!(-h - -help).hide(true))
+        .arg(arg!(-h - -help).action(ArgAction::Help).hide(true))
         .arg(arg!(-v - -version).hide(true))
         .subcommand(Command::new("sub").hide(true));
 

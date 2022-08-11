@@ -207,11 +207,7 @@ macro_rules! arg_impl {
                 if arg.get_id().is_empty() {
                     arg = arg.id(long);
                 }
-                let action = match arg.get_id() {
-                    "help" => $crate::ArgAction::Help,
-                    "version" => $crate::ArgAction::Version,
-                    _ => $crate::ArgAction::SetTrue,
-                };
+                let action = $crate::ArgAction::SetTrue;
                 arg
                     .long(long)
                     .action(action)
@@ -236,11 +232,7 @@ macro_rules! arg_impl {
                 if arg.get_id().is_empty() {
                     arg = arg.id(long);
                 }
-                let action = match arg.get_id() {
-                    "help" => $crate::ArgAction::Help,
-                    "version" => $crate::ArgAction::Version,
-                    _ => $crate::ArgAction::SetTrue,
-                };
+                let action = $crate::ArgAction::SetTrue;
                 arg
                     .long(long)
                     .action(action)
@@ -261,11 +253,7 @@ macro_rules! arg_impl {
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
                 debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
-                let action = match $arg.get_id() {
-                    "help" => $crate::ArgAction::Help,
-                    "version" => $crate::ArgAction::Version,
-                    _ => $crate::ArgAction::SetTrue,
-                };
+                let action = $crate::ArgAction::SetTrue;
                 $arg
                     .short($crate::arg_impl! { @char $short })
                     .action(action)
@@ -286,11 +274,7 @@ macro_rules! arg_impl {
                 debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
                 debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
-                let action = match $arg.get_id() {
-                    "help" => $crate::ArgAction::Help,
-                    "version" => $crate::ArgAction::Version,
-                    _ => $crate::ArgAction::SetTrue,
-                };
+                let action = $crate::ArgAction::SetTrue;
                 $arg
                     .short($crate::arg_impl! { @char $short })
                     .action(action)
