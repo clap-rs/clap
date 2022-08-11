@@ -93,7 +93,7 @@ pub struct Command<'help> {
     args: MKeyMap<'help>,
     subcommands: Vec<Command<'help>>,
     replacers: FlatMap<&'help str, &'help [&'help str]>,
-    groups: Vec<ArgGroup<'help>>,
+    groups: Vec<ArgGroup>,
     current_help_heading: Option<&'help str>,
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<&'help str>,
@@ -230,17 +230,15 @@ impl<'help> Command<'help> {
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
-    pub fn mut_arg<F>(mut self, arg_id: impl Into<&'help str>, f: F) -> Self
+    pub fn mut_arg<F>(mut self, arg_id: impl Into<Id>, f: F) -> Self
     where
         F: FnOnce(Arg<'help>) -> Arg<'help>,
     {
-        let arg_id: &str = arg_id.into();
-        let id = Id::from(arg_id);
-
+        let id = arg_id.into();
         let a = self
             .args
-            .remove_by_name(&id)
-            .unwrap_or_else(|| Arg::new(arg_id));
+            .remove_by_name(id.as_str())
+            .unwrap_or_else(|| Arg::new(id));
 
         self.args.push(f(a));
         self
@@ -320,7 +318,7 @@ impl<'help> Command<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn group<G: Into<ArgGroup<'help>>>(mut self, group: G) -> Self {
+    pub fn group<G: Into<ArgGroup>>(mut self, group: G) -> Self {
         self.groups.push(group.into());
         self
     }
@@ -351,7 +349,7 @@ impl<'help> Command<'help> {
     pub fn groups<I, T>(mut self, groups: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        T: Into<ArgGroup<'help>>,
+        T: Into<ArgGroup>,
     {
         for g in groups.into_iter() {
             self = self.group(g.into());
@@ -3383,7 +3381,7 @@ impl<'help> Command<'help> {
 
     /// Iterate through the set of groups.
     #[inline]
-    pub fn get_groups(&self) -> impl Iterator<Item = &ArgGroup<'help>> {
+    pub fn get_groups(&self) -> impl Iterator<Item = &ArgGroup> {
         self.groups.iter()
     }
 
@@ -3763,10 +3761,10 @@ impl<'help> Command<'help> {
                 // Fill in the groups
                 for g in &a.groups {
                     if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
-                        ag.args.push(a.id.clone());
+                        ag.args.push(a.get_id().clone());
                     } else {
-                        let mut ag = ArgGroup::with_id(g.clone());
-                        ag.args.push(a.id.clone());
+                        let mut ag = ArgGroup::new(g);
+                        ag.args.push(a.get_id().clone());
                         self.groups.push(ag);
                     }
                 }
@@ -3992,11 +3990,11 @@ impl<'help> Command<'help> {
 
     pub(crate) fn _panic_on_missing_help(&self, help_required_globally: bool) {
         if self.is_set(AppSettings::HelpExpected) || help_required_globally {
-            let args_missing_help: Vec<String> = self
+            let args_missing_help: Vec<Id> = self
                 .args
                 .args()
                 .filter(|arg| arg.help.is_none() && arg.long_help.is_none())
-                .map(|arg| arg.get_id().to_owned())
+                .map(|arg| arg.get_id().clone())
                 .collect();
 
             assert!(args_missing_help.is_empty(),
@@ -4021,9 +4019,9 @@ impl<'help> Command<'help> {
 
     // just in case
     #[allow(unused)]
-    fn two_groups_of<F>(&self, condition: F) -> Option<(&ArgGroup<'help>, &ArgGroup<'help>)>
+    fn two_groups_of<F>(&self, condition: F) -> Option<(&ArgGroup, &ArgGroup)>
     where
-        F: Fn(&ArgGroup<'help>) -> bool,
+        F: Fn(&ArgGroup) -> bool,
     {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
     }
@@ -4088,7 +4086,7 @@ impl<'help> Command<'help> {
 
         if !self.is_disable_help_flag_set() {
             debug!("Command::_check_help_and_version: Building default --help");
-            let arg = Arg::new("help")
+            let arg = Arg::new(Id::HELP)
                 .short('h')
                 .long("help")
                 .action(ArgAction::Help)
@@ -4099,7 +4097,7 @@ impl<'help> Command<'help> {
         }
         if !self.is_disable_version_flag_set() {
             debug!("Command::_check_help_and_version: Building default --version");
-            let arg = Arg::new("version")
+            let arg = Arg::new(Id::VERSION)
                 .short('V')
                 .long("version")
                 .action(ArgAction::Version)
@@ -4273,7 +4271,7 @@ impl<'help> Command<'help> {
             .map(|grp| grp.id.clone())
     }
 
-    pub(crate) fn find_group(&self, group_id: &Id) -> Option<&ArgGroup<'help>> {
+    pub(crate) fn find_group(&self, group_id: &Id) -> Option<&ArgGroup> {
         self.groups.iter().find(|g| g.id == *group_id)
     }
 

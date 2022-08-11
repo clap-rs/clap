@@ -75,9 +75,8 @@ use crate::util::Id;
 /// [conflict]: crate::Arg::conflicts_with()
 /// [requirement]: crate::Arg::requires()
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
-pub struct ArgGroup<'help> {
+pub struct ArgGroup {
     pub(crate) id: Id,
-    name: &'help str,
     pub(crate) args: Vec<Id>,
     pub(crate) required: bool,
     pub(crate) requires: Vec<Id>,
@@ -86,14 +85,7 @@ pub struct ArgGroup<'help> {
 }
 
 /// # Builder
-impl<'help> ArgGroup<'help> {
-    pub(crate) fn with_id(id: Id) -> Self {
-        ArgGroup {
-            id,
-            ..ArgGroup::default()
-        }
-    }
-
+impl ArgGroup {
     /// Create a `ArgGroup` using a unique name.
     ///
     /// The name will be used to get values from the group or refer to the group inside of conflict
@@ -106,7 +98,7 @@ impl<'help> ArgGroup<'help> {
     /// ArgGroup::new("config")
     /// # ;
     /// ```
-    pub fn new(id: impl Into<&'help str>) -> Self {
+    pub fn new(id: impl Into<Id>) -> Self {
         ArgGroup::default().id(id)
     }
 
@@ -120,10 +112,8 @@ impl<'help> ArgGroup<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn id(mut self, id: impl Into<&'help str>) -> Self {
-        let id = id.into();
+    pub fn id(mut self, id: impl Into<Id>) -> Self {
         self.id = id.into();
-        self.name = id;
         self
     }
 
@@ -151,8 +141,8 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [argument]: crate::Arg
     #[must_use]
-    pub fn arg(mut self, arg_id: impl Into<&'help str>) -> Self {
-        self.args.push(arg_id.into().into());
+    pub fn arg(mut self, arg_id: impl Into<Id>) -> Self {
+        self.args.push(arg_id.into());
         self
     }
 
@@ -179,7 +169,7 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [arguments]: crate::Arg
     #[must_use]
-    pub fn args(mut self, ns: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+    pub fn args(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
         for n in ns {
             self = self.arg(n);
         }
@@ -317,8 +307,8 @@ impl<'help> ArgGroup<'help> {
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires()
     #[must_use]
-    pub fn requires(mut self, id: impl Into<&'help str>) -> Self {
-        self.requires.push(id.into().into());
+    pub fn requires(mut self, id: impl Into<Id>) -> Self {
+        self.requires.push(id.into());
         self
     }
 
@@ -360,7 +350,7 @@ impl<'help> ArgGroup<'help> {
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires_all()
     #[must_use]
-    pub fn requires_all(mut self, ns: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+    pub fn requires_all(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -400,8 +390,8 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [argument exclusion rules]: crate::Arg::conflicts_with()
     #[must_use]
-    pub fn conflicts_with(mut self, id: impl Into<&'help str>) -> Self {
-        self.conflicts.push(id.into().into());
+    pub fn conflicts_with(mut self, id: impl Into<Id>) -> Self {
+        self.conflicts.push(id.into());
         self
     }
 
@@ -442,10 +432,7 @@ impl<'help> ArgGroup<'help> {
     ///
     /// [argument exclusion rules]: crate::Arg::conflicts_with_all()
     #[must_use]
-    pub fn conflicts_with_all(
-        mut self,
-        ns: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
+    pub fn conflicts_with_all(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
@@ -454,16 +441,16 @@ impl<'help> ArgGroup<'help> {
 }
 
 /// # Reflection
-impl<'help> ArgGroup<'help> {
+impl ArgGroup {
     /// Get the name of the group
     #[inline]
-    pub fn get_id(&self) -> &'help str {
-        self.name
+    pub fn get_id(&self) -> &Id {
+        &self.id
     }
 }
 
-impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
-    fn from(g: &Self) -> Self {
+impl From<&'_ ArgGroup> for ArgGroup {
+    fn from(g: &ArgGroup) -> Self {
         g.clone()
     }
 }

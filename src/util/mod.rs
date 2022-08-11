@@ -2,12 +2,9 @@
 
 mod flat_map;
 mod flat_set;
-mod fnv;
 mod graph;
 mod id;
 mod str_to_bool;
-
-pub use self::fnv::Key;
 
 pub(crate) use self::flat_map::Entry;
 pub(crate) use self::flat_map::FlatMap;

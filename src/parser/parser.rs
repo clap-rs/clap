@@ -433,8 +433,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 for raw_val in raw_args.remaining(&mut args_cursor) {
                     let val = external_parser.parse_ref(self.cmd, None, raw_val)?;
-                    let external_id = &Id::empty_hash();
-                    sc_m.add_val_to(external_id, val, raw_val.to_os_string());
+                    let external_id = Id::from(Id::EXTERNAL);
+                    sc_m.add_val_to(&external_id, val, raw_val.to_os_string());
                 }
 
                 matcher.subcommand(SubCommand {
@@ -1208,7 +1208,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             ArgAction::Count => {
                 let raw_vals = if raw_vals.is_empty() {
                     let existing_value = *matcher
-                        .get_one::<crate::builder::CountType>(arg.get_id())
+                        .get_one::<crate::builder::CountType>(arg.get_id().as_str())
                         .unwrap_or(&0);
                     let next_value = existing_value.saturating_add(1);
                     vec![OsString::from(next_value.to_string())]

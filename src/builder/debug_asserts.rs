@@ -67,20 +67,26 @@ pub(crate) fn assert_app(cmd: &Command) {
         );
 
         if let Some(s) = arg.short.as_ref() {
-            short_flags.push(Flag::Arg(format!("-{}", s), arg.get_id()));
+            short_flags.push(Flag::Arg(format!("-{}", s), arg.get_id().as_str()));
         }
 
         for (short_alias, _) in &arg.short_aliases {
-            short_flags.push(Flag::Arg(format!("-{}", short_alias), arg.get_id()));
+            short_flags.push(Flag::Arg(
+                format!("-{}", short_alias),
+                arg.get_id().as_str(),
+            ));
         }
 
         if let Some(l) = arg.long.as_ref() {
             assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.get_id(), l);
-            long_flags.push(Flag::Arg(format!("--{}", l), arg.get_id()));
+            long_flags.push(Flag::Arg(format!("--{}", l), arg.get_id().as_str()));
         }
 
         for (long_alias, _) in &arg.aliases {
-            long_flags.push(Flag::Arg(format!("--{}", long_alias), arg.get_id()));
+            long_flags.push(Flag::Arg(
+                format!("--{}", long_alias),
+                arg.get_id().as_str(),
+            ));
         }
 
         // Name conflicts
@@ -144,7 +150,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         for req in &arg.requires {
             assert!(
                 cmd.id_exists(&req.1),
-                "Command {}: Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'requires*' for '{}' does not exist",
                 cmd.get_name(),
                 req.1,
                 arg.get_id(),
@@ -159,7 +165,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
             assert!(
                 cmd.id_exists(&req.0),
-                "Command {}: Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'required_if_eq*' for '{}' does not exist",
                     cmd.get_name(),
                 req.0,
                 arg.get_id()
@@ -174,7 +180,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
             assert!(
                 cmd.id_exists(&req.0),
-                "Command {}: Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'required_if_eq_all' for '{}' does not exist",
                     cmd.get_name(),
                 req.0,
                 arg.get_id()
@@ -189,7 +195,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'required_unless*' for '{}' does not exist",
                     cmd.get_name(),
                 req,
                 arg.get_id(),
@@ -204,7 +210,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'required_unless*' for '{}' does not exist",
                     cmd.get_name(),
                 req,
                 arg.get_id(),
@@ -215,7 +221,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         for req in &arg.blacklist {
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'conflicts_with*' for '{}' does not exist",
                     cmd.get_name(),
                 req,
                 arg.get_id(),
@@ -226,7 +232,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         for req in &arg.overrides {
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{:?}' specified in 'overrides_with*' for '{}' does not exist",
+                "Command {}: Argument or group '{}' specified in 'overrides_with*' for '{}' does not exist",
                     cmd.get_name(),
                 req,
                 arg.get_id(),
@@ -283,7 +289,7 @@ pub(crate) fn assert_app(cmd: &Command) {
 
         // Groups should not have naming conflicts with Args
         assert!(
-            !cmd.get_arguments().any(|x| x.id == group.id),
+            !cmd.get_arguments().any(|x| x.get_id() == group.get_id()),
             "Command {}: Argument group name '{}' must not conflict with argument name",
             cmd.get_name(),
             group.get_id(),
@@ -292,8 +298,8 @@ pub(crate) fn assert_app(cmd: &Command) {
         for arg in &group.args {
             // Args listed inside groups should exist
             assert!(
-                cmd.get_arguments().any(|x| x.id == *arg),
-                "Command {}: Argument group '{}' contains non-existent argument '{:?}'",
+                cmd.get_arguments().any(|x| x.get_id() == arg),
+                "Command {}: Argument group '{}' contains non-existent argument '{}'",
                 cmd.get_name(),
                 group.get_id(),
                 arg
@@ -350,12 +356,10 @@ pub(crate) fn assert_app(cmd: &Command) {
 }
 
 fn duplicate_tip(cmd: &Command<'_>, first: &Arg<'_>, second: &Arg<'_>) -> &'static str {
-    if !cmd.is_disable_help_flag_set()
-        && (first.id == Id::help_hash() || second.id == Id::help_hash())
-    {
+    if !cmd.is_disable_help_flag_set() && (first.id == Id::HELP || second.id == Id::HELP) {
         " (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"
     } else if !cmd.is_disable_version_flag_set()
-        && (first.id == Id::version_hash() || second.id == Id::version_hash())
+        && (first.id == Id::VERSION || second.id == Id::VERSION)
     {
         " (call `cmd.disable_version_flag(true)` to remove the auto-generated `--version`)"
     } else {
@@ -703,9 +707,9 @@ fn assert_arg(arg: &Arg) {
             arg.is_takes_value_set(),
             "Argument '{}` is positional, it must take a value{}",
             arg.get_id(),
-            if arg.id == Id::help_hash() {
+            if arg.id == Id::HELP {
                 " (`mut_arg` no longer works with implicit `--help`)"
-            } else if arg.id == Id::version_hash() {
+            } else if arg.id == Id::VERSION {
                 " (`mut_arg` no longer works with implicit `--version`)"
             } else {
                 ""

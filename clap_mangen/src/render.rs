@@ -63,7 +63,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         if let Some(value) = arg.get_value_names() {
             line.push(italic(value.join(" ")));
         } else {
-            line.push(italic(arg.get_id()));
+            line.push(italic(arg.get_id().as_str()));
         }
         line.push(roman(rhs));
         line.push(roman(" "));
@@ -129,7 +129,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         if let Some(value) = pos.get_value_names() {
             header.push(italic(value.join(" ")));
         } else {
-            header.push(italic(pos.get_id()));
+            header.push(italic(pos.get_id().as_str()));
         };
         header.push(roman(rhs));
 

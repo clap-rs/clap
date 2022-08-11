@@ -217,7 +217,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                 x.to_string()
             } else {
                 let mut s = '{'.to_string();
-                s.push_str(arg.get_id());
+                s.push_str(arg.id.as_str());
                 s
             };
             ord_v.push((arg.get_display_order(), key, arg));

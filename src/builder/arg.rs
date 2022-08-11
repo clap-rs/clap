@@ -50,7 +50,6 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     pub(crate) id: Id,
-    name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
     pub(crate) action: Option<ArgAction>,
@@ -102,7 +101,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
-    pub fn new(id: impl Into<&'help str>) -> Self {
+    pub fn new(id: impl Into<Id>) -> Self {
         Arg::default().id(id)
     }
 
@@ -110,10 +109,8 @@ impl<'help> Arg<'help> {
     ///
     /// See [`Arg::new`] for more details.
     #[must_use]
-    pub fn id(mut self, id: impl Into<&'help str>) -> Self {
-        let id = id.into();
-        self.id = Id::from(id);
-        self.name = id;
+    pub fn id(mut self, id: impl Into<Id>) -> Self {
+        self.id = id.into();
         self
     }
 
@@ -660,9 +657,8 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires(mut self, arg_id: impl Into<&'help str>) -> Self {
-        self.requires
-            .push((ArgPredicate::IsPresent, arg_id.into().into()));
+    pub fn requires(mut self, arg_id: impl Into<Id>) -> Self {
+        self.requires.push((ArgPredicate::IsPresent, arg_id.into()));
         self
     }
 
@@ -2443,8 +2439,8 @@ impl<'help> Arg<'help> {
     ///
     /// [`ArgGroup`]: crate::ArgGroup
     #[must_use]
-    pub fn group(mut self, group_id: impl Into<&'help str>) -> Self {
-        self.groups.push(group_id.into().into());
+    pub fn group(mut self, group_id: impl Into<Id>) -> Self {
+        self.groups.push(group_id.into());
         self
     }
 
@@ -2484,9 +2480,8 @@ impl<'help> Arg<'help> {
     ///
     /// [`ArgGroup`]: crate::ArgGroup
     #[must_use]
-    pub fn groups(mut self, group_ids: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
-        self.groups
-            .extend(group_ids.into_iter().map(|n| n.into().into()));
+    pub fn groups(mut self, group_ids: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+        self.groups.extend(group_ids.into_iter().map(Into::into));
         self
     }
 
@@ -2605,7 +2600,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_if(
         self,
-        arg_id: impl Into<&'help str>,
+        arg_id: impl Into<Id>,
         val: Option<&'help str>,
         default: Option<&'help str>,
     ) -> Self {
@@ -2620,12 +2615,12 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_if_os(
         mut self,
-        arg_id: impl Into<&'help str>,
+        arg_id: impl Into<Id>,
         val: Option<&'help OsStr>,
         default: Option<&'help OsStr>,
     ) -> Self {
         self.default_vals_ifs
-            .push((arg_id.into().into(), val.into(), default));
+            .push((arg_id.into(), val.into(), default));
         self
     }
 
@@ -2712,13 +2707,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_ifs(
         mut self,
-        ifs: impl IntoIterator<
-            Item = (
-                impl Into<&'help str>,
-                Option<&'help str>,
-                Option<&'help str>,
-            ),
-        >,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, Option<&'help str>, Option<&'help str>)>,
     ) -> Self {
         for (arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val.map(OsStr::new), default.map(OsStr::new));
@@ -2734,13 +2723,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_ifs_os(
         mut self,
-        ifs: impl IntoIterator<
-            Item = (
-                impl Into<&'help str>,
-                Option<&'help OsStr>,
-                Option<&'help OsStr>,
-            ),
-        >,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, Option<&'help OsStr>, Option<&'help OsStr>)>,
     ) -> Self {
         for (arg, val, default) in ifs {
             self = self.default_value_if_os(arg.into(), val, default);
@@ -2802,8 +2785,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_unless_present(mut self, arg_id: impl Into<&'help str>) -> Self {
-        self.r_unless.push(arg_id.into().into());
+    pub fn required_unless_present(mut self, arg_id: impl Into<Id>) -> Self {
+        self.r_unless.push(arg_id.into());
         self
     }
 
@@ -2877,10 +2860,9 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_unless_present_all(
         mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
+        names: impl IntoIterator<Item = impl Into<Id>>,
     ) -> Self {
-        self.r_unless_all
-            .extend(names.into_iter().map(|n| n.into().into()));
+        self.r_unless_all.extend(names.into_iter().map(Into::into));
         self
     }
 
@@ -2956,10 +2938,9 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_unless_present_any(
         mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
+        names: impl IntoIterator<Item = impl Into<Id>>,
     ) -> Self {
-        self.r_unless
-            .extend(names.into_iter().map(|n| n.into().into()));
+        self.r_unless.extend(names.into_iter().map(Into::into));
         self
     }
 
@@ -3043,8 +3024,8 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq(mut self, arg_id: impl Into<&'help str>, val: &'help str) -> Self {
-        self.r_ifs.push((arg_id.into().into(), val));
+    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: &'help str) -> Self {
+        self.r_ifs.push((arg_id.into(), val));
         self
     }
 
@@ -3124,10 +3105,10 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_any(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<&'help str>, &'help str)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, &'help str)>,
     ) -> Self {
         self.r_ifs
-            .extend(ifs.into_iter().map(|(id, val)| (id.into().into(), val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val)));
         self
     }
 
@@ -3205,10 +3186,10 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_all(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<&'help str>, &'help str)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, &'help str)>,
     ) -> Self {
         self.r_ifs_all
-            .extend(ifs.into_iter().map(|(id, val)| (id.into().into(), val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val)));
         self
     }
 
@@ -3268,9 +3249,9 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_if(mut self, val: &'help str, arg_id: impl Into<&'help str>) -> Self {
+    pub fn requires_if(mut self, val: &'help str, arg_id: impl Into<Id>) -> Self {
         self.requires
-            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into().into()));
+            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into()));
         self
     }
 
@@ -3321,11 +3302,11 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn requires_ifs(
         mut self,
-        ifs: impl IntoIterator<Item = (&'help str, impl Into<&'help str>)>,
+        ifs: impl IntoIterator<Item = (&'help str, impl Into<Id>)>,
     ) -> Self {
         self.requires.extend(
             ifs.into_iter()
-                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(val)), arg.into().into())),
+                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(val)), arg.into())),
         );
         self
     }
@@ -3389,11 +3370,11 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_all(mut self, names: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+    pub fn requires_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {
         self.requires.extend(
             names
                 .into_iter()
-                .map(|s| (ArgPredicate::IsPresent, s.into().into())),
+                .map(|s| (ArgPredicate::IsPresent, s.into())),
         );
         self
     }
@@ -3443,8 +3424,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
-    pub fn conflicts_with(mut self, arg_id: impl Into<&'help str>) -> Self {
-        self.blacklist.push(arg_id.into().into());
+    pub fn conflicts_with(mut self, arg_id: impl Into<Id>) -> Self {
+        self.blacklist.push(arg_id.into());
         self
     }
 
@@ -3493,12 +3474,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::conflicts_with`]: Arg::conflicts_with()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
-    pub fn conflicts_with_all(
-        mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
-        self.blacklist
-            .extend(names.into_iter().map(|n| n.into().into()));
+    pub fn conflicts_with_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+        self.blacklist.extend(names.into_iter().map(Into::into));
         self
     }
 
@@ -3535,8 +3512,8 @@ impl<'help> Arg<'help> {
     /// assert!(!*m.get_one::<bool>("flag").unwrap());
     /// ```
     #[must_use]
-    pub fn overrides_with(mut self, arg_id: impl Into<&'help str>) -> Self {
-        self.overrides.push(arg_id.into().into());
+    pub fn overrides_with(mut self, arg_id: impl Into<Id>) -> Self {
+        self.overrides.push(arg_id.into());
         self
     }
 
@@ -3571,12 +3548,8 @@ impl<'help> Arg<'help> {
     /// assert!(!*m.get_one::<bool>("flag").unwrap());
     /// ```
     #[must_use]
-    pub fn overrides_with_all(
-        mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
-        self.overrides
-            .extend(names.into_iter().map(|n| n.into().into()));
+    pub fn overrides_with_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+        self.overrides.extend(names.into_iter().map(Into::into));
         self
     }
 }
@@ -3585,8 +3558,8 @@ impl<'help> Arg<'help> {
 impl<'help> Arg<'help> {
     /// Get the name of the argument
     #[inline]
-    pub fn get_id(&self) -> &'help str {
-        self.name
+    pub fn get_id(&self) -> &Id {
+        &self.id
     }
 
     /// Get the help specified for this argument, if any
@@ -4017,7 +3990,7 @@ impl<'help> Arg<'help> {
             }
         } else {
             debug!("Arg::name_no_brackets: just name");
-            Cow::Borrowed(self.get_id())
+            Cow::Borrowed(self.get_id().as_str())
         }
     }
 
@@ -4051,7 +4024,7 @@ impl<'help> PartialOrd for Arg<'help> {
 
 impl<'help> Ord for Arg<'help> {
     fn cmp(&self, other: &Arg) -> Ordering {
-        self.get_id().cmp(other.get_id())
+        self.id.cmp(&other.id)
     }
 }
 
@@ -4110,7 +4083,6 @@ impl<'help> fmt::Debug for Arg<'help> {
         #[allow(unused_mut)]
         let mut ds = ds
             .field("id", &self.id)
-            .field("name", &self.name)
             .field("help", &self.help)
             .field("long_help", &self.long_help)
             .field("action", &self.action)
@@ -4155,7 +4127,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let arg_name_storage;
     let val_names = if arg.val_names.is_empty() {
-        arg_name_storage = [arg.get_id()];
+        arg_name_storage = [arg.get_id().as_str()];
         &arg_name_storage
     } else {
         arg.val_names.as_slice()

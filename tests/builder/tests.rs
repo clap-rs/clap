@@ -418,7 +418,7 @@ fn mut_arg_all() {
     let arg_names = cmd
         .get_arguments()
         .map(|a| a.get_id().clone())
-        .filter(|a| *a != "version" && *a != "help")
+        .filter(|a| a != "version" && a != "help")
         .collect::<Vec<_>>();
 
     for arg_name in arg_names {

@@ -1,83 +1,88 @@
-use crate::util::fnv::Key;
-
-use std::{
-    fmt::{Debug, Formatter, Result},
-    hash::{Hash, Hasher},
-    ops::Deref,
-};
-
-#[derive(Clone, Eq, Default)]
-#[cfg_attr(not(debug_assertions), repr(transparent))]
-pub(crate) struct Id {
-    #[cfg(debug_assertions)]
+#[derive(Default, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct Id {
     name: String,
-    id: u64,
 }
 
-macro_rules! precomputed_hashes {
-    ($($fn_name:ident, $const:expr, $name:expr;)*) => {
-        impl Id {
-            $(
-                #[allow(dead_code)]
-                pub(crate) fn $fn_name() -> Self {
-                    Id {
-                        #[cfg(debug_assertions)]
-                        name: $name.into(),
-                        id: $const,
-                    }
-                }
-            )*
-        }
-    };
-}
+impl Id {
+    pub(crate) const HELP: &'static str = "help";
+    pub(crate) const VERSION: &'static str = "version";
+    pub(crate) const EXTERNAL: &'static str = "";
 
-// precompute some common values
-precomputed_hashes! {
-    empty_hash,   0x1C9D_3ADB_639F_298E, "";
-    help_hash,    0x5963_6393_CFFB_FE5F, "help";
-    version_hash, 0x30FF_0B7C_4D07_9478, "version";
-}
-
-impl Debug for Id {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        #[cfg(debug_assertions)]
-        write!(f, "{}", self.name)?;
-        #[cfg(not(debug_assertions))]
-        write!(f, "[hash: {:X}]", self.id)?;
-
-        Ok(())
+    pub fn as_str(&self) -> &str {
+        self.name.as_str()
     }
 }
 
-impl Deref for Id {
-    type Target = u64;
-
-    fn deref(&self) -> &Self::Target {
-        &self.id
+impl<'s> From<&'s Id> for Id {
+    fn from(id: &'s Id) -> Self {
+        id.clone()
     }
 }
 
-impl<T: Key> From<T> for Id {
-    fn from(val: T) -> Self {
-        Id {
-            #[cfg(debug_assertions)]
-            name: val.to_string(),
-            id: val.key(),
-        }
+impl From<String> for Id {
+    fn from(name: String) -> Self {
+        Self { name }
     }
 }
 
-impl Hash for Id {
-    fn hash<H>(&self, state: &mut H)
-    where
-        H: Hasher,
-    {
-        self.id.hash(state)
+impl<'s> From<&'s String> for Id {
+    fn from(name: &'s String) -> Self {
+        name.to_owned().into()
     }
 }
 
-impl PartialEq for Id {
-    fn eq(&self, other: &Id) -> bool {
-        self.id == other.id
+impl From<&'static str> for Id {
+    fn from(name: &'static str) -> Self {
+        name.to_owned().into()
+    }
+}
+
+impl std::fmt::Display for Id {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.as_str(), f)
+    }
+}
+
+impl std::fmt::Debug for Id {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self.as_str(), f)
+    }
+}
+
+impl AsRef<str> for Id {
+    #[inline]
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl std::borrow::Borrow<str> for Id {
+    #[inline]
+    fn borrow(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl PartialEq<str> for Id {
+    #[inline]
+    fn eq(&self, other: &str) -> bool {
+        PartialEq::eq(self.as_str(), other)
+    }
+}
+
+impl<'s> PartialEq<&'s str> for Id {
+    #[inline]
+    fn eq(&self, other: &&str) -> bool {
+        PartialEq::eq(self.as_str(), *other)
+    }
+}
+
+impl PartialEq<String> for Id {
+    #[inline]
+    fn eq(&self, other: &String) -> bool {
+        PartialEq::eq(self.as_str(), other.as_str())
     }
 }

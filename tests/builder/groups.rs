@@ -43,7 +43,7 @@ fn required_group_missing_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument group 'req' contains non-existent argument"]
+#[should_panic = "Command group: Argument group 'req' contains non-existent argument"]
 fn non_existing_arg() {
     let _ = Command::new("group")
         .arg(arg!(-f --flag "some flag"))
@@ -54,7 +54,7 @@ fn non_existing_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument group name must be unique\n\n\t'req' is already in use"]
+#[should_panic = "Command group: Argument group name must be unique\n\n\t'req' is already in use"]
 fn unique_group_name() {
     let _ = Command::new("group")
         .arg(arg!(-f --flag "some flag"))
@@ -66,7 +66,7 @@ fn unique_group_name() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Command group: Argument group name '' must not conflict with argument name"]
+#[should_panic = "Command group: Argument group name 'a' must not conflict with argument name"]
 fn groups_new_of_arg_name() {
     let _ = Command::new("group")
         .arg(Arg::new("a").long("a").group("a"))

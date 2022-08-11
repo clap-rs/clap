@@ -170,9 +170,11 @@ impl ArgMatcher {
     }
 
     pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
-        let id = Id::empty_hash();
+        let id = Id::EXTERNAL;
         debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
-        let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));
+        let ma = self
+            .entry(id.into())
+            .or_insert(MatchedArg::new_external(cmd));
         debug_assert_eq!(
             ma.type_id(),
             Some(
