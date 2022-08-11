@@ -126,9 +126,9 @@ fn subcommand_details(cmd: &Command) -> String {
             return 0
             ;;",
             subcmd = sc.replace('-', "__"),
-            sc_opts = all_options_for_path(cmd, &*sc),
+            sc_opts = all_options_for_path(cmd, sc),
             level = sc.split("__").map(|_| 1).sum::<u64>(),
-            opts_details = option_details_for_path(cmd, &*sc)
+            opts_details = option_details_for_path(cmd, sc)
         )
     }));
 

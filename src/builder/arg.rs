@@ -112,7 +112,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn id<S: Into<&'help str>>(mut self, n: S) -> Self {
         let name = n.into();
-        self.id = Id::from(&*name);
+        self.id = Id::from(name);
         self.name = name;
         self
     }
@@ -3976,10 +3976,10 @@ impl<'help> Arg<'help> {
                         .iter()
                         .map(|n| format!("<{}>", n))
                         .collect::<Vec<_>>()
-                        .join(&*delim),
+                        .join(delim),
                 )
             } else {
-                Cow::Borrowed(self.val_names.get(0).expect(INTERNAL_ERROR_MSG))
+                Cow::Borrowed(self.val_names.first().expect(INTERNAL_ERROR_MSG))
             }
         } else {
             debug!("Arg::name_no_brackets: just name");

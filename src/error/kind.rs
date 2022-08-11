@@ -1,5 +1,5 @@
 /// Command line argument parser kind of error
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum ErrorKind {
     /// Occurs when an [`Arg`][crate::Arg] has a set of possible values,

@@ -109,7 +109,7 @@ fn invalid_utf8_positional() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
-        &*m.get_one::<OsString>("arg").unwrap(),
+        m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -133,7 +133,7 @@ fn invalid_utf8_option_short_space() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
-        &*m.get_one::<OsString>("arg").unwrap(),
+        m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -156,7 +156,7 @@ fn invalid_utf8_option_short_equals() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
-        &*m.get_one::<OsString>("arg").unwrap(),
+        m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -179,7 +179,7 @@ fn invalid_utf8_option_short_no_space() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
-        &*m.get_one::<OsString>("arg").unwrap(),
+        m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -203,7 +203,7 @@ fn invalid_utf8_option_long_space() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
-        &*m.get_one::<OsString>("arg").unwrap(),
+        m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }
@@ -226,7 +226,7 @@ fn invalid_utf8_option_long_equals() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
-        &*m.get_one::<OsString>("arg").unwrap(),
+        m.get_one::<OsString>("arg").unwrap(),
         &*OsString::from_vec(vec![0xe9])
     );
 }

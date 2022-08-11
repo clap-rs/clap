@@ -38,7 +38,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
         debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            String::from(&*u)
+            String::from(u)
         } else if used.is_empty() {
             self.create_help_usage(true)
         } else {
@@ -134,7 +134,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                 if !self.cmd.is_args_conflicts_with_subcommands_set() {
                     usage.push_str(&*self.create_help_usage(false));
                 } else {
-                    usage.push_str(&*name);
+                    usage.push_str(name);
                 }
                 usage.push_str(" <");
                 usage.push_str(placeholder);
