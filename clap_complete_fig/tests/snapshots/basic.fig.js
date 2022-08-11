@@ -11,11 +11,11 @@ const completion: Fig.Spec = {
           isRepeatable: true,
         },
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "-c",
         },
         {
-          name: "-c",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -36,10 +36,6 @@ const completion: Fig.Spec = {
   ],
   options: [
     {
-      name: ["-h", "--help"],
-      description: "Print help information",
-    },
-    {
       name: "-c",
     },
     {
@@ -47,6 +43,10 @@ const completion: Fig.Spec = {
       exclusiveOn: [
         "-c",
       ],
+    },
+    {
+      name: ["-h", "--help"],
+      description: "Print help information",
     },
   ],
 };

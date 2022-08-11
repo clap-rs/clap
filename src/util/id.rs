@@ -18,6 +18,7 @@ macro_rules! precomputed_hashes {
     ($($fn_name:ident, $const:expr, $name:expr;)*) => {
         impl Id {
             $(
+                #[allow(dead_code)]
                 pub(crate) fn $fn_name() -> Self {
                     Id {
                         #[cfg(debug_assertions)]

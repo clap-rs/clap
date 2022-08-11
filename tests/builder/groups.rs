@@ -87,7 +87,7 @@ fn arg_group_new_of_arg_name() {
 fn group_single_value() {
     let res = Command::new("group")
         .arg(arg!(-c --color [color] "some option"))
-        .arg(arg!(-h --hostname <name> "another option").required(false))
+        .arg(arg!(-n --hostname <name> "another option").required(false))
         .group(ArgGroup::new("grp").args(&["hostname", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -104,7 +104,7 @@ fn group_single_value() {
 fn group_empty() {
     let res = Command::new("group")
         .arg(arg!(-c --color [color] "some option"))
-        .arg(arg!(-h --hostname <name> "another option").required(false))
+        .arg(arg!(-n --hostname <name> "another option").required(false))
         .group(ArgGroup::new("grp").args(&["hostname", "color"]))
         .try_get_matches_from(vec![""]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
@@ -118,7 +118,7 @@ fn group_empty() {
 fn group_required_flags_empty() {
     let result = Command::new("group")
         .arg(arg!(-c --color "some option"))
-        .arg(arg!(-h --hostname <name> "another option").required(false))
+        .arg(arg!(-n --hostname <name> "another option").required(false))
         .group(
             ArgGroup::new("grp")
                 .required(true)
@@ -134,7 +134,7 @@ fn group_required_flags_empty() {
 fn group_multi_value_single_arg() {
     let res = Command::new("group")
         .arg(arg!(-c --color <color> "some option").num_args(1..))
-        .arg(arg!(-h --hostname <name> "another option").required(false))
+        .arg(arg!(-n --hostname <name> "another option").required(false))
         .group(ArgGroup::new("grp").args(&["hostname", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue", "red", "green"]);
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());

@@ -1248,7 +1248,8 @@ OPTIONS:
 fn override_help_short() {
     let cmd = Command::new("test")
         .version("0.1")
-        .mut_arg("help", |h| h.short('H'));
+        .arg(arg!(-H --help "Print help information"))
+        .disable_help_flag(true);
 
     utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_SHORT, false);
     utils::assert_output(cmd, "test -H", OVERRIDE_HELP_SHORT, false);
@@ -1268,7 +1269,8 @@ OPTIONS:
 fn override_help_long() {
     let cmd = Command::new("test")
         .version("0.1")
-        .mut_arg("help", |h| h.long("hell"));
+        .arg(arg!(-h --hell "Print help information").action(ArgAction::Help))
+        .disable_help_flag(true);
 
     utils::assert_output(cmd.clone(), "test --hell", OVERRIDE_HELP_LONG, false);
     utils::assert_output(cmd, "test -h", OVERRIDE_HELP_LONG, false);
@@ -1280,7 +1282,7 @@ USAGE:
     test
 
 OPTIONS:
-    -h, --help       Print help information
+    -h, --help       Print custom help information
     -V, --version    Print version information
 ";
 
@@ -1288,37 +1290,42 @@ OPTIONS:
 fn override_help_about() {
     let cmd = Command::new("test")
         .version("0.1")
-        .mut_arg("help", |h| h.help("Print help information"));
+        .arg(arg!(-h --help "Print custom help information"))
+        .disable_help_flag(true);
 
     utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_ABOUT, false);
     utils::assert_output(cmd, "test -h", OVERRIDE_HELP_ABOUT, false);
 }
 
 #[test]
-fn arg_short_conflict_with_help() {
-    static HELP_CONFLICT: &str = "conflict 
-
-USAGE:
-    conflict [OPTIONS]
-
-OPTIONS:
-    -h            
-        --help    Print help information
-";
-
-    let cmd = Command::new("conflict").arg(Arg::new("home").short('h').action(ArgAction::SetTrue));
-
-    utils::assert_output(cmd, "conflict --help", HELP_CONFLICT, false);
+#[cfg(debug_assertions)]
+#[should_panic = "Command conflict: Argument names must be unique, but 'help' is in use by more than one argument or group (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"]
+fn arg_id_conflict_with_help() {
+    Command::new("conflict")
+        .arg(Arg::new("help").short('?').action(ArgAction::SetTrue))
+        .build();
 }
 
-#[cfg(debug_assertions)]
 #[test]
-#[should_panic = "`help`s `-h` conflicts with `home`."]
-fn arg_short_conflict_with_help_mut_arg() {
-    let _ = Command::new("conflict")
-        .arg(Arg::new("home").short('h'))
-        .mut_arg("help", |h| h.short('h'))
-        .try_get_matches_from(vec![""]);
+#[cfg(debug_assertions)]
+#[should_panic = "Command conflict: Short option names must be unique for each argument, but '-h' is in use by both 'home' and 'help' (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"]
+fn arg_short_conflict_with_help() {
+    Command::new("conflict")
+        .arg(Arg::new("home").short('h').action(ArgAction::SetTrue))
+        .build();
+}
+
+#[test]
+#[cfg(debug_assertions)]
+#[should_panic = "Command conflict: Long option names must be unique for each argument, but '--help' is in use by both 'custom-help' and 'help' (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"]
+fn arg_long_conflict_with_help() {
+    Command::new("conflict")
+        .arg(
+            Arg::new("custom-help")
+                .long("help")
+                .action(ArgAction::SetTrue),
+        )
+        .build();
 }
 
 #[test]
@@ -1519,6 +1526,7 @@ OPTIONS:
 fn issue_1112_setup() -> Command<'static> {
     Command::new("test")
         .version("1.3")
+        .disable_help_flag(true)
         .arg(
             Arg::new("help1")
                 .long("help")
@@ -2048,7 +2056,9 @@ fn after_help_no_args() {
     assert_eq!(help, AFTER_HELP_NO_ARGS);
 }
 
-static HELP_SUBCMD_HELP: &str = "myapp-help 
+#[test]
+fn help_subcmd_help() {
+    static HELP_SUBCMD_HELP: &str = "myapp-help 
 Print this message or the help of the given subcommand(s)
 
 USAGE:
@@ -2056,21 +2066,17 @@ USAGE:
 
 ARGS:
     <SUBCOMMAND>...    The subcommand whose help message to display
-
-OPTIONS:
-    -h, --help    Print custom help text
 ";
 
-#[test]
-fn help_subcmd_help() {
     let cmd = Command::new("myapp")
-        .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
     utils::assert_output(cmd.clone(), "myapp help help", HELP_SUBCMD_HELP, false);
 }
 
-static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
+#[test]
+fn subcmd_help_subcmd_help() {
+    static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
 Print this message or the help of the given subcommand(s)
 
 USAGE:
@@ -2078,94 +2084,15 @@ USAGE:
 
 ARGS:
     <SUBCOMMAND>...    The subcommand whose help message to display
-
-OPTIONS:
-    -h, --help    Print custom help text
 ";
 
-#[test]
-fn subcmd_help_subcmd_help() {
     let cmd = Command::new("myapp")
-        .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
     utils::assert_output(
         cmd.clone(),
         "myapp subcmd help help",
         SUBCMD_HELP_SUBCMD_HELP,
-        false,
-    );
-}
-
-static HELP_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
-
-USAGE:
-    myapp subcmd multi
-
-OPTIONS:
-    -h, --help       Print custom help text
-    -V, --version    Print version information
-";
-
-static HELP_ABOUT_MULTI_SC_OVERRIDE: &str = "myapp-subcmd-multi 1.0
-
-USAGE:
-    myapp subcmd multi
-
-OPTIONS:
-    -h, --help       Print custom help text from multi
-    -V, --version    Print version information
-";
-
-#[test]
-fn help_about_multi_subcmd() {
-    let cmd = Command::new("myapp")
-        .mut_arg("help", |h| h.help("Print custom help text"))
-        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
-
-    utils::assert_output(
-        cmd.clone(),
-        "myapp help subcmd multi",
-        HELP_ABOUT_MULTI_SC,
-        false,
-    );
-    utils::assert_output(
-        cmd.clone(),
-        "myapp subcmd multi -h",
-        HELP_ABOUT_MULTI_SC,
-        false,
-    );
-    utils::assert_output(cmd, "myapp subcmd multi --help", HELP_ABOUT_MULTI_SC, false);
-}
-
-#[test]
-fn help_about_multi_subcmd_override() {
-    let cmd = Command::new("myapp")
-        .mut_arg("help", |h| h.help("Print custom help text"))
-        .subcommand(
-            Command::new("subcmd").subcommand(
-                Command::new("multi")
-                    .version("1.0")
-                    .mut_arg("help", |h| h.help("Print custom help text from multi")),
-            ),
-        );
-
-    utils::assert_output(
-        cmd.clone(),
-        "myapp help subcmd multi",
-        HELP_ABOUT_MULTI_SC_OVERRIDE,
-        false,
-    );
-    utils::assert_output(
-        cmd.clone(),
-        "myapp subcmd multi -h",
-        HELP_ABOUT_MULTI_SC_OVERRIDE,
-        false,
-    );
-    utils::assert_output(
-        cmd,
-        "myapp subcmd multi --help",
-        HELP_ABOUT_MULTI_SC_OVERRIDE,
         false,
     );
 }
@@ -2309,7 +2236,8 @@ fn only_custom_heading_opts_no_args() {
     let cmd = Command::new("test")
         .version("1.4")
         .disable_version_flag(true)
-        .mut_arg("help", |a| a.hide(true))
+        .disable_help_flag(true)
+        .arg(arg!(--help).hide(true))
         .next_help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
@@ -2330,7 +2258,8 @@ fn only_custom_heading_pos_no_args() {
     let cmd = Command::new("test")
         .version("1.4")
         .disable_version_flag(true)
-        .mut_arg("help", |a| a.hide(true))
+        .disable_help_flag(true)
+        .arg(arg!(--help).hide(true))
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
@@ -2608,7 +2537,8 @@ fn override_help_subcommand() {
 fn override_help_flag_using_long() {
     let cmd = Command::new("foo")
         .subcommand(Command::new("help").long_flag("help"))
-        .disable_help_flag(true);
+        .disable_help_flag(true)
+        .disable_help_subcommand(true);
     let matches = cmd.try_get_matches_from(&["foo", "--help"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
@@ -2617,6 +2547,7 @@ fn override_help_flag_using_long() {
 fn override_help_flag_using_short() {
     let cmd = Command::new("foo")
         .disable_help_flag(true)
+        .disable_help_subcommand(true)
         .subcommand(Command::new("help").short_flag('h'));
     let matches = cmd.try_get_matches_from(&["foo", "-h"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
@@ -2693,7 +2624,8 @@ ARGS:
 fn help_without_short() {
     let mut cmd = clap::Command::new("test")
         .arg(arg!(-h --hex <NUM>))
-        .arg(arg!(--help));
+        .arg(arg!(--help))
+        .disable_help_flag(true);
 
     cmd.build();
     let help = cmd.get_arguments().find(|a| a.get_id() == "help").unwrap();

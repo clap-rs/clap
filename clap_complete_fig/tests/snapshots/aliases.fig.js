@@ -12,16 +12,16 @@ const completion: Fig.Spec = {
       },
     },
     {
+      name: ["-f", "-F", "--flag", "--flg"],
+      description: "cmd flag",
+    },
+    {
       name: ["-h", "--help"],
       description: "Print help information",
     },
     {
       name: ["-V", "--version"],
       description: "Print version information",
-    },
-    {
-      name: ["-f", "-F", "--flag", "--flg"],
-      description: "cmd flag",
     },
   ],
   args: {

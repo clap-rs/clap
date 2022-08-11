@@ -12,7 +12,7 @@ use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
 use crate::builder::ArgAction;
 use crate::builder::PossibleValue;
-use crate::builder::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate};
+use crate::builder::{Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
@@ -130,22 +130,6 @@ impl<'help> Command<'help> {
                 name,
                 ..Default::default()
             }
-            .arg(
-                Arg::new("help")
-                    .long("help")
-                    .action(ArgAction::Help)
-                    .help("Print help information")
-                    .global(true)
-                    .generated(),
-            )
-            .arg(
-                Arg::new("version")
-                    .long("version")
-                    .action(ArgAction::Version)
-                    .help("Print version information")
-                    .global(true)
-                    .generated(),
-            )
         }
 
         new_inner(name.into())
@@ -173,14 +157,15 @@ impl<'help> Command<'help> {
     /// ```
     /// [argument]: Arg
     #[must_use]
-    pub fn arg<A: Into<Arg<'help>>>(self, a: A) -> Self {
+    pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         let arg = a.into();
-        self.arg_internal(arg)
+        self.arg_internal(arg);
+        self
     }
 
-    fn arg_internal(mut self, mut arg: Arg<'help>) -> Self {
+    fn arg_internal(&mut self, mut arg: Arg<'help>) {
         if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
-            if !arg.is_positional() && arg.provider != ArgProvider::Generated {
+            if !arg.is_positional() {
                 let current = *current_disp_ord;
                 arg.disp_ord.get_or_insert(current);
                 *current_disp_ord = current + 1;
@@ -189,7 +174,6 @@ impl<'help> Command<'help> {
 
         arg.help_heading.get_or_insert(self.current_help_heading);
         self.args.push(arg);
-        self
     }
 
     /// Adds multiple [arguments] to the list of valid possibilities.
@@ -256,15 +240,11 @@ impl<'help> Command<'help> {
         let arg_id: &str = arg_id.into();
         let id = Id::from(arg_id);
 
-        let mut a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
+        let a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
             id,
             name: arg_id,
             ..Arg::default()
         });
-
-        if a.provider == ArgProvider::Generated {
-            a.provider = ArgProvider::GeneratedMutated;
-        }
 
         self.args.push(f(a));
         self
@@ -3536,6 +3516,7 @@ impl<'help> Command<'help> {
     /// Report whether [`Command::disable_version_flag`] is set
     pub fn is_disable_version_flag_set(&self) -> bool {
         self.is_set(AppSettings::DisableVersionFlag)
+            || (self.version.is_none() && self.long_version.is_none())
     }
 
     /// Report whether [`Command::propagate_version`] is set
@@ -3777,6 +3758,10 @@ impl<'help> Command<'help> {
             if self.external_value_parser.is_some() {
                 self.settings
                     .insert(AppSettings::AllowExternalSubcommands.into());
+            }
+            if !self.has_subcommands() {
+                self.settings
+                    .insert(AppSettings::DisableHelpSubcommand.into());
             }
 
             self._propagate();
@@ -4060,40 +4045,21 @@ impl<'help> Command<'help> {
 
         for sc in &mut self.subcommands {
             for a in self.args.args().filter(|a| a.is_global_set()) {
-                let mut propagate = false;
-                let is_generated = matches!(
-                    a.provider,
-                    ArgProvider::Generated | ArgProvider::GeneratedMutated
-                );
-
-                // Remove generated help and version args in the subcommand
-                //
-                // Don't remove if those args are further mutated
-                if is_generated {
-                    let generated_pos = sc
-                        .args
-                        .args()
-                        .position(|x| x.id == a.id && x.provider == ArgProvider::Generated);
-
-                    if let Some(index) = generated_pos {
-                        debug!(
-                            "Command::_propagate removing {}'s {:?}",
-                            sc.get_name(),
-                            a.id
-                        );
-                        sc.args.remove(index);
-                        propagate = true;
-                    }
-                }
-
-                if propagate || sc.find(&a.id).is_none() {
+                if sc.find(&a.id).is_some() {
                     debug!(
-                        "Command::_propagate pushing {:?} to {}",
+                        "Command::_propagate skipping {:?} to {}, already exists",
                         a.id,
                         sc.get_name(),
                     );
-                    sc.args.push(a.clone());
+                    continue;
                 }
+
+                debug!(
+                    "Command::_propagate pushing {:?} to {}",
+                    a.id,
+                    sc.get_name(),
+                );
+                sc.args.push(a.clone());
             }
         }
     }
@@ -4128,129 +4094,38 @@ impl<'help> Command<'help> {
         }
     }
 
-    #[allow(clippy::blocks_in_if_conditions)]
     pub(crate) fn _check_help_and_version(&mut self) {
-        debug!("Command::_check_help_and_version: {}", self.name);
+        debug!("Command::_check_help_and_version:{}", self.name,);
 
-        if self.is_set(AppSettings::DisableHelpFlag)
-            || self.args.args().any(|x| {
-                x.provider == ArgProvider::User
-                    && (x.long == Some("help") || x.id == Id::help_hash())
-            })
-            || self
-                .subcommands
-                .iter()
-                .any(|sc| sc.long_flag == Some("help"))
-        {
-            let generated_help_pos = self
-                .args
-                .args()
-                .position(|x| x.id == Id::help_hash() && x.provider == ArgProvider::Generated);
-
-            if let Some(index) = generated_help_pos {
-                debug!("Command::_check_help_and_version: Removing generated help");
-                self.args.remove(index);
-            }
-        } else {
-            let help = self
-                .args
-                .args()
-                .find(|x| x.id == Id::help_hash())
-                .expect(INTERNAL_ERROR_MSG);
-            assert_ne!(help.provider, ArgProvider::User);
-
-            if help.short.is_some() {
-                if help.short == Some('h') {
-                    if let Some(other_arg) = self
-                        .args
-                        .args()
-                        .find(|x| x.id != Id::help_hash() && x.short == Some('h'))
-                    {
-                        panic!(
-                            "`help`s `-h` conflicts with `{}`.
-
-To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
-                            other_arg.name
-                        );
-                    }
-                }
-            } else if !(self.args.args().any(|x| x.short == Some('h'))
-                || self.subcommands.iter().any(|sc| sc.short_flag == Some('h')))
-            {
-                let help = self
-                    .args
-                    .args_mut()
-                    .find(|x| x.id == Id::help_hash())
-                    .expect(INTERNAL_ERROR_MSG);
-                help.short = Some('h');
-            } else {
-                debug!("Command::_check_help_and_version: Removing `-h` from help");
-            }
+        if !self.is_disable_help_flag_set() {
+            debug!("Command::_check_help_and_version: Building default --help");
+            let arg = Arg::new("help")
+                .short('h')
+                .long("help")
+                .action(ArgAction::Help)
+                .help("Print help information");
+            // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
+            // `next_display_order`
+            self.args.push(arg);
+        }
+        if !self.is_disable_version_flag_set() {
+            debug!("Command::_check_help_and_version: Building default --version");
+            let arg = Arg::new("version")
+                .short('V')
+                .long("version")
+                .action(ArgAction::Version)
+                .help("Print version information");
+            // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
+            // `next_display_order`
+            self.args.push(arg);
         }
 
-        // Determine if we should remove the generated --version flag
-        //
-        // Note that if only mut_arg() was used, the first expression will evaluate to `true`
-        // however inside the condition block, we only check for Generated args, not
-        // GeneratedMutated args, so the `mut_arg("version", ..) will be skipped and fall through
-        // to the following condition below (Adding the short `-V`)
-        if self.settings.is_set(AppSettings::DisableVersionFlag)
-            || (self.version.is_none() && self.long_version.is_none())
-            || self.args.args().any(|x| {
-                x.provider == ArgProvider::User
-                    && (x.long == Some("version") || x.id == Id::version_hash())
-            })
-            || self
-                .subcommands
-                .iter()
-                .any(|sc| sc.long_flag == Some("version"))
-        {
-            // This is the check mentioned above that only checks for Generated, not
-            // GeneratedMutated args by design.
-            let generated_version_pos = self
-                .args
-                .args()
-                .position(|x| x.id == Id::version_hash() && x.provider == ArgProvider::Generated);
-
-            if let Some(index) = generated_version_pos {
-                debug!("Command::_check_help_and_version: Removing generated version");
-                self.args.remove(index);
-            }
-        }
-
-        // If we still have a generated --version flag, determine if we can apply the short `-V`
-        if self.args.args().any(|x| {
-            x.id == Id::version_hash()
-                && matches!(
-                    x.provider,
-                    ArgProvider::Generated | ArgProvider::GeneratedMutated
-                )
-        }) {
-            let other_arg_has_short = self.args.args().any(|x| x.short == Some('V'));
-            let version = self
-                .args
-                .args_mut()
-                .find(|x| x.id == Id::version_hash())
-                .expect(INTERNAL_ERROR_MSG);
-
-            if !(version.short.is_some()
-                || other_arg_has_short
-                || self.subcommands.iter().any(|sc| sc.short_flag == Some('V')))
-            {
-                version.short = Some('V');
-            }
-        }
-
-        if !self.is_set(AppSettings::DisableHelpSubcommand)
-            && self.has_subcommands()
-            && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
-        {
+        if !self.is_set(AppSettings::DisableHelpSubcommand) {
             debug!("Command::_check_help_and_version: Building help subcommand");
             let mut help_subcmd = Command::new("help")
                 .about("Print this message or the help of the given subcommand(s)")
                 .arg(
                     Arg::new("subcommand")
-                        .index(1)
                         .action(ArgAction::Append)
                         .num_args(..)
                         .value_name("SUBCOMMAND")
@@ -4264,6 +4139,7 @@ To change `help`s short, call `cmd.arg(Arg::new(\"help\")...)`.",
             help_subcmd.long_version = None;
             help_subcmd = help_subcmd
                 .setting(AppSettings::DisableHelpFlag)
+                .setting(AppSettings::DisableVersionFlag)
                 .unset_global_setting(AppSettings::PropagateVersion);
 
             self.subcommands.push(help_subcmd);

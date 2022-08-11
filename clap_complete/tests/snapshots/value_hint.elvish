@@ -34,10 +34,11 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --cmd 'cmd'
             cand -u 'u'
             cand --user 'user'
-            cand -h 'h'
+            cand -H 'H'
             cand --host 'host'
             cand --url 'url'
             cand --email 'email'
+            cand -h 'Print help information'
             cand --help 'Print help information'
         }
     ]

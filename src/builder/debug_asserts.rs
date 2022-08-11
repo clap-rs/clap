@@ -2,9 +2,9 @@ use std::cmp::Ordering;
 
 use clap_lex::RawOsStr;
 
-use crate::builder::arg::ArgProvider;
 use crate::builder::ValueRange;
 use crate::mkeymap::KeyType;
+use crate::util::Id;
 use crate::ArgAction;
 use crate::INTERNAL_ERROR_MSG;
 use crate::{Arg, Command, ValueHint};
@@ -27,14 +27,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         // Used `Command::mut_arg("version", ..) but did not provide any version information to display
         let version_needed = cmd
             .get_arguments()
-            .filter(|x| {
-                let action_set = matches!(x.get_action(), ArgAction::Version);
-                let provider_set = matches!(
-                    x.provider,
-                    ArgProvider::User | ArgProvider::GeneratedMutated
-                );
-                action_set && provider_set
-            })
+            .filter(|x| matches!(x.get_action(), ArgAction::Version))
             .map(|x| x.get_id())
             .collect::<Vec<_>>();
 
@@ -90,23 +83,26 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         // Name conflicts
-        assert!(
-            cmd.two_args_of(|x| x.id == arg.id).is_none(),
-            "Command {}: Argument names must be unique, but '{}' is in use by more than one argument or group",
+        if let Some((first, second)) = cmd.two_args_of(|x| x.id == arg.id) {
+            panic!(
+            "Command {}: Argument names must be unique, but '{}' is in use by more than one argument or group{}",
             cmd.get_name(),
             arg.name,
+            duplicate_tip(cmd, first, second),
         );
+        }
 
         // Long conflicts
         if let Some(l) = arg.long {
             if let Some((first, second)) = cmd.two_args_of(|x| x.long == Some(l)) {
                 panic!(
                     "Command {}: Long option names must be unique for each argument, \
-                        but '--{}' is in use by both '{}' and '{}'",
+                            but '--{}' is in use by both '{}' and '{}'{}",
                     cmd.get_name(),
                     l,
                     first.name,
-                    second.name
+                    second.name,
+                    duplicate_tip(cmd, first, second)
                 )
             }
         }
@@ -116,11 +112,12 @@ pub(crate) fn assert_app(cmd: &Command) {
             if let Some((first, second)) = cmd.two_args_of(|x| x.short == Some(s)) {
                 panic!(
                     "Command {}: Short option names must be unique for each argument, \
-                        but '-{}' is in use by both '{}' and '{}'",
+                            but '-{}' is in use by both '{}' and '{}'{}",
                     cmd.get_name(),
                     s,
                     first.name,
-                    second.name
+                    second.name,
+                    duplicate_tip(cmd, first, second),
                 )
             }
         }
@@ -349,6 +346,20 @@ pub(crate) fn assert_app(cmd: &Command) {
 
     cmd._panic_on_missing_help(cmd.is_help_expected_set());
     assert_app_flags(cmd);
+}
+
+fn duplicate_tip(cmd: &Command<'_>, first: &Arg<'_>, second: &Arg<'_>) -> &'static str {
+    if !cmd.is_disable_help_flag_set()
+        && (first.id == Id::help_hash() || second.id == Id::help_hash())
+    {
+        " (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"
+    } else if !cmd.is_disable_version_flag_set()
+        && (first.id == Id::version_hash() || second.id == Id::version_hash())
+    {
+        " (call `cmd.disable_version_flag(true)` to remove the auto-generated `--version`)"
+    } else {
+        ""
+    }
 }
 
 #[derive(Eq)]
@@ -689,8 +700,15 @@ fn assert_arg(arg: &Arg) {
         );
         assert!(
             arg.is_takes_value_set(),
-            "Argument '{}` is positional, it must take a value",
-            arg.name
+            "Argument '{}` is positional, it must take a value{}",
+            arg.name,
+            if arg.id == Id::help_hash() {
+                " (`mut_arg` no longer works with implicit `--help`)"
+            } else if arg.id == Id::help_hash() || arg.id == Id::version_hash() {
+                " (`mut_arg` no longer works with implicit `--version`)"
+            } else {
+                ""
+            }
         );
     }
 

@@ -50,7 +50,6 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     pub(crate) id: Id,
-    pub(crate) provider: ArgProvider,
     pub(crate) name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
@@ -3958,11 +3957,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    pub(crate) fn generated(mut self) -> Self {
-        self.provider = ArgProvider::Generated;
-        self
-    }
-
     pub(crate) fn longest_filter(&self) -> bool {
         self.is_takes_value_set() || self.long.is_some() || self.short.is_none()
     }
@@ -4092,7 +4086,6 @@ impl<'help> fmt::Debug for Arg<'help> {
         #[allow(unused_mut)]
         let mut ds = ds
             .field("id", &self.id)
-            .field("provider", &self.provider)
             .field("name", &self.name)
             .field("help", &self.help)
             .field("long_help", &self.long_help)
@@ -4127,19 +4120,6 @@ impl<'help> fmt::Debug for Arg<'help> {
         }
 
         ds.finish()
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum ArgProvider {
-    Generated,
-    GeneratedMutated,
-    User,
-}
-
-impl Default for ArgProvider {
-    fn default() -> Self {
-        ArgProvider::User
     }
 }
 

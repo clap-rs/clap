@@ -18,16 +18,16 @@ set edit:completion:arg-completer[my-app] = {|@words|
     }
     var completions = [
         &'my-app'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
             cand --single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand --double-quotes 'Can be "always", "auto", or "never"'
             cand --backticks 'For more information see `echo test`'
             cand --backslash 'Avoid ''/n'''
             cand --brackets 'List packages [filter]'
             cand --expansions 'Execute the shell command with $SHELL'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand cmd-double-quotes 'Can be "always", "auto", or "never"'
             cand cmd-backticks 'For more information see `echo test`'

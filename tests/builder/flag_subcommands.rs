@@ -420,6 +420,7 @@ fn flag_subcommand_long_conflict_with_arg() {
 }
 
 #[test]
+#[should_panic = "the '--help' long flag for the 'help' argument conflicts with the short flag for 'help' subcommand"]
 fn flag_subcommand_conflict_with_help() {
     let _ = Command::new("test")
         .subcommand(Command::new("help").short_flag('h').long_flag("help"))
@@ -428,8 +429,11 @@ fn flag_subcommand_conflict_with_help() {
 }
 
 #[test]
+#[cfg(debug_assertions)]
+#[should_panic = "the '--version' long flag for the 'version' argument conflicts with the short flag for 'ver' subcommand"]
 fn flag_subcommand_conflict_with_version() {
     let _ = Command::new("test")
+        .version("1.0.0")
         .subcommand(Command::new("ver").short_flag('V').long_flag("version"))
         .try_get_matches_from(vec!["myprog", "--version"])
         .unwrap();

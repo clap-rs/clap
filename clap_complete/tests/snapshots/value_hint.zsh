@@ -31,10 +31,11 @@ _my-app() {
 '*--cmd=[]: :_cmdstring' /
 '*-u+[]: :_users' /
 '*--user=[]: :_users' /
-'*-h+[]: :_hosts' /
+'*-H+[]: :_hosts' /
 '*--host=[]: :_hosts' /
 '*--url=[]: :_urls' /
 '*--email=[]: :_email_addresses' /
+'*-h[Print help information]' /
 '*--help[Print help information]' /
 '*::command_with_args:_cmdambivalent' /
 && ret=0

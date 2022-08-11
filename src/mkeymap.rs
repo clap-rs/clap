@@ -151,11 +151,6 @@ impl<'help> MKeyMap<'help> {
             // since it's a cold function, using this wouldn't hurt much
             .map(|i| self.args.remove(i))
     }
-
-    /// Remove an arg based on index
-    pub(crate) fn remove(&mut self, index: usize) -> Arg<'help> {
-        self.args.remove(index)
-    }
 }
 
 impl<'help> Index<&'_ KeyType> for MKeyMap<'help> {

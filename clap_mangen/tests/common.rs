@@ -227,7 +227,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
         )
         .arg(
             clap::Arg::new("host")
-                .short('h')
+                .short('H')
                 .long("host")
                 .value_hint(clap::ValueHint::Hostname),
         )

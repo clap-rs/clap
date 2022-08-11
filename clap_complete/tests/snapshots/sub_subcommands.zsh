@@ -15,14 +15,14 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
 '*-c[some config file]' /
 '*-C[some config file]' /
 '*--config[some config file]' /
 '*--conf[some config file]' /
+'*-h[Print help information]' /
+'*--help[Print help information]' /
+'*-V[Print version information]' /
+'*--version[Print version information]' /
 '::file -- some input file:_files' /
 '::choice:(first second)' /
 ":: :_my-app_commands" /
