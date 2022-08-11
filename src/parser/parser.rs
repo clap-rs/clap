@@ -438,7 +438,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
 
                 matcher.subcommand(SubCommand {
-                    id: Id::from(&*sc_name),
                     name: sc_name,
                     matches: sc_m.into_inner(),
                 });
@@ -698,7 +697,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
             }
             matcher.subcommand(SubCommand {
-                id: sc.get_id(),
                 name: sc.get_name().to_owned(),
                 matches: sc_matcher.into_inner(),
             });

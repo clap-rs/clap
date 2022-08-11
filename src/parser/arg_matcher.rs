@@ -30,7 +30,10 @@ impl ArgMatcher {
                     args.chain(groups).collect()
                 },
                 #[cfg(debug_assertions)]
-                valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
+                valid_subcommands: _cmd
+                    .get_subcommands()
+                    .map(|sc| sc.get_name().to_owned())
+                    .collect(),
                 ..Default::default()
             },
             pending: None,

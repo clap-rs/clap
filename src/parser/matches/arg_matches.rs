@@ -65,7 +65,7 @@ pub struct ArgMatches {
     #[cfg(debug_assertions)]
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
-    pub(crate) valid_subcommands: Vec<Id>,
+    pub(crate) valid_subcommands: Vec<String>,
     pub(crate) args: FlatMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
@@ -800,8 +800,8 @@ impl ArgMatches {
     ///
     /// [subcommand]: crate::Command::subcommand
     /// [`Command`]: crate::Command
-    pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
-        self.get_subcommand(&id.into()).map(|sc| &sc.matches)
+    pub fn subcommand_matches(&self, name: &str) -> Option<&ArgMatches> {
+        self.get_subcommand(name).map(|sc| &sc.matches)
     }
 
     /// The name of the current [subcommand].
@@ -839,11 +839,11 @@ impl ArgMatches {
     /// before they do a query on `ArgMatches`.
     #[inline]
     #[doc(hidden)]
-    pub fn is_valid_subcommand(&self, _id: impl Key) -> bool {
+    pub fn is_valid_subcommand(&self, _name: &str) -> bool {
         #[cfg(debug_assertions)]
         {
-            let id = Id::from(_id);
-            id == Id::empty_hash() || self.valid_subcommands.contains(&id)
+            let _name = _name.to_owned();
+            _name.is_empty() || self.valid_subcommands.contains(&_name)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -1020,12 +1020,6 @@ impl ArgMatches {
         #[cfg(debug_assertions)]
         {
             if *_arg == Id::empty_hash() || self.valid_args.contains(_arg) {
-            } else if self.valid_subcommands.contains(_arg) {
-                debug!(
-                    "Subcommand `{:?}` used where an argument or group name was expected.",
-                    _arg
-                );
-                return Err(MatchesError::UnknownArgument {});
             } else {
                 debug!(
                     "`{:?}` is not an id of an argument or a group.\n\
@@ -1045,11 +1039,6 @@ impl ArgMatches {
         #[cfg(debug_assertions)]
         {
             if *arg == Id::empty_hash() || self.valid_args.contains(arg) {
-            } else if self.valid_subcommands.contains(arg) {
-                panic!(
-                    "Subcommand `{:?}` used where an argument or group name was expected.",
-                    arg
-                );
             } else {
                 panic!(
                     "`{:?}` is not an id of an argument or a group.\n\
@@ -1065,22 +1054,18 @@ impl ArgMatches {
 
     #[inline]
     #[cfg_attr(debug_assertions, track_caller)]
-    fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
+    fn get_subcommand(&self, name: &str) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            if *id == Id::empty_hash() || self.valid_subcommands.contains(id) {
-            } else if self.valid_args.contains(id) {
-                panic!(
-                    "Argument or group `{:?}` used where a subcommand name was expected.",
-                    id
-                );
+            let name = name.to_owned();
+            if name.is_empty() || self.valid_subcommands.contains(&name) {
             } else {
-                panic!("`{:?}` is not a name of a subcommand.", id);
+                panic!("`{}` is not a name of a subcommand.", name);
             }
         }
 
         if let Some(ref sc) = self.subcommand {
-            if sc.id == *id {
+            if sc.name == name {
                 return Some(sc);
             }
         }
@@ -1091,7 +1076,6 @@ impl ArgMatches {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
-    pub(crate) id: Id,
     pub(crate) name: String,
     pub(crate) matches: ArgMatches,
 }

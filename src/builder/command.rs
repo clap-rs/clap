@@ -64,7 +64,6 @@ use crate::builder::debug_asserts::assert_app;
 /// [`Command::get_matches`]: Command::get_matches()
 #[derive(Debug, Clone)]
 pub struct Command<'help> {
-    id: Id,
     name: String,
     long_flag: Option<&'help str>,
     short_flag: Option<char>,
@@ -126,7 +125,6 @@ impl<'help> Command<'help> {
         /// of this code.
         fn new_inner<'help>(name: String) -> Command<'help> {
             Command {
-                id: Id::from(&*name),
                 name,
                 ..Default::default()
             }
@@ -274,20 +272,17 @@ impl<'help> Command<'help> {
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
-    pub fn mut_subcommand<'a, T, F>(mut self, subcmd_id: T, f: F) -> Self
+    pub fn mut_subcommand<F>(mut self, name: impl AsRef<str>, f: F) -> Self
     where
         F: FnOnce(Self) -> Self,
-        T: Into<&'a str>,
     {
-        let subcmd_id: &str = subcmd_id.into();
-        let id = Id::from(subcmd_id);
-
-        let pos = self.subcommands.iter().position(|s| s.id == id);
+        let name = name.as_ref();
+        let pos = self.subcommands.iter().position(|s| s.name == name);
 
         let subcmd = if let Some(idx) = pos {
             self.subcommands.remove(idx)
         } else {
-            Self::new(subcmd_id)
+            Self::new(name)
         };
 
         self.subcommands.push(f(subcmd));
@@ -3647,10 +3642,6 @@ impl<'help> Command<'help> {
 
 // Internally used only
 impl<'help> Command<'help> {
-    pub(crate) fn get_id(&self) -> Id {
-        self.id.clone()
-    }
-
     pub(crate) fn get_override_usage(&self) -> Option<&str> {
         self.usage_str
     }
@@ -4450,7 +4441,6 @@ impl<'help> Command<'help> {
 impl<'help> Default for Command<'help> {
     fn default() -> Self {
         Self {
-            id: Default::default(),
             name: Default::default(),
             long_flag: Default::default(),
             short_flag: Default::default(),
