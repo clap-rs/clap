@@ -73,8 +73,6 @@ fn main() {
 
     // Check for usage of -c
     if let Some(config) = cli.config.as_deref() {
-        // todo: remove `#[allow(clippy::or_fun_call)]` lint when MSRV is bumped.
-        #[allow(clippy::or_fun_call)]
         let input = cli
             .input_file
             .as_deref()

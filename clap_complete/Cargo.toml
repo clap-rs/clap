@@ -12,7 +12,7 @@ keywords = [
 ]
 license = "MIT OR Apache-2.0"
 edition = "2021"
-rust-version = "1.56.1"  # MSRV
+rust-version = "1.60.0"  # MSRV
 include = [
   "build.rs",
   "src/**/*",
@@ -61,5 +61,5 @@ required-features = ["unstable-dynamic"]
 
 [features]
 default = []
-unstable-dynamic = ["clap_lex", "shlex", "unicode-xid", "os_str_bytes", "clap/derive", "is_executable", "pathdiff"]
+unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:unicode-xid", "dep:os_str_bytes", "clap/derive", "dep:is_executable", "dep:pathdiff"]
 debug = ["clap/debug"]
