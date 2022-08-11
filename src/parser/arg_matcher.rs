@@ -1,5 +1,4 @@
 // Std
-use std::collections::HashMap;
 use std::ffi::OsString;
 use std::mem;
 use std::ops::Deref;
@@ -10,6 +9,7 @@ use crate::parser::AnyValue;
 use crate::parser::Identifier;
 use crate::parser::PendingArg;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
+use crate::util::FlatMap;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -46,14 +46,14 @@ impl ArgMatcher {
             "ArgMatcher::get_global_values: global_arg_vec={:?}",
             global_arg_vec
         );
-        let mut vals_map = HashMap::new();
+        let mut vals_map = FlatMap::new();
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
 
     fn fill_in_global_values(
         &mut self,
         global_arg_vec: &[Id],
-        vals_map: &mut HashMap<Id, MatchedArg>,
+        vals_map: &mut FlatMap<Id, MatchedArg>,
     ) {
         for global_arg in global_arg_vec {
             if let Some(ma) = self.get(global_arg) {
@@ -99,18 +99,18 @@ impl ArgMatcher {
     }
 
     pub(crate) fn remove(&mut self, arg: &Id) {
-        self.matches.args.swap_remove(arg);
+        self.matches.args.remove(arg);
     }
 
     pub(crate) fn contains(&self, arg: &Id) -> bool {
         self.matches.args.contains_key(arg)
     }
 
-    pub(crate) fn arg_ids(&self) -> indexmap::map::Keys<Id, MatchedArg> {
+    pub(crate) fn arg_ids(&self) -> std::slice::Iter<'_, Id> {
         self.matches.args.keys()
     }
 
-    pub(crate) fn entry(&mut self, arg: &Id) -> indexmap::map::Entry<Id, MatchedArg> {
+    pub(crate) fn entry(&mut self, arg: &Id) -> crate::util::Entry<Id, MatchedArg> {
         self.matches.args.entry(arg.clone())
     }
 

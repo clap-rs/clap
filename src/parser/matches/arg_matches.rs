@@ -5,15 +5,13 @@ use std::fmt::Debug;
 use std::iter::{Cloned, Flatten, Map};
 use std::slice::Iter;
 
-// Third Party
-use indexmap::IndexMap;
-
 // Internal
 use crate::parser::AnyValue;
 use crate::parser::AnyValueId;
 use crate::parser::MatchedArg;
 use crate::parser::MatchesError;
 use crate::parser::ValueSource;
+use crate::util::FlatMap;
 use crate::util::{Id, Key};
 use crate::INTERNAL_ERROR_MSG;
 
@@ -68,7 +66,7 @@ pub struct ArgMatches {
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
     pub(crate) valid_subcommands: Vec<Id>,
-    pub(crate) args: IndexMap<Id, MatchedArg>,
+    pub(crate) args: FlatMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
