@@ -1,11 +1,5 @@
 error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
-   --> tests/derive_ui/bool_value_enum.rs:6:31
-    |
-6   |     #[clap(short, value_enum, default_value_t)]
-    |                               ^^^^^^^^^^^^^^^ the trait `ValueEnum` is not implemented for `bool`
-    |
-note: required by `to_possible_value`
-   --> src/derive.rs
-    |
-    |     fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>>;
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ --> tests/derive_ui/bool_value_enum.rs:6:31
+  |
+6 |     #[clap(short, value_enum, default_value_t)]
+  |                               ^^^^^^^^^^^^^^^ the trait `ValueEnum` is not implemented for `bool`
