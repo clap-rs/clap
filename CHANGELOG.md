@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Expose `#[clap(id = ...)]` attribute to match Arg's latest API
+
 ## [3.2.16] - 2022-07-30
 
 ### Fixes
