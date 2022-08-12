@@ -67,7 +67,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         );
 
         if let Some(s) = arg.short.as_ref() {
-            short_flags.push(Flag::Arg(format!("-{}", s), &*arg.name));
+            short_flags.push(Flag::Arg(format!("-{}", s), arg.name));
         }
 
         for (short_alias, _) in &arg.short_aliases {
@@ -76,7 +76,7 @@ pub(crate) fn assert_app(cmd: &Command) {
 
         if let Some(l) = arg.long.as_ref() {
             assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.name, l);
-            long_flags.push(Flag::Arg(format!("--{}", l), &*arg.name));
+            long_flags.push(Flag::Arg(format!("--{}", l), arg.name));
         }
 
         for (long_alias, _) in &arg.aliases {

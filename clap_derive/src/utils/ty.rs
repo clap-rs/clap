@@ -7,7 +7,7 @@ use syn::{
     PathSegment, Type, TypePath,
 };
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Ty {
     Vec,
     Option,

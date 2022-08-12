@@ -103,7 +103,7 @@ fn skip_enum() {
 
 #[test]
 fn skip_help_doc_comments() {
-    #[derive(Parser, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq, Eq)]
     pub struct Opt {
         #[clap(skip, help = "internal_stuff")]
         a: u32,
@@ -134,7 +134,7 @@ fn skip_help_doc_comments() {
 
 #[test]
 fn skip_val() {
-    #[derive(Parser, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq, Eq)]
     pub struct Opt {
         #[clap(long, short)]
         number: u32,

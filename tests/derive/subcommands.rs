@@ -16,7 +16,7 @@ use crate::utils;
 
 use clap::{Args, Parser, Subcommand};
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Eq, Debug)]
 enum Opt {
     /// Fetch stuff from GitHub
     Fetch {
@@ -87,7 +87,7 @@ fn test_no_parse() {
     assert!(result.is_err());
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Eq, Debug)]
 enum Opt2 {
     DoSomething { arg: String },
 }
@@ -104,7 +104,7 @@ fn test_hyphenated_subcommands() {
     );
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Eq, Debug)]
 enum Opt3 {
     Add,
     Init,
@@ -121,17 +121,17 @@ fn test_null_commands() {
     );
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Eq, Debug)]
 #[clap(about = "Not shown")]
 struct Add {
     file: String,
 }
 /// Not shown
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Eq, Debug)]
 struct Fetch {
     remote: String,
 }
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Eq, Debug)]
 enum Opt4 {
     // Not shown
     /// Add a file
@@ -166,7 +166,7 @@ fn test_tuple_commands() {
 
 #[test]
 fn global_passed_down() {
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
         #[clap(global = true, long)]
         other: bool,
@@ -174,13 +174,13 @@ fn global_passed_down() {
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Subcommand)]
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
         Add,
         Global(GlobalCmd),
     }
 
-    #[derive(Debug, PartialEq, Args)]
+    #[derive(Debug, PartialEq, Eq, Args)]
     struct GlobalCmd {
         #[clap(from_global)]
         other: bool,
@@ -205,13 +205,13 @@ fn global_passed_down() {
 
 #[test]
 fn external_subcommand() {
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Subcommand)]
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
         Add,
         Remove,
@@ -247,13 +247,13 @@ fn external_subcommand() {
 fn external_subcommand_os_string() {
     use std::ffi::OsString;
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Subcommand)]
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
         #[clap(external_subcommand)]
         Other(Vec<OsString>),
@@ -271,13 +271,13 @@ fn external_subcommand_os_string() {
 
 #[test]
 fn external_subcommand_optional() {
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Option<Subcommands>,
     }
 
-    #[derive(Debug, PartialEq, Subcommand)]
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
         #[clap(external_subcommand)]
         Other(Vec<String>),
@@ -295,7 +295,7 @@ fn external_subcommand_optional() {
 
 #[test]
 fn enum_in_enum_subsubcommand() {
-    #[derive(Parser, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq, Eq)]
     pub enum Opt {
         #[clap(alias = "l")]
         List,
@@ -303,7 +303,7 @@ fn enum_in_enum_subsubcommand() {
         Daemon(DaemonCommand),
     }
 
-    #[derive(Subcommand, Debug, PartialEq)]
+    #[derive(Subcommand, Debug, PartialEq, Eq)]
     pub enum DaemonCommand {
         Start,
         Stop,
@@ -330,20 +330,20 @@ fn enum_in_enum_subsubcommand() {
 
 #[test]
 fn update_subcommands() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     enum Opt {
         Command1(Command1),
         Command2(Command2),
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Command1 {
         arg1: i32,
 
         arg2: i32,
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Command2 {
         arg2: i32,
     }
@@ -376,7 +376,7 @@ fn update_subcommands() {
 
 #[test]
 fn update_sub_subcommands() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     enum Opt {
         #[clap(subcommand)]
         Child1(Child1),
@@ -384,26 +384,26 @@ fn update_sub_subcommands() {
         Child2(Child2),
     }
 
-    #[derive(Subcommand, PartialEq, Debug)]
+    #[derive(Subcommand, PartialEq, Eq, Debug)]
     enum Child1 {
         Command1(Command1),
         Command2(Command2),
     }
 
-    #[derive(Subcommand, PartialEq, Debug)]
+    #[derive(Subcommand, PartialEq, Eq, Debug)]
     enum Child2 {
         Command1(Command1),
         Command2(Command2),
     }
 
-    #[derive(Args, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Eq, Debug)]
     struct Command1 {
         arg1: i32,
 
         arg2: i32,
     }
 
-    #[derive(Args, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Eq, Debug)]
     struct Command2 {
         arg2: i32,
     }
@@ -447,7 +447,7 @@ fn update_sub_subcommands() {
 
 #[test]
 fn update_ext_subcommand() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     enum Opt {
         Command1(Command1),
         Command2(Command2),
@@ -455,14 +455,14 @@ fn update_ext_subcommand() {
         Ext(Vec<String>),
     }
 
-    #[derive(Args, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Eq, Debug)]
     struct Command1 {
         arg1: i32,
 
         arg2: i32,
     }
 
-    #[derive(Args, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Eq, Debug)]
     struct Command2 {
         arg2: i32,
     }
@@ -501,13 +501,13 @@ fn subcommand_name_not_literal() {
         "renamed"
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         #[clap(subcommand)]
         subcmd: SubCmd,
     }
 
-    #[derive(Subcommand, PartialEq, Debug)]
+    #[derive(Subcommand, PartialEq, Eq, Debug)]
     enum SubCmd {
         #[clap(name = get_name())]
         SubCmd1,
@@ -518,13 +518,13 @@ fn subcommand_name_not_literal() {
 
 #[test]
 fn skip_subcommand() {
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Subcommand)]
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
         Add,
         Remove,
@@ -557,7 +557,7 @@ fn skip_subcommand() {
 
 #[test]
 fn built_in_subcommand_escaped() {
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Parser)]
     enum Command {
         Install {
             arg: Option<String>,

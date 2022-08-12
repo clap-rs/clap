@@ -1102,7 +1102,7 @@ fn process_author_str(author: &str) -> String {
 }
 
 /// Defines the casing for the attributes long representation.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum CasingStyle {
     /// Indicate word boundaries with uppercase letter, excluding the first word.
     Camel,

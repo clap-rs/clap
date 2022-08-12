@@ -17,7 +17,7 @@ use clap::Parser;
 
 #[test]
 fn bool_type_is_flag() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         #[clap(short, long)]
         alice: bool,
@@ -46,7 +46,7 @@ fn bool_type_is_flag() {
 #[test]
 #[ignore] // Not a good path for supporting this atm
 fn inferred_help() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         /// Foo
         #[clap(short, long)]
@@ -63,7 +63,7 @@ fn inferred_help() {
 #[test]
 #[ignore] // Not a good path for supporting this atm
 fn inferred_version() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         /// Foo
         #[clap(short, long)]
@@ -82,7 +82,7 @@ fn inferred_version() {
 
 #[test]
 fn count() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         #[clap(short, long, action = clap::ArgAction::Count)]
         alice: u8,
@@ -116,7 +116,7 @@ fn count() {
 
 #[test]
 fn mixed_type_flags() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         #[clap(short, long)]
         alice: bool,
@@ -172,7 +172,7 @@ fn mixed_type_flags() {
 fn ignore_qualified_bool_type() {
     mod inner {
         #[allow(non_camel_case_types)]
-        #[derive(PartialEq, Debug, Clone)]
+        #[derive(PartialEq, Eq, Debug, Clone)]
         pub struct bool(pub String);
 
         impl std::str::FromStr for self::bool {
@@ -184,7 +184,7 @@ fn ignore_qualified_bool_type() {
         }
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         arg: inner::bool,
     }
@@ -199,7 +199,7 @@ fn ignore_qualified_bool_type() {
 
 #[test]
 fn override_implicit_action() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         #[clap(long, action = clap::ArgAction::Set)]
         arg: bool,
@@ -218,7 +218,7 @@ fn override_implicit_action() {
 
 #[test]
 fn override_implicit_from_flag_positional() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         #[clap(action = clap::ArgAction::Set)]
         arg: bool,
