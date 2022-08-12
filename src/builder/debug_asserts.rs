@@ -705,7 +705,7 @@ fn assert_arg(arg: &Arg) {
             arg.get_id(),
             if arg.id == Id::help_hash() {
                 " (`mut_arg` no longer works with implicit `--help`)"
-            } else if arg.id == Id::help_hash() || arg.id == Id::version_hash() {
+            } else if arg.id == Id::version_hash() {
                 " (`mut_arg` no longer works with implicit `--version`)"
             } else {
                 ""
