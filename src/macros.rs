@@ -204,7 +204,7 @@ macro_rules! arg_impl {
 
                 let mut arg = $arg;
                 let long = $crate::arg_impl! { @string $long };
-                if arg.get_id().is_empty() {
+                if arg.get_id() == "" {
                     arg = arg.id(long);
                 }
                 let action = $crate::ArgAction::SetTrue;
@@ -229,7 +229,7 @@ macro_rules! arg_impl {
 
                 let mut arg = $arg;
                 let long = $crate::arg_impl! { @string $long };
-                if arg.get_id().is_empty() {
+                if arg.get_id() == "" {
                     arg = arg.id(long);
                 }
                 let action = $crate::ArgAction::SetTrue;
@@ -299,7 +299,7 @@ macro_rules! arg_impl {
                 arg = arg.required(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
-                if arg.get_id().is_empty() {
+                if arg.get_id() == "" {
                     arg = arg.id(value_name);
                 }
                 arg
@@ -326,7 +326,7 @@ macro_rules! arg_impl {
                 arg = arg.required(true);
 
                 let value_name = $crate::arg_impl! { @string $value_name };
-                if arg.get_id().is_empty() {
+                if arg.get_id() == "" {
                     arg = arg.id(value_name);
                 }
                 arg
@@ -357,7 +357,7 @@ macro_rules! arg_impl {
                 }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
-                if arg.get_id().is_empty() {
+                if arg.get_id() == "" {
                     arg = arg.id(value_name);
                 }
                 arg
@@ -388,7 +388,7 @@ macro_rules! arg_impl {
                 }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
-                if arg.get_id().is_empty() {
+                if arg.get_id() == "" {
                     arg = arg.id(value_name);
                 }
                 arg
@@ -536,7 +536,7 @@ macro_rules! arg {
         let arg = $crate::arg_impl! {
             @arg ($crate::Arg::default()) $($tail)+
         };
-        debug_assert!(!arg.get_id().is_empty(), "Without a value or long flag, the `name:` prefix is required");
+        debug_assert_ne!(arg.get_id(), "", "Without a value or long flag, the `name:` prefix is required");
         arg
     }};
 }
