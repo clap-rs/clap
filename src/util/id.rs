@@ -1,13 +1,30 @@
 #[derive(Default, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
-#[repr(transparent)]
 pub struct Id {
-    name: String,
+    name: Inner,
 }
 
 impl Id {
-    pub(crate) const HELP: &'static str = "help";
-    pub(crate) const VERSION: &'static str = "version";
-    pub(crate) const EXTERNAL: &'static str = "";
+    pub(crate) const HELP: Self = Self::from_static_ref("help");
+    pub(crate) const VERSION: Self = Self::from_static_ref("version");
+    pub(crate) const EXTERNAL: Self = Self::from_static_ref("");
+
+    fn from_string(name: String) -> Self {
+        Self {
+            name: Inner::Owned(name.into_boxed_str()),
+        }
+    }
+
+    fn from_ref(name: &str) -> Self {
+        Self {
+            name: Inner::Owned(Box::from(name)),
+        }
+    }
+
+    const fn from_static_ref(name: &'static str) -> Self {
+        Self {
+            name: Inner::Static(name),
+        }
+    }
 
     pub fn as_str(&self) -> &str {
         self.name.as_str()
@@ -22,19 +39,19 @@ impl<'s> From<&'s Id> for Id {
 
 impl From<String> for Id {
     fn from(name: String) -> Self {
-        Self { name }
+        Self::from_string(name)
     }
 }
 
 impl<'s> From<&'s String> for Id {
     fn from(name: &'s String) -> Self {
-        name.to_owned().into()
+        Self::from_ref(name.as_str())
     }
 }
 
 impl From<&'static str> for Id {
     fn from(name: &'static str) -> Self {
-        name.to_owned().into()
+        Self::from_static_ref(name)
     }
 }
 
@@ -84,5 +101,53 @@ impl PartialEq<String> for Id {
     #[inline]
     fn eq(&self, other: &String) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
+    }
+}
+
+#[derive(Clone)]
+enum Inner {
+    Static(&'static str),
+    Owned(Box<str>),
+}
+
+impl Inner {
+    fn as_str(&self) -> &str {
+        match self {
+            Self::Static(s) => s,
+            Self::Owned(s) => s.as_ref(),
+        }
+    }
+}
+
+impl Default for Inner {
+    fn default() -> Self {
+        Self::Static("")
+    }
+}
+
+impl PartialEq for Inner {
+    fn eq(&self, other: &Inner) -> bool {
+        self.as_str() == other.as_str()
+    }
+}
+
+impl PartialOrd for Inner {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.as_str().partial_cmp(other.as_str())
+    }
+}
+
+impl Ord for Inner {
+    fn cmp(&self, other: &Inner) -> std::cmp::Ordering {
+        self.as_str().cmp(other.as_str())
+    }
+}
+
+impl Eq for Inner {}
+
+impl std::hash::Hash for Inner {
+    #[inline]
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.as_str().hash(state);
     }
 }
