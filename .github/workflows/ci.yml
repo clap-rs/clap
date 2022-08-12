@@ -137,7 +137,7 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: 1.56.1  # MSRV
         profile: minimal
         override: true
     - uses: Swatinem/rust-cache@v1
