@@ -17,6 +17,7 @@ use crate::mkeymap::KeyType;
 use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, Usage};
 use crate::parser::features::suggestions;
+use crate::parser::AnyValue;
 use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
@@ -433,12 +434,11 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 for raw_val in raw_args.remaining(&mut args_cursor) {
                     let val = external_parser.parse_ref(self.cmd, None, raw_val)?;
-                    let external_id = &Id::empty_hash();
-                    sc_m.add_val_to(external_id, val, raw_val.to_os_string());
+                    let external_id = Id::EXTERNAL;
+                    sc_m.add_val_to(&external_id, val, raw_val.to_os_string());
                 }
 
                 matcher.subcommand(SubCommand {
-                    id: Id::from(&*sc_name),
                     name: sc_name,
                     matches: sc_m.into_inner(),
                 });
@@ -629,9 +629,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         #![allow(clippy::needless_bool)] // Prefer consistent if/else-if ladder
 
         debug!(
-            "Parser::is_new_arg: {:?}:{:?}",
+            "Parser::is_new_arg: {:?}:{}",
             next.to_value_os(),
-            current_positional.name
+            current_positional.get_id()
         );
 
         if self.cmd.is_allow_hyphen_values_set()
@@ -698,7 +698,6 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
             }
             matcher.subcommand(SubCommand {
-                id: sc.get_id(),
                 name: sc.get_name().to_owned(),
                 matches: sc_matcher.into_inner(),
             });
@@ -971,7 +970,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     ) -> ClapResult<ParseResult> {
         debug!(
             "Parser::parse_opt_value; arg={}, val={:?}, has_eq={:?}",
-            arg.name, attached_value, has_eq
+            arg.get_id(),
+            attached_value,
+            has_eq
         );
         debug!("Parser::parse_opt_value; arg.settings={:?}", arg.settings);
 
@@ -1052,13 +1053,17 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             let value_parser = arg.get_value_parser();
             let val = value_parser.parse_ref(self.cmd, Some(arg), &raw_val)?;
 
-            // Increment or create the group "args"
-            for group in self.cmd.groups_for_arg(&arg.id) {
-                matcher.add_val_to(&group, val.clone(), raw_val.clone());
-            }
-
             matcher.add_val_to(&arg.id, val, raw_val);
             matcher.add_index_to(&arg.id, self.cur_idx.get());
+        }
+
+        // Increment or create the group "args"
+        for group in self.cmd.groups_for_arg(&arg.id) {
+            matcher.add_val_to(
+                &group,
+                AnyValue::new(arg.get_id().clone()),
+                OsString::from(arg.get_id().as_str()),
+            );
         }
 
         Ok(())
@@ -1208,7 +1213,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             ArgAction::Count => {
                 let raw_vals = if raw_vals.is_empty() {
                     let existing_value = *matcher
-                        .get_one::<crate::builder::CountType>(arg.get_id())
+                        .get_one::<crate::builder::CountType>(arg.get_id().as_str())
                         .unwrap_or(&0);
                     let next_value = existing_value.saturating_add(1);
                     vec![OsString::from(next_value.to_string())]
@@ -1359,7 +1364,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::add_defaults");
 
         for arg in self.cmd.get_arguments() {
-            debug!("Parser::add_defaults:iter:{}:", arg.name);
+            debug!("Parser::add_defaults:iter:{}:", arg.get_id());
             self.add_default_value(arg, matcher)?;
         }
 
@@ -1406,13 +1411,16 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         if !arg.default_vals.is_empty() {
             debug!(
                 "Parser::add_default_value:iter:{}: has default vals",
-                arg.name
+                arg.get_id()
             );
             if matcher.contains(&arg.id) {
-                debug!("Parser::add_default_value:iter:{}: was used", arg.name);
+                debug!("Parser::add_default_value:iter:{}: was used", arg.get_id());
             // do nothing
             } else {
-                debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
+                debug!(
+                    "Parser::add_default_value:iter:{}: wasn't used",
+                    arg.get_id()
+                );
                 let arg_values: Vec<_> = arg
                     .default_vals
                     .iter()
@@ -1432,7 +1440,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         } else {
             debug!(
                 "Parser::add_default_value:iter:{}: doesn't have default vals",
-                arg.name
+                arg.get_id()
             );
 
             // do nothing
@@ -1448,7 +1456,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
         matcher.start_custom_arg(arg, source);
         for group in self.cmd.groups_for_arg(&arg.id) {
-            matcher.start_custom_group(&group, source);
+            matcher.start_custom_group(group, source);
         }
     }
 
@@ -1460,7 +1468,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         matcher.start_occurrence_of_arg(arg);
         // Increment or create the group "args"
         for group in self.cmd.groups_for_arg(&arg.id) {
-            matcher.start_occurrence_of_group(&group);
+            matcher.start_occurrence_of_group(group);
         }
     }
 }

@@ -316,7 +316,7 @@ where
         .arg(flag("help"))
         .arg(flag("version").short('V'))
         // First, set up primary positional/flag arguments.
-        .arg(arg("pattern").required_unless_present_any(&[
+        .arg(arg("pattern").required_unless_present_any([
             "file",
             "files",
             "help-short",
@@ -337,9 +337,9 @@ where
             flag("files")
                 // This should also conflict with `pattern`, but the first file
                 // path will actually be in `pattern`.
-                .conflicts_with_all(&["file", "regexp", "type-list"]),
+                .conflicts_with_all(["file", "regexp", "type-list"]),
         )
-        .arg(flag("type-list").conflicts_with_all(&["file", "files", "pattern", "regexp"]))
+        .arg(flag("type-list").conflicts_with_all(["file", "files", "pattern", "regexp"]))
         // Second, set up common flags.
         .arg(flag("text").short('a'))
         .arg(flag("count").short('c'))

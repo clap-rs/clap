@@ -310,7 +310,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         matcher: &ArgMatcher,
         conflicts: &mut Conflicts,
     ) -> bool {
-        debug!("Validator::is_missing_required_ok: {}", a.name);
+        debug!("Validator::is_missing_required_ok: {}", a.get_id());
         let conflicts = conflicts.gather_conflicts(self.cmd, matcher, &a.id);
         !conflicts.is_empty()
     }
@@ -336,7 +336,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
-        debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
+        debug!("Validator::fails_arg_required_unless: a={:?}", a.get_id());
         let exists = |id| matcher.check_explicit(id, ArgPredicate::IsPresent);
 
         (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))

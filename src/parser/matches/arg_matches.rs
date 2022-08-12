@@ -12,7 +12,7 @@ use crate::parser::MatchedArg;
 use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::FlatMap;
-use crate::util::{Id, Key};
+use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
 /// Container for parse results.
@@ -65,7 +65,7 @@ pub struct ArgMatches {
     #[cfg(debug_assertions)]
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
-    pub(crate) valid_subcommands: Vec<Id>,
+    pub(crate) valid_subcommands: Vec<String>,
     pub(crate) args: FlatMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
@@ -108,8 +108,7 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
     pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, id: &str) -> Option<&T> {
-        let internal_id = Id::from(id);
-        MatchesError::unwrap(&internal_id, self.try_get_one(id))
+        MatchesError::unwrap(id, self.try_get_one(id))
     }
 
     /// Iterate over values of a specific option or positional argument.
@@ -149,8 +148,7 @@ impl ArgMatches {
         &self,
         id: &str,
     ) -> Option<ValuesRef<T>> {
-        let internal_id = Id::from(id);
-        MatchesError::unwrap(&internal_id, self.try_get_many(id))
+        MatchesError::unwrap(id, self.try_get_many(id))
     }
 
     /// Iterate over the original argument values.
@@ -196,8 +194,7 @@ impl ArgMatches {
     /// [`String`]: std::string::String
     #[track_caller]
     pub fn get_raw(&self, id: &str) -> Option<RawValues<'_>> {
-        let internal_id = Id::from(id);
-        MatchesError::unwrap(&internal_id, self.try_get_raw(id))
+        MatchesError::unwrap(id, self.try_get_raw(id))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -235,8 +232,7 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     #[track_caller]
     pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, id: &str) -> Option<T> {
-        let internal_id = Id::from(id);
-        MatchesError::unwrap(&internal_id, self.try_remove_one(id))
+        MatchesError::unwrap(id, self.try_remove_one(id))
     }
 
     /// Return values of a specific option or positional argument.
@@ -274,8 +270,7 @@ impl ArgMatches {
         &mut self,
         id: &str,
     ) -> Option<Values2<T>> {
-        let internal_id = Id::from(id);
-        MatchesError::unwrap(&internal_id, self.try_remove_many(id))
+        MatchesError::unwrap(id, self.try_remove_many(id))
     }
 
     /// Check if values are present for the argument or group id
@@ -305,8 +300,7 @@ impl ArgMatches {
     ///
     /// [`default_value`]: crate::Arg::default_value()
     pub fn contains_id(&self, id: &str) -> bool {
-        let internal_id = Id::from(id);
-        MatchesError::unwrap(&internal_id, self.try_contains_id(id))
+        MatchesError::unwrap(id, self.try_contains_id(id))
     }
 
     /// Check if any args were present on the command line
@@ -367,9 +361,8 @@ impl ArgMatches {
     /// [`Iterator`]: std::iter::Iterator
     #[cfg(feature = "unstable-grouped")]
     #[cfg_attr(debug_assertions, track_caller)]
-    pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
-        let id = Id::from(id);
-        let arg = self.get_arg(&id)?;
+    pub fn grouped_values_of(&self, id: &str) -> Option<GroupedValues> {
+        let arg = self.get_arg(id)?;
         let v = GroupedValues {
             iter: arg.vals().map(|g| g.iter().map(unwrap_string).collect()),
             len: arg.vals().len(),
@@ -401,10 +394,8 @@ impl ArgMatches {
     ///
     /// [`default_value`]: crate::Arg::default_value()
     #[cfg_attr(debug_assertions, track_caller)]
-    pub fn value_source<T: Key>(&self, id: T) -> Option<ValueSource> {
-        let id = Id::from(id);
-
-        let value = self.get_arg(&id);
+    pub fn value_source(&self, id: &str) -> Option<ValueSource> {
+        let value = self.get_arg(id);
 
         value.and_then(MatchedArg::source)
     }
@@ -552,8 +543,8 @@ impl ArgMatches {
     /// ```
     /// [delimiter]: crate::Arg::value_delimiter()
     #[cfg_attr(debug_assertions, track_caller)]
-    pub fn index_of<T: Key>(&self, id: T) -> Option<usize> {
-        let arg = self.get_arg(&Id::from(id))?;
+    pub fn index_of(&self, id: &str) -> Option<usize> {
+        let arg = self.get_arg(id)?;
         let i = arg.get_index(0)?;
         Some(i)
     }
@@ -634,8 +625,8 @@ impl ArgMatches {
     /// [`ArgMatches::index_of`]: ArgMatches::index_of()
     /// [delimiter]: Arg::value_delimiter()
     #[cfg_attr(debug_assertions, track_caller)]
-    pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        let arg = self.get_arg(&Id::from(id))?;
+    pub fn indices_of(&self, id: &str) -> Option<Indices<'_>> {
+        let arg = self.get_arg(id)?;
         let i = Indices {
             iter: arg.indices(),
             len: arg.num_vals(),
@@ -800,8 +791,8 @@ impl ArgMatches {
     ///
     /// [subcommand]: crate::Command::subcommand
     /// [`Command`]: crate::Command
-    pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
-        self.get_subcommand(&id.into()).map(|sc| &sc.matches)
+    pub fn subcommand_matches(&self, name: &str) -> Option<&ArgMatches> {
+        self.get_subcommand(name).map(|sc| &sc.matches)
     }
 
     /// The name of the current [subcommand].
@@ -839,11 +830,11 @@ impl ArgMatches {
     /// before they do a query on `ArgMatches`.
     #[inline]
     #[doc(hidden)]
-    pub fn is_valid_subcommand(&self, _id: impl Key) -> bool {
+    pub fn is_valid_subcommand(&self, _name: &str) -> bool {
         #[cfg(debug_assertions)]
         {
-            let id = Id::from(_id);
-            id == Id::empty_hash() || self.valid_subcommands.contains(&id)
+            let _name = _name.to_owned();
+            _name == String::default() || self.valid_subcommands.contains(&_name)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -859,8 +850,7 @@ impl ArgMatches {
         &self,
         id: &str,
     ) -> Result<Option<&T>, MatchesError> {
-        let id = Id::from(id);
-        let arg = self.try_get_arg_t::<T>(&id)?;
+        let arg = self.try_get_arg_t::<T>(id)?;
         let value = match arg.and_then(|a| a.first()) {
             Some(value) => value,
             None => {
@@ -878,8 +868,7 @@ impl ArgMatches {
         &self,
         id: &str,
     ) -> Result<Option<ValuesRef<T>>, MatchesError> {
-        let id = Id::from(id);
-        let arg = match self.try_get_arg_t::<T>(&id)? {
+        let arg = match self.try_get_arg_t::<T>(id)? {
             Some(arg) => arg,
             None => return Ok(None),
         };
@@ -895,8 +884,7 @@ impl ArgMatches {
 
     /// Non-panicking version of [`ArgMatches::get_raw`]
     pub fn try_get_raw(&self, id: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
-        let id = Id::from(id);
-        let arg = match self.try_get_arg(&id)? {
+        let arg = match self.try_get_arg(id)? {
             Some(arg) => arg,
             None => return Ok(None),
         };
@@ -914,8 +902,7 @@ impl ArgMatches {
         &mut self,
         id: &str,
     ) -> Result<Option<T>, MatchesError> {
-        let id = Id::from(id);
-        match self.try_remove_arg_t::<T>(&id)? {
+        match self.try_remove_arg_t::<T>(id)? {
             Some(values) => Ok(values
                 .into_vals_flatten()
                 // enforced by `try_get_arg_t`
@@ -930,8 +917,7 @@ impl ArgMatches {
         &mut self,
         id: &str,
     ) -> Result<Option<Values2<T>>, MatchesError> {
-        let id = Id::from(id);
-        let arg = match self.try_remove_arg_t::<T>(&id)? {
+        let arg = match self.try_remove_arg_t::<T>(id)? {
             Some(arg) => arg,
             None => return Ok(None),
         };
@@ -947,11 +933,9 @@ impl ArgMatches {
 
     /// Non-panicking version of [`ArgMatches::contains_id`]
     pub fn try_contains_id(&self, id: &str) -> Result<bool, MatchesError> {
-        let id = Id::from(id);
+        self.verify_arg(id)?;
 
-        self.verify_arg(&id)?;
-
-        let presence = self.args.contains_key(&id);
+        let presence = self.args.contains_key(id);
         Ok(presence)
     }
 }
@@ -959,7 +943,7 @@ impl ArgMatches {
 // Private methods
 impl ArgMatches {
     #[inline]
-    fn try_get_arg(&self, arg: &Id) -> Result<Option<&MatchedArg>, MatchesError> {
+    fn try_get_arg(&self, arg: &str) -> Result<Option<&MatchedArg>, MatchesError> {
         self.verify_arg(arg)?;
         Ok(self.args.get(arg))
     }
@@ -967,7 +951,7 @@ impl ArgMatches {
     #[inline]
     fn try_get_arg_t<T: Any + Send + Sync + 'static>(
         &self,
-        arg: &Id,
+        arg: &str,
     ) -> Result<Option<&MatchedArg>, MatchesError> {
         let arg = match self.try_get_arg(arg)? {
             Some(arg) => arg,
@@ -982,7 +966,7 @@ impl ArgMatches {
     #[inline]
     fn try_remove_arg_t<T: Any + Send + Sync + 'static>(
         &mut self,
-        arg: &Id,
+        arg: &str,
     ) -> Result<Option<MatchedArg>, MatchesError> {
         self.verify_arg(arg)?;
         let matched = match self.args.remove(arg) {
@@ -997,7 +981,7 @@ impl ArgMatches {
         if actual == expected {
             Ok(Some(matched))
         } else {
-            self.args.insert(arg.clone(), matched);
+            self.args.insert(Id::from(arg.to_owned()), matched);
             Err(MatchesError::Downcast { actual, expected })
         }
     }
@@ -1016,16 +1000,11 @@ impl ArgMatches {
     }
 
     #[inline]
-    fn verify_arg(&self, _arg: &Id) -> Result<(), MatchesError> {
+    fn verify_arg(&self, _arg: &str) -> Result<(), MatchesError> {
         #[cfg(debug_assertions)]
         {
-            if *_arg == Id::empty_hash() || self.valid_args.contains(_arg) {
-            } else if self.valid_subcommands.contains(_arg) {
-                debug!(
-                    "Subcommand `{:?}` used where an argument or group name was expected.",
-                    _arg
-                );
-                return Err(MatchesError::UnknownArgument {});
+            let _arg = Id::from(_arg.to_owned());
+            if _arg == Id::EXTERNAL || self.valid_args.contains(&_arg) {
             } else {
                 debug!(
                     "`{:?}` is not an id of an argument or a group.\n\
@@ -1041,15 +1020,11 @@ impl ArgMatches {
 
     #[inline]
     #[cfg_attr(debug_assertions, track_caller)]
-    fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
+    fn get_arg<'s>(&'s self, arg: &str) -> Option<&'s MatchedArg> {
         #[cfg(debug_assertions)]
         {
-            if *arg == Id::empty_hash() || self.valid_args.contains(arg) {
-            } else if self.valid_subcommands.contains(arg) {
-                panic!(
-                    "Subcommand `{:?}` used where an argument or group name was expected.",
-                    arg
-                );
+            let arg = Id::from(arg.to_owned());
+            if arg == Id::EXTERNAL || self.valid_args.contains(&arg) {
             } else {
                 panic!(
                     "`{:?}` is not an id of an argument or a group.\n\
@@ -1065,22 +1040,18 @@ impl ArgMatches {
 
     #[inline]
     #[cfg_attr(debug_assertions, track_caller)]
-    fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
+    fn get_subcommand(&self, name: &str) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            if *id == Id::empty_hash() || self.valid_subcommands.contains(id) {
-            } else if self.valid_args.contains(id) {
-                panic!(
-                    "Argument or group `{:?}` used where a subcommand name was expected.",
-                    id
-                );
+            let name = name.to_owned();
+            if name == String::default() || self.valid_subcommands.contains(&name) {
             } else {
-                panic!("`{:?}` is not a name of a subcommand.", id);
+                panic!("`{}` is not a name of a subcommand.", name);
             }
         }
 
         if let Some(ref sc) = self.subcommand {
-            if sc.id == *id {
+            if sc.name == name {
                 return Some(sc);
             }
         }
@@ -1091,7 +1062,6 @@ impl ArgMatches {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
-    pub(crate) id: Id,
     pub(crate) name: String,
     pub(crate) matches: ArgMatches,
 }

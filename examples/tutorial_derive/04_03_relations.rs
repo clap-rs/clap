@@ -5,7 +5,7 @@ use clap::{ArgGroup, Parser};
 #[clap(group(
             ArgGroup::new("vers")
                 .required(true)
-                .args(&["set_ver", "major", "minor", "patch"]),
+                .args(["set_ver", "major", "minor", "patch"]),
         ))]
 struct Cli {
     /// set version manually

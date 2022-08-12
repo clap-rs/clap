@@ -30,7 +30,10 @@ impl ArgMatcher {
                     args.chain(groups).collect()
                 },
                 #[cfg(debug_assertions)]
-                valid_subcommands: _cmd.get_subcommands().map(|sc| sc.get_id()).collect(),
+                valid_subcommands: _cmd
+                    .get_subcommands()
+                    .map(|sc| sc.get_name().to_owned())
+                    .collect(),
                 ..Default::default()
             },
             pending: None,
@@ -110,8 +113,8 @@ impl ArgMatcher {
         self.matches.args.keys()
     }
 
-    pub(crate) fn entry(&mut self, arg: &Id) -> crate::util::Entry<Id, MatchedArg> {
-        self.matches.args.entry(arg.clone())
+    pub(crate) fn entry(&mut self, arg: Id) -> crate::util::Entry<Id, MatchedArg> {
+        self.matches.args.entry(arg)
     }
 
     pub(crate) fn subcommand(&mut self, sc: SubCommand) {
@@ -127,7 +130,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn start_custom_arg(&mut self, arg: &Arg, source: ValueSource) {
-        let id = &arg.id;
+        let id = arg.id.clone();
         debug!(
             "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
             id, source
@@ -138,7 +141,7 @@ impl ArgMatcher {
         ma.new_val_group();
     }
 
-    pub(crate) fn start_custom_group(&mut self, id: &Id, source: ValueSource) {
+    pub(crate) fn start_custom_group(&mut self, id: Id, source: ValueSource) {
         debug!(
             "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
             id, source
@@ -150,7 +153,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
-        let id = &arg.id;
+        let id = arg.id.clone();
         debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
         debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
@@ -158,7 +161,7 @@ impl ArgMatcher {
         ma.new_val_group();
     }
 
-    pub(crate) fn start_occurrence_of_group(&mut self, id: &Id) {
+    pub(crate) fn start_occurrence_of_group(&mut self, id: Id) {
         debug!("ArgMatcher::start_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
         debug_assert_eq!(ma.type_id(), None);
@@ -167,7 +170,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
-        let id = &Id::empty_hash();
+        let id = Id::EXTERNAL;
         debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
         let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));
         debug_assert_eq!(
@@ -200,7 +203,8 @@ impl ArgMatcher {
             .unwrap_or(0);
         debug!(
             "ArgMatcher::needs_more_vals: o={}, pending={}",
-            o.name, num_pending
+            o.get_id(),
+            num_pending
         );
         let expected = o.get_num_args().expect(INTERNAL_ERROR_MSG);
         debug!(

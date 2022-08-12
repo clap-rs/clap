@@ -2,7 +2,6 @@ use std::iter::Iterator;
 use std::ops::Index;
 use std::{ffi::OsStr, ffi::OsString};
 
-use crate::util::Id;
 use crate::Arg;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -144,10 +143,10 @@ impl<'help> MKeyMap<'help> {
 
     /// Remove an arg in the graph by Id, usually used by `mut_arg`. Return
     /// `Some(arg)` if removed.
-    pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'help>> {
+    pub(crate) fn remove_by_name(&mut self, name: &str) -> Option<Arg<'help>> {
         self.args
             .iter()
-            .position(|arg| &arg.id == name)
+            .position(|arg| arg.id == name)
             // since it's a cold function, using this wouldn't hurt much
             .map(|i| self.args.remove(i))
     }
