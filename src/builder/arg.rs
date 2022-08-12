@@ -50,7 +50,7 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     pub(crate) id: Id,
-    pub(crate) name: &'help str,
+    name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
     pub(crate) action: Option<ArgAction>,

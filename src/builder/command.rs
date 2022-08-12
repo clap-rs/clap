@@ -238,11 +238,10 @@ impl<'help> Command<'help> {
         let arg_id: &str = arg_id.into();
         let id = Id::from(arg_id);
 
-        let a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
-            id,
-            name: arg_id,
-            ..Arg::default()
-        });
+        let a = self
+            .args
+            .remove_by_name(&id)
+            .unwrap_or_else(|| Arg::new(arg_id));
 
         self.args.push(f(a));
         self
@@ -3998,7 +3997,7 @@ impl<'help> Command<'help> {
                 .args
                 .args()
                 .filter(|arg| arg.help.is_none() && arg.long_help.is_none())
-                .map(|arg| String::from(arg.name))
+                .map(|arg| arg.get_id().to_owned())
                 .collect();
 
             assert!(args_missing_help.is_empty(),

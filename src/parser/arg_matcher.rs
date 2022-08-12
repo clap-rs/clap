@@ -203,7 +203,8 @@ impl ArgMatcher {
             .unwrap_or(0);
         debug!(
             "ArgMatcher::needs_more_vals: o={}, pending={}",
-            o.name, num_pending
+            o.get_id(),
+            num_pending
         );
         let expected = o.get_num_args().expect(INTERNAL_ERROR_MSG);
         debug!(

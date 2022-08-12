@@ -77,7 +77,7 @@ use crate::util::{Id, Key};
 #[derive(Default, Debug, PartialEq, Eq)]
 pub struct ArgGroup<'help> {
     pub(crate) id: Id,
-    pub(crate) name: &'help str,
+    name: &'help str,
     pub(crate) args: Vec<Id>,
     pub(crate) required: bool,
     pub(crate) requires: Vec<Id>,
@@ -85,6 +85,7 @@ pub struct ArgGroup<'help> {
     pub(crate) multiple: bool,
 }
 
+/// # Builder
 impl<'help> ArgGroup<'help> {
     pub(crate) fn with_id(id: Id) -> Self {
         ArgGroup {
@@ -445,6 +446,15 @@ impl<'help> ArgGroup<'help> {
             self = self.conflicts_with(n);
         }
         self
+    }
+}
+
+/// # Reflection
+impl<'help> ArgGroup<'help> {
+    /// Get the name of the group
+    #[inline]
+    pub fn get_id(&self) -> &'help str {
+        self.name
     }
 }
 

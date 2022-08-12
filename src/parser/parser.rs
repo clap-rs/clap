@@ -630,7 +630,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!(
             "Parser::is_new_arg: {:?}:{:?}",
             next.to_value_os(),
-            current_positional.name
+            current_positional.get_id()
         );
 
         if self.cmd.is_allow_hyphen_values_set()
@@ -969,7 +969,9 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     ) -> ClapResult<ParseResult> {
         debug!(
             "Parser::parse_opt_value; arg={}, val={:?}, has_eq={:?}",
-            arg.name, attached_value, has_eq
+            arg.get_id(),
+            attached_value,
+            has_eq
         );
         debug!("Parser::parse_opt_value; arg.settings={:?}", arg.settings);
 
@@ -1357,7 +1359,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         debug!("Parser::add_defaults");
 
         for arg in self.cmd.get_arguments() {
-            debug!("Parser::add_defaults:iter:{}:", arg.name);
+            debug!("Parser::add_defaults:iter:{}:", arg.get_id());
             self.add_default_value(arg, matcher)?;
         }
 
@@ -1404,13 +1406,16 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         if !arg.default_vals.is_empty() {
             debug!(
                 "Parser::add_default_value:iter:{}: has default vals",
-                arg.name
+                arg.get_id()
             );
             if matcher.contains(&arg.id) {
-                debug!("Parser::add_default_value:iter:{}: was used", arg.name);
+                debug!("Parser::add_default_value:iter:{}: was used", arg.get_id());
             // do nothing
             } else {
-                debug!("Parser::add_default_value:iter:{}: wasn't used", arg.name);
+                debug!(
+                    "Parser::add_default_value:iter:{}: wasn't used",
+                    arg.get_id()
+                );
                 let arg_values: Vec<_> = arg
                     .default_vals
                     .iter()
@@ -1430,7 +1435,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         } else {
             debug!(
                 "Parser::add_default_value:iter:{}: doesn't have default vals",
-                arg.name
+                arg.get_id()
             );
 
             // do nothing

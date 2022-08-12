@@ -217,7 +217,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                 x.to_string()
             } else {
                 let mut s = '{'.to_string();
-                s.push_str(arg.name);
+                s.push_str(arg.get_id());
                 s
             };
             ord_v.push((arg.get_display_order(), key, arg));
@@ -294,7 +294,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
 
     /// Writes argument's possible values to the wrapped stream.
     fn val(&mut self, arg: &Arg<'help>) -> io::Result<()> {
-        debug!("Help::val: arg={}", arg.name);
+        debug!("Help::val: arg={}", arg.get_id());
         let mut need_closing_bracket = false;
         if arg.is_takes_value_set() && !arg.is_positional() {
             let is_optional_val = arg.get_min_vals() == 0;
@@ -335,7 +335,9 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
     ) -> io::Result<()> {
         debug!(
             "Help::align_to_about: arg={}, next_line_help={}, longest={}",
-            arg.name, next_line_help, longest
+            arg.get_id(),
+            next_line_help,
+            longest
         );
         if self.use_long || next_line_help {
             // long help prints messages on the next line so it doesn't need to align text
@@ -1101,7 +1103,11 @@ pub(crate) enum HelpWriter<'writer> {
 }
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
-    debug!("should_show_arg: use_long={:?}, arg={}", use_long, arg.name);
+    debug!(
+        "should_show_arg: use_long={:?}, arg={}",
+        use_long,
+        arg.get_id()
+    );
     if arg.is_hide_set() {
         return false;
     }

@@ -100,7 +100,10 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                     .get_positionals()
                     .find(|p| p.is_last_set())
                     .expect(INTERNAL_ERROR_MSG);
-                debug!("Usage::create_help_usage: '{}' has .last(true)", pos.name);
+                debug!(
+                    "Usage::create_help_usage: '{}' has .last(true)",
+                    pos.get_id()
+                );
                 let req = pos.is_required_set();
                 if req && self.cmd.get_positionals().any(|p| !p.is_required_set()) {
                     usage.push_str(" -- <");
@@ -192,9 +195,13 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             .filter(|pos| !pos.is_hide_set())
             .filter(|pos| !pos.is_last_set())
         {
-            debug!("Usage::get_args_tag:iter:{}", pos.name);
+            debug!("Usage::get_args_tag:iter:{}", pos.get_id());
             let required = self.cmd.groups_for_arg(&pos.id).any(|grp_s| {
-                debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
+                debug!(
+                    "Usage::get_args_tag:iter:{:?}:iter:{:?}",
+                    pos.get_id(),
+                    grp_s
+                );
                 // if it's part of a required group we don't want to count it
                 self.cmd.get_groups().any(|g| g.required && (g.id == grp_s))
             });
@@ -221,7 +228,11 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                         && !pos.is_hide_set()
                         && !pos.is_last_set()
                         && !self.cmd.groups_for_arg(&pos.id).any(|grp_s| {
-                            debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
+                            debug!(
+                                "Usage::get_args_tag:iter:{:?}:iter:{:?}",
+                                pos.get_id(),
+                                grp_s
+                            );
                             // if it's part of a required group we don't want to count it
                             self.cmd.get_groups().any(|g| g.required && (g.id == grp_s))
                         })
@@ -230,7 +241,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
 
             debug!(
                 "Usage::get_args_tag:iter: Exactly one, returning '{}'",
-                pos.name
+                pos.get_id()
             );
 
             Some(format!(
@@ -287,7 +298,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
     fn needs_options_tag(&self) -> bool {
         debug!("Usage::needs_options_tag");
         'outer: for f in self.cmd.get_non_positionals() {
-            debug!("Usage::needs_options_tag:iter: f={}", f.name);
+            debug!("Usage::needs_options_tag:iter: f={}", f.get_id());
 
             // Don't print `[OPTIONS]` just for help or version
             if f.long == Some("help") || f.long == Some("version") {
