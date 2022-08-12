@@ -14,7 +14,7 @@ use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
 use crate::builder::PossibleValue;
 use crate::builder::ValueRange;
-use crate::util::{Id, Key};
+use crate::util::Id;
 use crate::ArgAction;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
@@ -102,18 +102,18 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
-    pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        Arg::default().id(n)
+    pub fn new(id: impl Into<&'help str>) -> Self {
+        Arg::default().id(id)
     }
 
     /// Set the identifier used for referencing this argument in the clap API.
     ///
     /// See [`Arg::new`] for more details.
     #[must_use]
-    pub fn id<S: Into<&'help str>>(mut self, n: S) -> Self {
-        let name = n.into();
-        self.id = Id::from(name);
-        self.name = name;
+    pub fn id(mut self, id: impl Into<&'help str>) -> Self {
+        let id = id.into();
+        self.id = Id::from(id);
+        self.name = id;
         self
     }
 
@@ -660,8 +660,9 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
-        self.requires.push((ArgPredicate::IsPresent, arg_id.into()));
+    pub fn requires(mut self, arg_id: impl Into<&'help str>) -> Self {
+        self.requires
+            .push((ArgPredicate::IsPresent, arg_id.into().into()));
         self
     }
 
@@ -2442,8 +2443,8 @@ impl<'help> Arg<'help> {
     ///
     /// [`ArgGroup`]: crate::ArgGroup
     #[must_use]
-    pub fn group<T: Key>(mut self, group_id: T) -> Self {
-        self.groups.push(group_id.into());
+    pub fn group(mut self, group_id: impl Into<&'help str>) -> Self {
+        self.groups.push(group_id.into().into());
         self
     }
 
@@ -2456,7 +2457,7 @@ impl<'help> Arg<'help> {
     /// Arg::new("debug")
     ///     .long("debug")
     ///     .action(ArgAction::SetTrue)
-    ///     .groups(&["mode", "verbosity"])
+    ///     .groups(["mode", "verbosity"])
     /// # ;
     /// ```
     ///
@@ -2469,11 +2470,11 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
     ///         .action(ArgAction::SetTrue)
-    ///         .groups(&["mode", "verbosity"]))
+    ///         .groups(["mode", "verbosity"]))
     ///     .arg(Arg::new("verbose")
     ///         .long("verbose")
     ///         .action(ArgAction::SetTrue)
-    ///         .groups(&["mode", "verbosity"]))
+    ///         .groups(["mode", "verbosity"]))
     ///     .get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
@@ -2483,8 +2484,9 @@ impl<'help> Arg<'help> {
     ///
     /// [`ArgGroup`]: crate::ArgGroup
     #[must_use]
-    pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
-        self.groups.extend(group_ids.iter().map(Id::from));
+    pub fn groups(mut self, group_ids: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+        self.groups
+            .extend(group_ids.into_iter().map(|n| n.into().into()));
         self
     }
 
@@ -2601,9 +2603,9 @@ impl<'help> Arg<'help> {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value`]: Arg::default_value()
     #[must_use]
-    pub fn default_value_if<T: Key>(
+    pub fn default_value_if(
         self,
-        arg_id: T,
+        arg_id: impl Into<&'help str>,
         val: Option<&'help str>,
         default: Option<&'help str>,
     ) -> Self {
@@ -2616,14 +2618,14 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     /// [`OsStr`]: std::ffi::OsStr
     #[must_use]
-    pub fn default_value_if_os<T: Key>(
+    pub fn default_value_if_os(
         mut self,
-        arg_id: T,
+        arg_id: impl Into<&'help str>,
         val: Option<&'help OsStr>,
         default: Option<&'help OsStr>,
     ) -> Self {
         self.default_vals_ifs
-            .push((arg_id.into(), val.into(), default));
+            .push((arg_id.into().into(), val.into(), default));
         self
     }
 
@@ -2649,7 +2651,7 @@ impl<'help> Arg<'help> {
     ///         .action(ArgAction::Set))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_ifs(&[
+    ///         .default_value_ifs([
     ///             ("flag", Some("true"), Some("default")),
     ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
@@ -2670,7 +2672,7 @@ impl<'help> Arg<'help> {
     ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_ifs(&[
+    ///         .default_value_ifs([
     ///             ("flag", Some("true"), Some("default")),
     ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
@@ -2695,7 +2697,7 @@ impl<'help> Arg<'help> {
     ///         .action(ArgAction::Set))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_ifs(&[
+    ///         .default_value_ifs([
     ///             ("flag", None, Some("default")),
     ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
@@ -2708,9 +2710,15 @@ impl<'help> Arg<'help> {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[must_use]
-    pub fn default_value_ifs<T: Key>(
+    pub fn default_value_ifs(
         mut self,
-        ifs: &[(T, Option<&'help str>, Option<&'help str>)],
+        ifs: impl IntoIterator<
+            Item = (
+                impl Into<&'help str>,
+                Option<&'help str>,
+                Option<&'help str>,
+            ),
+        >,
     ) -> Self {
         for (arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val.map(OsStr::new), default.map(OsStr::new));
@@ -2724,12 +2732,18 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_ifs`]: Arg::default_value_ifs()
     /// [`OsStr`]: std::ffi::OsStr
     #[must_use]
-    pub fn default_value_ifs_os<T: Key>(
+    pub fn default_value_ifs_os(
         mut self,
-        ifs: &[(T, Option<&'help OsStr>, Option<&'help OsStr>)],
+        ifs: impl IntoIterator<
+            Item = (
+                impl Into<&'help str>,
+                Option<&'help OsStr>,
+                Option<&'help OsStr>,
+            ),
+        >,
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, *val, *default);
+            self = self.default_value_if_os(arg.into(), val, default);
         }
         self
     }
@@ -2788,8 +2802,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_unless_present<T: Key>(mut self, arg_id: T) -> Self {
-        self.r_unless.push(arg_id.into());
+    pub fn required_unless_present(mut self, arg_id: impl Into<&'help str>) -> Self {
+        self.r_unless.push(arg_id.into().into());
         self
     }
 
@@ -2807,7 +2821,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_present_all(&["cfg", "dbg"])
+    ///     .required_unless_present_all(["cfg", "dbg"])
     /// # ;
     /// ```
     ///
@@ -2818,7 +2832,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_present_all(&["dbg", "infile"])
+    ///         .required_unless_present_all(["dbg", "infile"])
     ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -2841,7 +2855,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_present_all(&["dbg", "infile"])
+    ///         .required_unless_present_all(["dbg", "infile"])
     ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -2861,12 +2875,12 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless_present_any`]: Arg::required_unless_present_any()
     /// [`Arg::required_unless_present_all(names)`]: Arg::required_unless_present_all()
     #[must_use]
-    pub fn required_unless_present_all<T, I>(mut self, names: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Key,
-    {
-        self.r_unless_all.extend(names.into_iter().map(Id::from));
+    pub fn required_unless_present_all(
+        mut self,
+        names: impl IntoIterator<Item = impl Into<&'help str>>,
+    ) -> Self {
+        self.r_unless_all
+            .extend(names.into_iter().map(|n| n.into().into()));
         self
     }
 
@@ -2884,7 +2898,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_present_any(&["cfg", "dbg"])
+    ///     .required_unless_present_any(["cfg", "dbg"])
     /// # ;
     /// ```
     ///
@@ -2897,7 +2911,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_present_any(&["dbg", "infile"])
+    ///         .required_unless_present_any(["dbg", "infile"])
     ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -2920,7 +2934,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_present_any(&["dbg", "infile"])
+    ///         .required_unless_present_any(["dbg", "infile"])
     ///         .action(ArgAction::Set)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -2940,12 +2954,12 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless_present_any(names)`]: Arg::required_unless_present_any()
     /// [`Arg::required_unless_present_all`]: Arg::required_unless_present_all()
     #[must_use]
-    pub fn required_unless_present_any<T, I>(mut self, names: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Key,
-    {
-        self.r_unless.extend(names.into_iter().map(Id::from));
+    pub fn required_unless_present_any(
+        mut self,
+        names: impl IntoIterator<Item = impl Into<&'help str>>,
+    ) -> Self {
+        self.r_unless
+            .extend(names.into_iter().map(|n| n.into().into()));
         self
     }
 
@@ -3029,8 +3043,8 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
-        self.r_ifs.push((arg_id.into(), val));
+    pub fn required_if_eq(mut self, arg_id: impl Into<&'help str>, val: &'help str) -> Self {
+        self.r_ifs.push((arg_id.into().into(), val));
         self
     }
 
@@ -3044,7 +3058,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_if_eq_any(&[
+    ///     .required_if_eq_any([
     ///         ("extra", "val"),
     ///         ("option", "spec")
     ///     ])
@@ -3059,7 +3073,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_if_eq_any(&[
+    ///         .required_if_eq_any([
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
@@ -3085,7 +3099,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_if_eq_any(&[
+    ///         .required_if_eq_any([
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
@@ -3108,9 +3122,12 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq_any<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
+    pub fn required_if_eq_any(
+        mut self,
+        ifs: impl IntoIterator<Item = (impl Into<&'help str>, &'help str)>,
+    ) -> Self {
         self.r_ifs
-            .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into().into(), val)));
         self
     }
 
@@ -3124,7 +3141,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_if_eq_all(&[
+    ///     .required_if_eq_all([
     ///         ("extra", "val"),
     ///         ("option", "spec")
     ///     ])
@@ -3139,7 +3156,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_if_eq_all(&[
+    ///         .required_if_eq_all([
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
@@ -3165,7 +3182,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_if_eq_all(&[
+    ///         .required_if_eq_all([
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
@@ -3186,9 +3203,12 @@ impl<'help> Arg<'help> {
     /// ```
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq_all<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
+    pub fn required_if_eq_all(
+        mut self,
+        ifs: impl IntoIterator<Item = (impl Into<&'help str>, &'help str)>,
+    ) -> Self {
         self.r_ifs_all
-            .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into().into(), val)));
         self
     }
 
@@ -3248,9 +3268,9 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
+    pub fn requires_if(mut self, val: &'help str, arg_id: impl Into<&'help str>) -> Self {
         self.requires
-            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into()));
+            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into().into()));
         self
     }
 
@@ -3263,7 +3283,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .requires_ifs(&[
+    ///     .requires_ifs([
     ///         ("val", "arg"),
     ///         ("other_val", "arg2"),
     ///     ])
@@ -3279,7 +3299,7 @@ impl<'help> Arg<'help> {
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
-    ///         .requires_ifs(&[
+    ///         .requires_ifs([
     ///             ("special.conf", "opt"),
     ///             ("other.conf", "other"),
     ///         ])
@@ -3299,10 +3319,13 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
+    pub fn requires_ifs(
+        mut self,
+        ifs: impl IntoIterator<Item = (&'help str, impl Into<&'help str>)>,
+    ) -> Self {
         self.requires.extend(
-            ifs.iter()
-                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(*val)), Id::from(arg))),
+            ifs.into_iter()
+                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(val)), arg.into().into())),
         );
         self
     }
@@ -3319,7 +3342,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .requires_all(&["input", "output"])
+    ///     .requires_all(["input", "output"])
     /// # ;
     /// ```
     ///
@@ -3351,7 +3374,7 @@ impl<'help> Arg<'help> {
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
-    ///         .requires_all(&["input", "output"])
+    ///         .requires_all(["input", "output"])
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
     ///     .arg(Arg::new("output"))
@@ -3366,9 +3389,12 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
-        self.requires
-            .extend(names.iter().map(|s| (ArgPredicate::IsPresent, s.into())));
+    pub fn requires_all(mut self, names: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+        self.requires.extend(
+            names
+                .into_iter()
+                .map(|s| (ArgPredicate::IsPresent, s.into().into())),
+        );
         self
     }
 
@@ -3417,8 +3443,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
-    pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
-        self.blacklist.push(arg_id.into());
+    pub fn conflicts_with(mut self, arg_id: impl Into<&'help str>) -> Self {
+        self.blacklist.push(arg_id.into().into());
         self
     }
 
@@ -3440,7 +3466,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .conflicts_with_all(&["debug", "input"])
+    ///     .conflicts_with_all(["debug", "input"])
     /// # ;
     /// ```
     ///
@@ -3452,7 +3478,7 @@ impl<'help> Arg<'help> {
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
-    ///         .conflicts_with_all(&["debug", "input"])
+    ///         .conflicts_with_all(["debug", "input"])
     ///         .long("config"))
     ///     .arg(Arg::new("debug")
     ///         .long("debug"))
@@ -3467,8 +3493,12 @@ impl<'help> Arg<'help> {
     /// [`Arg::conflicts_with`]: Arg::conflicts_with()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
-    pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
-        self.blacklist.extend(names.iter().copied().map(Id::from));
+    pub fn conflicts_with_all(
+        mut self,
+        names: impl IntoIterator<Item = impl Into<&'help str>>,
+    ) -> Self {
+        self.blacklist
+            .extend(names.into_iter().map(|n| n.into().into()));
         self
     }
 
@@ -3505,8 +3535,8 @@ impl<'help> Arg<'help> {
     /// assert!(!*m.get_one::<bool>("flag").unwrap());
     /// ```
     #[must_use]
-    pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
-        self.overrides.push(arg_id.into());
+    pub fn overrides_with(mut self, arg_id: impl Into<&'help str>) -> Self {
+        self.overrides.push(arg_id.into().into());
         self
     }
 
@@ -3529,7 +3559,7 @@ impl<'help> Arg<'help> {
     ///         .conflicts_with("color"))
     ///     .arg(arg!(-d --debug "other flag"))
     ///     .arg(arg!(-c --color "third flag")
-    ///         .overrides_with_all(&["flag", "debug"]))
+    ///         .overrides_with_all(["flag", "debug"]))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
     ///             //    ^~~~~~^~~~~~~~~ flag and debug are overridden by color
@@ -3541,8 +3571,12 @@ impl<'help> Arg<'help> {
     /// assert!(!*m.get_one::<bool>("flag").unwrap());
     /// ```
     #[must_use]
-    pub fn overrides_with_all<T: Key>(mut self, names: &[T]) -> Self {
-        self.overrides.extend(names.iter().map(Id::from));
+    pub fn overrides_with_all(
+        mut self,
+        names: impl IntoIterator<Item = impl Into<&'help str>>,
+    ) -> Self {
+        self.overrides
+            .extend(names.into_iter().map(|n| n.into().into()));
         self
     }
 }
@@ -3965,7 +3999,7 @@ impl<'help> Arg<'help> {
 
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
-        debug!("Arg::name_no_brackets:{}", self.name);
+        debug!("Arg::name_no_brackets:{}", self.get_id());
         let delim = " ";
         if !self.val_names.is_empty() {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
@@ -3983,7 +4017,7 @@ impl<'help> Arg<'help> {
             }
         } else {
             debug!("Arg::name_no_brackets: just name");
-            Cow::Borrowed(self.name)
+            Cow::Borrowed(self.get_id())
         }
     }
 
@@ -4005,7 +4039,7 @@ impl<'help> From<&'_ Arg<'help>> for Arg<'help> {
 
 impl<'help> PartialEq for Arg<'help> {
     fn eq(&self, other: &Arg<'help>) -> bool {
-        self.name == other.name
+        self.get_id() == other.get_id()
     }
 }
 
@@ -4017,7 +4051,7 @@ impl<'help> PartialOrd for Arg<'help> {
 
 impl<'help> Ord for Arg<'help> {
     fn cmp(&self, other: &Arg) -> Ordering {
-        self.name.cmp(other.name)
+        self.get_id().cmp(other.get_id())
     }
 }
 
@@ -4121,7 +4155,7 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let arg_name_storage;
     let val_names = if arg.val_names.is_empty() {
-        arg_name_storage = [arg.name];
+        arg_name_storage = [arg.get_id()];
         &arg_name_storage
     } else {
         arg.val_names.as_slice()

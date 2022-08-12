@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   built-in flags and be copied to all subcommands, instead disable
   the built-in flags (`Command::disable_help_flag`,
   `Command::disable_version_flag`) and mark the custom flags as `global(true)`.
+- Various `Arg`, `Command`, and `ArgGroup` calls were switched from accepting `&[]` to `[]` via `IntoIterator`
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)

@@ -20,7 +20,7 @@ use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
-use crate::util::{color::ColorChoice, Id, Key};
+use crate::util::{color::ColorChoice, Id};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]
@@ -230,10 +230,9 @@ impl<'help> Command<'help> {
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
-    pub fn mut_arg<T, F>(mut self, arg_id: T, f: F) -> Self
+    pub fn mut_arg<F>(mut self, arg_id: impl Into<&'help str>, f: F) -> Self
     where
         F: FnOnce(Arg<'help>) -> Arg<'help>,
-        T: Key + Into<&'help str>,
     {
         let arg_id: &str = arg_id.into();
         let id = Id::from(arg_id);
@@ -315,7 +314,7 @@ impl<'help> Command<'help> {
     ///     .arg(arg!("--minor 'auto increase minor'"))
     ///     .arg(arg!("--patch 'auto increase patch'"))
     ///     .group(ArgGroup::new("vers")
-    ///          .args(&["set-ver", "major", "minor","patch"])
+    ///          .args(["set-ver", "major", "minor","patch"])
     ///          .required(true))
     /// # ;
     /// ```
@@ -341,10 +340,10 @@ impl<'help> Command<'help> {
     ///     .arg(arg!("-i [IFACE]      'an interface'"))
     ///     .groups(&[
     ///         ArgGroup::new("vers")
-    ///             .args(&["set-ver", "major", "minor","patch"])
+    ///             .args(["set-ver", "major", "minor","patch"])
     ///             .required(true),
     ///         ArgGroup::new("input")
-    ///             .args(&["c", "i"])
+    ///             .args(["c", "i"])
     ///     ])
     /// # ;
     /// ```
@@ -4022,9 +4021,9 @@ impl<'help> Command<'help> {
 
     // just in case
     #[allow(unused)]
-    fn two_groups_of<F>(&self, condition: F) -> Option<(&ArgGroup, &ArgGroup)>
+    fn two_groups_of<F>(&self, condition: F) -> Option<(&ArgGroup<'help>, &ArgGroup<'help>)>
     where
-        F: Fn(&ArgGroup) -> bool,
+        F: Fn(&ArgGroup<'help>) -> bool,
     {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
     }

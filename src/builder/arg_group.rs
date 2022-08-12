@@ -1,5 +1,5 @@
 // Internal
-use crate::util::{Id, Key};
+use crate::util::Id;
 
 /// Family of related [arguments].
 ///
@@ -41,7 +41,7 @@ use crate::util::{Id, Key};
 ///     .arg(arg!(--minor           "auto increase minor"))
 ///     .arg(arg!(--patch           "auto increase patch"))
 ///     .group(ArgGroup::new("vers")
-///          .args(&["set-ver", "major", "minor", "patch"])
+///          .args(["set-ver", "major", "minor", "patch"])
 ///          .required(true))
 ///     .try_get_matches_from(vec!["cmd", "--major", "--patch"]);
 /// // Because we used two args in the group it's an error
@@ -59,7 +59,7 @@ use crate::util::{Id, Key};
 ///     .arg(arg!(--minor           "auto increase minor"))
 ///     .arg(arg!(--patch           "auto increase patch"))
 ///     .group(ArgGroup::new("vers")
-///          .args(&["set-ver", "major", "minor","patch"])
+///          .args(["set-ver", "major", "minor","patch"])
 ///          .required(true))
 ///     .try_get_matches_from(vec!["cmd", "--major"]);
 /// assert!(result.is_ok());
@@ -74,7 +74,7 @@ use crate::util::{Id, Key};
 /// [arguments]: crate::Arg
 /// [conflict]: crate::Arg::conflicts_with()
 /// [requirement]: crate::Arg::requires()
-#[derive(Default, Debug, PartialEq, Eq)]
+#[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub struct ArgGroup<'help> {
     pub(crate) id: Id,
     name: &'help str,
@@ -106,8 +106,8 @@ impl<'help> ArgGroup<'help> {
     /// ArgGroup::new("config")
     /// # ;
     /// ```
-    pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        ArgGroup::default().id(n)
+    pub fn new(id: impl Into<&'help str>) -> Self {
+        ArgGroup::default().id(id)
     }
 
     /// Sets the group name.
@@ -120,9 +120,10 @@ impl<'help> ArgGroup<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn id<S: Into<&'help str>>(mut self, n: S) -> Self {
-        self.name = n.into();
-        self.id = Id::from(self.name);
+    pub fn id(mut self, id: impl Into<&'help str>) -> Self {
+        let id = id.into();
+        self.id = id.into();
+        self.name = id;
         self
     }
 
@@ -150,8 +151,8 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [argument]: crate::Arg
     #[must_use]
-    pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
-        self.args.push(arg_id.into());
+    pub fn arg(mut self, arg_id: impl Into<&'help str>) -> Self {
+        self.args.push(arg_id.into().into());
         self
     }
 
@@ -169,7 +170,7 @@ impl<'help> ArgGroup<'help> {
     ///         .short('c')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"]))
+    ///         .args(["flag", "color"]))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
     /// assert!(m.contains_id("req_flags"));
@@ -178,7 +179,7 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [arguments]: crate::Arg
     #[must_use]
-    pub fn args<T: Key>(mut self, ns: &[T]) -> Self {
+    pub fn args(mut self, ns: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
         for n in ns {
             self = self.arg(n);
         }
@@ -202,7 +203,7 @@ impl<'help> ArgGroup<'help> {
     ///         .short('c')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"])
+    ///         .args(["flag", "color"])
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myprog", "-f", "-c"]);
     /// // maybe we don't know which of the two flags was used...
@@ -221,7 +222,7 @@ impl<'help> ArgGroup<'help> {
     ///         .short('c')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"]))
+    ///         .args(["flag", "color"]))
     ///     .try_get_matches_from(vec!["myprog", "-f", "-c"]);
     /// // Because we used both args in the group it's an error
     /// assert!(result.is_err());
@@ -262,7 +263,7 @@ impl<'help> ArgGroup<'help> {
     ///         .short('c')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"])
+    ///         .args(["flag", "color"])
     ///         .required(true))
     ///     .try_get_matches_from(vec!["myprog"]);
     /// // Because we didn't use any of the args in the group, it's an error
@@ -304,7 +305,7 @@ impl<'help> ArgGroup<'help> {
     ///         .short('d')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"])
+    ///         .args(["flag", "color"])
     ///         .requires("debug"))
     ///     .try_get_matches_from(vec!["myprog", "-c"]);
     /// // because we used an arg from the group, and the group requires "-d" to be used, it's an
@@ -316,8 +317,8 @@ impl<'help> ArgGroup<'help> {
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires()
     #[must_use]
-    pub fn requires<T: Key>(mut self, id: T) -> Self {
-        self.requires.push(id.into());
+    pub fn requires(mut self, id: impl Into<&'help str>) -> Self {
+        self.requires.push(id.into().into());
         self
     }
 
@@ -347,8 +348,8 @@ impl<'help> ArgGroup<'help> {
     ///         .short('v')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"])
-    ///         .requires_all(&["debug", "verb"]))
+    ///         .args(["flag", "color"])
+    ///         .requires_all(["debug", "verb"]))
     ///     .try_get_matches_from(vec!["myprog", "-c", "-d"]);
     /// // because we used an arg from the group, and the group requires "-d" and "-v" to be used,
     /// // yet we only used "-d" it's an error
@@ -359,7 +360,7 @@ impl<'help> ArgGroup<'help> {
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires_all()
     #[must_use]
-    pub fn requires_all(mut self, ns: &[&'help str]) -> Self {
+    pub fn requires_all(mut self, ns: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -389,7 +390,7 @@ impl<'help> ArgGroup<'help> {
     ///         .short('d')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"])
+    ///         .args(["flag", "color"])
     ///         .conflicts_with("debug"))
     ///     .try_get_matches_from(vec!["myprog", "-c", "-d"]);
     /// // because we used an arg from the group, and the group conflicts with "-d", it's an error
@@ -399,8 +400,8 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [argument exclusion rules]: crate::Arg::conflicts_with()
     #[must_use]
-    pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
-        self.conflicts.push(id.into());
+    pub fn conflicts_with(mut self, id: impl Into<&'help str>) -> Self {
+        self.conflicts.push(id.into().into());
         self
     }
 
@@ -429,8 +430,8 @@ impl<'help> ArgGroup<'help> {
     ///         .short('v')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(&["flag", "color"])
-    ///         .conflicts_with_all(&["debug", "verb"]))
+    ///         .args(["flag", "color"])
+    ///         .conflicts_with_all(["debug", "verb"]))
     ///     .try_get_matches_from(vec!["myprog", "-c", "-v"]);
     /// // because we used an arg from the group, and the group conflicts with either "-v" or "-d"
     /// // it's an error
@@ -441,7 +442,10 @@ impl<'help> ArgGroup<'help> {
     ///
     /// [argument exclusion rules]: crate::Arg::conflicts_with_all()
     #[must_use]
-    pub fn conflicts_with_all(mut self, ns: &[&'help str]) -> Self {
+    pub fn conflicts_with_all(
+        mut self,
+        ns: impl IntoIterator<Item = impl Into<&'help str>>,
+    ) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
@@ -459,54 +463,32 @@ impl<'help> ArgGroup<'help> {
 }
 
 impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
-    fn from(g: &ArgGroup<'help>) -> Self {
-        ArgGroup {
-            id: g.id.clone(),
-            name: g.name,
-            required: g.required,
-            args: g.args.clone(),
-            requires: g.requires.clone(),
-            conflicts: g.conflicts.clone(),
-            multiple: g.multiple,
-        }
-    }
-}
-
-impl Clone for ArgGroup<'_> {
-    fn clone(&self) -> Self {
-        ArgGroup {
-            id: self.id.clone(),
-            name: self.name,
-            required: self.required,
-            args: self.args.clone(),
-            requires: self.requires.clone(),
-            conflicts: self.conflicts.clone(),
-            multiple: self.multiple,
-        }
+    fn from(g: &Self) -> Self {
+        g.clone()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::ArgGroup;
+    use super::*;
 
     #[test]
     fn groups() {
         let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
-            .args(&["a2", "a3"])
+            .args(["a2", "a3"])
             .required(true)
             .conflicts_with("c1")
-            .conflicts_with_all(&["c2", "c3"])
+            .conflicts_with_all(["c2", "c3"])
             .conflicts_with("c4")
             .requires("r1")
-            .requires_all(&["r2", "r3"])
+            .requires_all(["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
-        let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
-        let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
+        let args: Vec<Id> = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
+        let reqs: Vec<Id> = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
+        let confs: Vec<Id> = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
 
         assert_eq!(g.args, args);
         assert_eq!(g.requires, reqs);
@@ -518,18 +500,18 @@ mod test {
         let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
-            .args(&["a2", "a3"])
+            .args(["a2", "a3"])
             .required(true)
             .conflicts_with("c1")
-            .conflicts_with_all(&["c2", "c3"])
+            .conflicts_with_all(["c2", "c3"])
             .conflicts_with("c4")
             .requires("r1")
-            .requires_all(&["r2", "r3"])
+            .requires_all(["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
-        let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
-        let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
+        let args: Vec<Id> = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
+        let reqs: Vec<Id> = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
+        let confs: Vec<Id> = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
 
         let g2 = ArgGroup::from(&g);
         assert_eq!(g2.args, args);

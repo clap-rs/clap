@@ -38,16 +38,6 @@ precomputed_hashes! {
     version_hash, 0x30FF_0B7C_4D07_9478, "version";
 }
 
-impl Id {
-    pub(crate) fn from_ref<T: Key>(val: T) -> Self {
-        Id {
-            #[cfg(debug_assertions)]
-            name: val.to_string(),
-            id: val.key(),
-        }
-    }
-}
-
 impl Debug for Id {
     fn fmt(&self, f: &mut Formatter) -> Result {
         #[cfg(debug_assertions)]
