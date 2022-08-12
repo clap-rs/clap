@@ -1451,7 +1451,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
         matcher.start_custom_arg(arg, source);
         for group in self.cmd.groups_for_arg(&arg.id) {
-            matcher.start_custom_group(&group, source);
+            matcher.start_custom_group(group, source);
         }
     }
 
@@ -1463,7 +1463,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         matcher.start_occurrence_of_arg(arg);
         // Increment or create the group "args"
         for group in self.cmd.groups_for_arg(&arg.id) {
-            matcher.start_occurrence_of_group(&group);
+            matcher.start_occurrence_of_group(group);
         }
     }
 }
