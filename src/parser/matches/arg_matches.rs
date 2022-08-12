@@ -269,7 +269,7 @@ impl ArgMatches {
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         id: &str,
-    ) -> Option<Values2<T>> {
+    ) -> Option<Values<T>> {
         MatchesError::unwrap(id, self.try_remove_many(id))
     }
 
@@ -916,14 +916,14 @@ impl ArgMatches {
     pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         id: &str,
-    ) -> Result<Option<Values2<T>>, MatchesError> {
+    ) -> Result<Option<Values<T>>, MatchesError> {
         let arg = match self.try_remove_arg_t::<T>(id)? {
             Some(arg) => arg,
             None => return Ok(None),
         };
         let len = arg.num_vals();
         let values = arg.into_vals_flatten();
-        let values = Values2 {
+        let values = Values {
             // enforced by `try_get_arg_t`
             iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
             len,
@@ -1086,13 +1086,13 @@ pub(crate) struct SubCommand {
 /// assert_eq!(values.next(), None);
 /// ```
 #[derive(Clone, Debug)]
-pub struct Values2<T> {
+pub struct Values<T> {
     #[allow(clippy::type_complexity)]
     iter: Map<Flatten<std::vec::IntoIter<Vec<AnyValue>>>, fn(AnyValue) -> T>,
     len: usize,
 }
 
-impl<T> Iterator for Values2<T> {
+impl<T> Iterator for Values<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -1103,19 +1103,19 @@ impl<T> Iterator for Values2<T> {
     }
 }
 
-impl<T> DoubleEndedIterator for Values2<T> {
+impl<T> DoubleEndedIterator for Values<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back()
     }
 }
 
-impl<T> ExactSizeIterator for Values2<T> {}
+impl<T> ExactSizeIterator for Values<T> {}
 
 /// Creates an empty iterator.
-impl<T> Default for Values2<T> {
+impl<T> Default for Values<T> {
     fn default() -> Self {
         let empty: Vec<Vec<AnyValue>> = Default::default();
-        Values2 {
+        Values {
             iter: empty.into_iter().flatten().map(|_| unreachable!()),
             len: 0,
         }
