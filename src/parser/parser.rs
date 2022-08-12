@@ -628,7 +628,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         #![allow(clippy::needless_bool)] // Prefer consistent if/else-if ladder
 
         debug!(
-            "Parser::is_new_arg: {:?}:{:?}",
+            "Parser::is_new_arg: {:?}:{}",
             next.to_value_os(),
             current_positional.get_id()
         );
