@@ -108,6 +108,7 @@ pub use crate::util::color::ColorChoice;
 #[cfg(not(feature = "color"))]
 #[allow(unused_imports)]
 pub(crate) use crate::util::color::ColorChoice;
+pub use crate::util::Id;
 
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 
