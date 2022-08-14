@@ -6,7 +6,7 @@ enum Mode {
     Slow,
 }
 
-// Can also be derived] with feature flag `derive`
+// Can also be derived with feature flag `derive`
 impl ValueEnum for Mode {
     fn value_variants<'a>() -> &'a [Self] {
         &[Mode::Fast, Mode::Slow]
