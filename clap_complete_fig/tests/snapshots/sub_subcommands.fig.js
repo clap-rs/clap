@@ -58,11 +58,22 @@ const completion: Fig.Spec = {
         {
           name: "help",
           description: "Print this message or the help of the given subcommand(s)",
-          args: {
-            name: "subcommand",
-            isVariadic: true,
-            isOptional: true,
-          },
+          subcommands: [
+            {
+              name: "sub_cmd",
+              description: "sub-subcommand",
+            },
+            {
+              name: "help",
+              description: "Print this message or the help of the given subcommand(s)",
+              options: [
+                {
+                  name: ["-h", "--help"],
+                  description: "Print help information",
+                },
+              ],
+            },
+          ],
         },
       ],
       options: [
@@ -79,11 +90,26 @@ const completion: Fig.Spec = {
     {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
-      args: {
-        name: "subcommand",
-        isVariadic: true,
-        isOptional: true,
-      },
+      subcommands: [
+        {
+          name: "test",
+          description: "tests things",
+        },
+        {
+          name: "some_cmd",
+          description: "top level subcommand",
+        },
+        {
+          name: "help",
+          description: "Print this message or the help of the given subcommand(s)",
+          options: [
+            {
+              name: ["-h", "--help"],
+              description: "Print help information",
+            },
+          ],
+        },
+      ],
     },
   ],
   options: [

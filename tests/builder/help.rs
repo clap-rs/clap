@@ -2062,14 +2062,18 @@ fn help_subcmd_help() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    myapp help [SUBCOMMAND]...
+    myapp help [SUBCOMMAND]
 
-ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+SUBCOMMANDS:
+    subcmd    This is a subcommand
+    help      Print this message or the help of the given subcommand(s)
 ";
 
-    let cmd = Command::new("myapp")
-        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+    let cmd = Command::new("myapp").subcommand(
+        Command::new("subcmd")
+            .about("This is a subcommand")
+            .subcommand(Command::new("multi").version("1.0")),
+    );
 
     utils::assert_output(cmd.clone(), "myapp help help", HELP_SUBCMD_HELP, false);
 }
@@ -2080,10 +2084,11 @@ fn subcmd_help_subcmd_help() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    myapp subcmd help [SUBCOMMAND]...
+    myapp subcmd help [SUBCOMMAND]
 
-ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+SUBCOMMANDS:
+    multi\x20\x20\x20\x20
+    help     Print this message or the help of the given subcommand(s)
 ";
 
     let cmd = Command::new("myapp")
@@ -2566,10 +2571,11 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    example help [SUBCOMMAND]...
+    example help [SUBCOMMAND]
 
-ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+SUBCOMMANDS:
+    test    Subcommand
+    help    Print this message or the help of the given subcommand(s)
 ",
         false,
     );
@@ -2609,10 +2615,11 @@ fn dont_propagate_version_to_help_subcommand() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    example help [SUBCOMMAND]...
+    example help [SUBCOMMAND]
 
-ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+SUBCOMMANDS:
+    subcommand\x20\x20\x20\x20
+    help          Print this message or the help of the given subcommand(s)
 ",
         false,
     );

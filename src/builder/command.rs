@@ -4109,15 +4109,23 @@ impl<'help> Command<'help> {
 
         if !self.is_set(AppSettings::DisableHelpSubcommand) {
             debug!("Command::_check_help_and_version: Building help subcommand");
+            let help_about = "Print this message or the help of the given subcommand(s)";
             let mut help_subcmd = Command::new("help")
-                .about("Print this message or the help of the given subcommand(s)")
-                .arg(
-                    Arg::new("subcommand")
-                        .action(ArgAction::Append)
-                        .num_args(..)
-                        .value_name("SUBCOMMAND")
-                        .help("The subcommand whose help message to display"),
-                );
+                .about(help_about)
+                // help can take all other subcommands, including help, as a subcommand
+                .subcommands(
+                    self.get_subcommands()
+                        .filter(|sc| !sc.is_disable_help_flag_set())
+                        .map(|sc| {
+                            Command::new(sc.get_name())
+                                .about(sc.get_about())
+                                .setting(AppSettings::DisableHelpFlag)
+                                .setting(AppSettings::DisableVersionFlag)
+                                .global_setting(AppSettings::DisableHelpSubcommand)
+                                .unset_global_setting(AppSettings::PropagateVersion)
+                        }),
+                )
+                .subcommand(Command::new("help").about(help_about));
             self._propagate_subcommand(&mut help_subcmd);
 
             // The parser acts like this is set, so let's set it so we don't falsely
@@ -4127,6 +4135,7 @@ impl<'help> Command<'help> {
             help_subcmd = help_subcmd
                 .setting(AppSettings::DisableHelpFlag)
                 .setting(AppSettings::DisableVersionFlag)
+                .global_setting(AppSettings::DisableHelpSubcommand)
                 .unset_global_setting(AppSettings::PropagateVersion);
 
             self.subcommands.push(help_subcmd);

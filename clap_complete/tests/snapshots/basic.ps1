@@ -38,6 +38,18 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
         }
         'my-app;help' {
             [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Subcommand')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'my-app;help;test' {
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
+            break
+        }
+        'my-app;help;help' {
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
             break
         }
     })

@@ -201,6 +201,11 @@ mod tests {
                 ("help".to_string(), "my-cmd help".to_string()),
                 ("config".to_string(), "my-cmd test config".to_string()),
                 ("help".to_string(), "my-cmd test help".to_string()),
+                ("config".to_string(), "my-cmd test help config".to_string()),
+                ("help".to_string(), "my-cmd test help help".to_string()),
+                ("test".to_string(), "my-cmd help test".to_string()),
+                ("hello".to_string(), "my-cmd help hello".to_string()),
+                ("help".to_string(), "my-cmd help help".to_string()),
             ]
         );
     }
