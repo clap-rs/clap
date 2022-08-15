@@ -4,9 +4,11 @@ mod flat_map;
 mod flat_set;
 mod graph;
 mod id;
+mod str;
 mod str_to_bool;
 
 pub use self::id::Id;
+pub use self::str::Str;
 
 pub(crate) use self::flat_map::Entry;
 pub(crate) use self::flat_map::FlatMap;
