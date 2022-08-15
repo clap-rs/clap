@@ -29,7 +29,7 @@ fn multiple_short_aliases_of_option() {
             .long("aliases")
             .action(ArgAction::Set)
             .help("multiple aliases")
-            .short_aliases(&['1', '2', '3']),
+            .short_aliases(['1', '2', '3']),
     );
     let long = a
         .clone()
@@ -99,7 +99,7 @@ fn multiple_short_aliases_of_flag() {
     let a = Command::new("test").arg(
         Arg::new("flag")
             .long("flag")
-            .short_aliases(&['a', 'b', 'c', 'd', 'e'])
+            .short_aliases(['a', 'b', 'c', 'd', 'e'])
             .action(ArgAction::SetTrue),
     );
 
@@ -141,7 +141,7 @@ fn short_alias_on_a_subcommand_option() {
         .arg(
             Arg::new("other")
                 .long("other")
-                .short_aliases(&['1', '2', '3']),
+                .short_aliases(['1', '2', '3']),
         )
         .try_get_matches_from(vec!["test", "some", "-o", "awesome"])
         .unwrap();
@@ -179,9 +179,9 @@ OPTIONS:
                     .long("opt")
                     .short('o')
                     .action(ArgAction::Set)
-                    .short_aliases(&['a', 'b', 'c']),
+                    .short_aliases(['a', 'b', 'c']),
             )
-            .arg(arg!(-f - -flag).short_aliases(&['x', 'y', 'z'])),
+            .arg(arg!(-f - -flag).short_aliases(['x', 'y', 'z'])),
     );
     utils::assert_output(cmd, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false);
 }
@@ -219,7 +219,7 @@ OPTIONS:
                     .short('f')
                     .action(ArgAction::SetTrue)
                     .visible_alias("flag1")
-                    .visible_short_aliases(&['a', 'b', '🦆']),
+                    .visible_short_aliases(['a', 'b', '🦆']),
             ),
     );
     utils::assert_output(cmd, "ct test --help", SC_VISIBLE_ALIAS_HELP, false);

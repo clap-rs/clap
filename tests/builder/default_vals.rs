@@ -675,7 +675,7 @@ fn multiple_defaults() {
             Arg::new("files")
                 .long("files")
                 .num_args(2)
-                .default_values(&["old", "new"]),
+                .default_values(["old", "new"]),
         )
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -694,7 +694,7 @@ fn multiple_defaults_override() {
             Arg::new("files")
                 .long("files")
                 .num_args(2)
-                .default_values(&["old", "new"]),
+                .default_values(["old", "new"]),
         )
         .try_get_matches_from(vec!["", "--files", "other", "mine"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -873,7 +873,7 @@ fn missing_with_value_delimiter() {
             .long("option")
             .value_delimiter(';')
             .num_args(0..=1)
-            .default_missing_values(&["value1;value2;value3", "value4;value5"]),
+            .default_missing_values(["value1;value2;value3", "value4;value5"]),
     );
 
     let matches = cmd

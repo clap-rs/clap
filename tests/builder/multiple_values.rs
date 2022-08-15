@@ -1454,7 +1454,7 @@ fn value_names_building_num_vals() {
         .arg(
             Arg::new("pos")
                 .long("pos")
-                .value_names(&["who", "what", "why"]),
+                .value_names(["who", "what", "why"]),
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
@@ -1473,7 +1473,7 @@ fn value_names_building_num_vals() {
 #[test]
 fn value_names_building_num_vals_for_positional() {
     let m = Command::new("test")
-        .arg(Arg::new("pos").value_names(&["who", "what", "why"]))
+        .arg(Arg::new("pos").value_names(["who", "what", "why"]))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
@@ -1495,7 +1495,7 @@ fn num_args_preferred_over_value_names() {
             Arg::new("pos")
                 .long("pos")
                 .num_args(4)
-                .value_names(&["who", "what", "why"]),
+                .value_names(["who", "what", "why"]),
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3", "val4"]);
 
