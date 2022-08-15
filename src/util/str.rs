@@ -70,6 +70,30 @@ impl From<&'_ &'static str> for Str {
     }
 }
 
+impl From<Str> for String {
+    fn from(name: Str) -> Self {
+        name.name.into_string()
+    }
+}
+
+impl From<Str> for Vec<u8> {
+    fn from(name: Str) -> Self {
+        String::from(name).into()
+    }
+}
+
+impl From<Str> for std::ffi::OsString {
+    fn from(name: Str) -> Self {
+        String::from(name).into()
+    }
+}
+
+impl From<Str> for std::path::PathBuf {
+    fn from(name: Str) -> Self {
+        String::from(name).into()
+    }
+}
+
 impl std::fmt::Display for Str {
     #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -204,6 +228,13 @@ impl Inner {
         match self {
             Self::Static(s) => s,
             Self::Owned(s) => s.as_ref(),
+        }
+    }
+
+    fn into_string(self) -> String {
+        match self {
+            Self::Static(s) => String::from(s),
+            Self::Owned(s) => String::from(s),
         }
     }
 }

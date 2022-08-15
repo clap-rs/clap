@@ -36,7 +36,7 @@ pub fn assert_output(l: Command, args: &str, expected: &str, stderr: bool) {
 
 // Legacy tests from the python script days
 
-pub fn complex_app() -> Command<'static> {
+pub fn complex_app() -> Command {
     let opt3_vals = ["fast", "slow"];
     let pos3_vals = ["vi", "emacs"];
 

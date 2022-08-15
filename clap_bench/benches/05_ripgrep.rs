@@ -270,12 +270,12 @@ OPTIONS:
 {options}";
 
 /// Build a clap application with short help strings.
-fn app_short() -> Command<'static> {
+fn app_short() -> Command {
     cmd(false, |k| USAGES[k].short)
 }
 
 /// Build a clap application with long help strings.
-fn app_long() -> Command<'static> {
+fn app_long() -> Command {
     cmd(true, |k| USAGES[k].long)
 }
 
@@ -294,7 +294,7 @@ fn build_help(cmd: &mut Command) -> String {
 ///
 /// This is an intentionally stand-alone module so that it can be used easily
 /// in a `build.rs` script to build shell completion files.
-fn cmd<F>(_next_line_help: bool, doc: F) -> Command<'static>
+fn cmd<F>(_next_line_help: bool, doc: F) -> Command
 where
     F: Fn(&'static str) -> &'static str,
 {

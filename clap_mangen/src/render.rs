@@ -1,9 +1,9 @@
 use roff::{bold, italic, roman, Inline, Roff};
 
-pub(crate) fn subcommand_heading(cmd: &clap::Command) -> String {
+pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
     match cmd.get_subcommand_help_heading() {
-        Some(title) => title.to_string(),
-        None => "SUBCOMMANDS".to_string(),
+        Some(title) => title.as_str(),
+        None => "SUBCOMMANDS",
     }
 }
 
@@ -28,7 +28,7 @@ pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
 }
 
 pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
-    let mut line = vec![bold(cmd.get_name()), roman(" ")];
+    let mut line = vec![bold(cmd.get_name().as_str()), roman(" ")];
 
     for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
         let (lhs, rhs) = option_markers(opt);
@@ -73,8 +73,9 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         let (lhs, rhs) = subcommand_markers(cmd);
         line.push(roman(lhs));
         line.push(italic(
-            &cmd.get_subcommand_value_name()
-                .unwrap_or(&subcommand_heading(cmd))
+            cmd.get_subcommand_value_name()
+                .map(|s| s.as_str())
+                .unwrap_or_else(|| subcommand_heading(cmd))
                 .to_lowercase(),
         ));
         line.push(roman(rhs));
@@ -108,7 +109,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
 
         let mut body = vec![];
         if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
-            body.push(roman(help));
+            body.push(roman(help.as_str()));
         }
 
         roff.control("TP", []);

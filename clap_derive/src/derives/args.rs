@@ -87,10 +87,10 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
-            fn augment_args<'b>(#app_var: clap::Command<'b>) -> clap::Command<'b> {
+            fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
                 #augmentation
             }
-            fn augment_args_for_update<'b>(#app_var: clap::Command<'b>) -> clap::Command<'b> {
+            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
                 #augmentation_update
             }
         }
@@ -228,17 +228,17 @@ pub fn gen_augment(
                 let next_display_order = attrs.next_display_order();
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
-                        let #old_heading_var = #app_var.get_next_help_heading();
+                        let #old_heading_var = #app_var.get_next_help_heading().cloned();
                         let #app_var = #app_var #next_help_heading #next_display_order;
                         let #app_var = <#ty as clap::Args>::augment_args_for_update(#app_var);
-                        let #app_var = #app_var.next_help_heading(#old_heading_var);
+                        let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
-                        let #old_heading_var = #app_var.get_next_help_heading();
+                        let #old_heading_var = #app_var.get_next_help_heading().cloned();
                         let #app_var = #app_var #next_help_heading #next_display_order;
                         let #app_var = <#ty as clap::Args>::augment_args(#app_var);
-                        let #app_var = #app_var.next_help_heading(#old_heading_var);
+                        let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                     })
                 }
             }

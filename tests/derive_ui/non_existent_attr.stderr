@@ -2,4 +2,4 @@ error[E0599]: no method named `non_existing_attribute` found for struct `Arg` in
   --> tests/derive_ui/non_existent_attr.rs:14:19
    |
 14 |     #[clap(short, non_existing_attribute = 1)]
-   |                   ^^^^^^^^^^^^^^^^^^^^^^ method not found in `Arg<'_>`
+   |                   ^^^^^^^^^^^^^^^^^^^^^^ method not found in `Arg`

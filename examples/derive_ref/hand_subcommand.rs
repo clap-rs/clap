@@ -50,12 +50,12 @@ impl FromArgMatches for CliSub {
 }
 
 impl Subcommand for CliSub {
-    fn augment_subcommands(cmd: Command<'_>) -> Command<'_> {
+    fn augment_subcommands(cmd: Command) -> Command {
         cmd.subcommand(AddArgs::augment_args(Command::new("add")))
             .subcommand(RemoveArgs::augment_args(Command::new("remove")))
             .subcommand_required(true)
     }
-    fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_> {
+    fn augment_subcommands_for_update(cmd: Command) -> Command {
         cmd.subcommand(AddArgs::augment_args(Command::new("add")))
             .subcommand(RemoveArgs::augment_args(Command::new("remove")))
             .subcommand_required(true)

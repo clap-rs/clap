@@ -8,7 +8,7 @@ fn main() {
     println!("{:#?}", values);
 }
 
-fn cli() -> Command<'static> {
+fn cli() -> Command {
     command!()
         .group(ArgGroup::new("tests").multiple(true))
         .next_help_heading("TESTS")

@@ -2,7 +2,7 @@ use super::utils;
 
 use clap::{arg, builder::PossibleValue, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
-fn setup() -> Command<'static> {
+fn setup() -> Command {
     Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -1523,7 +1523,7 @@ OPTIONS:
     utils::assert_output(app1, "default --help", ESCAPED_DEFAULT_VAL, false);
 }
 
-fn issue_1112_setup() -> Command<'static> {
+fn issue_1112_setup() -> Command {
     Command::new("test")
         .version("1.3")
         .disable_help_flag(true)
@@ -2728,7 +2728,10 @@ fn display_name_explicit() {
         .bin_name("app.exe")
         .display_name("app.display");
     cmd.build();
-    assert_eq!(cmd.get_display_name(), Some("app.display"));
+    assert_eq!(
+        cmd.get_display_name().map(|s| s.as_str()),
+        Some("app.display")
+    );
 }
 
 #[test]
@@ -2736,7 +2739,10 @@ fn display_name_subcommand_default() {
     let mut cmd = Command::new("parent").subcommand(Command::new("child").bin_name("child.exe"));
     cmd.build();
     assert_eq!(
-        cmd.find_subcommand("child").unwrap().get_display_name(),
+        cmd.find_subcommand("child")
+            .unwrap()
+            .get_display_name()
+            .map(|s| s.as_str()),
         Some("parent-child")
     );
 }
@@ -2750,7 +2756,10 @@ fn display_name_subcommand_explicit() {
     );
     cmd.build();
     assert_eq!(
-        cmd.find_subcommand("child").unwrap().get_display_name(),
+        cmd.find_subcommand("child")
+            .unwrap()
+            .get_display_name()
+            .map(|s| s.as_str()),
         Some("child.display")
     );
 }

@@ -13,6 +13,7 @@ use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::FlatMap;
 use crate::util::Id;
+use crate::Str;
 use crate::INTERNAL_ERROR_MSG;
 
 /// Container for parse results.
@@ -65,7 +66,7 @@ pub struct ArgMatches {
     #[cfg(debug_assertions)]
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
-    pub(crate) valid_subcommands: Vec<String>,
+    pub(crate) valid_subcommands: Vec<Str>,
     pub(crate) args: FlatMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
@@ -777,7 +778,7 @@ impl ArgMatches {
     /// }
     /// ```
     /// [subcommand]: crate::Command::subcommand
-    pub fn remove_subcommand(&mut self) -> Option<(String, ArgMatches)> {
+    pub fn remove_subcommand(&mut self) -> Option<(Str, ArgMatches)> {
         self.subcommand.take().map(|sc| (sc.name, sc.matches))
     }
 
@@ -862,8 +863,8 @@ impl ArgMatches {
     pub fn is_valid_subcommand(&self, _name: &str) -> bool {
         #[cfg(debug_assertions)]
         {
-            let _name = _name.to_owned();
-            _name == String::default() || self.valid_subcommands.contains(&_name)
+            let _name = Str::from(_name.to_owned());
+            _name == "" || self.valid_subcommands.contains(&_name)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -1072,8 +1073,8 @@ impl ArgMatches {
     fn get_subcommand(&self, name: &str) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            let name = name.to_owned();
-            if name == String::default() || self.valid_subcommands.contains(&name) {
+            let name = Str::from(name.to_owned());
+            if name == "" || self.valid_subcommands.contains(&name) {
             } else {
                 panic!("`{}` is not a name of a subcommand.", name);
             }
@@ -1091,7 +1092,7 @@ impl ArgMatches {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
-    pub(crate) name: String,
+    pub(crate) name: Str,
     pub(crate) matches: ArgMatches,
 }
 

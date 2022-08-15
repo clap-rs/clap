@@ -26,7 +26,7 @@
 //! use clap_complete::{generate, Generator, Shell};
 //! use std::io;
 //!
-//! fn build_cli() -> Command<'static> {
+//! fn build_cli() -> Command {
 //!     Command::new("example")
 //!          .arg(Arg::new("file")
 //!              .help("some input file")

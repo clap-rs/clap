@@ -106,6 +106,18 @@ impl From<&'_ &'static str> for OsStr {
     }
 }
 
+impl From<OsStr> for std::ffi::OsString {
+    fn from(name: OsStr) -> Self {
+        name.name.into_os_string()
+    }
+}
+
+impl From<OsStr> for std::path::PathBuf {
+    fn from(name: OsStr) -> Self {
+        std::ffi::OsString::from(name).into()
+    }
+}
+
 impl std::fmt::Debug for OsStr {
     #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -219,6 +231,13 @@ impl Inner {
         match self {
             Self::Static(s) => s,
             Self::Owned(s) => s.as_ref(),
+        }
+    }
+
+    fn into_os_string(self) -> std::ffi::OsString {
+        match self {
+            Self::Static(s) => std::ffi::OsString::from(s),
+            Self::Owned(s) => std::ffi::OsString::from(s),
         }
     }
 }

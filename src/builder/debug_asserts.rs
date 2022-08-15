@@ -67,7 +67,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             arg.get_id()
         );
 
-        if let Some(s) = arg.short.as_ref() {
+        if let Some(s) = arg.get_short() {
             short_flags.push(Flag::Arg(format!("-{}", s), arg.get_id().as_str()));
         }
 
@@ -78,7 +78,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             ));
         }
 
-        if let Some(l) = arg.long.as_ref() {
+        if let Some(l) = arg.get_long() {
             assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.get_id(), l);
             long_flags.push(Flag::Arg(format!("--{}", l), arg.get_id().as_str()));
         }
@@ -101,8 +101,8 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         // Long conflicts
-        if let Some(l) = arg.long {
-            if let Some((first, second)) = cmd.two_args_of(|x| x.long == Some(l)) {
+        if let Some(l) = arg.get_long() {
+            if let Some((first, second)) = cmd.two_args_of(|x| x.get_long() == Some(l)) {
                 panic!(
                     "Command {}: Long option names must be unique for each argument, \
                             but '--{}' is in use by both '{}' and '{}'{}",
@@ -116,7 +116,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         // Short conflicts
-        if let Some(s) = arg.short {
+        if let Some(s) = arg.get_short() {
             if let Some((first, second)) = cmd.two_args_of(|x| x.short == Some(s)) {
                 panic!(
                     "Command {}: Short option names must be unique for each argument, \
@@ -356,7 +356,7 @@ pub(crate) fn assert_app(cmd: &Command) {
     assert_app_flags(cmd);
 }
 
-fn duplicate_tip(cmd: &Command<'_>, first: &Arg<'_>, second: &Arg<'_>) -> &'static str {
+fn duplicate_tip(cmd: &Command, first: &Arg, second: &Arg) -> &'static str {
     if !cmd.is_disable_help_flag_set() && (first.id == Id::HELP || second.id == Id::HELP) {
         " (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"
     } else if !cmd.is_disable_version_flag_set()

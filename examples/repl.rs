@@ -48,7 +48,7 @@ fn respond(line: &str) -> Result<bool, String> {
     Ok(false)
 }
 
-fn cli() -> Command<'static> {
+fn cli() -> Command {
     // strip out usage
     const PARSER_TEMPLATE: &str = "\
         {all-args}

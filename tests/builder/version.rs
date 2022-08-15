@@ -1,18 +1,18 @@
 use clap::{error::ErrorKind, ArgAction, Command};
 
-fn common() -> Command<'static> {
+fn common() -> Command {
     Command::new("foo")
 }
 
-fn with_version() -> Command<'static> {
+fn with_version() -> Command {
     common().version("3.0")
 }
 
-fn with_long_version() -> Command<'static> {
+fn with_long_version() -> Command {
     common().long_version("3.0 (abcdefg)")
 }
 
-fn with_subcommand() -> Command<'static> {
+fn with_subcommand() -> Command {
     with_version().subcommand(Command::new("bar").subcommand(Command::new("baz")))
 }
 

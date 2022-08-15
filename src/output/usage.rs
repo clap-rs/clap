@@ -4,15 +4,18 @@ use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
 use crate::util::FlatSet;
 use crate::util::Id;
+use crate::util::Str;
 use crate::INTERNAL_ERROR_MSG;
 
-pub(crate) struct Usage<'help, 'cmd> {
-    cmd: &'cmd Command<'help>,
+static DEFAULT_SUB_VALUE_NAME: Str = Str::from_static_ref("SUBCOMMAND");
+
+pub(crate) struct Usage<'cmd> {
+    cmd: &'cmd Command,
     required: Option<&'cmd ChildGraph<Id>>,
 }
 
-impl<'help, 'cmd> Usage<'help, 'cmd> {
-    pub(crate) fn new(cmd: &'cmd Command<'help>) -> Self {
+impl<'cmd> Usage<'cmd> {
+    pub(crate) fn new(cmd: &'cmd Command) -> Self {
         Usage {
             cmd,
             required: None,
@@ -38,7 +41,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
         debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            String::from(u)
+            String::from(u.as_str())
         } else if used.is_empty() {
             self.create_help_usage(true)
         } else {
@@ -53,8 +56,8 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         let name = self
             .cmd
             .get_usage_name()
-            .or_else(|| self.cmd.get_bin_name())
-            .unwrap_or_else(|| self.cmd.get_name());
+            .or_else(|| self.cmd.get_bin_name().map(|s| s.as_str()))
+            .unwrap_or_else(|| self.cmd.get_name().as_str());
         usage.push_str(name);
         let req_string = if incl_reqs {
             self.get_required_usage_from(&[], None, false)
@@ -129,7 +132,10 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         if self.cmd.has_visible_subcommands() && incl_reqs
             || self.cmd.is_allow_external_subcommands_set()
         {
-            let placeholder = self.cmd.get_subcommand_value_name().unwrap_or("SUBCOMMAND");
+            let placeholder = self
+                .cmd
+                .get_subcommand_value_name()
+                .unwrap_or(&DEFAULT_SUB_VALUE_NAME);
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
@@ -171,13 +177,17 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         usage.push_str(
             self.cmd
                 .get_usage_name()
-                .or_else(|| self.cmd.get_bin_name())
-                .unwrap_or_else(|| self.cmd.get_name()),
+                .or_else(|| self.cmd.get_bin_name().map(|s| s.as_str()))
+                .unwrap_or_else(|| self.cmd.get_name().as_str()),
         );
         usage.push_str(&*r_string);
         if self.cmd.is_subcommand_required_set() {
             usage.push_str(" <");
-            usage.push_str(self.cmd.get_subcommand_value_name().unwrap_or("SUBCOMMAND"));
+            usage.push_str(
+                self.cmd
+                    .get_subcommand_value_name()
+                    .unwrap_or(&DEFAULT_SUB_VALUE_NAME),
+            );
             usage.push('>');
         }
         usage.shrink_to_fit();
@@ -301,7 +311,9 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
             debug!("Usage::needs_options_tag:iter: f={}", f.get_id());
 
             // Don't print `[OPTIONS]` just for help or version
-            if f.long == Some("help") || f.long == Some("version") {
+            if f.get_long().map(|s| s.as_str()) == Some("help")
+                || f.get_long().map(|s| s.as_str()) == Some("version")
+            {
                 debug!("Usage::needs_options_tag:iter Option is built-in");
                 continue;
             }

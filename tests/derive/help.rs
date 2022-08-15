@@ -18,7 +18,12 @@ fn arg_help_heading_applied() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_section_a")
         .unwrap();
-    assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
+    assert_eq!(
+        should_be_in_section_a
+            .get_help_heading()
+            .map(|s| s.as_str()),
+        Some("HEADING A")
+    );
 
     let should_be_in_section_b = cmd
         .get_arguments()
@@ -46,14 +51,21 @@ fn app_help_heading_applied() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_section_a")
         .unwrap();
-    assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
+    assert_eq!(
+        should_be_in_section_a
+            .get_help_heading()
+            .map(|s| s.as_str()),
+        Some("HEADING A")
+    );
 
     let should_be_in_default_section = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_default_section")
         .unwrap();
     assert_eq!(
-        should_be_in_default_section.get_help_heading(),
+        should_be_in_default_section
+            .get_help_heading()
+            .map(|s| s.as_str()),
         Some("DEFAULT")
     );
 }
@@ -123,13 +135,23 @@ fn app_help_heading_flattened() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_section_a")
         .unwrap();
-    assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
+    assert_eq!(
+        should_be_in_section_a
+            .get_help_heading()
+            .map(|s| s.as_str()),
+        Some("HEADING A")
+    );
 
     let should_be_in_section_b = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_section_b")
         .unwrap();
-    assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
+    assert_eq!(
+        should_be_in_section_b
+            .get_help_heading()
+            .map(|s| s.as_str()),
+        Some("HEADING B")
+    );
 
     let should_be_in_default_section = cmd
         .get_arguments()
@@ -143,7 +165,10 @@ fn app_help_heading_flattened() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_sub_a")
         .unwrap();
-    assert_eq!(should_be_in_sub_a.get_help_heading(), Some("SUB A"));
+    assert_eq!(
+        should_be_in_sub_a.get_help_heading().map(|s| s.as_str()),
+        Some("SUB A")
+    );
 
     let sub_b_one = cmd.find_subcommand("sub-b-one").unwrap();
 
@@ -151,7 +176,10 @@ fn app_help_heading_flattened() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_sub_b")
         .unwrap();
-    assert_eq!(should_be_in_sub_b.get_help_heading(), Some("SUB B"));
+    assert_eq!(
+        should_be_in_sub_b.get_help_heading().map(|s| s.as_str()),
+        Some("SUB B")
+    );
 
     let sub_c = cmd.find_subcommand("sub-c").unwrap();
     let sub_c_one = sub_c.find_subcommand("sub-c-one").unwrap();
@@ -160,7 +188,10 @@ fn app_help_heading_flattened() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_sub_c")
         .unwrap();
-    assert_eq!(should_be_in_sub_c.get_help_heading(), Some("SUB C"));
+    assert_eq!(
+        should_be_in_sub_c.get_help_heading().map(|s| s.as_str()),
+        Some("SUB C")
+    );
 }
 
 #[test]
@@ -184,7 +215,12 @@ fn flatten_field_with_help_heading() {
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_section_a")
         .unwrap();
-    assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
+    assert_eq!(
+        should_be_in_section_a
+            .get_help_heading()
+            .map(|s| s.as_str()),
+        Some("HEADING A")
+    );
 }
 
 // The challenge with this test is creating an error situation not caught by `clap`'s error checking

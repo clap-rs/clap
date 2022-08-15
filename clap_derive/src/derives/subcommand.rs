@@ -75,10 +75,10 @@ pub fn gen_for_enum(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::Subcommand for #enum_name #ty_generics #where_clause {
-            fn augment_subcommands <'b>(__clap_app: clap::Command<'b>) -> clap::Command<'b> {
+            fn augment_subcommands <'b>(__clap_app: clap::Command) -> clap::Command {
                 #augmentation
             }
-            fn augment_subcommands_for_update <'b>(__clap_app: clap::Command<'b>) -> clap::Command<'b> {
+            fn augment_subcommands_for_update <'b>(__clap_app: clap::Command) -> clap::Command {
                 #augmentation_update
             }
             fn has_subcommand(__clap_name: &str) -> bool {
@@ -193,17 +193,17 @@ fn gen_augment(
                         let next_display_order = attrs.next_display_order();
                         let subcommand = if override_required {
                             quote! {
-                                let #old_heading_var = #app_var.get_next_help_heading();
+                                let #old_heading_var = #app_var.get_next_help_heading().cloned();
                                 let #app_var = #app_var #next_help_heading #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
-                                let #app_var = #app_var.next_help_heading(#old_heading_var);
+                                let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                             }
                         } else {
                             quote! {
-                                let #old_heading_var = #app_var.get_next_help_heading();
+                                let #old_heading_var = #app_var.get_next_help_heading().cloned();
                                 let #app_var = #app_var #next_help_heading #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
-                                let #app_var = #app_var.next_help_heading(#old_heading_var);
+                                let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                             }
                         };
                         Some(subcommand)
@@ -480,7 +480,7 @@ fn gen_from_arg_matches(
         };
 
         quote! {
-            if #sub_name == #subcommand_name_var && !#sub_arg_matches_var.contains_id("") {
+            if #subcommand_name_var == #sub_name && !#sub_arg_matches_var.contains_id("") {
                 return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
             }
         }

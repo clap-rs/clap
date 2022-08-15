@@ -21,6 +21,10 @@ impl Id {
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
+
+    pub(crate) fn as_internal_str(&self) -> &Str {
+        &self.0
+    }
 }
 
 impl From<&'_ Id> for Id {
@@ -62,6 +66,18 @@ impl From<&'static str> for Id {
 impl From<&'_ &'static str> for Id {
     fn from(name: &'_ &'static str) -> Self {
         Self(name.into())
+    }
+}
+
+impl From<Id> for Str {
+    fn from(name: Id) -> Self {
+        name.0
+    }
+}
+
+impl From<Id> for String {
+    fn from(name: Id) -> Self {
+        Str::from(name).into()
     }
 }
 

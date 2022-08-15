@@ -19,6 +19,21 @@ impl<T> Resettable<T> {
     }
 }
 
+impl<T> From<T> for Resettable<T> {
+    fn from(other: T) -> Self {
+        Self::Value(other)
+    }
+}
+
+impl<T> From<Option<T>> for Resettable<T> {
+    fn from(other: Option<T>) -> Self {
+        match other {
+            Some(inner) => Self::Value(inner),
+            None => Self::Reset,
+        }
+    }
+}
+
 /// Convert to the intended resettable type
 pub trait IntoResettable<T> {
     /// Convert to the intended resettable type
@@ -31,6 +46,21 @@ impl IntoResettable<crate::OsStr> for Option<&'static str> {
             Some(s) => Resettable::Value(s.into()),
             None => Resettable::Reset,
         }
+    }
+}
+
+impl IntoResettable<crate::Str> for Option<&'static str> {
+    fn into_resettable(self) -> Resettable<crate::Str> {
+        match self {
+            Some(s) => Resettable::Value(s.into()),
+            None => Resettable::Reset,
+        }
+    }
+}
+
+impl<T> IntoResettable<T> for Resettable<T> {
+    fn into_resettable(self) -> Resettable<T> {
+        self
     }
 }
 

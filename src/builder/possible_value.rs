@@ -151,9 +151,9 @@ impl PossibleValue {
     /// Get the help specified for this argument, if any and the argument
     /// value is not hidden
     #[inline]
-    pub(crate) fn get_visible_help(&self) -> Option<&str> {
+    pub(crate) fn get_visible_help(&self) -> Option<&Str> {
         if !self.hide {
-            self.help.as_deref()
+            self.help.as_ref()
         } else {
             None
         }

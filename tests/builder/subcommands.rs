@@ -451,7 +451,7 @@ For more information try --help
 
 #[test]
 fn busybox_like_multicall() {
-    fn applet_commands() -> [Command<'static>; 2] {
+    fn applet_commands() -> [Command; 2] {
         [Command::new("true"), Command::new("false")]
     }
     let cmd = Command::new("busybox")

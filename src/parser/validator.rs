@@ -10,13 +10,13 @@ use crate::util::FlatSet;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
 
-pub(crate) struct Validator<'help, 'cmd> {
-    cmd: &'cmd Command<'help>,
+pub(crate) struct Validator<'cmd> {
+    cmd: &'cmd Command,
     required: ChildGraph<Id>,
 }
 
-impl<'help, 'cmd> Validator<'help, 'cmd> {
-    pub(crate) fn new(cmd: &'cmd Command<'help>) -> Self {
+impl<'cmd> Validator<'cmd> {
+    pub(crate) fn new(cmd: &'cmd Command) -> Self {
         let required = cmd.required_graph();
         Validator { cmd, required }
     }
@@ -306,7 +306,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
 
     fn is_missing_required_ok(
         &self,
-        a: &Arg<'help>,
+        a: &Arg,
         matcher: &ArgMatcher,
         conflicts: &mut Conflicts,
     ) -> bool {
@@ -335,7 +335,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
-    fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
+    fn fails_arg_required_unless(&self, a: &Arg, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.get_id());
         let exists = |id| matcher.check_explicit(id, &ArgPredicate::IsPresent);
 
@@ -455,7 +455,7 @@ impl Conflicts {
     }
 }
 
-pub(crate) fn get_possible_values_cli(a: &Arg<'_>) -> Vec<PossibleValue> {
+pub(crate) fn get_possible_values_cli(a: &Arg) -> Vec<PossibleValue> {
     if !a.is_takes_value_set() {
         vec![]
     } else {
