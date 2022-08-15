@@ -778,7 +778,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let used: Vec<Id> = matcher
                     .arg_ids()
                     .filter(|arg_id| {
-                        matcher.check_explicit(arg_id, crate::builder::ArgPredicate::IsPresent)
+                        matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
                     })
                     .filter(|&n| {
                         self.cmd
@@ -1513,7 +1513,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         let used: Vec<Id> = matcher
             .arg_ids()
             .filter(|arg_id| {
-                matcher.check_explicit(arg_id, crate::builder::ArgPredicate::IsPresent)
+                matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
             })
             .filter(|n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
             .cloned()

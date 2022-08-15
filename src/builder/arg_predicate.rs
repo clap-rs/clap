@@ -1,4 +1,4 @@
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ArgPredicate<'help> {
     IsPresent,
     Equals(&'help std::ffi::OsStr),
