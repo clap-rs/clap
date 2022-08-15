@@ -127,6 +127,10 @@ name = "escaped-positional-derive"
 required-features = ["derive"]
 
 [[example]]
+name = "find"
+required-features = ["cargo"]
+
+[[example]]
 name = "git-derive"
 required-features = ["derive"]
 

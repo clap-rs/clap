@@ -16,6 +16,10 @@
 //!   - Subcommands
 //!   - Cargo plugins
 //!
+//! find-like interface: [builder][find]
+//! - Topics:
+//!   - Position-sensitive flags
+//!
 //! git-like interface: [builder][git], [derive][git_derive]
 //! - Topics:
 //!   - Subcommands
@@ -46,6 +50,7 @@ pub mod cargo_example;
 pub mod cargo_example_derive;
 pub mod escaped_positional;
 pub mod escaped_positional_derive;
+pub mod find;
 pub mod git;
 pub mod git_derive;
 pub mod multicall_busybox;
