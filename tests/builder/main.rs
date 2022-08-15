@@ -4,7 +4,7 @@ mod action;
 mod app_settings;
 mod arg_aliases;
 mod arg_aliases_short;
-mod arg_matcher_assertions;
+mod arg_matches;
 mod borrowed;
 mod cargo;
 mod command;
