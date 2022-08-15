@@ -1,6 +1,5 @@
 use std::io::Write;
 
-use clap::builder::PossibleValue;
 use clap::*;
 
 use crate::generator::{utils, Generator};
@@ -375,8 +374,12 @@ fn value_completion(arg: &Arg) -> Option<String> {
                         } else {
                             Some(format!(
                                 r#"{name}\:"{tooltip}""#,
-                                name = escape_value(value.get_name()),
-                                tooltip = value.get_help().map(escape_help).unwrap_or_default()
+                                name = escape_value(value.get_name().as_str()),
+                                tooltip = value
+                                    .get_help()
+                                    .map(|s| s.as_str())
+                                    .map(escape_help)
+                                    .unwrap_or_default()
                             ))
                         }
                     })
@@ -389,7 +392,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 values
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(PossibleValue::get_name)
+                    .map(|n| n.get_name().as_str())
                     .collect::<Vec<_>>()
                     .join(" ")
             ))

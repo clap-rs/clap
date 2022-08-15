@@ -1,6 +1,7 @@
 use std::{borrow::Cow, iter};
 
 use crate::util::eq_ignore_case;
+use crate::Str;
 
 /// A possible value of an argument.
 ///
@@ -27,14 +28,14 @@ use crate::util::eq_ignore_case;
 /// [hide]: PossibleValue::hide()
 /// [help]: PossibleValue::help()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
-pub struct PossibleValue<'help> {
-    name: &'help str,
-    help: Option<&'help str>,
-    aliases: Vec<&'help str>, // (name, visible)
+pub struct PossibleValue {
+    name: Str,
+    help: Option<Str>,
+    aliases: Vec<Str>, // (name, visible)
     hide: bool,
 }
 
-impl<'help> PossibleValue<'help> {
+impl PossibleValue {
     /// Create a [`PossibleValue`] with its name.
     ///
     /// The name will be used to decide whether this value was provided by the user to an argument.
@@ -52,9 +53,9 @@ impl<'help> PossibleValue<'help> {
     /// [hidden]: PossibleValue::hide
     /// [possible value]: crate::builder::PossibleValuesParser
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
-    pub fn new(name: &'help str) -> Self {
+    pub fn new(name: impl Into<Str>) -> Self {
         PossibleValue {
-            name,
+            name: name.into(),
             ..Default::default()
         }
     }
@@ -74,8 +75,8 @@ impl<'help> PossibleValue<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn help(mut self, help: &'help str) -> Self {
-        self.help = Some(help);
+    pub fn help(mut self, help: impl Into<Str>) -> Self {
+        self.help = Some(help.into());
         self
     }
 
@@ -111,8 +112,8 @@ impl<'help> PossibleValue<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn alias(mut self, name: &'help str) -> Self {
-        self.aliases.push(name);
+    pub fn alias(mut self, name: impl Into<Str>) -> Self {
+        self.aliases.push(name.into());
         self
     }
 
@@ -127,35 +128,32 @@ impl<'help> PossibleValue<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn aliases<I>(mut self, names: I) -> Self
-    where
-        I: IntoIterator<Item = &'help str>,
-    {
-        self.aliases.extend(names.into_iter());
+    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+        self.aliases.extend(names.into_iter().map(|a| a.into()));
         self
     }
 }
 
 /// Reflection
-impl<'help> PossibleValue<'help> {
+impl PossibleValue {
     /// Get the name of the argument value
     #[inline]
-    pub fn get_name(&self) -> &'help str {
-        self.name
+    pub fn get_name(&self) -> &Str {
+        &self.name
     }
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&'help str> {
-        self.help
+    pub fn get_help(&self) -> Option<&Str> {
+        self.help.as_ref()
     }
 
     /// Get the help specified for this argument, if any and the argument
     /// value is not hidden
     #[inline]
-    pub(crate) fn get_visible_help(&self) -> Option<&'help str> {
+    pub(crate) fn get_visible_help(&self) -> Option<&str> {
         if !self.hide {
-            self.help
+            self.help.as_deref()
         } else {
             None
         }
@@ -174,12 +172,12 @@ impl<'help> PossibleValue<'help> {
 
     /// Get the name if argument value is not hidden, `None` otherwise,
     /// but wrapped in quotes if it contains whitespace
-    pub(crate) fn get_visible_quoted_name(&self) -> Option<Cow<'help, str>> {
+    pub(crate) fn get_visible_quoted_name(&self) -> Option<Cow<'_, str>> {
         if !self.hide {
             Some(if self.name.contains(char::is_whitespace) {
                 format!("{:?}", self.name).into()
             } else {
-                self.name.into()
+                self.name.as_str().into()
             })
         } else {
             None
@@ -189,8 +187,8 @@ impl<'help> PossibleValue<'help> {
     /// Returns all valid values of the argument value.
     ///
     /// Namely the name and all aliases.
-    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
-        iter::once(&self.name).chain(&self.aliases).copied()
+    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &Str> + '_ {
+        iter::once(&self.name).chain(self.aliases.iter())
     }
 
     /// Tests if the value is valid for this argument value
@@ -212,21 +210,15 @@ impl<'help> PossibleValue<'help> {
     pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
         if ignore_case {
             self.get_name_and_aliases()
-                .any(|name| eq_ignore_case(name, value))
+                .any(|name| eq_ignore_case(name.as_str(), value))
         } else {
             self.get_name_and_aliases().any(|name| name == value)
         }
     }
 }
 
-impl<'help> From<&'help str> for PossibleValue<'help> {
-    fn from(s: &'help str) -> Self {
-        Self::new(s)
-    }
-}
-
-impl<'help> From<&'_ &'help str> for PossibleValue<'help> {
-    fn from(s: &'_ &'help str) -> Self {
+impl<S: Into<Str>> From<S> for PossibleValue {
+    fn from(s: S) -> Self {
         Self::new(s)
     }
 }

@@ -243,7 +243,7 @@ impl ValueParser {
     /// applications like errors and completion.
     pub fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         self.any_value_parser().possible_values()
     }
 
@@ -501,7 +501,7 @@ impl From<std::ops::RangeFull> for ValueParser {
 /// ```
 impl<P, const C: usize> From<[P; C]> for ValueParser
 where
-    P: Into<super::PossibleValue<'static>>,
+    P: Into<super::PossibleValue>,
 {
     fn from(values: [P; C]) -> Self {
         let inner = PossibleValuesParser::from(values);
@@ -554,7 +554,7 @@ trait AnyValueParser: Send + Sync + 'static {
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>>;
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>>;
 
     fn clone_any(&self) -> Box<dyn AnyValueParser>;
 }
@@ -590,7 +590,7 @@ where
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         P::possible_values(self)
     }
 
@@ -632,7 +632,7 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     /// applications like errors and completion.
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         None
     }
 
@@ -876,7 +876,7 @@ impl Default for PathBufValueParser {
 ///         &[Self::Always, Self::Auto, Self::Never]
 ///     }
 ///
-///     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue<'a>> {
+///     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue> {
 ///         match self {
 ///             Self::Always => Some(clap::builder::PossibleValue::new("always")),
 ///             Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
@@ -936,7 +936,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
                 .iter()
                 .filter_map(|v| v.to_possible_value())
                 .filter(|v| !v.is_hide_set())
-                .map(|v| v.get_name())
+                .map(|v| v.get_name().as_str().to_owned())
                 .collect::<Vec<_>>()
         };
 
@@ -971,7 +971,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         Some(Box::new(
             E::value_variants()
                 .iter()
@@ -1022,7 +1022,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never")).unwrap(), "never");
 /// ```
 #[derive(Clone, Debug)]
-pub struct PossibleValuesParser(Vec<super::PossibleValue<'static>>);
+pub struct PossibleValuesParser(Vec<super::PossibleValue>);
 
 impl PossibleValuesParser {
     /// Verify the value is from an enumerated set pf [`PossibleValue`][crate::builder::PossibleValue].
@@ -1064,7 +1064,7 @@ impl TypedValueParser for PossibleValuesParser {
                 .0
                 .iter()
                 .filter(|v| !v.is_hide_set())
-                .map(crate::builder::PossibleValue::get_name)
+                .map(|v| v.get_name().as_str().to_owned())
                 .collect::<Vec<_>>();
 
             Err(crate::Error::invalid_value(
@@ -1079,7 +1079,7 @@ impl TypedValueParser for PossibleValuesParser {
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         Some(Box::new(self.0.iter().cloned()))
     }
 }
@@ -1087,7 +1087,7 @@ impl TypedValueParser for PossibleValuesParser {
 impl<I, T> From<I> for PossibleValuesParser
 where
     I: IntoIterator<Item = T>,
-    T: Into<super::PossibleValue<'static>>,
+    T: Into<super::PossibleValue>,
 {
     fn from(values: I) -> Self {
         Self(values.into_iter().map(|t| t.into()).collect())
@@ -1501,7 +1501,7 @@ impl BoolValueParser {
         Self {}
     }
 
-    fn possible_values() -> impl Iterator<Item = crate::builder::PossibleValue<'static>> {
+    fn possible_values() -> impl Iterator<Item = crate::builder::PossibleValue> {
         ["true", "false"]
             .iter()
             .copied()
@@ -1525,7 +1525,7 @@ impl TypedValueParser for BoolValueParser {
         } else {
             // Intentionally showing hidden as we hide all of them
             let possible_vals = Self::possible_values()
-                .map(|v| v.get_name())
+                .map(|v| v.get_name().as_str().to_owned())
                 .collect::<Vec<_>>();
 
             return Err(crate::Error::invalid_value(
@@ -1541,7 +1541,7 @@ impl TypedValueParser for BoolValueParser {
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         Some(Box::new(Self::possible_values()))
     }
 }
@@ -1600,7 +1600,7 @@ impl FalseyValueParser {
         Self {}
     }
 
-    fn possible_values() -> impl Iterator<Item = crate::builder::PossibleValue<'static>> {
+    fn possible_values() -> impl Iterator<Item = crate::builder::PossibleValue> {
         crate::util::TRUE_LITERALS
             .iter()
             .chain(crate::util::FALSE_LITERALS.iter())
@@ -1634,7 +1634,7 @@ impl TypedValueParser for FalseyValueParser {
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         Some(Box::new(Self::possible_values()))
     }
 }
@@ -1697,7 +1697,7 @@ impl BoolishValueParser {
         Self {}
     }
 
-    fn possible_values() -> impl Iterator<Item = crate::builder::PossibleValue<'static>> {
+    fn possible_values() -> impl Iterator<Item = crate::builder::PossibleValue> {
         crate::util::TRUE_LITERALS
             .iter()
             .chain(crate::util::FALSE_LITERALS.iter())
@@ -1733,7 +1733,7 @@ impl TypedValueParser for BoolishValueParser {
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         Some(Box::new(Self::possible_values()))
     }
 }
@@ -1874,7 +1874,7 @@ where
 
     fn possible_values(
         &self,
-    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         self.parser.possible_values()
     }
 }
@@ -2130,7 +2130,7 @@ pub mod via_prelude {
 /// #     fn value_variants<'a>() -> &'a [Self] {
 /// #         &[Self::Always, Self::Auto, Self::Never]
 /// #     }
-/// #     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue<'a>> {
+/// #     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue> {
 /// #         match self {
 /// #             Self::Always => Some(clap::builder::PossibleValue::new("always")),
 /// #             Self::Auto => Some(clap::builder::PossibleValue::new("auto")),

@@ -16,6 +16,7 @@ pub(crate) use self::flat_map::Entry;
 pub(crate) use self::flat_map::FlatMap;
 pub(crate) use self::flat_set::FlatSet;
 pub(crate) use self::graph::ChildGraph;
+pub(crate) use self::str::Inner as StrInner;
 pub(crate) use self::str_to_bool::str_to_bool;
 pub(crate) use self::str_to_bool::FALSE_LITERALS;
 pub(crate) use self::str_to_bool::TRUE_LITERALS;

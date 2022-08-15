@@ -164,7 +164,8 @@ fn value_completion(option: &Arg) -> String {
                     Some(format!(
                         "{}\t{}",
                         escape_string(value.get_name()).as_str(),
-                        escape_string(value.get_help().unwrap_or_default()).as_str()
+                        escape_string(value.get_help().map(|s| s.as_str()).unwrap_or_default())
+                            .as_str()
                     ))
                 })
                 .collect::<Vec<_>>()

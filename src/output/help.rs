@@ -504,7 +504,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
                     self.none("\n")?;
                     self.spaces(spaces)?;
                     self.none("- ")?;
-                    self.good(pv.get_name())?;
+                    self.good(pv.get_name().as_str())?;
                     if let Some(help) = pv.get_help() {
                         debug!("Help::help: Possible Value help");
 
