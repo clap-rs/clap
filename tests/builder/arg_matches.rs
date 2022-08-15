@@ -1,5 +1,70 @@
+use clap::{arg, value_parser, Command};
 #[cfg(debug_assertions)]
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, ArgAction};
+
+#[test]
+fn ids() {
+    let m = Command::new("test")
+        .arg(
+            arg!(--color <when>)
+                .value_parser(["auto", "always", "never"])
+                .required(false),
+        )
+        .arg(
+            arg!(--config <path>)
+                .value_parser(value_parser!(std::path::PathBuf))
+                .required(false),
+        )
+        .try_get_matches_from(["test", "--config=config.toml", "--color=auto"])
+        .unwrap();
+    assert_eq!(
+        m.ids().map(|id| id.as_str()).collect::<Vec<_>>(),
+        ["config", "color"]
+    );
+    assert_eq!(m.ids().len(), 2);
+}
+
+#[test]
+fn ids_ignore_unused() {
+    let m = Command::new("test")
+        .arg(
+            arg!(--color <when>)
+                .value_parser(["auto", "always", "never"])
+                .required(false),
+        )
+        .arg(
+            arg!(--config <path>)
+                .value_parser(value_parser!(std::path::PathBuf))
+                .required(false),
+        )
+        .try_get_matches_from(["test", "--config=config.toml"])
+        .unwrap();
+    assert_eq!(
+        m.ids().map(|id| id.as_str()).collect::<Vec<_>>(),
+        ["config"]
+    );
+    assert_eq!(m.ids().len(), 1);
+}
+
+#[test]
+fn ids_ignore_overridden() {
+    let m = Command::new("test")
+        .arg(
+            arg!(--color <when>)
+                .value_parser(["auto", "always", "never"])
+                .required(false),
+        )
+        .arg(
+            arg!(--config <path>)
+                .value_parser(value_parser!(std::path::PathBuf))
+                .required(false)
+                .overrides_with("color"),
+        )
+        .try_get_matches_from(["test", "--config=config.toml", "--color=auto"])
+        .unwrap();
+    assert_eq!(m.ids().map(|id| id.as_str()).collect::<Vec<_>>(), ["color"]);
+    assert_eq!(m.ids().len(), 1);
+}
 
 #[test]
 #[cfg(debug_assertions)]

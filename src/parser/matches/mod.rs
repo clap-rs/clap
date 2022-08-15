@@ -4,6 +4,7 @@ mod matched_arg;
 mod value_source;
 
 pub use any_value::AnyValueId;
+pub use arg_matches::IdsRef;
 pub use arg_matches::RawValues;
 pub use arg_matches::Values;
 pub use arg_matches::ValuesRef;

@@ -303,6 +303,35 @@ impl ArgMatches {
         MatchesError::unwrap(id, self.try_contains_id(id))
     }
 
+    /// Iterate over [`Arg`][crate::Arg] and [`ArgGroup`][crate::ArgGroup] [`Id`][crate::Id]s via [`ArgMatches::ids`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use clap::{Command, arg, value_parser};
+    ///
+    /// let m = Command::new("myprog")
+    ///     .arg(arg!(--color <when>)
+    ///         .value_parser(["auto", "always", "never"])
+    ///         .required(false))
+    ///     .arg(arg!(--config <path>)
+    ///         .value_parser(value_parser!(std::path::PathBuf))
+    ///         .required(false))
+    ///     .get_matches_from(["myprog", "--config=config.toml", "--color=auto"]);
+    /// assert_eq!(m.ids().len(), 2);
+    /// assert_eq!(
+    ///     m.ids()
+    ///         .map(|id| id.as_str())
+    ///         .collect::<Vec<_>>(),
+    ///     ["config", "color"]
+    /// );
+    /// ```
+    pub fn ids(&self) -> IdsRef<'_> {
+        IdsRef {
+            iter: self.args.keys(),
+        }
+    }
+
     /// Check if any args were present on the command line
     ///
     /// # Examples
@@ -1065,6 +1094,52 @@ pub(crate) struct SubCommand {
     pub(crate) name: String,
     pub(crate) matches: ArgMatches,
 }
+
+/// Iterate over [`Arg`][crate::Arg] and [`ArgGroup`][crate::ArgGroup] [`Id`][crate::Id]s via [`ArgMatches::ids`].
+///
+/// # Examples
+///
+/// ```
+/// # use clap::{Command, arg, value_parser};
+///
+/// let m = Command::new("myprog")
+///     .arg(arg!(--color <when>)
+///         .value_parser(["auto", "always", "never"])
+///         .required(false))
+///     .arg(arg!(--config <path>)
+///         .value_parser(value_parser!(std::path::PathBuf))
+///         .required(false))
+///     .get_matches_from(["myprog", "--config=config.toml", "--color=auto"]);
+/// assert_eq!(
+///     m.ids()
+///         .map(|id| id.as_str())
+///         .collect::<Vec<_>>(),
+///     ["config", "color"]
+/// );
+/// ```
+#[derive(Clone, Debug)]
+pub struct IdsRef<'a> {
+    iter: std::slice::Iter<'a, Id>,
+}
+
+impl<'a> Iterator for IdsRef<'a> {
+    type Item = &'a Id;
+
+    fn next(&mut self) -> Option<&'a Id> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a> DoubleEndedIterator for IdsRef<'a> {
+    fn next_back(&mut self) -> Option<&'a Id> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for IdsRef<'a> {}
 
 /// Iterate over multiple values for an argument via [`ArgMatches::remove_many`].
 ///

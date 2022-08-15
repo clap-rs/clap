@@ -19,6 +19,7 @@ pub(crate) use self::parser::{ParseState, Parser};
 pub(crate) use self::validator::get_possible_values_cli;
 pub(crate) use self::validator::Validator;
 
+pub use self::matches::IdsRef;
 pub use self::matches::RawValues;
 pub use self::matches::Values;
 pub use self::matches::ValuesRef;
