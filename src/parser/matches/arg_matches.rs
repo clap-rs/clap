@@ -269,7 +269,7 @@ impl ArgMatches {
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         id: &str,
-    ) -> Option<Values2<T>> {
+    ) -> Option<Values<T>> {
         MatchesError::unwrap(id, self.try_remove_many(id))
     }
 
@@ -301,6 +301,35 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     pub fn contains_id(&self, id: &str) -> bool {
         MatchesError::unwrap(id, self.try_contains_id(id))
+    }
+
+    /// Iterate over [`Arg`][crate::Arg] and [`ArgGroup`][crate::ArgGroup] [`Id`][crate::Id]s via [`ArgMatches::ids`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use clap::{Command, arg, value_parser};
+    ///
+    /// let m = Command::new("myprog")
+    ///     .arg(arg!(--color <when>)
+    ///         .value_parser(["auto", "always", "never"])
+    ///         .required(false))
+    ///     .arg(arg!(--config <path>)
+    ///         .value_parser(value_parser!(std::path::PathBuf))
+    ///         .required(false))
+    ///     .get_matches_from(["myprog", "--config=config.toml", "--color=auto"]);
+    /// assert_eq!(m.ids().len(), 2);
+    /// assert_eq!(
+    ///     m.ids()
+    ///         .map(|id| id.as_str())
+    ///         .collect::<Vec<_>>(),
+    ///     ["config", "color"]
+    /// );
+    /// ```
+    pub fn ids(&self) -> IdsRef<'_> {
+        IdsRef {
+            iter: self.args.keys(),
+        }
     }
 
     /// Check if any args were present on the command line
@@ -916,14 +945,14 @@ impl ArgMatches {
     pub fn try_remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         id: &str,
-    ) -> Result<Option<Values2<T>>, MatchesError> {
+    ) -> Result<Option<Values<T>>, MatchesError> {
         let arg = match self.try_remove_arg_t::<T>(id)? {
             Some(arg) => arg,
             None => return Ok(None),
         };
         let len = arg.num_vals();
         let values = arg.into_vals_flatten();
-        let values = Values2 {
+        let values = Values {
             // enforced by `try_get_arg_t`
             iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
             len,
@@ -1066,6 +1095,52 @@ pub(crate) struct SubCommand {
     pub(crate) matches: ArgMatches,
 }
 
+/// Iterate over [`Arg`][crate::Arg] and [`ArgGroup`][crate::ArgGroup] [`Id`][crate::Id]s via [`ArgMatches::ids`].
+///
+/// # Examples
+///
+/// ```
+/// # use clap::{Command, arg, value_parser};
+///
+/// let m = Command::new("myprog")
+///     .arg(arg!(--color <when>)
+///         .value_parser(["auto", "always", "never"])
+///         .required(false))
+///     .arg(arg!(--config <path>)
+///         .value_parser(value_parser!(std::path::PathBuf))
+///         .required(false))
+///     .get_matches_from(["myprog", "--config=config.toml", "--color=auto"]);
+/// assert_eq!(
+///     m.ids()
+///         .map(|id| id.as_str())
+///         .collect::<Vec<_>>(),
+///     ["config", "color"]
+/// );
+/// ```
+#[derive(Clone, Debug)]
+pub struct IdsRef<'a> {
+    iter: std::slice::Iter<'a, Id>,
+}
+
+impl<'a> Iterator for IdsRef<'a> {
+    type Item = &'a Id;
+
+    fn next(&mut self) -> Option<&'a Id> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a> DoubleEndedIterator for IdsRef<'a> {
+    fn next_back(&mut self) -> Option<&'a Id> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for IdsRef<'a> {}
+
 /// Iterate over multiple values for an argument via [`ArgMatches::remove_many`].
 ///
 /// # Examples
@@ -1086,13 +1161,13 @@ pub(crate) struct SubCommand {
 /// assert_eq!(values.next(), None);
 /// ```
 #[derive(Clone, Debug)]
-pub struct Values2<T> {
+pub struct Values<T> {
     #[allow(clippy::type_complexity)]
     iter: Map<Flatten<std::vec::IntoIter<Vec<AnyValue>>>, fn(AnyValue) -> T>,
     len: usize,
 }
 
-impl<T> Iterator for Values2<T> {
+impl<T> Iterator for Values<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -1103,19 +1178,19 @@ impl<T> Iterator for Values2<T> {
     }
 }
 
-impl<T> DoubleEndedIterator for Values2<T> {
+impl<T> DoubleEndedIterator for Values<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back()
     }
 }
 
-impl<T> ExactSizeIterator for Values2<T> {}
+impl<T> ExactSizeIterator for Values<T> {}
 
 /// Creates an empty iterator.
-impl<T> Default for Values2<T> {
+impl<T> Default for Values<T> {
     fn default() -> Self {
         let empty: Vec<Vec<AnyValue>> = Default::default();
-        Values2 {
+        Values {
             iter: empty.into_iter().flatten().map(|_| unreachable!()),
             len: 0,
         }
