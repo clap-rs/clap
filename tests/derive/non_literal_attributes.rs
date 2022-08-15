@@ -31,7 +31,7 @@ struct Opt {
     )]
     x: i32,
 
-    #[clap(short = 'l', long = "level", aliases = &["set-level", "lvl"])]
+    #[clap(short = 'l', long = "level", aliases = ["set-level", "lvl"])]
     level: String,
 
     #[clap(long("values"))]

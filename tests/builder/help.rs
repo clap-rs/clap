@@ -1611,7 +1611,7 @@ OPTIONS:
         .arg(
             arg!(-f --fake <s> "some help")
                 .required(true)
-                .value_names(&["some", "val"])
+                .value_names(["some", "val"])
                 .action(ArgAction::Set)
                 .value_delimiter(':'),
         );
@@ -1645,7 +1645,7 @@ NETWORKING:
         .arg(
             arg!(-f --fake <s> "some help")
                 .required(true)
-                .value_names(&["some", "val"])
+                .value_names(["some", "val"])
                 .action(ArgAction::Set)
                 .value_delimiter(':'),
         )
@@ -1657,7 +1657,7 @@ NETWORKING:
                 .action(ArgAction::SetTrue)
                 .help("Do not use system proxy settings"),
         )
-        .args(&[Arg::new("port").long("port").action(ArgAction::SetTrue)]);
+        .args([Arg::new("port").long("port").action(ArgAction::SetTrue)]);
 
     utils::assert_output(cmd, "test --help", CUSTOM_HELP_SECTION, false);
 }
@@ -1696,7 +1696,7 @@ fn multiple_custom_help_headers() {
         .arg(
             arg!(-f --fake <s> "some help")
                 .required(true)
-                .value_names(&["some", "val"])
+                .value_names(["some", "val"])
                 .action(ArgAction::Set)
                 .value_delimiter(':'),
         )
@@ -2115,7 +2115,7 @@ OPTIONS:
     -h, --help             Print help information
 ";
 
-    let cmd = Command::new("order").args(&[
+    let cmd = Command::new("order").args([
         Arg::new("a").short('a').action(ArgAction::SetTrue),
         Arg::new("B").short('B').action(ArgAction::SetTrue),
         Arg::new("b").short('b').action(ArgAction::SetTrue),
@@ -2455,7 +2455,7 @@ fn too_few_value_names_is_dotted() {
             .required(true)
             .action(ArgAction::Set)
             .num_args(3)
-            .value_names(&["one", "two"]),
+            .value_names(["one", "two"]),
     );
     utils::assert_output(
         cmd,
@@ -2483,7 +2483,7 @@ fn too_many_value_names_panics() {
                 .required(true)
                 .action(ArgAction::Set)
                 .num_args(1)
-                .value_names(&["one", "two"]),
+                .value_names(["one", "two"]),
         )
         .debug_assert()
 }

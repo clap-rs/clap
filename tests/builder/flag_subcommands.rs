@@ -148,7 +148,7 @@ fn flag_subcommand_short_with_aliases_vis_and_hidden() {
                     .long("test")
                     .help("testing testing"),
             )
-            .visible_short_flag_aliases(&['M', 'B'])
+            .visible_short_flag_aliases(['M', 'B'])
             .short_flag_alias('C'),
     );
     let app1 = cmd.clone();
@@ -177,7 +177,7 @@ fn flag_subcommand_short_with_aliases() {
                         .help("testing testing")
                         .action(ArgAction::SetTrue),
                 )
-                .short_flag_aliases(&['M', 'B']),
+                .short_flag_aliases(['M', 'B']),
         )
         .try_get_matches_from(vec!["myprog", "-Bt"])
         .unwrap();
@@ -220,7 +220,7 @@ fn flag_subcommand_short_with_aliases_hyphen() {
                         .long("test")
                         .help("testing testing"),
                 )
-                .short_flag_aliases(&['-', '-', '-']),
+                .short_flag_aliases(['-', '-', '-']),
         )
         .try_get_matches_from(vec!["myprog", "-Bt"])
         .unwrap();
@@ -301,7 +301,7 @@ fn flag_subcommand_long_with_aliases() {
                         .help("testing testing")
                         .action(ArgAction::SetTrue),
                 )
-                .long_flag_aliases(&["result", "someall"]),
+                .long_flag_aliases(["result", "someall"]),
         )
         .try_get_matches_from(vec!["myprog", "--result", "--test"])
         .unwrap();

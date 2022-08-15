@@ -58,7 +58,7 @@ pub fn complex_app() -> Command<'static> {
                 .action(ArgAction::Count)
                 .global(true),
         )
-        .args(&[
+        .args([
             arg!(flag2: -F "tests flags with exclusions")
                 .conflicts_with("flag")
                 .requires("long-option-2")
@@ -73,10 +73,10 @@ pub fn complex_app() -> Command<'static> {
                 .value_parser(opt3_vals),
             arg!([positional3] ... "tests specific values").value_parser(pos3_vals),
             arg!(--multvals <val> "Tests multiple values, not mult occs")
-                .value_names(&["one", "two"])
+                .value_names(["one", "two"])
                 .required(false),
             arg!(--multvalsmo <val> ... "Tests multiple values, and mult occs")
-                .value_names(&["one", "two"])
+                .value_names(["one", "two"])
                 .required(false),
             arg!(--minvals2 <minvals> "Tests 2 min vals")
                 .required(false)

@@ -29,7 +29,7 @@ fn multiple_aliases_of_option() {
             .long("aliases")
             .action(ArgAction::Set)
             .help("multiple aliases")
-            .aliases(&["alias1", "alias2", "alias3"]),
+            .aliases(["alias1", "alias2", "alias3"]),
     );
     let long = a
         .clone()
@@ -91,10 +91,10 @@ fn get_aliases() {
         .long("aliases")
         .action(ArgAction::Set)
         .help("multiple aliases")
-        .aliases(&["alias1", "alias2", "alias3"])
-        .short_aliases(&['a', 'b', 'c'])
-        .visible_aliases(&["alias4", "alias5", "alias6"])
-        .visible_short_aliases(&['d', 'e', 'f']);
+        .aliases(["alias1", "alias2", "alias3"])
+        .short_aliases(['a', 'b', 'c'])
+        .visible_aliases(["alias4", "alias5", "alias6"])
+        .visible_short_aliases(['d', 'e', 'f']);
 
     assert!(a.get_short_and_visible_aliases().is_none());
     assert_eq!(
@@ -136,7 +136,7 @@ fn multiple_aliases_of_flag() {
     let a = Command::new("test").arg(
         Arg::new("flag")
             .long("flag")
-            .aliases(&["invisible", "set", "of", "cool", "aliases"])
+            .aliases(["invisible", "set", "of", "cool", "aliases"])
             .action(ArgAction::SetTrue),
     );
 
@@ -175,7 +175,7 @@ fn alias_on_a_subcommand_option() {
                     .help("testing testing"),
             ),
         )
-        .arg(Arg::new("other").long("other").aliases(&["o1", "o2", "o3"]))
+        .arg(Arg::new("other").long("other").aliases(["o1", "o2", "o3"]))
         .try_get_matches_from(vec!["test", "some", "--opt", "awesome"])
         .unwrap();
 
@@ -212,9 +212,9 @@ OPTIONS:
                     .long("opt")
                     .short('o')
                     .action(ArgAction::Set)
-                    .aliases(&["invisible", "als1", "more"]),
+                    .aliases(["invisible", "als1", "more"]),
             )
-            .arg(arg!(-f - -flag).aliases(&["unseeable", "flg1", "anyway"])),
+            .arg(arg!(-f - -flag).aliases(["unseeable", "flg1", "anyway"])),
     );
     utils::assert_output(cmd, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false);
 }
@@ -251,7 +251,7 @@ OPTIONS:
                     .long("flag")
                     .short('f')
                     .action(ArgAction::SetTrue)
-                    .visible_aliases(&["v_flg", "flag2", "flg3"]),
+                    .visible_aliases(["v_flg", "flag2", "flg3"]),
             ),
     );
     utils::assert_output(cmd, "ct test --help", SC_VISIBLE_ALIAS_HELP, false);

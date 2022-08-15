@@ -49,8 +49,8 @@ impl From<String> for Id {
     }
 }
 
-impl<'s> From<&'s String> for Id {
-    fn from(name: &'s String) -> Self {
+impl From<&'_ String> for Id {
+    fn from(name: &'_ String) -> Self {
         Self::from_ref(name.as_str())
     }
 }
@@ -58,6 +58,12 @@ impl<'s> From<&'s String> for Id {
 impl From<&'static str> for Id {
     fn from(name: &'static str) -> Self {
         Self::from_static_ref(name)
+    }
+}
+
+impl From<&'_ &'static str> for Id {
+    fn from(name: &'_ &'static str) -> Self {
+        Self::from_static_ref(*name)
     }
 }
 
