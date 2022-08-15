@@ -9,6 +9,7 @@ mod arg_settings;
 mod command;
 mod possible_value;
 mod range;
+mod resettable;
 mod value_hint;
 mod value_parser;
 
@@ -25,6 +26,8 @@ pub use arg_predicate::ArgPredicate;
 pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use range::ValueRange;
+pub use resettable::IntoResettable;
+pub use resettable::Resettable;
 pub use value_hint::ValueHint;
 pub use value_parser::_AutoValueParser;
 pub use value_parser::via_prelude;

@@ -1,11 +1,11 @@
 // Std
 #[cfg(feature = "env")]
 use std::env;
+#[cfg(feature = "env")]
+use std::ffi::OsString;
 use std::{
     borrow::Cow,
     cmp::{Ord, Ordering},
-    ffi::OsStr,
-    ffi::OsString,
     fmt::{self, Display, Formatter},
     str,
 };
@@ -13,9 +13,11 @@ use std::{
 // Internal
 use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
+use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
 use crate::builder::ValueRange;
 use crate::util::Id;
+use crate::util::OsStr;
 use crate::ArgAction;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
@@ -60,8 +62,8 @@ pub struct Arg<'help> {
     pub(crate) overrides: Vec<Id>,
     pub(crate) groups: Vec<Id>,
     pub(crate) requires: Vec<(ArgPredicate, Id)>,
-    pub(crate) r_ifs: Vec<(Id, OsString)>,
-    pub(crate) r_ifs_all: Vec<(Id, OsString)>,
+    pub(crate) r_ifs: Vec<(Id, OsStr)>,
+    pub(crate) r_ifs_all: Vec<(Id, OsStr)>,
     pub(crate) r_unless: Vec<Id>,
     pub(crate) r_unless_all: Vec<Id>,
     pub(crate) short: Option<char>,
@@ -72,11 +74,11 @@ pub struct Arg<'help> {
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<ValueRange>,
     pub(crate) val_delim: Option<char>,
-    pub(crate) default_vals: Vec<&'help OsStr>,
-    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<&'help OsStr>)>,
-    pub(crate) default_missing_vals: Vec<&'help OsStr>,
+    pub(crate) default_vals: Vec<OsStr>,
+    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<OsStr>)>,
+    pub(crate) default_missing_vals: Vec<OsStr>,
     #[cfg(feature = "env")]
-    pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
+    pub(crate) env: Option<(OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<&'help str>>,
@@ -1514,8 +1516,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
     #[must_use]
-    pub fn default_value(self, val: &'help str) -> Self {
-        self.default_values_os([OsStr::new(val)])
+    pub fn default_value(self, val: impl Into<OsStr>) -> Self {
+        self.default_values_os([val])
     }
 
     /// Value for the argument when not present.
@@ -1526,7 +1528,7 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     #[must_use]
-    pub fn default_value_os(self, val: &'help OsStr) -> Self {
+    pub fn default_value_os(self, val: impl Into<OsStr>) -> Self {
         self.default_values_os([val])
     }
 
@@ -1537,9 +1539,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
-    pub fn default_values(self, vals: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
-        let vals_vec = vals.into_iter().map(|val| OsStr::new(val.into()));
-        self.default_values_os(vals_vec)
+    pub fn default_values(self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+        self.default_values_os(vals)
     }
 
     /// Value for the argument when not present.
@@ -1550,10 +1551,7 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     #[must_use]
-    pub fn default_values_os(
-        mut self,
-        vals: impl IntoIterator<Item = impl Into<&'help OsStr>>,
-    ) -> Self {
+    pub fn default_values_os(mut self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
         self.default_vals = vals.into_iter().map(|s| s.into()).collect();
         self
     }
@@ -1649,8 +1647,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
-    pub fn default_missing_value(self, val: &'help str) -> Self {
-        self.default_missing_values_os([OsStr::new(val)])
+    pub fn default_missing_value(self, val: impl Into<OsStr>) -> Self {
+        self.default_missing_values_os([val])
     }
 
     /// Value for the argument when the flag is present but no value is specified.
@@ -1661,7 +1659,7 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     #[must_use]
-    pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
+    pub fn default_missing_value_os(self, val: impl Into<OsStr>) -> Self {
         self.default_missing_values_os([val])
     }
 
@@ -1672,12 +1670,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     #[inline]
     #[must_use]
-    pub fn default_missing_values(
-        self,
-        vals: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
-        let vals_vec = vals.into_iter().map(|val| OsStr::new(val.into()));
-        self.default_missing_values_os(vals_vec)
+    pub fn default_missing_values(self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+        self.default_missing_values_os(vals)
     }
 
     /// Value for the argument when the flag is present but no value is specified.
@@ -1690,7 +1684,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_missing_values_os(
         mut self,
-        vals: impl IntoIterator<Item = impl Into<&'help OsStr>>,
+        vals: impl IntoIterator<Item = impl Into<OsStr>>,
     ) -> Self {
         self.default_missing_vals = vals.into_iter().map(|s| s.into()).collect();
         self
@@ -1844,8 +1838,8 @@ impl<'help> Arg<'help> {
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
-    pub fn env(self, name: &'help str) -> Self {
-        self.env_os(OsStr::new(name))
+    pub fn env(self, name: impl Into<OsStr>) -> Self {
+        self.env_os(name)
     }
 
     /// Read from `name` environment variable when argument is not present.
@@ -1854,8 +1848,10 @@ impl<'help> Arg<'help> {
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
-    pub fn env_os(mut self, name: &'help OsStr) -> Self {
-        self.env = Some((name, env::var_os(name)));
+    pub fn env_os(mut self, name: impl Into<OsStr>) -> Self {
+        let name = name.into();
+        let value = env::var_os(&name);
+        self.env = Some((name, value));
         self
     }
 }
@@ -2615,9 +2611,9 @@ impl<'help> Arg<'help> {
         self,
         arg_id: impl Into<Id>,
         val: impl Into<ArgPredicate>,
-        default: Option<&'help str>,
+        default: impl IntoResettable<OsStr>,
     ) -> Self {
-        self.default_value_if_os(arg_id, val.into(), default.map(OsStr::new))
+        self.default_value_if_os(arg_id, val, default)
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2630,10 +2626,13 @@ impl<'help> Arg<'help> {
         mut self,
         arg_id: impl Into<Id>,
         val: impl Into<ArgPredicate>,
-        default: Option<&'help OsStr>,
+        default: impl IntoResettable<OsStr>,
     ) -> Self {
-        self.default_vals_ifs
-            .push((arg_id.into(), val.into(), default));
+        self.default_vals_ifs.push((
+            arg_id.into(),
+            val.into(),
+            default.into_resettable().into_option(),
+        ));
         self
     }
 
@@ -2721,10 +2720,16 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_ifs(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<ArgPredicate>, Option<&'help str>)>,
+        ifs: impl IntoIterator<
+            Item = (
+                impl Into<Id>,
+                impl Into<ArgPredicate>,
+                impl IntoResettable<OsStr>,
+            ),
+        >,
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, val, default.map(OsStr::new));
+            self = self.default_value_if_os(arg, val, default);
         }
         self
     }
@@ -2737,10 +2742,16 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_ifs_os(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<ArgPredicate>, Option<&'help OsStr>)>,
+        ifs: impl IntoIterator<
+            Item = (
+                impl Into<Id>,
+                impl Into<ArgPredicate>,
+                impl IntoResettable<OsStr>,
+            ),
+        >,
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg.into(), val, default);
+            self = self.default_value_if_os(arg, val, default);
         }
         self
     }
@@ -3038,7 +3049,7 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: impl Into<OsString>) -> Self {
+    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: impl Into<OsStr>) -> Self {
         self.r_ifs.push((arg_id.into(), val.into()));
         self
     }
@@ -3119,7 +3130,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_any(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsString>)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsStr>)>,
     ) -> Self {
         self.r_ifs
             .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
@@ -3200,7 +3211,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_all(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsString>)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsStr>)>,
     ) -> Self {
         self.r_ifs_all
             .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
@@ -3713,14 +3724,14 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use std::ffi::OsStr;
+    /// # use clap::OsStr;
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").env("ENVIRONMENT");
-    /// assert_eq!(Some(OsStr::new("ENVIRONMENT")), arg.get_env());
+    /// assert_eq!(arg.get_env(), Some(&OsStr::from("ENVIRONMENT")));
     /// ```
     #[cfg(feature = "env")]
     pub fn get_env(&self) -> Option<&OsStr> {
-        self.env.as_ref().map(|x| x.0)
+        self.env.as_ref().map(|x| &x.0)
     }
 
     /// Get the default values specified for this argument, if any
@@ -3730,9 +3741,9 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").default_value("default value");
-    /// assert_eq!(&["default value"], arg.get_default_values());
+    /// assert_eq!(arg.get_default_values(), &["default value"]);
     /// ```
-    pub fn get_default_values(&self) -> &[&OsStr] {
+    pub fn get_default_values(&self) -> &[OsStr] {
         &self.default_vals
     }
 
@@ -3743,10 +3754,10 @@ impl<'help> Arg<'help> {
     /// ```
     /// # use clap::Arg;
     /// let arg = Arg::new("foo");
-    /// assert_eq!(true, arg.is_positional());
+    /// assert_eq!(arg.is_positional(), true);
     ///
     /// let arg = Arg::new("foo").long("foo");
-    /// assert_eq!(false, arg.is_positional());
+    /// assert_eq!(arg.is_positional(), false);
     /// ```
     pub fn is_positional(&self) -> bool {
         self.long.is_none() && self.short.is_none()
@@ -3892,12 +3903,12 @@ impl<'help> Arg<'help> {
         if let Some(action) = self.action.as_ref() {
             if let Some(default_value) = action.default_value() {
                 if self.default_vals.is_empty() {
-                    self.default_vals = vec![default_value];
+                    self.default_vals = vec![default_value.into()];
                 }
             }
             if let Some(default_value) = action.default_missing_value() {
                 if self.default_missing_vals.is_empty() {
-                    self.default_missing_vals = vec![default_value];
+                    self.default_missing_vals = vec![default_value.into()];
                 }
             }
         }

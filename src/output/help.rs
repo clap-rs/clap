@@ -597,7 +597,7 @@ impl<'help, 'cmd, 'writer> Help<'help, 'cmd, 'writer> {
             let pvs = a
                 .default_vals
                 .iter()
-                .map(|&pvs| pvs.to_string_lossy())
+                .map(|pvs| pvs.to_string_lossy())
                 .map(|pvs| {
                     if pvs.contains(char::is_whitespace) {
                         Cow::from(format!("{:?}", pvs))
