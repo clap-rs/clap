@@ -4426,19 +4426,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    // Get the names of possible values for this argument
-    // pub fn get_possible_value_names(&self) -> Option<Vec<&'help str>> {
-        // let possible_values = self.get_possible_values();
-        // if !possible_values.is_empty() {
-            // let possible_options: Vec<&str> = possible_values.iter().map(|pos| pos.get_name()).collect();
-            // Some(possible_options)
-        // }
-        // else {
-            // None
-        // }
-
-    // }
-
     /// Get the number of values for this argument.
     #[inline]
     pub fn get_num_vals(&self) -> Option<usize> {
