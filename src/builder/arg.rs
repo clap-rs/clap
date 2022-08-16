@@ -1,13 +1,14 @@
 // Std
+#[cfg(feature = "env")]
+use std::env;
 use std::{
     borrow::Cow,
     cmp::{Ord, Ordering},
     ffi::OsStr,
+    ffi::OsString,
     fmt::{self, Display, Formatter},
     str,
 };
-#[cfg(feature = "env")]
-use std::{env, ffi::OsString};
 
 // Internal
 use super::{ArgFlags, ArgSettings};
@@ -59,8 +60,8 @@ pub struct Arg<'help> {
     pub(crate) overrides: Vec<Id>,
     pub(crate) groups: Vec<Id>,
     pub(crate) requires: Vec<(ArgPredicate<'help>, Id)>,
-    pub(crate) r_ifs: Vec<(Id, &'help str)>,
-    pub(crate) r_ifs_all: Vec<(Id, &'help str)>,
+    pub(crate) r_ifs: Vec<(Id, OsString)>,
+    pub(crate) r_ifs_all: Vec<(Id, OsString)>,
     pub(crate) r_unless: Vec<Id>,
     pub(crate) r_unless_all: Vec<Id>,
     pub(crate) short: Option<char>,
@@ -3038,8 +3039,8 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: &'help str) -> Self {
-        self.r_ifs.push((arg_id.into(), val));
+    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: impl Into<OsString>) -> Self {
+        self.r_ifs.push((arg_id.into(), val.into()));
         self
     }
 
@@ -3119,10 +3120,10 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_any(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, &'help str)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsString>)>,
     ) -> Self {
         self.r_ifs
-            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
         self
     }
 
@@ -3200,10 +3201,10 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_all(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, &'help str)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsString>)>,
     ) -> Self {
         self.r_ifs_all
-            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
         self
     }
 

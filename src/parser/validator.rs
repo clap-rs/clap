@@ -281,7 +281,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         // Validate the conditionally required args
         for a in self.cmd.get_arguments() {
             for (other, val) in &a.r_ifs {
-                if matcher.check_explicit(other, &ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
+                if matcher.check_explicit(other, &ArgPredicate::Equals(val.as_os_str()))
                     && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
                 {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
@@ -289,7 +289,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             }
 
             let match_all = a.r_ifs_all.iter().all(|(other, val)| {
-                matcher.check_explicit(other, &ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
+                matcher.check_explicit(other, &ArgPredicate::Equals(val.as_os_str()))
             });
             if match_all
                 && !a.r_ifs_all.is_empty()
