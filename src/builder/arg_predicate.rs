@@ -1,14 +1,18 @@
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub(crate) enum ArgPredicate<'help> {
+use crate::OsStr;
+
+/// Operations to perform on argument values
+///
+/// These do not apply to [`ValueSource::DefaultValue`][crate::parser::ValueSource::DefaultValue]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ArgPredicate {
+    /// Is the argument present?
     IsPresent,
-    Equals(&'help std::ffi::OsStr),
+    /// Does the argument match the specified value?
+    Equals(OsStr),
 }
 
-impl<'help> From<Option<&'help std::ffi::OsStr>> for ArgPredicate<'help> {
-    fn from(other: Option<&'help std::ffi::OsStr>) -> Self {
-        match other {
-            Some(other) => Self::Equals(other),
-            None => Self::IsPresent,
-        }
+impl<S: Into<OsStr>> From<S> for ArgPredicate {
+    fn from(other: S) -> Self {
+        Self::Equals(other.into())
     }
 }

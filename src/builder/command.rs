@@ -4333,7 +4333,7 @@ impl<'help> Command<'help> {
 
     pub(crate) fn unroll_arg_requires<F>(&self, func: F, arg: &Id) -> Vec<Id>
     where
-        F: Fn(&(ArgPredicate<'_>, Id)) -> Option<Id>,
+        F: Fn(&(ArgPredicate, Id)) -> Option<Id>,
     {
         let mut processed = vec![];
         let mut r_vec = vec![arg];

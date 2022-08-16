@@ -1,13 +1,14 @@
 // Std
+#[cfg(feature = "env")]
+use std::env;
 use std::{
     borrow::Cow,
     cmp::{Ord, Ordering},
     ffi::OsStr,
+    ffi::OsString,
     fmt::{self, Display, Formatter},
     str,
 };
-#[cfg(feature = "env")]
-use std::{env, ffi::OsString};
 
 // Internal
 use super::{ArgFlags, ArgSettings};
@@ -58,9 +59,9 @@ pub struct Arg<'help> {
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Vec<Id>,
     pub(crate) groups: Vec<Id>,
-    pub(crate) requires: Vec<(ArgPredicate<'help>, Id)>,
-    pub(crate) r_ifs: Vec<(Id, &'help str)>,
-    pub(crate) r_ifs_all: Vec<(Id, &'help str)>,
+    pub(crate) requires: Vec<(ArgPredicate, Id)>,
+    pub(crate) r_ifs: Vec<(Id, OsString)>,
+    pub(crate) r_ifs_all: Vec<(Id, OsString)>,
     pub(crate) r_unless: Vec<Id>,
     pub(crate) r_unless_all: Vec<Id>,
     pub(crate) short: Option<char>,
@@ -72,7 +73,7 @@ pub struct Arg<'help> {
     pub(crate) num_vals: Option<ValueRange>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
-    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate<'help>, Option<&'help OsStr>)>,
+    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
@@ -2501,9 +2502,6 @@ impl<'help> Arg<'help> {
 
     /// Specifies the value of the argument if `arg` has been used at runtime.
     ///
-    /// If `val` is set to `None`, `arg` only needs to be present. If `val` is set to `"some-val"`
-    /// then `arg` must be present at runtime **and** have the value `val`.
-    ///
     /// If `default` is set to `None`, `default_value` will be removed.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
@@ -2521,13 +2519,14 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg, ArgAction};
+    /// # use clap::builder::{ArgPredicate};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
     ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("flag", None, Some("default")))
+    ///         .default_value_if("flag", ArgPredicate::IsPresent, Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--flag"
     ///     ]);
@@ -2545,7 +2544,7 @@ impl<'help> Arg<'help> {
     ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("flag", Some("true"), Some("default")))
+    ///         .default_value_if("flag", "true", Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -2563,7 +2562,7 @@ impl<'help> Arg<'help> {
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("opt", Some("special"), Some("default")))
+    ///         .default_value_if("opt", "special", Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "special"
     ///     ]);
@@ -2582,7 +2581,7 @@ impl<'help> Arg<'help> {
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("opt", Some("special"), Some("default")))
+    ///         .default_value_if("opt", "special", Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "hahaha"
     ///     ]);
@@ -2602,7 +2601,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value("default")
-    ///         .default_value_if("flag", Some("true"), None))
+    ///         .default_value_if("flag", "true", None))
     ///     .get_matches_from(vec![
     ///         "prog", "--flag"
     ///     ]);
@@ -2615,10 +2614,10 @@ impl<'help> Arg<'help> {
     pub fn default_value_if(
         self,
         arg_id: impl Into<Id>,
-        val: Option<&'help str>,
+        val: impl Into<ArgPredicate>,
         default: Option<&'help str>,
     ) -> Self {
-        self.default_value_if_os(arg_id, val.map(OsStr::new), default.map(OsStr::new))
+        self.default_value_if_os(arg_id, val.into(), default.map(OsStr::new))
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2630,7 +2629,7 @@ impl<'help> Arg<'help> {
     pub fn default_value_if_os(
         mut self,
         arg_id: impl Into<Id>,
-        val: Option<&'help OsStr>,
+        val: impl Into<ArgPredicate>,
         default: Option<&'help OsStr>,
     ) -> Self {
         self.default_vals_ifs
@@ -2661,8 +2660,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs([
-    ///             ("flag", Some("true"), Some("default")),
-    ///             ("opt", Some("channal"), Some("chan")),
+    ///             ("flag", "true", Some("default")),
+    ///             ("opt", "channal", Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "channal"
@@ -2682,8 +2681,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs([
-    ///             ("flag", Some("true"), Some("default")),
-    ///             ("opt", Some("channal"), Some("chan")),
+    ///             ("flag", "true", Some("default")),
+    ///             ("opt", "channal", Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog"
@@ -2697,6 +2696,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg, ArgAction};
+    /// # use clap::builder::ArgPredicate;
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
@@ -2707,8 +2707,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs([
-    ///             ("flag", None, Some("default")),
-    ///             ("opt", Some("channal"), Some("chan")),
+    ///             ("flag", ArgPredicate::IsPresent, Some("default")),
+    ///             ("opt", ArgPredicate::Equals("channal".into()), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "channal", "--flag"
@@ -2721,10 +2721,10 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_ifs(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, Option<&'help str>, Option<&'help str>)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<ArgPredicate>, Option<&'help str>)>,
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, val.map(OsStr::new), default.map(OsStr::new));
+            self = self.default_value_if_os(arg, val, default.map(OsStr::new));
         }
         self
     }
@@ -2737,7 +2737,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn default_value_ifs_os(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, Option<&'help OsStr>, Option<&'help OsStr>)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<ArgPredicate>, Option<&'help OsStr>)>,
     ) -> Self {
         for (arg, val, default) in ifs {
             self = self.default_value_if_os(arg.into(), val, default);
@@ -3038,8 +3038,8 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: &'help str) -> Self {
-        self.r_ifs.push((arg_id.into(), val));
+    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: impl Into<OsString>) -> Self {
+        self.r_ifs.push((arg_id.into(), val.into()));
         self
     }
 
@@ -3119,10 +3119,10 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_any(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, &'help str)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsString>)>,
     ) -> Self {
         self.r_ifs
-            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
         self
     }
 
@@ -3200,17 +3200,17 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn required_if_eq_all(
         mut self,
-        ifs: impl IntoIterator<Item = (impl Into<Id>, &'help str)>,
+        ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsString>)>,
     ) -> Self {
         self.r_ifs_all
-            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val)));
+            .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
         self
     }
 
-    /// Require another argument if this arg was present at runtime and its value equals to `val`.
+    /// Require another argument if this arg matches the [`ArgPredicate`]
     ///
     /// This method takes `value, another_arg` pair. At runtime, clap will check
-    /// if this arg (`self`) is present and its value equals to `val`.
+    /// if this arg (`self`) matches the [`ArgPredicate`].
     /// If it does, `another_arg` will be marked as required.
     ///
     /// # Examples
@@ -3263,15 +3263,15 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_if(mut self, val: &'help str, arg_id: impl Into<Id>) -> Self {
-        self.requires
-            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into()));
+    pub fn requires_if(mut self, val: impl Into<ArgPredicate>, arg_id: impl Into<Id>) -> Self {
+        self.requires.push((val.into(), arg_id.into()));
         self
     }
 
     /// Allows multiple conditional requirements.
     ///
-    /// The requirement will only become valid if this arg's value equals `val`.
+    /// The requirement will only become valid if this arg's value matches the
+    /// [`ArgPredicate`].
     ///
     /// # Examples
     ///
@@ -3310,66 +3310,19 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err()); // We  used --config=special.conf so --option <val> is required
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::requires(name)`]: Arg::requires()
-    /// [Conflicting]: Arg::conflicts_with()
-    /// [override]: Arg::overrides_with()
-    #[must_use]
-    pub fn requires_ifs(
-        mut self,
-        ifs: impl IntoIterator<Item = (&'help str, impl Into<Id>)>,
-    ) -> Self {
-        self.requires.extend(
-            ifs.into_iter()
-                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(val)), arg.into())),
-        );
-        self
-    }
-
-    /// Require these arguments names when this one is present
     ///
-    /// i.e. when using this argument, the following arguments *must* be present.
-    ///
-    /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
-    /// by default.
-    ///
-    /// # Examples
+    /// Setting `Arg::requires_ifs` with [`ArgPredicate::IsPresent`] and *not* supplying all the
+    /// arguments is an error.
     ///
     /// ```rust
-    /// # use clap::Arg;
-    /// Arg::new("config")
-    ///     .requires_all(["input", "output"])
-    /// # ;
-    /// ```
-    ///
-    /// Setting `Arg::requires_all([arg, arg2])` requires that all the arguments be used at
-    /// runtime if the defining argument is used. If the defining argument isn't used, the other
-    /// argument isn't required
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, ArgAction};
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction, builder::ArgPredicate};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .action(ArgAction::Set)
-    ///         .requires("input")
-    ///         .long("config"))
-    ///     .arg(Arg::new("input"))
-    ///     .arg(Arg::new("output"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog"
-    ///     ]);
-    ///
-    /// assert!(res.is_ok()); // We didn't use cfg, so input and output weren't required
-    /// ```
-    ///
-    /// Setting `Arg::requires_all([arg, arg2])` and *not* supplying all the arguments is an
-    /// error.
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
-    /// let res = Command::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .action(ArgAction::Set)
-    ///         .requires_all(["input", "output"])
+    ///         .requires_ifs([
+    ///             (ArgPredicate::IsPresent, "input"),
+    ///             (ArgPredicate::IsPresent, "output"),
+    ///         ])
     ///         .long("config"))
     ///     .arg(Arg::new("input"))
     ///     .arg(Arg::new("output"))
@@ -3381,15 +3334,17 @@ impl<'help> Arg<'help> {
     /// // We didn't use output
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
+    ///
+    /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {
-        self.requires.extend(
-            names
-                .into_iter()
-                .map(|s| (ArgPredicate::IsPresent, s.into())),
-        );
+    pub fn requires_ifs(
+        mut self,
+        ifs: impl IntoIterator<Item = (impl Into<ArgPredicate>, impl Into<Id>)>,
+    ) -> Self {
+        self.requires
+            .extend(ifs.into_iter().map(|(val, arg)| (val.into(), arg.into())));
         self
     }
 

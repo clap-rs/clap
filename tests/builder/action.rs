@@ -1,5 +1,6 @@
 #![allow(clippy::bool_assert_comparison)]
 
+use clap::builder::ArgPredicate;
 use clap::Arg;
 use clap::ArgAction;
 use clap::Command;
@@ -126,7 +127,7 @@ fn set_true_with_default_value_if_present() {
             Arg::new("mammal")
                 .long("mammal")
                 .action(ArgAction::SetTrue)
-                .default_value_if("dog", None, Some("true")),
+                .default_value_if("dog", ArgPredicate::IsPresent, Some("true")),
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetTrue));
 
@@ -153,7 +154,7 @@ fn set_true_with_default_value_if_value() {
             Arg::new("mammal")
                 .long("mammal")
                 .action(ArgAction::SetTrue)
-                .default_value_if("dog", Some("true"), Some("true")),
+                .default_value_if("dog", "true", Some("true")),
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetTrue));
 
@@ -263,7 +264,7 @@ fn set_false_with_default_value_if_present() {
             Arg::new("mammal")
                 .long("mammal")
                 .action(ArgAction::SetFalse)
-                .default_value_if("dog", None, Some("false")),
+                .default_value_if("dog", ArgPredicate::IsPresent, Some("false")),
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetFalse));
 
@@ -290,7 +291,7 @@ fn set_false_with_default_value_if_value() {
             Arg::new("mammal")
                 .long("mammal")
                 .action(ArgAction::SetFalse)
-                .default_value_if("dog", Some("false"), Some("false")),
+                .default_value_if("dog", "false", Some("false")),
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::SetFalse));
 
@@ -366,7 +367,7 @@ fn count_with_default_value_if_present() {
             Arg::new("mammal")
                 .long("mammal")
                 .action(ArgAction::Count)
-                .default_value_if("dog", None, Some("10")),
+                .default_value_if("dog", ArgPredicate::IsPresent, Some("10")),
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::Count));
 
@@ -393,7 +394,7 @@ fn count_with_default_value_if_value() {
             Arg::new("mammal")
                 .long("mammal")
                 .action(ArgAction::Count)
-                .default_value_if("dog", Some("2"), Some("10")),
+                .default_value_if("dog", "2", Some("10")),
         )
         .arg(Arg::new("dog").long("dog").action(ArgAction::Count));
 

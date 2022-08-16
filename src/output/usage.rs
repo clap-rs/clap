@@ -359,11 +359,11 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         };
 
         for a in required.iter() {
-            let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
+            let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
                     ArgPredicate::Equals(_) => {
                         if let Some(matcher) = matcher {
-                            matcher.check_explicit(a, *val)
+                            matcher.check_explicit(a, val)
                         } else {
                             false
                         }
@@ -395,7 +395,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if let Some(arg) = self.cmd.find(req) {
                 let is_present = matcher
-                    .map(|m| m.check_explicit(req, ArgPredicate::IsPresent))
+                    .map(|m| m.check_explicit(req, &ArgPredicate::IsPresent))
                     .unwrap_or(false);
                 debug!(
                     "Usage::get_required_usage_from:iter:{:?} arg is_present={}",
@@ -417,7 +417,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
                     .map(|m| {
                         group_members
                             .iter()
-                            .any(|arg| m.check_explicit(arg, ArgPredicate::IsPresent))
+                            .any(|arg| m.check_explicit(arg, &ArgPredicate::IsPresent))
                     })
                     .unwrap_or(false);
                 debug!(

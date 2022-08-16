@@ -1,5 +1,6 @@
 use super::utils;
 
+use clap::builder::ArgPredicate;
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
@@ -1047,7 +1048,11 @@ fn issue_1158_app() -> Command<'static> {
             arg!([ID] "ID")
                 .required_unless_present("config")
                 .conflicts_with("config")
-                .requires_all(["x", "y", "z"]),
+                .requires_ifs([
+                    (ArgPredicate::IsPresent, "x"),
+                    (ArgPredicate::IsPresent, "y"),
+                    (ArgPredicate::IsPresent, "z"),
+                ]),
         )
         .arg(arg!(x: -x <X> "X").required(false))
         .arg(arg!(y: -y <Y> "Y").required(false))

@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Looking up a group in `ArgMatches` now returns the arg `Id`s, rather than the values.
 - Various `Arg`, `Command`, and `ArgGroup` calls were switched from accepting `&[]` to `[]` via `IntoIterator`
 - `Arg::short_aliases` and other builder functions that took `&[]` need the `&` dropped
+- Changed `Arg::requires_ifs` and `Arg::default_value*_ifs*` to taking an `ArgPredicate`, removing ambiguity with `None` when accepting owned and borrowed types
+- Replaced `Arg::requires_all` with `Arg::requires_ifs` now that it takes an `ArgPredicate`
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
@@ -67,6 +69,7 @@ MSRV is now 1.60.0
 - Changed the default type of `allow_external_subcommands` from `String` to `OsString`
 - `Arg::default_missing_value` now applies per occurrence rather than if a value is missing across all occurrences
 - `arg!(--long [value])` to accept `0..=1` per occurrence rather than across all occurrences, making it safe to use with `ArgAction::Append`
+- Allow `OsStr`s for `Arg::{required_if_eq,required_if_eq_any,required_if_eq_all}`
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(assert)* Ensure `overrides_with` IDs are valid

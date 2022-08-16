@@ -125,7 +125,7 @@ impl ArgMatcher {
         self.matches.subcommand_name()
     }
 
-    pub(crate) fn check_explicit<'a>(&self, arg: &Id, predicate: ArgPredicate<'a>) -> bool {
+    pub(crate) fn check_explicit(&self, arg: &Id, predicate: &ArgPredicate) -> bool {
         self.get(arg).map_or(false, |a| a.check_explicit(predicate))
     }
 

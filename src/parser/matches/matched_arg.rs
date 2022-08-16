@@ -129,7 +129,7 @@ impl MatchedArg {
         self.vals.iter().flatten().count() == 0
     }
 
-    pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
+    pub(crate) fn check_explicit(&self, predicate: &ArgPredicate) -> bool {
         if self.source == Some(ValueSource::DefaultValue) {
             return false;
         }

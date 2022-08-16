@@ -355,7 +355,7 @@ impl ArgGroup {
     /// assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required group]: ArgGroup::required()
-    /// [argument requirement rules]: crate::Arg::requires_all()
+    /// [argument requirement rules]: crate::Arg::requires_ifs()
     #[must_use]
     pub fn requires_all(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
         for n in ns {
