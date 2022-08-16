@@ -2,6 +2,7 @@ use std::ffi::OsStr;
 use std::ffi::OsString;
 
 use super::utils;
+use clap::builder::ArgPredicate;
 use clap::{arg, error::ErrorKind, value_parser, Arg, ArgAction, Command};
 
 #[test]
@@ -184,7 +185,11 @@ fn osstr_positional_user_override() {
 fn default_if_arg_present_no_default() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(true))
-        .arg(arg!([arg] "some arg").default_value_if("opt", None, Some("default")))
+        .arg(arg!([arg] "some arg").default_value_if(
+            "opt",
+            ArgPredicate::IsPresent,
+            Some("default"),
+        ))
         .try_get_matches_from(vec!["", "--opt", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -199,7 +204,11 @@ fn default_if_arg_present_no_default() {
 fn default_if_arg_present_no_default_user_override() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
-        .arg(arg!([arg] "some arg").default_value_if("opt", None, Some("default")))
+        .arg(arg!([arg] "some arg").default_value_if(
+            "opt",
+            ArgPredicate::IsPresent,
+            Some("default"),
+        ))
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -217,7 +226,7 @@ fn default_if_arg_present_no_arg_with_default() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", None, Some("default")),
+                .default_value_if("opt", ArgPredicate::IsPresent, Some("default")),
         )
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -236,7 +245,7 @@ fn default_if_arg_present_with_default() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", None, Some("default")),
+                .default_value_if("opt", ArgPredicate::IsPresent, Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -255,7 +264,7 @@ fn default_if_arg_present_with_default_user_override() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", None, Some("default")),
+                .default_value_if("opt", ArgPredicate::IsPresent, Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -274,7 +283,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", None, Some("default")),
+                .default_value_if("opt", ArgPredicate::IsPresent, Some("default")),
         )
         .try_get_matches_from(vec!["", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -292,7 +301,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
 fn default_if_arg_present_with_value_no_default() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
-        .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), Some("default")))
+        .arg(arg!([arg] "some arg").default_value_if("opt", "value", Some("default")))
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -307,7 +316,7 @@ fn default_if_arg_present_with_value_no_default() {
 fn default_if_arg_present_with_value_no_default_fail() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
-        .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), Some("default")))
+        .arg(arg!([arg] "some arg").default_value_if("opt", "value", Some("default")))
         .try_get_matches_from(vec!["", "--opt", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -319,7 +328,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
 fn default_if_arg_present_with_value_no_default_user_override() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
-        .arg(arg!([arg] "some arg").default_value_if("opt", Some("some"), Some("default")))
+        .arg(arg!([arg] "some arg").default_value_if("opt", "some", Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -337,7 +346,7 @@ fn default_if_arg_present_with_value_no_arg_with_default() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", Some("some"), Some("default")),
+                .default_value_if("opt", "some", Some("default")),
         )
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -356,7 +365,7 @@ fn default_if_arg_present_with_value_no_arg_with_default_fail() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", Some("some"), Some("default")),
+                .default_value_if("opt", "some", Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -375,7 +384,7 @@ fn default_if_arg_present_with_value_with_default() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", Some("some"), Some("default")),
+                .default_value_if("opt", "some", Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -394,7 +403,7 @@ fn default_if_arg_present_with_value_with_default_user_override() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", Some("some"), Some("default")),
+                .default_value_if("opt", "some", Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -413,7 +422,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", Some("some"), Some("default")),
+                .default_value_if("opt", "some", Some("default")),
         )
         .try_get_matches_from(vec!["", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -432,7 +441,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_if("opt", Some("some"), Some("default")),
+                .default_value_if("opt", "some", Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "value", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -450,7 +459,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
 fn no_default_if_arg_present_with_value_no_default() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg").required(false))
-        .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), None))
+        .arg(arg!([arg] "some arg").default_value_if("opt", "value", None))
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -464,7 +473,7 @@ fn no_default_if_arg_present_with_value_with_default() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("default")
-                .default_value_if("opt", Some("value"), None),
+                .default_value_if("opt", "value", None),
         )
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -480,7 +489,7 @@ fn no_default_if_arg_present_with_value_with_default_user_override() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("default")
-                .default_value_if("opt", Some("value"), None),
+                .default_value_if("opt", "value", None),
         )
         .try_get_matches_from(vec!["", "--opt", "value", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -499,7 +508,7 @@ fn no_default_if_arg_present_no_arg_with_value_with_default() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("default")
-                .default_value_if("opt", Some("value"), None),
+                .default_value_if("opt", "value", None),
         )
         .try_get_matches_from(vec!["", "--opt", "other"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -522,8 +531,8 @@ fn default_ifs_arg_present() {
             arg!([arg] "some arg")
                 .default_value("first")
                 .default_value_ifs([
-                    ("opt", Some("some"), Some("default")),
-                    ("flag", None, Some("flg")),
+                    ("opt", ArgPredicate::from("some"), Some("default")),
+                    ("flag", ArgPredicate::IsPresent, Some("flg")),
                 ]),
         )
         .try_get_matches_from(vec!["", "--flag"]);
@@ -544,7 +553,10 @@ fn no_default_ifs_arg_present() {
         .arg(
             arg!([arg] "some arg")
                 .default_value("first")
-                .default_value_ifs([("opt", Some("some"), Some("default")), ("flag", None, None)]),
+                .default_value_ifs([
+                    ("opt", ArgPredicate::from("some"), Some("default")),
+                    ("flag", ArgPredicate::IsPresent, None),
+                ]),
         )
         .try_get_matches_from(vec!["", "--flag"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -562,8 +574,8 @@ fn default_ifs_arg_present_user_override() {
             arg!([arg] "some arg")
                 .default_value("first")
                 .default_value_ifs([
-                    ("opt", Some("some"), Some("default")),
-                    ("flag", None, Some("flg")),
+                    ("opt", ArgPredicate::from("some"), Some("default")),
+                    ("flag", ArgPredicate::IsPresent, Some("flg")),
                 ]),
         )
         .try_get_matches_from(vec!["", "--flag", "value"]);
@@ -585,8 +597,8 @@ fn default_ifs_arg_present_order() {
             arg!([arg] "some arg")
                 .default_value("first")
                 .default_value_ifs([
-                    ("opt", Some("some"), Some("default")),
-                    ("flag", None, Some("flg")),
+                    ("opt", ArgPredicate::from("some"), Some("default")),
+                    ("flag", ArgPredicate::IsPresent, Some("flg")),
                 ]),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--flag"]);
@@ -612,11 +624,7 @@ fn default_value_ifs_os() {
             Arg::new("other")
                 .long("other")
                 .value_parser(value_parser!(OsString))
-                .default_value_ifs_os([(
-                    "flag",
-                    Some(OsStr::new("标记2")),
-                    Some(OsStr::new("flag=标记2")),
-                )]),
+                .default_value_ifs_os([("flag", "标记2", Some(OsStr::new("flag=标记2")))]),
         );
     let result = cmd.try_get_matches_from(["my_cargo", "--flag", "标记2"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());

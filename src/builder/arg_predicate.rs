@@ -1,16 +1,18 @@
 use crate::OsStr;
 
+/// Operations to perform on argument values
+///
+/// These do not apply to [`ValueSource::DefaultValue`][crate::parser::ValueSource::DefaultValue]
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) enum ArgPredicate {
+pub enum ArgPredicate {
+    /// Is the argument present?
     IsPresent,
+    /// Does the argument match the specified value?
     Equals(OsStr),
 }
 
-impl<'help> From<Option<&'help std::ffi::OsStr>> for ArgPredicate {
-    fn from(other: Option<&'help std::ffi::OsStr>) -> Self {
-        match other {
-            Some(other) => Self::Equals(other.to_owned().into()),
-            None => Self::IsPresent,
-        }
+impl<S: Into<OsStr>> From<S> for ArgPredicate {
+    fn from(other: S) -> Self {
+        Self::Equals(other.into())
     }
 }

@@ -21,6 +21,7 @@ mod tests;
 pub use action::ArgAction;
 pub use arg::Arg;
 pub use arg_group::ArgGroup;
+pub use arg_predicate::ArgPredicate;
 pub use command::Command;
 pub use possible_value::PossibleValue;
 pub use range::ValueRange;
@@ -45,5 +46,4 @@ pub use value_parser::_AnonymousValueParser;
 
 pub(crate) use action::CountType;
 pub(crate) use arg::render_arg_val;
-pub(crate) use arg_predicate::ArgPredicate;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};
