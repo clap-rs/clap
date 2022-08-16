@@ -185,7 +185,7 @@
 //!   - When not present: case-converted field name is used
 //! - `value_parser [= <expr>]`: [`Arg::value_parser`][crate::Arg::value_parser]
 //!   - When not present: will auto-select an implementation based on the field type using
-//!     [`value_parser!][crate::value_parser!]
+//!     [`value_parser!`][crate::value_parser!]
 //!   - To register a custom type's [`ValueParser`][crate::builder::ValueParser], implement [`ValueParserFactory`][crate::builder::ValueParserFactory]
 //! - `action [= <expr>]`: [`Arg::action`][crate::Arg::action]
 //!   - When not present: will auto-select an action based on the field type
