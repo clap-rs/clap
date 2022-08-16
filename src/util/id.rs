@@ -100,7 +100,7 @@ impl PartialEq<str> for Id {
     }
 }
 
-impl<'s> PartialEq<&'s str> for Id {
+impl PartialEq<&'_ str> for Id {
     #[inline]
     fn eq(&self, other: &&str) -> bool {
         PartialEq::eq(self.as_str(), *other)

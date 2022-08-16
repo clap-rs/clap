@@ -359,7 +359,7 @@ impl<'help, 'cmd> Usage<'help, 'cmd> {
         };
 
         for a in required.iter() {
-            let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
+            let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
                     ArgPredicate::Equals(_) => {
                         if let Some(matcher) = matcher {

@@ -59,7 +59,7 @@ pub struct Arg<'help> {
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Vec<Id>,
     pub(crate) groups: Vec<Id>,
-    pub(crate) requires: Vec<(ArgPredicate<'help>, Id)>,
+    pub(crate) requires: Vec<(ArgPredicate, Id)>,
     pub(crate) r_ifs: Vec<(Id, OsString)>,
     pub(crate) r_ifs_all: Vec<(Id, OsString)>,
     pub(crate) r_unless: Vec<Id>,
@@ -73,7 +73,7 @@ pub struct Arg<'help> {
     pub(crate) num_vals: Option<ValueRange>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
-    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate<'help>, Option<&'help OsStr>)>,
+    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
@@ -3266,7 +3266,7 @@ impl<'help> Arg<'help> {
     #[must_use]
     pub fn requires_if(mut self, val: &'help str, arg_id: impl Into<Id>) -> Self {
         self.requires
-            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into()));
+            .push((ArgPredicate::Equals(val.to_owned().into()), arg_id.into()));
         self
     }
 
@@ -3321,7 +3321,7 @@ impl<'help> Arg<'help> {
     ) -> Self {
         self.requires.extend(
             ifs.into_iter()
-                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(val)), arg.into())),
+                .map(|(val, arg)| (ArgPredicate::Equals(val.to_owned().into()), arg.into())),
         );
         self
     }

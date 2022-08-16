@@ -215,7 +215,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         {
             debug!("Validator::gather_requires:iter:{:?}", name);
             if let Some(arg) = self.cmd.find(name) {
-                let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
+                let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                     let required = matcher.check_explicit(&arg.id, val);
                     required.then(|| req_arg.clone())
                 };
@@ -281,7 +281,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
         // Validate the conditionally required args
         for a in self.cmd.get_arguments() {
             for (other, val) in &a.r_ifs {
-                if matcher.check_explicit(other, &ArgPredicate::Equals(val.as_os_str()))
+                if matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
                     && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
                 {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
@@ -289,7 +289,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
             }
 
             let match_all = a.r_ifs_all.iter().all(|(other, val)| {
-                matcher.check_explicit(other, &ArgPredicate::Equals(val.as_os_str()))
+                matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
             });
             if match_all
                 && !a.r_ifs_all.is_empty()

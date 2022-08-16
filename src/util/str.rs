@@ -124,7 +124,7 @@ impl PartialEq<str> for Str {
     }
 }
 
-impl<'s> PartialEq<&'s str> for Str {
+impl PartialEq<&'_ str> for Str {
     #[inline]
     fn eq(&self, other: &&str) -> bool {
         PartialEq::eq(self.as_str(), *other)
