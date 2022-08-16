@@ -504,11 +504,10 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<String> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            {
                                 let val: #ty = #val;
                                 ::std::string::ToString::to_string(&val)
-                            });
-                            &*DEFAULT_VALUE
+                            }
                         })
                     };
 
@@ -558,10 +557,7 @@ impl Attrs {
 
                                 }
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
-                                    iter_to_vals(#expr)
-                                });
-                                DEFAULT_VALUES.iter().copied()
+                                iter_to_vals(#expr)
                             }
                         })
                     } else {
@@ -575,14 +571,7 @@ impl Attrs {
 
                                 }
 
-                                static DEFAULT_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
-                                    iter_to_vals(#expr)
-                                });
-
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
-                                    DEFAULT_STRINGS.iter().map(::std::string::String::as_str).collect()
-                                });
-                                DEFAULT_VALUES.iter().copied()
+                                iter_to_vals(#expr)
                             }
                         })
                     };
@@ -619,11 +608,10 @@ impl Attrs {
                         })
                     } else {
                         quote_spanned!(ident.span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            {
                                 let val: #ty = #val;
                                 ::std::ffi::OsString::from(val)
-                            });
-                            &*DEFAULT_VALUE
+                            }
                         })
                     };
 
@@ -674,10 +662,7 @@ impl Attrs {
 
                                 }
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
-                                    iter_to_vals(#expr)
-                                });
-                                DEFAULT_VALUES.iter().copied()
+                                iter_to_vals(#expr)
                             }
                         })
                     } else {
@@ -691,14 +676,7 @@ impl Attrs {
 
                                 }
 
-                                static DEFAULT_OS_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
-                                    iter_to_vals(#expr)
-                                });
-
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
-                                    DEFAULT_OS_STRINGS.iter().map(::std::ffi::OsString::as_os_str).collect()
-                                });
-                                DEFAULT_VALUES.iter().copied()
+                                iter_to_vals(#expr)
                             }
                         })
                     };
