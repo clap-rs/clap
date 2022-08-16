@@ -103,7 +103,7 @@ MSRV is now 1.60.0
 
 ### Fixes
 
-- A `multple_values` positional followed by another positional now works with multiple flags
+- A `multiple_values` positional followed by another positional now works with multiple flags
 
 ## [3.2.13] - 2022-07-19
 
