@@ -17,6 +17,7 @@
 //!     3. [Flags](#flags)
 //!     4. [Subcommands](#subcommands)
 //!     5. [Defaults](#defaults)
+//!     6. [Globals](#globals)
 //! 4. Validation
 //!     1. [Enumerated values](#enumerated-values)
 //!     2. [Validated values](#validated-values)
@@ -151,6 +152,16 @@
 #![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.md")]
+//!
+//! ### Globals
+//!
+//! We've previously showed subcommands, but sometimes you want an argument to interact with any subcommand.
+//! In this case a `#[clap(global)]` argument can be specified, allowing it to be used from any position.
+//!
+//! ```rust
+#![doc = include_str!("../../examples/tutorial_derive/03_06_globals.rs")]
+//! ```
+#![doc = include_str!("../../examples/tutorial_derive/03_06_globals.md")]
 //!
 //! ## Validation
 //!

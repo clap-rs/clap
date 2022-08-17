@@ -213,6 +213,8 @@
 //! - `subcommand`: Delegates definition of subcommands to the field (must implement
 //!   [`Subcommand`][crate::Subcommand])
 //!   - When `Option<T>`, the subcommand becomes optional
+//! - `global = <bool>`: [`Arg::global`][crate::Arg::global]
+//!   - When not present: only reads the argument from the specified level of command (no sub-commands).
 //! - `from_global`: Read a [`Arg::global`][crate::Arg::global] argument (raw attribute), regardless of what subcommand you are in
 //! - `value_enum`: Parse the value using the [`ValueEnum`][crate::ValueEnum]
 //! - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
