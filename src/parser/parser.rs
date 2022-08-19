@@ -1123,8 +1123,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 raw_vals.extend(
                     arg.default_missing_vals
                         .iter()
-                        .copied()
-                        .map(ToOwned::to_owned),
+                        .map(|s| s.as_os_str().to_owned()),
                 );
             }
         }
@@ -1388,8 +1387,8 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                     };
 
                     if add {
-                        if let Some(default) = *default {
-                            let arg_values = vec![default.to_owned()];
+                        if let Some(default) = default {
+                            let arg_values = vec![default.to_os_string()];
                             let trailing_idx = None;
                             let _ = self.react(
                                 None,
@@ -1424,8 +1423,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 let arg_values: Vec<_> = arg
                     .default_vals
                     .iter()
-                    .copied()
-                    .map(ToOwned::to_owned)
+                    .map(crate::OsStr::to_os_string)
                     .collect();
                 let trailing_idx = None;
                 let _ = self.react(

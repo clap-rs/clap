@@ -166,11 +166,9 @@ fn default_values_os_t() {
 
 #[test]
 fn detect_os_variant() {
-    #![allow(unused_parens)] // needed for `as_ref` call
-
     #[derive(clap::Parser)]
     pub struct Options {
-        #[clap(default_value_os = ("123".as_ref()))]
+        #[clap(default_value_os = "123")]
         x: String,
     }
     Options::command().debug_assert();

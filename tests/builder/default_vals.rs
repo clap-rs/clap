@@ -624,7 +624,7 @@ fn default_value_ifs_os() {
             Arg::new("other")
                 .long("other")
                 .value_parser(value_parser!(OsString))
-                .default_value_ifs_os([("flag", "标记2", Some(OsStr::new("flag=标记2")))]),
+                .default_value_ifs_os([("flag", "标记2", OsStr::new("flag=标记2"))]),
         );
     let result = cmd.try_get_matches_from(["my_cargo", "--flag", "标记2"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());

@@ -7,6 +7,7 @@ use crate::mkeymap::KeyType;
 use crate::util::FlatSet;
 use crate::util::Id;
 use crate::ArgAction;
+use crate::OsStr;
 use crate::INTERNAL_ERROR_MSG;
 use crate::{Arg, Command, ValueHint};
 
@@ -766,18 +767,18 @@ fn assert_arg(arg: &Arg) {
 
     assert_arg_flags(arg);
 
-    assert_defaults(arg, "default_value", arg.default_vals.iter().copied());
+    assert_defaults(arg, "default_value", arg.default_vals.iter());
     assert_defaults(
         arg,
         "default_missing_value",
-        arg.default_missing_vals.iter().copied(),
+        arg.default_missing_vals.iter(),
     );
     assert_defaults(
         arg,
         "default_value_if",
         arg.default_vals_ifs
             .iter()
-            .filter_map(|(_, _, default)| *default),
+            .filter_map(|(_, _, default)| default.as_ref()),
     );
 }
 
@@ -813,7 +814,7 @@ fn assert_arg_flags(arg: &Arg) {
 fn assert_defaults<'d>(
     arg: &Arg,
     field: &'static str,
-    defaults: impl IntoIterator<Item = &'d std::ffi::OsStr>,
+    defaults: impl IntoIterator<Item = &'d OsStr>,
 ) {
     for default_os in defaults {
         let value_parser = arg.get_value_parser();

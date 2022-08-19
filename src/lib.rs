@@ -109,7 +109,7 @@ pub use crate::util::color::ColorChoice;
 #[allow(unused_imports)]
 pub(crate) use crate::util::color::ColorChoice;
 pub use crate::util::Id;
-pub(crate) use crate::util::OsStr;
+pub use crate::util::OsStr;
 pub(crate) use crate::util::Str;
 
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
@@ -131,7 +131,7 @@ pub mod _tutorial;
 
 #[doc(hidden)]
 pub mod __macro_refs {
-    #[cfg(any(feature = "derive", feature = "cargo"))]
+    #[cfg(feature = "cargo")]
     #[doc(hidden)]
     pub use once_cell;
 }

@@ -23,9 +23,14 @@ impl OsStr {
         }
     }
 
-    /// Get the raw string of the `OsStr`
+    /// Get the raw string as an `std::ffi::OsStr`
     pub fn as_os_str(&self) -> &std::ffi::OsStr {
         self.name.as_os_str()
+    }
+
+    /// Get the raw string as an `OsString`
+    pub fn to_os_string(&self) -> std::ffi::OsString {
+        self.as_os_str().to_owned()
     }
 }
 
