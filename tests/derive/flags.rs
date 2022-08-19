@@ -12,6 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+use clap::ArgAction;
 use clap::CommandFactory;
 use clap::Parser;
 
@@ -41,6 +42,39 @@ fn bool_type_is_flag() {
     );
     assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
+}
+
+#[test]
+fn non_bool_type_flag() {
+    fn parse_from_flag(b: &str) -> Result<usize, String> {
+        b.parse::<bool>()
+            .map(|b| if b { 10 } else { 5 })
+            .map_err(|e| e.to_string())
+    }
+
+    #[derive(Parser, Debug)]
+    struct Opt {
+        #[clap(short, long, action = ArgAction::SetTrue, value_parser = parse_from_flag)]
+        alice: usize,
+        #[clap(short, long, action = ArgAction::SetTrue, value_parser = parse_from_flag)]
+        bob: usize,
+    }
+
+    let opt = Opt::try_parse_from(&["test"]).unwrap();
+    assert_eq!(opt.alice, 5);
+    assert_eq!(opt.bob, 5);
+
+    let opt = Opt::try_parse_from(&["test", "-a"]).unwrap();
+    assert_eq!(opt.alice, 10);
+    assert_eq!(opt.bob, 5);
+
+    let opt = Opt::try_parse_from(&["test", "-b"]).unwrap();
+    assert_eq!(opt.alice, 5);
+    assert_eq!(opt.bob, 10);
+
+    let opt = Opt::try_parse_from(&["test", "-b", "-a"]).unwrap();
+    assert_eq!(opt.alice, 10);
+    assert_eq!(opt.bob, 10);
 }
 
 #[test]

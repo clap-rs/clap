@@ -283,8 +283,8 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
-            Self::SetTrue => Some(AnyValueId::of::<bool>()),
-            Self::SetFalse => Some(AnyValueId::of::<bool>()),
+            Self::SetTrue => None,
+            Self::SetFalse => None,
             Self::Count => Some(AnyValueId::of::<CountType>()),
             Self::Help => None,
             Self::Version => None,

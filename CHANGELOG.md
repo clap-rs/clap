@@ -70,6 +70,7 @@ MSRV is now 1.60.0
 - `Arg::default_missing_value` now applies per occurrence rather than if a value is missing across all occurrences
 - `arg!(--long [value])` to accept `0..=1` per occurrence rather than across all occurrences, making it safe to use with `ArgAction::Append`
 - Allow `OsStr`s for `Arg::{required_if_eq,required_if_eq_any,required_if_eq_all}`
+- Allow non-bool `value_parser`s for `ArgAction::SetTrue` / `ArgAction::SetFalse`
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
 - *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
 - *(assert)* Ensure `overrides_with` IDs are valid
