@@ -12,6 +12,8 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+use clap::builder::BoolishValueParser;
+use clap::builder::TypedValueParser as _;
 use clap::ArgAction;
 use clap::CommandFactory;
 use clap::Parser;
@@ -46,17 +48,19 @@ fn bool_type_is_flag() {
 
 #[test]
 fn non_bool_type_flag() {
-    fn parse_from_flag(b: &str) -> Result<usize, String> {
-        b.parse::<bool>()
-            .map(|b| if b { 10 } else { 5 })
-            .map_err(|e| e.to_string())
+    fn parse_from_flag(b: bool) -> usize {
+        if b {
+            10
+        } else {
+            5
+        }
     }
 
     #[derive(Parser, Debug)]
     struct Opt {
-        #[clap(short, long, action = ArgAction::SetTrue, value_parser = parse_from_flag)]
+        #[clap(short, long, action = ArgAction::SetTrue, value_parser = BoolishValueParser::new().map(parse_from_flag))]
         alice: usize,
-        #[clap(short, long, action = ArgAction::SetTrue, value_parser = parse_from_flag)]
+        #[clap(short, long, action = ArgAction::SetTrue, value_parser = BoolishValueParser::new().map(parse_from_flag))]
         bob: usize,
     }
 

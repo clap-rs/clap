@@ -58,6 +58,7 @@ MSRV is now 1.60.0
 ### Features
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence
+- Added `TypedValueParser::map` to make it easier to reuse existing value parsers
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 
 ### Fixes
