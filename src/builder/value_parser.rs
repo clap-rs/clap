@@ -635,6 +635,50 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
         None
     }
+
+    /// Adapt a `TypedValueParser` from one value to another
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// # use clap::builder::TypedValueParser as _;
+    /// # use clap::builder::BoolishValueParser;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::ArgAction::SetTrue)
+    ///             .value_parser(
+    ///                 BoolishValueParser::new()
+    ///                 .map(|b| -> usize {
+    ///                     if b { 10 } else { 5 }
+    ///                 })
+    ///             )
+    ///     );
+    ///
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert!(matches.contains_id("flag"));
+    /// assert_eq!(
+    ///     matches.get_one::<usize>("flag").copied(),
+    ///     Some(10)
+    /// );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
+    /// assert!(matches.contains_id("flag"));
+    /// assert_eq!(
+    ///     matches.get_one::<usize>("flag").copied(),
+    ///     Some(5)
+    /// );
+    /// ```
+    fn map<T, F>(self, func: F) -> MapValueParser<Self, F>
+    where
+        T: Send + Sync + Clone,
+        F: Fn(Self::Value) -> T + Clone,
+    {
+        MapValueParser::new(self, func)
+    }
 }
 
 impl<F, T, E> TypedValueParser for F
@@ -1773,6 +1817,65 @@ impl TypedValueParser for NonEmptyStringValueParser {
 impl Default for NonEmptyStringValueParser {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Adapt a `TypedValueParser` from one value to another
+///
+/// See [`TypedValueParser::map`]
+#[derive(Clone, Debug)]
+pub struct MapValueParser<P, F> {
+    parser: P,
+    func: F,
+}
+
+impl<P, F, T> MapValueParser<P, F>
+where
+    P: TypedValueParser,
+    P::Value: Send + Sync + Clone,
+    F: Fn(P::Value) -> T + Clone,
+    T: Send + Sync + Clone,
+{
+    fn new(parser: P, func: F) -> Self {
+        Self { parser, func }
+    }
+}
+
+impl<P, F, T> TypedValueParser for MapValueParser<P, F>
+where
+    P: TypedValueParser,
+    P::Value: Send + Sync + Clone,
+    F: Fn(P::Value) -> T + Clone + Send + Sync + 'static,
+    T: Send + Sync + Clone,
+{
+    type Value = T;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = self.parser.parse_ref(cmd, arg, value)?;
+        let value = (self.func)(value);
+        Ok(value)
+    }
+
+    fn parse(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: std::ffi::OsString,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = self.parser.parse(cmd, arg, value)?;
+        let value = (self.func)(value);
+        Ok(value)
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue<'static>> + '_>> {
+        self.parser.possible_values()
     }
 }
 

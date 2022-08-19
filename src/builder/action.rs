@@ -101,6 +101,41 @@ pub enum ArgAction {
     ///     Some(false)
     /// );
     /// ```
+    ///
+    /// You can use [`TypedValueParser::map`][crate::builder::TypedValueParser::map] to have the
+    /// flag control an application-specific type:
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// # use clap::builder::TypedValueParser as _;
+    /// # use clap::builder::BoolishValueParser;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::ArgAction::SetTrue)
+    ///             .value_parser(
+    ///                 BoolishValueParser::new()
+    ///                 .map(|b| -> usize {
+    ///                     if b { 10 } else { 5 }
+    ///                 })
+    ///             )
+    ///     );
+    ///
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert!(matches.contains_id("flag"));
+    /// assert_eq!(
+    ///     matches.get_one::<usize>("flag").copied(),
+    ///     Some(10)
+    /// );
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
+    /// assert!(matches.contains_id("flag"));
+    /// assert_eq!(
+    ///     matches.get_one::<usize>("flag").copied(),
+    ///     Some(5)
+    /// );
+    /// ```
     SetTrue,
     /// When encountered, act as if `"false"` was encountered on the command-line
     ///

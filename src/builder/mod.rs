@@ -32,6 +32,7 @@ pub use value_parser::BoolValueParser;
 pub use value_parser::BoolishValueParser;
 pub use value_parser::EnumValueParser;
 pub use value_parser::FalseyValueParser;
+pub use value_parser::MapValueParser;
 pub use value_parser::NonEmptyStringValueParser;
 pub use value_parser::OsStringValueParser;
 pub use value_parser::PathBufValueParser;
