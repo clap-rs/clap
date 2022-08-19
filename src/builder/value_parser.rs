@@ -108,7 +108,6 @@ impl ValueParser {
     pub fn new<P>(other: P) -> Self
     where
         P: TypedValueParser,
-        P::Value: Send + Sync + Clone,
     {
         Self(ValueParserInner::Other(Box::new(other)))
     }
@@ -284,7 +283,6 @@ impl ValueParser {
 impl<P> From<P> for ValueParser
 where
     P: TypedValueParser + Send + Sync + 'static,
-    P::Value: Send + Sync + Clone,
 {
     fn from(p: P) -> Self {
         Self::new(p)
@@ -604,7 +602,7 @@ where
 /// Parse/validate argument values
 pub trait TypedValueParser: Clone + Send + Sync + 'static {
     /// Argument's value type
-    type Value;
+    type Value: Send + Sync + Clone;
 
     /// Parse the argument value
     ///
@@ -643,6 +641,7 @@ impl<F, T, E> TypedValueParser for F
 where
     F: Fn(&str) -> Result<T, E> + Clone + Send + Sync + 'static,
     E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+    T: Send + Sync + Clone,
 {
     type Value = T;
 
