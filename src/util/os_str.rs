@@ -149,6 +149,12 @@ impl PartialEq<str> for OsStr {
         PartialEq::eq(self.as_os_str(), other)
     }
 }
+impl PartialEq<OsStr> for str {
+    #[inline]
+    fn eq(&self, other: &OsStr) -> bool {
+        PartialEq::eq(self, other.as_os_str())
+    }
+}
 
 impl PartialEq<&'_ str> for OsStr {
     #[inline]
@@ -156,11 +162,23 @@ impl PartialEq<&'_ str> for OsStr {
         PartialEq::eq(self.as_os_str(), *other)
     }
 }
+impl PartialEq<OsStr> for &'_ str {
+    #[inline]
+    fn eq(&self, other: &OsStr) -> bool {
+        PartialEq::eq(*self, other.as_os_str())
+    }
+}
 
-impl<'s> PartialEq<&'s std::ffi::OsStr> for OsStr {
+impl PartialEq<&'_ std::ffi::OsStr> for OsStr {
     #[inline]
     fn eq(&self, other: &&std::ffi::OsStr) -> bool {
         PartialEq::eq(self.as_os_str(), *other)
+    }
+}
+impl PartialEq<OsStr> for &'_ std::ffi::OsStr {
+    #[inline]
+    fn eq(&self, other: &OsStr) -> bool {
+        PartialEq::eq(*self, other.as_os_str())
     }
 }
 
@@ -170,10 +188,22 @@ impl PartialEq<std::string::String> for OsStr {
         PartialEq::eq(self.as_os_str(), other.as_str())
     }
 }
+impl PartialEq<OsStr> for std::string::String {
+    #[inline]
+    fn eq(&self, other: &OsStr) -> bool {
+        PartialEq::eq(self.as_str(), other.as_os_str())
+    }
+}
 
 impl PartialEq<std::ffi::OsString> for OsStr {
     #[inline]
     fn eq(&self, other: &std::ffi::OsString) -> bool {
+        PartialEq::eq(self.as_os_str(), other.as_os_str())
+    }
+}
+impl PartialEq<OsStr> for std::ffi::OsString {
+    #[inline]
+    fn eq(&self, other: &OsStr) -> bool {
         PartialEq::eq(self.as_os_str(), other.as_os_str())
     }
 }
