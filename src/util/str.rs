@@ -33,6 +33,13 @@ impl Str {
     }
 }
 
+impl Default for &'_ Str {
+    fn default() -> Self {
+        static DEFAULT: Str = Str::from_static_ref("");
+        &DEFAULT
+    }
+}
+
 impl From<&'_ Str> for Str {
     fn from(id: &'_ Str) -> Self {
         id.clone()
@@ -127,6 +134,12 @@ impl PartialEq<str> for Str {
         PartialEq::eq(self.as_str(), other)
     }
 }
+impl PartialEq<Str> for str {
+    #[inline]
+    fn eq(&self, other: &Str) -> bool {
+        PartialEq::eq(self, other.as_str())
+    }
+}
 
 impl PartialEq<&'_ str> for Str {
     #[inline]
@@ -134,10 +147,48 @@ impl PartialEq<&'_ str> for Str {
         PartialEq::eq(self.as_str(), *other)
     }
 }
+impl PartialEq<Str> for &'_ str {
+    #[inline]
+    fn eq(&self, other: &Str) -> bool {
+        PartialEq::eq(*self, other.as_str())
+    }
+}
+
+impl PartialEq<std::ffi::OsStr> for Str {
+    #[inline]
+    fn eq(&self, other: &std::ffi::OsStr) -> bool {
+        PartialEq::eq(self.as_str(), other)
+    }
+}
+impl PartialEq<Str> for std::ffi::OsStr {
+    #[inline]
+    fn eq(&self, other: &Str) -> bool {
+        PartialEq::eq(self, other.as_str())
+    }
+}
+
+impl PartialEq<&'_ std::ffi::OsStr> for Str {
+    #[inline]
+    fn eq(&self, other: &&std::ffi::OsStr) -> bool {
+        PartialEq::eq(self.as_str(), *other)
+    }
+}
+impl PartialEq<Str> for &'_ std::ffi::OsStr {
+    #[inline]
+    fn eq(&self, other: &Str) -> bool {
+        PartialEq::eq(*self, other.as_str())
+    }
+}
 
 impl PartialEq<std::string::String> for Str {
     #[inline]
     fn eq(&self, other: &std::string::String) -> bool {
+        PartialEq::eq(self.as_str(), other.as_str())
+    }
+}
+impl PartialEq<Str> for std::string::String {
+    #[inline]
+    fn eq(&self, other: &Str) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
     }
 }

@@ -99,11 +99,23 @@ impl PartialEq<str> for Id {
         PartialEq::eq(self.as_str(), other)
     }
 }
+impl PartialEq<Id> for str {
+    #[inline]
+    fn eq(&self, other: &Id) -> bool {
+        PartialEq::eq(self, other.as_str())
+    }
+}
 
 impl PartialEq<&'_ str> for Id {
     #[inline]
     fn eq(&self, other: &&str) -> bool {
         PartialEq::eq(self.as_str(), *other)
+    }
+}
+impl PartialEq<Id> for &'_ str {
+    #[inline]
+    fn eq(&self, other: &Id) -> bool {
+        PartialEq::eq(*self, other.as_str())
     }
 }
 
@@ -113,10 +125,22 @@ impl PartialEq<Str> for Id {
         PartialEq::eq(self.as_str(), other.as_str())
     }
 }
+impl PartialEq<Id> for Str {
+    #[inline]
+    fn eq(&self, other: &Id) -> bool {
+        PartialEq::eq(self.as_str(), other.as_str())
+    }
+}
 
 impl PartialEq<std::string::String> for Id {
     #[inline]
     fn eq(&self, other: &std::string::String) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
+    }
+}
+impl PartialEq<Id> for std::string::String {
+    #[inline]
+    fn eq(&self, other: &Id) -> bool {
+        PartialEq::eq(other, self)
     }
 }
