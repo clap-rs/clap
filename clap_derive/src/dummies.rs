@@ -82,7 +82,7 @@ pub fn value_enum(name: &Ident) {
             fn from_str(_input: &str, _ignore_case: bool) -> ::std::result::Result<Self, String> {
                 unimplemented!()
             }
-            fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue<'a>>{
+            fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue>{
                 unimplemented!()
             }
         }

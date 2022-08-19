@@ -499,7 +499,7 @@ impl Attrs {
                         quote_spanned!(ident.span()=> {
                             {
                                 let val: #ty = #val;
-                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name()
+                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             }
                         })
                     } else {
@@ -544,17 +544,15 @@ impl Attrs {
                     let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
                         quote_spanned!(ident.span()=> {
                             {
-                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<&'static str>
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=clap::Str>
                                 where
                                     T: ::std::borrow::Borrow<#inner_type>
                                 {
                                     iterable
                                         .into_iter()
                                         .map(|val| {
-                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name()
+                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name().to_owned()
                                         })
-                                        .collect()
-
                                 }
 
                                 iter_to_vals(#expr)
@@ -603,7 +601,7 @@ impl Attrs {
                         quote_spanned!(ident.span()=> {
                             {
                                 let val: #ty = #val;
-                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name()
+                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             }
                         })
                     } else {
@@ -648,18 +646,15 @@ impl Attrs {
                     let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
                         quote_spanned!(ident.span()=> {
                             {
-                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<&'static ::std::ffi::OsStr>
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=clap::Str>
                                 where
                                     T: ::std::borrow::Borrow<#inner_type>
                                 {
                                     iterable
                                         .into_iter()
                                         .map(|val| {
-                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name()
+                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name().to_owned()
                                         })
-                                        .map(::std::ffi::OsStr::new)
-                                        .collect()
-
                                 }
 
                                 iter_to_vals(#expr)

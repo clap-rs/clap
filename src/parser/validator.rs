@@ -45,7 +45,7 @@ impl<'help, 'cmd> Validator<'help, 'cmd> {
                     &get_possible_values_cli(o)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
-                        .map(PossibleValue::get_name)
+                        .map(|n| n.get_name().as_str().to_owned())
                         .collect::<Vec<_>>(),
                     o.to_string(),
                 ));
@@ -455,7 +455,7 @@ impl Conflicts {
     }
 }
 
-pub(crate) fn get_possible_values_cli<'help>(a: &Arg<'help>) -> Vec<PossibleValue<'help>> {
+pub(crate) fn get_possible_values_cli(a: &Arg<'_>) -> Vec<PossibleValue> {
     if !a.is_takes_value_set() {
         vec![]
     } else {

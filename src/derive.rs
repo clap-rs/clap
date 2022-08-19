@@ -387,7 +387,7 @@ pub trait ValueEnum: Sized + Clone {
     /// The canonical argument value.
     ///
     /// The value is `None` for skipped variants.
-    fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>>;
+    fn to_possible_value(&self) -> Option<PossibleValue>;
 }
 
 impl<T: Parser> Parser for Box<T> {

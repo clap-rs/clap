@@ -23,6 +23,10 @@ impl Str {
         }
     }
 
+    pub(crate) fn into_inner(self) -> Inner {
+        self.name
+    }
+
     /// Get the raw string of the `Str`
     pub fn as_str(&self) -> &str {
         self.name.as_str()
@@ -139,7 +143,7 @@ impl PartialEq<std::string::String> for Str {
 }
 
 #[derive(Clone)]
-enum Inner {
+pub(crate) enum Inner {
     Static(&'static str),
     Owned(Box<str>),
 }

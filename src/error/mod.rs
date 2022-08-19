@@ -243,7 +243,7 @@ impl Error {
             ])
     }
 
-    pub(crate) fn empty_value(cmd: &Command, good_vals: &[&str], arg: String) -> Self {
+    pub(crate) fn empty_value(cmd: &Command, good_vals: &[String], arg: String) -> Self {
         Self::invalid_value(cmd, "".to_owned(), good_vals, arg)
     }
 
@@ -259,7 +259,7 @@ impl Error {
     pub(crate) fn invalid_value(
         cmd: &Command,
         bad_val: String,
-        good_vals: &[&str],
+        good_vals: &[String],
         arg: String,
     ) -> Self {
         let suggestion = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();

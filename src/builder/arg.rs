@@ -3659,7 +3659,7 @@ impl<'help> Arg<'help> {
         Some(longs)
     }
 
-    pub(crate) fn get_possible_values(&self) -> Vec<PossibleValue<'help>> {
+    pub(crate) fn get_possible_values(&self) -> Vec<PossibleValue> {
         if !self.is_takes_value_set() {
             vec![]
         } else {

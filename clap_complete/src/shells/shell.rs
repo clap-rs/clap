@@ -57,7 +57,7 @@ impl ValueEnum for Shell {
         ]
     }
 
-    fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>> {
+    fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
         Some(match self {
             Shell::Bash => PossibleValue::new("bash"),
             Shell::Elvish => PossibleValue::new("elvish"),

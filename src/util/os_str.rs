@@ -40,6 +40,24 @@ impl From<&'_ OsStr> for OsStr {
     }
 }
 
+impl From<crate::Str> for OsStr {
+    fn from(id: crate::Str) -> Self {
+        match id.into_inner() {
+            crate::util::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
+            crate::util::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
+        }
+    }
+}
+
+impl From<&'_ crate::Str> for OsStr {
+    fn from(id: &'_ crate::Str) -> Self {
+        match id.clone().into_inner() {
+            crate::util::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
+            crate::util::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
+        }
+    }
+}
+
 impl From<std::ffi::OsString> for OsStr {
     fn from(name: std::ffi::OsString) -> Self {
         Self::from_string(name)

@@ -231,7 +231,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 Self::Menu,
             ]
         }
-        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue<'a>> {
+        fn to_possible_value(&self) -> ::std::option::Option<clap::builder::PossibleValue> {
             match self {
                 Self::Normal => {
                     let value = "9";

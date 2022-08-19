@@ -9,7 +9,6 @@ use clap_lex::RawOsStr;
 use clap_lex::RawOsString;
 
 // Internal
-use crate::builder::PossibleValue;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -1266,7 +1265,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 &super::get_possible_values_cli(arg)
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(PossibleValue::get_name)
+                    .map(|n| n.get_name().as_str().to_owned())
                     .collect::<Vec<_>>(),
                 arg.to_string(),
             ));

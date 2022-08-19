@@ -1,6 +1,5 @@
 use std::{fmt::Write as _, io::Write};
 
-use clap::builder::PossibleValue;
 use clap::*;
 
 use crate::generator::{utils, Generator};
@@ -180,7 +179,7 @@ fn vals_for(o: &Arg) -> String {
             "$(compgen -W \"{}\" -- \"${{cur}}\")",
             vals.iter()
                 .filter(|pv| !pv.is_hide_set())
-                .map(PossibleValue::get_name)
+                .map(|n| n.get_name().as_str())
                 .collect::<Vec<_>>()
                 .join(" ")
         )
