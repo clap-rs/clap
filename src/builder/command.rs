@@ -4112,8 +4112,8 @@ impl<'help> Command<'help> {
                 .about("Print this message or the help of the given subcommand(s)")
                 .arg(
                     Arg::new("subcommand")
-                        .action(ArgAction::Append)
-                        .num_args(..)
+                        .action(ArgAction::Set)
+                        .num_args(0..=1)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),
                 );

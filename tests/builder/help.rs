@@ -2062,10 +2062,10 @@ fn help_subcmd_help() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    myapp help [SUBCOMMAND]...
+    myapp help [SUBCOMMAND]
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    <SUBCOMMAND>    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2080,10 +2080,10 @@ fn subcmd_help_subcmd_help() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    myapp subcmd help [SUBCOMMAND]...
+    myapp subcmd help [SUBCOMMAND]
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    <SUBCOMMAND>    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2566,10 +2566,10 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    example help [SUBCOMMAND]...
+    example help [SUBCOMMAND]
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    <SUBCOMMAND>    The subcommand whose help message to display
 ",
         false,
     );
@@ -2609,10 +2609,10 @@ fn dont_propagate_version_to_help_subcommand() {
 Print this message or the help of the given subcommand(s)
 
 USAGE:
-    example help [SUBCOMMAND]...
+    example help [SUBCOMMAND]
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    <SUBCOMMAND>    The subcommand whose help message to display
 ",
         false,
     );
