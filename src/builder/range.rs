@@ -88,7 +88,7 @@ impl ValueRange {
     }
 
     pub(crate) fn is_multiple(&self) -> bool {
-        self.start_inclusive != self.end_inclusive || 1 < self.start_inclusive
+        1 < self.end_inclusive
     }
 
     pub(crate) fn num_values(&self) -> Option<usize> {
