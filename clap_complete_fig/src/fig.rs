@@ -21,14 +21,14 @@ impl Generator for Fig {
         write!(
             &mut buffer,
             "const completion: Fig.Spec = {{\n  name: \"{}\",\n",
-            command
+            escape_string(command)
         )
         .unwrap();
 
         write!(
             &mut buffer,
             "  description: \"{}\",\n",
-            cmd.get_about().unwrap_or_default()
+            escape_string(cmd.get_about().unwrap_or_default())
         )
         .unwrap();
 
@@ -41,9 +41,14 @@ impl Generator for Fig {
     }
 }
 
-// Escape string inside double quotes
+// Escape string inside double quotes and convert whitespace
 fn escape_string(string: &str) -> String {
-    string.replace('\\', "\\\\").replace('\"', "\\\"")
+    string
+        .replace('\\', "\\\\")
+        .replace('\"', "\\\"")
+        .replace('\t', "    ")
+        .replace('\n', " ")
+        .replace('\r', "")
 }
 
 fn gen_fig_inner(
@@ -73,7 +78,7 @@ fn gen_fig_inner(
                 buffer.push_str(
                     &aliases
                         .iter()
-                        .map(|name| format!("\"{}\"", name))
+                        .map(|name| format!("\"{}\"", escape_string(name)))
                         .collect::<Vec<_>>()
                         .join(", "),
                 );
@@ -85,7 +90,7 @@ fn gen_fig_inner(
                     "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
                     "",
                     "",
-                    subcommand.get_name(),
+                    escape_string(subcommand.get_name()),
                     indent = indent + 2
                 )
                 .unwrap();
@@ -157,11 +162,19 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             let mut names = vec![];
 
             if let Some(shorts) = option.get_short_and_visible_aliases() {
-                names.extend(shorts.iter().map(|short| format!("-{}", short)));
+                names.extend(
+                    shorts
+                        .iter()
+                        .map(|short| format!("-{}", escape_string(&short.to_string()))),
+                );
             }
 
             if let Some(longs) = option.get_long_and_visible_aliases() {
-                names.extend(longs.iter().map(|long| format!("--{}", long)));
+                names.extend(
+                    longs
+                        .iter()
+                        .map(|long| format!("--{}", escape_string(long))),
+                );
             }
 
             if names.len() > 1 {
@@ -170,7 +183,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                 buffer.push_str(
                     &names
                         .iter()
-                        .map(|name| format!("\"{}\"", name))
+                        .map(|name| format!("\"{}\"", escape_string(name)))
                         .collect::<Vec<_>>()
                         .join(", "),
                 );
@@ -181,7 +194,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                     &mut buffer,
                     "{:indent$}name: \"{}\",\n",
                     "",
-                    names[0],
+                    escape_string(&names[0]),
                     indent = indent + 4
                 )
                 .unwrap();
@@ -224,7 +237,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                         &mut buffer,
                         "{:indent$}\"{}\",\n",
                         "",
-                        conflict,
+                        escape_string(&conflict),
                         indent = indent + 6
                     )
                     .unwrap();
@@ -279,7 +292,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                 buffer.push_str(
                     &flags
                         .iter()
-                        .map(|name| format!("\"{}\"", name))
+                        .map(|name| format!("\"{}\"", escape_string(name)))
                         .collect::<Vec<_>>()
                         .join(", "),
                 );
@@ -290,7 +303,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                     &mut buffer,
                     "{:indent$}name: \"{}\",\n",
                     "",
-                    flags[0],
+                    escape_string(&flags[0]),
                     indent = indent + 4
                 )
                 .unwrap();
@@ -323,7 +336,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                         &mut buffer,
                         "{:indent$}\"{}\",\n",
                         "",
-                        conflict,
+                        escape_string(&conflict),
                         indent = indent + 6
                     )
                     .unwrap();
@@ -362,7 +375,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         &mut buffer,
         "{{\n{:indent$}  name: \"{}\",\n",
         "",
-        arg.get_id(),
+        escape_string(arg.get_id().as_str()),
         indent = indent
     )
     .unwrap();
@@ -404,7 +417,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
                     "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
                     "",
                     "",
-                    value.get_name(),
+                    escape_string(value.get_name()),
                     indent = indent + 4,
                 )
                 .unwrap();
@@ -424,7 +437,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
                     &mut buffer,
                     "{:indent$}\"{}\",\n",
                     "",
-                    value.get_name(),
+                    escape_string(value.get_name()),
                     indent = indent + 4,
                 )
                 .unwrap();
@@ -476,11 +489,11 @@ fn arg_conflicts(cmd: &Command, arg: &Arg) -> Vec<String> {
 
     for conflict in cmd.get_arg_conflicts_with(arg) {
         if let Some(s) = conflict.get_short() {
-            res.push(format!("-{}", s));
+            res.push(format!("-{}", escape_string(&s.to_string())));
         }
 
         if let Some(l) = conflict.get_long() {
-            res.push(format!("--{}", l));
+            res.push(format!("--{}", escape_string(l)));
         }
     }
 
