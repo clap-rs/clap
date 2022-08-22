@@ -84,7 +84,7 @@ fn generate_inner<'help>(
 
     for option in p.get_opts() {
         if let Some(shorts) = option.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_help().map(|s| s.as_str()), shorts[0]);
+            let tooltip = get_tooltip(option.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
                 completions.push_str(format!("-{} '{}'", short, tooltip).as_str());
@@ -92,7 +92,7 @@ fn generate_inner<'help>(
         }
 
         if let Some(longs) = option.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_help().map(|s| s.as_str()), longs[0]);
+            let tooltip = get_tooltip(option.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
                 completions.push_str(format!("--{} '{}'", long, tooltip).as_str());
@@ -102,7 +102,7 @@ fn generate_inner<'help>(
 
     for flag in utils::flags(p) {
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_help().map(|s| s.as_str()), shorts[0]);
+            let tooltip = get_tooltip(flag.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
                 completions.push_str(format!("-{} '{}'", short, tooltip).as_str());
@@ -110,7 +110,7 @@ fn generate_inner<'help>(
         }
 
         if let Some(longs) = flag.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_help().map(|s| s.as_str()), longs[0]);
+            let tooltip = get_tooltip(flag.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
                 completions.push_str(format!("--{} '{}'", long, tooltip).as_str());
@@ -120,7 +120,7 @@ fn generate_inner<'help>(
 
     for subcommand in p.get_subcommands() {
         let data = &subcommand.get_name();
-        let tooltip = get_tooltip(subcommand.get_about().map(|s| s.as_str()), data);
+        let tooltip = get_tooltip(subcommand.get_about(), data);
 
         completions.push_str(&preamble);
         completions.push_str(format!("{} '{}'", data, tooltip).as_str());

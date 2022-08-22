@@ -62,7 +62,7 @@ fn gen_fig_inner(
         write!(buffer, "{:indent$}subcommands: [\n", "", indent = indent).unwrap();
         // generate subcommands
         for subcommand in cmd.get_subcommands() {
-            let mut aliases: Vec<&str> = subcommand.get_all_aliases().map(|s| s.as_str()).collect();
+            let mut aliases: Vec<&str> = subcommand.get_all_aliases().collect();
             if !aliases.is_empty() {
                 aliases.insert(0, subcommand.get_name());
 

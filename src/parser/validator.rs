@@ -45,7 +45,7 @@ impl<'cmd> Validator<'cmd> {
                     &get_possible_values_cli(o)
                         .iter()
                         .filter(|pv| !pv.is_hide_set())
-                        .map(|n| n.get_name().as_str().to_owned())
+                        .map(|n| n.get_name().to_owned())
                         .collect::<Vec<_>>(),
                     o.to_string(),
                 ));

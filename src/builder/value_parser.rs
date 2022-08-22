@@ -936,7 +936,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
                 .iter()
                 .filter_map(|v| v.to_possible_value())
                 .filter(|v| !v.is_hide_set())
-                .map(|v| v.get_name().as_str().to_owned())
+                .map(|v| v.get_name().to_owned())
                 .collect::<Vec<_>>()
         };
 
@@ -1064,7 +1064,7 @@ impl TypedValueParser for PossibleValuesParser {
                 .0
                 .iter()
                 .filter(|v| !v.is_hide_set())
-                .map(|v| v.get_name().as_str().to_owned())
+                .map(|v| v.get_name().to_owned())
                 .collect::<Vec<_>>();
 
             Err(crate::Error::invalid_value(
@@ -1525,7 +1525,7 @@ impl TypedValueParser for BoolValueParser {
         } else {
             // Intentionally showing hidden as we hide all of them
             let possible_vals = Self::possible_values()
-                .map(|v| v.get_name().as_str().to_owned())
+                .map(|v| v.get_name().to_owned())
                 .collect::<Vec<_>>();
 
             return Err(crate::Error::invalid_value(

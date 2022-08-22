@@ -216,17 +216,14 @@ mod tests {
         let actual_flags = flags(&cmd);
 
         assert_eq!(actual_flags.len(), 2);
-        assert_eq!(actual_flags[0].get_long().map(|s| s.as_str()), Some("help"));
-        assert_eq!(
-            actual_flags[1].get_long().map(|s| s.as_str()),
-            Some("version")
-        );
+        assert_eq!(actual_flags[0].get_long(), Some("help"));
+        assert_eq!(actual_flags[1].get_long(), Some("version"));
 
         let sc_flags = flags(find_subcommand_with_path(&cmd, vec!["test"]));
 
         assert_eq!(sc_flags.len(), 2);
-        assert_eq!(sc_flags[0].get_long().map(|s| s.as_str()), Some("file"));
-        assert_eq!(sc_flags[1].get_long().map(|s| s.as_str()), Some("help"));
+        assert_eq!(sc_flags[0].get_long(), Some("file"));
+        assert_eq!(sc_flags[1].get_long(), Some("help"));
     }
 
     #[test]
@@ -235,13 +232,13 @@ mod tests {
         let actual_flags = flags(&cmd);
 
         assert_eq!(actual_flags.len(), 1);
-        assert_eq!(actual_flags[0].get_long().map(|s| s.as_str()), Some("help"));
+        assert_eq!(actual_flags[0].get_long(), Some("help"));
 
         let sc_flags = flags(find_subcommand_with_path(&cmd, vec!["test"]));
 
         assert_eq!(sc_flags.len(), 2);
-        assert_eq!(sc_flags[0].get_long().map(|s| s.as_str()), Some("file"));
-        assert_eq!(sc_flags[1].get_long().map(|s| s.as_str()), Some("help"));
+        assert_eq!(sc_flags[0].get_long(), Some("file"));
+        assert_eq!(sc_flags[1].get_long(), Some("help"));
     }
 
     #[test]

@@ -233,11 +233,8 @@ fn doc_comment_about_handles_both_abouts() {
     }
 
     let cmd = Opts::command();
-    assert_eq!(
-        cmd.get_about().map(|s| s.as_str()),
-        Some("Opts doc comment summary")
-    );
+    assert_eq!(cmd.get_about(), Some("Opts doc comment summary"));
     // clap will fallback to `about` on `None`.  The main care about is not providing a `Sub` doc
     // comment.
-    assert_eq!(cmd.get_long_about().map(|s| s.as_str()), None);
+    assert_eq!(cmd.get_long_about(), None);
 }

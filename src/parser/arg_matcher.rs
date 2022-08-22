@@ -32,7 +32,7 @@ impl ArgMatcher {
                 #[cfg(debug_assertions)]
                 valid_subcommands: _cmd
                     .get_subcommands()
-                    .map(|sc| sc.get_name().clone())
+                    .map(|sc| sc.get_name().to_owned())
                     .collect(),
                 ..Default::default()
             },

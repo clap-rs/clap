@@ -166,11 +166,11 @@ fn append_keys(keys: &mut Vec<Key>, arg: &Arg, index: usize) {
         let key = KeyType::Position(pos_index);
         keys.push(Key { key, index });
     } else {
-        if let Some(short) = arg.get_short() {
+        if let Some(short) = arg.short {
             let key = KeyType::Short(short);
             keys.push(Key { key, index });
         }
-        if let Some(long) = arg.get_long() {
+        if let Some(long) = arg.long.clone() {
             let key = KeyType::Long(long.into());
             keys.push(Key { key, index });
         }

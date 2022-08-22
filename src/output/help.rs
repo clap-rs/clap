@@ -80,9 +80,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         debug!("Help::write_help");
 
         if let Some(h) = self.cmd.get_override_help() {
-            self.none(h.as_str())?;
+            self.none(h)?;
         } else if let Some(tmpl) = self.cmd.get_help_template() {
-            self.write_templated_help(tmpl.as_str())?;
+            self.write_templated_help(tmpl)?;
         } else {
             let pos = self
                 .cmd
@@ -259,13 +259,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 .unwrap_or_default()
         };
 
-        self.help(
-            Some(arg),
-            about.as_str(),
-            spec_vals,
-            next_line_help,
-            longest,
-        )?;
+        self.help(Some(arg), about, spec_vals, next_line_help, longest)?;
 
         if !last_arg {
             self.none("\n")?;
@@ -495,7 +489,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     .expect("Only called with possible value");
                 let help_longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_help().map(|s| display_width(s.as_str())))
+                    .filter_map(|f| f.get_visible_help().map(display_width))
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
@@ -515,7 +509,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     self.none("\n")?;
                     self.spaces(spaces)?;
                     self.none("- ")?;
-                    self.good(pv.get_name().as_str())?;
+                    self.good(pv.get_name())?;
                     if let Some(help) = pv.get_help() {
                         debug!("Help::help: Possible Value help");
 
@@ -567,7 +561,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             // force_next_line
             let h = arg.get_help().unwrap_or_default();
-            let h_w = display_width(h.as_str()) + display_width(spec_vals);
+            let h_w = display_width(h) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -882,8 +876,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.warning(
                 self.cmd
                     .get_subcommand_help_heading()
-                    .unwrap_or(&default_help_heading)
-                    .as_str(),
+                    .unwrap_or(&default_help_heading),
             )?;
             self.warning(":\n")?;
 

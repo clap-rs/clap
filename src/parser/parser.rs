@@ -509,7 +509,6 @@ impl<'cmd> Parser<'cmd> {
                 self.cmd
                     .get_bin_name()
                     .unwrap_or_else(|| self.cmd.get_name())
-                    .as_str()
                     .to_owned(),
                 Usage::new(self.cmd).create_usage_with_title(&[]),
             );
@@ -565,7 +564,7 @@ impl<'cmd> Parser<'cmd> {
     }
 
     // Checks if the arg matches a long flag subcommand name, or any of its aliases (if defined)
-    fn possible_long_flag_subcommand(&self, arg: &str) -> Option<&Str> {
+    fn possible_long_flag_subcommand(&self, arg: &str) -> Option<&str> {
         debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg);
         if self.cmd.is_infer_subcommands_set() {
             let options = self
@@ -699,7 +698,7 @@ impl<'cmd> Parser<'cmd> {
                 }
             }
             matcher.subcommand(SubCommand {
-                name: sc.get_name().clone(),
+                name: sc.get_name_str().clone(),
                 matches: sc_matcher.into_inner(),
             });
         }
@@ -746,7 +745,7 @@ impl<'cmd> Parser<'cmd> {
             self.cmd.get_arguments().find_map(|a| {
                 if let Some(long) = a.get_long() {
                     if long.starts_with(long_arg) {
-                        return Some((long.as_str(), a));
+                        return Some((long, a));
                     }
                 }
                 a.aliases
@@ -1269,7 +1268,7 @@ impl<'cmd> Parser<'cmd> {
                 &super::get_possible_values_cli(arg)
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(|n| n.get_name().as_str().to_owned())
+                    .map(|n| n.get_name().to_owned())
                     .collect::<Vec<_>>(),
                 arg.to_string(),
             ));

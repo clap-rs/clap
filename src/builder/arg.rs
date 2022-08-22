@@ -3539,8 +3539,8 @@ impl Arg {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&Str> {
-        self.help.as_ref()
+    pub fn get_help(&self) -> Option<&str> {
+        self.help.as_deref()
     }
 
     /// Get the long help specified for this argument, if any
@@ -3550,20 +3550,20 @@ impl Arg {
     /// ```rust
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").long_help("long help");
-    /// assert_eq!(Some("long help"), arg.get_long_help().map(|s| s.as_str()));
+    /// assert_eq!(Some("long help"), arg.get_long_help());
     /// ```
     ///
     #[inline]
-    pub fn get_long_help(&self) -> Option<&Str> {
-        self.long_help.as_ref()
+    pub fn get_long_help(&self) -> Option<&str> {
+        self.long_help.as_deref()
     }
 
     /// Get the help heading specified for this argument, if any
     #[inline]
-    pub fn get_help_heading(&self) -> Option<&Str> {
+    pub fn get_help_heading(&self) -> Option<&str> {
         self.help_heading
             .as_ref()
-            .map(|s| s.as_ref())
+            .map(|s| s.as_deref())
             .unwrap_or_default()
     }
 
@@ -3614,20 +3614,20 @@ impl Arg {
 
     /// Get the long option name for this argument, if any
     #[inline]
-    pub fn get_long(&self) -> Option<&Str> {
-        self.long.as_ref()
+    pub fn get_long(&self) -> Option<&str> {
+        self.long.as_deref()
     }
 
     /// Get visible aliases for this argument, if any
     #[inline]
-    pub fn get_visible_aliases(&self) -> Option<Vec<&Str>> {
+    pub fn get_visible_aliases(&self) -> Option<Vec<&str>> {
         if self.aliases.is_empty() {
             None
         } else {
             Some(
                 self.aliases
                     .iter()
-                    .filter_map(|(s, v)| if *v { Some(s) } else { None })
+                    .filter_map(|(s, v)| if *v { Some(s.as_str()) } else { None })
                     .collect(),
             )
         }
@@ -3635,17 +3635,17 @@ impl Arg {
 
     /// Get *all* aliases for this argument, if any, both visible and hidden.
     #[inline]
-    pub fn get_all_aliases(&self) -> Option<Vec<&Str>> {
+    pub fn get_all_aliases(&self) -> Option<Vec<&str>> {
         if self.aliases.is_empty() {
             None
         } else {
-            Some(self.aliases.iter().map(|(s, _)| s).collect())
+            Some(self.aliases.iter().map(|(s, _)| s.as_str()).collect())
         }
     }
 
     /// Get the long option name and its visible aliases, if any
     #[inline]
-    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&Str>> {
+    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&str>> {
         let mut longs = match self.get_long() {
             Some(long) => vec![long],
             None => return None,

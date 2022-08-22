@@ -33,13 +33,6 @@ impl Str {
     }
 }
 
-impl Default for &'_ Str {
-    fn default() -> Self {
-        static DEFAULT: Str = Str::from_static_ref("");
-        &DEFAULT
-    }
-}
-
 impl From<&'_ Str> for Str {
     fn from(id: &'_ Str) -> Self {
         id.clone()

@@ -9,11 +9,7 @@ fn propagate_version() {
         .subcommand(Command::new("sub1"));
     cmd._propagate();
     assert_eq!(
-        cmd.get_subcommands()
-            .next()
-            .unwrap()
-            .get_version()
-            .map(|s| s.as_str()),
+        cmd.get_subcommands().next().unwrap().get_version(),
         Some("1.1")
     );
 }

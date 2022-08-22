@@ -66,7 +66,7 @@ pub struct ArgMatches {
     #[cfg(debug_assertions)]
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
-    pub(crate) valid_subcommands: Vec<Str>,
+    pub(crate) valid_subcommands: Vec<String>,
     pub(crate) args: FlatMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
@@ -863,8 +863,8 @@ impl ArgMatches {
     pub fn is_valid_subcommand(&self, _name: &str) -> bool {
         #[cfg(debug_assertions)]
         {
-            let _name = Str::from(_name.to_owned());
-            _name == "" || self.valid_subcommands.contains(&_name)
+            let _name = _name.to_owned();
+            _name == String::default() || self.valid_subcommands.contains(&_name)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -1073,8 +1073,8 @@ impl ArgMatches {
     fn get_subcommand(&self, name: &str) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            let name = Str::from(name.to_owned());
-            if name == "" || self.valid_subcommands.contains(&name) {
+            let name = name.to_owned();
+            if name == String::default() || self.valid_subcommands.contains(&name) {
             } else {
                 panic!("`{}` is not a name of a subcommand.", name);
             }

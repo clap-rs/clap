@@ -2728,10 +2728,7 @@ fn display_name_explicit() {
         .bin_name("app.exe")
         .display_name("app.display");
     cmd.build();
-    assert_eq!(
-        cmd.get_display_name().map(|s| s.as_str()),
-        Some("app.display")
-    );
+    assert_eq!(cmd.get_display_name(), Some("app.display"));
 }
 
 #[test]
@@ -2739,10 +2736,7 @@ fn display_name_subcommand_default() {
     let mut cmd = Command::new("parent").subcommand(Command::new("child").bin_name("child.exe"));
     cmd.build();
     assert_eq!(
-        cmd.find_subcommand("child")
-            .unwrap()
-            .get_display_name()
-            .map(|s| s.as_str()),
+        cmd.find_subcommand("child").unwrap().get_display_name(),
         Some("parent-child")
     );
 }
@@ -2756,10 +2750,7 @@ fn display_name_subcommand_explicit() {
     );
     cmd.build();
     assert_eq!(
-        cmd.find_subcommand("child")
-            .unwrap()
-            .get_display_name()
-            .map(|s| s.as_str()),
+        cmd.find_subcommand("child").unwrap().get_display_name(),
         Some("child.display")
     );
 }

@@ -3151,14 +3151,14 @@ impl Command {
 
     /// Get the name of the binary.
     #[inline]
-    pub fn get_display_name(&self) -> Option<&Str> {
-        self.display_name.as_ref()
+    pub fn get_display_name(&self) -> Option<&str> {
+        self.display_name.as_deref()
     }
 
     /// Get the name of the binary.
     #[inline]
-    pub fn get_bin_name(&self) -> Option<&Str> {
-        self.bin_name.as_ref()
+    pub fn get_bin_name(&self) -> Option<&str> {
+        self.bin_name.as_deref()
     }
 
     /// Set binary name. Uses `&mut self` instead of `self`.
@@ -3168,26 +3168,31 @@ impl Command {
 
     /// Get the name of the cmd.
     #[inline]
-    pub fn get_name(&self) -> &Str {
+    pub fn get_name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    #[inline]
+    pub(crate) fn get_name_str(&self) -> &Str {
         &self.name
     }
 
     /// Get the version of the cmd.
     #[inline]
-    pub fn get_version(&self) -> Option<&Str> {
-        self.version.as_ref()
+    pub fn get_version(&self) -> Option<&str> {
+        self.version.as_deref()
     }
 
     /// Get the long version of the cmd.
     #[inline]
-    pub fn get_long_version(&self) -> Option<&Str> {
-        self.long_version.as_ref()
+    pub fn get_long_version(&self) -> Option<&str> {
+        self.long_version.as_deref()
     }
 
     /// Get the authors of the cmd.
     #[inline]
-    pub fn get_author(&self) -> Option<&Str> {
-        self.author.as_ref()
+    pub fn get_author(&self) -> Option<&str> {
+        self.author.as_deref()
     }
 
     /// Get the short flag of the subcommand.
@@ -3198,38 +3203,41 @@ impl Command {
 
     /// Get the long flag of the subcommand.
     #[inline]
-    pub fn get_long_flag(&self) -> Option<&Str> {
-        self.long_flag.as_ref()
+    pub fn get_long_flag(&self) -> Option<&str> {
+        self.long_flag.as_deref()
     }
 
     /// Get the help message specified via [`Command::about`].
     ///
     /// [`Command::about`]: Command::about()
     #[inline]
-    pub fn get_about(&self) -> Option<&Str> {
-        self.about.as_ref()
+    pub fn get_about(&self) -> Option<&str> {
+        self.about.as_deref()
     }
 
     /// Get the help message specified via [`Command::long_about`].
     ///
     /// [`Command::long_about`]: Command::long_about()
     #[inline]
-    pub fn get_long_about(&self) -> Option<&Str> {
-        self.long_about.as_ref()
+    pub fn get_long_about(&self) -> Option<&str> {
+        self.long_about.as_deref()
     }
 
     /// Get the custom section heading specified via [`Command::next_help_heading`].
     ///
     /// [`Command::help_heading`]: Command::help_heading()
     #[inline]
-    pub fn get_next_help_heading(&self) -> Option<&Str> {
-        self.current_help_heading.as_ref()
+    pub fn get_next_help_heading(&self) -> Option<&str> {
+        self.current_help_heading.as_deref()
     }
 
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
-    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &Str> + '_ {
-        self.aliases.iter().filter(|(_, vis)| *vis).map(|a| &a.0)
+    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.aliases
+            .iter()
+            .filter(|(_, vis)| *vis)
+            .map(|a| a.0.as_str())
     }
 
     /// Iterate through the *visible* short aliases for this subcommand.
@@ -3243,17 +3251,17 @@ impl Command {
 
     /// Iterate through the *visible* long aliases for this subcommand.
     #[inline]
-    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &Str> + '_ {
+    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &str> + '_ {
         self.long_flag_aliases
             .iter()
             .filter(|(_, vis)| *vis)
-            .map(|a| &a.0)
+            .map(|a| a.0.as_str())
     }
 
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
-    pub fn get_all_aliases(&self) -> impl Iterator<Item = &Str> + '_ {
-        self.aliases.iter().map(|a| &a.0)
+    pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.aliases.iter().map(|a| a.0.as_str())
     }
 
     /// Iterate through the set of *all* the short aliases for this subcommand, both visible and hidden.
@@ -3264,8 +3272,8 @@ impl Command {
 
     /// Iterate through the set of *all* the long aliases for this subcommand, both visible and hidden.
     #[inline]
-    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &Str> + '_ {
-        self.long_flag_aliases.iter().map(|a| &a.0)
+    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.long_flag_aliases.iter().map(|a| a.0.as_str())
     }
 
     #[inline]
@@ -3314,38 +3322,38 @@ impl Command {
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_subcommand_help_heading(&self) -> Option<&Str> {
-        self.subcommand_heading.as_ref()
+    pub fn get_subcommand_help_heading(&self) -> Option<&str> {
+        self.subcommand_heading.as_deref()
     }
 
     /// Returns the subcommand value name.
     #[inline]
-    pub fn get_subcommand_value_name(&self) -> Option<&Str> {
-        self.subcommand_value_name.as_ref()
+    pub fn get_subcommand_value_name(&self) -> Option<&str> {
+        self.subcommand_value_name.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_before_help(&self) -> Option<&Str> {
-        self.before_help.as_ref()
+    pub fn get_before_help(&self) -> Option<&str> {
+        self.before_help.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_before_long_help(&self) -> Option<&Str> {
-        self.before_long_help.as_ref()
+    pub fn get_before_long_help(&self) -> Option<&str> {
+        self.before_long_help.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_after_help(&self) -> Option<&Str> {
-        self.after_help.as_ref()
+    pub fn get_after_help(&self) -> Option<&str> {
+        self.after_help.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_after_long_help(&self) -> Option<&Str> {
-        self.after_long_help.as_ref()
+    pub fn get_after_long_help(&self) -> Option<&str> {
+        self.after_long_help.as_deref()
     }
 
     /// Find subcommand such that its name or one of aliases equals `name`.
@@ -3629,16 +3637,16 @@ impl Command {
 
 // Internally used only
 impl Command {
-    pub(crate) fn get_override_usage(&self) -> Option<&Str> {
-        self.usage_str.as_ref()
+    pub(crate) fn get_override_usage(&self) -> Option<&str> {
+        self.usage_str.as_deref()
     }
 
-    pub(crate) fn get_override_help(&self) -> Option<&Str> {
-        self.help_str.as_ref()
+    pub(crate) fn get_override_help(&self) -> Option<&str> {
+        self.help_str.as_deref()
     }
 
-    pub(crate) fn get_help_template(&self) -> Option<&Str> {
-        self.template.as_ref()
+    pub(crate) fn get_help_template(&self) -> Option<&str> {
+        self.template.as_deref()
     }
 
     pub(crate) fn get_term_width(&self) -> Option<usize> {
@@ -3830,7 +3838,7 @@ impl Command {
         // a space
         let bin_name = format!(
             "{}{}{}",
-            self.bin_name.as_ref().unwrap_or_default(),
+            self.bin_name.as_deref().unwrap_or_default(),
             if self.bin_name.is_some() { " " } else { "" },
             &*sc.name
         );
@@ -4131,13 +4139,13 @@ impl Command {
 
         let ver = if use_long {
             self.long_version
-                .as_ref()
-                .or(self.version.as_ref())
+                .as_deref()
+                .or(self.version.as_deref())
                 .unwrap_or_default()
         } else {
             self.version
-                .as_ref()
-                .or(self.long_version.as_ref())
+                .as_deref()
+                .or(self.long_version.as_deref())
                 .unwrap_or_default()
         };
         let display_name = self.get_display_name().unwrap_or_else(|| self.get_name());
@@ -4227,7 +4235,7 @@ impl Command {
     #[inline]
     pub(crate) fn aliases_to(&self, name: impl AsRef<std::ffi::OsStr>) -> bool {
         let name = name.as_ref();
-        *self.get_name() == name || self.get_all_aliases().any(|alias| *alias == name)
+        self.get_name() == name || self.get_all_aliases().any(|alias| alias == name)
     }
 
     /// Check if this subcommand can be referred to as `name`. In other words,
@@ -4244,9 +4252,9 @@ impl Command {
     pub(crate) fn long_flag_aliases_to(&self, flag: &str) -> bool {
         match self.long_flag.as_ref() {
             Some(long_flag) => {
-                *long_flag == flag || self.get_all_long_flag_aliases().any(|alias| *alias == flag)
+                long_flag == flag || self.get_all_long_flag_aliases().any(|alias| alias == flag)
             }
-            None => self.get_all_long_flag_aliases().any(|alias| *alias == flag),
+            None => self.get_all_long_flag_aliases().any(|alias| alias == flag),
         }
     }
 
@@ -4271,7 +4279,7 @@ impl Command {
 
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
-    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &Str> + Captures {
+    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures {
         self.get_subcommands().flat_map(|sc| {
             let name = sc.get_name();
             let aliases = sc.get_all_aliases();
@@ -4357,14 +4365,14 @@ impl Command {
     }
 
     /// Find a flag subcommand name by short flag or an alias
-    pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&Str> {
+    pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&str> {
         self.get_subcommands()
             .find(|sc| sc.short_flag_aliases_to(c))
             .map(|sc| sc.get_name())
     }
 
     /// Find a flag subcommand name by long flag or an alias
-    pub(crate) fn find_long_subcmd(&self, long: &str) -> Option<&Str> {
+    pub(crate) fn find_long_subcmd(&self, long: &str) -> Option<&str> {
         self.get_subcommands()
             .find(|sc| sc.long_flag_aliases_to(long))
             .map(|sc| sc.get_name())

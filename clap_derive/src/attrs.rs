@@ -544,7 +544,7 @@ impl Attrs {
                     let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
                         quote_spanned!(ident.span()=> {
                             {
-                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=clap::Str>
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
                                 where
                                     T: ::std::borrow::Borrow<#inner_type>
                                 {
@@ -646,7 +646,7 @@ impl Attrs {
                     let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
                         quote_spanned!(ident.span()=> {
                             {
-                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=clap::Str>
+                                fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
                                 where
                                     T: ::std::borrow::Borrow<#inner_type>
                                 {

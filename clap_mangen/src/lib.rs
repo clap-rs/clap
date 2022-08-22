@@ -27,7 +27,7 @@ impl Man {
     /// Create a new manual page.
     pub fn new(mut cmd: clap::Command) -> Self {
         cmd.build();
-        let title = cmd.get_name().as_str().to_owned();
+        let title = cmd.get_name().to_owned();
         let section = "1".to_owned();
         let date = "".to_owned();
         let source = format!(
@@ -244,7 +244,7 @@ impl Man {
     }
 
     fn _render_authors_section(&self, roff: &mut Roff) {
-        let author = roman(self.cmd.get_author().unwrap_or_default().as_str());
+        let author = roman(self.cmd.get_author().unwrap_or_default());
         roff.control("SH", ["AUTHORS"]);
         roff.text([author]);
     }

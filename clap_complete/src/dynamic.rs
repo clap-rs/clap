@@ -374,9 +374,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             if let Some((flag, value)) = arg.to_long() {
                 if let Ok(flag) = flag {
                     if let Some(value) = value {
-                        if let Some(arg) = cmd
-                            .get_arguments()
-                            .find(|a| a.get_long().map(|s| s.as_str()) == Some(flag))
+                        if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag))
                         {
                             completions.extend(
                                 complete_arg_value(value.to_str().ok_or(value), arg, current_dir)

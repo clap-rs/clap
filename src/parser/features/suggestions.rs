@@ -64,7 +64,7 @@ where
                 let subcommand_name = subcommand.get_name();
 
                 let candidate = did_you_mean(arg, longs).pop()?;
-                let score = remaining_args.iter().position(|x| *subcommand_name == *x)?;
+                let score = remaining_args.iter().position(|x| subcommand_name == *x)?;
                 Some((score, (candidate, Some(subcommand_name.to_string()))))
             })
             .min_by_key(|(x, _)| *x)
