@@ -17,7 +17,7 @@ impl OsStr {
         }
     }
 
-    pub(crate) const fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
+    pub(crate) fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
         Self {
             name: Inner::from_static_ref(name),
         }
@@ -42,19 +42,13 @@ impl From<&'_ OsStr> for OsStr {
 
 impl From<crate::Str> for OsStr {
     fn from(id: crate::Str) -> Self {
-        match id.into_inner() {
-            crate::util::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
-            crate::util::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
-        }
+        Self::from_ref(std::ffi::OsStr::new(id.as_str()))
     }
 }
 
 impl From<&'_ crate::Str> for OsStr {
     fn from(id: &'_ crate::Str) -> Self {
-        match id.clone().into_inner() {
-            crate::util::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
-            crate::util::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
-        }
+        Self::from_ref(std::ffi::OsStr::new(id.as_str()))
     }
 }
 
@@ -221,36 +215,27 @@ impl PartialEq<OsStr> for std::ffi::OsString {
 }
 
 #[derive(Clone)]
-enum Inner {
-    Static(&'static std::ffi::OsStr),
-    Owned(Box<std::ffi::OsStr>),
-}
+struct Inner(std::ffi::OsString);
 
 impl Inner {
     fn from_string(name: std::ffi::OsString) -> Self {
-        Inner::Owned(name.into_boxed_os_str())
+        Self(name)
     }
 
     fn from_ref(name: &std::ffi::OsStr) -> Self {
-        Inner::Owned(Box::from(name))
+        Self(std::ffi::OsString::from(name))
     }
 
-    const fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
-        Inner::Static(name)
+    fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
+        Self::from_ref(name)
     }
 
     fn as_os_str(&self) -> &std::ffi::OsStr {
-        match self {
-            Self::Static(s) => s,
-            Self::Owned(s) => s.as_ref(),
-        }
+        &self.0
     }
 
     fn into_os_string(self) -> std::ffi::OsString {
-        match self {
-            Self::Static(s) => std::ffi::OsString::from(s),
-            Self::Owned(s) => std::ffi::OsString::from(s),
-        }
+        self.as_os_str().to_owned()
     }
 }
 

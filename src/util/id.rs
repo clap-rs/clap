@@ -13,7 +13,7 @@ impl Id {
     pub(crate) const VERSION: &'static str = "version";
     pub(crate) const EXTERNAL: &'static str = "";
 
-    pub(crate) const fn from_static_ref(name: &'static str) -> Self {
+    pub(crate) fn from_static_ref(name: &'static str) -> Self {
         Self(Str::from_static_ref(name))
     }
 

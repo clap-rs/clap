@@ -17,14 +17,10 @@ impl Str {
         }
     }
 
-    pub(crate) const fn from_static_ref(name: &'static str) -> Self {
+    pub(crate) fn from_static_ref(name: &'static str) -> Self {
         Self {
             name: Inner::from_static_ref(name),
         }
-    }
-
-    pub(crate) fn into_inner(self) -> Inner {
-        self.name
     }
 
     /// Get the raw string of the `Str`
@@ -211,36 +207,27 @@ impl PartialEq<Str> for std::string::String {
 }
 
 #[derive(Clone)]
-pub(crate) enum Inner {
-    Static(&'static str),
-    Owned(Box<str>),
-}
+pub(crate) struct Inner(String);
 
 impl Inner {
     fn from_string(name: std::string::String) -> Self {
-        Inner::Owned(name.into_boxed_str())
+        Self(name)
     }
 
     fn from_ref(name: &str) -> Self {
-        Inner::Owned(Box::from(name))
+        Self(String::from(name))
     }
 
-    const fn from_static_ref(name: &'static str) -> Self {
-        Inner::Static(name)
+    fn from_static_ref(name: &'static str) -> Self {
+        Self::from_ref(name)
     }
 
     fn as_str(&self) -> &str {
-        match self {
-            Self::Static(s) => s,
-            Self::Owned(s) => s.as_ref(),
-        }
+        &self.0
     }
 
     fn into_string(self) -> String {
-        match self {
-            Self::Static(s) => String::from(s),
-            Self::Owned(s) => String::from(s),
-        }
+        self.as_str().to_owned()
     }
 }
 
