@@ -185,7 +185,7 @@ impl<'cmd> Usage<'cmd> {
             usage.push_str(
                 self.cmd
                     .get_subcommand_value_name()
-                    .unwrap_or(&DEFAULT_SUB_VALUE_NAME),
+                    .unwrap_or(DEFAULT_SUB_VALUE_NAME),
             );
             usage.push('>');
         }
