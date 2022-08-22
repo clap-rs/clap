@@ -434,7 +434,7 @@ impl<'cmd> Parser<'cmd> {
 
                 for raw_val in raw_args.remaining(&mut args_cursor) {
                     let val = external_parser.parse_ref(self.cmd, None, raw_val)?;
-                    let external_id = Id::EXTERNAL;
+                    let external_id = Id::from_static_ref(Id::EXTERNAL);
                     sc_m.add_val_to(&external_id, val, raw_val.to_os_string());
                 }
 

@@ -9,11 +9,11 @@ use crate::Str;
 pub struct Id(Str);
 
 impl Id {
-    pub(crate) const HELP: Self = Self::from_static_ref("help");
-    pub(crate) const VERSION: Self = Self::from_static_ref("version");
-    pub(crate) const EXTERNAL: Self = Self::from_static_ref("");
+    pub(crate) const HELP: &'static str = "help";
+    pub(crate) const VERSION: &'static str = "version";
+    pub(crate) const EXTERNAL: &'static str = "";
 
-    const fn from_static_ref(name: &'static str) -> Self {
+    pub(crate) const fn from_static_ref(name: &'static str) -> Self {
         Self(Str::from_static_ref(name))
     }
 
