@@ -30,7 +30,7 @@ USAGE:
 For more information try --help
 ";
 
-fn cmd() -> Command<'static> {
+fn cmd() -> Command {
     Command::new("prog")
         .arg(
             Arg::new("a")

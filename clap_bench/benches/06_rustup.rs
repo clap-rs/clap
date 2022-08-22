@@ -21,7 +21,7 @@ pub fn parse_rustup_with_sc(c: &mut Criterion) {
     });
 }
 
-fn build_cli() -> Command<'static> {
+fn build_cli() -> Command {
     Command::new("rustup")
         .version("0.9.0") // Simulating
         .about("The Rust toolchain installer")

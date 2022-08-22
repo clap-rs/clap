@@ -10,6 +10,7 @@ use std::path::Path;
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
 use crate::builder::ArgAction;
+use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
 use crate::builder::{Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
@@ -21,6 +22,7 @@ use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, Id};
+use crate::Str;
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]
@@ -63,46 +65,46 @@ use crate::builder::debug_asserts::assert_app;
 /// ```
 /// [`Command::get_matches`]: Command::get_matches()
 #[derive(Debug, Clone)]
-pub struct Command<'help> {
-    name: String,
-    long_flag: Option<&'help str>,
+pub struct Command {
+    name: Str,
+    long_flag: Option<Str>,
     short_flag: Option<char>,
-    display_name: Option<String>,
-    bin_name: Option<String>,
-    author: Option<&'help str>,
-    version: Option<&'help str>,
-    long_version: Option<&'help str>,
-    about: Option<&'help str>,
-    long_about: Option<&'help str>,
-    before_help: Option<&'help str>,
-    before_long_help: Option<&'help str>,
-    after_help: Option<&'help str>,
-    after_long_help: Option<&'help str>,
-    aliases: Vec<(&'help str, bool)>,           // (name, visible)
-    short_flag_aliases: Vec<(char, bool)>,      // (name, visible)
-    long_flag_aliases: Vec<(&'help str, bool)>, // (name, visible)
-    usage_str: Option<&'help str>,
+    display_name: Option<Str>,
+    bin_name: Option<Str>,
+    author: Option<Str>,
+    version: Option<Str>,
+    long_version: Option<Str>,
+    about: Option<Str>,
+    long_about: Option<Str>,
+    before_help: Option<Str>,
+    before_long_help: Option<Str>,
+    after_help: Option<Str>,
+    after_long_help: Option<Str>,
+    aliases: Vec<(Str, bool)>,             // (name, visible)
+    short_flag_aliases: Vec<(char, bool)>, // (name, visible)
+    long_flag_aliases: Vec<(Str, bool)>,   // (name, visible)
+    usage_str: Option<Str>,
     usage_name: Option<String>,
-    help_str: Option<&'help str>,
+    help_str: Option<Str>,
     disp_ord: Option<usize>,
     term_w: Option<usize>,
     max_w: Option<usize>,
-    template: Option<&'help str>,
+    template: Option<Str>,
     settings: AppFlags,
     g_settings: AppFlags,
-    args: MKeyMap<'help>,
-    subcommands: Vec<Command<'help>>,
-    replacers: FlatMap<&'help str, &'help [&'help str]>,
+    args: MKeyMap,
+    subcommands: Vec<Command>,
+    replacers: FlatMap<Str, Vec<Str>>,
     groups: Vec<ArgGroup>,
-    current_help_heading: Option<&'help str>,
+    current_help_heading: Option<Str>,
     current_disp_ord: Option<usize>,
-    subcommand_value_name: Option<&'help str>,
-    subcommand_heading: Option<&'help str>,
+    subcommand_value_name: Option<Str>,
+    subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
 }
 
 /// # Basic API
-impl<'help> Command<'help> {
+impl Command {
     /// Creates a new instance of an `Command`.
     ///
     /// It is common, but not required, to use binary name as the `name`. This
@@ -118,12 +120,12 @@ impl<'help> Command<'help> {
     /// Command::new("My Program")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(name: S) -> Self {
+    pub fn new(name: impl Into<Str>) -> Self {
         /// The actual implementation of `new`, non-generic to save code size.
         ///
         /// If we don't do this rustc will unnecessarily generate multiple versions
         /// of this code.
-        fn new_inner<'help>(name: String) -> Command<'help> {
+        fn new_inner(name: Str) -> Command {
             Command {
                 name,
                 ..Default::default()
@@ -155,13 +157,13 @@ impl<'help> Command<'help> {
     /// ```
     /// [argument]: Arg
     #[must_use]
-    pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
+    pub fn arg(mut self, a: impl Into<Arg>) -> Self {
         let arg = a.into();
         self.arg_internal(arg);
         self
     }
 
-    fn arg_internal(&mut self, mut arg: Arg<'help>) {
+    fn arg_internal(&mut self, mut arg: Arg) {
         if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
             if !arg.is_positional() {
                 let current = *current_disp_ord;
@@ -170,7 +172,8 @@ impl<'help> Command<'help> {
             }
         }
 
-        arg.help_heading.get_or_insert(self.current_help_heading);
+        arg.help_heading
+            .get_or_insert_with(|| self.current_help_heading.clone());
         self.args.push(arg);
     }
 
@@ -189,7 +192,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [arguments]: Arg
     #[must_use]
-    pub fn args(mut self, args: impl IntoIterator<Item = impl Into<Arg<'help>>>) -> Self {
+    pub fn args(mut self, args: impl IntoIterator<Item = impl Into<Arg>>) -> Self {
         let args = args.into_iter();
         let (lower, _) = args.size_hint();
         self.args.reserve(lower);
@@ -228,7 +231,7 @@ impl<'help> Command<'help> {
     #[must_use]
     pub fn mut_arg<F>(mut self, arg_id: impl Into<Id>, f: F) -> Self
     where
-        F: FnOnce(Arg<'help>) -> Arg<'help>,
+        F: FnOnce(Arg) -> Arg,
     {
         let id = arg_id.into();
         let a = self
@@ -274,7 +277,7 @@ impl<'help> Command<'help> {
         let subcmd = if let Some(idx) = pos {
             self.subcommands.remove(idx)
         } else {
-            Self::new(name)
+            Self::new(Str::from(name.to_owned()))
         };
 
         self.subcommands.push(f(subcmd));
@@ -314,7 +317,7 @@ impl<'help> Command<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn group<G: Into<ArgGroup>>(mut self, group: G) -> Self {
+    pub fn group(mut self, group: impl Into<ArgGroup>) -> Self {
         self.groups.push(group.into());
         self
     }
@@ -371,7 +374,7 @@ impl<'help> Command<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn subcommand<S: Into<Self>>(self, subcmd: S) -> Self {
+    pub fn subcommand(self, subcmd: impl Into<Command>) -> Self {
         let subcmd = subcmd.into();
         self.subcommand_internal(subcmd)
     }
@@ -426,7 +429,7 @@ impl<'help> Command<'help> {
     ///
     /// ```rust
     /// # use clap::{Command, Arg, ArgAction};
-    /// fn cmd() -> Command<'static> {
+    /// fn cmd() -> Command {
     ///     Command::new("foo")
     ///         .arg(
     ///             Arg::new("bar").short('b').action(ArgAction::SetTrue)
@@ -668,7 +671,7 @@ impl<'help> Command<'help> {
                     debug!("Command::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
                     raw_args.insert(&cursor, &[&command]);
                     debug!("Command::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
-                    self.name.clear();
+                    self.name = "".into();
                     self.bin_name = None;
                     return self._do_parse(&mut raw_args, cursor);
                 }
@@ -689,7 +692,7 @@ impl<'help> Command<'help> {
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_str() {
                         if self.bin_name.is_none() {
-                            self.bin_name = Some(s.to_owned());
+                            self.bin_name = Some(Str::from(s.to_owned()));
                         }
                     }
                 }
@@ -865,7 +868,7 @@ impl<'help> Command<'help> {
 ///
 /// These settings will apply to the top-level command and all subcommands, by default.  Some
 /// settings can be overridden in subcommands.
-impl<'help> Command<'help> {
+impl Command {
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     ///
     /// This is normally the case when using a "daemon" style mode.  For shells / REPLs, see
@@ -1330,7 +1333,7 @@ impl<'help> Command<'help> {
 /// # Command-specific Settings
 ///
 /// These apply only to the current command and are not inherited by subcommands.
-impl<'help> Command<'help> {
+impl Command {
     /// (Re)Sets the program's name.
     ///
     /// See [`Command::new`] for more details.
@@ -1344,7 +1347,7 @@ impl<'help> Command<'help> {
     /// // continued logic goes here, such as `cmd.get_matches()` etc.
     /// ```
     #[must_use]
-    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
+    pub fn name(mut self, name: impl Into<Str>) -> Self {
         self.name = name.into();
         self
     }
@@ -1370,7 +1373,7 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
+    pub fn bin_name(mut self, name: impl Into<Str>) -> Self {
         self.bin_name = Some(name.into());
         self
     }
@@ -1386,7 +1389,7 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn display_name<S: Into<String>>(mut self, name: S) -> Self {
+    pub fn display_name(mut self, name: impl Into<Str>) -> Self {
         self.display_name = Some(name.into());
         self
     }
@@ -1407,7 +1410,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`crate_authors!`]: ./macro.crate_authors!.html
     #[must_use]
-    pub fn author<S: Into<&'help str>>(mut self, author: S) -> Self {
+    pub fn author(mut self, author: impl Into<Str>) -> Self {
         self.author = Some(author.into());
         self
     }
@@ -1430,8 +1433,8 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn about<O: Into<Option<&'help str>>>(mut self, about: O) -> Self {
-        self.about = about.into();
+    pub fn about(mut self, about: impl IntoResettable<Str>) -> Self {
+        self.about = about.into_resettable().into_option();
         self
     }
 
@@ -1455,8 +1458,8 @@ impl<'help> Command<'help> {
     /// ```
     /// [`Command::about`]: Command::about()
     #[must_use]
-    pub fn long_about<O: Into<Option<&'help str>>>(mut self, long_about: O) -> Self {
-        self.long_about = long_about.into();
+    pub fn long_about(mut self, long_about: impl IntoResettable<Str>) -> Self {
+        self.long_about = long_about.into_resettable().into_option();
         self
     }
 
@@ -1477,7 +1480,7 @@ impl<'help> Command<'help> {
     /// ```
     ///
     #[must_use]
-    pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
+    pub fn after_help(mut self, help: impl Into<Str>) -> Self {
         self.after_help = Some(help.into());
         self
     }
@@ -1499,7 +1502,7 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn after_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
+    pub fn after_long_help(mut self, help: impl Into<Str>) -> Self {
         self.after_long_help = Some(help.into());
         self
     }
@@ -1519,7 +1522,7 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn before_help<S: Into<&'help str>>(mut self, help: S) -> Self {
+    pub fn before_help(mut self, help: impl Into<Str>) -> Self {
         self.before_help = Some(help.into());
         self
     }
@@ -1539,7 +1542,7 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn before_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
+    pub fn before_long_help(mut self, help: impl Into<Str>) -> Self {
         self.before_long_help = Some(help.into());
         self
     }
@@ -1562,7 +1565,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
-    pub fn version<S: Into<&'help str>>(mut self, ver: S) -> Self {
+    pub fn version(mut self, ver: impl Into<Str>) -> Self {
         self.version = Some(ver.into());
         self
     }
@@ -1590,7 +1593,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
-    pub fn long_version<S: Into<&'help str>>(mut self, ver: S) -> Self {
+    pub fn long_version(mut self, ver: impl Into<Str>) -> Self {
         self.long_version = Some(ver.into());
         self
     }
@@ -1611,7 +1614,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`ArgMatches::usage`]: ArgMatches::usage()
     #[must_use]
-    pub fn override_usage<S: Into<&'help str>>(mut self, usage: S) -> Self {
+    pub fn override_usage(mut self, usage: impl Into<Str>) -> Self {
         self.usage_str = Some(usage.into());
         self
     }
@@ -1648,7 +1651,7 @@ impl<'help> Command<'help> {
     /// # ;
     /// ```
     #[must_use]
-    pub fn override_help<S: Into<&'help str>>(mut self, help: S) -> Self {
+    pub fn override_help(mut self, help: impl Into<Str>) -> Self {
         self.help_str = Some(help.into());
         self
     }
@@ -1698,7 +1701,7 @@ impl<'help> Command<'help> {
     /// [`Command::before_help`]: Command::before_help()
     /// [`Command::before_long_help`]: Command::before_long_help()
     #[must_use]
-    pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
+    pub fn help_template(mut self, s: impl Into<Str>) -> Self {
         self.template = Some(s.into());
         self
     }
@@ -1752,11 +1755,8 @@ impl<'help> Command<'help> {
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
     #[inline]
     #[must_use]
-    pub fn next_help_heading<O>(mut self, heading: O) -> Self
-    where
-        O: Into<Option<&'help str>>,
-    {
-        self.current_help_heading = heading.into();
+    pub fn next_help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.current_help_heading = heading.into_resettable().into_option();
         self
     }
 
@@ -1880,8 +1880,13 @@ impl<'help> Command<'help> {
     #[inline]
     #[cfg(feature = "unstable-replace")]
     #[must_use]
-    pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
-        self.replacers.insert(name, target);
+    pub fn replace(
+        mut self,
+        name: impl Into<Str>,
+        target: impl IntoIterator<Item = impl Into<Str>>,
+    ) -> Self {
+        self.replacers
+            .insert(name.into(), target.into_iter().map(Into::into).collect());
         self
     }
 
@@ -2116,7 +2121,7 @@ impl<'help> Command<'help> {
 }
 
 /// # Subcommand-specific Settings
-impl<'help> Command<'help> {
+impl Command {
     /// Sets the short version of the subcommand flag without the preceding `-`.
     ///
     /// Allows the subcommand to be used as if it were an [`Arg::short`].
@@ -2181,8 +2186,8 @@ impl<'help> Command<'help> {
     ///
     /// [`Arg::long`]: Arg::long()
     #[must_use]
-    pub fn long_flag(mut self, long: &'help str) -> Self {
-        self.long_flag = Some(long);
+    pub fn long_flag(mut self, long: impl Into<Str>) -> Self {
+        self.long_flag = Some(long.into());
         self
     }
 
@@ -2212,7 +2217,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`Command::visible_alias`]: Command::visible_alias()
     #[must_use]
-    pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
+    pub fn alias(mut self, name: impl Into<Str>) -> Self {
         self.aliases.push((name.into(), false));
         self
     }
@@ -2257,8 +2262,8 @@ impl<'help> Command<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     #[must_use]
-    pub fn long_flag_alias(mut self, name: &'help str) -> Self {
-        self.long_flag_aliases.push((name, false));
+    pub fn long_flag_alias(mut self, name: impl Into<Str>) -> Self {
+        self.long_flag_aliases.push((name.into(), false));
         self
     }
 
@@ -2291,7 +2296,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`Command::visible_aliases`]: Command::visible_aliases()
     #[must_use]
-    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
         self.aliases
             .extend(names.into_iter().map(|n| (n.into(), false)));
         self
@@ -2345,12 +2350,9 @@ impl<'help> Command<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     #[must_use]
-    pub fn long_flag_aliases(
-        mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
+    pub fn long_flag_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
         for s in names {
-            self.long_flag_aliases.push((s.into(), false));
+            self = self.long_flag_alias(s)
         }
         self
     }
@@ -2383,7 +2385,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`Command::alias`]: Command::alias()
     #[must_use]
-    pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
+    pub fn visible_alias(mut self, name: impl Into<Str>) -> Self {
         self.aliases.push((name.into(), true));
         self
     }
@@ -2434,8 +2436,8 @@ impl<'help> Command<'help> {
     /// ```
     /// [`Command::long_flag_alias`]: Command::long_flag_alias()
     #[must_use]
-    pub fn visible_long_flag_alias(mut self, name: &'help str) -> Self {
-        self.long_flag_aliases.push((name, true));
+    pub fn visible_long_flag_alias(mut self, name: impl Into<Str>) -> Self {
+        self.long_flag_aliases.push((name.into(), true));
         self
     }
 
@@ -2467,10 +2469,7 @@ impl<'help> Command<'help> {
     /// ```
     /// [`Command::alias`]: Command::alias()
     #[must_use]
-    pub fn visible_aliases(
-        mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
+    pub fn visible_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
         self.aliases
             .extend(names.into_iter().map(|n| (n.into(), true)));
         self
@@ -2518,10 +2517,10 @@ impl<'help> Command<'help> {
     #[must_use]
     pub fn visible_long_flag_aliases(
         mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
+        names: impl IntoIterator<Item = impl Into<Str>>,
     ) -> Self {
         for s in names {
-            self.long_flag_aliases.push((s.into(), true));
+            self = self.visible_long_flag_alias(s);
         }
         self
     }
@@ -2976,7 +2975,7 @@ impl<'help> Command<'help> {
     ///
     /// ```rust
     /// # use clap::Command;
-    /// fn applet_commands() -> [Command<'static>; 2] {
+    /// fn applet_commands() -> [Command; 2] {
     ///     [Command::new("true"), Command::new("false")]
     /// }
     /// let mut cmd = Command::new("busybox")
@@ -3071,10 +3070,7 @@ impl<'help> Command<'help> {
     ///     sub1
     /// ```
     #[must_use]
-    pub fn subcommand_value_name<S>(mut self, value_name: S) -> Self
-    where
-        S: Into<&'help str>,
-    {
+    pub fn subcommand_value_name(mut self, value_name: impl Into<Str>) -> Self {
         self.subcommand_value_name = Some(value_name.into());
         self
     }
@@ -3140,17 +3136,14 @@ impl<'help> Command<'help> {
     ///     sub1
     /// ```
     #[must_use]
-    pub fn subcommand_help_heading<T>(mut self, heading: T) -> Self
-    where
-        T: Into<&'help str>,
-    {
+    pub fn subcommand_help_heading(mut self, heading: impl Into<Str>) -> Self {
         self.subcommand_heading = Some(heading.into());
         self
     }
 }
 
 /// # Reflection
-impl<'help> Command<'help> {
+impl Command {
     #[inline]
     pub(crate) fn get_usage_name(&self) -> Option<&str> {
         self.usage_name.as_deref()
@@ -3169,32 +3162,37 @@ impl<'help> Command<'help> {
     }
 
     /// Set binary name. Uses `&mut self` instead of `self`.
-    pub fn set_bin_name<S: Into<String>>(&mut self, name: S) {
+    pub fn set_bin_name(&mut self, name: impl Into<Str>) {
         self.bin_name = Some(name.into());
     }
 
     /// Get the name of the cmd.
     #[inline]
     pub fn get_name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    #[inline]
+    pub(crate) fn get_name_str(&self) -> &Str {
         &self.name
     }
 
     /// Get the version of the cmd.
     #[inline]
-    pub fn get_version(&self) -> Option<&'help str> {
-        self.version
+    pub fn get_version(&self) -> Option<&str> {
+        self.version.as_deref()
     }
 
     /// Get the long version of the cmd.
     #[inline]
-    pub fn get_long_version(&self) -> Option<&'help str> {
-        self.long_version
+    pub fn get_long_version(&self) -> Option<&str> {
+        self.long_version.as_deref()
     }
 
     /// Get the authors of the cmd.
     #[inline]
-    pub fn get_author(&self) -> Option<&'help str> {
-        self.author
+    pub fn get_author(&self) -> Option<&str> {
+        self.author.as_deref()
     }
 
     /// Get the short flag of the subcommand.
@@ -3205,38 +3203,41 @@ impl<'help> Command<'help> {
 
     /// Get the long flag of the subcommand.
     #[inline]
-    pub fn get_long_flag(&self) -> Option<&'help str> {
-        self.long_flag
+    pub fn get_long_flag(&self) -> Option<&str> {
+        self.long_flag.as_deref()
     }
 
     /// Get the help message specified via [`Command::about`].
     ///
     /// [`Command::about`]: Command::about()
     #[inline]
-    pub fn get_about(&self) -> Option<&'help str> {
-        self.about
+    pub fn get_about(&self) -> Option<&str> {
+        self.about.as_deref()
     }
 
     /// Get the help message specified via [`Command::long_about`].
     ///
     /// [`Command::long_about`]: Command::long_about()
     #[inline]
-    pub fn get_long_about(&self) -> Option<&'help str> {
-        self.long_about
+    pub fn get_long_about(&self) -> Option<&str> {
+        self.long_about.as_deref()
     }
 
     /// Get the custom section heading specified via [`Command::next_help_heading`].
     ///
     /// [`Command::help_heading`]: Command::help_heading()
     #[inline]
-    pub fn get_next_help_heading(&self) -> Option<&'help str> {
-        self.current_help_heading
+    pub fn get_next_help_heading(&self) -> Option<&str> {
+        self.current_help_heading.as_deref()
     }
 
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
-    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
-        self.aliases.iter().filter(|(_, vis)| *vis).map(|a| a.0)
+    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.aliases
+            .iter()
+            .filter(|(_, vis)| *vis)
+            .map(|a| a.0.as_str())
     }
 
     /// Iterate through the *visible* short aliases for this subcommand.
@@ -3250,17 +3251,17 @@ impl<'help> Command<'help> {
 
     /// Iterate through the *visible* long aliases for this subcommand.
     #[inline]
-    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
+    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &str> + '_ {
         self.long_flag_aliases
             .iter()
             .filter(|(_, vis)| *vis)
-            .map(|a| a.0)
+            .map(|a| a.0.as_str())
     }
 
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
     pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> + '_ {
-        self.aliases.iter().map(|a| a.0)
+        self.aliases.iter().map(|a| a.0.as_str())
     }
 
     /// Iterate through the set of *all* the short aliases for this subcommand, both visible and hidden.
@@ -3271,8 +3272,8 @@ impl<'help> Command<'help> {
 
     /// Iterate through the set of *all* the long aliases for this subcommand, both visible and hidden.
     #[inline]
-    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
-        self.long_flag_aliases.iter().map(|a| a.0)
+    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.long_flag_aliases.iter().map(|a| a.0.as_str())
     }
 
     #[inline]
@@ -3303,13 +3304,13 @@ impl<'help> Command<'help> {
 
     /// Iterate through the set of subcommands, getting a reference to each.
     #[inline]
-    pub fn get_subcommands(&self) -> impl Iterator<Item = &Command<'help>> {
+    pub fn get_subcommands(&self) -> impl Iterator<Item = &Command> {
         self.subcommands.iter()
     }
 
     /// Iterate through the set of subcommands, getting a mutable reference to each.
     #[inline]
-    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut Command<'help>> {
+    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut Command> {
         self.subcommands.iter_mut()
     }
 
@@ -3322,47 +3323,45 @@ impl<'help> Command<'help> {
     /// Returns the help heading for listing subcommands.
     #[inline]
     pub fn get_subcommand_help_heading(&self) -> Option<&str> {
-        self.subcommand_heading
+        self.subcommand_heading.as_deref()
     }
 
     /// Returns the subcommand value name.
     #[inline]
     pub fn get_subcommand_value_name(&self) -> Option<&str> {
-        self.subcommand_value_name
+        self.subcommand_value_name.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
     pub fn get_before_help(&self) -> Option<&str> {
-        self.before_help
+        self.before_help.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
     pub fn get_before_long_help(&self) -> Option<&str> {
-        self.before_long_help
+        self.before_long_help.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
     pub fn get_after_help(&self) -> Option<&str> {
-        self.after_help
+        self.after_help.as_deref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
     pub fn get_after_long_help(&self) -> Option<&str> {
-        self.after_long_help
+        self.after_long_help.as_deref()
     }
 
     /// Find subcommand such that its name or one of aliases equals `name`.
     ///
     /// This does not recurse through subcommands of subcommands.
     #[inline]
-    pub fn find_subcommand<T>(&self, name: &T) -> Option<&Command<'help>>
-    where
-        T: PartialEq<str> + ?Sized,
-    {
+    pub fn find_subcommand(&self, name: impl AsRef<std::ffi::OsStr>) -> Option<&Command> {
+        let name = name.as_ref();
         self.get_subcommands().find(|s| s.aliases_to(name))
     }
 
@@ -3371,10 +3370,11 @@ impl<'help> Command<'help> {
     ///
     /// This does not recurse through subcommands of subcommands.
     #[inline]
-    pub fn find_subcommand_mut<T>(&mut self, name: &T) -> Option<&mut Command<'help>>
-    where
-        T: PartialEq<str> + ?Sized,
-    {
+    pub fn find_subcommand_mut(
+        &mut self,
+        name: impl AsRef<std::ffi::OsStr>,
+    ) -> Option<&mut Command> {
+        let name = name.as_ref();
         self.get_subcommands_mut().find(|s| s.aliases_to(name))
     }
 
@@ -3386,18 +3386,18 @@ impl<'help> Command<'help> {
 
     /// Iterate through the set of arguments.
     #[inline]
-    pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'help>> {
+    pub fn get_arguments(&self) -> impl Iterator<Item = &Arg> {
         self.args.args()
     }
 
     /// Iterate through the *positionals* arguments.
     #[inline]
-    pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
+    pub fn get_positionals(&self) -> impl Iterator<Item = &Arg> {
         self.get_arguments().filter(|a| a.is_positional())
     }
 
     /// Iterate through the *options*.
-    pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
+    pub fn get_opts(&self) -> impl Iterator<Item = &Arg> {
         self.get_arguments()
             .filter(|a| a.is_takes_value_set() && !a.is_positional())
     }
@@ -3411,7 +3411,7 @@ impl<'help> Command<'help> {
     ///
     /// If the given arg contains a conflict with an argument that is unknown to
     /// this `Command`.
-    pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
+    pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg> // FIXME: This could probably have been an iterator
     {
         if arg.is_global_set() {
             self.get_global_arg_conflicts_with(arg)
@@ -3443,7 +3443,7 @@ impl<'help> Command<'help> {
     //
     // If the given arg contains a conflict with an argument that is unknown to
     // this `Command`.
-    fn get_global_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
+    fn get_global_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg> // FIXME: This could probably have been an iterator
     {
         arg.blacklist
             .iter()
@@ -3636,17 +3636,17 @@ impl<'help> Command<'help> {
 }
 
 // Internally used only
-impl<'help> Command<'help> {
+impl Command {
     pub(crate) fn get_override_usage(&self) -> Option<&str> {
-        self.usage_str
+        self.usage_str.as_deref()
     }
 
     pub(crate) fn get_override_help(&self) -> Option<&str> {
-        self.help_str
+        self.help_str.as_deref()
     }
 
     pub(crate) fn get_help_template(&self) -> Option<&str> {
-        self.template
+        self.template.as_deref()
     }
 
     pub(crate) fn get_term_width(&self) -> Option<usize> {
@@ -3657,11 +3657,11 @@ impl<'help> Command<'help> {
         self.max_w
     }
 
-    pub(crate) fn get_replacement(&self, key: &str) -> Option<&[&str]> {
-        self.replacers.get(key).copied()
+    pub(crate) fn get_replacement(&self, key: &str) -> Option<&[Str]> {
+        self.replacers.get(key).map(|v| v.as_slice())
     }
 
-    pub(crate) fn get_keymap(&self) -> &MKeyMap<'help> {
+    pub(crate) fn get_keymap(&self) -> &MKeyMap {
         &self.args
     }
 
@@ -3811,13 +3811,14 @@ impl<'help> Command<'help> {
         let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
 
         // Display subcommand name, short and long in usage
-        let mut sc_names = sc.name.clone();
+        let mut sc_names = String::new();
+        sc_names.push_str(sc.name.as_str());
         let mut flag_subcmd = false;
-        if let Some(l) = sc.long_flag {
+        if let Some(l) = sc.get_long_flag() {
             write!(sc_names, "|--{}", l).unwrap();
             flag_subcmd = true;
         }
-        if let Some(s) = sc.short_flag {
+        if let Some(s) = sc.get_short_flag() {
             write!(sc_names, "|-{}", s).unwrap();
             flag_subcmd = true;
         }
@@ -3837,7 +3838,7 @@ impl<'help> Command<'help> {
         // a space
         let bin_name = format!(
             "{}{}{}",
-            self.bin_name.as_ref().unwrap_or(&String::new()),
+            self.bin_name.as_deref().unwrap_or_default(),
             if self.bin_name.is_some() { " " } else { "" },
             &*sc.name
         );
@@ -3845,7 +3846,7 @@ impl<'help> Command<'help> {
             "Command::_build_subcommand Setting bin_name of {} to {:?}",
             sc.name, bin_name
         );
-        sc.bin_name = Some(bin_name);
+        sc.bin_name = Some(Str::from(bin_name));
 
         if sc.display_name.is_none() {
             let self_display_name = if is_multicall_set {
@@ -3867,7 +3868,7 @@ impl<'help> Command<'help> {
                 "Command::_build_subcommand Setting display_name of {} to {:?}",
                 sc.name, display_name
             );
-            sc.display_name = Some(display_name);
+            sc.display_name = Some(Str::from(display_name));
         }
 
         // Ensure all args are built and ready to parse
@@ -3904,13 +3905,14 @@ impl<'help> Command<'help> {
                 if sc.usage_name.is_none() {
                     use std::fmt::Write;
                     // Display subcommand name, short and long in usage
-                    let mut sc_names = sc.name.clone();
+                    let mut sc_names = String::new();
+                    sc_names.push_str(sc.name.as_str());
                     let mut flag_subcmd = false;
-                    if let Some(l) = sc.long_flag {
+                    if let Some(l) = sc.get_long_flag() {
                         write!(sc_names, "|--{}", l).unwrap();
                         flag_subcmd = true;
                     }
-                    if let Some(s) = sc.short_flag {
+                    if let Some(s) = sc.get_short_flag() {
                         write!(sc_names, "|-{}", s).unwrap();
                         flag_subcmd = true;
                     }
@@ -3943,7 +3945,7 @@ impl<'help> Command<'help> {
                         "Command::_build_bin_names:iter: Setting bin_name of {} to {:?}",
                         sc.name, bin_name
                     );
-                    sc.bin_name = Some(bin_name);
+                    sc.bin_name = Some(Str::from(bin_name));
                 } else {
                     debug!(
                         "Command::_build_bin_names::iter: Using existing bin_name of {} ({:?})",
@@ -3971,7 +3973,7 @@ impl<'help> Command<'help> {
                         "Command::_build_bin_names:iter: Setting display_name of {} to {:?}",
                         sc.name, display_name
                     );
-                    sc.display_name = Some(display_name);
+                    sc.display_name = Some(Str::from(display_name));
                 } else {
                     debug!(
                         "Command::_build_bin_names::iter: Using existing display_name of {} ({:?})",
@@ -4009,7 +4011,7 @@ impl<'help> Command<'help> {
     }
 
     #[cfg(debug_assertions)]
-    pub(crate) fn two_args_of<F>(&self, condition: F) -> Option<(&Arg<'help>, &Arg<'help>)>
+    pub(crate) fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
     where
         F: Fn(&Arg) -> bool,
     {
@@ -4065,11 +4067,11 @@ impl<'help> Command<'help> {
         // done and to recursively call this method
         {
             if self.settings.is_set(AppSettings::PropagateVersion) {
-                if sc.version.is_none() && self.version.is_some() {
-                    sc.version = Some(self.version.unwrap());
+                if let Some(version) = self.version.as_ref() {
+                    sc.version.get_or_insert_with(|| version.clone());
                 }
-                if sc.long_version.is_none() && self.long_version.is_some() {
-                    sc.long_version = Some(self.long_version.unwrap());
+                if let Some(long_version) = self.long_version.as_ref() {
+                    sc.long_version.get_or_insert_with(|| long_version.clone());
                 }
             }
 
@@ -4136,9 +4138,15 @@ impl<'help> Command<'help> {
         debug!("Command::_render_version");
 
         let ver = if use_long {
-            self.long_version.or(self.version).unwrap_or("")
+            self.long_version
+                .as_deref()
+                .or(self.version.as_deref())
+                .unwrap_or_default()
         } else {
-            self.version.or(self.long_version).unwrap_or("")
+            self.version
+                .as_deref()
+                .or(self.long_version.as_deref())
+                .unwrap_or_default()
         };
         let display_name = self.get_display_name().unwrap_or_else(|| self.get_name());
         format!("{} {}\n", display_name, ver)
@@ -4170,25 +4178,25 @@ pub(crate) trait Captures<'a> {}
 impl<'a, T> Captures<'a> for T {}
 
 // Internal Query Methods
-impl<'help> Command<'help> {
+impl Command {
     /// Iterate through the *flags* & *options* arguments.
-    pub(crate) fn get_non_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
+    pub(crate) fn get_non_positionals(&self) -> impl Iterator<Item = &Arg> {
         self.get_arguments().filter(|a| !a.is_positional())
     }
 
     /// Iterate through the *positionals* that don't have custom heading.
-    pub(crate) fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+    pub(crate) fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg> {
         self.get_positionals()
             .filter(|a| a.get_help_heading().is_none())
     }
 
     /// Iterate through the *flags* & *options* that don't have custom heading.
-    pub(crate) fn get_non_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+    pub(crate) fn get_non_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg> {
         self.get_non_positionals()
             .filter(|a| a.get_help_heading().is_none())
     }
 
-    pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'help>> {
+    pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg> {
         self.args.args().find(|a| a.id == *arg_id)
     }
 
@@ -4225,11 +4233,9 @@ impl<'help> Command<'help> {
     /// Check if this subcommand can be referred to as `name`. In other words,
     /// check if `name` is the name of this subcommand or is one of its aliases.
     #[inline]
-    pub(crate) fn aliases_to<T>(&self, name: &T) -> bool
-    where
-        T: PartialEq<str> + ?Sized,
-    {
-        *name == *self.get_name() || self.get_all_aliases().any(|alias| *name == *alias)
+    pub(crate) fn aliases_to(&self, name: impl AsRef<std::ffi::OsStr>) -> bool {
+        let name = name.as_ref();
+        self.get_name() == name || self.get_all_aliases().any(|alias| alias == name)
     }
 
     /// Check if this subcommand can be referred to as `name`. In other words,
@@ -4243,15 +4249,12 @@ impl<'help> Command<'help> {
     /// Check if this subcommand can be referred to as `name`. In other words,
     /// check if `name` is the name of this long flag subcommand or is one of its long flag aliases.
     #[inline]
-    pub(crate) fn long_flag_aliases_to<T>(&self, flag: &T) -> bool
-    where
-        T: PartialEq<str> + ?Sized,
-    {
-        match self.long_flag {
+    pub(crate) fn long_flag_aliases_to(&self, flag: &str) -> bool {
+        match self.long_flag.as_ref() {
             Some(long_flag) => {
-                flag == long_flag || self.get_all_long_flag_aliases().any(|alias| flag == alias)
+                long_flag == flag || self.get_all_long_flag_aliases().any(|alias| alias == flag)
             }
-            None => self.get_all_long_flag_aliases().any(|alias| flag == alias),
+            None => self.get_all_long_flag_aliases().any(|alias| alias == flag),
         }
     }
 
@@ -4276,7 +4279,7 @@ impl<'help> Command<'help> {
 
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
-    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures<'help> {
+    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures {
         self.get_subcommands().flat_map(|sc| {
             let name = sc.get_name();
             let aliases = sc.get_all_aliases();
@@ -4433,7 +4436,7 @@ impl<'help> Command<'help> {
     }
 }
 
-impl<'help> Default for Command<'help> {
+impl Default for Command {
     fn default() -> Self {
         Self {
             name: Default::default(),
@@ -4475,21 +4478,21 @@ impl<'help> Default for Command<'help> {
     }
 }
 
-impl<'help> Index<&'_ Id> for Command<'help> {
-    type Output = Arg<'help>;
+impl Index<&'_ Id> for Command {
+    type Output = Arg;
 
     fn index(&self, key: &Id) -> &Self::Output {
         self.find(key).expect(INTERNAL_ERROR_MSG)
     }
 }
 
-impl<'help> From<&'_ Command<'help>> for Command<'help> {
-    fn from(cmd: &'_ Command<'help>) -> Self {
+impl From<&'_ Command> for Command {
+    fn from(cmd: &'_ Command) -> Self {
         cmd.clone()
     }
 }
 
-impl fmt::Display for Command<'_> {
+impl fmt::Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }

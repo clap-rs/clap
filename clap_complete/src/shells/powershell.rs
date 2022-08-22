@@ -72,7 +72,7 @@ fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
 }
 
 fn generate_inner<'help>(
-    p: &Command<'help>,
+    p: &Command,
     previous_command_name: &str,
     names: &mut Vec<&'help str>,
 ) -> String {

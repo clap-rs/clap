@@ -19,10 +19,10 @@ pub fn parser_enum(name: &Ident) {
 pub fn into_app(name: &Ident) {
     append_dummy(quote! {
         impl clap::CommandFactory for #name {
-            fn command<'b>() -> clap::Command<'b> {
+            fn command<'b>() -> clap::Command {
                 unimplemented!()
             }
-            fn command_for_update<'b>() -> clap::Command<'b> {
+            fn command_for_update<'b>() -> clap::Command {
                 unimplemented!()
             }
         }
@@ -46,10 +46,10 @@ pub fn subcommand(name: &Ident) {
     from_arg_matches(name);
     append_dummy(quote! {
         impl clap::Subcommand for #name {
-            fn augment_subcommands(_cmd: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_subcommands(_cmd: clap::Command) -> clap::Command {
                 unimplemented!()
             }
-            fn augment_subcommands_for_update(_cmd: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_subcommands_for_update(_cmd: clap::Command) -> clap::Command {
                 unimplemented!()
             }
             fn has_subcommand(name: &str) -> bool {
@@ -63,10 +63,10 @@ pub fn args(name: &Ident) {
     from_arg_matches(name);
     append_dummy(quote! {
         impl clap::Args for #name {
-            fn augment_args(_cmd: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_args(_cmd: clap::Command) -> clap::Command {
                 unimplemented!()
             }
-            fn augment_args_for_update(_cmd: clap::Command<'_>) -> clap::Command<'_> {
+            fn augment_args_for_update(_cmd: clap::Command) -> clap::Command {
                 unimplemented!()
             }
         }

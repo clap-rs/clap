@@ -21,10 +21,11 @@ use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
 use crate::ArgAction;
+use crate::Str;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
-pub(crate) struct Parser<'help, 'cmd> {
-    cmd: &'cmd mut Command<'help>,
+pub(crate) struct Parser<'cmd> {
+    cmd: &'cmd mut Command,
     cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
     flag_subcmd_at: Option<usize>,
@@ -34,8 +35,8 @@ pub(crate) struct Parser<'help, 'cmd> {
 }
 
 // Initializing Methods
-impl<'help, 'cmd> Parser<'help, 'cmd> {
-    pub(crate) fn new(cmd: &'cmd mut Command<'help>) -> Self {
+impl<'cmd> Parser<'cmd> {
+    pub(crate) fn new(cmd: &'cmd mut Command) -> Self {
         Parser {
             cmd,
             cur_idx: Cell::new(0),
@@ -46,7 +47,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 }
 
 // Parsing Methods
-impl<'help, 'cmd> Parser<'help, 'cmd> {
+impl<'cmd> Parser<'cmd> {
     // The actual parsing function
     #[allow(clippy::cognitive_complexity)]
     pub(crate) fn get_matches_with(
@@ -417,7 +418,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
             {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_value() {
-                    Ok(s) => s.to_string(),
+                    Ok(s) => Str::from(s.to_owned()),
                     Err(_) => {
                         let _ = self.resolve_pending(matcher);
                         return Err(ClapError::invalid_utf8(
@@ -433,7 +434,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
                 for raw_val in raw_args.remaining(&mut args_cursor) {
                     let val = external_parser.parse_ref(self.cmd, None, raw_val)?;
-                    let external_id = Id::EXTERNAL;
+                    let external_id = Id::from_static_ref(Id::EXTERNAL);
                     sc_m.add_val_to(&external_id, val, raw_val.to_os_string());
                 }
 
@@ -697,7 +698,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 }
             }
             matcher.subcommand(SubCommand {
-                name: sc.get_name().to_owned(),
+                name: sc.get_name_str().clone(),
                 matches: sc_matcher.into_inner(),
             });
         }
@@ -738,21 +739,18 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
 
         let arg = if let Some(arg) = self.cmd.get_keymap().get(long_arg) {
-            debug!(
-                "Parser::parse_long_arg: Found valid arg or flag '{}'",
-                arg.to_string()
-            );
+            debug!("Parser::parse_long_arg: Found valid arg or flag '{}'", arg);
             Some((long_arg, arg))
         } else if self.cmd.is_infer_long_args_set() {
             self.cmd.get_arguments().find_map(|a| {
-                if let Some(long) = a.long {
+                if let Some(long) = a.get_long() {
                     if long.starts_with(long_arg) {
                         return Some((long, a));
                     }
                 }
                 a.aliases
                     .iter()
-                    .find_map(|(alias, _)| alias.starts_with(long_arg).then(|| (*alias, a)))
+                    .find_map(|(alias, _)| alias.starts_with(long_arg).then(|| (alias.as_str(), a)))
             })
         } else {
             None
@@ -963,7 +961,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         &self,
         ident: Identifier,
         attached_value: Option<&RawOsStr>,
-        arg: &Arg<'help>,
+        arg: &Arg,
         matcher: &mut ArgMatcher,
         has_eq: bool,
     ) -> ClapResult<ParseResult> {
@@ -1025,8 +1023,13 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    fn check_terminator(&self, arg: &Arg<'help>, val: &RawOsStr) -> Option<ParseResult> {
-        if Some(val) == arg.terminator.map(RawOsStr::from_str) {
+    fn check_terminator(&self, arg: &Arg, val: &RawOsStr) -> Option<ParseResult> {
+        if Some(val)
+            == arg
+                .terminator
+                .as_ref()
+                .map(|s| RawOsStr::from_str(s.as_str()))
+        {
             debug!("Parser::check_terminator: terminator={:?}", arg.terminator);
             Some(ParseResult::ValuesDone)
         } else {
@@ -1036,7 +1039,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 
     fn push_arg_values(
         &self,
-        arg: &Arg<'help>,
+        arg: &Arg,
         raw_vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
@@ -1094,7 +1097,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         &self,
         ident: Option<Identifier>,
         source: ValueSource,
-        arg: &Arg<'help>,
+        arg: &Arg,
         mut raw_vals: Vec<OsString>,
         mut trailing_idx: Option<usize>,
         matcher: &mut ArgMatcher,
@@ -1249,7 +1252,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         }
     }
 
-    fn verify_num_args(&self, arg: &Arg<'help>, raw_vals: &[OsString]) -> ClapResult<()> {
+    fn verify_num_args(&self, arg: &Arg, raw_vals: &[OsString]) -> ClapResult<()> {
         if self.cmd.is_ignore_errors_set() {
             return Ok(());
         }
@@ -1265,7 +1268,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
                 &super::get_possible_values_cli(arg)
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(|n| n.get_name().as_str().to_owned())
+                    .map(|n| n.get_name().to_owned())
                     .collect::<Vec<_>>(),
                 arg.to_string(),
             ));
@@ -1305,7 +1308,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    fn remove_overrides(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) {
+    fn remove_overrides(&self, arg: &Arg, matcher: &mut ArgMatcher) {
         debug!("Parser::remove_overrides: id={:?}", arg.id);
         for override_id in &arg.overrides {
             debug!("Parser::remove_overrides:iter:{:?}: removing", override_id);
@@ -1369,7 +1372,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    fn add_default_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn add_default_value(&self, arg: &Arg, matcher: &mut ArgMatcher) -> ClapResult<()> {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
             if !matcher.contains(&arg.id) {
@@ -1446,7 +1449,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
         Ok(())
     }
 
-    fn start_custom_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>, source: ValueSource) {
+    fn start_custom_arg(&self, matcher: &mut ArgMatcher, arg: &Arg, source: ValueSource) {
         if source == ValueSource::CommandLine {
             // With each new occurrence, remove overrides from prior occurrences
             self.remove_overrides(arg, matcher);
@@ -1458,7 +1461,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
     }
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
-    fn start_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
+    fn start_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg) {
         // With each new occurrence, remove overrides from prior occurrences
         self.remove_overrides(arg, matcher);
 
@@ -1471,7 +1474,7 @@ impl<'help, 'cmd> Parser<'help, 'cmd> {
 }
 
 // Error, Help, and Version Methods
-impl<'help, 'cmd> Parser<'help, 'cmd> {
+impl<'cmd> Parser<'cmd> {
     /// Is only used for the long flag(which is the only one needs fuzzy searching)
     fn did_you_mean_error(
         &mut self,

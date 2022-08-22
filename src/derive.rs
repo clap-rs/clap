@@ -163,11 +163,11 @@ pub trait CommandFactory: Sized {
     /// Build a [`Command`] that can instantiate `Self`.
     ///
     /// See [`FromArgMatches::from_arg_matches_mut`] for instantiating `Self`.
-    fn command<'help>() -> Command<'help>;
+    fn command() -> Command;
     /// Build a [`Command`] that can update `self`.
     ///
     /// See [`FromArgMatches::update_from_arg_matches_mut`] for updating `self`.
-    fn command_for_update<'help>() -> Command<'help>;
+    fn command_for_update() -> Command;
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
@@ -285,13 +285,13 @@ pub trait Args: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`CommandFactory`].
-    fn augment_args(cmd: Command<'_>) -> Command<'_>;
+    fn augment_args(cmd: Command) -> Command;
     /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
     ///
     /// See also [`CommandFactory`].
-    fn augment_args_for_update(cmd: Command<'_>) -> Command<'_>;
+    fn augment_args_for_update(cmd: Command) -> Command;
 }
 
 /// Parse a sub-command into a user-defined enum.
@@ -327,13 +327,13 @@ pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`CommandFactory`].
-    fn augment_subcommands(cmd: Command<'_>) -> Command<'_>;
+    fn augment_subcommands(cmd: Command) -> Command;
     /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
     ///
     /// See also [`CommandFactory`].
-    fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_>;
+    fn augment_subcommands_for_update(cmd: Command) -> Command;
     /// Test whether `Self` can parse a specific subcommand
     fn has_subcommand(name: &str) -> bool;
 }
@@ -417,10 +417,10 @@ impl<T: Parser> Parser for Box<T> {
 }
 
 impl<T: CommandFactory> CommandFactory for Box<T> {
-    fn command<'help>() -> Command<'help> {
+    fn command<'help>() -> Command {
         <T as CommandFactory>::command()
     }
-    fn command_for_update<'help>() -> Command<'help> {
+    fn command_for_update<'help>() -> Command {
         <T as CommandFactory>::command_for_update()
     }
 }
@@ -441,19 +441,19 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
 }
 
 impl<T: Args> Args for Box<T> {
-    fn augment_args(cmd: Command<'_>) -> Command<'_> {
+    fn augment_args(cmd: Command) -> Command {
         <T as Args>::augment_args(cmd)
     }
-    fn augment_args_for_update(cmd: Command<'_>) -> Command<'_> {
+    fn augment_args_for_update(cmd: Command) -> Command {
         <T as Args>::augment_args_for_update(cmd)
     }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn augment_subcommands(cmd: Command<'_>) -> Command<'_> {
+    fn augment_subcommands(cmd: Command) -> Command {
         <T as Subcommand>::augment_subcommands(cmd)
     }
-    fn augment_subcommands_for_update(cmd: Command<'_>) -> Command<'_> {
+    fn augment_subcommands_for_update(cmd: Command) -> Command {
         <T as Subcommand>::augment_subcommands_for_update(cmd)
     }
     fn has_subcommand(name: &str) -> bool {

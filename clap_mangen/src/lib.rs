@@ -13,8 +13,8 @@ use roff::{roman, Roff};
 use std::io::Write;
 
 /// A manpage writer
-pub struct Man<'a> {
-    cmd: clap::Command<'a>,
+pub struct Man {
+    cmd: clap::Command,
     title: String,
     section: String,
     date: String,
@@ -23,9 +23,9 @@ pub struct Man<'a> {
 }
 
 /// Build a [`Man`]
-impl<'a> Man<'a> {
+impl Man {
     /// Create a new manual page.
-    pub fn new(mut cmd: clap::Command<'a>) -> Self {
+    pub fn new(mut cmd: clap::Command) -> Self {
         cmd.build();
         let title = cmd.get_name().to_owned();
         let section = "1".to_owned();
@@ -93,7 +93,7 @@ impl<'a> Man<'a> {
 }
 
 /// Generate ROFF output
-impl<'a> Man<'a> {
+impl Man {
     /// Render a full manual page into the writer.
     ///
     /// If customization is needed, you can call the individual sections you want and mix them into
@@ -207,7 +207,7 @@ impl<'a> Man<'a> {
 
     fn _render_subcommands_section(&self, roff: &mut Roff) {
         let heading = subcommand_heading(&self.cmd);
-        roff.control("SH", [heading.as_str()]);
+        roff.control("SH", [heading]);
         render::subcommands(roff, &self.cmd, &self.section);
     }
 

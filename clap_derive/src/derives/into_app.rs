@@ -57,12 +57,12 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::CommandFactory for #struct_name #ty_generics #where_clause {
-            fn command<'b>() -> clap::Command<'b> {
+            fn command<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name);
                 <Self as clap::Args>::augment_args(#app_var)
             }
 
-            fn command_for_update<'b>() -> clap::Command<'b> {
+            fn command_for_update<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name);
                 <Self as clap::Args>::augment_args_for_update(#app_var)
             }
@@ -102,14 +102,14 @@ pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute])
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::CommandFactory for #enum_name #ty_generics #where_clause {
-            fn command<'b>() -> clap::Command<'b> {
+            fn command<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name)
                     .subcommand_required(true)
                     .arg_required_else_help(true);
                 <Self as clap::Subcommand>::augment_subcommands(#app_var)
             }
 
-            fn command_for_update<'b>() -> clap::Command<'b> {
+            fn command_for_update<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name);
                 <Self as clap::Subcommand>::augment_subcommands_for_update(#app_var)
             }

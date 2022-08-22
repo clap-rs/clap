@@ -1,7 +1,7 @@
 use clap::FromArgMatches;
 use clap::Subcommand;
 
-fn command() -> clap::Command<'static> {
+fn command() -> clap::Command {
     let cmd = clap::Command::new("dynamic")
         .arg(
             clap::Arg::new("input")

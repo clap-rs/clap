@@ -1,9 +1,9 @@
 use roff::{bold, italic, roman, Inline, Roff};
 
-pub(crate) fn subcommand_heading(cmd: &clap::Command) -> String {
+pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
     match cmd.get_subcommand_help_heading() {
-        Some(title) => title.to_string(),
-        None => "SUBCOMMANDS".to_string(),
+        Some(title) => title,
+        None => "SUBCOMMANDS",
     }
 }
 
@@ -73,8 +73,8 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         let (lhs, rhs) = subcommand_markers(cmd);
         line.push(roman(lhs));
         line.push(italic(
-            &cmd.get_subcommand_value_name()
-                .unwrap_or(&subcommand_heading(cmd))
+            cmd.get_subcommand_value_name()
+                .unwrap_or_else(|| subcommand_heading(cmd))
                 .to_lowercase(),
         ));
         line.push(roman(rhs));

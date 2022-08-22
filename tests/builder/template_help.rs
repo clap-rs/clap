@@ -124,7 +124,7 @@ fn template_author_version() {
 
 // ----------
 
-fn get_app() -> Command<'static> {
+fn get_app() -> Command {
     Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")

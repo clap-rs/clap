@@ -4,7 +4,7 @@ mod arg {
         let arg = clap::arg!(foo: --bar <NUM>);
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("bar"));
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(arg.is_required_set());
     }
 
@@ -13,7 +13,7 @@ mod arg {
         let arg = clap::arg!(--bar <NUM>);
         assert_eq!(arg.get_id(), "bar");
         assert_eq!(arg.get_long(), Some("bar"));
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(arg.is_required_set());
     }
 
@@ -22,7 +22,7 @@ mod arg {
         let arg = clap::arg!(<NUM>);
         assert_eq!(arg.get_id(), "NUM");
         assert_eq!(arg.get_long(), None);
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(arg.is_required_set());
     }
 
@@ -217,7 +217,7 @@ mod arg {
     fn positional() {
         let arg = clap::arg!(<NUM>);
         assert_eq!(arg.get_id(), "NUM");
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
@@ -225,7 +225,7 @@ mod arg {
 
         let arg = clap::arg!([NUM]);
         assert_eq!(arg.get_id(), "NUM");
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
         assert!(!arg.is_required_set());
@@ -233,7 +233,7 @@ mod arg {
 
         let arg = clap::arg!(<NUM>);
         assert_eq!(arg.get_id(), "NUM");
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
@@ -241,7 +241,7 @@ mod arg {
 
         let arg = clap::arg!(foo: <NUM>);
         assert_eq!(arg.get_id(), "foo");
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());
@@ -249,7 +249,7 @@ mod arg {
 
         let arg = clap::arg!(<NUM> ...);
         assert_eq!(arg.get_id(), "NUM");
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Append));
         assert_eq!(arg.get_num_args(), Some((1..).into()));
         assert!(arg.is_required_set());
@@ -257,7 +257,7 @@ mod arg {
 
         let arg = clap::arg!(<NUM> "How to use it");
         assert_eq!(arg.get_id(), "NUM");
-        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
         assert!(arg.is_required_set());

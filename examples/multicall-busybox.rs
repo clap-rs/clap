@@ -3,7 +3,7 @@ use std::process::exit;
 
 use clap::{value_parser, Arg, ArgAction, Command};
 
-fn applet_commands() -> [Command<'static>; 2] {
+fn applet_commands() -> [Command; 2] {
     [
         Command::new("true").about("does nothing successfully"),
         Command::new("false").about("does nothing unsuccessfully"),

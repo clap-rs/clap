@@ -179,7 +179,7 @@ fn vals_for(o: &Arg) -> String {
             "$(compgen -W \"{}\" -- \"${{cur}}\")",
             vals.iter()
                 .filter(|pv| !pv.is_hide_set())
-                .map(|n| n.get_name().as_str())
+                .map(|n| n.get_name())
                 .collect::<Vec<_>>()
                 .join(" ")
         )

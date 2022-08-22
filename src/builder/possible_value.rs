@@ -138,14 +138,14 @@ impl PossibleValue {
 impl PossibleValue {
     /// Get the name of the argument value
     #[inline]
-    pub fn get_name(&self) -> &Str {
-        &self.name
+    pub fn get_name(&self) -> &str {
+        self.name.as_str()
     }
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&Str> {
-        self.help.as_ref()
+    pub fn get_help(&self) -> Option<&str> {
+        self.help.as_deref()
     }
 
     /// Get the help specified for this argument, if any and the argument
@@ -187,8 +187,8 @@ impl PossibleValue {
     /// Returns all valid values of the argument value.
     ///
     /// Namely the name and all aliases.
-    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &Str> + '_ {
-        iter::once(&self.name).chain(self.aliases.iter())
+    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        iter::once(self.get_name()).chain(self.aliases.iter().map(|s| s.as_str()))
     }
 
     /// Tests if the value is valid for this argument value
@@ -210,7 +210,7 @@ impl PossibleValue {
     pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
         if ignore_case {
             self.get_name_and_aliases()
-                .any(|name| eq_ignore_case(name.as_str(), value))
+                .any(|name| eq_ignore_case(name, value))
         } else {
             self.get_name_and_aliases().any(|name| name == value)
         }

@@ -2,7 +2,7 @@ use super::utils;
 
 use clap::{arg, builder::PossibleValue, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
-fn setup() -> Command<'static> {
+fn setup() -> Command {
     Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -1523,7 +1523,7 @@ OPTIONS:
     utils::assert_output(app1, "default --help", ESCAPED_DEFAULT_VAL, false);
 }
 
-fn issue_1112_setup() -> Command<'static> {
+fn issue_1112_setup() -> Command {
     Command::new("test")
         .version("1.3")
         .disable_help_flag(true)

@@ -1036,7 +1036,7 @@ USAGE:
 For more information try --help
 ";
 
-fn issue_1158_app() -> Command<'static> {
+fn issue_1158_app() -> Command {
     Command::new("example")
         .arg(
             arg!(-c --config <FILE> "Custom config file.")

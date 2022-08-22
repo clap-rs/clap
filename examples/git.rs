@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use clap::{arg, Command};
 
-fn cli() -> Command<'static> {
+fn cli() -> Command {
     Command::new("git")
         .about("A fictional versioning CLI")
         .subcommand_required(true)
@@ -37,7 +37,7 @@ fn cli() -> Command<'static> {
         )
 }
 
-fn push_args() -> Vec<clap::Arg<'static>> {
+fn push_args() -> Vec<clap::Arg> {
     vec![arg!(-m --message <MESSAGE>).required(false)]
 }
 

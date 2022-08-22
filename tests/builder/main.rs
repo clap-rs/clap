@@ -1,4 +1,5 @@
 #![allow(clippy::bool_assert_comparison)]
+#![allow(clippy::redundant_clone)]
 
 mod action;
 mod app_settings;

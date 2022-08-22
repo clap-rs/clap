@@ -127,7 +127,6 @@ dependencies = [
  "clap_derive",
  "clap_lex",
  "humantime",
- "once_cell",
  "rustversion",
  "shlex",
  "snapbox 0.2.10",

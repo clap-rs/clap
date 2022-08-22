@@ -16,7 +16,7 @@ use clap::{value_parser, Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
-fn build_cli() -> Command<'static> {
+fn build_cli() -> Command {
     Command::new("value_hints")
         // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
         .trailing_var_arg(true)

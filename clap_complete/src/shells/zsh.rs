@@ -153,7 +153,7 @@ fn subcommands_of(p: &Command) -> String {
         let text = format!(
             "'{name}:{help}' \\",
             name = name,
-            help = escape_help(subcommand.get_about().unwrap_or(""))
+            help = escape_help(subcommand.get_about().unwrap_or_default())
         );
 
         if !text.is_empty() {
@@ -280,13 +280,10 @@ esac",
 //
 // Given the bin_name "a b c" and the Command for "a" this returns the "c" Command.
 // Given the bin_name "a b c" and the Command for "b" this returns the "c" Command.
-fn parser_of<'help, 'cmd>(
-    parent: &'cmd Command<'help>,
-    bin_name: &str,
-) -> Option<&'cmd Command<'help>> {
+fn parser_of<'cmd>(parent: &'cmd Command, bin_name: &str) -> Option<&'cmd Command> {
     debug!("parser_of: p={}, bin_name={}", parent.get_name(), bin_name);
 
-    if bin_name == parent.get_bin_name().unwrap_or("") {
+    if bin_name == parent.get_bin_name().unwrap_or_default() {
         return Some(parent);
     }
 
@@ -374,12 +371,8 @@ fn value_completion(arg: &Arg) -> Option<String> {
                         } else {
                             Some(format!(
                                 r#"{name}\:"{tooltip}""#,
-                                name = escape_value(value.get_name().as_str()),
-                                tooltip = value
-                                    .get_help()
-                                    .map(|s| s.as_str())
-                                    .map(escape_help)
-                                    .unwrap_or_default()
+                                name = escape_value(value.get_name()),
+                                tooltip = value.get_help().map(escape_help).unwrap_or_default()
                             ))
                         }
                     })
@@ -392,7 +385,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 values
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(|n| n.get_name().as_str())
+                    .map(|n| n.get_name())
                     .collect::<Vec<_>>()
                     .join(" ")
             ))
@@ -452,7 +445,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
     for o in p.get_opts() {
         debug!("write_opts_of:iter: o={}", o.get_id());
 
-        let help = o.get_help().map_or(String::new(), escape_help);
+        let help = o.get_help().map(escape_help).unwrap_or_default();
         let conflicts = arg_conflicts(p, o, p_global);
 
         let multiple = "*";
@@ -548,7 +541,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
     for f in utils::flags(p) {
         debug!("write_flags_of:iter: f={}", f.get_id());
 
-        let help = f.get_help().map_or(String::new(), escape_help);
+        let help = f.get_help().map(escape_help).unwrap_or_default();
         let conflicts = arg_conflicts(p, &f, p_global);
 
         let multiple = "*";

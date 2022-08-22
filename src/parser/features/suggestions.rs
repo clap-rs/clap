@@ -37,7 +37,7 @@ pub(crate) fn did_you_mean_flag<'a, 'help, I, T>(
     arg: &str,
     remaining_args: &[&str],
     longs: I,
-    subcommands: impl IntoIterator<Item = &'a mut Command<'help>>,
+    subcommands: impl IntoIterator<Item = &'a mut Command>,
 ) -> Option<(String, Option<String>)>
 where
     'help: 'a,
@@ -64,7 +64,7 @@ where
                 let subcommand_name = subcommand.get_name();
 
                 let candidate = did_you_mean(arg, longs).pop()?;
-                let score = remaining_args.iter().position(|x| *x == subcommand_name)?;
+                let score = remaining_args.iter().position(|x| subcommand_name == *x)?;
                 Some((score, (candidate, Some(subcommand_name.to_string()))))
             })
             .min_by_key(|(x, _)| *x)

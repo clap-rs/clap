@@ -7,22 +7,23 @@ pub struct Str {
 impl Str {
     pub(crate) fn from_string(name: std::string::String) -> Self {
         Self {
-            name: Inner::Owned(name.into_boxed_str()),
+            name: Inner::from_string(name),
         }
     }
 
     pub(crate) fn from_ref(name: &str) -> Self {
         Self {
-            name: Inner::Owned(Box::from(name)),
+            name: Inner::from_ref(name),
         }
     }
 
-    pub(crate) const fn from_static_ref(name: &'static str) -> Self {
+    pub(crate) fn from_static_ref(name: &'static str) -> Self {
         Self {
-            name: Inner::Static(name),
+            name: Inner::from_static_ref(name),
         }
     }
 
+    #[cfg(feature = "perf")]
     pub(crate) fn into_inner(self) -> Inner {
         self.name
     }
@@ -30,13 +31,6 @@ impl Str {
     /// Get the raw string of the `Str`
     pub fn as_str(&self) -> &str {
         self.name.as_str()
-    }
-}
-
-impl Default for &'_ Str {
-    fn default() -> Self {
-        static DEFAULT: Str = Str::from_static_ref("");
-        &DEFAULT
     }
 }
 
@@ -67,6 +61,30 @@ impl From<&'static str> for Str {
 impl From<&'_ &'static str> for Str {
     fn from(name: &'_ &'static str) -> Self {
         Self::from_static_ref(*name)
+    }
+}
+
+impl From<Str> for String {
+    fn from(name: Str) -> Self {
+        name.name.into_string()
+    }
+}
+
+impl From<Str> for Vec<u8> {
+    fn from(name: Str) -> Self {
+        String::from(name).into()
+    }
+}
+
+impl From<Str> for std::ffi::OsString {
+    fn from(name: Str) -> Self {
+        String::from(name).into()
+    }
+}
+
+impl From<Str> for std::path::PathBuf {
+    fn from(name: Str) -> Self {
+        String::from(name).into()
     }
 }
 
@@ -193,24 +211,73 @@ impl PartialEq<Str> for std::string::String {
     }
 }
 
-#[derive(Clone)]
-pub(crate) enum Inner {
-    Static(&'static str),
-    Owned(Box<str>),
-}
+#[cfg(feature = "perf")]
+pub(crate) mod inner {
+    #[derive(Clone)]
+    pub(crate) enum Inner {
+        Static(&'static str),
+        Owned(Box<str>),
+    }
 
-impl Inner {
-    fn as_str(&self) -> &str {
-        match self {
-            Self::Static(s) => s,
-            Self::Owned(s) => s.as_ref(),
+    impl Inner {
+        pub(crate) fn from_string(name: std::string::String) -> Self {
+            Self::Owned(name.into_boxed_str())
+        }
+
+        pub(crate) fn from_ref(name: &str) -> Self {
+            Self::Owned(Box::from(name))
+        }
+
+        pub(crate) fn from_static_ref(name: &'static str) -> Self {
+            Self::Static(name)
+        }
+
+        pub(crate) fn as_str(&self) -> &str {
+            match self {
+                Self::Static(s) => s,
+                Self::Owned(s) => s.as_ref(),
+            }
+        }
+
+        pub(crate) fn into_string(self) -> String {
+            self.as_str().to_owned()
         }
     }
 }
 
+#[cfg(not(feature = "perf"))]
+pub(crate) mod inner {
+    #[derive(Clone)]
+    pub(crate) struct Inner(Box<str>);
+
+    impl Inner {
+        pub(crate) fn from_string(name: std::string::String) -> Self {
+            Self(name.into_boxed_str())
+        }
+
+        pub(crate) fn from_ref(name: &str) -> Self {
+            Self(Box::from(name))
+        }
+
+        pub(crate) fn from_static_ref(name: &'static str) -> Self {
+            Self::from_ref(name)
+        }
+
+        pub(crate) fn as_str(&self) -> &str {
+            &self.0
+        }
+
+        pub(crate) fn into_string(self) -> String {
+            self.as_str().to_owned()
+        }
+    }
+}
+
+pub(crate) use inner::Inner;
+
 impl Default for Inner {
     fn default() -> Self {
-        Self::Static("")
+        Self::from_static_ref("")
     }
 }
 

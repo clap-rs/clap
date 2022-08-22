@@ -16,9 +16,10 @@ use crate::builder::ArgPredicate;
 use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
 use crate::builder::ValueRange;
-use crate::util::Id;
-use crate::util::OsStr;
 use crate::ArgAction;
+use crate::Id;
+use crate::OsStr;
+use crate::Str;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -51,10 +52,10 @@ use crate::INTERNAL_ERROR_MSG;
 /// ```
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
-pub struct Arg<'help> {
+pub struct Arg {
     pub(crate) id: Id,
-    pub(crate) help: Option<&'help str>,
-    pub(crate) long_help: Option<&'help str>,
+    pub(crate) help: Option<Str>,
+    pub(crate) long_help: Option<Str>,
     pub(crate) action: Option<ArgAction>,
     pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
@@ -67,11 +68,11 @@ pub struct Arg<'help> {
     pub(crate) r_unless: Vec<Id>,
     pub(crate) r_unless_all: Vec<Id>,
     pub(crate) short: Option<char>,
-    pub(crate) long: Option<&'help str>,
-    pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
+    pub(crate) long: Option<Str>,
+    pub(crate) aliases: Vec<(Str, bool)>, // (name, visible)
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: Option<usize>,
-    pub(crate) val_names: Vec<&'help str>,
+    pub(crate) val_names: Vec<Str>,
     pub(crate) num_vals: Option<ValueRange>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<OsStr>,
@@ -79,14 +80,14 @@ pub struct Arg<'help> {
     pub(crate) default_missing_vals: Vec<OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(OsStr, Option<OsString>)>,
-    pub(crate) terminator: Option<&'help str>,
+    pub(crate) terminator: Option<Str>,
     pub(crate) index: Option<usize>,
-    pub(crate) help_heading: Option<Option<&'help str>>,
+    pub(crate) help_heading: Option<Option<Str>>,
     pub(crate) value_hint: Option<ValueHint>,
 }
 
 /// # Basic API
-impl<'help> Arg<'help> {
+impl Arg {
     /// Create a new [`Arg`] with a unique name.
     ///
     /// The name is used to check whether or not the argument was used at
@@ -181,8 +182,8 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn long(mut self, l: &'help str) -> Self {
-        self.long = Some(l);
+    pub fn long(mut self, l: impl Into<Str>) -> Self {
+        self.long = Some(l.into());
         self
     }
 
@@ -206,7 +207,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
-    pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
+    pub fn alias(mut self, name: impl Into<Str>) -> Self {
         self.aliases.push((name.into(), false));
         self
     }
@@ -260,7 +261,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
     /// ```
     #[must_use]
-    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
         self.aliases
             .extend(names.into_iter().map(|x| (x.into(), false)));
         self
@@ -316,7 +317,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Command::alias`]: Arg::alias()
     #[must_use]
-    pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
+    pub fn visible_alias(mut self, name: impl Into<Str>) -> Self {
         self.aliases.push((name.into(), true));
         self
     }
@@ -367,10 +368,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Command::aliases`]: Arg::aliases()
     #[must_use]
-    pub fn visible_aliases(
-        mut self,
-        names: impl IntoIterator<Item = impl Into<&'help str>>,
-    ) -> Self {
+    pub fn visible_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
         self.aliases
             .extend(names.into_iter().map(|n| (n.into(), true)));
         self
@@ -781,7 +779,7 @@ impl<'help> Arg<'help> {
 }
 
 /// # Value Handling
-impl<'help> Arg<'help> {
+impl Arg {
     /// Specify how to react to an argument when parsing it.
     ///
     /// [ArgAction][crate::ArgAction] controls things like
@@ -1077,7 +1075,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
     #[must_use]
-    pub fn value_name(self, name: &'help str) -> Self {
+    pub fn value_name(self, name: impl Into<Str>) -> Self {
         self.value_names([name])
     }
 
@@ -1135,7 +1133,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::num_args(1..)`]: Arg::num_args()
     #[must_use]
-    pub fn value_names(mut self, names: impl IntoIterator<Item = impl Into<&'help str>>) -> Self {
+    pub fn value_names(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
         self.val_names = names.into_iter().map(|s| s.into()).collect();
         self
     }
@@ -1424,8 +1422,8 @@ impl<'help> Arg<'help> {
     /// [`num_args`]: Arg::num_args()
     #[inline]
     #[must_use]
-    pub fn value_terminator(mut self, term: &'help str) -> Self {
-        self.terminator = Some(term);
+    pub fn value_terminator(mut self, term: impl Into<Str>) -> Self {
+        self.terminator = Some(term.into());
         self
     }
 
@@ -1573,7 +1571,7 @@ impl<'help> Arg<'help> {
     /// For POSIX style `--color`:
     /// ```rust
     /// # use clap::{Command, Arg, parser::ValueSource};
-    /// fn cli() -> Command<'static> {
+    /// fn cli() -> Command {
     ///     Command::new("prog")
     ///         .arg(Arg::new("color").long("color")
     ///             .value_name("WHEN")
@@ -1611,7 +1609,7 @@ impl<'help> Arg<'help> {
     /// For bool literals:
     /// ```rust
     /// # use clap::{Command, Arg, parser::ValueSource, value_parser};
-    /// fn cli() -> Command<'static> {
+    /// fn cli() -> Command {
     ///     Command::new("prog")
     ///         .arg(Arg::new("create").long("create")
     ///             .value_name("BOOL")
@@ -1857,7 +1855,7 @@ impl<'help> Arg<'help> {
 }
 
 /// # Help
-impl<'help> Arg<'help> {
+impl Arg {
     /// Sets the description of the argument for short help (`-h`).
     ///
     /// Typically, this is a short (one line) description of the arg.
@@ -1902,8 +1900,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
     #[must_use]
-    pub fn help(mut self, h: impl Into<Option<&'help str>>) -> Self {
-        self.help = h.into();
+    pub fn help(mut self, h: impl IntoResettable<Str>) -> Self {
+        self.help = h.into_resettable().into_option();
         self
     }
 
@@ -1964,8 +1962,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::help`]: Arg::help()
     #[inline]
     #[must_use]
-    pub fn long_help(mut self, h: impl Into<Option<&'help str>>) -> Self {
-        self.long_help = h.into();
+    pub fn long_help(mut self, h: impl IntoResettable<Str>) -> Self {
+        self.long_help = h.into_resettable().into_option();
         self
     }
 
@@ -2034,11 +2032,8 @@ impl<'help> Arg<'help> {
     /// [current]: crate::Command::next_help_heading
     #[inline]
     #[must_use]
-    pub fn help_heading<O>(mut self, heading: O) -> Self
-    where
-        O: Into<Option<&'help str>>,
-    {
-        self.help_heading = Some(heading.into());
+    pub fn help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.help_heading = Some(heading.into_resettable().into_option());
         self
     }
 
@@ -2414,7 +2409,7 @@ impl<'help> Arg<'help> {
 }
 
 /// # Advanced Argument Relations
-impl<'help> Arg<'help> {
+impl Arg {
     /// The name of the [`ArgGroup`] the argument belongs to.
     ///
     /// # Examples
@@ -3535,7 +3530,7 @@ impl<'help> Arg<'help> {
 }
 
 /// # Reflection
-impl<'help> Arg<'help> {
+impl Arg {
     /// Get the name of the argument
     #[inline]
     pub fn get_id(&self) -> &Id {
@@ -3544,8 +3539,8 @@ impl<'help> Arg<'help> {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&'help str> {
-        self.help
+    pub fn get_help(&self) -> Option<&str> {
+        self.help.as_deref()
     }
 
     /// Get the long help specified for this argument, if any
@@ -3559,14 +3554,17 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     #[inline]
-    pub fn get_long_help(&self) -> Option<&'help str> {
-        self.long_help
+    pub fn get_long_help(&self) -> Option<&str> {
+        self.long_help.as_deref()
     }
 
     /// Get the help heading specified for this argument, if any
     #[inline]
-    pub fn get_help_heading(&self) -> Option<&'help str> {
-        self.help_heading.unwrap_or_default()
+    pub fn get_help_heading(&self) -> Option<&str> {
+        self.help_heading
+            .as_ref()
+            .map(|s| s.as_deref())
+            .unwrap_or_default()
     }
 
     /// Get the short option name for this argument, if any
@@ -3616,21 +3614,20 @@ impl<'help> Arg<'help> {
 
     /// Get the long option name for this argument, if any
     #[inline]
-    pub fn get_long(&self) -> Option<&'help str> {
-        self.long
+    pub fn get_long(&self) -> Option<&str> {
+        self.long.as_deref()
     }
 
     /// Get visible aliases for this argument, if any
     #[inline]
-    pub fn get_visible_aliases(&self) -> Option<Vec<&'help str>> {
+    pub fn get_visible_aliases(&self) -> Option<Vec<&str>> {
         if self.aliases.is_empty() {
             None
         } else {
             Some(
                 self.aliases
                     .iter()
-                    .filter_map(|(s, v)| if *v { Some(s) } else { None })
-                    .copied()
+                    .filter_map(|(s, v)| if *v { Some(s.as_str()) } else { None })
                     .collect(),
             )
         }
@@ -3638,18 +3635,18 @@ impl<'help> Arg<'help> {
 
     /// Get *all* aliases for this argument, if any, both visible and hidden.
     #[inline]
-    pub fn get_all_aliases(&self) -> Option<Vec<&'help str>> {
+    pub fn get_all_aliases(&self) -> Option<Vec<&str>> {
         if self.aliases.is_empty() {
             None
         } else {
-            Some(self.aliases.iter().map(|(s, _)| s).copied().collect())
+            Some(self.aliases.iter().map(|(s, _)| s.as_str()).collect())
         }
     }
 
     /// Get the long option name and its visible aliases, if any
     #[inline]
-    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&'help str>> {
-        let mut longs = match self.long {
+    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&str>> {
+        let mut longs = match self.get_long() {
             Some(long) => vec![long],
             None => return None,
         };
@@ -3672,7 +3669,7 @@ impl<'help> Arg<'help> {
 
     /// Get the names of values for this argument.
     #[inline]
-    pub fn get_value_names(&self) -> Option<&[&'help str]> {
+    pub fn get_value_names(&self) -> Option<&[Str]> {
         if self.val_names.is_empty() {
             None
         } else {
@@ -3880,7 +3877,7 @@ impl<'help> Arg<'help> {
 }
 
 /// # Internally used only
-impl<'help> Arg<'help> {
+impl Arg {
     pub(crate) fn _build(&mut self) {
         if self.action.is_none() {
             if self.num_vals == Some(ValueRange::EMPTY) {
@@ -3984,38 +3981,38 @@ impl<'help> Arg<'help> {
     }
 }
 
-impl<'help> From<&'_ Arg<'help>> for Arg<'help> {
-    fn from(a: &Arg<'help>) -> Self {
+impl From<&'_ Arg> for Arg {
+    fn from(a: &Arg) -> Self {
         a.clone()
     }
 }
 
-impl<'help> PartialEq for Arg<'help> {
-    fn eq(&self, other: &Arg<'help>) -> bool {
+impl PartialEq for Arg {
+    fn eq(&self, other: &Arg) -> bool {
         self.get_id() == other.get_id()
     }
 }
 
-impl<'help> PartialOrd for Arg<'help> {
+impl PartialOrd for Arg {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'help> Ord for Arg<'help> {
+impl Ord for Arg {
     fn cmp(&self, other: &Arg) -> Ordering {
         self.id.cmp(&other.id)
     }
 }
 
-impl<'help> Eq for Arg<'help> {}
+impl Eq for Arg {}
 
-impl<'help> Display for Arg<'help> {
+impl Display for Arg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         // Write the name such --long or -l
-        if let Some(l) = self.long {
+        if let Some(l) = self.get_long() {
             write!(f, "--{}", l)?;
-        } else if let Some(s) = self.short {
+        } else if let Some(s) = self.get_short() {
             write!(f, "-{}", s)?;
         }
         let mut need_closing_bracket = false;
@@ -4056,7 +4053,7 @@ impl<'help> Display for Arg<'help> {
     }
 }
 
-impl<'help> fmt::Debug for Arg<'help> {
+impl fmt::Debug for Arg {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         let mut ds = f.debug_struct("Arg");
 
@@ -4105,12 +4102,10 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     let delim = " ";
 
-    let arg_name_storage;
     let val_names = if arg.val_names.is_empty() {
-        arg_name_storage = [arg.get_id().as_str()];
-        &arg_name_storage
+        vec![arg.id.as_internal_str().to_owned()]
     } else {
-        arg.val_names.as_slice()
+        arg.val_names.clone()
     };
 
     let mut extra_values = false;
@@ -4193,10 +4188,10 @@ mod test {
     fn flag_display_multiple_aliases() {
         let mut f = Arg::new("flg").short('f').action(ArgAction::SetTrue);
         f.aliases = vec![
-            ("alias_not_visible", false),
-            ("f2", true),
-            ("f3", true),
-            ("f4", true),
+            ("alias_not_visible".into(), false),
+            ("f2".into(), true),
+            ("f3".into(), true),
+            ("f4".into(), true),
         ];
         f._build();
 

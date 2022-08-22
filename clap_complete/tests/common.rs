@@ -1,4 +1,4 @@
-pub fn basic_command(name: &'static str) -> clap::Command<'static> {
+pub fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
             clap::Arg::new("config")
@@ -21,7 +21,7 @@ pub fn basic_command(name: &'static str) -> clap::Command<'static> {
         )
 }
 
-pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
+pub fn feature_sample_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .propagate_version(true)
@@ -51,7 +51,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command<'static> {
         )
 }
 
-pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
+pub fn special_commands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name)
         .subcommand(
             clap::Command::new("some_cmd")
@@ -70,7 +70,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command<'static> {
         .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
 }
 
-pub fn quoting_command(name: &'static str) -> clap::Command<'static> {
+pub fn quoting_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .arg(
@@ -120,7 +120,7 @@ pub fn quoting_command(name: &'static str) -> clap::Command<'static> {
         ])
 }
 
-pub fn aliases_command(name: &'static str) -> clap::Command<'static> {
+pub fn aliases_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .about("testing bash completions")
@@ -145,7 +145,7 @@ pub fn aliases_command(name: &'static str) -> clap::Command<'static> {
         .arg(clap::Arg::new("positional"))
 }
 
-pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
+pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name).subcommand(
         clap::Command::new("some_cmd")
             .about("top level subcommand")
@@ -163,7 +163,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command<'static> {
     )
 }
 
-pub fn value_hint_command(name: &'static str) -> clap::Command<'static> {
+pub fn value_hint_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .trailing_var_arg(true)
         .arg(
@@ -251,7 +251,7 @@ pub fn assert_matches_path(
     expected_path: impl AsRef<std::path::Path>,
     gen: impl clap_complete::Generator,
     mut cmd: clap::Command,
-    name: &str,
+    name: &'static str,
 ) {
     let mut buf = vec![];
     clap_complete::generate(gen, &mut cmd, name, &mut buf);

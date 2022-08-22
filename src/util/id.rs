@@ -9,17 +9,21 @@ use crate::Str;
 pub struct Id(Str);
 
 impl Id {
-    pub(crate) const HELP: Self = Self::from_static_ref("help");
-    pub(crate) const VERSION: Self = Self::from_static_ref("version");
-    pub(crate) const EXTERNAL: Self = Self::from_static_ref("");
+    pub(crate) const HELP: &'static str = "help";
+    pub(crate) const VERSION: &'static str = "version";
+    pub(crate) const EXTERNAL: &'static str = "";
 
-    const fn from_static_ref(name: &'static str) -> Self {
+    pub(crate) fn from_static_ref(name: &'static str) -> Self {
         Self(Str::from_static_ref(name))
     }
 
     /// Get the raw string of the `Id`
     pub fn as_str(&self) -> &str {
         self.0.as_str()
+    }
+
+    pub(crate) fn as_internal_str(&self) -> &Str {
+        &self.0
     }
 }
 
@@ -62,6 +66,18 @@ impl From<&'static str> for Id {
 impl From<&'_ &'static str> for Id {
     fn from(name: &'_ &'static str) -> Self {
         Self(name.into())
+    }
+}
+
+impl From<Id> for Str {
+    fn from(name: Id) -> Self {
+        name.0
+    }
+}
+
+impl From<Id> for String {
+    fn from(name: Id) -> Self {
+        Str::from(name).into()
     }
 }
 

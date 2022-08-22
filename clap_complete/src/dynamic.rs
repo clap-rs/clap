@@ -431,7 +431,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
     fn complete_arg_value(
         value: Result<&str, &clap_lex::RawOsStr>,
-        arg: &clap::Arg<'_>,
+        arg: &clap::Arg,
         current_dir: Option<&std::path::Path>,
     ) -> Vec<OsString> {
         let mut values = Vec::new();

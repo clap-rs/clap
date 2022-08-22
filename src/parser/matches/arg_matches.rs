@@ -13,6 +13,7 @@ use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::FlatMap;
 use crate::util::Id;
+use crate::Str;
 use crate::INTERNAL_ERROR_MSG;
 
 /// Container for parse results.
@@ -777,7 +778,7 @@ impl ArgMatches {
     /// }
     /// ```
     /// [subcommand]: crate::Command::subcommand
-    pub fn remove_subcommand(&mut self) -> Option<(String, ArgMatches)> {
+    pub fn remove_subcommand(&mut self) -> Option<(Str, ArgMatches)> {
         self.subcommand.take().map(|sc| (sc.name, sc.matches))
     }
 
@@ -1091,7 +1092,7 @@ impl ArgMatches {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
-    pub(crate) name: String,
+    pub(crate) name: Str,
     pub(crate) matches: ArgMatches,
 }
 
