@@ -215,15 +215,15 @@ impl PartialEq<OsStr> for std::ffi::OsString {
 }
 
 #[derive(Clone)]
-struct Inner(std::ffi::OsString);
+struct Inner(Box<std::ffi::OsStr>);
 
 impl Inner {
     fn from_string(name: std::ffi::OsString) -> Self {
-        Self(name)
+        Self(name.into_boxed_os_str())
     }
 
     fn from_ref(name: &std::ffi::OsStr) -> Self {
-        Self(std::ffi::OsString::from(name))
+        Self(Box::from(name))
     }
 
     fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {

@@ -207,15 +207,15 @@ impl PartialEq<Str> for std::string::String {
 }
 
 #[derive(Clone)]
-pub(crate) struct Inner(String);
+pub(crate) struct Inner(Box<str>);
 
 impl Inner {
     fn from_string(name: std::string::String) -> Self {
-        Self(name)
+        Self(name.into_boxed_str())
     }
 
     fn from_ref(name: &str) -> Self {
-        Self(String::from(name))
+        Self(Box::from(name))
     }
 
     fn from_static_ref(name: &'static str) -> Self {
