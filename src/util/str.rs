@@ -7,19 +7,19 @@ pub struct Str {
 impl Str {
     pub(crate) fn from_string(name: std::string::String) -> Self {
         Self {
-            name: Inner::Owned(name.into_boxed_str()),
+            name: Inner::from_string(name),
         }
     }
 
     pub(crate) fn from_ref(name: &str) -> Self {
         Self {
-            name: Inner::Owned(Box::from(name)),
+            name: Inner::from_ref(name),
         }
     }
 
     pub(crate) const fn from_static_ref(name: &'static str) -> Self {
         Self {
-            name: Inner::Static(name),
+            name: Inner::from_static_ref(name),
         }
     }
 
@@ -217,6 +217,18 @@ pub(crate) enum Inner {
 }
 
 impl Inner {
+    fn from_string(name: std::string::String) -> Self {
+        Inner::Owned(name.into_boxed_str())
+    }
+
+    fn from_ref(name: &str) -> Self {
+        Inner::Owned(Box::from(name))
+    }
+
+    const fn from_static_ref(name: &'static str) -> Self {
+        Inner::Static(name)
+    }
+
     fn as_str(&self) -> &str {
         match self {
             Self::Static(s) => s,
@@ -234,7 +246,7 @@ impl Inner {
 
 impl Default for Inner {
     fn default() -> Self {
-        Self::Static("")
+        Self::from_static_ref("")
     }
 }
 

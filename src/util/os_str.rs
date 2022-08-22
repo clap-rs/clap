@@ -7,19 +7,19 @@ pub struct OsStr {
 impl OsStr {
     pub(crate) fn from_string(name: std::ffi::OsString) -> Self {
         Self {
-            name: Inner::Owned(name.into_boxed_os_str()),
+            name: Inner::from_string(name),
         }
     }
 
     pub(crate) fn from_ref(name: &std::ffi::OsStr) -> Self {
         Self {
-            name: Inner::Owned(Box::from(name)),
+            name: Inner::from_ref(name),
         }
     }
 
     pub(crate) const fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
         Self {
-            name: Inner::Static(name),
+            name: Inner::from_static_ref(name),
         }
     }
 
@@ -227,6 +227,18 @@ enum Inner {
 }
 
 impl Inner {
+    fn from_string(name: std::ffi::OsString) -> Self {
+        Inner::Owned(name.into_boxed_os_str())
+    }
+
+    fn from_ref(name: &std::ffi::OsStr) -> Self {
+        Inner::Owned(Box::from(name))
+    }
+
+    const fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
+        Inner::Static(name)
+    }
+
     fn as_os_str(&self) -> &std::ffi::OsStr {
         match self {
             Self::Static(s) => s,
@@ -244,7 +256,7 @@ impl Inner {
 
 impl Default for Inner {
     fn default() -> Self {
-        Self::Static(std::ffi::OsStr::new(""))
+        Self::from_static_ref(std::ffi::OsStr::new(""))
     }
 }
 
