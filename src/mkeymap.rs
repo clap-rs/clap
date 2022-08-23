@@ -1,8 +1,8 @@
 use std::iter::Iterator;
 use std::ops::Index;
 
+use crate::builder::OsStr;
 use crate::Arg;
-use crate::OsStr;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Eq, Debug, Clone)]

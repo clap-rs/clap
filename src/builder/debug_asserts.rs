@@ -2,12 +2,12 @@ use std::cmp::Ordering;
 
 use clap_lex::RawOsStr;
 
+use crate::builder::OsStr;
 use crate::builder::ValueRange;
 use crate::mkeymap::KeyType;
 use crate::util::FlatSet;
 use crate::util::Id;
 use crate::ArgAction;
-use crate::OsStr;
 use crate::INTERNAL_ERROR_MSG;
 use crate::{Arg, Command, ValueHint};
 

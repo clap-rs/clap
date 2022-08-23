@@ -1,3 +1,5 @@
+use crate::builder::Str;
+
 /// A UTF-8-encoded fixed string
 #[derive(Default, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct OsStr {
@@ -41,35 +43,35 @@ impl From<&'_ OsStr> for OsStr {
 }
 
 #[cfg(feature = "perf")]
-impl From<crate::Str> for OsStr {
-    fn from(id: crate::Str) -> Self {
+impl From<Str> for OsStr {
+    fn from(id: Str) -> Self {
         match id.into_inner() {
-            crate::util::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
-            crate::util::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
+            crate::builder::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
+            crate::builder::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
         }
     }
 }
 
 #[cfg(not(feature = "perf"))]
-impl From<crate::Str> for OsStr {
-    fn from(id: crate::Str) -> Self {
+impl From<Str> for OsStr {
+    fn from(id: Str) -> Self {
         Self::from_ref(std::ffi::OsStr::new(id.as_str()))
     }
 }
 
 #[cfg(feature = "perf")]
-impl From<&'_ crate::Str> for OsStr {
-    fn from(id: &'_ crate::Str) -> Self {
+impl From<&'_ Str> for OsStr {
+    fn from(id: &'_ Str) -> Self {
         match id.clone().into_inner() {
-            crate::util::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
-            crate::util::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
+            crate::builder::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
+            crate::builder::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
         }
     }
 }
 
 #[cfg(not(feature = "perf"))]
-impl From<&'_ crate::Str> for OsStr {
-    fn from(id: &'_ crate::Str) -> Self {
+impl From<&'_ Str> for OsStr {
+    fn from(id: &'_ Str) -> Self {
         Self::from_ref(std::ffi::OsStr::new(id.as_str()))
     }
 }

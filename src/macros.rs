@@ -48,9 +48,9 @@ macro_rules! crate_authors {
     ($sep:expr) => {{
         let authors = env!("CARGO_PKG_AUTHORS");
         if authors.contains(':') {
-            $crate::Str::from(authors.replace(':', $sep))
+            $crate::builder::Str::from(authors.replace(':', $sep))
         } else {
-            $crate::Str::from(authors)
+            $crate::builder::Str::from(authors)
         }
     }};
     () => {

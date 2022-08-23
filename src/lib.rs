@@ -109,8 +109,6 @@ pub use crate::util::color::ColorChoice;
 #[allow(unused_imports)]
 pub(crate) use crate::util::color::ColorChoice;
 pub use crate::util::Id;
-pub use crate::util::OsStr;
-pub use crate::util::Str;
 
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 

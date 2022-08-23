@@ -14,12 +14,12 @@ use std::{
 use super::{ArgFlags, ArgSettings};
 use crate::builder::ArgPredicate;
 use crate::builder::IntoResettable;
+use crate::builder::OsStr;
 use crate::builder::PossibleValue;
+use crate::builder::Str;
 use crate::builder::ValueRange;
 use crate::ArgAction;
 use crate::Id;
-use crate::OsStr;
-use crate::Str;
 use crate::ValueHint;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -3721,14 +3721,14 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::OsStr;
+    /// # use std::ffi::OsStr;
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").env("ENVIRONMENT");
-    /// assert_eq!(arg.get_env(), Some(&OsStr::from("ENVIRONMENT")));
+    /// assert_eq!(arg.get_env(), Some(OsStr::new("ENVIRONMENT")));
     /// ```
     #[cfg(feature = "env")]
-    pub fn get_env(&self) -> Option<&OsStr> {
-        self.env.as_ref().map(|x| &x.0)
+    pub fn get_env(&self) -> Option<&std::ffi::OsStr> {
+        self.env.as_ref().map(|x| x.0.as_os_str())
     }
 
     /// Get the default values specified for this argument, if any

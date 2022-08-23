@@ -1,4 +1,4 @@
-use crate::OsStr;
+use crate::builder::OsStr;
 
 /// Operations to perform on argument values
 ///
