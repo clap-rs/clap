@@ -1,3 +1,5 @@
+use clap::builder::PossibleValue;
+
 pub fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
@@ -277,4 +279,25 @@ pub fn assert_matches_path(expected_path: impl AsRef<std::path::Path>, cmd: clap
     snapbox::Assert::new()
         .action_env("SNAPSHOTS")
         .matches_path(expected_path, buf);
+}
+
+pub fn possible_values_command(name: &'static str) -> clap::Command<'static> {
+    clap::Command::new(name)
+        .trailing_var_arg(true)
+        .arg(
+            clap::Arg::new("choice")
+                .long("choice")
+                .action(clap::ArgAction::Set)
+                .value_parser(["bash", "fish", "zsh"]),
+        )
+        .arg(
+            clap::Arg::new("method")
+            .long("method")
+            .action(clap::ArgAction::Set)
+            .value_parser([
+                PossibleValue::new("fast").help("use the Fast method"),
+                PossibleValue::new("slow").help("use the slow method"),
+                PossibleValue::new("normal").help("use normal mode").hide(true)
+            ])
+        )
 }

@@ -1,3 +1,5 @@
+use std::vec;
+
 use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
@@ -113,21 +115,48 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             body.push(roman(help));
         }
 
+        roff.control("TP", []);
+        roff.text(header);
+        roff.text(body);
+
         let possibles = &opt.get_possible_values();
+        let possibles: Vec<&clap::builder::PossibleValue> =
+            possibles.iter().filter(|pos| !pos.is_hide_set()).collect();
 
         if !(possibles.is_empty() || opt.is_hide_possible_values_set()) {
             if help_written {
                 // It looks nice to have a separation between the help and the values
-                body.push(Inline::LineBreak);
+                roff.text([Inline::LineBreak]);
+            }
+            // with help for each possible value
+
+            if possibles.iter().any(|p| p.get_help().is_some()) {
+                roff.text([Inline::LineBreak, italic("Possible values:")]);
+
+                // Need to indent twice to get it to look right,
+                // because .TP heading indents, but that indent doesn't
+                // Carry over to the .IP for the bullets.
+                // The standard shift size is 7 for terminal devices
+                roff.control("RS", ["14"]);
+                for line in format_possible_values(&possibles) {
+                    roff.control("IP", ["\\(bu", "2"]);
+                    roff.text([roman(line)]);
+                }
+                roff.control("RE", []);
             }
 
-            let possible_vals = possibles.iter().filter(|pos| !pos.is_hide_set()).collect();
-            body.append(&mut format_possible_values(possible_vals));
+            // without help for each possible value
+            else {
+                let possible_list = format_possible_values(&possibles);
+                let possible_value_text: Vec<Inline> = vec![
+                    Inline::LineBreak,
+                    italic("[possible values: "),
+                    roman(possible_list.join(", ")),
+                    roman("]"),
+                ];
+                roff.text(possible_value_text);
+            }
         }
-
-        roff.control("TP", []);
-        roff.text(header);
-        roff.text(body);
 
         if let Some(env) = option_environment(opt) {
             roff.control("RS", []);
@@ -253,40 +282,18 @@ fn option_default_values(opt: &clap::Arg) -> Option<String> {
     None
 }
 
-/// Generates a Vector of Inline Commands to push to the roff
-/// to properly format possible values that an option can take.
-fn format_possible_values(values: Vec<&clap::builder::PossibleValue>) -> Vec<Inline> {
-    let mut formats: Vec<Inline> = vec![];
-    // With Help
-    if values.iter().any(|p| p.get_help().is_some()) {
-        formats.push(Inline::LineBreak);
-        formats.push(roman("Possible values:"));
-        formats.push(Inline::LineBreak);
-        for value in values {
-            formats.push(roman("  - "));
-            formats.push(roman(value.get_name().as_str()));
+fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec<String> {
+    let mut lines = vec![];
+    if possibles.iter().any(|p| p.get_help().is_some()) {
+        for value in possibles {
+            let val_name = value.get_name();
             match value.get_help() {
-                Some(help) => {
-                    formats.push(roman(": "));
-                    formats.push(roman(help.as_str()));
-                }
-                None => {}
+                Some(help) => lines.push(format!("{}: {}", val_name, help)),
+                None => lines.push(val_name.to_string()),
             }
-            formats.push(Inline::LineBreak);
         }
+    } else {
+        lines.append(&mut possibles.iter().map(|p| p.get_name().to_string()).collect());
     }
-    // Without help
-    else {
-        formats.push(Inline::LineBreak);
-        formats.push(roman("[possible values: "));
-        formats.push(italic(
-            values
-                .iter()
-                .map(|p| p.get_name().as_str())
-                .collect::<Vec<&str>>()
-                .join(", "),
-        ));
-        formats.push(roman("]"));
-    }
-    formats
+    lines
 }
