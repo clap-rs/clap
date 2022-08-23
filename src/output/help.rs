@@ -7,10 +7,10 @@ use std::usize;
 
 // Internal
 use crate::builder::PossibleValue;
+use crate::builder::Str;
 use crate::builder::{render_arg_val, Arg, Command};
 use crate::output::{fmt::Colorizer, Usage};
 use crate::util::FlatSet;
-use crate::util::Str;
 use crate::ArgAction;
 
 // Third party

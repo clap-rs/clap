@@ -12,6 +12,7 @@ use crate::builder::arg_settings::ArgSettings;
 use crate::builder::ArgAction;
 use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
+use crate::builder::Str;
 use crate::builder::{Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -22,7 +23,6 @@ use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, Id};
-use crate::Str;
 use crate::{Error, INTERNAL_ERROR_MSG};
 
 #[cfg(debug_assertions)]

@@ -6,6 +6,7 @@ use std::iter::{Cloned, Flatten, Map};
 use std::slice::Iter;
 
 // Internal
+use crate::builder::Str;
 use crate::parser::AnyValue;
 use crate::parser::AnyValueId;
 use crate::parser::MatchedArg;
@@ -13,7 +14,6 @@ use crate::parser::MatchesError;
 use crate::parser::ValueSource;
 use crate::util::FlatMap;
 use crate::util::Id;
-use crate::Str;
 use crate::INTERNAL_ERROR_MSG;
 
 /// Container for parse results.

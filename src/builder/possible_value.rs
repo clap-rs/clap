@@ -1,7 +1,7 @@
 use std::{borrow::Cow, iter};
 
+use crate::builder::Str;
 use crate::util::eq_ignore_case;
-use crate::Str;
 
 /// A possible value of an argument.
 ///

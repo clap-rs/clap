@@ -9,6 +9,7 @@ use clap_lex::RawOsStr;
 use clap_lex::RawOsString;
 
 // Internal
+use crate::builder::Str;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -21,7 +22,6 @@ use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
 use crate::ArgAction;
-use crate::Str;
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'cmd> {
@@ -1425,7 +1425,7 @@ impl<'cmd> Parser<'cmd> {
                 let arg_values: Vec<_> = arg
                     .default_vals
                     .iter()
-                    .map(crate::OsStr::to_os_string)
+                    .map(crate::builder::OsStr::to_os_string)
                     .collect();
                 let trailing_idx = None;
                 let _ = self.react(

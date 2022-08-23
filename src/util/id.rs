@@ -1,4 +1,4 @@
-use crate::Str;
+use crate::builder::Str;
 
 /// [`Arg`][crate::Arg] or [`ArgGroup`][crate::ArgGroup] identifier
 ///

@@ -1,6 +1,9 @@
 // Unlike `impl Into<Option<T>>` or `Option<impl Into<T>>`, this isn't ambiguous for the `None`
 // case.
 
+use crate::builder::OsStr;
+use crate::builder::Str;
+
 /// Clearable builder value
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Resettable<T> {
@@ -40,8 +43,8 @@ pub trait IntoResettable<T> {
     fn into_resettable(self) -> Resettable<T>;
 }
 
-impl IntoResettable<crate::OsStr> for Option<&'static str> {
-    fn into_resettable(self) -> Resettable<crate::OsStr> {
+impl IntoResettable<OsStr> for Option<&'static str> {
+    fn into_resettable(self) -> Resettable<OsStr> {
         match self {
             Some(s) => Resettable::Value(s.into()),
             None => Resettable::Reset,
@@ -49,8 +52,8 @@ impl IntoResettable<crate::OsStr> for Option<&'static str> {
     }
 }
 
-impl IntoResettable<crate::Str> for Option<&'static str> {
-    fn into_resettable(self) -> Resettable<crate::Str> {
+impl IntoResettable<Str> for Option<&'static str> {
+    fn into_resettable(self) -> Resettable<Str> {
         match self {
             Some(s) => Resettable::Value(s.into()),
             None => Resettable::Reset,
@@ -64,14 +67,14 @@ impl<T> IntoResettable<T> for Resettable<T> {
     }
 }
 
-impl<I: Into<crate::OsStr>> IntoResettable<crate::OsStr> for I {
-    fn into_resettable(self) -> Resettable<crate::OsStr> {
+impl<I: Into<OsStr>> IntoResettable<OsStr> for I {
+    fn into_resettable(self) -> Resettable<OsStr> {
         Resettable::Value(self.into())
     }
 }
 
-impl<I: Into<crate::Str>> IntoResettable<crate::Str> for I {
-    fn into_resettable(self) -> Resettable<crate::Str> {
+impl<I: Into<Str>> IntoResettable<Str> for I {
+    fn into_resettable(self) -> Resettable<Str> {
         Resettable::Value(self.into())
     }
 }

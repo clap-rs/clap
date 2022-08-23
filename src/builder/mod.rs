@@ -7,9 +7,11 @@ mod arg_group;
 mod arg_predicate;
 mod arg_settings;
 mod command;
+mod os_str;
 mod possible_value;
 mod range;
 mod resettable;
+mod str;
 mod value_hint;
 mod value_parser;
 
@@ -19,11 +21,13 @@ mod debug_asserts;
 #[cfg(test)]
 mod tests;
 
+pub use self::str::Str;
 pub use action::ArgAction;
 pub use arg::Arg;
 pub use arg_group::ArgGroup;
 pub use arg_predicate::ArgPredicate;
 pub use command::Command;
+pub use os_str::OsStr;
 pub use possible_value::PossibleValue;
 pub use range::ValueRange;
 pub use resettable::IntoResettable;
@@ -48,6 +52,8 @@ pub use value_parser::ValueParser;
 pub use value_parser::ValueParserFactory;
 pub use value_parser::_AnonymousValueParser;
 
+#[allow(unused_imports)]
+pub(crate) use self::str::Inner as StrInner;
 pub(crate) use action::CountType;
 pub(crate) use arg::render_arg_val;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};
