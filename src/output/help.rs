@@ -7,8 +7,9 @@ use std::usize;
 // Internal
 use crate::builder::PossibleValue;
 use crate::builder::Str;
+use crate::builder::StyledStr;
 use crate::builder::{render_arg_val, Arg, Command};
-use crate::output::{fmt::Colorizer, Usage};
+use crate::output::Usage;
 use crate::util::FlatSet;
 use crate::ArgAction;
 
@@ -19,7 +20,7 @@ use textwrap::core::display_width;
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
 pub(crate) struct Help<'cmd, 'writer> {
-    writer: &'writer mut Colorizer,
+    writer: &'writer mut StyledStr,
     cmd: &'cmd Command,
     usage: &'cmd Usage<'cmd>,
     next_line_help: bool,
@@ -45,7 +46,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
     /// Create a new `Help` instance.
     pub(crate) fn new(
-        writer: &'writer mut Colorizer,
+        writer: &'writer mut StyledStr,
         cmd: &'cmd Command,
         usage: &'cmd Usage<'cmd>,
         use_long: bool,
@@ -253,7 +254,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         self.none(TAB);
 
         if let Some(s) = arg.get_short() {
-            self.good(format!("-{}", s))
+            self.good(format!("-{}", s));
         } else if !arg.is_positional() {
             self.none(TAB)
         }

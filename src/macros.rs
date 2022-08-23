@@ -638,10 +638,11 @@ macro_rules! debug {
     ($($arg:tt)*) => ({
         let prefix = format!("[{:>w$}] \t", module_path!(), w = 28);
         let body = format!($($arg)*);
-        let mut color = $crate::output::fmt::Colorizer::new($crate::output::fmt::Stream::Stderr, $crate::ColorChoice::Auto);
-        color.hint(prefix);
-        color.hint(body);
-        color.none("\n");
+        let mut styled = $crate::builder::StyledStr::new();
+        styled.hint(prefix);
+        styled.hint(body);
+        styled.none("\n");
+        let color = $crate::output::fmt::Colorizer::new($crate::output::fmt::Stream::Stderr, $crate::ColorChoice::Auto).with_content(styled);
         let _ = color.print();
     })
 }
