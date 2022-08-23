@@ -58,7 +58,7 @@ impl<'cmd> Validator<'cmd> {
                 .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
-                let message = self.cmd.write_help_err(false, Stream::Stderr)?;
+                let message = self.cmd.write_help_err(false, Stream::Stderr);
                 return Err(Error::display_help_error(self.cmd, message));
             }
         }

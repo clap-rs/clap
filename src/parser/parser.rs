@@ -1530,10 +1530,8 @@ impl<'cmd> Parser<'cmd> {
     }
 
     fn help_err(&self, use_long: bool, stream: Stream) -> ClapError {
-        match self.cmd.write_help_err(use_long, stream) {
-            Ok(c) => ClapError::display_help(self.cmd, c),
-            Err(e) => e,
-        }
+        let c = self.cmd.write_help_err(use_long, stream);
+        ClapError::display_help(self.cmd, c)
     }
 
     fn version_err(&self, use_long: bool) -> ClapError {

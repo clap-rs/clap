@@ -18,7 +18,7 @@ use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::{fmt::Colorizer, Help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
@@ -720,7 +720,7 @@ impl Command {
 
         let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help()?;
+        Help::new(&mut c, self, &usage, false).write_help();
         c.print()
     }
 
@@ -745,7 +745,7 @@ impl Command {
 
         let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help()?;
+        Help::new(&mut c, self, &usage, true).write_help();
         c.print()
     }
 
@@ -768,8 +768,10 @@ impl Command {
     pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build_self();
 
+        let mut c = Colorizer::new(Stream::Stdout, ColorChoice::Never);
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Normal(w), self, &usage, false).write_help()?;
+        Help::new(&mut c, self, &usage, false).write_help();
+        write!(w, "{}", c)?;
         w.flush()
     }
 
@@ -792,8 +794,10 @@ impl Command {
     pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build_self();
 
+        let mut c = Colorizer::new(Stream::Stdout, ColorChoice::Never);
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Normal(w), self, &usage, true).write_help()?;
+        Help::new(&mut c, self, &usage, true).write_help();
+        write!(w, "{}", c)?;
         w.flush()
     }
 
@@ -4382,11 +4386,7 @@ impl Command {
         self.disp_ord.unwrap_or(999)
     }
 
-    pub(crate) fn write_help_err(
-        &self,
-        mut use_long: bool,
-        stream: Stream,
-    ) -> ClapResult<Colorizer> {
+    pub(crate) fn write_help_err(&self, mut use_long: bool, stream: Stream) -> Colorizer {
         debug!(
             "Command::write_help_err: {}, use_long={:?}, stream={:?}",
             self.get_display_name().unwrap_or_else(|| self.get_name()),
@@ -4398,8 +4398,8 @@ impl Command {
         let usage = Usage::new(self);
 
         let mut c = Colorizer::new(stream, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), self, &usage, use_long).write_help()?;
-        Ok(c)
+        Help::new(&mut c, self, &usage, use_long).write_help();
+        c
     }
 
     pub(crate) fn use_long_help(&self) -> bool {
