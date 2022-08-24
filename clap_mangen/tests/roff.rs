@@ -62,3 +62,10 @@ fn value_env() {
     let cmd = common::env_value_command(name);
     common::assert_matches_path("tests/snapshots/value_env.bash.roff", cmd);
 }
+
+#[test]
+fn possible_values() {
+    let name = "my-app";
+    let cmd = common::possible_values_command(name);
+    common::assert_matches_path("tests/snapshots/possible_values.bash.roff", cmd);
+}
