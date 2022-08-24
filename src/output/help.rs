@@ -10,6 +10,7 @@ use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::builder::{render_arg_val, Arg, Command};
 use crate::output::display_width;
+use crate::output::wrap;
 use crate::output::Usage;
 use crate::util::FlatSet;
 use crate::ArgAction;
@@ -355,7 +356,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.cmd.get_before_help()
         };
         if let Some(output) = before_help {
-            self.none(text_wrapper(
+            self.none(wrap(
                 &output.unwrap_none().replace("{n}", "\n"),
                 self.term_w,
             ));
@@ -374,7 +375,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         };
         if let Some(output) = after_help {
             self.none("\n\n");
-            self.none(text_wrapper(
+            self.none(wrap(
                 &output.unwrap_none().replace("{n}", "\n"),
                 self.term_w,
             ));
@@ -415,7 +416,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spaces;
             debug!("Help::help: Usable space...{}", avail_chars);
-            help = text_wrapper(&help.replace("{n}", "\n"), avail_chars);
+            help = wrap(&help.replace("{n}", "\n"), avail_chars);
         } else {
             debug!("No");
         }
@@ -498,7 +499,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                             usize::MAX
                         };
 
-                        let help = text_wrapper(help.unwrap_none(), avail_chars);
+                        let help = wrap(help.unwrap_none(), avail_chars);
                         let mut help = help.lines();
 
                         self.none(help.next().unwrap_or_default());
@@ -657,7 +658,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if before_new_line {
                 self.none("\n");
             }
-            self.none(text_wrapper(output.unwrap_none(), self.term_w));
+            self.none(wrap(output.unwrap_none(), self.term_w));
             if after_new_line {
                 self.none("\n");
             }
@@ -669,7 +670,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if before_new_line {
                 self.none("\n");
             }
-            self.none(text_wrapper(author, self.term_w));
+            self.none(wrap(author, self.term_w));
             if after_new_line {
                 self.none("\n");
             }
@@ -682,7 +683,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             .get_version()
             .or_else(|| self.cmd.get_long_version());
         if let Some(output) = version {
-            self.none(text_wrapper(output, self.term_w));
+            self.none(wrap(output, self.term_w));
         }
     }
 }
@@ -906,7 +907,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     fn write_display_name(&mut self) {
         debug!("Help::write_display_name");
 
-        let display_name = text_wrapper(
+        let display_name = wrap(
             &self
                 .cmd
                 .get_display_name()
@@ -926,10 +927,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
                 bn.replace(' ', "-")
             } else {
-                text_wrapper(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
+                wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
             }
         } else {
-            text_wrapper(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
+            wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
         };
         self.good(&bin_name);
     }
@@ -1071,16 +1072,6 @@ fn should_show_subcommand(subcommand: &Command) -> bool {
     !subcommand.is_hide_set()
 }
 
-fn text_wrapper(help: &str, width: usize) -> String {
-    let wrapper = textwrap::Options::new(width)
-        .break_words(false)
-        .word_splitter(textwrap::WordSplitter::NoHyphenation);
-    help.lines()
-        .map(|line| textwrap::fill(line, &wrapper))
-        .collect::<Vec<String>>()
-        .join("\n")
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1088,7 +1079,7 @@ mod test {
     #[test]
     fn wrap_help_last_word() {
         let help = String::from("foo bar baz");
-        assert_eq!(text_wrapper(&help, 5), "foo\nbar\nbaz");
+        assert_eq!(wrap(&help, 5), "foo\nbar\nbaz");
     }
 
     #[test]
