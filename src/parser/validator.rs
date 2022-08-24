@@ -1,7 +1,6 @@
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
-use crate::output::fmt::Stream;
 use crate::output::Usage;
 use crate::parser::{ArgMatcher, ParseState};
 use crate::util::ChildGraph;
@@ -58,7 +57,7 @@ impl<'cmd> Validator<'cmd> {
                 .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
-                let message = self.cmd.write_help_err(false, Stream::Stderr);
+                let message = self.cmd.write_help_err(false);
                 return Err(Error::display_help_error(self.cmd, message));
             }
         }

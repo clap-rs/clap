@@ -4390,12 +4390,11 @@ impl Command {
         self.disp_ord.unwrap_or(999)
     }
 
-    pub(crate) fn write_help_err(&self, mut use_long: bool, stream: Stream) -> Colorizer {
+    pub(crate) fn write_help_err(&self, mut use_long: bool) -> StyledStr {
         debug!(
-            "Command::write_help_err: {}, use_long={:?}, stream={:?}",
+            "Command::write_help_err: {}, use_long={:?}",
             self.get_display_name().unwrap_or_else(|| self.get_name()),
             use_long && self.use_long_help(),
-            stream
         );
 
         use_long = use_long && self.use_long_help();
@@ -4404,14 +4403,14 @@ impl Command {
         let mut styled = StyledStr::new();
         Help::new(&mut styled, self, &usage, use_long).write_help();
 
-        Colorizer::new(stream, self.color_help()).with_content(styled)
+        styled
     }
 
-    pub(crate) fn write_version_err(&self, use_long: bool) -> Colorizer {
+    pub(crate) fn write_version_err(&self, use_long: bool) -> StyledStr {
         let msg = self._render_version(use_long);
         let mut styled = StyledStr::new();
         styled.none(msg);
-        Colorizer::new(Stream::Stdout, self.color_help()).with_content(styled)
+        styled
     }
 
     pub(crate) fn use_long_help(&self) -> bool {

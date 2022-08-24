@@ -48,6 +48,7 @@ struct ErrorInner {
     source: Option<Box<dyn error::Error + Send + Sync>>,
     help_flag: Option<&'static str>,
     color_when: ColorChoice,
+    color_help_when: ColorChoice,
     backtrace: Option<Backtrace>,
 }
 
@@ -132,7 +133,14 @@ impl Error {
     /// };
     /// ```
     pub fn print(&self) -> io::Result<()> {
-        self.formatted().print()
+        let style = self.formatted();
+        let color_when = if self.kind() == ErrorKind::DisplayHelp {
+            self.inner.color_help_when
+        } else {
+            self.inner.color_when
+        };
+        let c = Colorizer::new(self.stream(), color_when).with_content(style.into_owned());
+        c.print()
     }
 
     fn new(kind: ErrorKind) -> Self {
@@ -144,18 +152,20 @@ impl Error {
                 source: None,
                 help_flag: None,
                 color_when: ColorChoice::Never,
+                color_help_when: ColorChoice::Never,
                 backtrace: Backtrace::new(),
             }),
         }
     }
 
     #[inline(never)]
-    fn for_app(kind: ErrorKind, cmd: &Command, colorizer: Colorizer) -> Self {
-        Self::new(kind).set_message(colorizer).with_cmd(cmd)
+    fn for_app(kind: ErrorKind, cmd: &Command, styled: StyledStr) -> Self {
+        Self::new(kind).set_message(styled).with_cmd(cmd)
     }
 
     pub(crate) fn with_cmd(self, cmd: &Command) -> Self {
         self.set_color(cmd.get_color())
+            .set_colored_help(cmd.color_help())
             .set_help_flag(get_help_flag(cmd))
     }
 
@@ -171,6 +181,11 @@ impl Error {
 
     pub(crate) fn set_color(mut self, color_when: ColorChoice) -> Self {
         self.inner.color_when = color_when;
+        self
+    }
+
+    pub(crate) fn set_colored_help(mut self, color_help_when: ColorChoice) -> Self {
+        self.inner.color_help_when = color_help_when;
         self
     }
 
@@ -208,20 +223,20 @@ impl Error {
             .find_map(|(k, v)| (*k == kind).then(|| v))
     }
 
-    pub(crate) fn display_help(cmd: &Command, colorizer: Colorizer) -> Self {
-        Self::for_app(ErrorKind::DisplayHelp, cmd, colorizer)
+    pub(crate) fn display_help(cmd: &Command, styled: StyledStr) -> Self {
+        Self::for_app(ErrorKind::DisplayHelp, cmd, styled)
     }
 
-    pub(crate) fn display_help_error(cmd: &Command, colorizer: Colorizer) -> Self {
+    pub(crate) fn display_help_error(cmd: &Command, styled: StyledStr) -> Self {
         Self::for_app(
             ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
             cmd,
-            colorizer,
+            styled,
         )
     }
 
-    pub(crate) fn display_version(cmd: &Command, colorizer: Colorizer) -> Self {
-        Self::for_app(ErrorKind::DisplayVersion, cmd, colorizer)
+    pub(crate) fn display_version(cmd: &Command, styled: StyledStr) -> Self {
+        Self::for_app(ErrorKind::DisplayVersion, cmd, styled)
     }
 
     pub(crate) fn argument_conflict(
@@ -450,7 +465,7 @@ impl Error {
             ])
     }
 
-    fn formatted(&self) -> Cow<'_, Colorizer> {
+    fn formatted(&self) -> Cow<'_, StyledStr> {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted()
         } else {
@@ -474,8 +489,7 @@ impl Error {
 
             try_help(&mut styled, self.inner.help_flag);
 
-            let c = Colorizer::new(self.stream(), self.inner.color_when).with_content(styled);
-            Cow::Owned(c)
+            Cow::Owned(styled)
         }
     }
 
@@ -857,7 +871,7 @@ fn escape(s: impl AsRef<str>) -> String {
 #[derive(Clone, Debug)]
 pub(crate) enum Message {
     Raw(String),
-    Formatted(Colorizer),
+    Formatted(StyledStr),
 }
 
 impl Message {
@@ -873,24 +887,22 @@ impl Message {
                 put_usage(&mut styled, usage);
                 try_help(&mut styled, get_help_flag(cmd));
 
-                let c = Colorizer::new(Stream::Stderr, cmd.get_color()).with_content(styled);
-                *self = Self::Formatted(c);
+                *self = Self::Formatted(styled);
             }
             Message::Formatted(_) => {}
         }
     }
 
-    fn formatted(&self) -> Cow<Colorizer> {
+    fn formatted(&self) -> Cow<StyledStr> {
         match self {
             Message::Raw(s) => {
                 let mut styled = StyledStr::new();
                 start_error(&mut styled);
                 styled.none(s);
 
-                let c = Colorizer::new(Stream::Stderr, ColorChoice::Never).with_content(styled);
-                Cow::Owned(c)
+                Cow::Owned(styled)
             }
-            Message::Formatted(c) => Cow::Borrowed(c),
+            Message::Formatted(s) => Cow::Borrowed(s),
         }
     }
 }
@@ -901,8 +913,8 @@ impl From<String> for Message {
     }
 }
 
-impl From<Colorizer> for Message {
-    fn from(inner: Colorizer) -> Self {
+impl From<StyledStr> for Message {
+    fn from(inner: StyledStr) -> Self {
         Self::Formatted(inner)
     }
 }
