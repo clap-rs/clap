@@ -281,7 +281,7 @@ pub fn assert_matches_path(expected_path: impl AsRef<std::path::Path>, cmd: clap
         .matches_path(expected_path, buf);
 }
 
-pub fn possible_values_command(name: &'static str) -> clap::Command<'static> {
+pub fn possible_values_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .trailing_var_arg(true)
         .arg(
@@ -292,12 +292,24 @@ pub fn possible_values_command(name: &'static str) -> clap::Command<'static> {
         )
         .arg(
             clap::Arg::new("method")
-            .long("method")
-            .action(clap::ArgAction::Set)
-            .value_parser([
-                PossibleValue::new("fast").help("use the Fast method"),
-                PossibleValue::new("slow").help("use the slow method"),
-                PossibleValue::new("normal").help("use normal mode").hide(true)
-            ])
+                .long("method")
+                .action(clap::ArgAction::Set)
+                .value_parser([
+                    PossibleValue::new("fast").help("use the Fast method"),
+                    PossibleValue::new("slow").help("use the slow method"),
+                    PossibleValue::new("normal")
+                        .help("use normal mode")
+                        .hide(true),
+                ]),
+        )
+        .arg(
+            clap::Arg::new("positional_choice")
+                .action(clap::ArgAction::Set)
+                .help("Pick the Position you want the command to run in")
+                .value_parser([
+                    PossibleValue::new("left").help("run left adjusted"),
+                    PossibleValue::new("right"),
+                    PossibleValue::new("center").hide(true),
+                ]),
         )
 }

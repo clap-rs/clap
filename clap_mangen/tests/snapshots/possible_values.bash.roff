@@ -4,14 +4,14 @@
 .SH NAME
 my/-app
 .SH SYNOPSIS
-/fBmy/-app/fR [/fB/-/-choice/fR] [/fB/-/-method/fR] [/fB/-h/fR|/fB/-/-help/fR] 
+/fBmy/-app/fR [/fB/-/-choice/fR] [/fB/-/-method/fR] [/fB/-h/fR|/fB/-/-help/fR] [/fIpositional_choice/fR] 
 .SH DESCRIPTION
 .SH OPTIONS
 .TP
 /fB/-/-choice/fR
 
 .br
-/fI[possible values: /fRbash, fish, zsh]
+[/fIpossible values: /fRbash, fish, zsh]
 .TP
 /fB/-/-method/fR
 
@@ -26,3 +26,16 @@ slow: use the slow method
 .TP
 /fB/-h/fR, /fB/-/-help/fR
 Print help information
+.TP
+[/fIpositional_choice/fR]
+Pick the Position you want the command to run in
+.br
+
+.br
+/fIPossible values:/fR
+.RS 14
+.IP /(bu 2
+left: run left adjusted
+.IP /(bu 2
+right
+.RE
