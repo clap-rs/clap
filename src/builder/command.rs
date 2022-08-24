@@ -3291,7 +3291,6 @@ impl Command {
     }
 
     /// Should we color the output?
-    #[inline(never)]
     pub fn get_color(&self) -> ColorChoice {
         debug!("Command::color: Color setting...");
 

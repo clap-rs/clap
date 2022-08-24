@@ -16,7 +16,6 @@ pub(crate) struct Colorizer {
 }
 
 impl Colorizer {
-    #[inline(never)]
     pub(crate) fn new(stream: Stream, color_when: ColorChoice) -> Self {
         Colorizer {
             stream,

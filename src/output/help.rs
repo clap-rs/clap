@@ -107,17 +107,14 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
 // Methods to write Arg help.
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    #[inline(never)]
     fn good<T: Into<String>>(&mut self, msg: T) {
         self.writer.good(msg);
     }
 
-    #[inline(never)]
     fn warning<T: Into<String>>(&mut self, msg: T) {
         self.writer.warning(msg);
     }
 
-    #[inline(never)]
     fn none<T: Into<String>>(&mut self, msg: T) {
         self.writer.none(msg);
     }
