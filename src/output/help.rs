@@ -80,9 +80,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         debug!("Help::write_help");
 
         if let Some(h) = self.cmd.get_override_help() {
-            self.none(h);
+            self.extend(h);
         } else if let Some(tmpl) = self.cmd.get_help_template() {
-            self.write_templated_help(tmpl);
+            self.write_templated_help(tmpl.unwrap_none());
         } else {
             let pos = self
                 .cmd
@@ -107,6 +107,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
 // Methods to write Arg help.
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
+    fn extend(&mut self, msg: &StyledStr) {
+        self.writer.extend(msg.iter());
+    }
+
     fn good<T: Into<String>>(&mut self, msg: T) {
         self.writer.good(msg);
     }
@@ -353,7 +357,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.cmd.get_before_help()
         };
         if let Some(output) = before_help {
-            self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w));
+            self.none(text_wrapper(
+                &output.unwrap_none().replace("{n}", "\n"),
+                self.term_w,
+            ));
             self.none("\n\n");
         }
     }
@@ -369,7 +376,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         };
         if let Some(output) = after_help {
             self.none("\n\n");
-            self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w));
+            self.none(text_wrapper(
+                &output.unwrap_none().replace("{n}", "\n"),
+                self.term_w,
+            ));
         }
     }
 
@@ -377,13 +387,13 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     fn help(
         &mut self,
         arg: Option<&Arg>,
-        about: &str,
+        about: &StyledStr,
         spec_vals: &str,
         next_line_help: bool,
         longest: usize,
     ) {
         debug!("Help::help");
-        let mut help = String::from(about) + spec_vals;
+        let mut help = String::from(about.unwrap_none()) + spec_vals;
         debug!("Help::help: Next Line...{:?}", next_line_help);
 
         let spaces = if next_line_help {
@@ -451,7 +461,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     .expect("Only called with possible value");
                 let help_longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_help().map(display_width))
+                    .filter_map(|f| f.get_visible_help().map(|h| display_width(h.unwrap_none())))
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
@@ -490,7 +500,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                             usize::MAX
                         };
 
-                        let help = text_wrapper(help, avail_chars);
+                        let help = text_wrapper(help.unwrap_none(), avail_chars);
                         let mut help = help.lines();
 
                         self.none(help.next().unwrap_or_default());
@@ -522,7 +532,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             // force_next_line
             let h = arg.get_help().unwrap_or_default();
-            let h_w = display_width(h) + display_width(spec_vals);
+            let h_w = display_width(h.unwrap_none()) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -649,7 +659,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if before_new_line {
                 self.none("\n");
             }
-            self.none(text_wrapper(output, self.term_w));
+            self.none(text_wrapper(output.unwrap_none(), self.term_w));
             if after_new_line {
                 self.none("\n");
             }
@@ -739,7 +749,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             // force_next_line
             let h = cmd.get_about().unwrap_or_default();
-            let h_w = display_width(h) + display_width(spec_vals);
+            let h_w = display_width(h.unwrap_none()) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40

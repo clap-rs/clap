@@ -153,7 +153,7 @@ fn subcommands_of(p: &Command) -> String {
         let text = format!(
             "'{name}:{help}' \\",
             name = name,
-            help = escape_help(subcommand.get_about().unwrap_or_default())
+            help = escape_help(&subcommand.get_about().unwrap_or_default().to_string())
         );
 
         if !text.is_empty() {
@@ -372,7 +372,8 @@ fn value_completion(arg: &Arg) -> Option<String> {
                             Some(format!(
                                 r#"{name}\:"{tooltip}""#,
                                 name = escape_value(value.get_name()),
-                                tooltip = value.get_help().map(escape_help).unwrap_or_default()
+                                tooltip =
+                                    escape_help(&value.get_help().unwrap_or_default().to_string()),
                             ))
                         }
                     })
@@ -445,7 +446,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
     for o in p.get_opts() {
         debug!("write_opts_of:iter: o={}", o.get_id());
 
-        let help = o.get_help().map(escape_help).unwrap_or_default();
+        let help = escape_help(&o.get_help().unwrap_or_default().to_string());
         let conflicts = arg_conflicts(p, o, p_global);
 
         let multiple = "*";
@@ -541,7 +542,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
     for f in utils::flags(p) {
         debug!("write_flags_of:iter: f={}", f.get_id());
 
-        let help = f.get_help().map(escape_help).unwrap_or_default();
+        let help = escape_help(&f.get_help().unwrap_or_default().to_string());
         let conflicts = arg_conflicts(p, &f, p_global);
 
         let multiple = "*";
@@ -634,7 +635,8 @@ fn write_positionals_of(p: &Command) -> String {
             name = arg.get_id(),
             help = arg
                 .get_help()
-                .map_or("".to_owned(), |v| " -- ".to_owned() + v)
+                .map(|s| s.to_string())
+                .map_or("".to_owned(), |v| " -- ".to_owned() + &v)
                 .replace('[', "\\[")
                 .replace(']', "\\]")
                 .replace('\'', "'\\''")

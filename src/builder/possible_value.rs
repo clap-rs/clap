@@ -1,6 +1,7 @@
 use std::{borrow::Cow, iter};
 
 use crate::builder::Str;
+use crate::builder::StyledStr;
 use crate::util::eq_ignore_case;
 
 /// A possible value of an argument.
@@ -30,7 +31,7 @@ use crate::util::eq_ignore_case;
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct PossibleValue {
     name: Str,
-    help: Option<Str>,
+    help: Option<StyledStr>,
     aliases: Vec<Str>, // (name, visible)
     hide: bool,
 }
@@ -75,7 +76,7 @@ impl PossibleValue {
     /// ```
     #[inline]
     #[must_use]
-    pub fn help(mut self, help: impl Into<Str>) -> Self {
+    pub fn help(mut self, help: impl Into<StyledStr>) -> Self {
         self.help = Some(help.into());
         self
     }
@@ -144,16 +145,16 @@ impl PossibleValue {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&str> {
-        self.help.as_deref()
+    pub fn get_help(&self) -> Option<&StyledStr> {
+        self.help.as_ref()
     }
 
     /// Get the help specified for this argument, if any and the argument
     /// value is not hidden
     #[inline]
-    pub(crate) fn get_visible_help(&self) -> Option<&str> {
+    pub(crate) fn get_visible_help(&self) -> Option<&StyledStr> {
         if !self.hide {
-            self.help.as_deref()
+            self.get_help()
         } else {
             None
         }

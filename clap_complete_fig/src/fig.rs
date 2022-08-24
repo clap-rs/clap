@@ -28,7 +28,7 @@ impl Generator for Fig {
         write!(
             &mut buffer,
             "  description: \"{}\",\n",
-            escape_string(cmd.get_about().unwrap_or_default())
+            escape_string(&cmd.get_about().unwrap_or_default().to_string())
         )
         .unwrap();
 
@@ -101,7 +101,7 @@ fn gen_fig_inner(
                     buffer,
                     "{:indent$}description: \"{}\",\n",
                     "",
-                    escape_string(data),
+                    escape_string(&data.to_string()),
                     indent = indent + 4
                 )
                 .unwrap();
@@ -205,7 +205,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                     &mut buffer,
                     "{:indent$}description: \"{}\",\n",
                     "",
-                    escape_string(data),
+                    escape_string(&data.to_string()),
                     indent = indent + 4
                 )
                 .unwrap();
@@ -314,7 +314,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
                     &mut buffer,
                     "{:indent$}description: \"{}\",\n",
                     "",
-                    escape_string(data).as_str(),
+                    escape_string(&data.to_string()).as_str(),
                     indent = indent + 4
                 )
                 .unwrap();
@@ -426,7 +426,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
                     &mut buffer,
                     "{:indent$}description: \"{}\",\n",
                     "",
-                    escape_string(help),
+                    escape_string(&help.to_string()),
                     indent = indent + 6
                 )
                 .unwrap();

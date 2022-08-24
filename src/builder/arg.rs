@@ -17,6 +17,7 @@ use crate::builder::IntoResettable;
 use crate::builder::OsStr;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
+use crate::builder::StyledStr;
 use crate::builder::ValueRange;
 use crate::ArgAction;
 use crate::Id;
@@ -54,8 +55,8 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Default, Clone)]
 pub struct Arg {
     pub(crate) id: Id,
-    pub(crate) help: Option<Str>,
-    pub(crate) long_help: Option<Str>,
+    pub(crate) help: Option<StyledStr>,
+    pub(crate) long_help: Option<StyledStr>,
     pub(crate) action: Option<ArgAction>,
     pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
@@ -1900,7 +1901,7 @@ impl Arg {
     /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
     #[must_use]
-    pub fn help(mut self, h: impl IntoResettable<Str>) -> Self {
+    pub fn help(mut self, h: impl IntoResettable<StyledStr>) -> Self {
         self.help = h.into_resettable().into_option();
         self
     }
@@ -1962,7 +1963,7 @@ impl Arg {
     /// [`Arg::help`]: Arg::help()
     #[inline]
     #[must_use]
-    pub fn long_help(mut self, h: impl IntoResettable<Str>) -> Self {
+    pub fn long_help(mut self, h: impl IntoResettable<StyledStr>) -> Self {
         self.long_help = h.into_resettable().into_option();
         self
     }
@@ -3539,8 +3540,8 @@ impl Arg {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&str> {
-        self.help.as_deref()
+    pub fn get_help(&self) -> Option<&StyledStr> {
+        self.help.as_ref()
     }
 
     /// Get the long help specified for this argument, if any
@@ -3550,12 +3551,12 @@ impl Arg {
     /// ```rust
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").long_help("long help");
-    /// assert_eq!(Some("long help"), arg.get_long_help());
+    /// assert_eq!(Some("long help".to_owned()), arg.get_long_help().map(|s| s.to_string()));
     /// ```
     ///
     #[inline]
-    pub fn get_long_help(&self) -> Option<&str> {
-        self.long_help.as_deref()
+    pub fn get_long_help(&self) -> Option<&StyledStr> {
+        self.long_help.as_ref()
     }
 
     /// Get the help heading specified for this argument, if any

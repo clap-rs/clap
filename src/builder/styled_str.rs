@@ -32,7 +32,41 @@ impl StyledStr {
     }
 
     fn stylize(&mut self, style: Option<Style>, msg: String) {
-        self.pieces.push((style, msg));
+        if !msg.is_empty() {
+            self.pieces.push((style, msg));
+        }
+    }
+
+    /// HACK: Until call sites are updated to handle formatted text, extract the unformatted
+    #[track_caller]
+    pub(crate) fn unwrap_none(&self) -> &str {
+        match self.pieces.len() {
+            0 => "",
+            1 => {
+                if self.pieces[0].0 != None {
+                    panic!("{}", crate::INTERNAL_ERROR_MSG)
+                }
+                self.pieces[0].1.as_str()
+            }
+            _ => panic!("{}", crate::INTERNAL_ERROR_MSG),
+        }
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        self.pieces.is_empty()
+    }
+
+    pub(crate) fn iter(&self) -> impl Iterator<Item = (Option<Style>, &str)> {
+        self.pieces.iter().map(|(s, c)| (*s, c.as_str()))
+    }
+
+    pub(crate) fn extend(
+        &mut self,
+        other: impl IntoIterator<Item = (impl Into<Option<Style>>, impl Into<String>)>,
+    ) {
+        for (style, content) in other {
+            self.stylize(style.into(), content.into());
+        }
     }
 
     #[cfg(feature = "color")]
@@ -65,6 +99,13 @@ impl StyledStr {
         }
 
         Ok(())
+    }
+}
+
+impl Default for &'_ StyledStr {
+    fn default() -> Self {
+        static DEFAULT: StyledStr = StyledStr::new();
+        &DEFAULT
     }
 }
 

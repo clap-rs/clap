@@ -75,22 +75,22 @@ pub struct Command {
     author: Option<Str>,
     version: Option<Str>,
     long_version: Option<Str>,
-    about: Option<Str>,
-    long_about: Option<Str>,
-    before_help: Option<Str>,
-    before_long_help: Option<Str>,
-    after_help: Option<Str>,
-    after_long_help: Option<Str>,
+    about: Option<StyledStr>,
+    long_about: Option<StyledStr>,
+    before_help: Option<StyledStr>,
+    before_long_help: Option<StyledStr>,
+    after_help: Option<StyledStr>,
+    after_long_help: Option<StyledStr>,
     aliases: Vec<(Str, bool)>,             // (name, visible)
     short_flag_aliases: Vec<(char, bool)>, // (name, visible)
     long_flag_aliases: Vec<(Str, bool)>,   // (name, visible)
-    usage_str: Option<Str>,
+    usage_str: Option<StyledStr>,
     usage_name: Option<String>,
-    help_str: Option<Str>,
+    help_str: Option<StyledStr>,
     disp_ord: Option<usize>,
     term_w: Option<usize>,
     max_w: Option<usize>,
-    template: Option<Str>,
+    template: Option<StyledStr>,
     settings: AppFlags,
     g_settings: AppFlags,
     args: MKeyMap,
@@ -1442,7 +1442,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn about(mut self, about: impl IntoResettable<Str>) -> Self {
+    pub fn about(mut self, about: impl IntoResettable<StyledStr>) -> Self {
         self.about = about.into_resettable().into_option();
         self
     }
@@ -1467,7 +1467,7 @@ impl Command {
     /// ```
     /// [`Command::about`]: Command::about()
     #[must_use]
-    pub fn long_about(mut self, long_about: impl IntoResettable<Str>) -> Self {
+    pub fn long_about(mut self, long_about: impl IntoResettable<StyledStr>) -> Self {
         self.long_about = long_about.into_resettable().into_option();
         self
     }
@@ -1489,7 +1489,7 @@ impl Command {
     /// ```
     ///
     #[must_use]
-    pub fn after_help(mut self, help: impl Into<Str>) -> Self {
+    pub fn after_help(mut self, help: impl Into<StyledStr>) -> Self {
         self.after_help = Some(help.into());
         self
     }
@@ -1511,7 +1511,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn after_long_help(mut self, help: impl Into<Str>) -> Self {
+    pub fn after_long_help(mut self, help: impl Into<StyledStr>) -> Self {
         self.after_long_help = Some(help.into());
         self
     }
@@ -1531,7 +1531,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn before_help(mut self, help: impl Into<Str>) -> Self {
+    pub fn before_help(mut self, help: impl Into<StyledStr>) -> Self {
         self.before_help = Some(help.into());
         self
     }
@@ -1551,7 +1551,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn before_long_help(mut self, help: impl Into<Str>) -> Self {
+    pub fn before_long_help(mut self, help: impl Into<StyledStr>) -> Self {
         self.before_long_help = Some(help.into());
         self
     }
@@ -1645,7 +1645,7 @@ impl Command {
     ///
     /// [`ArgMatches::usage`]: ArgMatches::usage()
     #[must_use]
-    pub fn override_usage(mut self, usage: impl Into<Str>) -> Self {
+    pub fn override_usage(mut self, usage: impl Into<StyledStr>) -> Self {
         self.usage_str = Some(usage.into());
         self
     }
@@ -1682,7 +1682,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn override_help(mut self, help: impl Into<Str>) -> Self {
+    pub fn override_help(mut self, help: impl Into<StyledStr>) -> Self {
         self.help_str = Some(help.into());
         self
     }
@@ -1732,7 +1732,7 @@ impl Command {
     /// [`Command::before_help`]: Command::before_help()
     /// [`Command::before_long_help`]: Command::before_long_help()
     #[must_use]
-    pub fn help_template(mut self, s: impl Into<Str>) -> Self {
+    pub fn help_template(mut self, s: impl Into<StyledStr>) -> Self {
         self.template = Some(s.into());
         self
     }
@@ -3242,16 +3242,16 @@ impl Command {
     ///
     /// [`Command::about`]: Command::about()
     #[inline]
-    pub fn get_about(&self) -> Option<&str> {
-        self.about.as_deref()
+    pub fn get_about(&self) -> Option<&StyledStr> {
+        self.about.as_ref()
     }
 
     /// Get the help message specified via [`Command::long_about`].
     ///
     /// [`Command::long_about`]: Command::long_about()
     #[inline]
-    pub fn get_long_about(&self) -> Option<&str> {
-        self.long_about.as_deref()
+    pub fn get_long_about(&self) -> Option<&StyledStr> {
+        self.long_about.as_ref()
     }
 
     /// Get the custom section heading specified via [`Command::next_help_heading`].
@@ -3364,26 +3364,26 @@ impl Command {
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_before_help(&self) -> Option<&str> {
-        self.before_help.as_deref()
+    pub fn get_before_help(&self) -> Option<&StyledStr> {
+        self.before_help.as_ref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_before_long_help(&self) -> Option<&str> {
-        self.before_long_help.as_deref()
+    pub fn get_before_long_help(&self) -> Option<&StyledStr> {
+        self.before_long_help.as_ref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_after_help(&self) -> Option<&str> {
-        self.after_help.as_deref()
+    pub fn get_after_help(&self) -> Option<&StyledStr> {
+        self.after_help.as_ref()
     }
 
     /// Returns the help heading for listing subcommands.
     #[inline]
-    pub fn get_after_long_help(&self) -> Option<&str> {
-        self.after_long_help.as_deref()
+    pub fn get_after_long_help(&self) -> Option<&StyledStr> {
+        self.after_long_help.as_ref()
     }
 
     /// Find subcommand such that its name or one of aliases equals `name`.
@@ -3667,16 +3667,16 @@ impl Command {
 
 // Internally used only
 impl Command {
-    pub(crate) fn get_override_usage(&self) -> Option<&str> {
-        self.usage_str.as_deref()
+    pub(crate) fn get_override_usage(&self) -> Option<&StyledStr> {
+        self.usage_str.as_ref()
     }
 
-    pub(crate) fn get_override_help(&self) -> Option<&str> {
-        self.help_str.as_deref()
+    pub(crate) fn get_override_help(&self) -> Option<&StyledStr> {
+        self.help_str.as_ref()
     }
 
-    pub(crate) fn get_help_template(&self) -> Option<&str> {
-        self.template.as_deref()
+    pub(crate) fn get_help_template(&self) -> Option<&StyledStr> {
+        self.template.as_ref()
     }
 
     pub(crate) fn get_term_width(&self) -> Option<usize> {
