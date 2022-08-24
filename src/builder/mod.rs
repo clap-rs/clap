@@ -33,6 +33,7 @@ pub use possible_value::PossibleValue;
 pub use range::ValueRange;
 pub use resettable::IntoResettable;
 pub use resettable::Resettable;
+pub use styled_str::StyledStr;
 pub use value_hint::ValueHint;
 pub use value_parser::_AutoValueParser;
 pub use value_parser::via_prelude;
@@ -55,7 +56,6 @@ pub use value_parser::_AnonymousValueParser;
 
 #[allow(unused_imports)]
 pub(crate) use self::str::Inner as StrInner;
-pub(crate) use self::styled_str::StyledStr;
 pub(crate) use action::CountType;
 pub(crate) use arg::render_arg_val;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};

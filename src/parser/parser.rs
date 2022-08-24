@@ -14,7 +14,6 @@ use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
-use crate::output::fmt::Stream;
 use crate::output::Usage;
 use crate::parser::features::suggestions;
 use crate::parser::AnyValue;
@@ -622,7 +621,7 @@ impl<'cmd> Parser<'cmd> {
         };
         let parser = Parser::new(sc);
 
-        Err(parser.help_err(true, Stream::Stdout))
+        Err(parser.help_err(true))
     }
 
     fn is_new_arg(&self, next: &clap_lex::ParsedArg<'_>, current_positional: &Arg) -> bool {
@@ -1236,7 +1235,7 @@ impl<'cmd> Parser<'cmd> {
                     None => true,
                 };
                 debug!("Help: use_long={}", use_long);
-                Err(self.help_err(use_long, Stream::Stdout))
+                Err(self.help_err(use_long))
             }
             ArgAction::Version => {
                 debug_assert_eq!(raw_vals, Vec::<OsString>::new());
@@ -1529,14 +1528,14 @@ impl<'cmd> Parser<'cmd> {
         )
     }
 
-    fn help_err(&self, use_long: bool, stream: Stream) -> ClapError {
-        let c = self.cmd.write_help_err(use_long, stream);
-        ClapError::display_help(self.cmd, c)
+    fn help_err(&self, use_long: bool) -> ClapError {
+        let styled = self.cmd.write_help_err(use_long);
+        ClapError::display_help(self.cmd, styled)
     }
 
     fn version_err(&self, use_long: bool) -> ClapError {
-        let c = self.cmd.write_version_err(use_long);
-        ClapError::display_version(self.cmd, c)
+        let styled = self.cmd.write_version_err(use_long);
+        ClapError::display_version(self.cmd, styled)
     }
 }
 

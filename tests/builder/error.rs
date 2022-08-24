@@ -3,7 +3,12 @@ use super::utils;
 use clap::{arg, error::ErrorKind, value_parser, Arg, Command, Error};
 
 #[track_caller]
-fn assert_error(err: Error, expected_kind: ErrorKind, expected_output: &str, stderr: bool) {
+fn assert_error<F: clap::error::ErrorFormatter>(
+    err: Error<F>,
+    expected_kind: ErrorKind,
+    expected_output: &str,
+    stderr: bool,
+) {
     let actual_output = err.to_string();
     assert_eq!(
         stderr,
@@ -72,4 +77,96 @@ fn value_validation_has_newline() {
         "Errors should have a trailing newline, got {:?}",
         err.to_string()
     );
+}
+
+#[test]
+fn null_prints_help() {
+    let cmd = Command::new("test");
+    let res = cmd
+        .try_get_matches_from(["test", "--help"])
+        .map_err(|e| e.apply::<clap::error::NullFormatter>());
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::DisplayHelp;
+    static MESSAGE: &str = "\
+test 
+
+USAGE:
+    test
+
+OPTIONS:
+    -h, --help    Print help information
+";
+    assert_error(err, expected_kind, MESSAGE, false);
+}
+
+#[test]
+fn raw_prints_help() {
+    let cmd = Command::new("test");
+    let res = cmd
+        .try_get_matches_from(["test", "--help"])
+        .map_err(|e| e.apply::<clap::error::RawFormatter>());
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::DisplayHelp;
+    static MESSAGE: &str = "\
+test 
+
+USAGE:
+    test
+
+OPTIONS:
+    -h, --help    Print help information
+";
+    assert_error(err, expected_kind, MESSAGE, false);
+}
+
+#[test]
+fn null_ignores_validation_error() {
+    let cmd = Command::new("test");
+    let res = cmd
+        .try_get_matches_from(["test", "unused"])
+        .map_err(|e| e.apply::<clap::error::NullFormatter>());
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+fn rich_formats_validation_error() {
+    let cmd = Command::new("test");
+    let res = cmd.try_get_matches_from(["test", "unused"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: Found argument 'unused' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    test
+
+For more information try --help
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+fn raw_formats_validation_error() {
+    let cmd = Command::new("test");
+    let res = cmd
+        .try_get_matches_from(["test", "unused"])
+        .map_err(|e| e.apply::<clap::error::RawFormatter>());
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: Found an argument which wasn't expected or isn't valid in this context
+
+Invalid Argument: unused
+USAGE:
+    test
+";
+    assert_error(err, expected_kind, MESSAGE, true);
 }

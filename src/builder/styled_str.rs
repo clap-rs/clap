@@ -1,10 +1,12 @@
+/// Terminal-styling container
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
-pub(crate) struct StyledStr {
+pub struct StyledStr {
     pieces: Vec<(Option<Style>, String)>,
 }
 
 impl StyledStr {
-    pub(crate) const fn new() -> Self {
+    /// Create an empty buffer
+    pub const fn new() -> Self {
         Self { pieces: Vec::new() }
     }
 

@@ -15,14 +15,20 @@ use crate::builder::StyledStr;
 use crate::output::fmt::Colorizer;
 use crate::output::fmt::Stream;
 use crate::parser::features::suggestions;
+use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE};
 use crate::Command;
 
 mod context;
+mod format;
 mod kind;
 
 pub use context::ContextKind;
 pub use context::ContextValue;
+pub use format::ErrorFormatter;
+pub use format::NullFormatter;
+pub use format::RawFormatter;
+pub use format::RichFormatter;
 pub use kind::ErrorKind;
 
 /// Short hand for [`Result`] type
@@ -35,23 +41,24 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 /// See [`Command::error`] to create an error.
 ///
 /// [`Command::error`]: crate::Command::error
-#[derive(Debug)]
-pub struct Error {
+pub struct Error<F: ErrorFormatter = RichFormatter> {
     inner: Box<ErrorInner>,
+    phantom: std::marker::PhantomData<F>,
 }
 
 #[derive(Debug)]
 struct ErrorInner {
     kind: ErrorKind,
-    context: Vec<(ContextKind, ContextValue)>,
+    context: FlatMap<ContextKind, ContextValue>,
     message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
     help_flag: Option<&'static str>,
     color_when: ColorChoice,
+    color_help_when: ColorChoice,
     backtrace: Option<Backtrace>,
 }
 
-impl Error {
+impl<F: ErrorFormatter> Error<F> {
     /// Create an unformatted error
     ///
     /// This is for you need to pass the error up to
@@ -75,6 +82,28 @@ impl Error {
         self.with_cmd(cmd)
     }
 
+    /// Apply an alternative formatter to the error
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// # use clap::error::NullFormatter;
+    /// let cmd = Command::new("foo")
+    ///     .arg(Arg::new("input").required(true));
+    /// let matches = cmd
+    ///     .try_get_matches_from(["foo", "input.txt"])
+    ///     .map_err(|e| e.apply::<NullFormatter>())
+    ///     .unwrap_or_else(|e| e.exit());
+    /// ```
+    pub fn apply<EF: ErrorFormatter>(self) -> Error<EF> {
+        Error {
+            inner: self.inner,
+            phantom: Default::default(),
+        }
+    }
+
     /// Type of error for programmatic processing
     pub fn kind(&self) -> ErrorKind {
         self.inner.kind
@@ -83,6 +112,12 @@ impl Error {
     /// Additional information to further qualify the error
     pub fn context(&self) -> impl Iterator<Item = (ContextKind, &ContextValue)> {
         self.inner.context.iter().map(|(k, v)| (*k, v))
+    }
+
+    /// Lookup a piece of context
+    #[inline(never)]
+    pub fn get(&self, kind: ContextKind) -> Option<&ContextValue> {
+        self.inner.context.get(&kind)
     }
 
     /// Should the message be written to `stdout` or not?
@@ -132,31 +167,41 @@ impl Error {
     /// };
     /// ```
     pub fn print(&self) -> io::Result<()> {
-        self.formatted().print()
+        let style = self.formatted();
+        let color_when = if self.kind() == ErrorKind::DisplayHelp {
+            self.inner.color_help_when
+        } else {
+            self.inner.color_when
+        };
+        let c = Colorizer::new(self.stream(), color_when).with_content(style.into_owned());
+        c.print()
     }
 
     fn new(kind: ErrorKind) -> Self {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
-                context: Vec::new(),
+                context: FlatMap::new(),
                 message: None,
                 source: None,
                 help_flag: None,
                 color_when: ColorChoice::Never,
+                color_help_when: ColorChoice::Never,
                 backtrace: Backtrace::new(),
             }),
+            phantom: Default::default(),
         }
     }
 
     #[inline(never)]
-    fn for_app(kind: ErrorKind, cmd: &Command, colorizer: Colorizer) -> Self {
-        Self::new(kind).set_message(colorizer).with_cmd(cmd)
+    fn for_app(kind: ErrorKind, cmd: &Command, styled: StyledStr) -> Self {
+        Self::new(kind).set_message(styled).with_cmd(cmd)
     }
 
     pub(crate) fn with_cmd(self, cmd: &Command) -> Self {
         self.set_color(cmd.get_color())
-            .set_help_flag(get_help_flag(cmd))
+            .set_colored_help(cmd.color_help())
+            .set_help_flag(format::get_help_flag(cmd))
     }
 
     pub(crate) fn set_message(mut self, message: impl Into<Message>) -> Self {
@@ -174,6 +219,11 @@ impl Error {
         self
     }
 
+    pub(crate) fn set_colored_help(mut self, color_help_when: ColorChoice) -> Self {
+        self.inner.color_help_when = color_help_when;
+        self
+    }
+
     pub(crate) fn set_help_flag(mut self, help_flag: Option<&'static str>) -> Self {
         self.inner.help_flag = help_flag;
         self
@@ -186,7 +236,7 @@ impl Error {
         kind: ContextKind,
         value: ContextValue,
     ) -> Self {
-        self.inner.context.push((kind, value));
+        self.inner.context.insert_unchecked(kind, value);
         self
     }
 
@@ -196,32 +246,24 @@ impl Error {
         mut self,
         context: [(ContextKind, ContextValue); N],
     ) -> Self {
-        self.inner.context.extend(context);
+        self.inner.context.extend_unchecked(context);
         self
     }
 
-    #[inline(never)]
-    fn get_context(&self, kind: ContextKind) -> Option<&ContextValue> {
-        self.inner
-            .context
-            .iter()
-            .find_map(|(k, v)| (*k == kind).then(|| v))
+    pub(crate) fn display_help(cmd: &Command, styled: StyledStr) -> Self {
+        Self::for_app(ErrorKind::DisplayHelp, cmd, styled)
     }
 
-    pub(crate) fn display_help(cmd: &Command, colorizer: Colorizer) -> Self {
-        Self::for_app(ErrorKind::DisplayHelp, cmd, colorizer)
-    }
-
-    pub(crate) fn display_help_error(cmd: &Command, colorizer: Colorizer) -> Self {
+    pub(crate) fn display_help_error(cmd: &Command, styled: StyledStr) -> Self {
         Self::for_app(
             ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
             cmd,
-            colorizer,
+            styled,
         )
     }
 
-    pub(crate) fn display_version(cmd: &Command, colorizer: Colorizer) -> Self {
-        Self::for_app(ErrorKind::DisplayVersion, cmd, colorizer)
+    pub(crate) fn display_version(cmd: &Command, styled: StyledStr) -> Self {
+        Self::for_app(ErrorKind::DisplayVersion, cmd, styled)
     }
 
     pub(crate) fn argument_conflict(
@@ -450,354 +492,42 @@ impl Error {
             ])
     }
 
-    fn formatted(&self) -> Cow<'_, Colorizer> {
+    fn formatted(&self) -> Cow<'_, StyledStr> {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted()
         } else {
-            let mut styled = StyledStr::new();
-            start_error(&mut styled);
-
-            if !self.write_dynamic_context(&mut styled) {
-                if let Some(msg) = self.kind().as_str() {
-                    styled.none(msg.to_owned());
-                } else if let Some(source) = self.inner.source.as_ref() {
-                    styled.none(source.to_string());
-                } else {
-                    styled.none("Unknown cause");
-                }
-            }
-
-            let usage = self.get_context(ContextKind::Usage);
-            if let Some(ContextValue::String(usage)) = usage {
-                put_usage(&mut styled, usage);
-            }
-
-            try_help(&mut styled, self.inner.help_flag);
-
-            let c = Colorizer::new(self.stream(), self.inner.color_when).with_content(styled);
-            Cow::Owned(c)
-        }
-    }
-
-    #[must_use]
-    fn write_dynamic_context(&self, styled: &mut StyledStr) -> bool {
-        match self.kind() {
-            ErrorKind::ArgumentConflict => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let prior_arg = self.get_context(ContextKind::PriorArg);
-                if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
-                    (invalid_arg, prior_arg)
-                {
-                    styled.none("The argument '");
-                    styled.warning(invalid_arg);
-                    styled.none("' cannot be used with");
-
-                    match prior_arg {
-                        ContextValue::Strings(values) => {
-                            styled.none(":");
-                            for v in values {
-                                styled.none("\n    ");
-                                styled.warning(&**v);
-                            }
-                        }
-                        ContextValue::String(value) => {
-                            styled.none(" '");
-                            styled.warning(value);
-                            styled.none("'");
-                        }
-                        _ => {
-                            styled.none(" one or more of the other specified arguments");
-                        }
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::NoEquals => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    styled.none("Equal sign is needed when assigning values to '");
-                    styled.warning(invalid_arg);
-                    styled.none("'.");
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::InvalidValue => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let invalid_value = self.get_context(ContextKind::InvalidValue);
-                if let (
-                    Some(ContextValue::String(invalid_arg)),
-                    Some(ContextValue::String(invalid_value)),
-                ) = (invalid_arg, invalid_value)
-                {
-                    if invalid_value.is_empty() {
-                        styled.none("The argument '");
-                        styled.warning(invalid_arg);
-                        styled.none("' requires a value but none was supplied");
-                    } else {
-                        styled.none(quote(invalid_value));
-                        styled.none(" isn't a valid value for '");
-                        styled.warning(invalid_arg);
-                        styled.none("'");
-                    }
-
-                    let possible_values = self.get_context(ContextKind::ValidValue);
-                    if let Some(ContextValue::Strings(possible_values)) = possible_values {
-                        if !possible_values.is_empty() {
-                            styled.none("\n\t[possible values: ");
-                            if let Some((last, elements)) = possible_values.split_last() {
-                                for v in elements {
-                                    styled.good(escape(v));
-                                    styled.none(", ");
-                                }
-                                styled.good(escape(last));
-                            }
-                            styled.none("]");
-                        }
-                    }
-
-                    let suggestion = self.get_context(ContextKind::SuggestedValue);
-                    if let Some(ContextValue::String(suggestion)) = suggestion {
-                        styled.none("\n\n\tDid you mean ");
-                        styled.good(quote(suggestion));
-                        styled.none("?");
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::InvalidSubcommand => {
-                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                    styled.none("The subcommand '");
-                    styled.warning(invalid_sub);
-                    styled.none("' wasn't recognized");
-
-                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
-                    if let Some(ContextValue::String(valid_sub)) = valid_sub {
-                        styled.none("\n\n\tDid you mean ");
-                        styled.good(valid_sub);
-                        styled.none("?");
-                    }
-
-                    let suggestion = self.get_context(ContextKind::SuggestedCommand);
-                    if let Some(ContextValue::String(suggestion)) = suggestion {
-                        styled.none(
-            "\n\nIf you believe you received this message in error, try re-running with '",
-        );
-                        styled.good(suggestion);
-                        styled.none("'");
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::MissingRequiredArgument => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
-                    styled.none("The following required arguments were not provided:");
-                    for v in invalid_arg {
-                        styled.none("\n    ");
-                        styled.good(&**v);
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::MissingSubcommand => {
-                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                    styled.none("'");
-                    styled.warning(invalid_sub);
-                    styled.none("' requires a subcommand but one was not provided");
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::InvalidUtf8 => false,
-            ErrorKind::TooManyValues => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let invalid_value = self.get_context(ContextKind::InvalidValue);
-                if let (
-                    Some(ContextValue::String(invalid_arg)),
-                    Some(ContextValue::String(invalid_value)),
-                ) = (invalid_arg, invalid_value)
-                {
-                    styled.none("The value '");
-                    styled.warning(invalid_value);
-                    styled.none("' was provided to '");
-                    styled.warning(invalid_arg);
-                    styled.none("' but it wasn't expecting any more values");
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::TooFewValues => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
-                let min_values = self.get_context(ContextKind::MinValues);
-                if let (
-                    Some(ContextValue::String(invalid_arg)),
-                    Some(ContextValue::Number(actual_num_values)),
-                    Some(ContextValue::Number(min_values)),
-                ) = (invalid_arg, actual_num_values, min_values)
-                {
-                    let were_provided = Error::singular_or_plural(*actual_num_values as usize);
-                    styled.none("The argument '");
-                    styled.warning(invalid_arg);
-                    styled.none("' requires at least ");
-                    styled.warning(min_values.to_string());
-                    styled.none(" values but only ");
-                    styled.warning(actual_num_values.to_string());
-                    styled.none(were_provided);
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::ValueValidation => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let invalid_value = self.get_context(ContextKind::InvalidValue);
-                if let (
-                    Some(ContextValue::String(invalid_arg)),
-                    Some(ContextValue::String(invalid_value)),
-                ) = (invalid_arg, invalid_value)
-                {
-                    styled.none("Invalid value ");
-                    styled.warning(quote(invalid_value));
-                    styled.none(" for '");
-                    styled.warning(invalid_arg);
-                    if let Some(source) = self.inner.source.as_deref() {
-                        styled.none("': ");
-                        styled.none(source.to_string());
-                    } else {
-                        styled.none("'");
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::WrongNumberOfValues => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
-                let num_values = self.get_context(ContextKind::ExpectedNumValues);
-                if let (
-                    Some(ContextValue::String(invalid_arg)),
-                    Some(ContextValue::Number(actual_num_values)),
-                    Some(ContextValue::Number(num_values)),
-                ) = (invalid_arg, actual_num_values, num_values)
-                {
-                    let were_provided = Error::singular_or_plural(*actual_num_values as usize);
-                    styled.none("The argument '");
-                    styled.warning(invalid_arg);
-                    styled.none("' requires ");
-                    styled.warning(num_values.to_string());
-                    styled.none(" values, but ");
-                    styled.warning(actual_num_values.to_string());
-                    styled.none(were_provided);
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::UnknownArgument => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    styled.none("Found argument '");
-                    styled.warning(invalid_arg.to_string());
-                    styled.none("' which wasn't expected, or isn't valid in this context");
-
-                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
-                    let valid_arg = self.get_context(ContextKind::SuggestedArg);
-                    match (valid_sub, valid_arg) {
-                        (
-                            Some(ContextValue::String(valid_sub)),
-                            Some(ContextValue::String(valid_arg)),
-                        ) => {
-                            styled.none("\n\n\tDid you mean ");
-                            styled.none("to put '");
-                            styled.good(valid_arg);
-                            styled.none("' after the subcommand '");
-                            styled.good(valid_sub);
-                            styled.none("'?");
-                        }
-                        (None, Some(ContextValue::String(valid_arg))) => {
-                            styled.none("\n\n\tDid you mean '");
-                            styled.good(valid_arg);
-                            styled.none("'?");
-                        }
-                        (_, _) => {}
-                    }
-
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                        if invalid_arg.starts_with('-') {
-                            styled.none(format!(
-                                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
-                                invalid_arg, invalid_arg
-                            ));
-                        }
-
-                        let trailing_arg = self.get_context(ContextKind::TrailingArg);
-                        if trailing_arg == Some(&ContextValue::Bool(true)) {
-                            styled.none(format!(
-                            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
-                            invalid_arg
-                        ));
-                        }
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-            ErrorKind::DisplayHelp
-            | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
-            | ErrorKind::DisplayVersion
-            | ErrorKind::Io
-            | ErrorKind::Format => false,
-        }
-    }
-
-    /// Returns the singular or plural form on the verb to be based on the argument's value.
-    fn singular_or_plural(n: usize) -> &'static str {
-        if n > 1 {
-            " were provided"
-        } else {
-            " was provided"
+            let styled = F::format_error(self);
+            Cow::Owned(styled)
         }
     }
 }
 
-impl From<io::Error> for Error {
+impl<F: ErrorFormatter> From<io::Error> for Error<F> {
     fn from(e: io::Error) -> Self {
         Error::raw(ErrorKind::Io, e)
     }
 }
 
-impl From<fmt::Error> for Error {
+impl<F: ErrorFormatter> From<fmt::Error> for Error<F> {
     fn from(e: fmt::Error) -> Self {
         Error::raw(ErrorKind::Format, e)
     }
 }
 
-impl error::Error for Error {
+impl<F: ErrorFormatter> std::fmt::Debug for Error<F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        self.inner.fmt(f)
+    }
+}
+
+impl<F: ErrorFormatter> error::Error for Error<F> {
     #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         self.inner.source.as_ref().map(|e| e.as_ref() as _)
     }
 }
 
-impl Display for Error {
+impl<F: ErrorFormatter> Display for Error<F> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         // Assuming `self.message` already has a trailing newline, from `try_help` or similar
         write!(f, "{}", self.formatted())?;
@@ -810,54 +540,10 @@ impl Display for Error {
     }
 }
 
-fn start_error(styled: &mut StyledStr) {
-    styled.error("error:");
-    styled.none(" ");
-}
-
-fn put_usage(styled: &mut StyledStr, usage: impl Into<String>) {
-    styled.none("\n\n");
-    styled.none(usage);
-}
-
-fn get_help_flag(cmd: &Command) -> Option<&'static str> {
-    if !cmd.is_disable_help_flag_set() {
-        Some("--help")
-    } else if cmd.has_subcommands() && !cmd.is_disable_help_subcommand_set() {
-        Some("help")
-    } else {
-        None
-    }
-}
-
-fn try_help(styled: &mut StyledStr, help: Option<&str>) {
-    if let Some(help) = help {
-        styled.none("\n\nFor more information try ");
-        styled.good(help.to_owned());
-        styled.none("\n");
-    } else {
-        styled.none("\n");
-    }
-}
-
-fn quote(s: impl AsRef<str>) -> String {
-    let s = s.as_ref();
-    format!("{:?}", s)
-}
-
-fn escape(s: impl AsRef<str>) -> String {
-    let s = s.as_ref();
-    if s.contains(char::is_whitespace) {
-        quote(s)
-    } else {
-        s.to_owned()
-    }
-}
-
 #[derive(Clone, Debug)]
 pub(crate) enum Message {
     Raw(String),
-    Formatted(Colorizer),
+    Formatted(StyledStr),
 }
 
 impl Message {
@@ -867,30 +553,22 @@ impl Message {
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
 
-                let mut styled = StyledStr::new();
-                start_error(&mut styled);
-                styled.none(message);
-                put_usage(&mut styled, usage);
-                try_help(&mut styled, get_help_flag(cmd));
+                let styled = format::format_error_message(&message, Some(cmd), Some(usage));
 
-                let c = Colorizer::new(Stream::Stderr, cmd.get_color()).with_content(styled);
-                *self = Self::Formatted(c);
+                *self = Self::Formatted(styled);
             }
             Message::Formatted(_) => {}
         }
     }
 
-    fn formatted(&self) -> Cow<Colorizer> {
+    fn formatted(&self) -> Cow<StyledStr> {
         match self {
             Message::Raw(s) => {
-                let mut styled = StyledStr::new();
-                start_error(&mut styled);
-                styled.none(s);
+                let styled = format::format_error_message(s, None, None);
 
-                let c = Colorizer::new(Stream::Stderr, ColorChoice::Never).with_content(styled);
-                Cow::Owned(c)
+                Cow::Owned(styled)
             }
-            Message::Formatted(c) => Cow::Borrowed(c),
+            Message::Formatted(s) => Cow::Borrowed(s),
         }
     }
 }
@@ -901,8 +579,8 @@ impl From<String> for Message {
     }
 }
 
-impl From<Colorizer> for Message {
-    fn from(inner: Colorizer) -> Self {
+impl From<StyledStr> for Message {
+    fn from(inner: StyledStr) -> Self {
         Self::Formatted(inner)
     }
 }

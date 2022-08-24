@@ -1,5 +1,5 @@
 /// Semantics for a piece of error information
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ContextKind {
     /// The cause of the error
@@ -34,6 +34,35 @@ pub enum ContextKind {
     Custom,
 }
 
+impl ContextKind {
+    /// End-user description of the error case, where relevant
+    pub fn as_str(self) -> Option<&'static str> {
+        match self {
+            Self::InvalidSubcommand => Some("Invalid Subcommand"),
+            Self::InvalidArg => Some("Invalid Argument"),
+            Self::PriorArg => Some("Prior Argument"),
+            Self::ValidValue => Some("Value Value"),
+            Self::InvalidValue => Some("Invalid Value"),
+            Self::ActualNumValues => Some("Actual Number of Values"),
+            Self::ExpectedNumValues => Some("Expected Number of Values"),
+            Self::MinValues => Some("Minimum Number of Values"),
+            Self::SuggestedCommand => Some("Suggested Command"),
+            Self::SuggestedSubcommand => Some("Suggested Subcommand"),
+            Self::SuggestedArg => Some("Suggested Argument"),
+            Self::SuggestedValue => Some("Suggested Value"),
+            Self::TrailingArg => Some("Trailing Argument"),
+            Self::Usage => None,
+            Self::Custom => None,
+        }
+    }
+}
+
+impl std::fmt::Display for ContextKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.as_str().unwrap_or_default().fmt(f)
+    }
+}
+
 /// A piece of error information
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -48,4 +77,16 @@ pub enum ContextValue {
     Strings(Vec<String>),
     /// A single value
     Number(isize),
+}
+
+impl std::fmt::Display for ContextValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::None => "".fmt(f),
+            Self::Bool(v) => v.fmt(f),
+            Self::String(v) => v.fmt(f),
+            Self::Strings(v) => v.join(", ").fmt(f),
+            Self::Number(v) => v.fmt(f),
+        }
+    }
 }

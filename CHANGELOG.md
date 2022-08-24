@@ -60,6 +60,7 @@ MSRV is now 1.60.0
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence
 - Added `TypedValueParser::map` to make it easier to reuse existing value parsers
+- *(error)* `Error::apply` for changing the formatter for dropping binary size
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 
 ### Fixes
