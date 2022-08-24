@@ -1,5 +1,5 @@
 /// Semantics for a piece of error information
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ContextKind {
     /// The cause of the error

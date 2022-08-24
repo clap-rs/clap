@@ -15,6 +15,7 @@ use crate::builder::StyledStr;
 use crate::output::fmt::Colorizer;
 use crate::output::fmt::Stream;
 use crate::parser::features::suggestions;
+use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE};
 use crate::Command;
 
@@ -43,7 +44,7 @@ pub struct Error {
 #[derive(Debug)]
 struct ErrorInner {
     kind: ErrorKind,
-    context: Vec<(ContextKind, ContextValue)>,
+    context: FlatMap<ContextKind, ContextValue>,
     message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
     help_flag: Option<&'static str>,
@@ -147,7 +148,7 @@ impl Error {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
-                context: Vec::new(),
+                context: FlatMap::new(),
                 message: None,
                 source: None,
                 help_flag: None,
@@ -201,7 +202,7 @@ impl Error {
         kind: ContextKind,
         value: ContextValue,
     ) -> Self {
-        self.inner.context.push((kind, value));
+        self.inner.context.insert_unchecked(kind, value);
         self
     }
 
@@ -211,16 +212,13 @@ impl Error {
         mut self,
         context: [(ContextKind, ContextValue); N],
     ) -> Self {
-        self.inner.context.extend(context);
+        self.inner.context.extend_unchecked(context);
         self
     }
 
     #[inline(never)]
     fn get_context(&self, kind: ContextKind) -> Option<&ContextValue> {
-        self.inner
-            .context
-            .iter()
-            .find_map(|(k, v)| (*k == kind).then(|| v))
+        self.inner.context.get(&kind)
     }
 
     pub(crate) fn display_help(cmd: &Command, styled: StyledStr) -> Self {
