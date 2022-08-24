@@ -1,3 +1,5 @@
+use crate::output::display_width;
+
 /// Terminal-styling container
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
 pub struct StyledStr {
@@ -35,6 +37,14 @@ impl StyledStr {
         if !msg.is_empty() {
             self.pieces.push((style, msg));
         }
+    }
+
+    pub(crate) fn display_width(&self) -> usize {
+        let mut width = 0;
+        for (_, c) in &self.pieces {
+            width += display_width(c);
+        }
+        width
     }
 
     /// HACK: Until call sites are updated to handle formatted text, extract the unformatted

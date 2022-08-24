@@ -9,12 +9,10 @@ use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::builder::{render_arg_val, Arg, Command};
+use crate::output::display_width;
 use crate::output::Usage;
 use crate::util::FlatSet;
 use crate::ArgAction;
-
-// Third party
-use textwrap::core::display_width;
 
 /// `clap` Help Writer.
 ///
@@ -461,7 +459,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     .expect("Only called with possible value");
                 let help_longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_help().map(|h| display_width(h.unwrap_none())))
+                    .filter_map(|f| f.get_visible_help().map(|h| h.display_width()))
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
@@ -532,7 +530,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             // force_next_line
             let h = arg.get_help().unwrap_or_default();
-            let h_w = display_width(h.unwrap_none()) + display_width(spec_vals);
+            let h_w = h.display_width() + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -749,7 +747,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             // force_next_line
             let h = cmd.get_about().unwrap_or_default();
-            let h_w = display_width(h.unwrap_none()) + display_width(spec_vals);
+            let h_w = h.display_width() + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -1094,6 +1092,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature = "unicode")]
     fn display_width_handles_non_ascii() {
         // Popular Danish tongue-twister, the name of a fruit dessert.
         let text = "rødgrød med fløde";
@@ -1104,6 +1103,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature = "unicode")]
     fn display_width_handles_emojis() {
         let text = "😂";
         // There is a single `char`...

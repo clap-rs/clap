@@ -73,7 +73,7 @@ derive = ["clap_derive"]
 cargo = [] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["dep:terminal_size", "textwrap/terminal_size"]
 env = [] # Use environment variables during arg parsing
-unicode = ["textwrap/unicode-width", "dep:unicase"]  # Support for unicode characters in arguments and help messages
+unicode = ["textwrap/unicode-width", "dep:unicode-width", "dep:unicase"]  # Support for unicode characters in arguments and help messages
 perf = [] # Optimize for runtime performance
 
 # In-work features
@@ -95,6 +95,7 @@ atty = { version = "0.2",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.2.1", optional = true }
 backtrace = { version = "0.3", optional = true }
+unicode-width = { version = "0.1.9", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.18"
@@ -105,6 +106,7 @@ humantime = "2"
 snapbox = "0.2"
 shlex = "1.1.0"
 static_assertions = "1.1.0"
+unic-emoji-char = "0.9.0"
 
 [[example]]
 name = "demo"
