@@ -87,6 +87,12 @@ impl Error {
         self.inner.context.iter().map(|(k, v)| (*k, v))
     }
 
+    /// Lookup a piece of context
+    #[inline(never)]
+    pub fn get(&self, kind: ContextKind) -> Option<&ContextValue> {
+        self.inner.context.get(&kind)
+    }
+
     /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
@@ -214,11 +220,6 @@ impl Error {
     ) -> Self {
         self.inner.context.extend_unchecked(context);
         self
-    }
-
-    #[inline(never)]
-    fn get_context(&self, kind: ContextKind) -> Option<&ContextValue> {
-        self.inner.context.get(&kind)
     }
 
     pub(crate) fn display_help(cmd: &Command, styled: StyledStr) -> Self {
@@ -480,7 +481,7 @@ impl Error {
                 }
             }
 
-            let usage = self.get_context(ContextKind::Usage);
+            let usage = self.get(ContextKind::Usage);
             if let Some(ContextValue::String(usage)) = usage {
                 put_usage(&mut styled, usage);
             }
@@ -495,8 +496,8 @@ impl Error {
     fn write_dynamic_context(&self, styled: &mut StyledStr) -> bool {
         match self.kind() {
             ErrorKind::ArgumentConflict => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let prior_arg = self.get_context(ContextKind::PriorArg);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
+                let prior_arg = self.get(ContextKind::PriorArg);
                 if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
                     (invalid_arg, prior_arg)
                 {
@@ -527,7 +528,7 @@ impl Error {
                 }
             }
             ErrorKind::NoEquals => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
                 if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                     styled.none("Equal sign is needed when assigning values to '");
                     styled.warning(invalid_arg);
@@ -538,8 +539,8 @@ impl Error {
                 }
             }
             ErrorKind::InvalidValue => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
+                let invalid_value = self.get(ContextKind::InvalidValue);
                 if let (
                     Some(ContextValue::String(invalid_arg)),
                     Some(ContextValue::String(invalid_value)),
@@ -556,7 +557,7 @@ impl Error {
                         styled.none("'");
                     }
 
-                    let possible_values = self.get_context(ContextKind::ValidValue);
+                    let possible_values = self.get(ContextKind::ValidValue);
                     if let Some(ContextValue::Strings(possible_values)) = possible_values {
                         if !possible_values.is_empty() {
                             styled.none("\n\t[possible values: ");
@@ -571,7 +572,7 @@ impl Error {
                         }
                     }
 
-                    let suggestion = self.get_context(ContextKind::SuggestedValue);
+                    let suggestion = self.get(ContextKind::SuggestedValue);
                     if let Some(ContextValue::String(suggestion)) = suggestion {
                         styled.none("\n\n\tDid you mean ");
                         styled.good(quote(suggestion));
@@ -583,20 +584,20 @@ impl Error {
                 }
             }
             ErrorKind::InvalidSubcommand => {
-                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                let invalid_sub = self.get(ContextKind::InvalidSubcommand);
                 if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
                     styled.none("The subcommand '");
                     styled.warning(invalid_sub);
                     styled.none("' wasn't recognized");
 
-                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
+                    let valid_sub = self.get(ContextKind::SuggestedSubcommand);
                     if let Some(ContextValue::String(valid_sub)) = valid_sub {
                         styled.none("\n\n\tDid you mean ");
                         styled.good(valid_sub);
                         styled.none("?");
                     }
 
-                    let suggestion = self.get_context(ContextKind::SuggestedCommand);
+                    let suggestion = self.get(ContextKind::SuggestedCommand);
                     if let Some(ContextValue::String(suggestion)) = suggestion {
                         styled.none(
             "\n\nIf you believe you received this message in error, try re-running with '",
@@ -610,7 +611,7 @@ impl Error {
                 }
             }
             ErrorKind::MissingRequiredArgument => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
                 if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
                     styled.none("The following required arguments were not provided:");
                     for v in invalid_arg {
@@ -623,7 +624,7 @@ impl Error {
                 }
             }
             ErrorKind::MissingSubcommand => {
-                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                let invalid_sub = self.get(ContextKind::InvalidSubcommand);
                 if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
                     styled.none("'");
                     styled.warning(invalid_sub);
@@ -635,8 +636,8 @@ impl Error {
             }
             ErrorKind::InvalidUtf8 => false,
             ErrorKind::TooManyValues => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
+                let invalid_value = self.get(ContextKind::InvalidValue);
                 if let (
                     Some(ContextValue::String(invalid_arg)),
                     Some(ContextValue::String(invalid_value)),
@@ -653,9 +654,9 @@ impl Error {
                 }
             }
             ErrorKind::TooFewValues => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
-                let min_values = self.get_context(ContextKind::MinValues);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
+                let actual_num_values = self.get(ContextKind::ActualNumValues);
+                let min_values = self.get(ContextKind::MinValues);
                 if let (
                     Some(ContextValue::String(invalid_arg)),
                     Some(ContextValue::Number(actual_num_values)),
@@ -676,8 +677,8 @@ impl Error {
                 }
             }
             ErrorKind::ValueValidation => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
+                let invalid_value = self.get(ContextKind::InvalidValue);
                 if let (
                     Some(ContextValue::String(invalid_arg)),
                     Some(ContextValue::String(invalid_value)),
@@ -699,9 +700,9 @@ impl Error {
                 }
             }
             ErrorKind::WrongNumberOfValues => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
-                let num_values = self.get_context(ContextKind::ExpectedNumValues);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
+                let actual_num_values = self.get(ContextKind::ActualNumValues);
+                let num_values = self.get(ContextKind::ExpectedNumValues);
                 if let (
                     Some(ContextValue::String(invalid_arg)),
                     Some(ContextValue::Number(actual_num_values)),
@@ -722,14 +723,14 @@ impl Error {
                 }
             }
             ErrorKind::UnknownArgument => {
-                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_arg = self.get(ContextKind::InvalidArg);
                 if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                     styled.none("Found argument '");
                     styled.warning(invalid_arg.to_string());
                     styled.none("' which wasn't expected, or isn't valid in this context");
 
-                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
-                    let valid_arg = self.get_context(ContextKind::SuggestedArg);
+                    let valid_sub = self.get(ContextKind::SuggestedSubcommand);
+                    let valid_arg = self.get(ContextKind::SuggestedArg);
                     match (valid_sub, valid_arg) {
                         (
                             Some(ContextValue::String(valid_sub)),
@@ -750,7 +751,7 @@ impl Error {
                         (_, _) => {}
                     }
 
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_arg = self.get(ContextKind::InvalidArg);
                     if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                         if invalid_arg.starts_with('-') {
                             styled.none(format!(
@@ -759,7 +760,7 @@ impl Error {
                             ));
                         }
 
-                        let trailing_arg = self.get_context(ContextKind::TrailingArg);
+                        let trailing_arg = self.get(ContextKind::TrailingArg);
                         if trailing_arg == Some(&ContextValue::Bool(true)) {
                             styled.none(format!(
                             "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
