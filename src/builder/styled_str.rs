@@ -39,6 +39,7 @@ impl StyledStr {
         }
     }
 
+    #[inline(never)]
     pub(crate) fn display_width(&self) -> usize {
         let mut width = 0;
         for (_, c) in &self.pieces {

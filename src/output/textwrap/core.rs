@@ -51,6 +51,7 @@
 /// [Unicode equivalence]: https://en.wikipedia.org/wiki/Unicode_equivalence
 /// [CJK characters]: https://en.wikipedia.org/wiki/CJK_characters
 /// [emoji modifier sequences]: https://unicode.org/emoji/charts/full-emoji-modifiers.html
+#[inline(never)]
 pub(crate) fn display_width(text: &str) -> usize {
     let mut width = 0;
     for ch in text.chars() {
