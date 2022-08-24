@@ -1604,10 +1604,8 @@ impl Command {
     /// strings. After this setting is set, this will be *the only* usage string
     /// displayed to the user!
     ///
-    /// # Multiple usage lines
-    ///
-    /// Multiple usage lines may be present in the usage argument, but some
-    /// rules need to be followed to ensure the usage lines are formatted
+    /// **NOTE:** Multiple usage lines may be present in the usage argument, but
+    /// some rules need to be followed to ensure the usage lines are formatted
     /// correctly by the default help formatter:
     ///
     /// - Do not indent the first usage line.
@@ -1624,19 +1622,6 @@ impl Command {
     /// ```
     ///
     /// Or for multiple usage lines:
-    ///
-    /// ```no_run
-    /// # use clap::{Command, Arg};
-    /// Command::new("myprog").override_usage(
-    ///     "\
-    ///     myapp -X [-a] [-b] <file>
-    ///     myapp -Y [-c] <file1> <file2>
-    ///     myapp -Z [-d|-e]"
-    /// )
-    /// # ;
-    /// ```
-    ///
-    /// or equivalently, but with different string escaping:
     ///
     /// ```no_run
     /// # use clap::{Command, Arg};
