@@ -15,7 +15,7 @@ use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
 use crate::output::fmt::Stream;
-use crate::output::{fmt::Colorizer, Usage};
+use crate::output::Usage;
 use crate::parser::features::suggestions;
 use crate::parser::AnyValue;
 use crate::parser::{ArgMatcher, SubCommand};
@@ -1530,18 +1530,12 @@ impl<'cmd> Parser<'cmd> {
     }
 
     fn help_err(&self, use_long: bool, stream: Stream) -> ClapError {
-        match self.cmd.write_help_err(use_long, stream) {
-            Ok(c) => ClapError::display_help(self.cmd, c),
-            Err(e) => e,
-        }
+        let c = self.cmd.write_help_err(use_long, stream);
+        ClapError::display_help(self.cmd, c)
     }
 
     fn version_err(&self, use_long: bool) -> ClapError {
-        debug!("Parser::version_err");
-
-        let msg = self.cmd._render_version(use_long);
-        let mut c = Colorizer::new(Stream::Stdout, self.cmd.color_help());
-        c.none(msg);
+        let c = self.cmd.write_version_err(use_long);
         ClapError::display_version(self.cmd, c)
     }
 }

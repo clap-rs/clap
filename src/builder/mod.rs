@@ -12,6 +12,7 @@ mod possible_value;
 mod range;
 mod resettable;
 mod str;
+mod styled_str;
 mod value_hint;
 mod value_parser;
 
@@ -54,6 +55,7 @@ pub use value_parser::_AnonymousValueParser;
 
 #[allow(unused_imports)]
 pub(crate) use self::str::Inner as StrInner;
+pub(crate) use self::styled_str::StyledStr;
 pub(crate) use action::CountType;
 pub(crate) use arg::render_arg_val;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};

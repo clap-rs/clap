@@ -13,12 +13,13 @@ use crate::builder::ArgAction;
 use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
+use crate::builder::StyledStr;
 use crate::builder::{Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::{fmt::Colorizer, Help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
@@ -718,9 +719,11 @@ impl Command {
         self._build_self();
         let color = self.get_color();
 
-        let mut c = Colorizer::new(Stream::Stdout, color);
+        let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Buffer(&mut c), self, &usage, false).write_help()?;
+        Help::new(&mut styled, self, &usage, false).write_help();
+
+        let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
     }
 
@@ -743,9 +746,11 @@ impl Command {
         self._build_self();
         let color = self.get_color();
 
-        let mut c = Colorizer::new(Stream::Stdout, color);
+        let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Buffer(&mut c), self, &usage, true).write_help()?;
+        Help::new(&mut styled, self, &usage, true).write_help();
+
+        let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
     }
 
@@ -768,8 +773,10 @@ impl Command {
     pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build_self();
 
+        let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Normal(w), self, &usage, false).write_help()?;
+        Help::new(&mut styled, self, &usage, false).write_help();
+        write!(w, "{}", styled)?;
         w.flush()
     }
 
@@ -792,8 +799,10 @@ impl Command {
     pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build_self();
 
+        let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(HelpWriter::Normal(w), self, &usage, true).write_help()?;
+        Help::new(&mut styled, self, &usage, true).write_help();
+        write!(w, "{}", styled)?;
         w.flush()
     }
 
@@ -3282,7 +3291,6 @@ impl Command {
     }
 
     /// Should we color the output?
-    #[inline(never)]
     pub fn get_color(&self) -> ColorChoice {
         debug!("Command::color: Color setting...");
 
@@ -4382,11 +4390,7 @@ impl Command {
         self.disp_ord.unwrap_or(999)
     }
 
-    pub(crate) fn write_help_err(
-        &self,
-        mut use_long: bool,
-        stream: Stream,
-    ) -> ClapResult<Colorizer> {
+    pub(crate) fn write_help_err(&self, mut use_long: bool, stream: Stream) -> Colorizer {
         debug!(
             "Command::write_help_err: {}, use_long={:?}, stream={:?}",
             self.get_display_name().unwrap_or_else(|| self.get_name()),
@@ -4397,9 +4401,17 @@ impl Command {
         use_long = use_long && self.use_long_help();
         let usage = Usage::new(self);
 
-        let mut c = Colorizer::new(stream, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), self, &usage, use_long).write_help()?;
-        Ok(c)
+        let mut styled = StyledStr::new();
+        Help::new(&mut styled, self, &usage, use_long).write_help();
+
+        Colorizer::new(stream, self.color_help()).with_content(styled)
+    }
+
+    pub(crate) fn write_version_err(&self, use_long: bool) -> Colorizer {
+        let msg = self._render_version(use_long);
+        let mut styled = StyledStr::new();
+        styled.none(msg);
+        Colorizer::new(Stream::Stdout, self.color_help()).with_content(styled)
     }
 
     pub(crate) fn use_long_help(&self) -> bool {
