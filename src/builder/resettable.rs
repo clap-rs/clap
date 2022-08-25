@@ -3,6 +3,7 @@
 
 use crate::builder::OsStr;
 use crate::builder::Str;
+use crate::builder::StyledStr;
 
 /// Clearable builder value
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -43,6 +44,15 @@ pub trait IntoResettable<T> {
     fn into_resettable(self) -> Resettable<T>;
 }
 
+impl IntoResettable<StyledStr> for Option<&'static str> {
+    fn into_resettable(self) -> Resettable<StyledStr> {
+        match self {
+            Some(s) => Resettable::Value(s.into()),
+            None => Resettable::Reset,
+        }
+    }
+}
+
 impl IntoResettable<OsStr> for Option<&'static str> {
     fn into_resettable(self) -> Resettable<OsStr> {
         match self {
@@ -64,6 +74,12 @@ impl IntoResettable<Str> for Option<&'static str> {
 impl<T> IntoResettable<T> for Resettable<T> {
     fn into_resettable(self) -> Resettable<T> {
         self
+    }
+}
+
+impl<I: Into<StyledStr>> IntoResettable<StyledStr> for I {
+    fn into_resettable(self) -> Resettable<StyledStr> {
+        Resettable::Value(self.into())
     }
 }
 

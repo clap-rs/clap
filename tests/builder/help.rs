@@ -2065,7 +2065,7 @@ USAGE:
     myapp help [SUBCOMMAND]...
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    [SUBCOMMAND]...    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2083,7 +2083,7 @@ USAGE:
     myapp subcmd help [SUBCOMMAND]...
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    [SUBCOMMAND]...    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2569,7 +2569,7 @@ USAGE:
     example help [SUBCOMMAND]...
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    [SUBCOMMAND]...    The subcommand whose help message to display
 ",
         false,
     );
@@ -2612,7 +2612,7 @@ USAGE:
     example help [SUBCOMMAND]...
 
 ARGS:
-    <SUBCOMMAND>...    The subcommand whose help message to display
+    [SUBCOMMAND]...    The subcommand whose help message to display
 ",
         false,
     );

@@ -4,7 +4,6 @@ use std::env;
 #[cfg(feature = "env")]
 use std::ffi::OsString;
 use std::{
-    borrow::Cow,
     cmp::{Ord, Ordering},
     fmt::{self, Display, Formatter},
     str,
@@ -17,6 +16,7 @@ use crate::builder::IntoResettable;
 use crate::builder::OsStr;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
+use crate::builder::StyledStr;
 use crate::builder::ValueRange;
 use crate::ArgAction;
 use crate::Id;
@@ -54,8 +54,8 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Default, Clone)]
 pub struct Arg {
     pub(crate) id: Id,
-    pub(crate) help: Option<Str>,
-    pub(crate) long_help: Option<Str>,
+    pub(crate) help: Option<StyledStr>,
+    pub(crate) long_help: Option<StyledStr>,
     pub(crate) action: Option<ArgAction>,
     pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
@@ -1900,7 +1900,7 @@ impl Arg {
     /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
     #[must_use]
-    pub fn help(mut self, h: impl IntoResettable<Str>) -> Self {
+    pub fn help(mut self, h: impl IntoResettable<StyledStr>) -> Self {
         self.help = h.into_resettable().into_option();
         self
     }
@@ -1962,7 +1962,7 @@ impl Arg {
     /// [`Arg::help`]: Arg::help()
     #[inline]
     #[must_use]
-    pub fn long_help(mut self, h: impl IntoResettable<Str>) -> Self {
+    pub fn long_help(mut self, h: impl IntoResettable<StyledStr>) -> Self {
         self.long_help = h.into_resettable().into_option();
         self
     }
@@ -3539,8 +3539,8 @@ impl Arg {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&str> {
-        self.help.as_deref()
+    pub fn get_help(&self) -> Option<&StyledStr> {
+        self.help.as_ref()
     }
 
     /// Get the long help specified for this argument, if any
@@ -3550,12 +3550,12 @@ impl Arg {
     /// ```rust
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").long_help("long help");
-    /// assert_eq!(Some("long help"), arg.get_long_help());
+    /// assert_eq!(Some("long help".to_owned()), arg.get_long_help().map(|s| s.to_string()));
     /// ```
     ///
     #[inline]
-    pub fn get_long_help(&self) -> Option<&str> {
-        self.long_help.as_deref()
+    pub fn get_long_help(&self) -> Option<&StyledStr> {
+        self.long_help.as_ref()
     }
 
     /// Get the help heading specified for this argument, if any
@@ -3950,27 +3950,106 @@ impl Arg {
     }
 
     // Used for positionals when printing
-    pub(crate) fn name_no_brackets(&self) -> Cow<str> {
+    pub(crate) fn name_no_brackets(&self) -> String {
         debug!("Arg::name_no_brackets:{}", self.get_id());
         let delim = " ";
         if !self.val_names.is_empty() {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
 
             if self.val_names.len() > 1 {
-                Cow::Owned(
-                    self.val_names
-                        .iter()
-                        .map(|n| format!("<{}>", n))
-                        .collect::<Vec<_>>()
-                        .join(delim),
-                )
+                self.val_names
+                    .iter()
+                    .map(|n| format!("<{}>", n))
+                    .collect::<Vec<_>>()
+                    .join(delim)
             } else {
-                Cow::Borrowed(self.val_names.first().expect(INTERNAL_ERROR_MSG))
+                self.val_names
+                    .first()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .as_str()
+                    .to_owned()
             }
         } else {
             debug!("Arg::name_no_brackets: just name");
-            Cow::Borrowed(self.get_id().as_str())
+            self.get_id().as_str().to_owned()
         }
+    }
+
+    pub(crate) fn stylize_arg_suffix(&self) -> StyledStr {
+        let mut styled = StyledStr::new();
+
+        let mut need_closing_bracket = false;
+        if self.is_takes_value_set() && !self.is_positional() {
+            let is_optional_val = self.get_min_vals() == 0;
+            let sep = if self.is_require_equals_set() {
+                if is_optional_val {
+                    need_closing_bracket = true;
+                    "[="
+                } else {
+                    "="
+                }
+            } else if is_optional_val {
+                need_closing_bracket = true;
+                " ["
+            } else {
+                " "
+            };
+            styled.good(sep);
+        }
+        if self.is_takes_value_set() || self.is_positional() {
+            let arg_val = self.render_arg_val();
+            styled.good(arg_val);
+        } else if matches!(*self.get_action(), ArgAction::Count) {
+            styled.good("...");
+        }
+        if need_closing_bracket {
+            styled.none("]");
+        }
+
+        styled
+    }
+
+    /// Write the values such as <name1> <name2>
+    fn render_arg_val(&self) -> String {
+        let mut rendered = String::new();
+
+        let num_vals = self.get_num_args().expect(INTERNAL_ERROR_MSG);
+
+        let mut val_names = if self.val_names.is_empty() {
+            vec![self.id.as_internal_str().to_owned()]
+        } else {
+            self.val_names.clone()
+        };
+        if val_names.len() == 1 {
+            let min = num_vals.min_values().max(1);
+            let val_name = val_names.pop().unwrap();
+            val_names = vec![val_name; min];
+        }
+
+        debug_assert!(self.is_takes_value_set());
+        for (n, val_name) in val_names.iter().enumerate() {
+            let arg_name = if self.is_positional() && num_vals.min_values() == 0 {
+                format!("[{}]", val_name)
+            } else {
+                format!("<{}>", val_name)
+            };
+
+            if n != 0 {
+                rendered.push(' ');
+            }
+            rendered.push_str(&arg_name);
+        }
+
+        let mut extra_values = false;
+        extra_values |= val_names.len() < num_vals.max_values();
+        if self.is_positional() && matches!(*self.get_action(), ArgAction::Append) {
+            extra_values = true;
+        }
+        if extra_values {
+            rendered.push_str("...");
+        }
+
+        rendered
     }
 
     /// Either multiple values or occurrences
@@ -4017,41 +4096,7 @@ impl Display for Arg {
         } else if let Some(s) = self.get_short() {
             write!(f, "-{}", s)?;
         }
-        let mut need_closing_bracket = false;
-        let is_optional_val = self.get_min_vals() == 0;
-        if self.is_positional() {
-            if is_optional_val {
-                let sep = "[";
-                need_closing_bracket = true;
-                f.write_str(sep)?;
-            }
-        } else if self.is_takes_value_set() {
-            let sep = if self.is_require_equals_set() {
-                if is_optional_val {
-                    need_closing_bracket = true;
-                    "[="
-                } else {
-                    "="
-                }
-            } else if is_optional_val {
-                need_closing_bracket = true;
-                " ["
-            } else {
-                " "
-            };
-            f.write_str(sep)?;
-        }
-        if self.is_takes_value_set() || self.is_positional() {
-            let arg_val = render_arg_val(self);
-            f.write_str(&arg_val)?;
-        } else if matches!(*self.get_action(), ArgAction::Count) {
-            f.write_str("...")?;
-        }
-        if need_closing_bracket {
-            f.write_str("]")?;
-        }
-
-        Ok(())
+        self.stylize_arg_suffix().fmt(f)
     }
 }
 
@@ -4096,53 +4141,6 @@ impl fmt::Debug for Arg {
 
         ds.finish()
     }
-}
-
-/// Write the values such as <name1> <name2>
-pub(crate) fn render_arg_val(arg: &Arg) -> String {
-    let mut rendered = String::new();
-
-    let delim = " ";
-
-    let val_names = if arg.val_names.is_empty() {
-        vec![arg.id.as_internal_str().to_owned()]
-    } else {
-        arg.val_names.clone()
-    };
-
-    let mut extra_values = false;
-    debug_assert!(arg.is_takes_value_set());
-    let num_vals = arg.get_num_args().expect(INTERNAL_ERROR_MSG);
-    if val_names.len() == 1 {
-        let arg_name = format!("<{}>", val_names[0]);
-        let min = num_vals.min_values().max(1);
-        for n in 1..=min {
-            if n != 1 {
-                rendered.push_str(delim);
-            }
-            rendered.push_str(&arg_name);
-        }
-        extra_values |= min < num_vals.max_values();
-    } else {
-        debug_assert!(1 < val_names.len());
-        for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = format!("<{}>", val_name);
-            if n != 0 {
-                rendered.push_str(delim);
-            }
-            rendered.push_str(&arg_name);
-        }
-        extra_values |= val_names.len() < num_vals.max_values();
-    }
-    if arg.is_positional() && matches!(*arg.get_action(), ArgAction::Append) {
-        extra_values = true;
-    }
-
-    if extra_values {
-        rendered.push_str("...");
-    }
-
-    rendered
 }
 
 // Flags
@@ -4380,7 +4378,7 @@ mod test {
         let mut p = Arg::new("pos").index(1).num_args(0..);
         p._build();
 
-        assert_eq!(p.to_string(), "[<pos>...]");
+        assert_eq!(p.to_string(), "[pos]...");
     }
 
     #[test]
@@ -4399,7 +4397,7 @@ mod test {
             .action(ArgAction::Set);
         p._build();
 
-        assert_eq!(p.to_string(), "[<pos>]");
+        assert_eq!(p.to_string(), "[pos]");
     }
 
     #[test]

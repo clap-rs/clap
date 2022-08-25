@@ -48,7 +48,7 @@ _my-app() {
             return 0
             ;;
         my__app__help)
-            opts="[<SUBCOMMAND>...]"
+            opts="[SUBCOMMAND]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

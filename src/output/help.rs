@@ -8,13 +8,11 @@ use std::usize;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
-use crate::builder::{render_arg_val, Arg, Command};
+use crate::builder::{Arg, Command};
+use crate::output::display_width;
+use crate::output::wrap;
 use crate::output::Usage;
 use crate::util::FlatSet;
-use crate::ArgAction;
-
-// Third party
-use textwrap::core::display_width;
 
 /// `clap` Help Writer.
 ///
@@ -80,9 +78,15 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         debug!("Help::write_help");
 
         if let Some(h) = self.cmd.get_override_help() {
-            self.none(h);
+            self.extend(h);
         } else if let Some(tmpl) = self.cmd.get_help_template() {
-            self.write_templated_help(tmpl);
+            for (style, content) in tmpl.iter() {
+                if style == None {
+                    self.write_templated_help(content);
+                } else {
+                    self.writer.stylize(style, content);
+                }
+            }
         } else {
             let pos = self
                 .cmd
@@ -94,75 +98,305 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 .any(|arg| should_show_arg(self.use_long, arg));
             let subcmds = self.cmd.has_visible_subcommands();
 
-            if non_pos || pos || subcmds {
-                self.write_templated_help(Self::DEFAULT_TEMPLATE);
+            let template = if non_pos || pos || subcmds {
+                Self::DEFAULT_TEMPLATE
             } else {
-                self.write_templated_help(Self::DEFAULT_NO_ARGS_TEMPLATE);
-            }
+                Self::DEFAULT_NO_ARGS_TEMPLATE
+            };
+            self.write_templated_help(template);
         }
 
         self.none("\n");
     }
 }
 
-// Methods to write Arg help.
+// Template
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    fn good<T: Into<String>>(&mut self, msg: T) {
-        self.writer.good(msg);
-    }
+    /// Write help to stream for the parser in the format defined by the template.
+    ///
+    /// For details about the template language see [`Command::help_template`].
+    ///
+    /// [`Command::help_template`]: Command::help_template()
+    fn write_templated_help(&mut self, template: &str) {
+        debug!("Help::write_templated_help");
 
-    fn warning<T: Into<String>>(&mut self, msg: T) {
-        self.writer.warning(msg);
-    }
-
-    fn none<T: Into<String>>(&mut self, msg: T) {
-        self.writer.none(msg);
-    }
-
-    #[inline(never)]
-    fn spaces(&mut self, n: usize) {
-        // A string with 64 consecutive spaces.
-        const SHORT_SPACE: &str =
-            "                                                                ";
-        if let Some(short) = SHORT_SPACE.get(..n) {
-            self.none(short);
-        } else {
-            self.none(" ".repeat(n));
+        let mut parts = template.split('{');
+        if let Some(first) = parts.next() {
+            self.none(first);
         }
-    }
-
-    /// Writes help for each argument in the order they were declared to the wrapped stream.
-    fn write_args_unsorted(&mut self, args: &[&Arg]) {
-        debug!("Help::write_args_unsorted");
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        let mut longest = 2;
-        let mut arg_v = Vec::with_capacity(10);
-
-        for &arg in args
-            .iter()
-            .filter(|arg| should_show_arg(self.use_long, *arg))
-        {
-            if arg.longest_filter() {
-                longest = longest.max(display_width(&arg.to_string()));
-                debug!(
-                    "Help::write_args_unsorted: arg={:?} longest={}",
-                    arg.get_id(),
-                    longest
-                );
+        for part in parts {
+            if let Some((tag, rest)) = part.split_once('}') {
+                match tag {
+                    "name" => {
+                        self.write_display_name();
+                    }
+                    "bin" => {
+                        self.write_bin_name();
+                    }
+                    "version" => {
+                        self.write_version();
+                    }
+                    "author" => {
+                        self.write_author(false, false);
+                    }
+                    "author-with-newline" => {
+                        self.write_author(false, true);
+                    }
+                    "author-section" => {
+                        self.write_author(true, true);
+                    }
+                    "about" => {
+                        self.write_about(false, false);
+                    }
+                    "about-with-newline" => {
+                        self.write_about(false, true);
+                    }
+                    "about-section" => {
+                        self.write_about(true, true);
+                    }
+                    "usage-heading" => {
+                        self.warning("USAGE:");
+                    }
+                    "usage" => {
+                        self.none(self.usage.create_usage_no_title(&[]));
+                    }
+                    "all-args" => {
+                        self.write_all_args();
+                    }
+                    "options" => {
+                        // Include even those with a heading as we don't have a good way of
+                        // handling help_heading in the template.
+                        self.write_args(
+                            &self.cmd.get_non_positionals().collect::<Vec<_>>(),
+                            "options",
+                            option_sort_key,
+                        );
+                    }
+                    "positionals" => {
+                        self.write_args(
+                            &self.cmd.get_positionals().collect::<Vec<_>>(),
+                            "positionals",
+                            positional_sort_key,
+                        );
+                    }
+                    "subcommands" => {
+                        self.write_subcommands(self.cmd);
+                    }
+                    "after-help" => {
+                        self.write_after_help();
+                    }
+                    "before-help" => {
+                        self.write_before_help();
+                    }
+                    _ => {
+                        self.none("{");
+                        self.none(tag);
+                        self.none("}");
+                    }
+                }
+                self.none(rest);
             }
-            arg_v.push(arg)
         }
+    }
+}
 
-        let next_line_help = self.will_args_wrap(args, longest);
+/// Basic template methods
+impl<'cmd, 'writer> Help<'cmd, 'writer> {
+    /// Writes binary name of a Parser Object to the wrapped stream.
+    fn write_display_name(&mut self) {
+        debug!("Help::write_display_name");
 
-        let argc = arg_v.len();
-        for (i, arg) in arg_v.iter().enumerate() {
-            self.write_arg(arg, i + 1 == argc, next_line_help, longest);
+        let display_name = wrap(
+            &self
+                .cmd
+                .get_display_name()
+                .unwrap_or_else(|| self.cmd.get_name())
+                .replace("{n}", "\n"),
+            self.term_w,
+        );
+        self.good(&display_name);
+    }
+
+    /// Writes binary name of a Parser Object to the wrapped stream.
+    fn write_bin_name(&mut self) {
+        debug!("Help::write_bin_name");
+
+        let bin_name = if let Some(bn) = self.cmd.get_bin_name() {
+            if bn.contains(' ') {
+                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
+                bn.replace(' ', "-")
+            } else {
+                wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
+            }
+        } else {
+            wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
+        };
+        self.good(&bin_name);
+    }
+
+    fn write_version(&mut self) {
+        let version = self
+            .cmd
+            .get_version()
+            .or_else(|| self.cmd.get_long_version());
+        if let Some(output) = version {
+            self.none(wrap(output, self.term_w));
         }
     }
 
+    fn write_author(&mut self, before_new_line: bool, after_new_line: bool) {
+        if let Some(author) = self.cmd.get_author() {
+            if before_new_line {
+                self.none("\n");
+            }
+            self.none(wrap(author, self.term_w));
+            if after_new_line {
+                self.none("\n");
+            }
+        }
+    }
+
+    fn write_about(&mut self, before_new_line: bool, after_new_line: bool) {
+        let about = if self.use_long {
+            self.cmd.get_long_about().or_else(|| self.cmd.get_about())
+        } else {
+            self.cmd.get_about()
+        };
+        if let Some(output) = about {
+            if before_new_line {
+                self.none("\n");
+            }
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
+            if after_new_line {
+                self.none("\n");
+            }
+        }
+    }
+
+    fn write_before_help(&mut self) {
+        debug!("Help::write_before_help");
+        let before_help = if self.use_long {
+            self.cmd
+                .get_before_long_help()
+                .or_else(|| self.cmd.get_before_help())
+        } else {
+            self.cmd.get_before_help()
+        };
+        if let Some(output) = before_help {
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
+            self.none("\n\n");
+        }
+    }
+
+    fn write_after_help(&mut self) {
+        debug!("Help::write_after_help");
+        let after_help = if self.use_long {
+            self.cmd
+                .get_after_long_help()
+                .or_else(|| self.cmd.get_after_help())
+        } else {
+            self.cmd.get_after_help()
+        };
+        if let Some(output) = after_help {
+            self.none("\n\n");
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
+        }
+    }
+}
+
+/// Arg handling
+impl<'cmd, 'writer> Help<'cmd, 'writer> {
+    /// Writes help for all arguments (options, flags, args, subcommands)
+    /// including titles of a Parser Object to the wrapped stream.
+    pub(crate) fn write_all_args(&mut self) {
+        debug!("Help::write_all_args");
+        let pos = self
+            .cmd
+            .get_positionals_with_no_heading()
+            .filter(|arg| should_show_arg(self.use_long, arg))
+            .collect::<Vec<_>>();
+        let non_pos = self
+            .cmd
+            .get_non_positionals_with_no_heading()
+            .filter(|arg| should_show_arg(self.use_long, arg))
+            .collect::<Vec<_>>();
+        let subcmds = self.cmd.has_visible_subcommands();
+
+        let custom_headings = self
+            .cmd
+            .get_arguments()
+            .filter_map(|arg| arg.get_help_heading())
+            .collect::<FlatSet<_>>();
+
+        let mut first = if !pos.is_empty() {
+            // Write positional args if any
+            self.warning("ARGS:\n");
+            self.write_args(&pos, "ARGS", positional_sort_key);
+            false
+        } else {
+            true
+        };
+
+        if !non_pos.is_empty() {
+            if !first {
+                self.none("\n\n");
+            }
+            self.warning("OPTIONS:\n");
+            self.write_args(&non_pos, "OPTIONS", option_sort_key);
+            first = false;
+        }
+        if !custom_headings.is_empty() {
+            for heading in custom_headings {
+                let args = self
+                    .cmd
+                    .get_arguments()
+                    .filter(|a| {
+                        if let Some(help_heading) = a.get_help_heading() {
+                            return help_heading == heading;
+                        }
+                        false
+                    })
+                    .filter(|arg| should_show_arg(self.use_long, arg))
+                    .collect::<Vec<_>>();
+
+                if !args.is_empty() {
+                    if !first {
+                        self.none("\n\n");
+                    }
+                    self.warning(format!("{}:\n", heading));
+                    self.write_args(&args, heading, option_sort_key);
+                    first = false
+                }
+            }
+        }
+
+        if subcmds {
+            if !first {
+                self.none("\n\n");
+            }
+
+            let default_help_heading = Str::from("SUBCOMMANDS");
+            self.warning(
+                self.cmd
+                    .get_subcommand_help_heading()
+                    .unwrap_or(&default_help_heading),
+            );
+            self.warning(":\n");
+
+            self.write_subcommands(self.cmd);
+        }
+    }
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
-    fn write_args(&mut self, args: &[&Arg], _category: &str) {
+    fn write_args(&mut self, args: &[&Arg], _category: &str, sort_key: ArgSortKey) {
         debug!("Help::write_args {}", _category);
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
@@ -184,44 +418,32 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 );
             }
 
-            // Formatting key like this to ensure that:
-            // 1. Argument has long flags are printed just after short flags.
-            // 2. For two args both have short flags like `-c` and `-C`, the
-            //    `-C` arg is printed just after the `-c` arg
-            // 3. For args without short or long flag, print them at last(sorted
-            //    by arg name).
-            // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
-
-            let key = if let Some(x) = arg.get_short() {
-                let mut s = x.to_ascii_lowercase().to_string();
-                s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
-                s
-            } else if let Some(x) = arg.get_long() {
-                x.to_string()
-            } else {
-                let mut s = '{'.to_string();
-                s.push_str(arg.id.as_str());
-                s
-            };
-            ord_v.push((arg.get_display_order(), key, arg));
+            let key = (sort_key)(arg);
+            ord_v.push((key, arg));
         }
-        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+        ord_v.sort_by(|a, b| a.0.cmp(&b.0));
 
         let next_line_help = self.will_args_wrap(args, longest);
 
-        for (i, (_, _, arg)) in ord_v.iter().enumerate() {
-            let last_arg = i + 1 == ord_v.len();
-            self.write_arg(arg, last_arg, next_line_help, longest);
+        for (i, (_, arg)) in ord_v.iter().enumerate() {
+            if i != 0 {
+                self.none("\n");
+                if next_line_help {
+                    self.none("\n");
+                }
+            }
+            self.write_arg(arg, next_line_help, longest);
         }
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg, last_arg: bool, next_line_help: bool, longest: usize) {
+    fn write_arg(&mut self, arg: &Arg, next_line_help: bool, longest: usize) {
         let spec_vals = &self.spec_vals(arg);
 
+        self.none(TAB);
         self.short(arg);
         self.long(arg);
-        self.val(arg);
+        self.writer.extend(arg.stylize_arg_suffix().into_iter());
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {
@@ -235,24 +457,15 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         };
 
         self.help(Some(arg), about, spec_vals, next_line_help, longest);
-
-        if !last_arg {
-            self.none("\n");
-            if next_line_help {
-                self.none("\n");
-            }
-        }
     }
 
     /// Writes argument's short command to the wrapped stream.
     fn short(&mut self, arg: &Arg) {
         debug!("Help::short");
 
-        self.none(TAB);
-
         if let Some(s) = arg.get_short() {
             self.good(format!("-{}", s));
-        } else if !arg.is_positional() {
+        } else if arg.get_long().is_some() {
             self.none(TAB)
         }
     }
@@ -265,39 +478,6 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 self.none(", ");
             }
             self.good(format!("--{}", long));
-        }
-    }
-
-    /// Writes argument's possible values to the wrapped stream.
-    fn val(&mut self, arg: &Arg) {
-        debug!("Help::val: arg={}", arg.get_id());
-        let mut need_closing_bracket = false;
-        if arg.is_takes_value_set() && !arg.is_positional() {
-            let is_optional_val = arg.get_min_vals() == 0;
-            let sep = if arg.is_require_equals_set() {
-                if is_optional_val {
-                    need_closing_bracket = true;
-                    "[="
-                } else {
-                    "="
-                }
-            } else if is_optional_val {
-                need_closing_bracket = true;
-                " ["
-            } else {
-                " "
-            };
-            self.none(sep);
-        }
-
-        if arg.is_takes_value_set() || arg.is_positional() {
-            let arg_val = render_arg_val(arg);
-            self.good(arg_val);
-        } else if matches!(*arg.get_action(), ArgAction::Count) {
-            self.good("...");
-        }
-        if need_closing_bracket {
-            self.none("]");
         }
     }
 
@@ -343,92 +523,61 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         }
     }
 
-    fn write_before_help(&mut self) {
-        debug!("Help::write_before_help");
-        let before_help = if self.use_long {
-            self.cmd
-                .get_before_long_help()
-                .or_else(|| self.cmd.get_before_help())
-        } else {
-            self.cmd.get_before_help()
-        };
-        if let Some(output) = before_help {
-            self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w));
-            self.none("\n\n");
-        }
-    }
-
-    fn write_after_help(&mut self) {
-        debug!("Help::write_after_help");
-        let after_help = if self.use_long {
-            self.cmd
-                .get_after_long_help()
-                .or_else(|| self.cmd.get_after_help())
-        } else {
-            self.cmd.get_after_help()
-        };
-        if let Some(output) = after_help {
-            self.none("\n\n");
-            self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w));
-        }
-    }
-
     /// Writes argument's help to the wrapped stream.
     fn help(
         &mut self,
         arg: Option<&Arg>,
-        about: &str,
+        about: &StyledStr,
         spec_vals: &str,
         next_line_help: bool,
         longest: usize,
     ) {
         debug!("Help::help");
-        let mut help = String::from(about) + spec_vals;
-        debug!("Help::help: Next Line...{:?}", next_line_help);
-
-        let spaces = if next_line_help {
-            12 // "tab" * 3
-        } else {
-            longest + 12
-        };
-
-        let too_long = spaces + display_width(&help) >= self.term_w;
 
         // Is help on next line, if so then indent
         if next_line_help {
+            debug!("Help::help: Next Line...{:?}", next_line_help);
             self.none(format!("\n{}{}{}", TAB, TAB, TAB));
         }
 
-        debug!("Help::help: Too long...");
-        if too_long && spaces <= self.term_w || help.contains("{n}") {
-            debug!("Yes");
-            debug!("Help::help: help...{}", help);
-            debug!("Help::help: help width...{}", display_width(&help));
-            // Determine how many newlines we need to insert
-            let avail_chars = self.term_w - spaces;
-            debug!("Help::help: Usable space...{}", avail_chars);
-            help = text_wrapper(&help.replace("{n}", "\n"), avail_chars);
-        } else {
-            debug!("No");
-        }
-        if let Some(part) = help.lines().next() {
-            self.none(part);
-        }
-
-        // indent of help
-        let spaces = if next_line_help {
+        let trailing_indent = if next_line_help {
             TAB_WIDTH * 3
         } else if let Some(true) = arg.map(|a| a.is_positional()) {
             longest + TAB_WIDTH * 2
         } else {
             longest + TAB_WIDTH * 3
         };
+        let trailing_indent = self.get_spaces(trailing_indent);
 
-        for part in help.lines().skip(1) {
-            self.none("\n");
-            self.spaces(spaces);
-            self.none(part);
+        let spaces = if next_line_help {
+            12 // "tab" * 3
+        } else {
+            longest + 12
+        };
+        let mut help = about.clone();
+        help.replace_newline();
+        if !spec_vals.is_empty() {
+            if !help.is_empty() {
+                let sep = if self.use_long && arg.is_some() {
+                    "\n\n"
+                } else {
+                    " "
+                };
+                help.none(sep);
+            }
+            help.none(spec_vals);
         }
+        let avail_chars = self.term_w.saturating_sub(spaces);
+        debug!(
+            "Help::help: help_width={}, spaces={}, avail={}",
+            spaces,
+            help.display_width(),
+            avail_chars
+        );
+        help.wrap(avail_chars);
+        help.indent("", &trailing_indent);
+        let help_is_empty = help.is_empty();
+        self.writer.extend(help.into_iter());
 
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
@@ -439,7 +588,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 && possible_vals.iter().any(PossibleValue::should_show_help)
             {
                 debug!("Help::help: Found possible vals...{:?}", possible_vals);
-                if !help.is_empty() {
+                if !help_is_empty {
                     self.none("\n\n");
                     self.spaces(spaces);
                 }
@@ -451,7 +600,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     .expect("Only called with possible value");
                 let help_longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_help().map(display_width))
+                    .filter_map(|f| f.get_visible_help().map(|h| h.display_width()))
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
@@ -461,11 +610,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     self.term_w >= taken && self.term_w < taken + COLON_SPACE + help_longest;
 
                 let spaces = spaces + TAB_WIDTH - DASH_SPACE;
-                let spaces_help = if possible_value_new_line {
+                let trailing_indent = if possible_value_new_line {
                     spaces + DASH_SPACE
                 } else {
                     spaces + longest + DASH_SPACE + COLON_SPACE
                 };
+                let trailing_indent = self.get_spaces(trailing_indent);
 
                 for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
                     self.none("\n");
@@ -477,28 +627,24 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
                         if possible_value_new_line {
                             self.none(":\n");
-                            self.spaces(spaces_help);
+                            self.spaces(trailing_indent.len());
                         } else {
                             self.none(": ");
                             // To align help messages
                             self.spaces(longest - display_width(pv.get_name()));
                         }
 
-                        let avail_chars = if self.term_w > spaces_help {
-                            self.term_w - spaces_help
+                        let avail_chars = if self.term_w > trailing_indent.len() {
+                            self.term_w - trailing_indent.len()
                         } else {
                             usize::MAX
                         };
 
-                        let help = text_wrapper(help, avail_chars);
-                        let mut help = help.lines();
-
-                        self.none(help.next().unwrap_or_default());
-                        for part in help {
-                            self.none("\n");
-                            self.spaces(spaces_help);
-                            self.none(part);
-                        }
+                        let mut help = help.clone();
+                        help.replace_newline();
+                        help.wrap(avail_chars);
+                        help.indent("", &trailing_indent);
+                        self.writer.extend(help.into_iter());
                     }
                 }
             }
@@ -522,7 +668,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             // force_next_line
             let h = arg.get_help().unwrap_or_default();
-            let h_w = display_width(h) + display_width(spec_vals);
+            let h_w = h.display_width() + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -532,7 +678,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
     fn spec_vals(&self, a: &Arg) -> String {
         debug!("Help::spec_vals: a={}", a);
-        let mut spec_vals = vec![];
+        let mut spec_vals = Vec::new();
         #[cfg(feature = "env")]
         if let Some(ref env) = a.env {
             if !a.is_hide_env_set() {
@@ -545,10 +691,11 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                         "={}",
                         env.1
                             .as_ref()
-                            .map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
+                            .map(|s| s.to_string_lossy())
+                            .unwrap_or_default()
                     )
                 } else {
-                    String::new()
+                    Default::default()
                 };
                 let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
                 spec_vals.push(env_info);
@@ -576,39 +723,32 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
             spec_vals.push(format!("[default: {}]", pvs));
         }
-        if !a.aliases.is_empty() {
+
+        let als = a
+            .aliases
+            .iter()
+            .filter(|&als| als.1) // visible
+            .map(|als| als.0.as_str()) // name
+            .collect::<Vec<_>>()
+            .join(", ");
+        if !als.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
-
-            let als = a
-                .aliases
-                .iter()
-                .filter(|&als| als.1) // visible
-                .map(|als| als.0.as_str()) // name
-                .collect::<Vec<_>>()
-                .join(", ");
-
-            if !als.is_empty() {
-                spec_vals.push(format!("[aliases: {}]", als));
-            }
+            spec_vals.push(format!("[aliases: {}]", als));
         }
 
-        if !a.short_aliases.is_empty() {
+        let als = a
+            .short_aliases
+            .iter()
+            .filter(|&als| als.1) // visible
+            .map(|&als| als.0.to_string()) // name
+            .collect::<Vec<_>>()
+            .join(", ");
+        if !als.is_empty() {
             debug!(
                 "Help::spec_vals: Found short aliases...{:?}",
                 a.short_aliases
             );
-
-            let als = a
-                .short_aliases
-                .iter()
-                .filter(|&als| als.1) // visible
-                .map(|&als| als.0.to_string()) // name
-                .collect::<Vec<_>>()
-                .join(", ");
-
-            if !als.is_empty() {
-                spec_vals.push(format!("[short aliases: {}]", als));
-            }
+            spec_vals.push(format!("[short aliases: {}]", als));
         }
 
         let possible_vals = a.get_possible_values();
@@ -627,235 +767,36 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             spec_vals.push(format!("[possible values: {}]", pvs));
         }
         let connector = if self.use_long { "\n" } else { " " };
-        let prefix = if !spec_vals.is_empty() && !a.get_help().unwrap_or_default().is_empty() {
-            if self.use_long {
-                "\n\n"
-            } else {
-                " "
-            }
-        } else {
-            ""
-        };
-        prefix.to_string() + &spec_vals.join(connector)
+        spec_vals.join(connector)
     }
 
-    fn write_about(&mut self, before_new_line: bool, after_new_line: bool) {
-        let about = if self.use_long {
-            self.cmd.get_long_about().or_else(|| self.cmd.get_about())
-        } else {
-            self.cmd.get_about()
-        };
-        if let Some(output) = about {
-            if before_new_line {
-                self.none("\n");
-            }
-            self.none(text_wrapper(output, self.term_w));
-            if after_new_line {
-                self.none("\n");
-            }
-        }
+    fn extend(&mut self, msg: &StyledStr) {
+        self.writer.extend(msg.iter());
     }
 
-    fn write_author(&mut self, before_new_line: bool, after_new_line: bool) {
-        if let Some(author) = self.cmd.get_author() {
-            if before_new_line {
-                self.none("\n");
-            }
-            self.none(text_wrapper(author, self.term_w));
-            if after_new_line {
-                self.none("\n");
-            }
-        }
+    fn good<T: Into<String>>(&mut self, msg: T) {
+        self.writer.good(msg);
     }
 
-    fn write_version(&mut self) {
-        let version = self
-            .cmd
-            .get_version()
-            .or_else(|| self.cmd.get_long_version());
-        if let Some(output) = version {
-            self.none(text_wrapper(output, self.term_w));
-        }
+    fn warning<T: Into<String>>(&mut self, msg: T) {
+        self.writer.warning(msg);
+    }
+
+    fn none<T: Into<String>>(&mut self, msg: T) {
+        self.writer.none(msg);
+    }
+
+    fn get_spaces(&self, n: usize) -> String {
+        " ".repeat(n)
+    }
+
+    fn spaces(&mut self, n: usize) {
+        self.none(self.get_spaces(n));
     }
 }
 
-/// Methods to write a single subcommand
+/// Subcommand handling
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    fn write_subcommand(
-        &mut self,
-        sc_str: &str,
-        cmd: &Command,
-        next_line_help: bool,
-        longest: usize,
-    ) {
-        debug!("Help::write_subcommand");
-
-        let spec_vals = &self.sc_spec_vals(cmd);
-
-        let about = cmd
-            .get_about()
-            .or_else(|| cmd.get_long_about())
-            .unwrap_or_default();
-
-        self.subcmd(sc_str, next_line_help, longest);
-        self.help(None, about, spec_vals, next_line_help, longest)
-    }
-
-    fn sc_spec_vals(&self, a: &Command) -> String {
-        debug!("Help::sc_spec_vals: a={}", a.get_name());
-        let mut spec_vals = vec![];
-        if 0 < a.get_all_aliases().count() || 0 < a.get_all_short_flag_aliases().count() {
-            debug!(
-                "Help::spec_vals: Found aliases...{:?}",
-                a.get_all_aliases().collect::<Vec<_>>()
-            );
-            debug!(
-                "Help::spec_vals: Found short flag aliases...{:?}",
-                a.get_all_short_flag_aliases().collect::<Vec<_>>()
-            );
-
-            let mut short_als = a
-                .get_visible_short_flag_aliases()
-                .map(|a| format!("-{}", a))
-                .collect::<Vec<_>>();
-
-            let als = a.get_visible_aliases().map(|s| s.to_string());
-
-            short_als.extend(als);
-
-            let all_als = short_als.join(", ");
-
-            if !all_als.is_empty() {
-                spec_vals.push(format!(" [aliases: {}]", all_als));
-            }
-        }
-        spec_vals.join(" ")
-    }
-
-    fn subcommand_next_line_help(&self, cmd: &Command, spec_vals: &str, longest: usize) -> bool {
-        if self.next_line_help | self.use_long {
-            // setting_next_line
-            true
-        } else {
-            // force_next_line
-            let h = cmd.get_about().unwrap_or_default();
-            let h_w = display_width(h) + display_width(spec_vals);
-            let taken = longest + 12;
-            self.term_w >= taken
-                && (taken as f32 / self.term_w as f32) > 0.40
-                && h_w > (self.term_w - taken)
-        }
-    }
-
-    /// Writes subcommand to the wrapped stream.
-    fn subcmd(&mut self, sc_str: &str, next_line_help: bool, longest: usize) {
-        self.none(TAB);
-        self.good(sc_str);
-        if !next_line_help {
-            let width = display_width(sc_str);
-            self.spaces(width.max(longest + 4) - width);
-        }
-    }
-}
-
-// Methods to write Parser help.
-impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    /// Writes help for all arguments (options, flags, args, subcommands)
-    /// including titles of a Parser Object to the wrapped stream.
-    pub(crate) fn write_all_args(&mut self) {
-        debug!("Help::write_all_args");
-        let pos = self
-            .cmd
-            .get_positionals_with_no_heading()
-            .filter(|arg| should_show_arg(self.use_long, arg))
-            .collect::<Vec<_>>();
-        let non_pos = self
-            .cmd
-            .get_non_positionals_with_no_heading()
-            .filter(|arg| should_show_arg(self.use_long, arg))
-            .collect::<Vec<_>>();
-        let subcmds = self.cmd.has_visible_subcommands();
-
-        let custom_headings = self
-            .cmd
-            .get_arguments()
-            .filter_map(|arg| arg.get_help_heading())
-            .collect::<FlatSet<_>>();
-
-        let mut first = if !pos.is_empty() {
-            // Write positional args if any
-            self.warning("ARGS:\n");
-            self.write_args_unsorted(&pos);
-            false
-        } else {
-            true
-        };
-
-        if !non_pos.is_empty() {
-            if !first {
-                self.none("\n\n");
-            }
-            self.warning("OPTIONS:\n");
-            self.write_args(&non_pos, "OPTIONS");
-            first = false;
-        }
-        if !custom_headings.is_empty() {
-            for heading in custom_headings {
-                let args = self
-                    .cmd
-                    .get_arguments()
-                    .filter(|a| {
-                        if let Some(help_heading) = a.get_help_heading() {
-                            return help_heading == heading;
-                        }
-                        false
-                    })
-                    .filter(|arg| should_show_arg(self.use_long, arg))
-                    .collect::<Vec<_>>();
-
-                if !args.is_empty() {
-                    if !first {
-                        self.none("\n\n");
-                    }
-                    self.warning(format!("{}:\n", heading));
-                    self.write_args(&args, heading);
-                    first = false
-                }
-            }
-        }
-
-        if subcmds {
-            if !first {
-                self.none("\n\n");
-            }
-
-            let default_help_heading = Str::from("SUBCOMMANDS");
-            self.warning(
-                self.cmd
-                    .get_subcommand_help_heading()
-                    .unwrap_or(&default_help_heading),
-            );
-            self.warning(":\n");
-
-            self.write_subcommands(self.cmd);
-        }
-    }
-
-    /// Will use next line help on writing subcommands.
-    fn will_subcommands_wrap<'a>(
-        &self,
-        subcommands: impl IntoIterator<Item = &'a Command>,
-        longest: usize,
-    ) -> bool {
-        subcommands
-            .into_iter()
-            .filter(|&subcommand| should_show_subcommand(subcommand))
-            .any(|subcommand| {
-                let spec_vals = &self.sc_spec_vals(subcommand);
-                self.subcommand_next_line_help(subcommand, spec_vals, longest)
-            })
-    }
-
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, cmd: &Command) {
         debug!("Help::write_subcommands");
@@ -894,144 +835,120 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         }
     }
 
-    /// Writes binary name of a Parser Object to the wrapped stream.
-    fn write_display_name(&mut self) {
-        debug!("Help::write_display_name");
-
-        let display_name = text_wrapper(
-            &self
-                .cmd
-                .get_display_name()
-                .unwrap_or_else(|| self.cmd.get_name())
-                .replace("{n}", "\n"),
-            self.term_w,
-        );
-        self.good(&display_name);
+    /// Will use next line help on writing subcommands.
+    fn will_subcommands_wrap<'a>(
+        &self,
+        subcommands: impl IntoIterator<Item = &'a Command>,
+        longest: usize,
+    ) -> bool {
+        subcommands
+            .into_iter()
+            .filter(|&subcommand| should_show_subcommand(subcommand))
+            .any(|subcommand| {
+                let spec_vals = &self.sc_spec_vals(subcommand);
+                self.subcommand_next_line_help(subcommand, spec_vals, longest)
+            })
     }
 
-    /// Writes binary name of a Parser Object to the wrapped stream.
-    fn write_bin_name(&mut self) {
-        debug!("Help::write_bin_name");
+    fn write_subcommand(
+        &mut self,
+        sc_str: &str,
+        cmd: &Command,
+        next_line_help: bool,
+        longest: usize,
+    ) {
+        debug!("Help::write_subcommand");
 
-        let bin_name = if let Some(bn) = self.cmd.get_bin_name() {
-            if bn.contains(' ') {
-                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                bn.replace(' ', "-")
-            } else {
-                text_wrapper(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
-            }
+        let spec_vals = &self.sc_spec_vals(cmd);
+
+        let about = cmd
+            .get_about()
+            .or_else(|| cmd.get_long_about())
+            .unwrap_or_default();
+
+        self.subcmd(sc_str, next_line_help, longest);
+        self.help(None, about, spec_vals, next_line_help, longest)
+    }
+
+    fn sc_spec_vals(&self, a: &Command) -> String {
+        debug!("Help::sc_spec_vals: a={}", a.get_name());
+        let mut spec_vals = vec![];
+
+        let mut short_als = a
+            .get_visible_short_flag_aliases()
+            .map(|a| format!("-{}", a))
+            .collect::<Vec<_>>();
+        let als = a.get_visible_aliases().map(|s| s.to_string());
+        short_als.extend(als);
+        let all_als = short_als.join(", ");
+        if !all_als.is_empty() {
+            debug!(
+                "Help::spec_vals: Found aliases...{:?}",
+                a.get_all_aliases().collect::<Vec<_>>()
+            );
+            debug!(
+                "Help::spec_vals: Found short flag aliases...{:?}",
+                a.get_all_short_flag_aliases().collect::<Vec<_>>()
+            );
+            spec_vals.push(format!("[aliases: {}]", all_als));
+        }
+
+        spec_vals.join(" ")
+    }
+
+    fn subcommand_next_line_help(&self, cmd: &Command, spec_vals: &str, longest: usize) -> bool {
+        if self.next_line_help | self.use_long {
+            // setting_next_line
+            true
         } else {
-            text_wrapper(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
-        };
-        self.good(&bin_name);
+            // force_next_line
+            let h = cmd.get_about().unwrap_or_default();
+            let h_w = h.display_width() + display_width(spec_vals);
+            let taken = longest + 12;
+            self.term_w >= taken
+                && (taken as f32 / self.term_w as f32) > 0.40
+                && h_w > (self.term_w - taken)
+        }
+    }
+
+    /// Writes subcommand to the wrapped stream.
+    fn subcmd(&mut self, sc_str: &str, next_line_help: bool, longest: usize) {
+        self.none(TAB);
+        self.good(sc_str);
+        if !next_line_help {
+            let width = display_width(sc_str);
+            self.spaces(width.max(longest + 4) - width);
+        }
     }
 }
 
-// Methods to write Parser help using templates.
-impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    /// Write help to stream for the parser in the format defined by the template.
-    ///
-    /// For details about the template language see [`Command::help_template`].
-    ///
-    /// [`Command::help_template`]: Command::help_template()
-    fn write_templated_help(&mut self, template: &str) {
-        debug!("Help::write_templated_help");
+type ArgSortKey = fn(arg: &Arg) -> (usize, String);
 
-        // The strategy is to copy the template from the reader to wrapped stream
-        // until a tag is found. Depending on its value, the appropriate content is copied
-        // to the wrapped stream.
-        // The copy from template is then resumed, repeating this sequence until reading
-        // the complete template.
+fn positional_sort_key(arg: &Arg) -> (usize, String) {
+    (arg.get_index().unwrap_or(0), String::new())
+}
 
-        macro_rules! tags {
-            (
-                match $part:ident {
-                    $( $tag:expr => $action:stmt )*
-                }
-            ) => {
-                match $part {
-                    $(
-                        part if part.starts_with(concat!($tag, "}")) => {
-                            $action
-                            let rest = &part[$tag.len()+1..];
-                            self.none(rest);
-                        }
-                    )*
+fn option_sort_key(arg: &Arg) -> (usize, String) {
+    // Formatting key like this to ensure that:
+    // 1. Argument has long flags are printed just after short flags.
+    // 2. For two args both have short flags like `-c` and `-C`, the
+    //    `-C` arg is printed just after the `-c` arg
+    // 3. For args without short or long flag, print them at last(sorted
+    //    by arg name).
+    // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
 
-                    // Unknown tag, write it back.
-                    part => {
-                        self.none("{");
-                        self.none(part);
-                    }
-                }
-            };
-        }
-
-        let mut parts = template.split('{');
-        if let Some(first) = parts.next() {
-            self.none(first);
-        }
-
-        for part in parts {
-            tags! {
-                match part {
-                    "name" => {
-                        self.write_display_name();
-                    }
-                    "bin" => {
-                        self.write_bin_name();
-                    }
-                    "version" => {
-                        self.write_version();
-                    }
-                    "author" => {
-                        self.write_author(false, false);
-                    }
-                    "author-with-newline" => {
-                        self.write_author(false, true);
-                    }
-                    "author-section" => {
-                        self.write_author(true, true);
-                    }
-                    "about" => {
-                        self.write_about(false, false);
-                    }
-                    "about-with-newline" => {
-                        self.write_about(false, true);
-                    }
-                    "about-section" => {
-                        self.write_about(true, true);
-                    }
-                    "usage-heading" => {
-                        self.warning("USAGE:");
-                    }
-                    "usage" => {
-                        self.none(self.usage.create_usage_no_title(&[]));
-                    }
-                    "all-args" => {
-                        self.write_all_args();
-                    }
-                    "options" => {
-                        // Include even those with a heading as we don't have a good way of
-                        // handling help_heading in the template.
-                        self.write_args(&self.cmd.get_non_positionals().collect::<Vec<_>>(), "options");
-                    }
-                    "positionals" => {
-                        self.write_args(&self.cmd.get_positionals().collect::<Vec<_>>(), "positionals");
-                    }
-                    "subcommands" => {
-                        self.write_subcommands(self.cmd);
-                    }
-                    "after-help" => {
-                        self.write_after_help();
-                    }
-                    "before-help" => {
-                        self.write_before_help();
-                    }
-                }
-            }
-        }
-    }
+    let key = if let Some(x) = arg.get_short() {
+        let mut s = x.to_ascii_lowercase().to_string();
+        s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
+        s
+    } else if let Some(x) = arg.get_long() {
+        x.to_string()
+    } else {
+        let mut s = '{'.to_string();
+        s.push_str(arg.id.as_str());
+        s
+    };
+    (arg.get_display_order(), key)
 }
 
 pub(crate) fn dimensions() -> Option<(usize, usize)> {
@@ -1063,16 +980,6 @@ fn should_show_subcommand(subcommand: &Command) -> bool {
     !subcommand.is_hide_set()
 }
 
-fn text_wrapper(help: &str, width: usize) -> String {
-    let wrapper = textwrap::Options::new(width)
-        .break_words(false)
-        .word_splitter(textwrap::WordSplitter::NoHyphenation);
-    help.lines()
-        .map(|line| textwrap::fill(line, &wrapper))
-        .collect::<Vec<String>>()
-        .join("\n")
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1080,10 +987,11 @@ mod test {
     #[test]
     fn wrap_help_last_word() {
         let help = String::from("foo bar baz");
-        assert_eq!(text_wrapper(&help, 5), "foo\nbar\nbaz");
+        assert_eq!(wrap(&help, 5), "foo\nbar\nbaz");
     }
 
     #[test]
+    #[cfg(feature = "unicode")]
     fn display_width_handles_non_ascii() {
         // Popular Danish tongue-twister, the name of a fruit dessert.
         let text = "rødgrød med fløde";
@@ -1094,6 +1002,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature = "unicode")]
     fn display_width_handles_emojis() {
         let text = "😂";
         // There is a single `char`...

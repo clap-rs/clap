@@ -450,7 +450,11 @@ fn mut_subcommand_with_alias_resolve() {
     let mut cmd =
         Command::new("foo").subcommand(Command::new("bar").alias("baz").about("test subcmd"));
     assert_eq!(
-        cmd.find_subcommand("baz").unwrap().get_about().unwrap(),
+        cmd.find_subcommand("baz")
+            .unwrap()
+            .get_about()
+            .unwrap()
+            .to_string(),
         "test subcmd"
     );
 
@@ -459,7 +463,11 @@ fn mut_subcommand_with_alias_resolve() {
 
     cmd = cmd.mut_subcommand(&*true_name, |subcmd| subcmd.about("modified about"));
     assert_eq!(
-        cmd.find_subcommand("baz").unwrap().get_about().unwrap(),
+        cmd.find_subcommand("baz")
+            .unwrap()
+            .get_about()
+            .unwrap()
+            .to_string(),
         "modified about"
     );
 }

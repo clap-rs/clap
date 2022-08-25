@@ -93,7 +93,7 @@ fn gen_fish_inner(
         }
 
         if let Some(data) = option.get_help() {
-            template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
+            template.push_str(format!(" -d '{}'", escape_string(&data.to_string())).as_str());
         }
 
         template.push_str(value_completion(option).as_str());
@@ -118,7 +118,7 @@ fn gen_fish_inner(
         }
 
         if let Some(data) = flag.get_help() {
-            template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
+            template.push_str(format!(" -d '{}'", escape_string(&data.to_string())).as_str());
         }
 
         buffer.push_str(template.as_str());
@@ -132,7 +132,7 @@ fn gen_fish_inner(
         template.push_str(format!(" -a \"{}\"", &subcommand.get_name()).as_str());
 
         if let Some(data) = subcommand.get_about() {
-            template.push_str(format!(" -d '{}'", escape_string(data)).as_str())
+            template.push_str(format!(" -d '{}'", escape_string(&data.to_string())).as_str())
         }
 
         buffer.push_str(template.as_str());
@@ -164,7 +164,7 @@ fn value_completion(option: &Arg) -> String {
                     Some(format!(
                         "{}\t{}",
                         escape_string(value.get_name()).as_str(),
-                        escape_string(value.get_help().unwrap_or_default()).as_str()
+                        escape_string(&value.get_help().unwrap_or_default().to_string())
                     ))
                 })
                 .collect::<Vec<_>>()

@@ -339,13 +339,13 @@ pub(crate) fn assert_app(cmd: &Command) {
 
     if let Some(help_template) = cmd.get_help_template() {
         assert!(
-            !help_template.contains("{flags}"),
+            !help_template.to_string().contains("{flags}"),
             "Command {}: {}",
                     cmd.get_name(),
             "`{flags}` template variable was removed in clap3, they are now included in `{options}`",
         );
         assert!(
-            !help_template.contains("{unified}"),
+            !help_template.to_string().contains("{unified}"),
             "Command {}: {}",
             cmd.get_name(),
             "`{unified}` template variable was removed in clap3, use `{options}` instead"

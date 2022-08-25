@@ -40,7 +40,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
         debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            u.to_owned()
+            u.to_string()
         } else if used.is_empty() {
             self.create_help_usage(true)
         } else {

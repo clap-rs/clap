@@ -94,7 +94,11 @@ fn inferred_help() {
     let mut cmd = Opt::command();
     cmd.build();
     let arg = cmd.get_arguments().find(|a| a.get_id() == "help").unwrap();
-    assert_eq!(arg.get_help(), Some("Foo"), "Incorrect help");
+    assert_eq!(
+        arg.get_help().map(|s| s.to_string()),
+        Some("Foo".to_owned()),
+        "Incorrect help"
+    );
     assert!(matches!(arg.get_action(), clap::ArgAction::Help));
 }
 
@@ -114,7 +118,11 @@ fn inferred_version() {
         .get_arguments()
         .find(|a| a.get_id() == "version")
         .unwrap();
-    assert_eq!(arg.get_help(), Some("Foo"), "Incorrect help");
+    assert_eq!(
+        arg.get_help().map(|s| s.to_string()),
+        Some("Foo".to_owned()),
+        "Incorrect help"
+    );
     assert!(matches!(arg.get_action(), clap::ArgAction::Version));
 }
 

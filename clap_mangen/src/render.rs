@@ -17,7 +17,7 @@ pub(crate) fn about(roff: &mut Roff, cmd: &clap::Command) {
 
 pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
     if let Some(about) = cmd.get_long_about().or_else(|| cmd.get_about()) {
-        for line in about.lines() {
+        for line in about.to_string().lines() {
             if line.trim().is_empty() {
                 roff.control("PP", []);
             } else {
@@ -110,7 +110,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         let mut arg_help_written = false;
         if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
             arg_help_written = true;
-            body.push(roman(help));
+            body.push(roman(help.to_string()));
         }
 
         roff.control("TP", []);
@@ -224,7 +224,7 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
         roff.text([roman(&name)]);
 
         if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
-            for line in about.lines() {
+            for line in about.to_string().lines() {
                 roff.text([roman(line)]);
             }
         }
@@ -242,7 +242,7 @@ pub(crate) fn version(cmd: &clap::Command) -> String {
 
 pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
     if let Some(about) = cmd.get_after_long_help().or_else(|| cmd.get_after_help()) {
-        for line in about.lines() {
+        for line in about.to_string().lines() {
             roff.text([roman(line)]);
         }
     }
