@@ -13,27 +13,31 @@ impl StyledStr {
     }
 
     pub(crate) fn good(&mut self, msg: impl Into<String>) {
-        self.stylize(Some(Style::Good), msg.into());
+        self.stylize_(Some(Style::Good), msg.into());
     }
 
     pub(crate) fn warning(&mut self, msg: impl Into<String>) {
-        self.stylize(Some(Style::Warning), msg.into());
+        self.stylize_(Some(Style::Warning), msg.into());
     }
 
     pub(crate) fn error(&mut self, msg: impl Into<String>) {
-        self.stylize(Some(Style::Error), msg.into());
+        self.stylize_(Some(Style::Error), msg.into());
     }
 
     #[allow(dead_code)]
     pub(crate) fn hint(&mut self, msg: impl Into<String>) {
-        self.stylize(Some(Style::Hint), msg.into());
+        self.stylize_(Some(Style::Hint), msg.into());
     }
 
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
-        self.stylize(None, msg.into());
+        self.stylize_(None, msg.into());
     }
 
-    fn stylize(&mut self, style: Option<Style>, msg: String) {
+    pub(crate) fn stylize(&mut self, style: impl Into<Option<Style>>, msg: impl Into<String>) {
+        self.stylize_(style.into(), msg.into());
+    }
+
+    fn stylize_(&mut self, style: Option<Style>, msg: String) {
         if !msg.is_empty() {
             self.pieces.push((style, msg));
         }

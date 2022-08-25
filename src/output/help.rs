@@ -81,7 +81,13 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         if let Some(h) = self.cmd.get_override_help() {
             self.extend(h);
         } else if let Some(tmpl) = self.cmd.get_help_template() {
-            self.write_templated_help(tmpl.unwrap_none());
+            for (style, content) in tmpl.iter() {
+                if style == None {
+                    self.write_templated_help(content);
+                } else {
+                    self.writer.stylize(style, content);
+                }
+            }
         } else {
             let pos = self
                 .cmd
