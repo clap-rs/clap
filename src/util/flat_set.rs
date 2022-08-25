@@ -26,7 +26,7 @@ impl<T: PartialEq + Eq> FlatSet<T> {
     pub fn contains<Q: ?Sized>(&self, value: &Q) -> bool
     where
         T: Borrow<Q>,
-        Q: std::hash::Hash + Eq,
+        Q: Eq,
     {
         for existing in &self.inner {
             if existing.borrow() == value {

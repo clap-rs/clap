@@ -1,4 +1,5 @@
 // Internal
+use crate::builder::StyledStr;
 use crate::builder::{Arg, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
@@ -182,7 +183,7 @@ impl<'cmd> Validator<'cmd> {
         ))
     }
 
-    fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> String {
+    fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> StyledStr {
         let used_filtered: Vec<Id> = matcher
             .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
@@ -355,6 +356,7 @@ impl<'cmd> Validator<'cmd> {
         let req_args = usg
             .get_required_usage_from(&incl, Some(matcher), true)
             .into_iter()
+            .map(|s| s.to_string())
             .collect::<Vec<_>>();
 
         debug!(

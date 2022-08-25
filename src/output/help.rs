@@ -158,7 +158,8 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                         self.warning("USAGE:");
                     }
                     "usage" => {
-                        self.none(self.usage.create_usage_no_title(&[]));
+                        self.writer
+                            .extend(self.usage.create_usage_no_title(&[]).into_iter());
                     }
                     "all-args" => {
                         self.write_all_args();

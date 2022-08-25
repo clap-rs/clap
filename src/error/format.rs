@@ -78,8 +78,8 @@ impl ErrorFormatter for RichFormatter {
         }
 
         let usage = error.get(ContextKind::Usage);
-        if let Some(ContextValue::String(usage)) = usage {
-            put_usage(&mut styled, usage);
+        if let Some(ContextValue::StyledStr(usage)) = usage {
+            put_usage(&mut styled, usage.clone());
         }
 
         try_help(&mut styled, error.inner.help_flag);
@@ -385,7 +385,7 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
 pub(crate) fn format_error_message(
     message: &str,
     cmd: Option<&Command>,
-    usage: Option<String>,
+    usage: Option<StyledStr>,
 ) -> StyledStr {
     let mut styled = StyledStr::new();
     start_error(&mut styled);
@@ -408,9 +408,9 @@ fn singular_or_plural(n: usize) -> &'static str {
     }
 }
 
-fn put_usage(styled: &mut StyledStr, usage: impl Into<String>) {
+fn put_usage(styled: &mut StyledStr, usage: StyledStr) {
     styled.none("\n\n");
-    styled.none(usage);
+    styled.extend(usage.into_iter());
 }
 
 pub(crate) fn get_help_flag(cmd: &Command) -> Option<&'static str> {

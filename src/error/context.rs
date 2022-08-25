@@ -76,6 +76,8 @@ pub enum ContextValue {
     /// Many values
     Strings(Vec<String>),
     /// A single value
+    StyledStr(crate::builder::StyledStr),
+    /// A single value
     Number(isize),
 }
 
@@ -86,6 +88,7 @@ impl std::fmt::Display for ContextValue {
             Self::Bool(v) => v.fmt(f),
             Self::String(v) => v.fmt(f),
             Self::Strings(v) => v.join(", ").fmt(f),
+            Self::StyledStr(v) => v.fmt(f),
             Self::Number(v) => v.fmt(f),
         }
     }

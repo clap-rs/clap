@@ -3975,6 +3975,20 @@ impl Arg {
         }
     }
 
+    pub(crate) fn stylized(&self) -> StyledStr {
+        let mut styled = StyledStr::new();
+        // Write the name such --long or -l
+        if let Some(l) = self.get_long() {
+            styled.none("--");
+            styled.none(l);
+        } else if let Some(s) = self.get_short() {
+            styled.none("-");
+            styled.none(s);
+        }
+        styled.extend(self.stylize_arg_suffix().into_iter());
+        styled
+    }
+
     pub(crate) fn stylize_arg_suffix(&self) -> StyledStr {
         let mut styled = StyledStr::new();
 
@@ -4090,13 +4104,7 @@ impl Eq for Arg {}
 
 impl Display for Arg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        // Write the name such --long or -l
-        if let Some(l) = self.get_long() {
-            write!(f, "--{}", l)?;
-        } else if let Some(s) = self.get_short() {
-            write!(f, "-{}", s)?;
-        }
-        self.stylize_arg_suffix().fmt(f)
+        self.stylized().fmt(f)
     }
 }
 
