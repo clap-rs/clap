@@ -4104,42 +4104,34 @@ impl fmt::Debug for Arg {
 pub(crate) fn render_arg_val(arg: &Arg) -> String {
     let mut rendered = String::new();
 
-    let delim = " ";
+    let num_vals = arg.get_num_args().expect(INTERNAL_ERROR_MSG);
 
-    let val_names = if arg.val_names.is_empty() {
+    let mut val_names = if arg.val_names.is_empty() {
         vec![arg.id.as_internal_str().to_owned()]
     } else {
         arg.val_names.clone()
     };
+    if val_names.len() == 1 {
+        let min = num_vals.min_values().max(1);
+        let val_name = val_names.pop().unwrap();
+        val_names = vec![val_name; min];
+    }
+
+    debug_assert!(arg.is_takes_value_set());
+    for (n, val_name) in val_names.iter().enumerate() {
+        let arg_name = format!("<{}>", val_name);
+
+        if n != 0 {
+            rendered.push(' ');
+        }
+        rendered.push_str(&arg_name);
+    }
 
     let mut extra_values = false;
-    debug_assert!(arg.is_takes_value_set());
-    let num_vals = arg.get_num_args().expect(INTERNAL_ERROR_MSG);
-    if val_names.len() == 1 {
-        let arg_name = format!("<{}>", val_names[0]);
-        let min = num_vals.min_values().max(1);
-        for n in 1..=min {
-            if n != 1 {
-                rendered.push_str(delim);
-            }
-            rendered.push_str(&arg_name);
-        }
-        extra_values |= min < num_vals.max_values();
-    } else {
-        debug_assert!(1 < val_names.len());
-        for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = format!("<{}>", val_name);
-            if n != 0 {
-                rendered.push_str(delim);
-            }
-            rendered.push_str(&arg_name);
-        }
-        extra_values |= val_names.len() < num_vals.max_values();
-    }
+    extra_values |= val_names.len() < num_vals.max_values();
     if arg.is_positional() && matches!(*arg.get_action(), ArgAction::Append) {
         extra_values = true;
     }
-
     if extra_values {
         rendered.push_str("...");
     }
