@@ -4119,7 +4119,11 @@ pub(crate) fn render_arg_val(arg: &Arg) -> String {
 
     debug_assert!(arg.is_takes_value_set());
     for (n, val_name) in val_names.iter().enumerate() {
-        let arg_name = format!("<{}>", val_name);
+        let arg_name = if arg.is_positional() && num_vals.min_values() == 0 {
+            format!("[{}]", val_name)
+        } else {
+            format!("<{}>", val_name)
+        };
 
         if n != 0 {
             rendered.push(' ');
@@ -4374,7 +4378,7 @@ mod test {
         let mut p = Arg::new("pos").index(1).num_args(0..);
         p._build();
 
-        assert_eq!(p.to_string(), "<pos>...");
+        assert_eq!(p.to_string(), "[pos]...");
     }
 
     #[test]
@@ -4393,7 +4397,7 @@ mod test {
             .action(ArgAction::Set);
         p._build();
 
-        assert_eq!(p.to_string(), "<pos>");
+        assert_eq!(p.to_string(), "[pos]");
     }
 
     #[test]
