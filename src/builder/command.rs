@@ -1613,6 +1613,14 @@ impl Command {
     /// strings. After this setting is set, this will be *the only* usage string
     /// displayed to the user!
     ///
+    /// **NOTE:** Multiple usage lines may be present in the usage argument, but
+    /// some rules need to be followed to ensure the usage lines are formatted
+    /// correctly by the default help formatter:
+    ///
+    /// - Do not indent the first usage line.
+    /// - Indent all subsequent usage lines with four spaces.
+    /// - The last line must not end with a newline.
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -1621,6 +1629,20 @@ impl Command {
     ///     .override_usage("myapp [-clDas] <some_file>")
     /// # ;
     /// ```
+    ///
+    /// Or for multiple usage lines:
+    ///
+    /// ```no_run
+    /// # use clap::{Command, Arg};
+    /// Command::new("myprog")
+    ///     .override_usage(
+    ///         "myapp -X [-a] [-b] <file>\n    \
+    ///          myapp -Y [-c] <file1> <file2>\n    \
+    ///          myapp -Z [-d|-e]"
+    ///     )
+    /// # ;
+    /// ```
+    ///
     /// [`ArgMatches::usage`]: ArgMatches::usage()
     #[must_use]
     pub fn override_usage(mut self, usage: impl Into<Str>) -> Self {
