@@ -843,44 +843,13 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     fn write_templated_help(&mut self, template: &str) {
         debug!("Help::write_templated_help");
 
-        // The strategy is to copy the template from the reader to wrapped stream
-        // until a tag is found. Depending on its value, the appropriate content is copied
-        // to the wrapped stream.
-        // The copy from template is then resumed, repeating this sequence until reading
-        // the complete template.
-
-        macro_rules! tags {
-            (
-                match $part:ident {
-                    $( $tag:expr => $action:stmt )*
-                }
-            ) => {
-                match $part {
-                    $(
-                        part if part.starts_with(concat!($tag, "}")) => {
-                            $action
-                            let rest = &part[$tag.len()+1..];
-                            self.none(rest);
-                        }
-                    )*
-
-                    // Unknown tag, write it back.
-                    part => {
-                        self.none("{");
-                        self.none(part);
-                    }
-                }
-            };
-        }
-
         let mut parts = template.split('{');
         if let Some(first) = parts.next() {
             self.none(first);
         }
-
         for part in parts {
-            tags! {
-                match part {
+            if let Some((tag, rest)) = part.split_once('}') {
+                match tag {
                     "name" => {
                         self.write_display_name();
                     }
@@ -920,10 +889,18 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     "options" => {
                         // Include even those with a heading as we don't have a good way of
                         // handling help_heading in the template.
-                        self.write_args(&self.cmd.get_non_positionals().collect::<Vec<_>>(), "options", option_sort_key);
+                        self.write_args(
+                            &self.cmd.get_non_positionals().collect::<Vec<_>>(),
+                            "options",
+                            option_sort_key,
+                        );
                     }
                     "positionals" => {
-                        self.write_args(&self.cmd.get_positionals().collect::<Vec<_>>(), "positionals", positional_sort_key);
+                        self.write_args(
+                            &self.cmd.get_positionals().collect::<Vec<_>>(),
+                            "positionals",
+                            positional_sort_key,
+                        );
                     }
                     "subcommands" => {
                         self.write_subcommands(self.cmd);
@@ -934,7 +911,13 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     "before-help" => {
                         self.write_before_help();
                     }
+                    _ => {
+                        self.none("{");
+                        self.none(tag);
+                        self.none("}");
+                    }
                 }
+                self.none(rest);
             }
         }
     }
