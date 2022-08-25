@@ -128,16 +128,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         self.writer.none(msg);
     }
 
-    #[inline(never)]
+    fn get_spaces(&self, n: usize) -> String {
+        " ".repeat(n)
+    }
+
     fn spaces(&mut self, n: usize) {
-        // A string with 64 consecutive spaces.
-        const SHORT_SPACE: &str =
-            "                                                                ";
-        if let Some(short) = SHORT_SPACE.get(..n) {
-            self.none(short);
-        } else {
-            self.none(" ".repeat(n));
-        }
+        self.none(self.get_spaces(n));
     }
 
     /// Writes help for each argument in the order they were declared to the wrapped stream.
@@ -405,38 +401,34 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.none(format!("\n{}{}{}", TAB, TAB, TAB));
         }
 
-        let spaces = if next_line_help {
-            12 // "tab" * 3
-        } else {
-            longest + 12
-        };
-        let mut help = String::from(about.unwrap_none()) + spec_vals;
-        let avail_chars = self.term_w.saturating_sub(spaces);
-        debug!(
-            "Help::help: help_width={}, spaces={}, avail={}",
-            spaces,
-            display_width(&help),
-            avail_chars
-        );
-        help = wrap(&help.replace("{n}", "\n"), avail_chars);
-        if let Some(part) = help.lines().next() {
-            self.none(part);
-        }
-
-        // indent of help
-        let spaces = if next_line_help {
+        let trailing_indent = if next_line_help {
             TAB_WIDTH * 3
         } else if let Some(true) = arg.map(|a| a.is_positional()) {
             longest + TAB_WIDTH * 2
         } else {
             longest + TAB_WIDTH * 3
         };
+        let trailing_indent = self.get_spaces(trailing_indent);
 
-        for part in help.lines().skip(1) {
-            self.none("\n");
-            self.spaces(spaces);
-            self.none(part);
-        }
+        let spaces = if next_line_help {
+            12 // "tab" * 3
+        } else {
+            longest + 12
+        };
+        let mut help = about.clone();
+        help.replace_newline();
+        help.none(spec_vals);
+        let avail_chars = self.term_w.saturating_sub(spaces);
+        debug!(
+            "Help::help: help_width={}, spaces={}, avail={}",
+            spaces,
+            help.display_width(),
+            avail_chars
+        );
+        help.wrap(avail_chars);
+        help.indent("", &trailing_indent);
+        let help_is_empty = help.is_empty();
+        self.writer.extend(help.into_iter());
 
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
@@ -447,7 +439,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 && possible_vals.iter().any(PossibleValue::should_show_help)
             {
                 debug!("Help::help: Found possible vals...{:?}", possible_vals);
-                if !help.is_empty() {
+                if !help_is_empty {
                     self.none("\n\n");
                     self.spaces(spaces);
                 }

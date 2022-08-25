@@ -1,4 +1,5 @@
 use crate::output::display_width;
+use crate::output::textwrap;
 
 /// Terminal-styling container
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
@@ -37,6 +38,44 @@ impl StyledStr {
         self.stylize_(style.into(), msg.into());
     }
 
+    pub(crate) fn replace_newline(&mut self) {
+        for (_, content) in &mut self.pieces {
+            *content = content.replace("{n}", "\n");
+        }
+    }
+
+    pub(crate) fn indent(&mut self, initial: &str, trailing: &str) {
+        if let Some((_, first)) = self.pieces.first_mut() {
+            first.insert_str(0, initial);
+        }
+        let mut line_sep = "\n".to_owned();
+        line_sep.push_str(trailing);
+        for (_, content) in &mut self.pieces {
+            *content = content.replace('\n', &line_sep);
+        }
+    }
+
+    pub(crate) fn wrap(&mut self, hard_width: usize) {
+        let mut wrapper = textwrap::wrap_algorithms::LineWrapper::new(hard_width);
+        for (_, content) in &mut self.pieces {
+            let mut total = Vec::new();
+            for (i, line) in content.split_inclusive('\n').enumerate() {
+                if 0 < i {
+                    // start of a section does not imply newline
+                    wrapper.reset();
+                }
+                let line =
+                    textwrap::word_separators::find_words_ascii_space(line).collect::<Vec<_>>();
+                total.extend(wrapper.wrap(line));
+            }
+            let total = total.join("");
+            *content = total;
+        }
+        if let Some((_, last)) = self.pieces.last_mut() {
+            *last = last.trim_end().to_owned();
+        }
+    }
+
     fn stylize_(&mut self, style: Option<Style>, msg: String) {
         if !msg.is_empty() {
             self.pieces.push((style, msg));
@@ -73,6 +112,10 @@ impl StyledStr {
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = (Option<Style>, &str)> {
         self.pieces.iter().map(|(s, c)| (*s, c.as_str()))
+    }
+
+    pub(crate) fn into_iter(self) -> impl Iterator<Item = (Option<Style>, String)> {
+        self.pieces.into_iter()
     }
 
     pub(crate) fn extend(
