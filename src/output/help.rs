@@ -411,18 +411,14 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             longest + 12
         };
         let mut help = String::from(about.unwrap_none()) + spec_vals;
-        let too_long = spaces + display_width(&help) >= self.term_w;
-        if too_long && spaces <= self.term_w || help.contains("{n}") {
-            // Determine how many newlines we need to insert
-            let avail_chars = self.term_w - spaces;
-            debug!(
-                "Help::help: too_long, help_width={}, spaces={}, avail={}",
-                spaces,
-                display_width(&help),
-                avail_chars
-            );
-            help = wrap(&help.replace("{n}", "\n"), avail_chars);
-        }
+        let avail_chars = self.term_w.saturating_sub(spaces);
+        debug!(
+            "Help::help: help_width={}, spaces={}, avail={}",
+            spaces,
+            display_width(&help),
+            avail_chars
+        );
+        help = wrap(&help.replace("{n}", "\n"), avail_chars);
         if let Some(part) = help.lines().next() {
             self.none(part);
         }
