@@ -168,13 +168,18 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         let next_line_help = self.will_args_wrap(args, longest);
 
         for (i, (_, arg)) in ord_v.iter().enumerate() {
-            let last_arg = i + 1 == ord_v.len();
-            self.write_arg(arg, last_arg, next_line_help, longest);
+            if i != 0 {
+                self.none("\n");
+                if next_line_help {
+                    self.none("\n");
+                }
+            }
+            self.write_arg(arg, next_line_help, longest);
         }
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg, last_arg: bool, next_line_help: bool, longest: usize) {
+    fn write_arg(&mut self, arg: &Arg, next_line_help: bool, longest: usize) {
         let spec_vals = &self.spec_vals(arg);
 
         self.short(arg);
@@ -193,13 +198,6 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         };
 
         self.help(Some(arg), about, spec_vals, next_line_help, longest);
-
-        if !last_arg {
-            self.none("\n");
-            if next_line_help {
-                self.none("\n");
-            }
-        }
     }
 
     /// Writes argument's short command to the wrapped stream.
