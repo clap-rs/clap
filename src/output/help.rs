@@ -99,11 +99,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 .any(|arg| should_show_arg(self.use_long, arg));
             let subcmds = self.cmd.has_visible_subcommands();
 
-            if non_pos || pos || subcmds {
-                self.write_templated_help(Self::DEFAULT_TEMPLATE);
+            let template = if non_pos || pos || subcmds {
+                Self::DEFAULT_TEMPLATE
             } else {
-                self.write_templated_help(Self::DEFAULT_NO_ARGS_TEMPLATE);
-            }
+                Self::DEFAULT_NO_ARGS_TEMPLATE
+            };
+            self.write_templated_help(template);
         }
 
         self.none("\n");
