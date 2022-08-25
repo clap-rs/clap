@@ -368,7 +368,17 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         };
         let mut help = about.clone();
         help.replace_newline();
-        help.none(spec_vals);
+        if !spec_vals.is_empty() {
+            if !help.is_empty() {
+                let sep = if self.use_long && arg.is_some() {
+                    "\n\n"
+                } else {
+                    " "
+                };
+                help.none(sep);
+            }
+            help.none(spec_vals);
+        }
         let avail_chars = self.term_w.saturating_sub(spaces);
         debug!(
             "Help::help: help_width={}, spaces={}, avail={}",
@@ -480,7 +490,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
     fn spec_vals(&self, a: &Arg) -> String {
         debug!("Help::spec_vals: a={}", a);
-        let mut spec_vals = vec![];
+        let mut spec_vals = Vec::new();
         #[cfg(feature = "env")]
         if let Some(ref env) = a.env {
             if !a.is_hide_env_set() {
@@ -575,16 +585,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             spec_vals.push(format!("[possible values: {}]", pvs));
         }
         let connector = if self.use_long { "\n" } else { " " };
-        let prefix = if !spec_vals.is_empty() && !a.get_help().unwrap_or_default().is_empty() {
-            if self.use_long {
-                "\n\n"
-            } else {
-                " "
-            }
-        } else {
-            ""
-        };
-        prefix.to_string() + &spec_vals.join(connector)
+        spec_vals.join(connector)
     }
 
     fn write_about(&mut self, before_new_line: bool, after_new_line: bool) {
@@ -677,7 +678,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             let all_als = short_als.join(", ");
 
             if !all_als.is_empty() {
-                spec_vals.push(format!(" [aliases: {}]", all_als));
+                spec_vals.push(format!("[aliases: {}]", all_als));
             }
         }
         spec_vals.join(" ")
