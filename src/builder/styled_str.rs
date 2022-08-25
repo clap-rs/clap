@@ -91,21 +91,6 @@ impl StyledStr {
         width
     }
 
-    /// HACK: Until call sites are updated to handle formatted text, extract the unformatted
-    #[track_caller]
-    pub(crate) fn unwrap_none(&self) -> &str {
-        match self.pieces.len() {
-            0 => "",
-            1 => {
-                if self.pieces[0].0 != None {
-                    panic!("{}", crate::INTERNAL_ERROR_MSG)
-                }
-                self.pieces[0].1.as_str()
-            }
-            _ => panic!("{}", crate::INTERNAL_ERROR_MSG),
-        }
-    }
-
     pub(crate) fn is_empty(&self) -> bool {
         self.pieces.is_empty()
     }

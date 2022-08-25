@@ -358,10 +358,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.cmd.get_before_help()
         };
         if let Some(output) = before_help {
-            self.none(wrap(
-                &output.unwrap_none().replace("{n}", "\n"),
-                self.term_w,
-            ));
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
             self.none("\n\n");
         }
     }
@@ -377,10 +377,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         };
         if let Some(output) = after_help {
             self.none("\n\n");
-            self.none(wrap(
-                &output.unwrap_none().replace("{n}", "\n"),
-                self.term_w,
-            ));
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
         }
     }
 
@@ -461,11 +461,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     self.term_w >= taken && self.term_w < taken + COLON_SPACE + help_longest;
 
                 let spaces = spaces + TAB_WIDTH - DASH_SPACE;
-                let spaces_help = if possible_value_new_line {
+                let trailing_indent = if possible_value_new_line {
                     spaces + DASH_SPACE
                 } else {
                     spaces + longest + DASH_SPACE + COLON_SPACE
                 };
+                let trailing_indent = self.get_spaces(trailing_indent);
 
                 for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
                     self.none("\n");
@@ -477,28 +478,24 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
                         if possible_value_new_line {
                             self.none(":\n");
-                            self.spaces(spaces_help);
+                            self.spaces(trailing_indent.len());
                         } else {
                             self.none(": ");
                             // To align help messages
                             self.spaces(longest - display_width(pv.get_name()));
                         }
 
-                        let avail_chars = if self.term_w > spaces_help {
-                            self.term_w - spaces_help
+                        let avail_chars = if self.term_w > trailing_indent.len() {
+                            self.term_w - trailing_indent.len()
                         } else {
                             usize::MAX
                         };
 
-                        let help = wrap(help.unwrap_none(), avail_chars);
-                        let mut help = help.lines();
-
-                        self.none(help.next().unwrap_or_default());
-                        for part in help {
-                            self.none("\n");
-                            self.spaces(spaces_help);
-                            self.none(part);
-                        }
+                        let mut help = help.clone();
+                        help.replace_newline();
+                        help.wrap(avail_chars);
+                        help.indent("", &trailing_indent);
+                        self.writer.extend(help.into_iter());
                     }
                 }
             }
@@ -649,7 +646,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if before_new_line {
                 self.none("\n");
             }
-            self.none(wrap(output.unwrap_none(), self.term_w));
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
             if after_new_line {
                 self.none("\n");
             }
