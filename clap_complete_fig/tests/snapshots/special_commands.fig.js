@@ -85,11 +85,27 @@ const completion: Fig.Spec = {
     {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
-      args: {
-        name: "subcommand",
-        isVariadic: true,
-        isOptional: true,
-      },
+      subcommands: [
+        {
+          name: "test",
+          description: "tests things",
+        },
+        {
+          name: "some_cmd",
+          description: "tests other things",
+        },
+        {
+          name: ["some-cmd-with-hyphens", "hyphen"],
+        },
+        {
+          name: "some-hidden-cmd",
+          hidden: true,
+        },
+        {
+          name: "help",
+          description: "Print this message or the help of the given subcommand(s)",
+        },
+      ],
     },
   ],
   options: [

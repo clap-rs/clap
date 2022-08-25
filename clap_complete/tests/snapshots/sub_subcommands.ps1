@@ -60,9 +60,33 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             break
         }
         'my-app;some_cmd;help' {
+            [CompletionResult]::new('sub_cmd', 'sub_cmd', [CompletionResultType]::ParameterValue, 'sub-subcommand')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'my-app;some_cmd;help;sub_cmd' {
+            break
+        }
+        'my-app;some_cmd;help;help' {
             break
         }
         'my-app;help' {
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'tests things')
+            [CompletionResult]::new('some_cmd', 'some_cmd', [CompletionResultType]::ParameterValue, 'top level subcommand')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'my-app;help;test' {
+            break
+        }
+        'my-app;help;some_cmd' {
+            [CompletionResult]::new('sub_cmd', 'sub_cmd', [CompletionResultType]::ParameterValue, 'sub-subcommand')
+            break
+        }
+        'my-app;help;some_cmd;sub_cmd' {
+            break
+        }
+        'my-app;help;help' {
             break
         }
     })

@@ -3740,6 +3740,12 @@ impl Command {
         Ok(matcher.into_inner())
     }
 
+    /// Prepare for completions by setting flags useful for that case.
+    /// Call this on the top-level [`Command`] before calling [`Command::build`].
+    pub fn prepare_build_for_completion(&mut self) {
+        self.g_settings.set(AppSettings::ExpandHelpSubcommandTrees);
+    }
+
     /// Prepare for introspecting on all included [`Command`]s
     ///
     /// Call this on the top-level [`Command`] when done building and before reading state for
@@ -3782,7 +3788,9 @@ impl Command {
 
             self._propagate();
             self._check_help_and_version();
-            self._propagate_global_args();
+            if !self.is_set(AppSettings::DisablePropagatedArgs) {
+                self._propagate_global_args();
+            }
 
             let mut pos_counter = 1;
             let hide_pv = self.is_set(AppSettings::HidePossibleValues);
@@ -4062,6 +4070,13 @@ impl Command {
         debug!("Command::_propagate_global_args:{}", self.name);
 
         for sc in &mut self.subcommands {
+            if sc.is_set(AppSettings::DisablePropagatedArgs) {
+                debug!(
+                    "Command::_propagate skipping {}, has DisablePropagatedArgs",
+                    sc.get_name()
+                );
+                continue;
+            }
             for a in self.args.args().filter(|a| a.is_global_set()) {
                 if sc.find(&a.id).is_some() {
                     debug!(
@@ -4140,15 +4155,40 @@ impl Command {
 
         if !self.is_set(AppSettings::DisableHelpSubcommand) {
             debug!("Command::_check_help_and_version: Building help subcommand");
-            let mut help_subcmd = Command::new("help")
-                .about("Print this message or the help of the given subcommand(s)")
-                .arg(
+            let help_about = "Print this message or the help of the given subcommand(s)";
+
+            let mut help_subcmd = if self.is_set(AppSettings::ExpandHelpSubcommandTrees) {
+                // Slow code path to recursively clone all other subcommand subtrees under help
+                let help_subcmd = Command::new("help")
+                    .about(help_about)
+                    .global_setting(AppSettings::DisableHelpSubcommand)
+                    .subcommands(self.get_subcommands().cloned().map(|mut sc| {
+                        // Remove args so help completion will not suggest them, only subcommands
+                        sc._clear_args_recursive();
+
+                        sc.global_setting(AppSettings::DisablePropagatedArgs)
+                            .global_setting(AppSettings::DisableHelpFlag)
+                            .global_setting(AppSettings::DisableVersionFlag)
+                    }));
+
+                let mut help_help_subcmd = Command::new("help").about(help_about);
+                help_help_subcmd.version = None;
+                help_help_subcmd.long_version = None;
+                help_help_subcmd = help_help_subcmd
+                    .setting(AppSettings::DisablePropagatedArgs)
+                    .setting(AppSettings::DisableHelpFlag)
+                    .setting(AppSettings::DisableVersionFlag);
+
+                help_subcmd.subcommand(help_help_subcmd)
+            } else {
+                Command::new("help").about(help_about).arg(
                     Arg::new("subcommand")
                         .action(ArgAction::Append)
                         .num_args(..)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),
-                );
+                )
+            };
             self._propagate_subcommand(&mut help_subcmd);
 
             // The parser acts like this is set, so let's set it so we don't falsely
@@ -4161,6 +4201,15 @@ impl Command {
                 .unset_global_setting(AppSettings::PropagateVersion);
 
             self.subcommands.push(help_subcmd);
+        }
+    }
+
+    fn _clear_args_recursive(&mut self) {
+        self.args.clear();
+
+        if self.has_subcommands() {
+            self.get_subcommands_mut()
+                .for_each(Command::_clear_args_recursive);
         }
     }
 

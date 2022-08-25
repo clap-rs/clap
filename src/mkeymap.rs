@@ -150,6 +150,12 @@ impl MKeyMap {
             // since it's a cold function, using this wouldn't hurt much
             .map(|i| self.args.remove(i))
     }
+
+    /// Remove all args.
+    pub(crate) fn clear(&mut self) {
+        self.args.clear();
+        self.keys.clear();
+    }
 }
 
 impl Index<&'_ KeyType> for MKeyMap {

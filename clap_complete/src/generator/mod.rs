@@ -234,6 +234,7 @@ where
     G: Generator,
     S: Into<clap::builder::Str>,
 {
+    cmd.prepare_build_for_completion();
     cmd.build();
 
     gen.generate(cmd, buf)
