@@ -4190,7 +4190,7 @@ impl Command {
             .map(|x| {
                 if x.is_positional() {
                     // Print val_name for positional arguments. e.g. <file_name>
-                    x.name_no_brackets().to_string()
+                    x.name_no_brackets()
                 } else {
                     // Print usage string for flags arguments, e.g. <--help>
                     x.to_string()

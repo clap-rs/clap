@@ -503,10 +503,11 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                         "={}",
                         env.1
                             .as_ref()
-                            .map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
+                            .map(|s| s.to_string_lossy())
+                            .unwrap_or_default()
                     )
                 } else {
-                    String::new()
+                    Default::default()
                 };
                 let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
                 spec_vals.push(env_info);
@@ -534,39 +535,32 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
             spec_vals.push(format!("[default: {}]", pvs));
         }
-        if !a.aliases.is_empty() {
+
+        let als = a
+            .aliases
+            .iter()
+            .filter(|&als| als.1) // visible
+            .map(|als| als.0.as_str()) // name
+            .collect::<Vec<_>>()
+            .join(", ");
+        if !als.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
-
-            let als = a
-                .aliases
-                .iter()
-                .filter(|&als| als.1) // visible
-                .map(|als| als.0.as_str()) // name
-                .collect::<Vec<_>>()
-                .join(", ");
-
-            if !als.is_empty() {
-                spec_vals.push(format!("[aliases: {}]", als));
-            }
+            spec_vals.push(format!("[aliases: {}]", als));
         }
 
-        if !a.short_aliases.is_empty() {
+        let als = a
+            .short_aliases
+            .iter()
+            .filter(|&als| als.1) // visible
+            .map(|&als| als.0.to_string()) // name
+            .collect::<Vec<_>>()
+            .join(", ");
+        if !als.is_empty() {
             debug!(
                 "Help::spec_vals: Found short aliases...{:?}",
                 a.short_aliases
             );
-
-            let als = a
-                .short_aliases
-                .iter()
-                .filter(|&als| als.1) // visible
-                .map(|&als| als.0.to_string()) // name
-                .collect::<Vec<_>>()
-                .join(", ");
-
-            if !als.is_empty() {
-                spec_vals.push(format!("[short aliases: {}]", als));
-            }
+            spec_vals.push(format!("[short aliases: {}]", als));
         }
 
         let possible_vals = a.get_possible_values();

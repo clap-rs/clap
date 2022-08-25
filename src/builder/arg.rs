@@ -4,7 +4,6 @@ use std::env;
 #[cfg(feature = "env")]
 use std::ffi::OsString;
 use std::{
-    borrow::Cow,
     cmp::{Ord, Ordering},
     fmt::{self, Display, Formatter},
     str,
@@ -3951,26 +3950,28 @@ impl Arg {
     }
 
     // Used for positionals when printing
-    pub(crate) fn name_no_brackets(&self) -> Cow<str> {
+    pub(crate) fn name_no_brackets(&self) -> String {
         debug!("Arg::name_no_brackets:{}", self.get_id());
         let delim = " ";
         if !self.val_names.is_empty() {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
 
             if self.val_names.len() > 1 {
-                Cow::Owned(
-                    self.val_names
-                        .iter()
-                        .map(|n| format!("<{}>", n))
-                        .collect::<Vec<_>>()
-                        .join(delim),
-                )
+                self.val_names
+                    .iter()
+                    .map(|n| format!("<{}>", n))
+                    .collect::<Vec<_>>()
+                    .join(delim)
             } else {
-                Cow::Borrowed(self.val_names.first().expect(INTERNAL_ERROR_MSG))
+                self.val_names
+                    .first()
+                    .expect(INTERNAL_ERROR_MSG)
+                    .as_str()
+                    .to_owned()
             }
         } else {
             debug!("Arg::name_no_brackets: just name");
-            Cow::Borrowed(self.get_id().as_str())
+            self.get_id().as_str().to_owned()
         }
     }
 
