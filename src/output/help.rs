@@ -398,33 +398,30 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         longest: usize,
     ) {
         debug!("Help::help");
-        let mut help = String::from(about.unwrap_none()) + spec_vals;
-        debug!("Help::help: Next Line...{:?}", next_line_help);
+
+        // Is help on next line, if so then indent
+        if next_line_help {
+            debug!("Help::help: Next Line...{:?}", next_line_help);
+            self.none(format!("\n{}{}{}", TAB, TAB, TAB));
+        }
 
         let spaces = if next_line_help {
             12 // "tab" * 3
         } else {
             longest + 12
         };
-
+        let mut help = String::from(about.unwrap_none()) + spec_vals;
         let too_long = spaces + display_width(&help) >= self.term_w;
-
-        // Is help on next line, if so then indent
-        if next_line_help {
-            self.none(format!("\n{}{}{}", TAB, TAB, TAB));
-        }
-
-        debug!("Help::help: Too long...");
         if too_long && spaces <= self.term_w || help.contains("{n}") {
-            debug!("Yes");
-            debug!("Help::help: help...{}", help);
-            debug!("Help::help: help width...{}", display_width(&help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spaces;
-            debug!("Help::help: Usable space...{}", avail_chars);
+            debug!(
+                "Help::help: too_long, help_width={}, spaces={}, avail={}",
+                spaces,
+                display_width(&help),
+                avail_chars
+            );
             help = wrap(&help.replace("{n}", "\n"), avail_chars);
-        } else {
-            debug!("No");
         }
         if let Some(part) = help.lines().next() {
             self.none(part);
