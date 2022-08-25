@@ -13,7 +13,7 @@
 /// ## Emojis and CJK Characters
 ///
 /// Characters such as emojis and [CJK characters] used in the
-/// Chinese, Japanese, and Korean langauges are seen as double-width,
+/// Chinese, Japanese, and Korean languages are seen as double-width,
 /// even if the `unicode-width` feature is disabled:
 ///
 /// # Limitations
