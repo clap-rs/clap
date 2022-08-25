@@ -95,11 +95,10 @@ const completion: Fig.Spec = {
           description: "tests other things",
         },
         {
-          name: ["some-cmd-with-hyphens", "hyphen"],
+          name: "some-cmd-with-hyphens",
         },
         {
           name: "some-hidden-cmd",
-          hidden: true,
         },
         {
           name: "help",

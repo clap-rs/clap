@@ -3740,19 +3740,18 @@ impl Command {
         Ok(matcher.into_inner())
     }
 
-    /// Prepare for completions by setting flags useful for that case.
-    /// Call this on the top-level [`Command`] before calling [`Command::build`].
-    pub fn prepare_build_for_completion(&mut self) {
-        self.g_settings.set(AppSettings::ExpandHelpSubcommandTrees);
-    }
-
     /// Prepare for introspecting on all included [`Command`]s
     ///
     /// Call this on the top-level [`Command`] when done building and before reading state for
     /// cases like completions, custom help output, etc.
     pub fn build(&mut self) {
+        self._prepare_build_for_completion();
         self._build_recursive();
         self._build_bin_names_internal();
+    }
+
+    fn _prepare_build_for_completion(&mut self) {
+        self.g_settings.set(AppSettings::ExpandHelpSubcommandTrees);
     }
 
     pub(crate) fn _build_recursive(&mut self) {
@@ -3788,9 +3787,7 @@ impl Command {
 
             self._propagate();
             self._check_help_and_version();
-            if !self.is_set(AppSettings::DisablePropagatedArgs) {
-                self._propagate_global_args();
-            }
+            self._propagate_global_args();
 
             let mut pos_counter = 1;
             let hide_pv = self.is_set(AppSettings::HidePossibleValues);
@@ -4162,14 +4159,7 @@ impl Command {
                 let help_subcmd = Command::new("help")
                     .about(help_about)
                     .global_setting(AppSettings::DisableHelpSubcommand)
-                    .subcommands(self.get_subcommands().cloned().map(|mut sc| {
-                        // Remove args so help completion will not suggest them, only subcommands
-                        sc._clear_args_recursive();
-
-                        sc.global_setting(AppSettings::DisablePropagatedArgs)
-                            .global_setting(AppSettings::DisableHelpFlag)
-                            .global_setting(AppSettings::DisableVersionFlag)
-                    }));
+                    .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
 
                 let mut help_help_subcmd = Command::new("help").about(help_about);
                 help_help_subcmd.version = None;
@@ -4204,13 +4194,16 @@ impl Command {
         }
     }
 
-    fn _clear_args_recursive(&mut self) {
-        self.args.clear();
-
-        if self.has_subcommands() {
-            self.get_subcommands_mut()
-                .for_each(Command::_clear_args_recursive);
+    fn _copy_subtree_for_help(&self) -> Command {
+        let mut cmd = Command::new(self.get_name().to_string())
+            .global_setting(AppSettings::DisablePropagatedArgs)
+            .global_setting(AppSettings::DisableHelpFlag)
+            .global_setting(AppSettings::DisableVersionFlag)
+            .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
+        if self.get_about().is_some() {
+            cmd = cmd.about(self.get_about().unwrap().clone());
         }
+        cmd
     }
 
     pub(crate) fn _render_version(&self, use_long: bool) -> String {
