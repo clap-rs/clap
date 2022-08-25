@@ -57,5 +57,4 @@ pub use value_parser::_AnonymousValueParser;
 #[allow(unused_imports)]
 pub(crate) use self::str::Inner as StrInner;
 pub(crate) use action::CountType;
-pub(crate) use arg::render_arg_val;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};

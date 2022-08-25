@@ -3975,6 +3975,40 @@ impl Arg {
         }
     }
 
+    pub(crate) fn stylize_arg_suffix(&self) -> StyledStr {
+        let mut styled = StyledStr::new();
+
+        let mut need_closing_bracket = false;
+        if self.is_takes_value_set() && !self.is_positional() {
+            let is_optional_val = self.get_min_vals() == 0;
+            let sep = if self.is_require_equals_set() {
+                if is_optional_val {
+                    need_closing_bracket = true;
+                    "[="
+                } else {
+                    "="
+                }
+            } else if is_optional_val {
+                need_closing_bracket = true;
+                " ["
+            } else {
+                " "
+            };
+            styled.good(sep);
+        }
+        if self.is_takes_value_set() || self.is_positional() {
+            let arg_val = render_arg_val(self);
+            styled.good(arg_val);
+        } else if matches!(*self.get_action(), ArgAction::Count) {
+            styled.good("...");
+        }
+        if need_closing_bracket {
+            styled.none("]");
+        }
+
+        styled
+    }
+
     /// Either multiple values or occurrences
     pub(crate) fn is_multiple(&self) -> bool {
         self.is_multiple_values_set() || matches!(*self.get_action(), ArgAction::Append)
@@ -4019,41 +4053,7 @@ impl Display for Arg {
         } else if let Some(s) = self.get_short() {
             write!(f, "-{}", s)?;
         }
-        let mut need_closing_bracket = false;
-        let is_optional_val = self.get_min_vals() == 0;
-        if self.is_positional() {
-            if is_optional_val {
-                let sep = "[";
-                need_closing_bracket = true;
-                f.write_str(sep)?;
-            }
-        } else if self.is_takes_value_set() {
-            let sep = if self.is_require_equals_set() {
-                if is_optional_val {
-                    need_closing_bracket = true;
-                    "[="
-                } else {
-                    "="
-                }
-            } else if is_optional_val {
-                need_closing_bracket = true;
-                " ["
-            } else {
-                " "
-            };
-            f.write_str(sep)?;
-        }
-        if self.is_takes_value_set() || self.is_positional() {
-            let arg_val = render_arg_val(self);
-            f.write_str(&arg_val)?;
-        } else if matches!(*self.get_action(), ArgAction::Count) {
-            f.write_str("...")?;
-        }
-        if need_closing_bracket {
-            f.write_str("]")?;
-        }
-
-        Ok(())
+        self.stylize_arg_suffix().fmt(f)
     }
 }
 
@@ -4382,7 +4382,7 @@ mod test {
         let mut p = Arg::new("pos").index(1).num_args(0..);
         p._build();
 
-        assert_eq!(p.to_string(), "[<pos>...]");
+        assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
@@ -4401,7 +4401,7 @@ mod test {
             .action(ArgAction::Set);
         p._build();
 
-        assert_eq!(p.to_string(), "[<pos>]");
+        assert_eq!(p.to_string(), "<pos>");
     }
 
     #[test]

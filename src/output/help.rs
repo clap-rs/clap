@@ -8,12 +8,11 @@ use std::usize;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
-use crate::builder::{render_arg_val, Arg, Command};
+use crate::builder::{Arg, Command};
 use crate::output::display_width;
 use crate::output::wrap;
 use crate::output::Usage;
 use crate::util::FlatSet;
-use crate::ArgAction;
 
 /// `clap` Help Writer.
 ///
@@ -184,7 +183,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
         self.short(arg);
         self.long(arg);
-        self.val(arg);
+        self.writer.extend(arg.stylize_arg_suffix().into_iter());
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {
@@ -221,39 +220,6 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 self.none(", ");
             }
             self.good(format!("--{}", long));
-        }
-    }
-
-    /// Writes argument's possible values to the wrapped stream.
-    fn val(&mut self, arg: &Arg) {
-        debug!("Help::val: arg={}", arg.get_id());
-        let mut need_closing_bracket = false;
-        if arg.is_takes_value_set() && !arg.is_positional() {
-            let is_optional_val = arg.get_min_vals() == 0;
-            let sep = if arg.is_require_equals_set() {
-                if is_optional_val {
-                    need_closing_bracket = true;
-                    "[="
-                } else {
-                    "="
-                }
-            } else if is_optional_val {
-                need_closing_bracket = true;
-                " ["
-            } else {
-                " "
-            };
-            self.none(sep);
-        }
-
-        if arg.is_takes_value_set() || arg.is_positional() {
-            let arg_val = render_arg_val(arg);
-            self.good(arg_val);
-        } else if matches!(*arg.get_action(), ArgAction::Count) {
-            self.good("...");
-        }
-        if need_closing_bracket {
-            self.none("]");
         }
     }
 
