@@ -110,32 +110,291 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     }
 }
 
-// Methods to write Arg help.
+// Template
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    fn extend(&mut self, msg: &StyledStr) {
-        self.writer.extend(msg.iter());
+    /// Write help to stream for the parser in the format defined by the template.
+    ///
+    /// For details about the template language see [`Command::help_template`].
+    ///
+    /// [`Command::help_template`]: Command::help_template()
+    fn write_templated_help(&mut self, template: &str) {
+        debug!("Help::write_templated_help");
+
+        let mut parts = template.split('{');
+        if let Some(first) = parts.next() {
+            self.none(first);
+        }
+        for part in parts {
+            if let Some((tag, rest)) = part.split_once('}') {
+                match tag {
+                    "name" => {
+                        self.write_display_name();
+                    }
+                    "bin" => {
+                        self.write_bin_name();
+                    }
+                    "version" => {
+                        self.write_version();
+                    }
+                    "author" => {
+                        self.write_author(false, false);
+                    }
+                    "author-with-newline" => {
+                        self.write_author(false, true);
+                    }
+                    "author-section" => {
+                        self.write_author(true, true);
+                    }
+                    "about" => {
+                        self.write_about(false, false);
+                    }
+                    "about-with-newline" => {
+                        self.write_about(false, true);
+                    }
+                    "about-section" => {
+                        self.write_about(true, true);
+                    }
+                    "usage-heading" => {
+                        self.warning("USAGE:");
+                    }
+                    "usage" => {
+                        self.none(self.usage.create_usage_no_title(&[]));
+                    }
+                    "all-args" => {
+                        self.write_all_args();
+                    }
+                    "options" => {
+                        // Include even those with a heading as we don't have a good way of
+                        // handling help_heading in the template.
+                        self.write_args(
+                            &self.cmd.get_non_positionals().collect::<Vec<_>>(),
+                            "options",
+                            option_sort_key,
+                        );
+                    }
+                    "positionals" => {
+                        self.write_args(
+                            &self.cmd.get_positionals().collect::<Vec<_>>(),
+                            "positionals",
+                            positional_sort_key,
+                        );
+                    }
+                    "subcommands" => {
+                        self.write_subcommands(self.cmd);
+                    }
+                    "after-help" => {
+                        self.write_after_help();
+                    }
+                    "before-help" => {
+                        self.write_before_help();
+                    }
+                    _ => {
+                        self.none("{");
+                        self.none(tag);
+                        self.none("}");
+                    }
+                }
+                self.none(rest);
+            }
+        }
+    }
+}
+
+/// Basic template methods
+impl<'cmd, 'writer> Help<'cmd, 'writer> {
+    /// Writes binary name of a Parser Object to the wrapped stream.
+    fn write_display_name(&mut self) {
+        debug!("Help::write_display_name");
+
+        let display_name = wrap(
+            &self
+                .cmd
+                .get_display_name()
+                .unwrap_or_else(|| self.cmd.get_name())
+                .replace("{n}", "\n"),
+            self.term_w,
+        );
+        self.good(&display_name);
     }
 
-    fn good<T: Into<String>>(&mut self, msg: T) {
-        self.writer.good(msg);
+    /// Writes binary name of a Parser Object to the wrapped stream.
+    fn write_bin_name(&mut self) {
+        debug!("Help::write_bin_name");
+
+        let bin_name = if let Some(bn) = self.cmd.get_bin_name() {
+            if bn.contains(' ') {
+                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
+                bn.replace(' ', "-")
+            } else {
+                wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
+            }
+        } else {
+            wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
+        };
+        self.good(&bin_name);
     }
 
-    fn warning<T: Into<String>>(&mut self, msg: T) {
-        self.writer.warning(msg);
+    fn write_version(&mut self) {
+        let version = self
+            .cmd
+            .get_version()
+            .or_else(|| self.cmd.get_long_version());
+        if let Some(output) = version {
+            self.none(wrap(output, self.term_w));
+        }
     }
 
-    fn none<T: Into<String>>(&mut self, msg: T) {
-        self.writer.none(msg);
+    fn write_author(&mut self, before_new_line: bool, after_new_line: bool) {
+        if let Some(author) = self.cmd.get_author() {
+            if before_new_line {
+                self.none("\n");
+            }
+            self.none(wrap(author, self.term_w));
+            if after_new_line {
+                self.none("\n");
+            }
+        }
     }
 
-    fn get_spaces(&self, n: usize) -> String {
-        " ".repeat(n)
+    fn write_about(&mut self, before_new_line: bool, after_new_line: bool) {
+        let about = if self.use_long {
+            self.cmd.get_long_about().or_else(|| self.cmd.get_about())
+        } else {
+            self.cmd.get_about()
+        };
+        if let Some(output) = about {
+            if before_new_line {
+                self.none("\n");
+            }
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
+            if after_new_line {
+                self.none("\n");
+            }
+        }
     }
 
-    fn spaces(&mut self, n: usize) {
-        self.none(self.get_spaces(n));
+    fn write_before_help(&mut self) {
+        debug!("Help::write_before_help");
+        let before_help = if self.use_long {
+            self.cmd
+                .get_before_long_help()
+                .or_else(|| self.cmd.get_before_help())
+        } else {
+            self.cmd.get_before_help()
+        };
+        if let Some(output) = before_help {
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
+            self.none("\n\n");
+        }
     }
 
+    fn write_after_help(&mut self) {
+        debug!("Help::write_after_help");
+        let after_help = if self.use_long {
+            self.cmd
+                .get_after_long_help()
+                .or_else(|| self.cmd.get_after_help())
+        } else {
+            self.cmd.get_after_help()
+        };
+        if let Some(output) = after_help {
+            self.none("\n\n");
+            let mut output = output.clone();
+            output.replace_newline();
+            output.wrap(self.term_w);
+            self.writer.extend(output.into_iter());
+        }
+    }
+}
+
+/// Arg handling
+impl<'cmd, 'writer> Help<'cmd, 'writer> {
+    /// Writes help for all arguments (options, flags, args, subcommands)
+    /// including titles of a Parser Object to the wrapped stream.
+    pub(crate) fn write_all_args(&mut self) {
+        debug!("Help::write_all_args");
+        let pos = self
+            .cmd
+            .get_positionals_with_no_heading()
+            .filter(|arg| should_show_arg(self.use_long, arg))
+            .collect::<Vec<_>>();
+        let non_pos = self
+            .cmd
+            .get_non_positionals_with_no_heading()
+            .filter(|arg| should_show_arg(self.use_long, arg))
+            .collect::<Vec<_>>();
+        let subcmds = self.cmd.has_visible_subcommands();
+
+        let custom_headings = self
+            .cmd
+            .get_arguments()
+            .filter_map(|arg| arg.get_help_heading())
+            .collect::<FlatSet<_>>();
+
+        let mut first = if !pos.is_empty() {
+            // Write positional args if any
+            self.warning("ARGS:\n");
+            self.write_args(&pos, "ARGS", positional_sort_key);
+            false
+        } else {
+            true
+        };
+
+        if !non_pos.is_empty() {
+            if !first {
+                self.none("\n\n");
+            }
+            self.warning("OPTIONS:\n");
+            self.write_args(&non_pos, "OPTIONS", option_sort_key);
+            first = false;
+        }
+        if !custom_headings.is_empty() {
+            for heading in custom_headings {
+                let args = self
+                    .cmd
+                    .get_arguments()
+                    .filter(|a| {
+                        if let Some(help_heading) = a.get_help_heading() {
+                            return help_heading == heading;
+                        }
+                        false
+                    })
+                    .filter(|arg| should_show_arg(self.use_long, arg))
+                    .collect::<Vec<_>>();
+
+                if !args.is_empty() {
+                    if !first {
+                        self.none("\n\n");
+                    }
+                    self.warning(format!("{}:\n", heading));
+                    self.write_args(&args, heading, option_sort_key);
+                    first = false
+                }
+            }
+        }
+
+        if subcmds {
+            if !first {
+                self.none("\n\n");
+            }
+
+            let default_help_heading = Str::from("SUBCOMMANDS");
+            self.warning(
+                self.cmd
+                    .get_subcommand_help_heading()
+                    .unwrap_or(&default_help_heading),
+            );
+            self.warning(":\n");
+
+            self.write_subcommands(self.cmd);
+        }
+    }
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args(&mut self, args: &[&Arg], _category: &str, sort_key: ArgSortKey) {
         debug!("Help::write_args {}", _category);
@@ -261,42 +520,6 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             );
 
             self.spaces(spcs);
-        }
-    }
-
-    fn write_before_help(&mut self) {
-        debug!("Help::write_before_help");
-        let before_help = if self.use_long {
-            self.cmd
-                .get_before_long_help()
-                .or_else(|| self.cmd.get_before_help())
-        } else {
-            self.cmd.get_before_help()
-        };
-        if let Some(output) = before_help {
-            let mut output = output.clone();
-            output.replace_newline();
-            output.wrap(self.term_w);
-            self.writer.extend(output.into_iter());
-            self.none("\n\n");
-        }
-    }
-
-    fn write_after_help(&mut self) {
-        debug!("Help::write_after_help");
-        let after_help = if self.use_long {
-            self.cmd
-                .get_after_long_help()
-                .or_else(|| self.cmd.get_after_help())
-        } else {
-            self.cmd.get_after_help()
-        };
-        if let Some(output) = after_help {
-            self.none("\n\n");
-            let mut output = output.clone();
-            output.replace_newline();
-            output.wrap(self.term_w);
-            self.writer.extend(output.into_iter());
         }
     }
 
@@ -547,51 +770,86 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         spec_vals.join(connector)
     }
 
-    fn write_about(&mut self, before_new_line: bool, after_new_line: bool) {
-        let about = if self.use_long {
-            self.cmd.get_long_about().or_else(|| self.cmd.get_about())
-        } else {
-            self.cmd.get_about()
-        };
-        if let Some(output) = about {
-            if before_new_line {
-                self.none("\n");
-            }
-            let mut output = output.clone();
-            output.replace_newline();
-            output.wrap(self.term_w);
-            self.writer.extend(output.into_iter());
-            if after_new_line {
-                self.none("\n");
-            }
-        }
+    fn extend(&mut self, msg: &StyledStr) {
+        self.writer.extend(msg.iter());
     }
 
-    fn write_author(&mut self, before_new_line: bool, after_new_line: bool) {
-        if let Some(author) = self.cmd.get_author() {
-            if before_new_line {
-                self.none("\n");
-            }
-            self.none(wrap(author, self.term_w));
-            if after_new_line {
-                self.none("\n");
-            }
-        }
+    fn good<T: Into<String>>(&mut self, msg: T) {
+        self.writer.good(msg);
     }
 
-    fn write_version(&mut self) {
-        let version = self
-            .cmd
-            .get_version()
-            .or_else(|| self.cmd.get_long_version());
-        if let Some(output) = version {
-            self.none(wrap(output, self.term_w));
-        }
+    fn warning<T: Into<String>>(&mut self, msg: T) {
+        self.writer.warning(msg);
+    }
+
+    fn none<T: Into<String>>(&mut self, msg: T) {
+        self.writer.none(msg);
+    }
+
+    fn get_spaces(&self, n: usize) -> String {
+        " ".repeat(n)
+    }
+
+    fn spaces(&mut self, n: usize) {
+        self.none(self.get_spaces(n));
     }
 }
 
-/// Methods to write a single subcommand
+/// Subcommand handling
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
+    /// Writes help for subcommands of a Parser Object to the wrapped stream.
+    fn write_subcommands(&mut self, cmd: &Command) {
+        debug!("Help::write_subcommands");
+        // The shortest an arg can legally be is 2 (i.e. '-x')
+        let mut longest = 2;
+        let mut ord_v = Vec::new();
+        for subcommand in cmd
+            .get_subcommands()
+            .filter(|subcommand| should_show_subcommand(subcommand))
+        {
+            let mut sc_str = String::new();
+            sc_str.push_str(subcommand.get_name());
+            if let Some(short) = subcommand.get_short_flag() {
+                write!(sc_str, " -{}", short).unwrap();
+            }
+            if let Some(long) = subcommand.get_long_flag() {
+                write!(sc_str, " --{}", long).unwrap();
+            }
+            longest = longest.max(display_width(&sc_str));
+            ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
+        }
+        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+
+        debug!("Help::write_subcommands longest = {}", longest);
+
+        let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
+
+        let mut first = true;
+        for (_, sc_str, sc) in &ord_v {
+            if first {
+                first = false;
+            } else {
+                self.none("\n");
+            }
+            self.write_subcommand(sc_str, sc, next_line_help, longest);
+        }
+    }
+
+    /// Will use next line help on writing subcommands.
+    fn will_subcommands_wrap<'a>(
+        &self,
+        subcommands: impl IntoIterator<Item = &'a Command>,
+        longest: usize,
+    ) -> bool {
+        subcommands
+            .into_iter()
+            .filter(|&subcommand| should_show_subcommand(subcommand))
+            .any(|subcommand| {
+                let spec_vals = &self.sc_spec_vals(subcommand);
+                self.subcommand_next_line_help(subcommand, spec_vals, longest)
+            })
+    }
+
     fn write_subcommand(
         &mut self,
         sc_str: &str,
@@ -660,265 +918,6 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         if !next_line_help {
             let width = display_width(sc_str);
             self.spaces(width.max(longest + 4) - width);
-        }
-    }
-}
-
-// Methods to write Parser help.
-impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    /// Writes help for all arguments (options, flags, args, subcommands)
-    /// including titles of a Parser Object to the wrapped stream.
-    pub(crate) fn write_all_args(&mut self) {
-        debug!("Help::write_all_args");
-        let pos = self
-            .cmd
-            .get_positionals_with_no_heading()
-            .filter(|arg| should_show_arg(self.use_long, arg))
-            .collect::<Vec<_>>();
-        let non_pos = self
-            .cmd
-            .get_non_positionals_with_no_heading()
-            .filter(|arg| should_show_arg(self.use_long, arg))
-            .collect::<Vec<_>>();
-        let subcmds = self.cmd.has_visible_subcommands();
-
-        let custom_headings = self
-            .cmd
-            .get_arguments()
-            .filter_map(|arg| arg.get_help_heading())
-            .collect::<FlatSet<_>>();
-
-        let mut first = if !pos.is_empty() {
-            // Write positional args if any
-            self.warning("ARGS:\n");
-            self.write_args(&pos, "ARGS", positional_sort_key);
-            false
-        } else {
-            true
-        };
-
-        if !non_pos.is_empty() {
-            if !first {
-                self.none("\n\n");
-            }
-            self.warning("OPTIONS:\n");
-            self.write_args(&non_pos, "OPTIONS", option_sort_key);
-            first = false;
-        }
-        if !custom_headings.is_empty() {
-            for heading in custom_headings {
-                let args = self
-                    .cmd
-                    .get_arguments()
-                    .filter(|a| {
-                        if let Some(help_heading) = a.get_help_heading() {
-                            return help_heading == heading;
-                        }
-                        false
-                    })
-                    .filter(|arg| should_show_arg(self.use_long, arg))
-                    .collect::<Vec<_>>();
-
-                if !args.is_empty() {
-                    if !first {
-                        self.none("\n\n");
-                    }
-                    self.warning(format!("{}:\n", heading));
-                    self.write_args(&args, heading, option_sort_key);
-                    first = false
-                }
-            }
-        }
-
-        if subcmds {
-            if !first {
-                self.none("\n\n");
-            }
-
-            let default_help_heading = Str::from("SUBCOMMANDS");
-            self.warning(
-                self.cmd
-                    .get_subcommand_help_heading()
-                    .unwrap_or(&default_help_heading),
-            );
-            self.warning(":\n");
-
-            self.write_subcommands(self.cmd);
-        }
-    }
-
-    /// Will use next line help on writing subcommands.
-    fn will_subcommands_wrap<'a>(
-        &self,
-        subcommands: impl IntoIterator<Item = &'a Command>,
-        longest: usize,
-    ) -> bool {
-        subcommands
-            .into_iter()
-            .filter(|&subcommand| should_show_subcommand(subcommand))
-            .any(|subcommand| {
-                let spec_vals = &self.sc_spec_vals(subcommand);
-                self.subcommand_next_line_help(subcommand, spec_vals, longest)
-            })
-    }
-
-    /// Writes help for subcommands of a Parser Object to the wrapped stream.
-    fn write_subcommands(&mut self, cmd: &Command) {
-        debug!("Help::write_subcommands");
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        let mut longest = 2;
-        let mut ord_v = Vec::new();
-        for subcommand in cmd
-            .get_subcommands()
-            .filter(|subcommand| should_show_subcommand(subcommand))
-        {
-            let mut sc_str = String::new();
-            sc_str.push_str(subcommand.get_name());
-            if let Some(short) = subcommand.get_short_flag() {
-                write!(sc_str, " -{}", short).unwrap();
-            }
-            if let Some(long) = subcommand.get_long_flag() {
-                write!(sc_str, " --{}", long).unwrap();
-            }
-            longest = longest.max(display_width(&sc_str));
-            ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
-        }
-        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
-
-        debug!("Help::write_subcommands longest = {}", longest);
-
-        let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
-
-        let mut first = true;
-        for (_, sc_str, sc) in &ord_v {
-            if first {
-                first = false;
-            } else {
-                self.none("\n");
-            }
-            self.write_subcommand(sc_str, sc, next_line_help, longest);
-        }
-    }
-
-    /// Writes binary name of a Parser Object to the wrapped stream.
-    fn write_display_name(&mut self) {
-        debug!("Help::write_display_name");
-
-        let display_name = wrap(
-            &self
-                .cmd
-                .get_display_name()
-                .unwrap_or_else(|| self.cmd.get_name())
-                .replace("{n}", "\n"),
-            self.term_w,
-        );
-        self.good(&display_name);
-    }
-
-    /// Writes binary name of a Parser Object to the wrapped stream.
-    fn write_bin_name(&mut self) {
-        debug!("Help::write_bin_name");
-
-        let bin_name = if let Some(bn) = self.cmd.get_bin_name() {
-            if bn.contains(' ') {
-                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                bn.replace(' ', "-")
-            } else {
-                wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
-            }
-        } else {
-            wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
-        };
-        self.good(&bin_name);
-    }
-}
-
-// Methods to write Parser help using templates.
-impl<'cmd, 'writer> Help<'cmd, 'writer> {
-    /// Write help to stream for the parser in the format defined by the template.
-    ///
-    /// For details about the template language see [`Command::help_template`].
-    ///
-    /// [`Command::help_template`]: Command::help_template()
-    fn write_templated_help(&mut self, template: &str) {
-        debug!("Help::write_templated_help");
-
-        let mut parts = template.split('{');
-        if let Some(first) = parts.next() {
-            self.none(first);
-        }
-        for part in parts {
-            if let Some((tag, rest)) = part.split_once('}') {
-                match tag {
-                    "name" => {
-                        self.write_display_name();
-                    }
-                    "bin" => {
-                        self.write_bin_name();
-                    }
-                    "version" => {
-                        self.write_version();
-                    }
-                    "author" => {
-                        self.write_author(false, false);
-                    }
-                    "author-with-newline" => {
-                        self.write_author(false, true);
-                    }
-                    "author-section" => {
-                        self.write_author(true, true);
-                    }
-                    "about" => {
-                        self.write_about(false, false);
-                    }
-                    "about-with-newline" => {
-                        self.write_about(false, true);
-                    }
-                    "about-section" => {
-                        self.write_about(true, true);
-                    }
-                    "usage-heading" => {
-                        self.warning("USAGE:");
-                    }
-                    "usage" => {
-                        self.none(self.usage.create_usage_no_title(&[]));
-                    }
-                    "all-args" => {
-                        self.write_all_args();
-                    }
-                    "options" => {
-                        // Include even those with a heading as we don't have a good way of
-                        // handling help_heading in the template.
-                        self.write_args(
-                            &self.cmd.get_non_positionals().collect::<Vec<_>>(),
-                            "options",
-                            option_sort_key,
-                        );
-                    }
-                    "positionals" => {
-                        self.write_args(
-                            &self.cmd.get_positionals().collect::<Vec<_>>(),
-                            "positionals",
-                            positional_sort_key,
-                        );
-                    }
-                    "subcommands" => {
-                        self.write_subcommands(self.cmd);
-                    }
-                    "after-help" => {
-                        self.write_after_help();
-                    }
-                    "before-help" => {
-                        self.write_before_help();
-                    }
-                    _ => {
-                        self.none("{");
-                        self.none(tag);
-                        self.none("}");
-                    }
-                }
-                self.none(rest);
-            }
         }
     }
 }
