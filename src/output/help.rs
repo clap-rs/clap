@@ -181,6 +181,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     fn write_arg(&mut self, arg: &Arg, next_line_help: bool, longest: usize) {
         let spec_vals = &self.spec_vals(arg);
 
+        self.none(TAB);
         self.short(arg);
         self.long(arg);
         self.writer.extend(arg.stylize_arg_suffix().into_iter());
@@ -203,11 +204,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     fn short(&mut self, arg: &Arg) {
         debug!("Help::short");
 
-        self.none(TAB);
-
         if let Some(s) = arg.get_short() {
             self.good(format!("-{}", s));
-        } else if !arg.is_positional() {
+        } else if arg.get_long().is_some() {
             self.none(TAB)
         }
     }
@@ -616,7 +615,15 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     fn sc_spec_vals(&self, a: &Command) -> String {
         debug!("Help::sc_spec_vals: a={}", a.get_name());
         let mut spec_vals = vec![];
-        if 0 < a.get_all_aliases().count() || 0 < a.get_all_short_flag_aliases().count() {
+
+        let mut short_als = a
+            .get_visible_short_flag_aliases()
+            .map(|a| format!("-{}", a))
+            .collect::<Vec<_>>();
+        let als = a.get_visible_aliases().map(|s| s.to_string());
+        short_als.extend(als);
+        let all_als = short_als.join(", ");
+        if !all_als.is_empty() {
             debug!(
                 "Help::spec_vals: Found aliases...{:?}",
                 a.get_all_aliases().collect::<Vec<_>>()
@@ -625,22 +632,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 "Help::spec_vals: Found short flag aliases...{:?}",
                 a.get_all_short_flag_aliases().collect::<Vec<_>>()
             );
-
-            let mut short_als = a
-                .get_visible_short_flag_aliases()
-                .map(|a| format!("-{}", a))
-                .collect::<Vec<_>>();
-
-            let als = a.get_visible_aliases().map(|s| s.to_string());
-
-            short_als.extend(als);
-
-            let all_als = short_als.join(", ");
-
-            if !all_als.is_empty() {
-                spec_vals.push(format!("[aliases: {}]", all_als));
-            }
+            spec_vals.push(format!("[aliases: {}]", all_als));
         }
+
         spec_vals.join(" ")
     }
 
