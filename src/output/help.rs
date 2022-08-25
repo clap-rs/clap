@@ -137,38 +137,8 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         self.none(self.get_spaces(n));
     }
 
-    /// Writes help for each argument in the order they were declared to the wrapped stream.
-    fn write_args_unsorted(&mut self, args: &[&Arg]) {
-        debug!("Help::write_args_unsorted");
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        let mut longest = 2;
-        let mut arg_v = Vec::with_capacity(10);
-
-        for &arg in args
-            .iter()
-            .filter(|arg| should_show_arg(self.use_long, *arg))
-        {
-            if arg.longest_filter() {
-                longest = longest.max(display_width(&arg.to_string()));
-                debug!(
-                    "Help::write_args_unsorted: arg={:?} longest={}",
-                    arg.get_id(),
-                    longest
-                );
-            }
-            arg_v.push(arg)
-        }
-
-        let next_line_help = self.will_args_wrap(args, longest);
-
-        let argc = arg_v.len();
-        for (i, arg) in arg_v.iter().enumerate() {
-            self.write_arg(arg, i + 1 == argc, next_line_help, longest);
-        }
-    }
-
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
-    fn write_args(&mut self, args: &[&Arg], _category: &str) {
+    fn write_args(&mut self, args: &[&Arg], _category: &str, sort_key: ArgSortKey) {
         debug!("Help::write_args {}", _category);
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
@@ -190,32 +160,14 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 );
             }
 
-            // Formatting key like this to ensure that:
-            // 1. Argument has long flags are printed just after short flags.
-            // 2. For two args both have short flags like `-c` and `-C`, the
-            //    `-C` arg is printed just after the `-c` arg
-            // 3. For args without short or long flag, print them at last(sorted
-            //    by arg name).
-            // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
-
-            let key = if let Some(x) = arg.get_short() {
-                let mut s = x.to_ascii_lowercase().to_string();
-                s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
-                s
-            } else if let Some(x) = arg.get_long() {
-                x.to_string()
-            } else {
-                let mut s = '{'.to_string();
-                s.push_str(arg.id.as_str());
-                s
-            };
-            ord_v.push((arg.get_display_order(), key, arg));
+            let key = (sort_key)(arg);
+            ord_v.push((key, arg));
         }
-        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+        ord_v.sort_by(|a, b| a.0.cmp(&b.0));
 
         let next_line_help = self.will_args_wrap(args, longest);
 
-        for (i, (_, _, arg)) in ord_v.iter().enumerate() {
+        for (i, (_, arg)) in ord_v.iter().enumerate() {
             let last_arg = i + 1 == ord_v.len();
             self.write_arg(arg, last_arg, next_line_help, longest);
         }
@@ -786,7 +738,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         let mut first = if !pos.is_empty() {
             // Write positional args if any
             self.warning("ARGS:\n");
-            self.write_args_unsorted(&pos);
+            self.write_args(&pos, "ARGS", positional_sort_key);
             false
         } else {
             true
@@ -797,7 +749,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 self.none("\n\n");
             }
             self.warning("OPTIONS:\n");
-            self.write_args(&non_pos, "OPTIONS");
+            self.write_args(&non_pos, "OPTIONS", option_sort_key);
             first = false;
         }
         if !custom_headings.is_empty() {
@@ -819,7 +771,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                         self.none("\n\n");
                     }
                     self.warning(format!("{}:\n", heading));
-                    self.write_args(&args, heading);
+                    self.write_args(&args, heading, option_sort_key);
                     first = false
                 }
             }
@@ -1015,10 +967,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     "options" => {
                         // Include even those with a heading as we don't have a good way of
                         // handling help_heading in the template.
-                        self.write_args(&self.cmd.get_non_positionals().collect::<Vec<_>>(), "options");
+                        self.write_args(&self.cmd.get_non_positionals().collect::<Vec<_>>(), "options", option_sort_key);
                     }
                     "positionals" => {
-                        self.write_args(&self.cmd.get_positionals().collect::<Vec<_>>(), "positionals");
+                        self.write_args(&self.cmd.get_positionals().collect::<Vec<_>>(), "positionals", positional_sort_key);
                     }
                     "subcommands" => {
                         self.write_subcommands(self.cmd);
@@ -1033,6 +985,35 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             }
         }
     }
+}
+
+type ArgSortKey = fn(arg: &Arg) -> (usize, String);
+
+fn positional_sort_key(arg: &Arg) -> (usize, String) {
+    (arg.get_index().unwrap_or(0), String::new())
+}
+
+fn option_sort_key(arg: &Arg) -> (usize, String) {
+    // Formatting key like this to ensure that:
+    // 1. Argument has long flags are printed just after short flags.
+    // 2. For two args both have short flags like `-c` and `-C`, the
+    //    `-C` arg is printed just after the `-c` arg
+    // 3. For args without short or long flag, print them at last(sorted
+    //    by arg name).
+    // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
+
+    let key = if let Some(x) = arg.get_short() {
+        let mut s = x.to_ascii_lowercase().to_string();
+        s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
+        s
+    } else if let Some(x) = arg.get_long() {
+        x.to_string()
+    } else {
+        let mut s = '{'.to_string();
+        s.push_str(arg.id.as_str());
+        s
+    };
+    (arg.get_display_order(), key)
 }
 
 pub(crate) fn dimensions() -> Option<(usize, usize)> {
