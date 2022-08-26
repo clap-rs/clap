@@ -1,135 +1,101 @@
 use std::iter::FromIterator;
 
+use quote::quote;
+use quote::ToTokens;
+
+use proc_macro2::TokenStream;
 use proc_macro_error::{abort, ResultExt};
 use syn::{
     self, parenthesized,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
-    Attribute, Expr, ExprLit, Ident, Lit, LitStr, Token,
+    Attribute, Expr, Ident, LitStr, Token,
 };
 
-pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
-    all_attrs
-        .iter()
-        .filter(|attr| attr.path.is_ident("clap") || attr.path.is_ident("structopt"))
-        .flat_map(|attr| {
-            attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
-                .unwrap_or_abort()
-        })
-        .collect()
+#[derive(Clone)]
+pub struct ClapAttr {
+    pub name: Ident,
+    pub magic: Option<MagicAttrName>,
+    pub value: Option<AttrValue>,
 }
 
-#[allow(clippy::large_enum_variant)]
-#[derive(Clone)]
-pub enum ClapAttr {
-    // single-identifier attributes
-    Short(Ident),
-    Long(Ident),
-    #[cfg(not(feature = "unstable-v5"))]
-    ValueParser(Ident),
-    #[cfg(not(feature = "unstable-v5"))]
-    Action(Ident),
-    Env(Ident),
-    Flatten(Ident),
-    ValueEnum(Ident),
-    FromGlobal(Ident),
-    Subcommand(Ident),
-    VerbatimDocComment(Ident),
-    ExternalSubcommand(Ident),
-    About(Ident),
-    Author(Ident),
-    Version(Ident),
+impl ClapAttr {
+    pub fn parse_all(all_attrs: &[Attribute]) -> Vec<Self> {
+        all_attrs
+            .iter()
+            .filter(|attr| attr.path.is_ident("clap") || attr.path.is_ident("structopt"))
+            .flat_map(|attr| {
+                attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
+                    .unwrap_or_abort()
+            })
+            .collect()
+    }
 
-    // ident = "string literal"
-    RenameAllEnv(Ident, LitStr),
-    RenameAll(Ident, LitStr),
-    NameLitStr(Ident, LitStr),
+    pub fn value_or_abort(&self) -> &AttrValue {
+        self.value
+            .as_ref()
+            .unwrap_or_else(|| abort!(self.name, "attribute `{}` requires a value", self.name))
+    }
 
-    // ident [= arbitrary_expr]
-    Skip(Ident, Option<Expr>),
-
-    // ident = arbitrary_expr
-    NameExpr(Ident, Expr),
-    DefaultValueT(Ident, Option<Expr>),
-    DefaultValuesT(Ident, Expr),
-    DefaultValueOsT(Ident, Option<Expr>),
-    DefaultValuesOsT(Ident, Expr),
-    NextDisplayOrder(Ident, Expr),
-    NextHelpHeading(Ident, Expr),
-    HelpHeading(Ident, Expr),
-
-    // ident(arbitrary_expr,*)
-    MethodCall(Ident, Vec<Expr>),
+    pub fn lit_str_or_abort(&self) -> &LitStr {
+        let value = self.value_or_abort();
+        match value {
+            AttrValue::LitStr(tokens) => tokens,
+            AttrValue::Expr(_) | AttrValue::Call(_) => {
+                abort!(
+                    self.name,
+                    "attribute `{}` can only accept string litersl",
+                    self.name
+                )
+            }
+        }
+    }
 }
 
 impl Parse for ClapAttr {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        use self::ClapAttr::*;
-
         let name: Ident = input.parse()?;
         let name_str = name.to_string();
 
-        if input.peek(Token![=]) {
+        let magic = match name_str.as_str() {
+            "rename_all" => Some(MagicAttrName::RenameAll),
+            "rename_all_env" => Some(MagicAttrName::RenameAllEnv),
+            "skip" => Some(MagicAttrName::Skip),
+            "next_display_order" => Some(MagicAttrName::NextDisplayOrder),
+            "next_help_heading" => Some(MagicAttrName::NextHelpHeading),
+            "help_heading" => Some(MagicAttrName::HelpHeading),
+            "default_value_t" => Some(MagicAttrName::DefaultValueT),
+            "default_values_t" => Some(MagicAttrName::DefaultValuesT),
+            "default_value_os_t" => Some(MagicAttrName::DefaultValueOsT),
+            "default_values_os_t" => Some(MagicAttrName::DefaultValuesOsT),
+            "long" => Some(MagicAttrName::Long),
+            "short" => Some(MagicAttrName::Short),
+            #[cfg(not(feature = "unstable-v5"))]
+            "value_parser" => Some(MagicAttrName::ValueParser),
+            #[cfg(not(feature = "unstable-v5"))]
+            "action" => Some(MagicAttrName::Action),
+            "env" => Some(MagicAttrName::Env),
+            "flatten" => Some(MagicAttrName::Flatten),
+            "value_enum" => Some(MagicAttrName::ValueEnum),
+            "from_global" => Some(MagicAttrName::FromGlobal),
+            "subcommand" => Some(MagicAttrName::Subcommand),
+            "external_subcommand" => Some(MagicAttrName::ExternalSubcommand),
+            "verbatim_doc_comment" => Some(MagicAttrName::VerbatimDocComment),
+            "about" => Some(MagicAttrName::About),
+            "author" => Some(MagicAttrName::Author),
+            "version" => Some(MagicAttrName::Version),
+            _ => None,
+        };
+
+        let value = if input.peek(Token![=]) {
             // `name = value` attributes.
             let assign_token = input.parse::<Token![=]>()?; // skip '='
-
             if input.peek(LitStr) {
                 let lit: LitStr = input.parse()?;
-
-                match &*name_str {
-                    "rename_all" => Ok(RenameAll(name, lit)),
-                    "rename_all_env" => Ok(RenameAllEnv(name, lit)),
-
-                    "skip" => {
-                        let expr = ExprLit {
-                            attrs: vec![],
-                            lit: Lit::Str(lit),
-                        };
-                        let expr = Expr::Lit(expr);
-                        Ok(Skip(name, Some(expr)))
-                    }
-
-                    "next_display_order" => {
-                        let expr = ExprLit {
-                            attrs: vec![],
-                            lit: Lit::Str(lit),
-                        };
-                        let expr = Expr::Lit(expr);
-                        Ok(NextDisplayOrder(name, expr))
-                    }
-
-                    "next_help_heading" => {
-                        let expr = ExprLit {
-                            attrs: vec![],
-                            lit: Lit::Str(lit),
-                        };
-                        let expr = Expr::Lit(expr);
-                        Ok(NextHelpHeading(name, expr))
-                    }
-                    "help_heading" => {
-                        let expr = ExprLit {
-                            attrs: vec![],
-                            lit: Lit::Str(lit),
-                        };
-                        let expr = Expr::Lit(expr);
-                        Ok(HelpHeading(name, expr))
-                    }
-
-                    _ => Ok(NameLitStr(name, lit)),
-                }
+                Some(AttrValue::LitStr(lit))
             } else {
                 match input.parse::<Expr>() {
-                    Ok(expr) => match &*name_str {
-                        "skip" => Ok(Skip(name, Some(expr))),
-                        "default_value_t" => Ok(DefaultValueT(name, Some(expr))),
-                        "default_values_t" => Ok(DefaultValuesT(name, expr)),
-                        "default_value_os_t" => Ok(DefaultValueOsT(name, Some(expr))),
-                        "default_values_os_t" => Ok(DefaultValuesOsT(name, expr)),
-                        "next_display_order" => Ok(NextDisplayOrder(name, expr)),
-                        "next_help_heading" => Ok(NextHelpHeading(name, expr)),
-                        "help_heading" => Ok(HelpHeading(name, expr)),
-                        _ => Ok(NameExpr(name, expr)),
-                    },
+                    Ok(expr) => Some(AttrValue::Expr(expr)),
 
                     Err(_) => abort! {
                         assign_token,
@@ -143,33 +109,61 @@ impl Parse for ClapAttr {
             parenthesized!(nested in input);
 
             let method_args: Punctuated<_, Token![,]> = nested.parse_terminated(Expr::parse)?;
-            Ok(MethodCall(name, Vec::from_iter(method_args)))
+            Some(AttrValue::Call(Vec::from_iter(method_args)))
         } else {
-            // Attributes represented with a sole identifier.
-            match name_str.as_ref() {
-                "long" => Ok(Long(name)),
-                "short" => Ok(Short(name)),
-                #[cfg(not(feature = "unstable-v5"))]
-                "value_parser" => Ok(ValueParser(name)),
-                #[cfg(not(feature = "unstable-v5"))]
-                "action" => Ok(Action(name)),
-                "env" => Ok(Env(name)),
-                "flatten" => Ok(Flatten(name)),
-                "value_enum" => Ok(ValueEnum(name)),
-                "from_global" => Ok(FromGlobal(name)),
-                "subcommand" => Ok(Subcommand(name)),
-                "external_subcommand" => Ok(ExternalSubcommand(name)),
-                "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
+            None
+        };
 
-                "default_value_t" => Ok(DefaultValueT(name, None)),
-                "default_value_os_t" => Ok(DefaultValueOsT(name, None)),
-                "about" => (Ok(About(name))),
-                "author" => (Ok(Author(name))),
-                "version" => Ok(Version(name)),
+        Ok(Self { name, magic, value })
+    }
+}
 
-                "skip" => Ok(Skip(name, None)),
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum MagicAttrName {
+    Short,
+    Long,
+    #[cfg(not(feature = "unstable-v5"))]
+    ValueParser,
+    #[cfg(not(feature = "unstable-v5"))]
+    Action,
+    Env,
+    Flatten,
+    ValueEnum,
+    FromGlobal,
+    Subcommand,
+    VerbatimDocComment,
+    ExternalSubcommand,
+    About,
+    Author,
+    Version,
+    RenameAllEnv,
+    RenameAll,
+    Skip,
+    DefaultValueT,
+    DefaultValuesT,
+    DefaultValueOsT,
+    DefaultValuesOsT,
+    NextDisplayOrder,
+    NextHelpHeading,
+    HelpHeading,
+}
 
-                _ => abort!(name, "unexpected attribute: {}", name_str),
+#[derive(Clone)]
+#[allow(clippy::large_enum_variant)]
+pub enum AttrValue {
+    LitStr(LitStr),
+    Expr(Expr),
+    Call(Vec<Expr>),
+}
+
+impl ToTokens for AttrValue {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::LitStr(t) => t.to_tokens(tokens),
+            Self::Expr(t) => t.to_tokens(tokens),
+            Self::Call(t) => {
+                let t = quote!(#(#t),*);
+                t.to_tokens(tokens)
             }
         }
     }
