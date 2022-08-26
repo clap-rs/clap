@@ -13,6 +13,18 @@ impl StyledStr {
         Self { pieces: Vec::new() }
     }
 
+    pub(crate) fn header(&mut self, msg: impl Into<String>) {
+        self.stylize_(Some(Style::Header), msg.into());
+    }
+
+    pub(crate) fn literal(&mut self, msg: impl Into<String>) {
+        self.stylize_(Some(Style::Literal), msg.into());
+    }
+
+    pub(crate) fn placeholder(&mut self, msg: impl Into<String>) {
+        self.stylize_(Some(Style::Placeholder), msg.into());
+    }
+
     pub(crate) fn good(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Good), msg.into());
     }
@@ -137,6 +149,16 @@ impl StyledStr {
         for (style, content) in &self.pieces {
             let mut color = termcolor::ColorSpec::new();
             match style {
+                Some(Style::Header) => {
+                    color.set_bold(true);
+                    color.set_underline(true);
+                }
+                Some(Style::Literal) => {
+                    color.set_bold(true);
+                }
+                Some(Style::Placeholder) => {
+                    color.set_dimmed(true);
+                }
                 Some(Style::Good) => {
                     color.set_fg(Some(termcolor::Color::Green));
                 }
@@ -212,6 +234,9 @@ impl std::fmt::Display for StyledStr {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub(crate) enum Style {
+    Header,
+    Literal,
+    Placeholder,
     Good,
     Warning,
     Error,

@@ -155,7 +155,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                         self.write_about(true, true);
                     }
                     "usage-heading" => {
-                        self.warning("USAGE:");
+                        self.header("USAGE:");
                     }
                     "usage" => {
                         self.writer
@@ -215,7 +215,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 .replace("{n}", "\n"),
             self.term_w,
         );
-        self.good(&display_name);
+        self.none(&display_name);
     }
 
     /// Writes binary name of a Parser Object to the wrapped stream.
@@ -232,7 +232,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else {
             wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
         };
-        self.good(&bin_name);
+        self.none(&bin_name);
     }
 
     fn write_version(&mut self) {
@@ -340,7 +340,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
         let mut first = if !pos.is_empty() {
             // Write positional args if any
-            self.warning("ARGS:\n");
+            self.header("ARGS:\n");
             self.write_args(&pos, "ARGS", positional_sort_key);
             false
         } else {
@@ -351,7 +351,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if !first {
                 self.none("\n\n");
             }
-            self.warning("OPTIONS:\n");
+            self.header("OPTIONS:\n");
             self.write_args(&non_pos, "OPTIONS", option_sort_key);
             first = false;
         }
@@ -373,7 +373,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     if !first {
                         self.none("\n\n");
                     }
-                    self.warning(format!("{}:\n", heading));
+                    self.header(format!("{}:\n", heading));
                     self.write_args(&args, heading, option_sort_key);
                     first = false
                 }
@@ -386,12 +386,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             }
 
             let default_help_heading = Str::from("SUBCOMMANDS");
-            self.warning(
+            self.header(
                 self.cmd
                     .get_subcommand_help_heading()
                     .unwrap_or(&default_help_heading),
             );
-            self.warning(":\n");
+            self.header(":\n");
 
             self.write_subcommands(self.cmd);
         }
@@ -465,7 +465,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         debug!("Help::short");
 
         if let Some(s) = arg.get_short() {
-            self.good(format!("-{}", s));
+            self.literal(format!("-{}", s));
         } else if arg.get_long().is_some() {
             self.none(TAB)
         }
@@ -478,7 +478,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if arg.short.is_some() {
                 self.none(", ");
             }
-            self.good(format!("--{}", long));
+            self.literal(format!("--{}", long));
         }
     }
 
@@ -622,7 +622,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     self.none("\n");
                     self.spaces(spaces);
                     self.none("- ");
-                    self.good(pv.get_name());
+                    self.literal(pv.get_name());
                     if let Some(help) = pv.get_help() {
                         debug!("Help::help: Possible Value help");
 
@@ -775,12 +775,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         self.writer.extend(msg.iter());
     }
 
-    fn good<T: Into<String>>(&mut self, msg: T) {
-        self.writer.good(msg);
+    fn header<T: Into<String>>(&mut self, msg: T) {
+        self.writer.header(msg);
     }
 
-    fn warning<T: Into<String>>(&mut self, msg: T) {
-        self.writer.warning(msg);
+    fn literal<T: Into<String>>(&mut self, msg: T) {
+        self.writer.literal(msg);
     }
 
     fn none<T: Into<String>>(&mut self, msg: T) {
@@ -915,7 +915,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     /// Writes subcommand to the wrapped stream.
     fn subcmd(&mut self, sc_str: &str, next_line_help: bool, longest: usize) {
         self.none(TAB);
-        self.good(sc_str);
+        self.literal(sc_str);
         if !next_line_help {
             let width = display_width(sc_str);
             self.spaces(width.max(longest + 4) - width);

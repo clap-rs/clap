@@ -3979,11 +3979,11 @@ impl Arg {
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
         if let Some(l) = self.get_long() {
-            styled.none("--");
-            styled.none(l);
+            styled.literal("--");
+            styled.literal(l);
         } else if let Some(s) = self.get_short() {
-            styled.none("-");
-            styled.none(s);
+            styled.literal("-");
+            styled.literal(s);
         }
         styled.extend(self.stylize_arg_suffix().into_iter());
         styled
@@ -3995,29 +3995,28 @@ impl Arg {
         let mut need_closing_bracket = false;
         if self.is_takes_value_set() && !self.is_positional() {
             let is_optional_val = self.get_min_vals() == 0;
-            let sep = if self.is_require_equals_set() {
+            if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
-                    "[="
+                    styled.placeholder("[=");
                 } else {
-                    "="
+                    styled.literal("=");
                 }
             } else if is_optional_val {
                 need_closing_bracket = true;
-                " ["
+                styled.placeholder(" [");
             } else {
-                " "
-            };
-            styled.good(sep);
+                styled.placeholder(" ");
+            }
         }
         if self.is_takes_value_set() || self.is_positional() {
             let arg_val = self.render_arg_val();
-            styled.good(arg_val);
+            styled.placeholder(arg_val);
         } else if matches!(*self.get_action(), ArgAction::Count) {
-            styled.good("...");
+            styled.placeholder("...");
         }
         if need_closing_bracket {
-            styled.none("]");
+            styled.placeholder("]");
         }
 
         styled

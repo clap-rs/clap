@@ -32,7 +32,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_usage_with_title");
         let mut styled = StyledStr::new();
-        styled.none("USAGE:\n    ");
+        styled.header("USAGE:\n    ");
         styled.extend(self.create_usage_no_title(used).into_iter());
         styled
     }
@@ -58,10 +58,10 @@ impl<'cmd> Usage<'cmd> {
             .get_usage_name()
             .or_else(|| self.cmd.get_bin_name())
             .unwrap_or_else(|| self.cmd.get_name());
-        styled.none(name);
+        styled.literal(name);
 
         if self.needs_options_tag() {
-            styled.none(" [OPTIONS]");
+            styled.placeholder(" [OPTIONS]");
         }
 
         let allow_missing_positional = self.cmd.is_allow_missing_positional_set();
@@ -80,15 +80,15 @@ impl<'cmd> Usage<'cmd> {
             && !(self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
             && !has_last
         {
-            styled.none(" [--]");
+            styled.placeholder(" [--]");
         }
         let not_req_or_hidden =
             |p: &Arg| (!p.is_required_set() || p.is_last_set()) && !p.is_hide_set();
         if self.cmd.get_positionals().any(not_req_or_hidden) {
             if let Some(args_tag) = self.get_args_tag(incl_reqs) {
-                styled.none(&*args_tag);
+                styled.placeholder(&*args_tag);
             } else {
-                styled.none(" [ARGS]");
+                styled.placeholder(" [ARGS]");
             }
             if has_last && incl_reqs {
                 let pos = self
@@ -102,17 +102,18 @@ impl<'cmd> Usage<'cmd> {
                 );
                 let req = pos.is_required_set();
                 if req && self.cmd.get_positionals().any(|p| !p.is_required_set()) {
-                    styled.none(" -- <");
+                    styled.literal(" -- ");
+                    styled.placeholder("<");
                 } else if req {
-                    styled.none(" [--] <");
+                    styled.placeholder(" [--] <");
                 } else {
-                    styled.none(" [-- <");
+                    styled.placeholder(" [-- <");
                 }
-                styled.none(&*pos.name_no_brackets());
-                styled.none('>');
-                styled.none(pos.multiple_str());
+                styled.placeholder(&*pos.name_no_brackets());
+                styled.placeholder('>');
+                styled.placeholder(pos.multiple_str());
                 if !req {
-                    styled.none(']');
+                    styled.placeholder(']');
                 }
             }
         }
@@ -136,19 +137,19 @@ impl<'cmd> Usage<'cmd> {
                 if !self.cmd.is_args_conflicts_with_subcommands_set() {
                     styled.extend(self.create_help_usage(false).into_iter());
                 } else {
-                    styled.none(name);
+                    styled.literal(name);
                 }
-                styled.none(" <");
-                styled.none(placeholder);
-                styled.none(">");
+                styled.placeholder(" <");
+                styled.placeholder(placeholder);
+                styled.placeholder(">");
             } else if self.cmd.is_subcommand_required_set() {
-                styled.none(" <");
-                styled.none(placeholder);
-                styled.none(">");
+                styled.placeholder(" <");
+                styled.placeholder(placeholder);
+                styled.placeholder(">");
             } else {
-                styled.none(" [");
-                styled.none(placeholder);
-                styled.none("]");
+                styled.placeholder(" [");
+                styled.placeholder(placeholder);
+                styled.placeholder("]");
             }
         }
         styled.trim();
@@ -162,7 +163,7 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::create_smart_usage");
         let mut styled = StyledStr::new();
 
-        styled.none(
+        styled.literal(
             self.cmd
                 .get_usage_name()
                 .or_else(|| self.cmd.get_bin_name())
@@ -172,13 +173,13 @@ impl<'cmd> Usage<'cmd> {
         self.write_required_usage_from(used, None, true, &mut styled);
 
         if self.cmd.is_subcommand_required_set() {
-            styled.none(" <");
-            styled.none(
+            styled.placeholder(" <");
+            styled.placeholder(
                 self.cmd
                     .get_subcommand_value_name()
                     .unwrap_or(DEFAULT_SUB_VALUE_NAME),
             );
-            styled.none(">");
+            styled.placeholder(">");
         }
         styled
     }
