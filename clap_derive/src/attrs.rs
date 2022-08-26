@@ -24,8 +24,8 @@ use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::{
-    self, ext::IdentExt, spanned::Spanned, Attribute, Expr, Field, Ident, LitStr, MetaNameValue,
-    Type, Variant,
+    self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, MetaNameValue, Type,
+    Variant,
 };
 
 /// Default casing style for generated arguments.
@@ -44,7 +44,7 @@ pub struct Attrs {
     methods: Vec<Method>,
     value_parser: Option<ValueParser>,
     action: Option<Action>,
-    verbatim_doc_comment: Option<Ident>,
+    verbatim_doc_comment: bool,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
     help_heading: Option<Method>,
@@ -389,7 +389,7 @@ impl Attrs {
             methods: vec![],
             value_parser: None,
             action: None,
-            verbatim_doc_comment: None,
+            verbatim_doc_comment: false,
             next_display_order: None,
             next_help_heading: None,
             help_heading: None,
@@ -415,73 +415,103 @@ impl Attrs {
     }
 
     fn push_attrs(&mut self, attrs: &[Attribute]) {
-        use ClapAttr::*;
-
-        let parsed = parse_clap_attributes(attrs);
+        let parsed = ClapAttr::parse_all(attrs);
         for attr in &parsed {
-            let attr = attr.clone();
-            match attr {
-                Short(ident) => {
-                    self.push_method(ident, self.name.clone().translate_char(*self.casing));
+            if let Some(AttrValue::Call(tokens)) = &attr.value {
+                // Force raw mode with method call syntax
+                self.push_method(attr.name.clone(), quote!(#(#tokens),*));
+                continue;
+            }
+
+            match &attr.magic {
+                Some(MagicAttrName::Short) if attr.value.is_none() => {
+                    self.push_method(
+                        attr.name.clone(),
+                        self.name.clone().translate_char(*self.casing),
+                    );
                 }
 
-                Long(ident) => {
-                    self.push_method(ident, self.name.clone().translate(*self.casing));
+                Some(MagicAttrName::Long) if attr.value.is_none() => {
+                    self.push_method(attr.name.clone(), self.name.clone().translate(*self.casing));
                 }
 
                 #[cfg(not(feature = "unstable-v5"))]
-                ValueParser(ident) => {
-                    use crate::attrs::ValueParser;
-                    self.value_parser = Some(ValueParser::Implicit(ident));
+                Some(MagicAttrName::ValueParser) if attr.value.is_none() => {
+                    self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
                 }
 
                 #[cfg(not(feature = "unstable-v5"))]
-                Action(ident) => {
-                    use crate::attrs::Action;
-                    self.action = Some(Action::Implicit(ident));
+                Some(MagicAttrName::Action) if attr.value.is_none() => {
+                    self.action = Some(Action::Implicit(attr.name.clone()));
                 }
 
-                Env(ident) => {
-                    self.push_method(ident, self.name.clone().translate(*self.env_casing));
+                Some(MagicAttrName::Env) if attr.value.is_none() => {
+                    self.push_method(
+                        attr.name.clone(),
+                        self.name.clone().translate(*self.env_casing),
+                    );
                 }
 
-                ValueEnum(_) => self.is_enum = true,
+                Some(MagicAttrName::ValueEnum) if attr.value.is_none() => self.is_enum = true,
 
-                FromGlobal(ident) => {
+                Some(MagicAttrName::FromGlobal) if attr.value.is_none() => {
                     let ty = Sp::call_site(Ty::Other);
-                    let kind = Sp::new(Kind::FromGlobal(ty), ident.span());
+                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
                     self.set_kind(kind);
                 }
 
-                Subcommand(ident) => {
+                Some(MagicAttrName::Subcommand) if attr.value.is_none() => {
                     let ty = Sp::call_site(Ty::Other);
-                    let kind = Sp::new(Kind::Subcommand(ty), ident.span());
+                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
                     self.set_kind(kind);
                 }
 
-                ExternalSubcommand(ident) => {
-                    let kind = Sp::new(Kind::ExternalSubcommand, ident.span());
+                Some(MagicAttrName::ExternalSubcommand) if attr.value.is_none() => {
+                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.clone().span());
                     self.set_kind(kind);
                 }
 
-                Flatten(ident) => {
-                    let kind = Sp::new(Kind::Flatten, ident.span());
+                Some(MagicAttrName::Flatten) if attr.value.is_none() => {
+                    let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
                     self.set_kind(kind);
                 }
 
-                Skip(ident, expr) => {
-                    let kind = Sp::new(Kind::Skip(expr), ident.span());
+                Some(MagicAttrName::VerbatimDocComment) if attr.value.is_none() => {
+                    self.verbatim_doc_comment = true
+                }
+
+                Some(MagicAttrName::About) if attr.value.is_none() => {
+                    if let Some(method) =
+                        Method::from_env(attr.name.clone(), "CARGO_PKG_DESCRIPTION")
+                    {
+                        self.methods.push(method);
+                    }
+                }
+
+                Some(MagicAttrName::Author) if attr.value.is_none() => {
+                    if let Some(method) = Method::from_env(attr.name.clone(), "CARGO_PKG_AUTHORS") {
+                        self.methods.push(method);
+                    }
+                }
+
+                Some(MagicAttrName::Version) if attr.value.is_none() => {
+                    if let Some(method) = Method::from_env(attr.name.clone(), "CARGO_PKG_VERSION") {
+                        self.methods.push(method);
+                    }
+                }
+
+                Some(MagicAttrName::Skip) => {
+                    let expr = attr.value.clone();
+                    let kind = Sp::new(Kind::Skip(expr), attr.name.clone().span());
                     self.set_kind(kind);
                 }
 
-                VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
-
-                DefaultValueT(ident, expr) => {
+                Some(MagicAttrName::DefaultValueT) => {
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
                         abort!(
-                            ident,
+                            attr.name.clone(),
                             "#[clap(default_value_t)] (without an argument) can be used \
                             only on field level";
 
@@ -489,21 +519,24 @@ impl Attrs {
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
                     };
 
-                    let val = if let Some(expr) = expr {
+                    let val = if let Some(expr) = &attr.value {
                         quote!(#expr)
                     } else {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
-                        quote_spanned!(ident.span()=> {
+                    let val = if parsed
+                        .iter()
+                        .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
+                    {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 let val: #ty = #val;
                                 clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             }
                         })
                     } else {
-                        quote_spanned!(ident.span()=> {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 let val: #ty = #val;
                                 ::std::string::ToString::to_string(&val)
@@ -511,27 +544,28 @@ impl Attrs {
                         })
                     };
 
-                    let raw_ident = Ident::new("default_value", ident.span());
+                    let raw_ident = Ident::new("default_value", attr.name.clone().span());
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
-                DefaultValuesT(ident, expr) => {
+                Some(MagicAttrName::DefaultValuesT) => {
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
                         abort!(
-                            ident,
+                            attr.name.clone(),
                             "#[clap(default_values_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
                     };
+                    let expr = attr.value_or_abort();
 
                     let container_type = Ty::from_syn_ty(ty);
                     if *container_type != Ty::Vec {
                         abort!(
-                            ident,
+                            attr.name.clone(),
                             "#[clap(default_values_t)] can be used only on Vec types";
 
                             note = "see \
@@ -541,8 +575,11 @@ impl Attrs {
 
                     // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
                     // `Vec<#inner_type>`.
-                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
-                        quote_spanned!(ident.span()=> {
+                    let val = if parsed
+                        .iter()
+                        .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
+                    {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
                                 where
@@ -559,7 +596,7 @@ impl Attrs {
                             }
                         })
                     } else {
-                        quote_spanned!(ident.span()=> {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<String>
                                 where
@@ -574,16 +611,18 @@ impl Attrs {
                         })
                     };
 
-                    self.methods
-                        .push(Method::new(Ident::new("default_values", ident.span()), val));
+                    self.methods.push(Method::new(
+                        Ident::new("default_values", attr.name.clone().span()),
+                        val,
+                    ));
                 }
 
-                DefaultValueOsT(ident, expr) => {
+                Some(MagicAttrName::DefaultValueOsT) => {
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
                         abort!(
-                            ident,
+                            attr.name.clone(),
                             "#[clap(default_value_os_t)] (without an argument) can be used \
                             only on field level";
 
@@ -591,21 +630,24 @@ impl Attrs {
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
                     };
 
-                    let val = if let Some(expr) = expr {
+                    let val = if let Some(expr) = &attr.value {
                         quote!(#expr)
                     } else {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
-                        quote_spanned!(ident.span()=> {
+                    let val = if parsed
+                        .iter()
+                        .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
+                    {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 let val: #ty = #val;
                                 clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             }
                         })
                     } else {
-                        quote_spanned!(ident.span()=> {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 let val: #ty = #val;
                                 ::std::ffi::OsString::from(val)
@@ -613,27 +655,28 @@ impl Attrs {
                         })
                     };
 
-                    let raw_ident = Ident::new("default_value_os", ident.span());
+                    let raw_ident = Ident::new("default_value_os", attr.name.clone().span());
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
-                DefaultValuesOsT(ident, expr) => {
+                Some(MagicAttrName::DefaultValuesOsT) => {
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
                         abort!(
-                            ident,
+                            attr.name.clone(),
                             "#[clap(default_values_os_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
                     };
+                    let expr = attr.value_or_abort();
 
                     let container_type = Ty::from_syn_ty(ty);
                     if *container_type != Ty::Vec {
                         abort!(
-                            ident,
+                            attr.name.clone(),
                             "#[clap(default_values_os_t)] can be used only on Vec types";
 
                             note = "see \
@@ -643,8 +686,11 @@ impl Attrs {
 
                     // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
                     // `Vec<#inner_type>`.
-                    let val = if parsed.iter().any(|a| matches!(a, ValueEnum(_))) {
-                        quote_spanned!(ident.span()=> {
+                    let val = if parsed
+                        .iter()
+                        .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
+                    {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
                                 where
@@ -661,7 +707,7 @@ impl Attrs {
                             }
                         })
                     } else {
-                        quote_spanned!(ident.span()=> {
+                        quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> Vec<::std::ffi::OsString>
                                 where
@@ -677,56 +723,64 @@ impl Attrs {
                     };
 
                     self.methods.push(Method::new(
-                        Ident::new("default_values_os", ident.span()),
+                        Ident::new("default_values_os", attr.name.clone().span()),
                         val,
                     ));
                 }
 
-                NextDisplayOrder(ident, expr) => {
-                    self.next_display_order = Some(Method::new(ident, quote!(#expr)));
+                Some(MagicAttrName::NextDisplayOrder) => {
+                    let expr = attr.value_or_abort();
+                    self.next_display_order = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
 
-                HelpHeading(ident, expr) => {
-                    self.help_heading = Some(Method::new(ident, quote!(#expr)));
+                Some(MagicAttrName::HelpHeading) => {
+                    let expr = attr.value_or_abort();
+                    self.help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
-                NextHelpHeading(ident, expr) => {
-                    self.next_help_heading = Some(Method::new(ident, quote!(#expr)));
-                }
-
-                About(ident) => {
-                    if let Some(method) = Method::from_env(ident, "CARGO_PKG_DESCRIPTION") {
-                        self.methods.push(method);
-                    }
+                Some(MagicAttrName::NextHelpHeading) => {
+                    let expr = attr.value_or_abort();
+                    self.next_help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
 
-                Author(ident) => {
-                    if let Some(method) = Method::from_env(ident, "CARGO_PKG_AUTHORS") {
-                        self.methods.push(method);
-                    }
+                Some(MagicAttrName::RenameAll) => {
+                    let lit = attr.lit_str_or_abort();
+                    self.casing = CasingStyle::from_lit(lit);
                 }
 
-                Version(ident) => {
-                    if let Some(method) = Method::from_env(ident, "CARGO_PKG_VERSION") {
-                        self.methods.push(method);
-                    }
+                Some(MagicAttrName::RenameAllEnv) => {
+                    let lit = attr.lit_str_or_abort();
+                    self.env_casing = CasingStyle::from_lit(lit);
                 }
 
-                NameLitStr(name, lit) => {
-                    self.push_method(name, lit);
+                None
+                // Magic only for the default, otherwise just forward to the builder
+                | Some(MagicAttrName::Short)
+                | Some(MagicAttrName::Long)
+                | Some(MagicAttrName::Env)
+                | Some(MagicAttrName::About)
+                | Some(MagicAttrName::Author)
+                | Some(MagicAttrName::Version)
+                 => {
+                    let expr = attr.value_or_abort();
+                    self.push_method(attr.name.clone(), expr);
                 }
 
-                NameExpr(name, expr) => {
-                    self.push_method(name, expr);
+                // Magic only for the default, otherwise just forward to the builder
+                #[cfg(not(feature = "unstable-v5"))]
+                Some(MagicAttrName::ValueParser) | Some(MagicAttrName::Action) => {
+                    let expr = attr.value_or_abort();
+                    self.push_method(attr.name.clone(), expr);
                 }
 
-                MethodCall(name, args) => self.push_method(name, quote!(#(#args),*)),
-
-                RenameAll(_, casing_lit) => {
-                    self.casing = CasingStyle::from_lit(casing_lit);
-                }
-
-                RenameAllEnv(_, casing_lit) => {
-                    self.env_casing = CasingStyle::from_lit(casing_lit);
+                // Directives that never receive a value
+                Some(MagicAttrName::ValueEnum)
+                | Some(MagicAttrName::FromGlobal)
+                | Some(MagicAttrName::Subcommand)
+                | Some(MagicAttrName::ExternalSubcommand)
+                | Some(MagicAttrName::Flatten)
+                | Some(MagicAttrName::VerbatimDocComment) => {
+                    let expr = attr.value_or_abort();
+                    abort!(expr, "attribute `{}` does not accept a value", attr.name);
                 }
             }
         }
@@ -750,8 +804,7 @@ impl Attrs {
             })
             .collect();
 
-        self.doc_comment =
-            process_doc_comment(comment_parts, name, self.verbatim_doc_comment.is_none());
+        self.doc_comment = process_doc_comment(comment_parts, name, !self.verbatim_doc_comment);
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
@@ -994,7 +1047,7 @@ pub enum Kind {
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
-    Skip(Option<Expr>),
+    Skip(Option<AttrValue>),
     ExternalSubcommand,
 }
 
@@ -1096,7 +1149,7 @@ pub enum CasingStyle {
 }
 
 impl CasingStyle {
-    fn from_lit(name: LitStr) -> Sp<Self> {
+    fn from_lit(name: &LitStr) -> Sp<Self> {
         use self::CasingStyle::*;
 
         let normalized = name.value().to_upper_camel_case().to_lowercase();
