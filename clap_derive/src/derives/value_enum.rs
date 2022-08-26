@@ -84,7 +84,7 @@ fn lits(
                 None
             } else {
                 if !matches!(variant.fields, Fields::Unit) {
-                    abort!(variant.span(), "`#[derive(ValueEnum)]` only supports non-unit variants, unless they are skipped");
+                    abort!(variant.span(), "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped");
                 }
                 let fields = attrs.field_methods(false);
                 let name = attrs.cased_name();
