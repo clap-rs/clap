@@ -85,6 +85,7 @@ MSRV is now 1.60.0
 - *(help)* Show when a flag is `ArgAction::Count` by adding an `...`
 - *(help)* Use a more neutral palette for coloring
 - *(help)* Don't rely on ALL CAPS for help headers
+- *(help)* List subcommands first, focusing the emphasis on them
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)

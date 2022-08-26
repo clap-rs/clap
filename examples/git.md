@@ -10,15 +10,15 @@ A fictional versioning CLI
 Usage:
     git[EXE] <SUBCOMMAND>
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
     stash    
     help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help    Print help information
 
 $ git help
 git 
@@ -27,15 +27,15 @@ A fictional versioning CLI
 Usage:
     git[EXE] <SUBCOMMAND>
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
     stash    
     help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help    Print help information
 
 $ git help add
 git-add 
@@ -82,15 +82,15 @@ Usage:
     git[EXE] stash [OPTIONS]
     git[EXE] stash <SUBCOMMAND>
 
-Options:
-    -m, --message <MESSAGE>    
-    -h, --help                 Print help information
-
 Subcommands:
     push     
     pop      
     apply    
     help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 $ git stash push -h
 git-stash-push 

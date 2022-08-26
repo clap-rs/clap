@@ -11,12 +11,12 @@ cargo
 Usage:
     cargo <SUBCOMMAND>
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     example-derive    A simple to use, efficient, and full-featured Command Line Argument Parser
     help              Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help    Print help information
 
 $ cargo-example-derive example-derive --help
 cargo-example-derive [..]

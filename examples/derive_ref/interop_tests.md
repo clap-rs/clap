@@ -106,14 +106,14 @@ clap
 Usage:
     interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
 
-Options:
-    -t, --top-level    
-    -h, --help         Print help information
-
 Subcommands:
     add       
     remove    
     help      Print this message or the help of the given subcommand(s)
+
+Options:
+    -t, --top-level    
+    -h, --help         Print help information
 
 ```
 
