@@ -3,14 +3,14 @@ $ 03_04_subcommands_derive help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_04_subcommands_derive[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     add     Adds files to myapp
     help    Print this message or the help of the given subcommand(s)
 
@@ -18,13 +18,13 @@ $ 03_04_subcommands_derive help add
 clap-add [..]
 Adds files to myapp
 
-USAGE:
+Usage:
     03_04_subcommands_derive[EXE] add [NAME]
 
-ARGS:
+Arguments:
     <NAME>    
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -40,14 +40,14 @@ $ 03_04_subcommands_derive
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_04_subcommands_derive[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     add     Adds files to myapp
     help    Print this message or the help of the given subcommand(s)
 

@@ -5,10 +5,10 @@ Help:
 $ typed-derive --help
 clap 
 
-USAGE:
+Usage:
     typed-derive[EXE] [OPTIONS]
 
-OPTIONS:
+Options:
     -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
     -I <DIR>                 Allow invalid UTF-8 paths
         --bind <BIND>        Handle IP addresses

@@ -3,10 +3,10 @@ $ 03_01_flag_bool_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_01_flag_bool_derive[EXE] [OPTIONS]
 
-OPTIONS:
+Options:
     -v, --verbose    
     -h, --help       Print help information
     -V, --version    Print version information

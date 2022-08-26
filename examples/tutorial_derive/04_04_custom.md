@@ -3,13 +3,13 @@ $ 04_04_custom_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     04_04_custom_derive[EXE] [OPTIONS] [INPUT_FILE]
 
-ARGS:
+Arguments:
     <INPUT_FILE>    some regular input
 
-OPTIONS:
+Options:
         --set-ver <VER>        set version manually
         --major                auto inc major
         --minor                auto inc minor
@@ -23,7 +23,7 @@ $ 04_04_custom_derive
 ? failed
 error: Can only modify one version field
 
-USAGE:
+Usage:
     clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
@@ -35,7 +35,7 @@ $ 04_04_custom_derive --major --minor
 ? failed
 error: Can only modify one version field
 
-USAGE:
+Usage:
     clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
@@ -45,7 +45,7 @@ $ 04_04_custom_derive --major -c config.toml
 Version: 2.2.3
 error: INPUT_FILE or --spec-in is required when using --config
 
-USAGE:
+Usage:
     clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help

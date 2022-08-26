@@ -3,10 +3,10 @@ $ 03_02_option_mult_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_02_option_mult_derive[EXE] [OPTIONS]
 
-OPTIONS:
+Options:
     -n, --name <NAME>    
     -h, --help           Print help information
     -V, --version        Print version information

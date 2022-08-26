@@ -6,7 +6,7 @@ use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
 
-USAGE:
+Usage:
     clap-test --opt=<FILE>
 
 For more information try --help
@@ -15,7 +15,7 @@ For more information try --help
 static REQUIRE_EQUALS_FILTERED: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
 
-USAGE:
+Usage:
     clap-test --opt=<FILE> --foo=<FILE>
 
 For more information try --help
@@ -25,7 +25,7 @@ static REQUIRE_EQUALS_FILTERED_GROUP: &str =
     "error: The following required arguments were not provided:
     --opt=<FILE>
 
-USAGE:
+Usage:
     clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
 
 For more information try --help
@@ -35,7 +35,7 @@ static MISSING_REQ: &str = "error: The following required arguments were not pro
     --long-option-2 <option2>
     <positional2>
 
-USAGE:
+Usage:
     clap-test --long-option-2 <option2> -F <positional2>
 
 For more information try --help
@@ -44,7 +44,7 @@ For more information try --help
 static COND_REQ_IN_USAGE: &str = "error: The following required arguments were not provided:
     --output <output>
 
-USAGE:
+Usage:
     test --target <target> --input <input> --output <output>
 
 For more information try --help
@@ -140,7 +140,7 @@ static POSITIONAL_REQ: &str = "error: The following required arguments were not 
     <flag>
     <opt>
 
-USAGE:
+Usage:
     clap-test <flag> <opt> [ARGS]
 
 For more information try --help
@@ -159,7 +159,7 @@ fn positional_required_with_requires_if_no_value() {
 static POSITIONAL_REQ_IF_NO_VAL: &str = "error: The following required arguments were not provided:
     <flag>
 
-USAGE:
+Usage:
     clap-test <flag> [ARGS]
 
 For more information try --help
@@ -180,7 +180,7 @@ static POSITIONAL_REQ_IF_VAL: &str = "error: The following required arguments we
     <foo>
     <opt>
 
-USAGE:
+Usage:
     clap-test <flag> <foo> <opt>
 
 For more information try --help
@@ -1030,7 +1030,7 @@ static ISSUE_1158: &str = "error: The following required arguments were not prov
     -y <Y>
     -z <Z>
 
-USAGE:
+Usage:
     example -x <X> -y <Y> -z <Z> <ID>
 
 For more information try --help
@@ -1066,7 +1066,7 @@ fn multiple_required_unless_usage_printing() {
     --a <a>
     --b <b>
 
-USAGE:
+Usage:
     test --c <c> --a <a> --b <b>
 
 For more information try --help
@@ -1434,7 +1434,7 @@ fn required_error_doesnt_duplicate() {
     const EXPECTED: &str = "\
 error: The argument '-b <b>' cannot be used with '-c <c>'
 
-USAGE:
+Usage:
     clap-test -b <b> <a>
 
 For more information try --help
@@ -1457,7 +1457,7 @@ fn required_require_with_group_shows_flag() {
 error: The following required arguments were not provided:
     --first
 
-USAGE:
+Usage:
     test --require-first <--first|--second>
 
 For more information try --help

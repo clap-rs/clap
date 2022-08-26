@@ -160,10 +160,10 @@ fn invisible_short_arg_aliases_help_output() {
     static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
 
-USAGE:
+Usage:
     ct test [OPTIONS]
 
-OPTIONS:
+Options:
     -o, --opt <opt>    
     -f, --flag         
     -h, --help         Print help information
@@ -191,10 +191,10 @@ fn visible_short_arg_aliases_help_output() {
     static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
 
-USAGE:
+Usage:
     ct test [OPTIONS]
 
-OPTIONS:
+Options:
     -o, --opt <opt>    [short aliases: v]
     -f, --flag         [aliases: flag1] [short aliases: a, b, 🦆]
     -h, --help         Print help information

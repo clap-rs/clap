@@ -431,10 +431,10 @@ fn optional_value() {
     const HELP: &str = "\
 test 
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -p [<NUM>]        
     -h, --help        Print help information
 ";

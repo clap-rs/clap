@@ -4,10 +4,10 @@ status.code = 0
 stdout = """
 stdio-fixture 1.0
 
-USAGE:
+Usage:
     stdio-fixture[EXE] [OPTIONS] [SUBCOMMAND]
 
-OPTIONS:
+Options:
         --verbose
             more log
 
@@ -17,7 +17,7 @@ OPTIONS:
     -V, --version
             Print version information
 
-SUBCOMMANDS:
+Subcommands:
     more
             
     help

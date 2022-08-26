@@ -2,10 +2,10 @@ use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
 static HELP: &str = "prog 
 
-USAGE:
+Usage:
     prog [OPTIONS]
 
-OPTIONS:
+Options:
     -a            
     -b            
     -c            
@@ -15,7 +15,7 @@ OPTIONS:
 static ONLY_B_ERROR: &str = "error: The following required arguments were not provided:
     -c
 
-USAGE:
+Usage:
     prog -b -c
 
 For more information try --help
@@ -24,7 +24,7 @@ For more information try --help
 static ONLY_C_ERROR: &str = "error: The following required arguments were not provided:
     -b
 
-USAGE:
+Usage:
     prog -c -b
 
 For more information try --help

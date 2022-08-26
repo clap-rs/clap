@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
+- *(help)* Help headings are now title cased, making any user-provided help headings inconsistent
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
 - *(derive)* Changed the default for arguments from `parse` to `value_parser`., removing `parse` support
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` (#3280)
@@ -83,6 +84,7 @@ MSRV is now 1.60.0
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(help)* Show when a flag is `ArgAction::Count` by adding an `...`
 - *(help)* Use a more neutral palette for coloring
+- *(help)* Don't rely on ALL CAPS for help headers
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)

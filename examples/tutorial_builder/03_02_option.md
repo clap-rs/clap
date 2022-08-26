@@ -3,10 +3,10 @@ $ 03_02_option --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_02_option[EXE] [OPTIONS]
 
-OPTIONS:
+Options:
     -n, --name <name>    
     -h, --help           Print help information
     -V, --version        Print version information

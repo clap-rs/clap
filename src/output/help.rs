@@ -155,7 +155,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                         self.write_about(true, true);
                     }
                     "usage-heading" => {
-                        self.header("USAGE:");
+                        self.header("Usage:");
                     }
                     "usage" => {
                         self.writer
@@ -340,8 +340,8 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
         let mut first = if !pos.is_empty() {
             // Write positional args if any
-            self.header("ARGS:\n");
-            self.write_args(&pos, "ARGS", positional_sort_key);
+            self.header("Arguments:\n");
+            self.write_args(&pos, "Arguments", positional_sort_key);
             false
         } else {
             true
@@ -351,8 +351,8 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             if !first {
                 self.none("\n\n");
             }
-            self.header("OPTIONS:\n");
-            self.write_args(&non_pos, "OPTIONS", option_sort_key);
+            self.header("Options:\n");
+            self.write_args(&non_pos, "Options", option_sort_key);
             first = false;
         }
         if !custom_headings.is_empty() {
@@ -385,7 +385,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 self.none("\n\n");
             }
 
-            let default_help_heading = Str::from("SUBCOMMANDS");
+            let default_help_heading = Str::from("Subcommands");
             self.header(
                 self.cmd
                     .get_subcommand_help_heading()

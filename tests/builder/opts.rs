@@ -10,7 +10,7 @@ static DYM: &str =
 
 \tIf you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
 
-USAGE:
+Usage:
     clap-test --option <opt>...
 
 For more information try --help
@@ -24,7 +24,7 @@ static DYM_ISSUE_1073: &str =
 
 \tIf you tried to supply `--files-without-matches` as a value rather than a flag, use `-- --files-without-matches`
 
-USAGE:
+Usage:
     ripgrep-616 --files-without-match
 
 For more information try --help
@@ -50,7 +50,7 @@ fn require_equals_fail_message() {
     static NO_EQUALS: &str =
         "error: Equal sign is needed when assigning values to '--config=<cfg>'.
 
-USAGE:
+Usage:
     prog [OPTIONS]
 
 For more information try --help

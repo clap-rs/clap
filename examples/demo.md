@@ -3,10 +3,10 @@ $ demo --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     demo[EXE] [OPTIONS] --name <NAME>
 
-OPTIONS:
+Options:
     -n, --name <NAME>      Name of the person to greet
     -c, --count <COUNT>    Number of times to greet [default: 1]
     -h, --help             Print help information

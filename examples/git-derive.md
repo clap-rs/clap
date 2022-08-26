@@ -9,13 +9,13 @@ $ git-derive
 git 
 A fictional versioning CLI
 
-USAGE:
+Usage:
     git-derive[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -26,13 +26,13 @@ $ git-derive help
 git 
 A fictional versioning CLI
 
-USAGE:
+Usage:
     git-derive[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -43,13 +43,13 @@ $ git-derive help add
 git-add 
 adds things
 
-USAGE:
+Usage:
     git-derive[EXE] add <PATH>...
 
-ARGS:
+Arguments:
     <PATH>...    Stuff to add
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
 ```
@@ -61,13 +61,13 @@ $ git-derive add
 git-add 
 adds things
 
-USAGE:
+Usage:
     git-derive[EXE] add <PATH>...
 
-ARGS:
+Arguments:
     <PATH>...    Stuff to add
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
 $ git-derive add Cargo.toml Cargo.lock
@@ -80,15 +80,15 @@ Default subcommand:
 $ git-derive stash -h
 git-stash 
 
-USAGE:
+Usage:
     git-derive[EXE] stash [OPTIONS]
     git-derive[EXE] stash <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -m, --message <MESSAGE>    
     -h, --help                 Print help information
 
-SUBCOMMANDS:
+Subcommands:
     push     
     pop      
     apply    
@@ -97,23 +97,23 @@ SUBCOMMANDS:
 $ git-derive stash push -h
 git-stash-push 
 
-USAGE:
+Usage:
     git-derive[EXE] stash push [OPTIONS]
 
-OPTIONS:
+Options:
     -m, --message <MESSAGE>    
     -h, --help                 Print help information
 
 $ git-derive stash pop -h
 git-stash-pop 
 
-USAGE:
+Usage:
     git-derive[EXE] stash pop [STASH]
 
-ARGS:
+Arguments:
     <STASH>    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
 $ git-derive stash -m "Prototype"

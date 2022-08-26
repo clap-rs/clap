@@ -4,10 +4,10 @@ MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
-USAGE:
+Usage:
     02_apps[EXE] --two <VALUE> --one <VALUE>
 
-OPTIONS:
+Options:
         --two <VALUE>    
         --one <VALUE>    
     -h, --help           Print help information

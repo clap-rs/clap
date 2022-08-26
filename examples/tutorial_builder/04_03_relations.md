@@ -3,13 +3,13 @@ $ 04_03_relations --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     04_03_relations[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
-ARGS:
+Arguments:
     <INPUT_FILE>    some regular input
 
-OPTIONS:
+Options:
         --set-ver <VER>        set version manually
         --major                auto inc major
         --minor                auto inc minor
@@ -24,7 +24,7 @@ $ 04_03_relations
 error: The following required arguments were not provided:
     <--set-ver <VER>|--major|--minor|--patch>
 
-USAGE:
+Usage:
     04_03_relations[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
 For more information try --help
@@ -36,7 +36,7 @@ $ 04_03_relations --major --minor
 ? failed
 error: The argument '--major' cannot be used with '--minor'
 
-USAGE:
+Usage:
     04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch>
 
 For more information try --help
@@ -46,7 +46,7 @@ $ 04_03_relations --major -c config.toml
 error: The following required arguments were not provided:
     <INPUT_FILE|--spec-in <SPEC_IN>>
 
-USAGE:
+Usage:
     04_03_relations[EXE] -c <CONFIG> <--set-ver <VER>|--major|--minor|--patch> <INPUT_FILE|--spec-in <SPEC_IN>>
 
 For more information try --help

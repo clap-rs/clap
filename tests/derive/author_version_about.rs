@@ -23,7 +23,7 @@ fn no_author_version_about() {
     struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
-    assert!(output.starts_with("foo \n\nUSAGE:"));
+    assert!(output.starts_with("foo \n\nUsage:"));
 }
 
 #[test]

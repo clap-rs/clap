@@ -8,10 +8,10 @@ use super::utils;
 
 static HIDE_ENV: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
     -h, --help           Print help information
     -V, --version        Print version information
@@ -19,10 +19,10 @@ OPTIONS:
 
 static SHOW_ENV: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -h, --help           Print help information
     -V, --version        Print version information
@@ -30,10 +30,10 @@ OPTIONS:
 
 static HIDE_ENV_VALS: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
     -h, --help           Print help information
     -V, --version        Print version information
@@ -41,10 +41,10 @@ OPTIONS:
 
 static SHOW_ENV_VALS: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -h, --help           Print help information
     -V, --version        Print version information
@@ -52,10 +52,10 @@ OPTIONS:
 
 static HIDE_ENV_FLAG: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe       A coffeehouse, coffee shop, or café.
     -h, --help       Print help information
     -V, --version    Print version information
@@ -63,10 +63,10 @@ OPTIONS:
 
 static SHOW_ENV_FLAG: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -h, --help       Print help information
     -V, --version    Print version information
@@ -74,10 +74,10 @@ OPTIONS:
 
 static HIDE_ENV_VALS_FLAG: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR]
     -h, --help       Print help information
     -V, --version    Print version information
@@ -85,10 +85,10 @@ OPTIONS:
 
 static SHOW_ENV_VALS_FLAG: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -h, --help       Print help information
     -V, --version    Print version information

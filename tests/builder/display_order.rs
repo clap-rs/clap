@@ -11,13 +11,13 @@ fn very_large_display_order() {
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test [SUBCOMMAND]
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     help    Print this message or the help of the given subcommand(s)
     sub     
 ",

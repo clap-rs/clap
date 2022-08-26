@@ -8,13 +8,13 @@ The help looks like:
 $ cargo-example-derive --help
 cargo 
 
-USAGE:
+Usage:
     cargo <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     example-derive    A simple to use, efficient, and full-featured Command Line Argument Parser
     help              Print this message or the help of the given subcommand(s)
 
@@ -22,10 +22,10 @@ $ cargo-example-derive example-derive --help
 cargo-example-derive [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     cargo example-derive [OPTIONS]
 
-OPTIONS:
+Options:
         --manifest-path <MANIFEST_PATH>    
     -h, --help                             Print help information
     -V, --version                          Print version information

@@ -8,13 +8,13 @@ The help looks like:
 $ cargo-example --help
 cargo 
 
-USAGE:
+Usage:
     cargo <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     example    A simple to use, efficient, and full-featured Command Line Argument Parser
     help       Print this message or the help of the given subcommand(s)
 
@@ -22,10 +22,10 @@ $ cargo-example example --help
 cargo-example [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     cargo example [OPTIONS]
 
-OPTIONS:
+Options:
         --manifest-path <PATH>    
     -h, --help                    Print help information
     -V, --version                 Print version information

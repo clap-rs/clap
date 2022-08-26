@@ -6,25 +6,25 @@ use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
-USAGE:
+Usage:
     clap-test [SUBCOMMAND]
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
 
 static DONT_COLLAPSE_ARGS: &str = "clap-test v1.4.8
 
-USAGE:
+Usage:
     clap-test [arg1] [arg2] [arg3]
 
-ARGS:
+Arguments:
     <arg1>    some
     <arg2>    some
     <arg3>    some
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -127,10 +127,10 @@ fn arg_required_else_help_with_default() {
 fn arg_required_else_help_error_message() {
     static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -i, --info       Provides more info
     -h, --help       Print help information
     -V, --version    Print version information
@@ -288,13 +288,13 @@ fn skip_possible_values() {
 Kevin K.
 tests stuff
 
-USAGE:
+Usage:
     test [OPTIONS] [arg1]
 
-ARGS:
+Arguments:
     <arg1>    some pos arg
 
-OPTIONS:
+Options:
     -o, --opt <opt>    some option
     -h, --help         Print help information
     -V, --version      Print version information
@@ -567,10 +567,10 @@ fn dont_collapse_args() {
 fn require_eq() {
     static REQUIRE_EQUALS: &str = "clap-test v1.4.8
 
-USAGE:
+Usage:
     clap-test --opt=<FILE>
 
-OPTIONS:
+Options:
     -o, --opt=<FILE>    some
     -h, --help          Print help information
     -V, --version       Print version information

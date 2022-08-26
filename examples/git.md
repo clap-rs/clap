@@ -7,13 +7,13 @@ $ git
 git 
 A fictional versioning CLI
 
-USAGE:
+Usage:
     git[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -24,13 +24,13 @@ $ git help
 git 
 A fictional versioning CLI
 
-USAGE:
+Usage:
     git[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -41,13 +41,13 @@ $ git help add
 git-add 
 adds things
 
-USAGE:
+Usage:
     git[EXE] add <PATH>...
 
-ARGS:
+Arguments:
     <PATH>...    Stuff to add
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
 ```
@@ -59,13 +59,13 @@ $ git add
 git-add 
 adds things
 
-USAGE:
+Usage:
     git[EXE] add <PATH>...
 
-ARGS:
+Arguments:
     <PATH>...    Stuff to add
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
 $ git add Cargo.toml Cargo.lock
@@ -78,15 +78,15 @@ Default subcommand:
 $ git stash -h
 git-stash 
 
-USAGE:
+Usage:
     git[EXE] stash [OPTIONS]
     git[EXE] stash <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -m, --message <MESSAGE>    
     -h, --help                 Print help information
 
-SUBCOMMANDS:
+Subcommands:
     push     
     pop      
     apply    
@@ -95,23 +95,23 @@ SUBCOMMANDS:
 $ git stash push -h
 git-stash-push 
 
-USAGE:
+Usage:
     git[EXE] stash push [OPTIONS]
 
-OPTIONS:
+Options:
     -m, --message <MESSAGE>    
     -h, --help                 Print help information
 
 $ git stash pop -h
 git-stash-pop 
 
-USAGE:
+Usage:
     git[EXE] stash pop [STASH]
 
-ARGS:
+Arguments:
     <STASH>    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
 $ git stash -m "Prototype"

@@ -8,10 +8,10 @@ use clap::{Arg, ArgAction, Command};
 fn no_derive_order() {
     static NO_DERIVE_ORDER: &str = "test 1.2
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
         --flag_a                 second flag
         --flag_b                 first flag
     -h, --help                   Print help information
@@ -49,10 +49,10 @@ OPTIONS:
 fn derive_order() {
     static UNIFIED_HELP_AND_DERIVE: &str = "test 1.2
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
         --flag_b                 first flag
         --option_b <option_b>    first option
         --flag_a                 second flag
@@ -87,10 +87,10 @@ OPTIONS:
 fn derive_order_next_order() {
     static HELP: &str = "test 1.2
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
         --flag_b                 first flag
         --option_b <option_b>    first option
     -h, --help                   Print help information
@@ -135,10 +135,10 @@ OPTIONS:
 fn derive_order_no_next_order() {
     static HELP: &str = "test 1.2
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
         --flag_a                 first flag
         --flag_b                 second flag
     -h, --help                   Print help information
@@ -182,10 +182,10 @@ OPTIONS:
 fn derive_order_subcommand_propagate() {
     static UNIFIED_DERIVE_SC_PROP: &str = "test-sub 1.2
 
-USAGE:
+Usage:
     test sub [OPTIONS]
 
-OPTIONS:
+Options:
         --flag_b                 first flag
         --option_b <option_b>    first option
         --flag_a                 second flag
@@ -222,10 +222,10 @@ OPTIONS:
 fn derive_order_subcommand_propagate_with_explicit_display_order() {
     static UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER: &str = "test-sub 1.2
 
-USAGE:
+Usage:
     test sub [OPTIONS]
 
-OPTIONS:
+Options:
         --flag_a                 second flag
         --flag_b                 first flag
         --option_b <option_b>    first option
@@ -268,14 +268,14 @@ OPTIONS:
 fn subcommand_sorted_display_order() {
     static SUBCMD_ALPHA_ORDER: &str = "test 1
 
-USAGE:
+Usage:
     test [SUBCOMMAND]
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     a1      blah a1
     b1      blah b1
     help    Print this message or the help of the given subcommand(s)
@@ -305,14 +305,14 @@ SUBCOMMANDS:
 fn subcommand_derived_display_order() {
     static SUBCMD_DECL_ORDER: &str = "test 1
 
-USAGE:
+Usage:
     test [SUBCOMMAND]
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     b1      blah b1
     a1      blah a1
     help    Print this message or the help of the given subcommand(s)

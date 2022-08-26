@@ -6,7 +6,7 @@ static EXAMPLE1_TMPL_S: &str = "{bin} {version}
 {author}
 {about}
 
-USAGE:
+Usage:
     {usage}
 
 {all-args}";
@@ -15,31 +15,31 @@ static EXAMPLE1_TMPS_F: &str = "{bin} {version}
 {author}
 {about}
 
-USAGE:
+Usage:
     {usage}
 
-OPTIONS:
+Options:
 {options}
-ARGS:
+Arguments:
 {positionals}
-SUBCOMMANDS:
+Subcommands:
 {subcommands}";
 
 static CUSTOM_TEMPL_HELP: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
-USAGE:
+Usage:
     MyApp [OPTIONS] <output> [SUBCOMMAND]
 
-OPTIONS:
+Options:
     -c, --config <FILE>    Sets a custom config file
     -d...                  Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
-ARGS:
+Arguments:
     <output>    Sets an optional output file
-SUBCOMMANDS:
+Subcommands:
     test    does testing things
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -48,19 +48,19 @@ static SIMPLE_TEMPLATE: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
-USAGE:
+Usage:
     MyApp [OPTIONS] <output> [SUBCOMMAND]
 
-ARGS:
+Arguments:
     <output>    Sets an optional output file
 
-OPTIONS:
+Options:
     -c, --config <FILE>    Sets a custom config file
     -d...                  Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
 
-SUBCOMMANDS:
+Subcommands:
     test    does testing things
     help    Print this message or the help of the given subcommand(s)
 ";

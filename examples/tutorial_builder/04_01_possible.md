@@ -3,13 +3,13 @@ $ 04_01_possible --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     04_01_possible[EXE] <MODE>
 
-ARGS:
+Arguments:
     <MODE>    What mode to run the program in [possible values: fast, slow]
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 

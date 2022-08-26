@@ -7,10 +7,10 @@ use clap::{
 static DESCRIPTION_ONLY: &str = "prog 1
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     prog
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -18,10 +18,10 @@ OPTIONS:
 static AUTHORS_ONLY: &str = "prog 1
 
 
-USAGE:
+Usage:
     prog
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";

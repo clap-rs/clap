@@ -25,7 +25,7 @@ fn assert_error<F: clap::error::ErrorFormatter>(
 fn app_error() {
     static MESSAGE: &str = "error: Failed for mysterious reasons
 
-USAGE:
+Usage:
     test [OPTIONS] --all
 
 For more information try --help
@@ -91,10 +91,10 @@ fn null_prints_help() {
     static MESSAGE: &str = "\
 test 
 
-USAGE:
+Usage:
     test
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ";
     assert_error(err, expected_kind, MESSAGE, false);
@@ -112,10 +112,10 @@ fn raw_prints_help() {
     static MESSAGE: &str = "\
 test 
 
-USAGE:
+Usage:
     test
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ";
     assert_error(err, expected_kind, MESSAGE, false);
@@ -144,7 +144,7 @@ fn rich_formats_validation_error() {
     static MESSAGE: &str = "\
 error: Found argument 'unused' which wasn't expected, or isn't valid in this context
 
-USAGE:
+Usage:
     test
 
 For more information try --help
@@ -165,7 +165,7 @@ fn raw_formats_validation_error() {
 error: Found an argument which wasn't expected or isn't valid in this context
 
 Invalid Argument: unused
-USAGE:
+Usage:
     test
 ";
     assert_error(err, expected_kind, MESSAGE, true);
