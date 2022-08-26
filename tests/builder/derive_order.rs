@@ -271,14 +271,14 @@ fn subcommand_sorted_display_order() {
 Usage:
     test [SUBCOMMAND]
 
-Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 Subcommands:
     a1      blah a1
     b1      blah b1
     help    Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
     let app_subcmd_alpha_order = Command::new("test")
@@ -308,14 +308,14 @@ fn subcommand_derived_display_order() {
 Usage:
     test [SUBCOMMAND]
 
-Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 Subcommands:
     b1      blah b1
     a1      blah a1
     help    Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
     let app_subcmd_decl_order = Command::new("test").version("1").subcommands(vec![

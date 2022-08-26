@@ -14,12 +14,12 @@ fn very_large_display_order() {
 Usage:
     test [SUBCOMMAND]
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     help    Print this message or the help of the given subcommand(s)
     sub     
+
+Options:
+    -h, --help    Print help information
 ",
         false,
     );

@@ -338,22 +338,41 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             .filter_map(|arg| arg.get_help_heading())
             .collect::<FlatSet<_>>();
 
-        let mut first = if !pos.is_empty() {
+        let mut first = true;
+
+        if subcmds {
+            if !first {
+                self.none("\n\n");
+            }
+            first = false;
+            let default_help_heading = Str::from("Subcommands");
+            self.header(
+                self.cmd
+                    .get_subcommand_help_heading()
+                    .unwrap_or(&default_help_heading),
+            );
+            self.header(":\n");
+
+            self.write_subcommands(self.cmd);
+        }
+
+        if !pos.is_empty() {
+            if !first {
+                self.none("\n\n");
+            }
+            first = false;
             // Write positional args if any
             self.header("Arguments:\n");
             self.write_args(&pos, "Arguments", positional_sort_key);
-            false
-        } else {
-            true
-        };
+        }
 
         if !non_pos.is_empty() {
             if !first {
                 self.none("\n\n");
             }
+            first = false;
             self.header("Options:\n");
             self.write_args(&non_pos, "Options", option_sort_key);
-            first = false;
         }
         if !custom_headings.is_empty() {
             for heading in custom_headings {
@@ -373,27 +392,11 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     if !first {
                         self.none("\n\n");
                     }
+                    first = false;
                     self.header(format!("{}:\n", heading));
                     self.write_args(&args, heading, option_sort_key);
-                    first = false
                 }
             }
-        }
-
-        if subcmds {
-            if !first {
-                self.none("\n\n");
-            }
-
-            let default_help_heading = Str::from("Subcommands");
-            self.header(
-                self.cmd
-                    .get_subcommand_help_heading()
-                    .unwrap_or(&default_help_heading),
-            );
-            self.header(":\n");
-
-            self.write_subcommands(self.cmd);
         }
     }
     /// Sorts arguments by length and display order and write their help to the wrapped stream.

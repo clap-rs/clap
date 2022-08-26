@@ -6,6 +6,10 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage:
     01_quick_derive[EXE] [OPTIONS] [NAME] [SUBCOMMAND]
 
+Subcommands:
+    test    does testing things
+    help    Print this message or the help of the given subcommand(s)
+
 Arguments:
     <NAME>    Optional name to operate on
 
@@ -14,10 +18,6 @@ Options:
     -d, --debug...         Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
-
-Subcommands:
-    test    does testing things
-    help    Print this message or the help of the given subcommand(s)
 
 ```
 

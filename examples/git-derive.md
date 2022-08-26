@@ -12,15 +12,15 @@ A fictional versioning CLI
 Usage:
     git-derive[EXE] <SUBCOMMAND>
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
     stash    
     help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help    Print help information
 
 $ git-derive help
 git 
@@ -29,15 +29,15 @@ A fictional versioning CLI
 Usage:
     git-derive[EXE] <SUBCOMMAND>
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     clone    Clones repos
     push     pushes things
     add      adds things
     stash    
     help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help    Print help information
 
 $ git-derive help add
 git-add 
@@ -84,15 +84,15 @@ Usage:
     git-derive[EXE] stash [OPTIONS]
     git-derive[EXE] stash <SUBCOMMAND>
 
-Options:
-    -m, --message <MESSAGE>    
-    -h, --help                 Print help information
-
 Subcommands:
     push     
     pop      
     apply    
     help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -m, --message <MESSAGE>    
+    -h, --help                 Print help information
 
 $ git-derive stash push -h
 git-stash-push 

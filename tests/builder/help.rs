@@ -207,6 +207,10 @@ tests clap library
 Usage:
     clap-test [OPTIONS] [ARGS] [SUBCOMMAND]
 
+Subcommands:
+    subcmd    tests subcommands
+    help      Print this message or the help of the given subcommand(s)
+
 Arguments:
     <positional>        tests positionals
     <positional2>       tests positionals with exclusions
@@ -226,10 +230,6 @@ Options:
         --optvalnoeq [<optval>]              Tests optional value
     -h, --help                               Print help information
     -V, --version                            Print version information
-
-Subcommands:
-    subcmd    tests subcommands
-    help      Print this message or the help of the given subcommand(s)
 ";
 
     utils::assert_output(utils::complex_app(), "clap-test --help", HELP, false);
@@ -1103,6 +1103,10 @@ Usage:
     prog --opt <FILE> [PATH]
     prog [PATH] <SUBCOMMAND>
 
+Subcommands:
+    test    
+    help    Print this message or the help of the given subcommand(s)
+
 Arguments:
     <PATH>    help
 
@@ -1110,10 +1114,6 @@ Options:
     -o, --opt <FILE>    tests options
     -h, --help          Print help information
     -V, --version       Print version information
-
-Subcommands:
-    test    
-    help    Print this message or the help of the given subcommand(s)
 ";
 
     let cmd = Command::new("prog")
@@ -1155,6 +1155,10 @@ Usage:
     prog [OPTIONS] [PATH]
     prog <SUBCOMMAND>
 
+Subcommands:
+    test    
+    help    Print this message or the help of the given subcommand(s)
+
 Arguments:
     <PATH>    help
 
@@ -1163,10 +1167,6 @@ Options:
     -o, --opt <FILE>    tests options
     -h, --help          Print help information
     -V, --version       Print version information
-
-Subcommands:
-    test    
-    help    Print this message or the help of the given subcommand(s)
 ";
 
     let cmd = Command::new("prog")
@@ -1399,6 +1399,10 @@ Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
     last <SUBCOMMAND>
 
+Subcommands:
+    test    some
+    help    Print this message or the help of the given subcommand(s)
+
 Arguments:
     <TARGET>     some
     <CORPUS>     some
@@ -1407,10 +1411,6 @@ Arguments:
 Options:
     -h, --help       Print help information
     -V, --version    Print version information
-
-Subcommands:
-    test    some
-    help    Print this message or the help of the given subcommand(s)
 ";
 
     let cmd = Command::new("last")
@@ -1438,6 +1438,10 @@ Usage:
     last <TARGET> [CORPUS] [-- <ARGS>...]
     last <SUBCOMMAND>
 
+Subcommands:
+    test    some
+    help    Print this message or the help of the given subcommand(s)
+
 Arguments:
     <TARGET>     some
     <CORPUS>     some
@@ -1446,10 +1450,6 @@ Arguments:
 Options:
     -h, --help       Print help information
     -V, --version    Print version information
-
-Subcommands:
-    test    some
-    help    Print this message or the help of the given subcommand(s)
 ";
 
     let cmd = Command::new("last")
@@ -2139,12 +2139,12 @@ fn prefer_about_over_long_about_in_subcommands_list() {
 Usage:
     about-in-subcommands-list [SUBCOMMAND]
 
-Options:
-    -h, --help    Print help information
-
 Subcommands:
     sub     short about sub
     help    Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help    Print help information
 ";
 
     let cmd = Command::new("about-in-subcommands-list").subcommand(

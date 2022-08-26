@@ -7,13 +7,13 @@ static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 Usage:
     clap-test [SUBCOMMAND]
 
-Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 Subcommands:
     test    Some help [aliases: dongle, done]
     help    Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
@@ -21,13 +21,13 @@ static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 Usage:
     clap-test [SUBCOMMAND]
 
-Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 Subcommands:
     test    Some help
     help    Print this message or the help of the given subcommand(s)
+
+Options:
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 #[cfg(feature = "suggestions")]

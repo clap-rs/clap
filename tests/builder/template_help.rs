@@ -51,6 +51,10 @@ Does awesome things
 Usage:
     MyApp [OPTIONS] <output> [SUBCOMMAND]
 
+Subcommands:
+    test    does testing things
+    help    Print this message or the help of the given subcommand(s)
+
 Arguments:
     <output>    Sets an optional output file
 
@@ -59,10 +63,6 @@ Options:
     -d...                  Turn debugging information on
     -h, --help             Print help information
     -V, --version          Print version information
-
-Subcommands:
-    test    does testing things
-    help    Print this message or the help of the given subcommand(s)
 ";
 
 #[test]
