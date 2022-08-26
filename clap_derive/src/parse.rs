@@ -155,7 +155,6 @@ impl Parse for ClapAttr {
                 "action" => Ok(Action(name)),
                 "env" => Ok(Env(name)),
                 "flatten" => Ok(Flatten(name)),
-                "arg_enum" => Ok(ValueEnum(name)),
                 "value_enum" => Ok(ValueEnum(name)),
                 "from_global" => Ok(FromGlobal(name)),
                 "subcommand" => Ok(Subcommand(name)),
