@@ -865,6 +865,10 @@ impl Command {
     /// println!("{}", cmd.render_usage());
     /// ```
     pub fn render_usage(&mut self) -> String {
+        self.render_usage_().to_string()
+    }
+
+    pub(crate) fn render_usage_(&mut self) -> StyledStr {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         self._build_self();
@@ -3832,7 +3836,7 @@ impl Command {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
-                mid_string.push_str(s);
+                mid_string.push_str(&s.to_string());
                 mid_string.push(' ');
             }
         }
@@ -3916,7 +3920,7 @@ impl Command {
                 let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
                 for s in &reqs {
-                    mid_string.push_str(s);
+                    mid_string.push_str(&s.to_string());
                     mid_string.push(' ');
                 }
             }
@@ -4182,7 +4186,7 @@ impl Command {
         format!("{} {}\n", display_name, ver)
     }
 
-    pub(crate) fn format_group(&self, g: &Id) -> String {
+    pub(crate) fn format_group(&self, g: &Id) -> StyledStr {
         let g_string = self
             .unroll_args_in_group(g)
             .iter()
@@ -4198,7 +4202,11 @@ impl Command {
             })
             .collect::<Vec<_>>()
             .join("|");
-        format!("<{}>", &*g_string)
+        let mut styled = StyledStr::new();
+        styled.none("<");
+        styled.none(g_string);
+        styled.none(">");
+        styled
     }
 }
 

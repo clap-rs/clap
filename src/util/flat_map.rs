@@ -40,7 +40,7 @@ impl<K: PartialEq + Eq, V> FlatMap<K, V> {
     pub fn contains_key<Q: ?Sized>(&self, key: &Q) -> bool
     where
         K: Borrow<Q>,
-        Q: std::hash::Hash + Eq,
+        Q: Eq,
     {
         for existing in &self.keys {
             if existing.borrow() == key {
@@ -80,7 +80,7 @@ impl<K: PartialEq + Eq, V> FlatMap<K, V> {
     pub fn get<Q: ?Sized>(&self, k: &Q) -> Option<&V>
     where
         K: Borrow<Q>,
-        Q: std::hash::Hash + Eq,
+        Q: Eq,
     {
         for (index, existing) in self.keys.iter().enumerate() {
             if existing.borrow() == k {
@@ -93,7 +93,7 @@ impl<K: PartialEq + Eq, V> FlatMap<K, V> {
     pub fn get_mut<Q: ?Sized>(&mut self, k: &Q) -> Option<&mut V>
     where
         K: Borrow<Q>,
-        Q: std::hash::Hash + Eq,
+        Q: Eq,
     {
         for (index, existing) in self.keys.iter().enumerate() {
             if existing.borrow() == k {

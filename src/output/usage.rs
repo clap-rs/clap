@@ -1,4 +1,5 @@
 // Internal
+use crate::builder::StyledStr;
 use crate::builder::{Arg, ArgPredicate, Command};
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
@@ -28,19 +29,19 @@ impl<'cmd> Usage<'cmd> {
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
-    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> String {
+    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_usage_with_title");
-        let mut usage = String::with_capacity(75);
-        usage.push_str("USAGE:\n    ");
-        usage.push_str(&*self.create_usage_no_title(used));
-        usage
+        let mut styled = StyledStr::new();
+        styled.none("USAGE:\n    ");
+        styled.extend(self.create_usage_no_title(used).into_iter());
+        styled
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
-    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
+    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            u.to_string()
+            u.clone()
         } else if used.is_empty() {
             self.create_help_usage(true)
         } else {
@@ -49,30 +50,23 @@ impl<'cmd> Usage<'cmd> {
     }
 
     // Creates a usage string for display in help messages (i.e. not for errors)
-    fn create_help_usage(&self, incl_reqs: bool) -> String {
+    fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
-        let mut usage = String::with_capacity(75);
+        let mut styled = StyledStr::new();
         let name = self
             .cmd
             .get_usage_name()
             .or_else(|| self.cmd.get_bin_name())
             .unwrap_or_else(|| self.cmd.get_name());
-        usage.push_str(name);
-        let req_string = if incl_reqs {
-            self.get_required_usage_from(&[], None, false)
-                .iter()
-                .fold(String::new(), |a, s| a + " " + s)
-        } else {
-            String::new()
-        };
+        styled.none(name);
 
         if self.needs_options_tag() {
-            usage.push_str(" [OPTIONS]");
+            styled.none(" [OPTIONS]");
         }
 
         let allow_missing_positional = self.cmd.is_allow_missing_positional_set();
-        if !allow_missing_positional {
-            usage.push_str(&req_string);
+        if !allow_missing_positional && incl_reqs {
+            self.write_required_usage_from(&[], None, false, &mut styled);
         }
 
         let has_last = self.cmd.get_positionals().any(|p| p.is_last_set());
@@ -86,15 +80,15 @@ impl<'cmd> Usage<'cmd> {
             && !(self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
             && !has_last
         {
-            usage.push_str(" [--]");
+            styled.none(" [--]");
         }
         let not_req_or_hidden =
             |p: &Arg| (!p.is_required_set() || p.is_last_set()) && !p.is_hide_set();
         if self.cmd.get_positionals().any(not_req_or_hidden) {
             if let Some(args_tag) = self.get_args_tag(incl_reqs) {
-                usage.push_str(&*args_tag);
+                styled.none(&*args_tag);
             } else {
-                usage.push_str(" [ARGS]");
+                styled.none(" [ARGS]");
             }
             if has_last && incl_reqs {
                 let pos = self
@@ -108,23 +102,23 @@ impl<'cmd> Usage<'cmd> {
                 );
                 let req = pos.is_required_set();
                 if req && self.cmd.get_positionals().any(|p| !p.is_required_set()) {
-                    usage.push_str(" -- <");
+                    styled.none(" -- <");
                 } else if req {
-                    usage.push_str(" [--] <");
+                    styled.none(" [--] <");
                 } else {
-                    usage.push_str(" [-- <");
+                    styled.none(" [-- <");
                 }
-                usage.push_str(&*pos.name_no_brackets());
-                usage.push('>');
-                usage.push_str(pos.multiple_str());
+                styled.none(&*pos.name_no_brackets());
+                styled.none('>');
+                styled.none(pos.multiple_str());
                 if !req {
-                    usage.push(']');
+                    styled.none(']');
                 }
             }
         }
 
-        if allow_missing_positional {
-            usage.push_str(&req_string);
+        if allow_missing_positional && incl_reqs {
+            self.write_required_usage_from(&[], None, false, &mut styled);
         }
 
         // incl_reqs is only false when this function is called recursively
@@ -138,59 +132,55 @@ impl<'cmd> Usage<'cmd> {
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
-                usage.push_str("\n    ");
+                styled.none("\n    ");
                 if !self.cmd.is_args_conflicts_with_subcommands_set() {
-                    usage.push_str(&*self.create_help_usage(false));
+                    styled.extend(self.create_help_usage(false).into_iter());
                 } else {
-                    usage.push_str(name);
+                    styled.none(name);
                 }
-                usage.push_str(" <");
-                usage.push_str(placeholder);
-                usage.push('>');
+                styled.none(" <");
+                styled.none(placeholder);
+                styled.none(">");
             } else if self.cmd.is_subcommand_required_set() {
-                usage.push_str(" <");
-                usage.push_str(placeholder);
-                usage.push('>');
+                styled.none(" <");
+                styled.none(placeholder);
+                styled.none(">");
             } else {
-                usage.push_str(" [");
-                usage.push_str(placeholder);
-                usage.push(']');
+                styled.none(" [");
+                styled.none(placeholder);
+                styled.none("]");
             }
         }
-        let usage = usage.trim().to_owned();
-        debug!("Usage::create_help_usage: usage={}", usage);
-        usage
+        styled.trim();
+        debug!("Usage::create_help_usage: usage={}", styled);
+        styled
     }
 
     // Creates a context aware usage string, or "smart usage" from currently used
     // args, and requirements
-    fn create_smart_usage(&self, used: &[Id]) -> String {
+    fn create_smart_usage(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_smart_usage");
-        let mut usage = String::with_capacity(75);
+        let mut styled = StyledStr::new();
 
-        let r_string = self
-            .get_required_usage_from(used, None, true)
-            .iter()
-            .fold(String::new(), |acc, s| acc + " " + s);
-
-        usage.push_str(
+        styled.none(
             self.cmd
                 .get_usage_name()
                 .or_else(|| self.cmd.get_bin_name())
                 .unwrap_or_else(|| self.cmd.get_name()),
         );
-        usage.push_str(&*r_string);
+
+        self.write_required_usage_from(used, None, true, &mut styled);
+
         if self.cmd.is_subcommand_required_set() {
-            usage.push_str(" <");
-            usage.push_str(
+            styled.none(" <");
+            styled.none(
                 self.cmd
                     .get_subcommand_value_name()
                     .unwrap_or(DEFAULT_SUB_VALUE_NAME),
             );
-            usage.push('>');
+            styled.none(">");
         }
-        usage.shrink_to_fit();
-        usage
+        styled
     }
 
     // Gets the `[ARGS]` tag for the usage string
@@ -343,12 +333,25 @@ impl<'cmd> Usage<'cmd> {
     // `incl_last`: should we include args that are Arg::Last? (i.e. `prog [foo] -- [last]). We
     // can't do that for required usages being built for subcommands because it would look like:
     // `prog [foo] -- [last] <subcommand>` which is totally wrong.
+    pub(crate) fn write_required_usage_from(
+        &self,
+        incls: &[Id],
+        matcher: Option<&ArgMatcher>,
+        incl_last: bool,
+        styled: &mut StyledStr,
+    ) {
+        for required in self.get_required_usage_from(incls, matcher, incl_last) {
+            styled.none(" ");
+            styled.extend(required.into_iter());
+        }
+    }
+
     pub(crate) fn get_required_usage_from(
         &self,
         incls: &[Id],
         matcher: Option<&ArgMatcher>,
         incl_last: bool,
-    ) -> FlatSet<String> {
+    ) -> FlatSet<StyledStr> {
         debug!(
             "Usage::get_required_usage_from: incls={:?}, matcher={:?}, incl_last={:?}",
             incls,
@@ -413,10 +416,10 @@ impl<'cmd> Usage<'cmd> {
                 if !is_present {
                     if arg.is_positional() {
                         if incl_last || !arg.is_last_set() {
-                            required_positionals.push((arg.index.unwrap(), arg.to_string()));
+                            required_positionals.push((arg.index.unwrap(), arg.stylized()));
                         }
                     } else {
-                        required_opts.insert(arg.to_string());
+                        required_opts.insert(arg.stylized());
                     }
                 }
             } else {
@@ -440,7 +443,7 @@ impl<'cmd> Usage<'cmd> {
                         group_members
                             .iter()
                             .flat_map(|id| self.cmd.find(id))
-                            .map(|arg| arg.to_string()),
+                            .map(|arg| arg.stylized()),
                     );
                 }
             }

@@ -38,6 +38,23 @@ impl StyledStr {
         self.stylize_(style.into(), msg.into());
     }
 
+    pub(crate) fn trim(&mut self) {
+        self.trim_start();
+        self.trim_end();
+    }
+
+    pub(crate) fn trim_start(&mut self) {
+        if let Some((_, item)) = self.pieces.first_mut() {
+            *item = item.trim_start().to_owned();
+        }
+    }
+
+    pub(crate) fn trim_end(&mut self) {
+        if let Some((_, item)) = self.pieces.last_mut() {
+            *item = item.trim_end().to_owned();
+        }
+    }
+
     pub(crate) fn replace_newline(&mut self) {
         for (_, content) in &mut self.pieces {
             *content = content.replace("{n}", "\n");
