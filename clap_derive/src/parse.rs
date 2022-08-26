@@ -161,12 +161,6 @@ impl Parse for ClapAttr {
                 "external_subcommand" => Ok(ExternalSubcommand(name)),
                 "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
 
-                "default_value" => {
-                    abort!(name,
-                        "`#[clap(default_value)` attribute (without a value) has been replaced by `#[clap(default_value_t)]`.";
-                        help = "Change the attribute to `#[clap(default_value_t)]`";
-                    )
-                }
                 "default_value_t" => Ok(DefaultValueT(name, None)),
                 "default_value_os_t" => Ok(DefaultValueOsT(name, None)),
                 "about" => (Ok(About(name))),

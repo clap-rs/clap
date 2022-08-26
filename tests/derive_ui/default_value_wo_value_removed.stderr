@@ -1,8 +1,0 @@
-error: `#[clap(default_value)` attribute (without a value) has been replaced by `#[clap(default_value_t)]`.
-
-         = help: Change the attribute to `#[clap(default_value_t)]`
-
-  --> tests/derive_ui/default_value_wo_value_removed.rs:14:12
-   |
-14 |     #[clap(default_value)]
-   |            ^^^^^^^^^^^^^
