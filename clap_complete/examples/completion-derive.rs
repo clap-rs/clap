@@ -26,7 +26,7 @@ use std::path::PathBuf;
 )]
 struct Opt {
     /// If provided, outputs the completion file for given shell
-    #[clap(long = "generate", arg_enum)]
+    #[clap(long = "generate", value_enum)]
     generator: Option<Shell>,
     // Showcasing all possible ValueHints:
     #[clap(long, value_hint = ValueHint::Unknown)]
