@@ -50,7 +50,6 @@ pub(crate) enum AppSettings {
     DisableHelpSubcommand,
     DisableVersionFlag,
     PropagateVersion,
-    DisablePropagatedArgs,
     Hidden,
     HidePossibleValues,
     HelpExpected,
@@ -104,7 +103,6 @@ bitflags! {
         const IGNORE_ERRORS                  = 1 << 44;
         const MULTICALL                      = 1 << 45;
         const EXPAND_HELP_SUBCOMMAND_TREES   = 1 << 46;
-        const DISABLE_PROPAGATED_ARGS        = 1 << 47;
         const NO_OP                          = 0;
     }
 }
@@ -144,8 +142,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_VERSION_FLAG,
     PropagateVersion
         => Flags::PROPAGATE_VERSION,
-    DisablePropagatedArgs
-        => Flags::DISABLE_PROPAGATED_ARGS,
     HidePossibleValues
         => Flags::NO_POS_VALUES,
     HelpExpected

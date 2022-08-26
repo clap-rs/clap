@@ -26,10 +26,20 @@ const completion: Fig.Spec = {
         {
           name: "test",
           description: "Subcommand",
+          options: [
+            {
+              name: "-c",
+            },
+          ],
         },
         {
           name: "help",
           description: "Print this message or the help of the given subcommand(s)",
+          options: [
+            {
+              name: "-c",
+            },
+          ],
         },
       ],
       options: [

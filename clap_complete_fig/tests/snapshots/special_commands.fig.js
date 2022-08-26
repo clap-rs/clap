@@ -99,6 +99,7 @@ const completion: Fig.Spec = {
         },
         {
           name: "some-hidden-cmd",
+          hidden: true,
         },
         {
           name: "help",

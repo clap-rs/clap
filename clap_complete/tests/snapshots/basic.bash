@@ -53,7 +53,7 @@ _my-app() {
             return 0
             ;;
         my__app__help__help)
-            opts=""
+            opts="-c"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -67,7 +67,7 @@ _my-app() {
             return 0
             ;;
         my__app__help__test)
-            opts=""
+            opts="-c"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

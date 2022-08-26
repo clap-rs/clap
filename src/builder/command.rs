@@ -4067,13 +4067,6 @@ impl Command {
         debug!("Command::_propagate_global_args:{}", self.name);
 
         for sc in &mut self.subcommands {
-            if sc.is_set(AppSettings::DisablePropagatedArgs) {
-                debug!(
-                    "Command::_propagate skipping {}, has DisablePropagatedArgs",
-                    sc.get_name()
-                );
-                continue;
-            }
             for a in self.args.args().filter(|a| a.is_global_set()) {
                 if sc.find(&a.id).is_some() {
                     debug!(
@@ -4165,7 +4158,6 @@ impl Command {
                 help_help_subcmd.version = None;
                 help_help_subcmd.long_version = None;
                 help_help_subcmd = help_help_subcmd
-                    .setting(AppSettings::DisablePropagatedArgs)
                     .setting(AppSettings::DisableHelpFlag)
                     .setting(AppSettings::DisableVersionFlag);
 
@@ -4196,7 +4188,7 @@ impl Command {
 
     fn _copy_subtree_for_help(&self) -> Command {
         let mut cmd = Command::new(self.get_name().to_string())
-            .global_setting(AppSettings::DisablePropagatedArgs)
+            .hide(self.is_hide_set())
             .global_setting(AppSettings::DisableHelpFlag)
             .global_setting(AppSettings::DisableVersionFlag)
             .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));

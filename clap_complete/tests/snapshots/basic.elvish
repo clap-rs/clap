@@ -37,8 +37,10 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;help;test'= {
+            cand -c 'c'
         }
         &'my-app;help;help'= {
+            cand -c 'c'
         }
     ]
     $completions[$command]

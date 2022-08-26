@@ -43,9 +43,11 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             break
         }
         'my-app;help;test' {
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
             break
         }
         'my-app;help;help' {
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
             break
         }
     })
