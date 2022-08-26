@@ -54,7 +54,37 @@ pub struct Attrs {
 }
 
 impl Attrs {
-    pub fn from_struct(
+    pub fn from_args_struct(
+        span: Span,
+        attrs: &[Attribute],
+        name: Name,
+        argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
+        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+    }
+
+    pub fn from_subcommand_enum(
+        span: Span,
+        attrs: &[Attribute],
+        name: Name,
+        argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
+        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+    }
+
+    pub fn from_value_enum(
+        span: Span,
+        attrs: &[Attribute],
+        name: Name,
+        argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
+        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+    }
+
+    fn from_struct(
         span: Span,
         attrs: &[Attribute],
         name: Name,
@@ -90,7 +120,7 @@ impl Attrs {
         }
     }
 
-    pub fn from_variant(
+    pub fn from_subcommand_variant(
         variant: &Variant,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
@@ -233,7 +263,7 @@ impl Attrs {
         }
     }
 
-    pub fn from_field(
+    pub fn from_args_field(
         field: &Field,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,

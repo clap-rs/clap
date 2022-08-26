@@ -30,7 +30,7 @@ pub fn gen_for_struct(
 ) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_args_struct(
         Span::call_site(),
         attrs,
         Name::Assigned(quote!(#app_name)),
@@ -75,7 +75,7 @@ pub fn gen_for_struct(
 pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute]) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_subcommand_enum(
         Span::call_site(),
         attrs,
         Name::Assigned(quote!(#app_name)),

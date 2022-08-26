@@ -57,7 +57,7 @@ pub fn gen_for_struct(
 ) -> TokenStream {
     let from_arg_matches = gen_from_arg_matches_for_struct(struct_name, generics, fields, attrs);
 
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_args_struct(
         Span::call_site(),
         attrs,
         Name::Derived(struct_name.clone()),
@@ -103,7 +103,7 @@ pub fn gen_from_arg_matches_for_struct(
     fields: &Punctuated<Field, Comma>,
     attrs: &[Attribute],
 ) -> TokenStream {
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_args_struct(
         Span::call_site(),
         attrs,
         Name::Derived(struct_name.clone()),
@@ -164,7 +164,7 @@ pub fn gen_augment(
     override_required: bool,
 ) -> TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
-        let attrs = Attrs::from_field(
+        let attrs = Attrs::from_args_field(
             field,
             parent_attribute.casing(),
             parent_attribute.env_casing(),
@@ -210,7 +210,7 @@ pub fn gen_augment(
     }
 
     let args = fields.iter().filter_map(|field| {
-        let attrs = Attrs::from_field(
+        let attrs = Attrs::from_args_field(
             field,
             parent_attribute.casing(),
             parent_attribute.env_casing(),
@@ -342,7 +342,7 @@ pub fn gen_augment(
 
 pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
     let fields = fields.iter().map(|field| {
-        let attrs = Attrs::from_field(
+        let attrs = Attrs::from_args_field(
             field,
             parent_attribute.casing(),
             parent_attribute.env_casing(),
@@ -409,7 +409,7 @@ pub fn gen_updater(
     use_self: bool,
 ) -> TokenStream {
     let fields = fields.iter().map(|field| {
-        let attrs = Attrs::from_field(
+        let attrs = Attrs::from_args_field(
             field,
             parent_attribute.casing(),
             parent_attribute.env_casing(),
