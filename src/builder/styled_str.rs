@@ -156,9 +156,7 @@ impl StyledStr {
                 Some(Style::Literal) => {
                     color.set_bold(true);
                 }
-                Some(Style::Placeholder) => {
-                    color.set_dimmed(true);
-                }
+                Some(Style::Placeholder) => {}
                 Some(Style::Good) => {
                     color.set_fg(Some(termcolor::Color::Green));
                 }
