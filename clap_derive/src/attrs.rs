@@ -44,7 +44,7 @@ pub struct Attrs {
     methods: Vec<Method>,
     value_parser: Option<ValueParser>,
     action: Option<Action>,
-    verbatim_doc_comment: Option<Ident>,
+    verbatim_doc_comment: bool,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
     help_heading: Option<Method>,
@@ -389,7 +389,7 @@ impl Attrs {
             methods: vec![],
             value_parser: None,
             action: None,
-            verbatim_doc_comment: None,
+            verbatim_doc_comment: false,
             next_display_order: None,
             next_help_heading: None,
             help_heading: None,
@@ -474,7 +474,7 @@ impl Attrs {
                     self.set_kind(kind);
                 }
 
-                VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
+                VerbatimDocComment(_ident) => self.verbatim_doc_comment = true,
 
                 DefaultValueT(ident, expr) => {
                     let ty = if let Some(ty) = self.ty.as_ref() {
@@ -750,8 +750,7 @@ impl Attrs {
             })
             .collect();
 
-        self.doc_comment =
-            process_doc_comment(comment_parts, name, self.verbatim_doc_comment.is_none());
+        self.doc_comment = process_doc_comment(comment_parts, name, !self.verbatim_doc_comment);
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
