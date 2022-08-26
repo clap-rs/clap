@@ -23,7 +23,7 @@ impl ClapAttr {
     pub fn parse_all(all_attrs: &[Attribute]) -> Vec<Self> {
         all_attrs
             .iter()
-            .filter(|attr| attr.path.is_ident("clap") || attr.path.is_ident("structopt"))
+            .filter(|attr| attr.path.is_ident("clap"))
             .flat_map(|attr| {
                 attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
                     .unwrap_or_abort()
