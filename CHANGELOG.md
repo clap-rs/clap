@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - *(derive)* Changed the default for arguments from `parse` to `value_parser`., removing `parse` support
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` (#3280)
 - *(derive)* Remove `arg_enum` attribute in favor of `value_enum`
+- *(derive)* Remove `structopt()` attributes in favor of `clap()`
 
 ### Compatibility
 
