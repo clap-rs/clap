@@ -3,13 +3,13 @@ $ 04_02_validate --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     04_02_validate[EXE] <PORT>
 
-ARGS:
+Arguments:
     <PORT>    Network port to use
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 

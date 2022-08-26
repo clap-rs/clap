@@ -8,13 +8,13 @@ $ escaped-positional-derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
-ARGS:
+Arguments:
     <SLOP>...    
 
-OPTIONS:
+Options:
     -f               
     -p <PEAR>        
     -h, --help       Print help information
@@ -37,7 +37,7 @@ $ escaped-positional-derive foo bar
 ? failed
 error: Found argument 'foo' which wasn't expected, or isn't valid in this context
 
-USAGE:
+Usage:
     escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
 For more information try --help

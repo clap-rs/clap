@@ -3,10 +3,10 @@ $ 02_crate --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     02_crate[EXE] --two <VALUE> --one <VALUE>
 
-OPTIONS:
+Options:
         --two <VALUE>    
         --one <VALUE>    
     -h, --help           Print help information

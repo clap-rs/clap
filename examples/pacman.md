@@ -39,14 +39,14 @@ pacman 5.2.1
 Pacman Development Team
 package manager utility
 
-USAGE:
+Usage:
     pacman[EXE] <SUBCOMMAND>
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     query -Q --query    Query the package database.
     sync -S --sync      Synchronize packages.
     help                Print this message or the help of the given subcommand(s)
@@ -55,13 +55,13 @@ $ pacman -S -h
 pacman-sync 
 Synchronize packages.
 
-USAGE:
+Usage:
     pacman[EXE] {sync|--sync|-S} [OPTIONS] [--] [package]...
 
-ARGS:
+Arguments:
     <package>...    packages
 
-OPTIONS:
+Options:
     -s, --search <search>...    search remote repositories for matching strings
     -i, --info                  view package information
     -h, --help                  Print help information
@@ -74,7 +74,7 @@ $ pacman -S -s foo -i bar
 ? failed
 error: The argument '--search <search>...' cannot be used with '--info'
 
-USAGE:
+Usage:
     pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
 
 For more information try --help

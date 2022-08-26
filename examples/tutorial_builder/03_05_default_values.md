@@ -3,13 +3,13 @@ $ 03_05_default_values --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_05_default_values[EXE] [NAME]
 
-ARGS:
+Arguments:
     <NAME>    [default: alice]
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 

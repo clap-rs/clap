@@ -27,10 +27,10 @@ $ busybox
 ? failed
 busybox 
 
-USAGE:
+Usage:
     busybox [OPTIONS] [APPLET]
 
-OPTIONS:
+Options:
         --install <install>    Install hardlinks for all subcommands in path
     -h, --help                 Print help information
 

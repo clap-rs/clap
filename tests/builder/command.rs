@@ -5,10 +5,10 @@ use clap::{command, error::ErrorKind};
 static EVERYTHING: &str = "clap {{version}}
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     clap
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";

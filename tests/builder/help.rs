@@ -78,7 +78,7 @@ fn help_multi_subcommand_error() {
 
     static EXPECTED: &str = "error: The subcommand 'foo' wasn't recognized
 
-USAGE:
+Usage:
     ctest subcmd multi [OPTIONS]
 
 For more information try --help
@@ -90,14 +90,14 @@ For more information try --help
 fn req_last_arg_usage() {
     static LAST_ARG_REQ_MULT: &str = "example 1.0
 
-USAGE:
+Usage:
     example <FIRST>... [--] <SECOND>...
 
-ARGS:
+Arguments:
     <FIRST>...     First
     <SECOND>...    Second
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -119,14 +119,14 @@ OPTIONS:
 fn args_with_last_usage() {
     static LAST_ARG_USAGE: &str = "flamegraph 0.1
 
-USAGE:
+Usage:
     flamegraph [OPTIONS] [BINFILE] [-- <ARGS>...]
 
-ARGS:
+Arguments:
     <BINFILE>    The path of the binary to be profiled. for a binary.
     <ARGS>...    Any arguments you wish to pass to the being profiled.
 
-OPTIONS:
+Options:
     -v, --verbose              Prints out more stuff.
     -t, --timeout <SECONDS>    Timeout in seconds.
     -f, --frequency <HERTZ>    The sampling frequency.
@@ -204,15 +204,15 @@ fn complex_help_output() {
 Kevin K. <kbknapp@gmail.com>
 tests clap library
 
-USAGE:
+Usage:
     clap-test [OPTIONS] [ARGS] [SUBCOMMAND]
 
-ARGS:
+Arguments:
     <positional>        tests positionals
     <positional2>       tests positionals with exclusions
     <positional3>...    tests specific values [possible values: vi, emacs]
 
-OPTIONS:
+Options:
     -o, --option <opt>...                    tests options
     -f, --flag...                            tests flags
     -F                                       tests flags with exclusions
@@ -227,7 +227,7 @@ OPTIONS:
     -h, --help                               Print help information
     -V, --version                            Print version information
 
-SUBCOMMANDS:
+Subcommands:
     subcmd    tests subcommands
     help      Print this message or the help of the given subcommand(s)
 ";
@@ -242,10 +242,10 @@ fn after_and_before_help_output() {
 clap-test v1.4.8
 tests clap library
 
-USAGE:
+Usage:
     clap-test
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -268,10 +268,10 @@ fn after_and_before_long_help_output() {
 clap-test v1.4.8
 tests clap library
 
-USAGE:
+Usage:
     clap-test
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -283,10 +283,10 @@ some text that comes after the help
 clap-test v1.4.8
 tests clap library
 
-USAGE:
+Usage:
     clap-test
 
-OPTIONS:
+Options:
     -h, --help
             Print help information
 
@@ -311,10 +311,10 @@ static MULTI_SC_HELP: &str = "ctest-subcmd-multi 0.1
 Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
-USAGE:
+Usage:
     ctest subcmd multi [OPTIONS]
 
-OPTIONS:
+Options:
     -f, --flag                    tests flags
     -o, --option <scoption>...    tests options
     -h, --help                    Print help information
@@ -357,10 +357,10 @@ fn no_wrap_help() {
 fn no_wrap_default_help() {
     static DEFAULT_HELP: &str = "ctest 1.0
 
-USAGE:
+Usage:
     ctest
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -374,10 +374,10 @@ OPTIONS:
 fn wrapped_help() {
     static WRAPPED_HELP: &str = "test 
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -a, --all
             Also do versioning for private crates (will not be
             published)
@@ -430,10 +430,10 @@ OPTIONS:
 fn unwrapped_help() {
     static UNWRAPPED_HELP: &str = "test 
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -a, --all              Also do versioning for private crates
                            (will not be published)
         --exact            Specify inter dependency version numbers
@@ -478,10 +478,10 @@ OPTIONS:
 fn possible_value_wrapped_help() {
     static WRAPPED_HELP: &str = "test 
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
         --possible-values <possible_values>
             Possible values:
               - short_name:
@@ -545,13 +545,13 @@ fn complex_subcommand_help_output() {
 Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
-USAGE:
+Usage:
     clap-test subcmd [OPTIONS] [--] [scpositional]
 
-ARGS:
+Arguments:
     <scpositional>    tests positionals
 
-OPTIONS:
+Options:
     -o, --option <scoption>...     tests options
     -f, --flag...                  tests flags
     -s, --subcmdarg <subcmdarg>    tests other args
@@ -567,10 +567,10 @@ OPTIONS:
 fn issue_626_unicode_cutoff() {
     static ISSUE_626_CUTOFF: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café is an
                          establishment which primarily serves hot
                          coffee, related coffee beverages (e.g., café
@@ -603,10 +603,10 @@ OPTIONS:
 
 static HIDE_POS_VALS: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -p, --pos <VAL>      Some vals [possible values: fast, slow]
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
     -h, --help           Print help information
@@ -671,10 +671,10 @@ fn hide_single_possible_val() {
 fn possible_vals_with_help() {
     static POS_VALS_HELP: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -p, --pos <VAL>
             Some vals
 
@@ -721,10 +721,10 @@ OPTIONS:
 fn issue_626_panic() {
     static ISSUE_626_PANIC: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --cafe <FILE>
             La culture du café est très développée
             dans de nombreux pays à climat chaud
@@ -777,10 +777,10 @@ fn issue_626_variable_panic() {
 fn final_word_wrapping() {
     static FINAL_WORD_WRAPPING: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest
 
-OPTIONS:
+Options:
     -h, --help
             Print help
             information
@@ -797,10 +797,10 @@ OPTIONS:
 
 static WRAPPING_NEWLINE_CHARS: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [mode]
 
-ARGS:
+Arguments:
     <mode>    x, max, maximum   20 characters, contains
               symbols.
               l, long           Copy-friendly, 14
@@ -808,7 +808,7 @@ ARGS:
               m, med, medium    Copy-friendly, 8
               characters, contains symbols.
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -853,10 +853,10 @@ fn dont_wrap_urls() {
     const EXPECTED: &str = "\
 Example-update 
 
-USAGE:
+Usage:
     Example update [OPTIONS]
 
-OPTIONS:
+Options:
         --force-non-host
             Install toolchains
             that require an
@@ -872,10 +872,10 @@ OPTIONS:
 
 static OLD_NEWLINE_CHARS: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
     -m               Some help with some wrapping
                      (Defaults to something)
     -h, --help       Print help information
@@ -908,10 +908,10 @@ fn old_newline_variables() {
 fn issue_688_hide_pos_vals() {
     static ISSUE_688: &str = "ctest 0.1
 
-USAGE:
+Usage:
     ctest [OPTIONS]
 
-OPTIONS:
+Options:
         --filter <filter>    Sets the filter, or sampling method, to use for interpolation when resizing the particle
                              images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic,
                              Gaussian, Lanczos3]
@@ -961,14 +961,14 @@ fn issue_702_multiple_values() {
 foo
 bar
 
-USAGE:
+Usage:
     myapp [OPTIONS] [--] [ARGS]
 
-ARGS:
+Arguments:
     <arg1>       some option
     <arg2>...    some option
 
-OPTIONS:
+Options:
     -s, --some <some>         some option
     -o, --other <other>       some other option
     -l, --label <label>...    a label
@@ -1020,14 +1020,14 @@ something really really long, with
 multiple lines of text
 that should be displayed
 
-USAGE:
+Usage:
     myapp [arg1]
 
-ARGS:
+Arguments:
     <arg1>
             some option
 
-OPTIONS:
+Options:
     -h, --help
             Print help information
 
@@ -1048,13 +1048,13 @@ OPTIONS:
 
 static RIPGREP_USAGE: &str = "ripgrep 0.5
 
-USAGE:
+Usage:
     rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
     rg [OPTIONS] --type-list
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -1086,9 +1086,9 @@ fn ripgrep_usage_using_templates() {
             "\
 {bin} {version}
 
-USAGE:{usage}
+Usage:{usage}
 
-OPTIONS:
+Options:
 {options}",
         );
 
@@ -1099,19 +1099,19 @@ OPTIONS:
 fn sc_negates_reqs() {
     static SC_NEGATES_REQS: &str = "prog 1.0
 
-USAGE:
+Usage:
     prog --opt <FILE> [PATH]
     prog [PATH] <SUBCOMMAND>
 
-ARGS:
+Arguments:
     <PATH>    help
 
-OPTIONS:
+Options:
     -o, --opt <FILE>    tests options
     -h, --help          Print help information
     -V, --version       Print version information
 
-SUBCOMMANDS:
+Subcommands:
     test    
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -1129,10 +1129,10 @@ SUBCOMMANDS:
 fn hide_args() {
     static HIDDEN_ARGS: &str = "prog 1.0
 
-USAGE:
+Usage:
     prog [OPTIONS]
 
-OPTIONS:
+Options:
     -f, --flag          testing flags
     -o, --opt <FILE>    tests options
     -h, --help          Print help information
@@ -1151,20 +1151,20 @@ OPTIONS:
 fn args_negate_sc() {
     static ARGS_NEGATE_SC: &str = "prog 1.0
 
-USAGE:
+Usage:
     prog [OPTIONS] [PATH]
     prog <SUBCOMMAND>
 
-ARGS:
+Arguments:
     <PATH>    help
 
-OPTIONS:
+Options:
     -f, --flag          testing flags
     -o, --opt <FILE>    tests options
     -h, --help          Print help information
     -V, --version       Print version information
 
-SUBCOMMANDS:
+Subcommands:
     test    
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -1183,13 +1183,13 @@ SUBCOMMANDS:
 fn issue_1046_hide_scs() {
     static ISSUE_1046_HIDDEN_SCS: &str = "prog 1.0
 
-USAGE:
+Usage:
     prog [OPTIONS] [PATH]
 
-ARGS:
+Arguments:
     <PATH>    some
 
-OPTIONS:
+Options:
     -f, --flag          testing flags
     -o, --opt <FILE>    tests options
     -h, --help          Print help information
@@ -1214,10 +1214,10 @@ email <email@server.com>
 Show how the about text is not
 wrapped
 
-USAGE:
+Usage:
     ctest
 
-OPTIONS:
+Options:
     -h, --help
             Print help information
 
@@ -1236,10 +1236,10 @@ OPTIONS:
 
 static OVERRIDE_HELP_SHORT: &str = "test 0.1
 
-USAGE:
+Usage:
     test
 
-OPTIONS:
+Options:
     -H, --help       Print help information
     -V, --version    Print version information
 ";
@@ -1257,10 +1257,10 @@ fn override_help_short() {
 
 static OVERRIDE_HELP_LONG: &str = "test 0.1
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -h, --hell       Print help information
     -V, --version    Print version information
 ";
@@ -1278,10 +1278,10 @@ fn override_help_long() {
 
 static OVERRIDE_HELP_ABOUT: &str = "test 0.1
 
-USAGE:
+Usage:
     test
 
-OPTIONS:
+Options:
     -h, --help       Print custom help information
     -V, --version    Print version information
 ";
@@ -1332,15 +1332,15 @@ fn arg_long_conflict_with_help() {
 fn last_arg_mult_usage() {
     static LAST_ARG: &str = "last 0.1
 
-USAGE:
+Usage:
     last <TARGET> [CORPUS] [-- <ARGS>...]
 
-ARGS:
+Arguments:
     <TARGET>     some
     <CORPUS>     some
     <ARGS>...    some
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -1363,15 +1363,15 @@ OPTIONS:
 fn last_arg_mult_usage_req() {
     static LAST_ARG_REQ: &str = "last 0.1
 
-USAGE:
+Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
 
-ARGS:
+Arguments:
     <TARGET>     some
     <CORPUS>     some
     <ARGS>...    some
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -1395,20 +1395,20 @@ OPTIONS:
 fn last_arg_mult_usage_req_with_sc() {
     static LAST_ARG_REQ_SC: &str = "last 0.1
 
-USAGE:
+Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
     last <SUBCOMMAND>
 
-ARGS:
+Arguments:
     <TARGET>     some
     <CORPUS>     some
     <ARGS>...    some
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     test    some
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -1434,20 +1434,20 @@ SUBCOMMANDS:
 fn last_arg_mult_usage_with_sc() {
     static LAST_ARG_SC: &str = "last 0.1
 
-USAGE:
+Usage:
     last <TARGET> [CORPUS] [-- <ARGS>...]
     last <SUBCOMMAND>
 
-ARGS:
+Arguments:
     <TARGET>     some
     <CORPUS>     some
     <ARGS>...    some
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
-SUBCOMMANDS:
+Subcommands:
     test    some
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -1470,10 +1470,10 @@ SUBCOMMANDS:
 
 static HIDE_DEFAULT_VAL: &str = "default 0.1
 
-USAGE:
+Usage:
     default [OPTIONS]
 
-OPTIONS:
+Options:
         --arg <argument>    Pass an argument to the program. [default: default-argument]
     -h, --help              Print help information
     -V, --version           Print version information
@@ -1503,10 +1503,10 @@ fn hide_default_val() {
 fn escaped_whitespace_values() {
     static ESCAPED_DEFAULT_VAL: &str = "default 0.1
 
-USAGE:
+Usage:
     default [OPTIONS]
 
-OPTIONS:
+Options:
         --arg <argument>    Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \" \", \"\\n\", \"\\t\",
                             other]
     -h, --help              Print help information
@@ -1595,10 +1595,10 @@ fn issue_1052_require_delim_help() {
 Kevin K.
 tests stuff
 
-USAGE:
+Usage:
     test --fake <some> <val>
 
-OPTIONS:
+Options:
     -f, --fake <some> <val>    some help
     -h, --help                 Print help information
     -V, --version              Print version information
@@ -1625,10 +1625,10 @@ fn custom_headers_headers() {
 Will M.
 does stuff
 
-USAGE:
+Usage:
     test [OPTIONS] --fake <some> <val>
 
-OPTIONS:
+Options:
     -f, --fake <some> <val>    some help
     -h, --help                 Print help information
     -V, --version              Print version information
@@ -1666,10 +1666,10 @@ static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "blorp 1.4
 Will M.
 does stuff
 
-USAGE:
+Usage:
     test [OPTIONS] --fake <some> <val> --birthday-song <song> --birthday-song-volume <volume>
 
-OPTIONS:
+Options:
     -f, --fake <some> <val>    some help
         --style <style>        Choose musical style to play the song
     -s, --speed <SPEED>        How fast? [possible values: fast, slow]
@@ -1747,10 +1747,10 @@ static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "blorp 1.4
 Will M.
 does stuff
 
-USAGE:
+Usage:
     test [OPTIONS] --song <song> --song-volume <volume>
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -1799,10 +1799,10 @@ fn custom_help_headers_hide_args() {
 static ISSUE_897: &str = "ctest-foo 0.1
 Long about foo
 
-USAGE:
+Usage:
     ctest foo
 
-OPTIONS:
+Options:
     -h, --help
             Print help information
 
@@ -1824,10 +1824,10 @@ fn show_long_about_issue_897() {
 static ISSUE_897_SHORT: &str = "ctest-foo 0.1
 About foo
 
-USAGE:
+Usage:
     ctest foo
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -1847,13 +1847,13 @@ fn show_short_about_issue_897() {
 fn issue_1364_no_short_options() {
     static ISSUE_1364: &str = "demo 
 
-USAGE:
+Usage:
     demo [OPTIONS] [FILES]...
 
-ARGS:
+Arguments:
     <FILES>...    
 
-OPTIONS:
+Options:
     -f            
     -h, --help    Print help information
 ";
@@ -1881,14 +1881,14 @@ OPTIONS:
 fn issue_1487() {
 static ISSUE_1487: &str = "test 
 
-USAGE:
+Usage:
     ctest <arg1|arg2>
 
-ARGS:
+Arguments:
     <arg1>    
     <arg2>    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ";
 
@@ -2003,10 +2003,10 @@ fn help_required_and_no_args() {
 fn issue_1642_long_help_spacing() {
     static ISSUE_1642: &str = "prog 
 
-USAGE:
+Usage:
     prog [OPTIONS]
 
-OPTIONS:
+Options:
         --config
             The config file used by the myprog must be in JSON format
             with only valid keys and may not contain other nonsense
@@ -2033,7 +2033,7 @@ and on, so I'll stop now.",
 
 const AFTER_HELP_NO_ARGS: &str = "myapp 1.0
 
-USAGE:
+Usage:
     myapp
 
 This is after help.
@@ -2061,10 +2061,10 @@ fn help_subcmd_help() {
     static HELP_SUBCMD_HELP: &str = "myapp-help 
 Print this message or the help of the given subcommand(s)
 
-USAGE:
+Usage:
     myapp help [SUBCOMMAND]...
 
-ARGS:
+Arguments:
     [SUBCOMMAND]...    The subcommand whose help message to display
 ";
 
@@ -2079,10 +2079,10 @@ fn subcmd_help_subcmd_help() {
     static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
 Print this message or the help of the given subcommand(s)
 
-USAGE:
+Usage:
     myapp subcmd help [SUBCOMMAND]...
 
-ARGS:
+Arguments:
     [SUBCOMMAND]...    The subcommand whose help message to display
 ";
 
@@ -2101,10 +2101,10 @@ ARGS:
 fn option_usage_order() {
     static OPTION_USAGE_ORDER: &str = "order 
 
-USAGE:
+Usage:
     order [OPTIONS]
 
-OPTIONS:
+Options:
     -a                     
     -B                     
     -b                     
@@ -2136,13 +2136,13 @@ OPTIONS:
 fn prefer_about_over_long_about_in_subcommands_list() {
     static ABOUT_IN_SUBCOMMANDS_LIST: &str = "about-in-subcommands-list 
 
-USAGE:
+Usage:
     about-in-subcommands-list [SUBCOMMAND]
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 
-SUBCOMMANDS:
+Subcommands:
     sub     short about sub
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -2165,14 +2165,14 @@ SUBCOMMANDS:
 fn issue_1794_usage() {
     static USAGE_WITH_GROUP: &str = "hello 
 
-USAGE:
+Usage:
     deno <pos1|--option1> [pos2]
 
-ARGS:
+Arguments:
     <pos1>    
     <pos2>    
 
-OPTIONS:
+Options:
         --option1    
     -h, --help       Print help information
 ";
@@ -2197,13 +2197,13 @@ OPTIONS:
 
 static CUSTOM_HEADING_POS: &str = "test 1.4
 
-USAGE:
+Usage:
     test [ARGS]
 
-ARGS:
+Arguments:
     <gear>    Which gear
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -2224,7 +2224,7 @@ fn custom_heading_pos() {
 
 static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "test 1.4
 
-USAGE:
+Usage:
     test [OPTIONS]
 
 NETWORKING:
@@ -2246,7 +2246,7 @@ fn only_custom_heading_opts_no_args() {
 
 static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "test 1.4
 
-USAGE:
+Usage:
     test [speed]
 
 NETWORKING:
@@ -2281,10 +2281,10 @@ fn issue_2508_number_of_values_with_single_value_name() {
         "my_app --help",
         "my_app 
 
-USAGE:
+Usage:
     my_app [OPTIONS]
 
-OPTIONS:
+Options:
         --some_arg <some_arg> <some_arg>    
         --some_arg_issue <ARG> <ARG>        
     -h, --help                              Print help information
@@ -2304,14 +2304,14 @@ fn missing_positional_final_required() {
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test [arg1] <arg2>
 
-ARGS:
+Arguments:
     <arg1>    
     <arg2>    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ",
         false,
@@ -2330,15 +2330,15 @@ fn missing_positional_final_multiple() {
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test [ARGS]
 
-ARGS:
+Arguments:
     <foo>       
     <bar>       
     <baz>...    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ",
         false,
@@ -2358,13 +2358,13 @@ fn positional_multiple_values_is_dotted() {
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test <foo>...
 
-ARGS:
+Arguments:
     <foo>...    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ",
         false,
@@ -2382,13 +2382,13 @@ OPTIONS:
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test <BAR>...
 
-ARGS:
+Arguments:
     <BAR>...    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ",
         false,
@@ -2409,13 +2409,13 @@ fn positional_multiple_occurrences_is_dotted() {
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test <foo>...
 
-ARGS:
+Arguments:
     <foo>...    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ",
         false,
@@ -2434,13 +2434,13 @@ OPTIONS:
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test <BAR>...
 
-ARGS:
+Arguments:
     <BAR>...    
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ",
         false,
@@ -2462,10 +2462,10 @@ fn too_few_value_names_is_dotted() {
         "test --help",
         "test 
 
-USAGE:
+Usage:
     test --foo <one> <two>...
 
-OPTIONS:
+Options:
         --foo <one> <two>...    
     -h, --help                  Print help information
 ",
@@ -2565,10 +2565,10 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
         "example-help 
 Print this message or the help of the given subcommand(s)
 
-USAGE:
+Usage:
     example help [SUBCOMMAND]...
 
-ARGS:
+Arguments:
     [SUBCOMMAND]...    The subcommand whose help message to display
 ",
         false,
@@ -2608,10 +2608,10 @@ fn dont_propagate_version_to_help_subcommand() {
         "example-help 
 Print this message or the help of the given subcommand(s)
 
-USAGE:
+Usage:
     example help [SUBCOMMAND]...
 
-ARGS:
+Arguments:
     [SUBCOMMAND]...    The subcommand whose help message to display
 ",
         false,
@@ -2643,10 +2643,10 @@ fn parent_cmd_req_in_usage_with_help_flag() {
     static EXPECTED: &str = "parent-test 
 some
 
-USAGE:
+Usage:
     parent <TARGET> <ARGS> test
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ";
     let cmd = Command::new("parent")
@@ -2667,10 +2667,10 @@ fn parent_cmd_req_in_usage_with_help_subcommand() {
     static EXPECTED: &str = "parent-test 
 some
 
-USAGE:
+Usage:
     parent <TARGET> <ARGS> test
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ";
     let cmd = Command::new("parent")
@@ -2691,10 +2691,10 @@ fn parent_cmd_req_in_usage_with_render_help() {
     static EXPECTED: &str = "parent-test 
 some
 
-USAGE:
+Usage:
     parent <TARGET> <ARGS> test
 
-OPTIONS:
+Options:
     -h, --help    Print help information
 ";
     let mut cmd = Command::new("parent")

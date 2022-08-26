@@ -3,13 +3,13 @@ $ 03_03_positional_mult --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     03_03_positional_mult[EXE] [name]...
 
-ARGS:
+Arguments:
     <name>...    
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 

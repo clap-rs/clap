@@ -32,7 +32,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_usage_with_title");
         let mut styled = StyledStr::new();
-        styled.header("USAGE:");
+        styled.header("Usage:");
         styled.none("\n    ");
         styled.extend(self.create_usage_no_title(used).into_iter());
         styled

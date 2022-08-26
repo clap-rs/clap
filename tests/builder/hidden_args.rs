@@ -6,10 +6,10 @@ static HIDDEN_ARGS: &str = "test 1.4
 Kevin K.
 tests stuff
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -F, --flag2           some other flag
         --option <opt>    some option
     -h, --help            Print help information
@@ -35,10 +35,10 @@ static HIDDEN_SHORT_ARGS: &str = "test 2.31.2
 Steve P.
 hides short args
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -v, --visible    This text should be visible
     -h, --help       Print help information
     -V, --version    Print version information
@@ -75,10 +75,10 @@ fn hide_short_args_long_help() {
 Steve P.
 hides short args
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --config
             Some help text describing the --config arg
 
@@ -117,10 +117,10 @@ static HIDDEN_LONG_ARGS: &str = "test 2.31.2
 Steve P.
 hides long args
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -v, --visible
             This text should be visible
 
@@ -158,10 +158,10 @@ static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "test 2.31.2
 Steve P.
 hides long args
 
-USAGE:
+Usage:
     test [OPTIONS]
 
-OPTIONS:
+Options:
     -c, --config     Some help text describing the --config arg
     -v, --visible    This text should be visible
     -h, --help       Print help information
@@ -193,13 +193,13 @@ fn hide_long_args_short_help() {
 
 static HIDDEN_POS_ARGS: &str = "test 1.4
 
-USAGE:
+Usage:
     test [another]
 
-ARGS:
+Arguments:
     <another>    another pos
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -216,10 +216,10 @@ fn hide_pos_args() {
 
 static HIDDEN_SUBCMDS: &str = "test 1.4
 
-USAGE:
+Usage:
     test
 
-OPTIONS:
+Options:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -235,7 +235,7 @@ fn hide_subcmds() {
 
 static HIDDEN_OPT_ARGS_ONLY: &str = "test 1.4
 
-USAGE:
+Usage:
     test
 
 After help
@@ -261,7 +261,7 @@ fn hide_opt_args_only() {
 
 static HIDDEN_POS_ARGS_ONLY: &str = "test 1.4
 
-USAGE:
+Usage:
     test
 
 After help
@@ -283,7 +283,7 @@ fn hide_pos_args_only() {
 
 static HIDDEN_SUBCMDS_ONLY: &str = "test 1.4
 
-USAGE:
+Usage:
     test
 
 After help

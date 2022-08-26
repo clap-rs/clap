@@ -499,10 +499,10 @@ fn flag_subcommand_long_infer_exact_match() {
 static FLAG_SUBCOMMAND_HELP: &str = "pacman-query 
 Query the package database.
 
-USAGE:
+Usage:
     pacman {query|--query|-Q} [OPTIONS]
 
-OPTIONS:
+Options:
     -s, --search <search>...    search locally installed packages for matching strings
     -i, --info <info>...        view package information
     -h, --help                  Print help information
@@ -548,10 +548,10 @@ fn flag_subcommand_long_short_normal_usage_string() {
 static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "pacman-query 
 Query the package database.
 
-USAGE:
+Usage:
     pacman {query|--query} [OPTIONS]
 
-OPTIONS:
+Options:
     -s, --search <search>...    search locally installed packages for matching strings
     -i, --info <info>...        view package information
     -h, --help                  Print help information
@@ -601,10 +601,10 @@ fn flag_subcommand_long_normal_usage_string() {
 static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "pacman-query 
 Query the package database.
 
-USAGE:
+Usage:
     pacman {query|-Q} [OPTIONS]
 
-OPTIONS:
+Options:
     -s, --search <search>...    search locally installed packages for matching strings
     -i, --info <info>...        view package information
     -h, --help                  Print help information

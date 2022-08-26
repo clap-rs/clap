@@ -3,10 +3,10 @@ $ 02_app_settings_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-USAGE:
+Usage:
     02_app_settings_derive[EXE] --two <TWO> --one <ONE>
 
-OPTIONS:
+Options:
         --two <TWO>    
         --one <ONE>    
     -h, --help         Print help information

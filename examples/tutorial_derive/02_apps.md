@@ -4,10 +4,10 @@ MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
-USAGE:
+Usage:
     02_apps_derive[EXE] --two <TWO> --one <ONE>
 
-OPTIONS:
+Options:
         --two <TWO>    
         --one <ONE>    
     -h, --help         Print help information
