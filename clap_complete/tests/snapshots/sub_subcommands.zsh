@@ -70,7 +70,62 @@ _arguments "${_arguments_options[@]}" /
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*::subcommand -- The subcommand whose help message to display:' /
+":: :_my-app__some_cmd__help_commands" /
+"*::: :->help" /
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my-app-some_cmd-help-command-$line[1]:"
+        case $line[1] in
+            (sub_cmd)
+_arguments "${_arguments_options[@]}" /
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" /
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" /
+":: :_my-app__help_commands" /
+"*::: :->help" /
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my-app-help-command-$line[1]:"
+        case $line[1] in
+            (test)
+_arguments "${_arguments_options[@]}" /
+&& ret=0
+;;
+(some_cmd)
+_arguments "${_arguments_options[@]}" /
+":: :_my-app__help__some_cmd_commands" /
+"*::: :->some_cmd" /
+&& ret=0
+
+    case $state in
+    (some_cmd)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my-app-help-some_cmd-command-$line[1]:"
+        case $line[1] in
+            (sub_cmd)
+_arguments "${_arguments_options[@]}" /
 && ret=0
 ;;
         esac
@@ -79,8 +134,11 @@ esac
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*::subcommand -- The subcommand whose help message to display:' /
 && ret=0
+;;
+        esac
+    ;;
+esac
 ;;
         esac
     ;;
@@ -98,13 +156,37 @@ _my-app_commands() {
 }
 (( $+functions[_my-app__help_commands] )) ||
 _my-app__help_commands() {
-    local commands; commands=()
+    local commands; commands=(
+'test:tests things' /
+'some_cmd:top level subcommand' /
+'help:Print this message or the help of the given subcommand(s)' /
+    )
     _describe -t commands 'my-app help commands' commands "$@"
+}
+(( $+functions[_my-app__help__help_commands] )) ||
+_my-app__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help help commands' commands "$@"
 }
 (( $+functions[_my-app__some_cmd__help_commands] )) ||
 _my-app__some_cmd__help_commands() {
-    local commands; commands=()
+    local commands; commands=(
+'sub_cmd:sub-subcommand' /
+'help:Print this message or the help of the given subcommand(s)' /
+    )
     _describe -t commands 'my-app some_cmd help commands' commands "$@"
+}
+(( $+functions[_my-app__some_cmd__help__help_commands] )) ||
+_my-app__some_cmd__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app some_cmd help help commands' commands "$@"
+}
+(( $+functions[_my-app__help__some_cmd_commands] )) ||
+_my-app__help__some_cmd_commands() {
+    local commands; commands=(
+'sub_cmd:sub-subcommand' /
+    )
+    _describe -t commands 'my-app help some_cmd commands' commands "$@"
 }
 (( $+functions[_my-app__some_cmd_commands] )) ||
 _my-app__some_cmd_commands() {
@@ -114,10 +196,25 @@ _my-app__some_cmd_commands() {
     )
     _describe -t commands 'my-app some_cmd commands' commands "$@"
 }
+(( $+functions[_my-app__help__some_cmd__sub_cmd_commands] )) ||
+_my-app__help__some_cmd__sub_cmd_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help some_cmd sub_cmd commands' commands "$@"
+}
+(( $+functions[_my-app__some_cmd__help__sub_cmd_commands] )) ||
+_my-app__some_cmd__help__sub_cmd_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app some_cmd help sub_cmd commands' commands "$@"
+}
 (( $+functions[_my-app__some_cmd__sub_cmd_commands] )) ||
 _my-app__some_cmd__sub_cmd_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some_cmd sub_cmd commands' commands "$@"
+}
+(( $+functions[_my-app__help__test_commands] )) ||
+_my-app__help__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help test commands' commands "$@"
 }
 (( $+functions[_my-app__test_commands] )) ||
 _my-app__test_commands() {

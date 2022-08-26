@@ -14,3 +14,9 @@ complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "{Lest quotes aren/'t escaped.	}"
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help information'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version information'
+complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -f -a "sub_cmd" -d 'sub-subcommand'
+complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c my-app -n "__fish_seen_subcommand_from help; and not __fish_seen_subcommand_from test; and not __fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from help" -f -a "test" -d 'tests things'
+complete -c my-app -n "__fish_seen_subcommand_from help; and not __fish_seen_subcommand_from test; and not __fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from help" -f -a "some_cmd" -d 'top level subcommand'
+complete -c my-app -n "__fish_seen_subcommand_from help; and not __fish_seen_subcommand_from test; and not __fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c my-app -n "__fish_seen_subcommand_from help; and __fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd" -f -a "sub_cmd" -d 'sub-subcommand'

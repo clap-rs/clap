@@ -71,6 +71,34 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             break
         }
         'my-app;help' {
+            [CompletionResult]::new('cmd-single-quotes', 'cmd-single-quotes', [CompletionResultType]::ParameterValue, 'Can be ''always'', ''auto'', or ''never''')
+            [CompletionResult]::new('cmd-double-quotes', 'cmd-double-quotes', [CompletionResultType]::ParameterValue, 'Can be "always", "auto", or "never"')
+            [CompletionResult]::new('cmd-backticks', 'cmd-backticks', [CompletionResultType]::ParameterValue, 'For more information see `echo test`')
+            [CompletionResult]::new('cmd-backslash', 'cmd-backslash', [CompletionResultType]::ParameterValue, 'Avoid ''/n''')
+            [CompletionResult]::new('cmd-brackets', 'cmd-brackets', [CompletionResultType]::ParameterValue, 'List packages [filter]')
+            [CompletionResult]::new('cmd-expansions', 'cmd-expansions', [CompletionResultType]::ParameterValue, 'Execute the shell command with $SHELL')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'my-app;help;cmd-single-quotes' {
+            break
+        }
+        'my-app;help;cmd-double-quotes' {
+            break
+        }
+        'my-app;help;cmd-backticks' {
+            break
+        }
+        'my-app;help;cmd-backslash' {
+            break
+        }
+        'my-app;help;cmd-brackets' {
+            break
+        }
+        'my-app;help;cmd-expansions' {
+            break
+        }
+        'my-app;help;help' {
             break
         }
     })

@@ -53,8 +53,26 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --version 'Print version information'
         }
         &'my-app;some_cmd;help'= {
+            cand sub_cmd 'sub-subcommand'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'my-app;some_cmd;help;sub_cmd'= {
+        }
+        &'my-app;some_cmd;help;help'= {
         }
         &'my-app;help'= {
+            cand test 'tests things'
+            cand some_cmd 'top level subcommand'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'my-app;help;test'= {
+        }
+        &'my-app;help;some_cmd'= {
+            cand sub_cmd 'sub-subcommand'
+        }
+        &'my-app;help;some_cmd;sub_cmd'= {
+        }
+        &'my-app;help;help'= {
         }
     ]
     $completions[$command]

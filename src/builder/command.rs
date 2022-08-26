@@ -3749,8 +3749,13 @@ impl Command {
     /// Call this on the top-level [`Command`] when done building and before reading state for
     /// cases like completions, custom help output, etc.
     pub fn build(&mut self) {
+        self._prepare_build_for_completion();
         self._build_recursive();
         self._build_bin_names_internal();
+    }
+
+    fn _prepare_build_for_completion(&mut self) {
+        self.g_settings.set(AppSettings::ExpandHelpSubcommandTrees);
     }
 
     pub(crate) fn _build_recursive(&mut self) {
@@ -4144,15 +4149,32 @@ impl Command {
 
         if !self.is_set(AppSettings::DisableHelpSubcommand) {
             debug!("Command::_check_help_and_version: Building help subcommand");
-            let mut help_subcmd = Command::new("help")
-                .about("Print this message or the help of the given subcommand(s)")
-                .arg(
+            let help_about = "Print this message or the help of the given subcommand(s)";
+
+            let mut help_subcmd = if self.is_set(AppSettings::ExpandHelpSubcommandTrees) {
+                // Slow code path to recursively clone all other subcommand subtrees under help
+                let help_subcmd = Command::new("help")
+                    .about(help_about)
+                    .global_setting(AppSettings::DisableHelpSubcommand)
+                    .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
+
+                let mut help_help_subcmd = Command::new("help").about(help_about);
+                help_help_subcmd.version = None;
+                help_help_subcmd.long_version = None;
+                help_help_subcmd = help_help_subcmd
+                    .setting(AppSettings::DisableHelpFlag)
+                    .setting(AppSettings::DisableVersionFlag);
+
+                help_subcmd.subcommand(help_help_subcmd)
+            } else {
+                Command::new("help").about(help_about).arg(
                     Arg::new("subcommand")
                         .action(ArgAction::Append)
                         .num_args(..)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display"),
-                );
+                )
+            };
             self._propagate_subcommand(&mut help_subcmd);
 
             // The parser acts like this is set, so let's set it so we don't falsely
@@ -4166,6 +4188,18 @@ impl Command {
 
             self.subcommands.push(help_subcmd);
         }
+    }
+
+    fn _copy_subtree_for_help(&self) -> Command {
+        let mut cmd = Command::new(self.get_name().to_string())
+            .hide(self.is_hide_set())
+            .global_setting(AppSettings::DisableHelpFlag)
+            .global_setting(AppSettings::DisableVersionFlag)
+            .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
+        if self.get_about().is_some() {
+            cmd = cmd.about(self.get_about().unwrap().clone());
+        }
+        cmd
     }
 
     pub(crate) fn _render_version(&self, use_long: bool) -> String {

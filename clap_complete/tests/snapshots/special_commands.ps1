@@ -67,6 +67,26 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             break
         }
         'my-app;help' {
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'tests things')
+            [CompletionResult]::new('some_cmd', 'some_cmd', [CompletionResultType]::ParameterValue, 'tests other things')
+            [CompletionResult]::new('some-cmd-with-hyphens', 'some-cmd-with-hyphens', [CompletionResultType]::ParameterValue, 'some-cmd-with-hyphens')
+            [CompletionResult]::new('some-hidden-cmd', 'some-hidden-cmd', [CompletionResultType]::ParameterValue, 'some-hidden-cmd')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'my-app;help;test' {
+            break
+        }
+        'my-app;help;some_cmd' {
+            break
+        }
+        'my-app;help;some-cmd-with-hyphens' {
+            break
+        }
+        'my-app;help;some-hidden-cmd' {
+            break
+        }
+        'my-app;help;help' {
             break
         }
     })

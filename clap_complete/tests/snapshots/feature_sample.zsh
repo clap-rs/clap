@@ -45,8 +45,27 @@ _arguments "${_arguments_options[@]}" /
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*::subcommand -- The subcommand whose help message to display:' /
+":: :_my-app__help_commands" /
+"*::: :->help" /
 && ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my-app-help-command-$line[1]:"
+        case $line[1] in
+            (test)
+_arguments "${_arguments_options[@]}" /
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" /
+&& ret=0
+;;
+        esac
+    ;;
+esac
 ;;
         esac
     ;;
@@ -63,8 +82,21 @@ _my-app_commands() {
 }
 (( $+functions[_my-app__help_commands] )) ||
 _my-app__help_commands() {
-    local commands; commands=()
+    local commands; commands=(
+'test:tests things' /
+'help:Print this message or the help of the given subcommand(s)' /
+    )
     _describe -t commands 'my-app help commands' commands "$@"
+}
+(( $+functions[_my-app__help__help_commands] )) ||
+_my-app__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help help commands' commands "$@"
+}
+(( $+functions[_my-app__help__test_commands] )) ||
+_my-app__help__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help test commands' commands "$@"
 }
 (( $+functions[_my-app__test_commands] )) ||
 _my-app__test_commands() {
