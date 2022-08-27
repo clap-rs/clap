@@ -2098,6 +2098,111 @@ Arguments:
 }
 
 #[test]
+fn global_args_should_show_on_toplevel_help_message() {
+    static HELP: &str = "myapp\x20
+
+Usage:
+    myapp [OPTIONS] [SUBCOMMAND]
+
+Subcommands:
+    subcmd\x20\x20\x20\x20
+    help      Print this message or the help of the given subcommand(s)
+
+Options:
+    -g, --some-global <someglobal>\x20\x20\x20\x20
+    -h, --help                        Print help information
+";
+
+    let cmd = Command::new("myapp")
+        .arg(
+            Arg::new("someglobal")
+                .short('g')
+                .long("some-global")
+                .global(true),
+        )
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    utils::assert_output(cmd, "myapp help", HELP, false);
+}
+
+#[test]
+fn global_args_should_not_show_on_help_message_for_help_help() {
+    static HELP_HELP: &str = "myapp-help\x20
+Print this message or the help of the given subcommand(s)
+
+Usage:
+    myapp help [SUBCOMMAND]...
+
+Arguments:
+    [SUBCOMMAND]...    The subcommand whose help message to display
+";
+
+    let cmd = Command::new("myapp")
+        .arg(
+            Arg::new("someglobal")
+                .short('g')
+                .long("some-global")
+                .global(true),
+        )
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    utils::assert_output(cmd, "myapp help help", HELP_HELP, false);
+}
+
+#[test]
+fn global_args_should_show_on_help_message_for_subcommand() {
+    static HELP_SUBCMD: &str = "myapp-subcmd\x20
+
+Usage:
+    myapp subcmd [OPTIONS] [SUBCOMMAND]
+
+Subcommands:
+    multi\x20\x20\x20\x20
+    help     Print this message or the help of the given subcommand(s)
+
+Options:
+    -g, --some-global <someglobal>\x20\x20\x20\x20
+    -h, --help                        Print help information
+";
+
+    let cmd = Command::new("myapp")
+        .arg(
+            Arg::new("someglobal")
+                .short('g')
+                .long("some-global")
+                .global(true),
+        )
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    utils::assert_output(cmd, "myapp help subcmd", HELP_SUBCMD, false);
+}
+
+#[test]
+fn global_args_should_show_on_help_message_for_nested_subcommand() {
+    static HELP_SUB_SUBCMD: &str = "myapp-subcmd-multi 1.0
+
+Usage:
+    myapp subcmd multi [OPTIONS]
+
+Options:
+    -g, --some-global <someglobal>\x20\x20\x20\x20
+    -h, --help                        Print help information
+    -V, --version                     Print version information
+";
+
+    let cmd = Command::new("myapp")
+        .arg(
+            Arg::new("someglobal")
+                .short('g')
+                .long("some-global")
+                .global(true),
+        )
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    utils::assert_output(cmd, "myapp help subcmd multi", HELP_SUB_SUBCMD, false);
+}
+
+#[test]
 fn option_usage_order() {
     static OPTION_USAGE_ORDER: &str = "order 
 

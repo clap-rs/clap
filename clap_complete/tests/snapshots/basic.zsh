@@ -38,7 +38,6 @@ _arguments "${_arguments_options[@]}" /
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*-c[]' /
 ":: :_my-app__help_commands" /
 "*::: :->help" /
 && ret=0
@@ -51,12 +50,10 @@ _arguments "${_arguments_options[@]}" /
         case $line[1] in
             (test)
 _arguments "${_arguments_options[@]}" /
-'*-c[]' /
 && ret=0
 ;;
 (help)
 _arguments "${_arguments_options[@]}" /
-'*-c[]' /
 && ret=0
 ;;
         esac
