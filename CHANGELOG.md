@@ -88,6 +88,7 @@ MSRV is now 1.60.0
 - *(help)* Use a more neutral palette for coloring
 - *(help)* Don't rely on ALL CAPS for help headers
 - *(help)* List subcommands first, focusing the emphasis on them
+- *(help)* Do not include global args in `cmd help help` (#4131)
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
