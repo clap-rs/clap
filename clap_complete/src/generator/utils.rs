@@ -44,7 +44,9 @@ pub fn subcommands(p: &Command) -> Vec<(String, String)> {
     }
 
     for sc in p.get_subcommands() {
-        let sc_bin_name = sc.get_bin_name().unwrap();
+        let sc_bin_name = sc.get_bin_name().unwrap_or_else(|| {
+            panic!("bin_name must be specified in subcommand {}", sc.get_name())
+        });
 
         debug!(
             "subcommands:iter: name={}, bin_name={}",
