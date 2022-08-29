@@ -104,15 +104,12 @@ impl<'cmd> Usage<'cmd> {
                 let req = pos.is_required_set();
                 if req && self.cmd.get_positionals().any(|p| !p.is_required_set()) {
                     styled.literal(" -- ");
-                    styled.placeholder("<");
                 } else if req {
-                    styled.placeholder(" [--] <");
+                    styled.placeholder(" [--] ");
                 } else {
-                    styled.placeholder(" [-- <");
+                    styled.placeholder(" [-- ");
                 }
-                styled.placeholder(&*pos.name_no_brackets());
-                styled.placeholder('>');
-                styled.placeholder(pos.multiple_str());
+                styled.extend(pos.stylized(Some(true)).into_iter());
                 if !req {
                     styled.placeholder(']');
                 }
@@ -246,11 +243,7 @@ impl<'cmd> Usage<'cmd> {
                 pos.get_id()
             );
 
-            Some(format!(
-                " [{}]{}",
-                pos.name_no_brackets(),
-                pos.multiple_str()
-            ))
+            Some(format!(" {}", pos.stylized(Some(false))))
         } else if self.cmd.is_dont_collapse_args_in_usage_set()
             && self.cmd.has_positionals()
             && incl_reqs
@@ -262,7 +255,7 @@ impl<'cmd> Usage<'cmd> {
                     .filter(|pos| !pos.is_required_set())
                     .filter(|pos| !pos.is_hide_set())
                     .filter(|pos| !pos.is_last_set())
-                    .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
+                    .map(|pos| format!(" {}", pos.stylized(Some(false))))
                     .collect::<Vec<_>>()
                     .join(""),
             )
@@ -289,7 +282,7 @@ impl<'cmd> Usage<'cmd> {
                     .filter(|pos| !pos.is_required_set())
                     .filter(|pos| !pos.is_hide_set())
                     .filter(|pos| !pos.is_last_set())
-                    .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
+                    .map(|pos| format!(" {}", pos.stylized(Some(false))))
                     .collect::<Vec<_>>()
                     .join(""),
             )
