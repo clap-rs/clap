@@ -86,7 +86,7 @@ impl<'cmd> Usage<'cmd> {
         let not_req_or_hidden =
             |p: &Arg| (!p.is_required_set() || p.is_last_set()) && !p.is_hide_set();
         if self.cmd.get_positionals().any(not_req_or_hidden) {
-            if let Some(args_tag) = self.get_args_tag(incl_reqs) {
+            if let Some(args_tag) = self.get_optional_args(incl_reqs) {
                 styled.placeholder(&*args_tag);
             } else {
                 styled.placeholder(" [ARGS]");
@@ -135,10 +135,11 @@ impl<'cmd> Usage<'cmd> {
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
                 styled.none("\n    ");
-                if !self.cmd.is_args_conflicts_with_subcommands_set() {
-                    styled.extend(self.create_help_usage(false).into_iter());
-                } else {
+                if self.cmd.is_args_conflicts_with_subcommands_set() {
+                    // Short-circuit full usage creation since no args will be relevant
                     styled.literal(name);
+                } else {
+                    styled.extend(self.create_help_usage(false).into_iter());
                 }
                 styled.placeholder(" <");
                 styled.placeholder(placeholder);
@@ -186,8 +187,8 @@ impl<'cmd> Usage<'cmd> {
     }
 
     // Gets the `[ARGS]` tag for the usage string
-    fn get_args_tag(&self, incl_reqs: bool) -> Option<String> {
-        debug!("Usage::get_args_tag; incl_reqs = {:?}", incl_reqs);
+    fn get_optional_args(&self, incl_reqs: bool) -> Option<String> {
+        debug!("Usage::get_optional_args; incl_reqs = {:?}", incl_reqs);
         let mut count = 0;
         for pos in self
             .cmd
@@ -196,10 +197,10 @@ impl<'cmd> Usage<'cmd> {
             .filter(|pos| !pos.is_hide_set())
             .filter(|pos| !pos.is_last_set())
         {
-            debug!("Usage::get_args_tag:iter:{}", pos.get_id());
+            debug!("Usage::get_optional_args:iter:{}", pos.get_id());
             let required = self.cmd.groups_for_arg(&pos.id).any(|grp_s| {
                 debug!(
-                    "Usage::get_args_tag:iter:{:?}:iter:{:?}",
+                    "Usage::get_optional_args:iter:{:?}:iter:{:?}",
                     pos.get_id(),
                     grp_s
                 );
@@ -209,14 +210,14 @@ impl<'cmd> Usage<'cmd> {
             if !required {
                 count += 1;
                 debug!(
-                    "Usage::get_args_tag:iter: {} Args not required or hidden",
+                    "Usage::get_optional_args:iter: {} Args not required or hidden",
                     count
                 );
             }
         }
 
         if !self.cmd.is_dont_collapse_args_in_usage_set() && count > 1 {
-            debug!("Usage::get_args_tag:iter: More than one, returning [ARGS]");
+            debug!("Usage::get_optional_args:iter: More than one, returning [ARGS]");
 
             // [ARGS]
             None
@@ -230,7 +231,7 @@ impl<'cmd> Usage<'cmd> {
                         && !pos.is_last_set()
                         && !self.cmd.groups_for_arg(&pos.id).any(|grp_s| {
                             debug!(
-                                "Usage::get_args_tag:iter:{:?}:iter:{:?}",
+                                "Usage::get_optional_args:iter:{:?}:iter:{:?}",
                                 pos.get_id(),
                                 grp_s
                             );
@@ -241,7 +242,7 @@ impl<'cmd> Usage<'cmd> {
                 .expect(INTERNAL_ERROR_MSG);
 
             debug!(
-                "Usage::get_args_tag:iter: Exactly one, returning '{}'",
+                "Usage::get_optional_args:iter: Exactly one, returning '{}'",
                 pos.get_id()
             );
 
@@ -254,7 +255,7 @@ impl<'cmd> Usage<'cmd> {
             && self.cmd.has_positionals()
             && incl_reqs
         {
-            debug!("Usage::get_args_tag:iter: Don't collapse returning all");
+            debug!("Usage::get_optional_args:iter: Don't collapse returning all");
             Some(
                 self.cmd
                     .get_positionals()
@@ -266,7 +267,9 @@ impl<'cmd> Usage<'cmd> {
                     .join(""),
             )
         } else if !incl_reqs {
-            debug!("Usage::get_args_tag:iter: incl_reqs=false, building secondary usage string");
+            debug!(
+                "Usage::get_optional_args:iter: incl_reqs=false, building secondary usage string"
+            );
             let highest_req_pos = self
                 .cmd
                 .get_positionals()
@@ -353,16 +356,13 @@ impl<'cmd> Usage<'cmd> {
         incls: &[Id],
         matcher: Option<&ArgMatcher>,
         incl_last: bool,
-    ) -> FlatSet<StyledStr> {
+    ) -> Vec<StyledStr> {
         debug!(
             "Usage::get_required_usage_from: incls={:?}, matcher={:?}, incl_last={:?}",
             incls,
             matcher.is_some(),
             incl_last
         );
-        let mut ret_val = FlatSet::new();
-
-        let mut unrolled_reqs = FlatSet::new();
 
         let required_owned;
         let required = if let Some(required) = self.required {
@@ -372,6 +372,7 @@ impl<'cmd> Usage<'cmd> {
             &required_owned
         };
 
+        let mut unrolled_reqs = FlatSet::new();
         for a in required.iter() {
             let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
@@ -396,7 +397,6 @@ impl<'cmd> Usage<'cmd> {
             // by unroll_requirements_for_arg.
             unrolled_reqs.insert(a.clone());
         }
-
         debug!(
             "Usage::get_required_usage_from: unrolled_reqs={:?}",
             unrolled_reqs
@@ -405,7 +405,7 @@ impl<'cmd> Usage<'cmd> {
         let mut required_groups_members = FlatSet::new();
         let mut required_opts = FlatSet::new();
         let mut required_groups = FlatSet::new();
-        let mut required_positionals = Vec::new();
+        let mut required_positionals = FlatSet::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if let Some(arg) = self.cmd.find(req) {
                 let is_present = matcher
@@ -418,7 +418,7 @@ impl<'cmd> Usage<'cmd> {
                 if !is_present {
                     if arg.is_positional() {
                         if incl_last || !arg.is_last_set() {
-                            required_positionals.push((arg.index.unwrap(), arg.stylized()));
+                            required_positionals.insert((arg.index.unwrap(), arg.stylized()));
                         }
                     } else {
                         required_opts.insert(arg.stylized());
@@ -451,6 +451,8 @@ impl<'cmd> Usage<'cmd> {
             }
         }
 
+        let mut ret_val = Vec::new();
+
         required_opts.retain(|arg| !required_groups_members.contains(arg));
         ret_val.extend(required_opts);
 
@@ -459,7 +461,7 @@ impl<'cmd> Usage<'cmd> {
         required_positionals.sort_by_key(|(ind, _)| *ind); // sort by index
         for (_, p) in required_positionals {
             if !required_groups_members.contains(&p) {
-                ret_val.insert(p);
+                ret_val.push(p);
             }
         }
 

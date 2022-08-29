@@ -50,6 +50,14 @@ impl<T: PartialEq + Eq> FlatSet<T> {
     pub(crate) fn iter(&self) -> std::slice::Iter<'_, T> {
         self.inner.iter()
     }
+
+    pub fn sort_by_key<K, F>(&mut self, f: F)
+    where
+        F: FnMut(&T) -> K,
+        K: Ord,
+    {
+        self.inner.sort_by_key(f);
+    }
 }
 
 impl<T: PartialEq + Eq> Default for FlatSet<T> {
