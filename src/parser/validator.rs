@@ -298,7 +298,20 @@ impl<'cmd> Validator<'cmd> {
             }
         }
 
-        self.validate_required_unless(matcher)?;
+        debug!("Validator::validate_required_unless");
+        let failed_args: Vec<_> = self
+            .cmd
+            .get_arguments()
+            .filter(|&a| {
+                (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
+                    && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
+                    && self.fails_arg_required_unless(a, matcher)
+            })
+            .map(|a| a.id.clone())
+            .collect();
+        if !failed_args.is_empty() {
+            self.missing_required_error(matcher, failed_args)?;
+        }
 
         Ok(())
     }
@@ -312,25 +325,6 @@ impl<'cmd> Validator<'cmd> {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
         let conflicts = conflicts.gather_conflicts(self.cmd, matcher, &a.id);
         !conflicts.is_empty()
-    }
-
-    fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debug!("Validator::validate_required_unless");
-        let failed_args: Vec<_> = self
-            .cmd
-            .get_arguments()
-            .filter(|&a| {
-                (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
-                    && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
-                    && self.fails_arg_required_unless(a, matcher)
-            })
-            .map(|a| a.id.clone())
-            .collect();
-        if failed_args.is_empty() {
-            Ok(())
-        } else {
-            self.missing_required_error(matcher, failed_args)
-        }
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
