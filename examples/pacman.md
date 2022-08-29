@@ -59,7 +59,7 @@ Usage:
     pacman[EXE] {sync|--sync|-S} [OPTIONS] [--] [package]...
 
 Arguments:
-    <package>...    packages
+    [package]...    packages
 
 Options:
     -s, --search <search>...    search remote repositories for matching strings

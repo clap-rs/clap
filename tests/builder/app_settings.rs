@@ -20,9 +20,9 @@ Usage:
     clap-test [arg1] [arg2] [arg3]
 
 Arguments:
-    <arg1>    some
-    <arg2>    some
-    <arg3>    some
+    [arg1]    some
+    [arg2]    some
+    [arg3]    some
 
 Options:
     -h, --help       Print help information
@@ -292,7 +292,7 @@ Usage:
     test [OPTIONS] [arg1]
 
 Arguments:
-    <arg1>    some pos arg
+    [arg1]    some pos arg
 
 Options:
     -o, --opt <opt>    some option

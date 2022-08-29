@@ -7,7 +7,7 @@ Usage:
     04_03_relations_derive[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
 Arguments:
-    <INPUT_FILE>    some regular input
+    [INPUT_FILE]    some regular input
 
 Options:
         --set-ver <VER>        set version manually

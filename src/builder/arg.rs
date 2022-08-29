@@ -3970,7 +3970,7 @@ impl Arg {
         }
     }
 
-    pub(crate) fn stylized(&self) -> StyledStr {
+    pub(crate) fn stylized(&self, required: Option<bool>) -> StyledStr {
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
         if let Some(l) = self.get_long() {
@@ -3980,11 +3980,11 @@ impl Arg {
             styled.literal("-");
             styled.literal(s);
         }
-        styled.extend(self.stylize_arg_suffix().into_iter());
+        styled.extend(self.stylize_arg_suffix(required).into_iter());
         styled
     }
 
-    pub(crate) fn stylize_arg_suffix(&self) -> StyledStr {
+    pub(crate) fn stylize_arg_suffix(&self, required: Option<bool>) -> StyledStr {
         let mut styled = StyledStr::new();
 
         let mut need_closing_bracket = false;
@@ -4005,7 +4005,8 @@ impl Arg {
             }
         }
         if self.is_takes_value_set() || self.is_positional() {
-            let arg_val = self.render_arg_val();
+            let required = required.unwrap_or_else(|| self.is_required_set());
+            let arg_val = self.render_arg_val(required);
             styled.placeholder(arg_val);
         } else if matches!(*self.get_action(), ArgAction::Count) {
             styled.placeholder("...");
@@ -4018,7 +4019,7 @@ impl Arg {
     }
 
     /// Write the values such as <name1> <name2>
-    fn render_arg_val(&self) -> String {
+    fn render_arg_val(&self, required: bool) -> String {
         let mut rendered = String::new();
 
         let num_vals = self.get_num_args().expect(INTERNAL_ERROR_MSG);
@@ -4036,7 +4037,7 @@ impl Arg {
 
         debug_assert!(self.is_takes_value_set());
         for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = if self.is_positional() && num_vals.min_values() == 0 {
+            let arg_name = if self.is_positional() && (num_vals.min_values() == 0 || !required) {
                 format!("[{}]", val_name)
             } else {
                 format!("<{}>", val_name)
@@ -4098,7 +4099,7 @@ impl Eq for Arg {}
 
 impl Display for Arg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        self.stylized().fmt(f)
+        self.stylized(None).fmt(f)
     }
 }
 
@@ -4372,6 +4373,14 @@ mod test {
         let mut p = Arg::new("pos").index(1).num_args(1..);
         p._build();
 
+        assert_eq!(p.to_string(), "[pos]...");
+    }
+
+    #[test]
+    fn positional_display_multiple_values_required() {
+        let mut p = Arg::new("pos").index(1).num_args(1..).required(true);
+        p._build();
+
         assert_eq!(p.to_string(), "<pos>...");
     }
 
@@ -4386,6 +4395,14 @@ mod test {
     #[test]
     fn positional_display_one_or_more_values() {
         let mut p = Arg::new("pos").index(1).num_args(1..);
+        p._build();
+
+        assert_eq!(p.to_string(), "[pos]...");
+    }
+
+    #[test]
+    fn positional_display_one_or_more_values_required() {
+        let mut p = Arg::new("pos").index(1).num_args(1..).required(true);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
@@ -4407,6 +4424,17 @@ mod test {
         let mut p = Arg::new("pos").index(1).action(ArgAction::Append);
         p._build();
 
+        assert_eq!(p.to_string(), "[pos]...");
+    }
+
+    #[test]
+    fn positional_display_multiple_occurrences_required() {
+        let mut p = Arg::new("pos")
+            .index(1)
+            .action(ArgAction::Append)
+            .required(true);
+        p._build();
+
         assert_eq!(p.to_string(), "<pos>...");
     }
 
@@ -4421,6 +4449,17 @@ mod test {
     #[test]
     fn positional_display_val_names() {
         let mut p = Arg::new("pos").index(1).value_names(["file1", "file2"]);
+        p._build();
+
+        assert_eq!(p.to_string(), "[file1] [file2]");
+    }
+
+    #[test]
+    fn positional_display_val_names_required() {
+        let mut p = Arg::new("pos")
+            .index(1)
+            .value_names(["file1", "file2"])
+            .required(true);
         p._build();
 
         assert_eq!(p.to_string(), "<file1> <file2>");

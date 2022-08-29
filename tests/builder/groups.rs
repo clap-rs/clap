@@ -12,7 +12,7 @@ For more information try --help
 ";
 
 static REQ_GROUP_CONFLICT_USAGE: &str =
-    "error: The argument '--delete' cannot be used with '<base>'
+    "error: The argument '--delete' cannot be used with '[base]'
 
 Usage:
     clap-test <base|--delete>
@@ -267,7 +267,7 @@ Usage:
     prog <A>
 
 Arguments:
-    <A>    
+    [A]    
 
 Options:
     -h, --help    Print help information

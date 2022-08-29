@@ -418,10 +418,11 @@ impl<'cmd> Usage<'cmd> {
                 if !is_present {
                     if arg.is_positional() {
                         if incl_last || !arg.is_last_set() {
-                            required_positionals.insert((arg.index.unwrap(), arg.stylized()));
+                            required_positionals
+                                .insert((arg.index.unwrap(), arg.stylized(Some(true))));
                         }
                     } else {
-                        required_opts.insert(arg.stylized());
+                        required_opts.insert(arg.stylized(Some(true)));
                     }
                 }
             } else {
@@ -445,7 +446,7 @@ impl<'cmd> Usage<'cmd> {
                         group_members
                             .iter()
                             .flat_map(|id| self.cmd.find(id))
-                            .map(|arg| arg.stylized()),
+                            .map(|arg| arg.stylized(Some(true))),
                     );
                 }
             }

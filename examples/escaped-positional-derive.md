@@ -12,7 +12,7 @@ Usage:
     escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
 Arguments:
-    <SLOP>...    
+    [SLOP]...    
 
 Options:
     -f               

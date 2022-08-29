@@ -447,7 +447,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         self.none(TAB);
         self.short(arg);
         self.long(arg);
-        self.writer.extend(arg.stylize_arg_suffix().into_iter());
+        self.writer.extend(arg.stylize_arg_suffix(None).into_iter());
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {

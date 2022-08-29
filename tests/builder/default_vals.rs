@@ -794,7 +794,7 @@ fn required_args_with_default_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: \"value\" isn't a valid value for '<arg>'"]
+#[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: \"value\" isn't a valid value for '[arg]'"]
 fn default_values_are_possible_values() {
     use clap::{Arg, Command};
 
@@ -809,7 +809,7 @@ fn default_values_are_possible_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '<arg>"]
+#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '[arg]"]
 fn invalid_default_values() {
     use clap::{Arg, Command};
 
@@ -838,7 +838,7 @@ fn valid_delimited_default_values() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '<arg>"]
+#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '[arg]"]
 fn invalid_delimited_default_values() {
     use clap::{Arg, Command};
 

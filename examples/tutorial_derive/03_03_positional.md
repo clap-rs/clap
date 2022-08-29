@@ -7,7 +7,7 @@ Usage:
     03_03_positional_derive[EXE] [NAME]
 
 Arguments:
-    <NAME>    
+    [NAME]    
 
 Options:
     -h, --help       Print help information

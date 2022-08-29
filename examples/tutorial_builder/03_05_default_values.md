@@ -7,7 +7,7 @@ Usage:
     03_05_default_values[EXE] [NAME]
 
 Arguments:
-    <NAME>    [default: alice]
+    [NAME]    [default: alice]
 
 Options:
     -h, --help       Print help information
