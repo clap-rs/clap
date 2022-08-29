@@ -299,16 +299,15 @@ impl<'cmd> Validator<'cmd> {
         }
 
         debug!("Validator::validate_required_unless");
-        let failed_args: Vec<_> = self
-            .cmd
-            .get_arguments()
-            .filter(|&a| {
-                (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
-                    && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
-                    && self.fails_arg_required_unless(a, matcher)
-            })
-            .map(|a| a.id.clone())
-            .collect();
+        let mut failed_args = Vec::new();
+        for a in self.cmd.get_arguments() {
+            if (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
+                && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
+                && self.fails_arg_required_unless(a, matcher)
+            {
+                failed_args.push(a.id.clone());
+            }
+        }
         if !failed_args.is_empty() {
             self.missing_required_error(matcher, failed_args)?;
         }
