@@ -280,10 +280,12 @@ impl<'cmd> Validator<'cmd> {
 
         // Validate the conditionally required args
         for a in self.cmd.get_arguments() {
+            if matcher.check_explicit(&a.id, &ArgPredicate::IsPresent) {
+                continue;
+            }
+
             for (other, val) in &a.r_ifs {
-                if matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
-                    && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
-                {
+                if matcher.check_explicit(other, &ArgPredicate::Equals(val.into())) {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
             }
@@ -291,10 +293,7 @@ impl<'cmd> Validator<'cmd> {
             let match_all = a.r_ifs_all.iter().all(|(other, val)| {
                 matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
             });
-            if match_all
-                && !a.r_ifs_all.is_empty()
-                && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
-            {
+            if match_all && !a.r_ifs_all.is_empty() {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
