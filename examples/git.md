@@ -109,7 +109,7 @@ Usage:
     git[EXE] stash pop [STASH]
 
 Arguments:
-    <STASH>    
+    [STASH]    
 
 Options:
     -h, --help    Print help information

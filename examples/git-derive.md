@@ -111,7 +111,7 @@ Usage:
     git-derive[EXE] stash pop [STASH]
 
 Arguments:
-    <STASH>    
+    [STASH]    
 
 Options:
     -h, --help    Print help information

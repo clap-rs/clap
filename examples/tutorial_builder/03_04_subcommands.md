@@ -22,7 +22,7 @@ Usage:
     03_04_subcommands[EXE] add [NAME]
 
 Arguments:
-    <NAME>    
+    [NAME]    
 
 Options:
     -h, --help       Print help information

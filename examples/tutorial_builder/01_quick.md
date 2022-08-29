@@ -11,7 +11,7 @@ Subcommands:
     help    Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <name>    Optional name to operate on
+    [name]    Optional name to operate on
 
 Options:
     -c, --config <FILE>    Sets a custom config file

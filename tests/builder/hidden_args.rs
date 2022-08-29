@@ -197,7 +197,7 @@ Usage:
     test [another]
 
 Arguments:
-    <another>    another pos
+    [another]    another pos
 
 Options:
     -h, --help       Print help information

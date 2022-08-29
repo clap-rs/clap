@@ -12,7 +12,7 @@ Usage:
     escaped-positional[EXE] [OPTIONS] [-- <SLOP>...]
 
 Arguments:
-    <SLOP>...    
+    [SLOP]...    
 
 Options:
     -f               

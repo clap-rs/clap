@@ -123,8 +123,8 @@ Usage:
     flamegraph [OPTIONS] [BINFILE] [-- <ARGS>...]
 
 Arguments:
-    <BINFILE>    The path of the binary to be profiled. for a binary.
-    <ARGS>...    Any arguments you wish to pass to the being profiled.
+    [BINFILE]    The path of the binary to be profiled. for a binary.
+    [ARGS]...    Any arguments you wish to pass to the being profiled.
 
 Options:
     -v, --verbose              Prints out more stuff.
@@ -212,9 +212,9 @@ Subcommands:
     help      Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <positional>        tests positionals
-    <positional2>       tests positionals with exclusions
-    <positional3>...    tests specific values [possible values: vi, emacs]
+    [positional]        tests positionals
+    [positional2]       tests positionals with exclusions
+    [positional3]...    tests specific values [possible values: vi, emacs]
 
 Options:
     -o, --option <opt>...                    tests options
@@ -549,7 +549,7 @@ Usage:
     clap-test subcmd [OPTIONS] [--] [scpositional]
 
 Arguments:
-    <scpositional>    tests positionals
+    [scpositional]    tests positionals
 
 Options:
     -o, --option <scoption>...     tests options
@@ -801,7 +801,7 @@ Usage:
     ctest [mode]
 
 Arguments:
-    <mode>    x, max, maximum   20 characters, contains
+    [mode]    x, max, maximum   20 characters, contains
               symbols.
               l, long           Copy-friendly, 14
               characters, contains symbols.
@@ -965,8 +965,8 @@ Usage:
     myapp [OPTIONS] [--] [ARGS]
 
 Arguments:
-    <arg1>       some option
-    <arg2>...    some option
+    [arg1]       some option
+    [arg2]...    some option
 
 Options:
     -s, --some <some>         some option
@@ -1024,7 +1024,7 @@ Usage:
     myapp [arg1]
 
 Arguments:
-    <arg1>
+    [arg1]
             some option
 
 Options:
@@ -1108,7 +1108,7 @@ Subcommands:
     help    Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <PATH>    help
+    [PATH]    help
 
 Options:
     -o, --opt <FILE>    tests options
@@ -1160,7 +1160,7 @@ Subcommands:
     help    Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <PATH>    help
+    [PATH]    help
 
 Options:
     -f, --flag          testing flags
@@ -1187,7 +1187,7 @@ Usage:
     prog [OPTIONS] [PATH]
 
 Arguments:
-    <PATH>    some
+    [PATH]    some
 
 Options:
     -f, --flag          testing flags
@@ -1337,8 +1337,8 @@ Usage:
 
 Arguments:
     <TARGET>     some
-    <CORPUS>     some
-    <ARGS>...    some
+    [CORPUS]     some
+    [ARGS]...    some
 
 Options:
     -h, --help       Print help information
@@ -1368,7 +1368,7 @@ Usage:
 
 Arguments:
     <TARGET>     some
-    <CORPUS>     some
+    [CORPUS]     some
     <ARGS>...    some
 
 Options:
@@ -1405,7 +1405,7 @@ Subcommands:
 
 Arguments:
     <TARGET>     some
-    <CORPUS>     some
+    [CORPUS]     some
     <ARGS>...    some
 
 Options:
@@ -1444,8 +1444,8 @@ Subcommands:
 
 Arguments:
     <TARGET>     some
-    <CORPUS>     some
-    <ARGS>...    some
+    [CORPUS]     some
+    [ARGS]...    some
 
 Options:
     -h, --help       Print help information
@@ -1851,7 +1851,7 @@ Usage:
     demo [OPTIONS] [FILES]...
 
 Arguments:
-    <FILES>...    
+    [FILES]...    
 
 Options:
     -f            
@@ -1885,8 +1885,8 @@ Usage:
     ctest <arg1|arg2>
 
 Arguments:
-    <arg1>    
-    <arg2>    
+    [arg1]    
+    [arg2]    
 
 Options:
     -h, --help    Print help information
@@ -2274,8 +2274,8 @@ Usage:
     deno <pos1|--option1> [pos2]
 
 Arguments:
-    <pos1>    
-    <pos2>    
+    [pos1]    
+    [pos2]    
 
 Options:
         --option1    
@@ -2306,14 +2306,14 @@ Usage:
     test [ARGS]
 
 Arguments:
-    <gear>    Which gear
+    [gear]    Which gear
 
 Options:
     -h, --help       Print help information
     -V, --version    Print version information
 
 NETWORKING:
-    <speed>    How fast
+    [speed]    How fast
 ";
 
 #[test]
@@ -2355,7 +2355,7 @@ Usage:
     test [speed]
 
 NETWORKING:
-    <speed>    How fast
+    [speed]    How fast
 ";
 
 #[test]
@@ -2413,7 +2413,7 @@ Usage:
     test [arg1] <arg2>
 
 Arguments:
-    <arg1>    
+    [arg1]    
     <arg2>    
 
 Options:
@@ -2439,9 +2439,9 @@ Usage:
     test [ARGS]
 
 Arguments:
-    <foo>       
-    <bar>       
-    <baz>...    
+    [foo]       
+    [bar]       
+    [baz]...    
 
 Options:
     -h, --help    Print help information

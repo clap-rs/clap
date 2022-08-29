@@ -19,7 +19,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-p -f -d -e -c -u -H -h --choice --unknown --other --path --file --dir --exe --cmd-name --cmd --user --host --url --email --help <command_with_args>..."
+            opts="-p -f -d -e -c -u -H -h --choice --unknown --other --path --file --dir --exe --cmd-name --cmd --user --host --url --email --help [command_with_args]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

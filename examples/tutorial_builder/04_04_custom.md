@@ -7,7 +7,7 @@ Usage:
     04_04_custom[EXE] [OPTIONS] [INPUT_FILE]
 
 Arguments:
-    <INPUT_FILE>    some regular input
+    [INPUT_FILE]    some regular input
 
 Options:
         --set-ver <VER>        set version manually

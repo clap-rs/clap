@@ -7,7 +7,7 @@ Usage:
     03_03_positional[EXE] [name]
 
 Arguments:
-    <name>    
+    [name]    
 
 Options:
     -h, --help       Print help information
