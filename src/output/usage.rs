@@ -364,8 +364,6 @@ impl<'cmd> Usage<'cmd> {
             incl_last
         );
 
-        let mut unrolled_reqs = FlatSet::new();
-
         let required_owned;
         let required = if let Some(required) = self.required {
             required
@@ -374,6 +372,7 @@ impl<'cmd> Usage<'cmd> {
             &required_owned
         };
 
+        let mut unrolled_reqs = FlatSet::new();
         for a in required.iter() {
             let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
@@ -398,7 +397,6 @@ impl<'cmd> Usage<'cmd> {
             // by unroll_requirements_for_arg.
             unrolled_reqs.insert(a.clone());
         }
-
         debug!(
             "Usage::get_required_usage_from: unrolled_reqs={:?}",
             unrolled_reqs
