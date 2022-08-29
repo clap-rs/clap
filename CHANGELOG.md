@@ -33,6 +33,7 @@ _gated behind `unstable-v4`_
 ### Fixes
 
 - *(help)* `Command::print_help` now respects `Command::colored_help`
+- *(derive)* Improved error messages
 
 ## [3.2.17] - 2022-08-12
 
