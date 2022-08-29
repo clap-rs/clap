@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* `Command::print_help` now respects `Command::colored_help`
+
 ## [3.2.17] - 2022-08-12
 
 ### Fixes

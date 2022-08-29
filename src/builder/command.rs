@@ -744,7 +744,7 @@ impl<'help> App<'help> {
     /// [`io::stdout()`]: std::io::stdout()
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build_self();
-        let color = self.get_color();
+        let color = self.color_help();
 
         let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
@@ -769,7 +769,7 @@ impl<'help> App<'help> {
     /// [`--help` (long)]: Arg::long_help()
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build_self();
-        let color = self.get_color();
+        let color = self.color_help();
 
         let mut c = Colorizer::new(Stream::Stdout, color);
         let usage = Usage::new(self);
