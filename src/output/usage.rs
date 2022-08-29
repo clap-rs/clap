@@ -353,14 +353,13 @@ impl<'cmd> Usage<'cmd> {
         incls: &[Id],
         matcher: Option<&ArgMatcher>,
         incl_last: bool,
-    ) -> FlatSet<StyledStr> {
+    ) -> Vec<StyledStr> {
         debug!(
             "Usage::get_required_usage_from: incls={:?}, matcher={:?}, incl_last={:?}",
             incls,
             matcher.is_some(),
             incl_last
         );
-        let mut ret_val = FlatSet::new();
 
         let mut unrolled_reqs = FlatSet::new();
 
@@ -405,7 +404,7 @@ impl<'cmd> Usage<'cmd> {
         let mut required_groups_members = FlatSet::new();
         let mut required_opts = FlatSet::new();
         let mut required_groups = FlatSet::new();
-        let mut required_positionals = Vec::new();
+        let mut required_positionals = FlatSet::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if let Some(arg) = self.cmd.find(req) {
                 let is_present = matcher
@@ -418,7 +417,7 @@ impl<'cmd> Usage<'cmd> {
                 if !is_present {
                     if arg.is_positional() {
                         if incl_last || !arg.is_last_set() {
-                            required_positionals.push((arg.index.unwrap(), arg.stylized()));
+                            required_positionals.insert((arg.index.unwrap(), arg.stylized()));
                         }
                     } else {
                         required_opts.insert(arg.stylized());
@@ -451,6 +450,8 @@ impl<'cmd> Usage<'cmd> {
             }
         }
 
+        let mut ret_val = Vec::new();
+
         required_opts.retain(|arg| !required_groups_members.contains(arg));
         ret_val.extend(required_opts);
 
@@ -459,7 +460,7 @@ impl<'cmd> Usage<'cmd> {
         required_positionals.sort_by_key(|(ind, _)| *ind); // sort by index
         for (_, p) in required_positionals {
             if !required_groups_members.contains(&p) {
-                ret_val.insert(p);
+                ret_val.push(p);
             }
         }
 
