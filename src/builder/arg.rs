@@ -3933,18 +3933,6 @@ impl Arg {
     }
 
     // Used for positionals when printing
-    pub(crate) fn multiple_str(&self) -> &str {
-        let mult_vals = self.val_names.len() > 1;
-        if (self.is_multiple_values_set() || matches!(*self.get_action(), ArgAction::Append))
-            && !mult_vals
-        {
-            "..."
-        } else {
-            ""
-        }
-    }
-
-    // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> String {
         debug!("Arg::name_no_brackets:{}", self.get_id());
         let delim = " ";
