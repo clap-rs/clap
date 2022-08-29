@@ -112,7 +112,7 @@ fn osstr_opts() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .required(false)
-                .default_value_os(expected),
+                .default_value(expected),
         )
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -133,7 +133,7 @@ fn osstr_opt_user_override() {
         .arg(
             arg!(--opt <FILE> "some arg")
                 .required(false)
-                .default_value_os(default),
+                .default_value(default),
         )
         .try_get_matches_from(vec!["", "--opt", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -151,7 +151,7 @@ fn osstr_positionals() {
     let expected = OsStr::new("default");
 
     let r = Command::new("df")
-        .arg(arg!([arg] "some opt").default_value_os(expected))
+        .arg(arg!([arg] "some opt").default_value(expected))
         .try_get_matches_from(vec![""]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -168,7 +168,7 @@ fn osstr_positional_user_override() {
     let default = OsStr::new("default");
 
     let r = Command::new("df")
-        .arg(arg!([arg] "some arg").default_value_os(default))
+        .arg(arg!([arg] "some arg").default_value(default))
         .try_get_matches_from(vec!["", "value"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -624,7 +624,7 @@ fn default_value_ifs_os() {
             Arg::new("other")
                 .long("other")
                 .value_parser(value_parser!(OsString))
-                .default_value_ifs_os([("flag", "标记2", OsStr::new("flag=标记2"))]),
+                .default_value_ifs([("flag", "标记2", OsStr::new("flag=标记2"))]),
         );
     let result = cmd.try_get_matches_from(["my_cargo", "--flag", "标记2"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());

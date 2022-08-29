@@ -655,7 +655,7 @@ impl Attrs {
                         })
                     };
 
-                    let raw_ident = Ident::new("default_value_os", attr.name.clone().span());
+                    let raw_ident = Ident::new("default_value", attr.name.clone().span());
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
@@ -723,7 +723,7 @@ impl Attrs {
                     };
 
                     self.methods.push(Method::new(
-                        Ident::new("default_values_os", attr.name.clone().span()),
+                        Ident::new("default_values", attr.name.clone().span()),
                         val,
                     ));
                 }

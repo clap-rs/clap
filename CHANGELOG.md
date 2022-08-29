@@ -59,6 +59,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 MSRV is now 1.60.0
 
+Deprecated
+- `default_value_os`, `default_values_os`, `default_value_if_os`, and `default_value_ifs_os` as the non `_os` variants now accept either a `str` or an `OsStr`
+
 ### Features
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence

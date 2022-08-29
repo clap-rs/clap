@@ -1515,19 +1515,18 @@ impl Arg {
     #[inline]
     #[must_use]
     pub fn default_value(self, val: impl Into<OsStr>) -> Self {
-        self.default_values_os([val])
+        self.default_values([val])
     }
 
-    /// Value for the argument when not present.
-    ///
-    /// See [`Arg::default_value`].
-    ///
-    /// [`Arg::default_value`]: Arg::default_value()
-    /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     #[must_use]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::default_value`")
+    )]
     pub fn default_value_os(self, val: impl Into<OsStr>) -> Self {
-        self.default_values_os([val])
+        self.default_values([val])
     }
 
     /// Value for the argument when not present.
@@ -1537,21 +1536,20 @@ impl Arg {
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
-    pub fn default_values(self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
-        self.default_values_os(vals)
-    }
-
-    /// Value for the argument when not present.
-    ///
-    /// See [`Arg::default_values`].
-    ///
-    /// [`Arg::default_values`]: Arg::default_values()
-    /// [`OsStr`]: std::ffi::OsStr
-    #[inline]
-    #[must_use]
-    pub fn default_values_os(mut self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+    pub fn default_values(mut self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
         self.default_vals = vals.into_iter().map(|s| s.into()).collect();
         self
+    }
+
+    #[inline]
+    #[must_use]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::default_values`")
+    )]
+    pub fn default_values_os(self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+        self.default_values(vals)
     }
 
     /// Value for the argument when the flag is present but no value is specified.
@@ -2603,21 +2601,6 @@ impl Arg {
     /// [`Arg::default_value`]: Arg::default_value()
     #[must_use]
     pub fn default_value_if(
-        self,
-        arg_id: impl Into<Id>,
-        val: impl Into<ArgPredicate>,
-        default: impl IntoResettable<OsStr>,
-    ) -> Self {
-        self.default_value_if_os(arg_id, val, default)
-    }
-
-    /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
-    /// only using [`OsStr`]s instead.
-    ///
-    /// [`Arg::default_value_if`]: Arg::default_value_if()
-    /// [`OsStr`]: std::ffi::OsStr
-    #[must_use]
-    pub fn default_value_if_os(
         mut self,
         arg_id: impl Into<Id>,
         val: impl Into<ArgPredicate>,
@@ -2629,6 +2612,21 @@ impl Arg {
             default.into_resettable().into_option(),
         ));
         self
+    }
+
+    #[must_use]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::default_value_if`")
+    )]
+    pub fn default_value_if_os(
+        self,
+        arg_id: impl Into<Id>,
+        val: impl Into<ArgPredicate>,
+        default: impl IntoResettable<OsStr>,
+    ) -> Self {
+        self.default_value_if(arg_id, val, default)
     }
 
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
@@ -2724,19 +2722,19 @@ impl Arg {
         >,
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, val, default);
+            self = self.default_value_if(arg, val, default);
         }
         self
     }
 
-    /// Provides multiple conditional default values in the exact same manner as
-    /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
-    ///
-    /// [`Arg::default_value_ifs`]: Arg::default_value_ifs()
-    /// [`OsStr`]: std::ffi::OsStr
     #[must_use]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::default_value_ifs`")
+    )]
     pub fn default_value_ifs_os(
-        mut self,
+        self,
         ifs: impl IntoIterator<
             Item = (
                 impl Into<Id>,
@@ -2745,10 +2743,7 @@ impl Arg {
             ),
         >,
     ) -> Self {
-        for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, val, default);
-        }
-        self
+        self.default_value_ifs(ifs)
     }
 
     /// Set this arg as [required] as long as the specified argument is not present at runtime.

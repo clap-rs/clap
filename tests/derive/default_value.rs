@@ -166,6 +166,8 @@ fn default_values_os_t() {
 
 #[test]
 fn detect_os_variant() {
+    #![allow(deprecated)]
+
     #[derive(clap::Parser)]
     pub struct Options {
         #[clap(default_value_os = "123")]
