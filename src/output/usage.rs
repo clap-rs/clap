@@ -135,10 +135,11 @@ impl<'cmd> Usage<'cmd> {
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
                 styled.none("\n    ");
-                if !self.cmd.is_args_conflicts_with_subcommands_set() {
-                    styled.extend(self.create_help_usage(false).into_iter());
-                } else {
+                if self.cmd.is_args_conflicts_with_subcommands_set() {
+                    // Short-circuit full usage creation since no args will be relevant
                     styled.literal(name);
+                } else {
+                    styled.extend(self.create_help_usage(false).into_iter());
                 }
                 styled.placeholder(" <");
                 styled.placeholder(placeholder);
