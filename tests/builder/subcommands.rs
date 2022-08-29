@@ -580,7 +580,7 @@ Usage:
     foo bar [value]
 
 Arguments:
-    <value>    
+    [value]    
 
 Options:
     -h, --help       Print help information
@@ -603,7 +603,7 @@ Usage:
     foo bar [value]
 
 Arguments:
-    <value>    
+    [value]    
 
 Options:
     -h, --help       Print help information
@@ -626,7 +626,7 @@ Usage:
     foo bar [value]
 
 Arguments:
-    <value>    
+    [value]    
 
 Options:
     -h, --help       Print help information

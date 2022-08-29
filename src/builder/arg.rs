@@ -4036,7 +4036,9 @@ impl Arg {
 
         debug_assert!(self.is_takes_value_set());
         for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = if self.is_positional() && num_vals.min_values() == 0 {
+            let arg_name = if self.is_positional()
+                && (num_vals.min_values() == 0 || !self.is_required_set())
+            {
                 format!("[{}]", val_name)
             } else {
                 format!("<{}>", val_name)
@@ -4372,6 +4374,14 @@ mod test {
         let mut p = Arg::new("pos").index(1).num_args(1..);
         p._build();
 
+        assert_eq!(p.to_string(), "[pos]...");
+    }
+
+    #[test]
+    fn positional_display_multiple_values_required() {
+        let mut p = Arg::new("pos").index(1).num_args(1..).required(true);
+        p._build();
+
         assert_eq!(p.to_string(), "<pos>...");
     }
 
@@ -4386,6 +4396,14 @@ mod test {
     #[test]
     fn positional_display_one_or_more_values() {
         let mut p = Arg::new("pos").index(1).num_args(1..);
+        p._build();
+
+        assert_eq!(p.to_string(), "[pos]...");
+    }
+
+    #[test]
+    fn positional_display_one_or_more_values_required() {
+        let mut p = Arg::new("pos").index(1).num_args(1..).required(true);
         p._build();
 
         assert_eq!(p.to_string(), "<pos>...");
@@ -4407,6 +4425,17 @@ mod test {
         let mut p = Arg::new("pos").index(1).action(ArgAction::Append);
         p._build();
 
+        assert_eq!(p.to_string(), "[pos]...");
+    }
+
+    #[test]
+    fn positional_display_multiple_occurrences_required() {
+        let mut p = Arg::new("pos")
+            .index(1)
+            .action(ArgAction::Append)
+            .required(true);
+        p._build();
+
         assert_eq!(p.to_string(), "<pos>...");
     }
 
@@ -4421,6 +4450,17 @@ mod test {
     #[test]
     fn positional_display_val_names() {
         let mut p = Arg::new("pos").index(1).value_names(["file1", "file2"]);
+        p._build();
+
+        assert_eq!(p.to_string(), "[file1] [file2]");
+    }
+
+    #[test]
+    fn positional_display_val_names_required() {
+        let mut p = Arg::new("pos")
+            .index(1)
+            .value_names(["file1", "file2"])
+            .required(true);
         p._build();
 
         assert_eq!(p.to_string(), "<file1> <file2>");
