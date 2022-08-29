@@ -717,7 +717,7 @@ impl Command {
     /// [`io::stdout()`]: std::io::stdout()
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build_self();
-        let color = self.get_color();
+        let color = self.color_help();
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
@@ -744,7 +744,7 @@ impl Command {
     /// [`--help` (long)]: Arg::long_help()
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build_self();
-        let color = self.get_color();
+        let color = self.color_help();
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
