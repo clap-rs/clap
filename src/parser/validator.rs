@@ -314,11 +314,8 @@ impl<'cmd> Validator<'cmd> {
                 );
                 missing_required.push(a.get_id().clone());
             }
-        }
 
-        for a in self.cmd.get_arguments() {
             if (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
-                && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
                 && self.fails_arg_required_unless(a, matcher)
             {
                 debug!(
