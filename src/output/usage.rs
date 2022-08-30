@@ -102,10 +102,8 @@ impl<'cmd> Usage<'cmd> {
                     pos.get_id()
                 );
                 let req = pos.is_required_set();
-                if req && self.cmd.get_positionals().any(|p| !p.is_required_set()) {
+                if req {
                     styled.literal(" -- ");
-                } else if req {
-                    styled.placeholder(" [--] ");
                 } else {
                     styled.placeholder(" [-- ");
                 }

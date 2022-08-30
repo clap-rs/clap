@@ -91,7 +91,7 @@ fn req_last_arg_usage() {
     static LAST_ARG_REQ_MULT: &str = "example 1.0
 
 Usage:
-    example <FIRST>... [--] <SECOND>...
+    example <FIRST>... -- <SECOND>...
 
 Arguments:
     <FIRST>...     First
