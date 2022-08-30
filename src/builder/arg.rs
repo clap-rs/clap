@@ -1028,6 +1028,15 @@ impl Arg {
         self
     }
 
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::num_args`")
+    )]
+    pub fn number_of_values(self, qty: usize) -> Self {
+        self.num_args(qty)
+    }
+
     /// Placeholder for the argument's value in the help message / usage.
     ///
     /// This name is cosmetic only; the name is **not** used to access arguments.
@@ -1340,6 +1349,20 @@ impl Arg {
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
         }
+    }
+
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::value_delimiter`")
+    )]
+    pub fn use_value_delimiter(mut self, yes: bool) -> Self {
+        if yes {
+            self.val_delim.get_or_insert(',');
+        } else {
+            self.val_delim = None;
+        }
+        self
     }
 
     /// Allow grouping of multiple values via a delimiter.
@@ -3347,6 +3370,15 @@ impl Arg {
         self.requires
             .extend(ifs.into_iter().map(|(val, arg)| (val.into(), arg.into())));
         self
+    }
+
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::requires_ifs`")
+    )]
+    pub fn requires_all(self, ids: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+        self.requires_ifs(ids.into_iter().map(|id| (ArgPredicate::IsPresent, id)))
     }
 
     /// This argument is mutually exclusive with the specified argument.

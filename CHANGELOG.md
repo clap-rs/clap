@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Default actions are now `Set` and `SetTrue`
 - Removed `PartialEq` and `Eq` from `Command`
 - By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::SetTrue`
-- Replace `Arg::number_of_values` (average across occurrences) with `Arg::num_args` (per occurrence, raw CLI args, not parsed values)
+- Changed `Arg::number_of_values` / `Arg::num_args` from average-across-occurrences to per-occurrence (raw CLI args, not parsed values)
   - `num_args(0)` no longer implies `takes_value(true).multiple_values(true)`
   - `num_args(1)` no longer implies `multiple_values(true)`
   - Does not check default or env values, only what the user explicitly passes in
@@ -32,7 +32,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Replace `Arg::max_values` (across all occurrences) with `Arg::num_args(1..=M)` (per occurrence)
 - Replace `Arg::multiple_values(true)` with `Arg::num_args(1..)` and `Arg::multiple_values(false)` with `Arg::num_args(0)`
 - Replace `Arg::takes_value(true)` with `Arg::num_args(1)` and `Arg::takes_value(false)` with `Arg::num_args(0)`
-- Remove `Arg::use_value_delimiter` in favor of `Arg::value_delimiter`
 - Remove `Arg::require_value_delimiter`, either users could use `Arg::value_delimiter` or implement a custom parser with `TypedValueParser`
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior
 - `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own
@@ -44,7 +43,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Various `Arg`, `Command`, and `ArgGroup` calls were switched from accepting `&[]` to `[]` via `IntoIterator`
 - `Arg::short_aliases` and other builder functions that took `&[]` need the `&` dropped
 - Changed `Arg::requires_ifs` and `Arg::default_value*_ifs*` to taking an `ArgPredicate`, removing ambiguity with `None` when accepting owned and borrowed types
-- Replaced `Arg::requires_all` with `Arg::requires_ifs` now that it takes an `ArgPredicate`
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
@@ -60,6 +58,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 MSRV is now 1.60.0
 
 Deprecated
+- `Arg::use_value_delimiter` in favor of `Arg::value_delimiter`
+- `Arg::requires_all` in favor of `Arg::requires_ifs` now that it takes an `ArgPredicate`
+- `Arg::number_of_values` in favor of `Arg::num_args`
 - `default_value_os`, `default_values_os`, `default_value_if_os`, and `default_value_ifs_os` as the non `_os` variants now accept either a `str` or an `OsStr`
 - `Command::dont_collapse_args_in_usage` is now the default and is deprecated
 
