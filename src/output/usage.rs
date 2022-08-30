@@ -414,12 +414,7 @@ impl<'cmd> Usage<'cmd> {
                 if !is_present {
                     let elem = self.cmd.format_group(req);
                     required_groups.insert(elem);
-                    required_groups_members.extend(
-                        group_members
-                            .iter()
-                            .flat_map(|id| self.cmd.find(id))
-                            .map(|arg| arg.stylized(Some(true))),
-                    );
+                    required_groups_members.extend(group_members);
                 }
             } else {
                 debug_assert!(self.cmd.find(req).is_some());
@@ -441,14 +436,14 @@ impl<'cmd> Usage<'cmd> {
                     if arg.is_positional() {
                         if incl_last || !arg.is_last_set() {
                             let stylized = arg.stylized(Some(true));
-                            if !required_groups_members.contains(&stylized) {
+                            if !required_groups_members.contains(arg.get_id()) {
                                 let index = arg.index.unwrap();
                                 required_positionals.insert((index, stylized));
                             }
                         }
                     } else {
                         let stylized = arg.stylized(Some(true));
-                        if !required_groups_members.contains(&stylized) {
+                        if !required_groups_members.contains(arg.get_id()) {
                             required_opts.insert(stylized);
                         }
                     }
