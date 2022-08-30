@@ -103,6 +103,19 @@ Deprecated
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.2.18] - 2022-08-29
+
+### Fixes
+
+- *(help)* `Command::print_help` now respects `Command::colored_help`
+- *(derive)* Improved error messages
+
+## [3.2.17] - 2022-08-12
+
+### Fixes
+
+- *(derive)* Expose `#[clap(id = ...)]` attribute to match Arg's latest API
+
 ## [3.2.16] - 2022-07-30
 
 ### Fixes
@@ -3616,7 +3629,11 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.14...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.18...HEAD
+[3.2.18]: https://github.com/clap-rs/clap/compare/v3.2.17...v3.2.18
+[3.2.17]: https://github.com/clap-rs/clap/compare/v3.2.16...v3.2.17
+[3.2.16]: https://github.com/clap-rs/clap/compare/v3.2.15...v3.2.16
+[3.2.15]: https://github.com/clap-rs/clap/compare/v3.2.14...v3.2.15
 [3.2.14]: https://github.com/clap-rs/clap/compare/v3.2.13...v3.2.14
 [3.2.13]: https://github.com/clap-rs/clap/compare/v3.2.12...v3.2.13
 [3.2.12]: https://github.com/clap-rs/clap/compare/v3.2.11...v3.2.12
