@@ -4336,7 +4336,8 @@ impl<'help> App<'help> {
         use std::fmt::Write;
 
         let mut mid_string = String::from(" ");
-        if !self.is_subcommand_negates_reqs_set() {
+        if !self.is_subcommand_negates_reqs_set() && !self.is_args_conflicts_with_subcommands_set()
+        {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
@@ -4419,7 +4420,9 @@ impl<'help> App<'help> {
 
         if !self.is_set(AppSettings::BinNameBuilt) {
             let mut mid_string = String::from(" ");
-            if !self.is_subcommand_negates_reqs_set() {
+            if !self.is_subcommand_negates_reqs_set()
+                && !self.is_args_conflicts_with_subcommands_set()
+            {
                 let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
                 for s in &reqs {
