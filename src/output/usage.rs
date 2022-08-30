@@ -444,7 +444,7 @@ impl<'cmd> Usage<'cmd> {
 
                 let stylized = arg.stylized(Some(true));
                 if arg.is_positional() {
-                    if incl_last || !arg.is_last_set() {
+                    if !arg.is_last_set() || incl_last {
                         let index = arg.index.unwrap();
                         required_positionals.insert((index, stylized));
                     }
