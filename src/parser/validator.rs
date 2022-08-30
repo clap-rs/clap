@@ -240,6 +240,8 @@ impl<'cmd> Validator<'cmd> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
+        let mut missing_required = Vec::new();
+
         let is_exclusive_present = matcher
             .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
@@ -263,7 +265,11 @@ impl<'cmd> Validator<'cmd> {
             if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
                 if !is_exclusive_present && !self.is_missing_required_ok(arg, matcher, conflicts) {
-                    return self.missing_required_error(matcher, vec![]);
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        arg.get_id()
+                    );
+                    missing_required.push(arg.get_id().clone());
                 }
             } else if let Some(group) = self.cmd.find_group(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
@@ -273,7 +279,11 @@ impl<'cmd> Validator<'cmd> {
                     .iter()
                     .any(|a| matcher.check_explicit(a, &ArgPredicate::IsPresent))
                 {
-                    return self.missing_required_error(matcher, vec![]);
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        group.get_id()
+                    );
+                    missing_required.push(group.get_id().clone());
                 }
             }
         }
@@ -286,7 +296,11 @@ impl<'cmd> Validator<'cmd> {
 
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, &ArgPredicate::Equals(val.into())) {
-                    return self.missing_required_error(matcher, vec![a.id.clone()]);
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        a.get_id()
+                    );
+                    missing_required.push(a.get_id().clone());
                 }
             }
 
@@ -294,22 +308,29 @@ impl<'cmd> Validator<'cmd> {
                 matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
             });
             if match_all && !a.r_ifs_all.is_empty() {
-                return self.missing_required_error(matcher, vec![a.id.clone()]);
+                debug!(
+                    "Validator::validate_required:iter: Missing {:?}",
+                    a.get_id()
+                );
+                missing_required.push(a.get_id().clone());
             }
         }
 
-        debug!("Validator::validate_required_unless");
-        let mut failed_args = Vec::new();
         for a in self.cmd.get_arguments() {
             if (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
                 && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
                 && self.fails_arg_required_unless(a, matcher)
             {
-                failed_args.push(a.id.clone());
+                debug!(
+                    "Validator::validate_required:iter: Missing {:?}",
+                    a.get_id()
+                );
+                missing_required.push(a.id.clone());
             }
         }
-        if !failed_args.is_empty() {
-            self.missing_required_error(matcher, failed_args)?;
+
+        if !missing_required.is_empty() {
+            self.missing_required_error(matcher, missing_required)?;
         }
 
         Ok(())

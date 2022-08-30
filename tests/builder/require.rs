@@ -141,7 +141,7 @@ static POSITIONAL_REQ: &str = "error: The following required arguments were not 
     <opt>
 
 Usage:
-    clap-test <flag> <opt> [ARGS]
+    clap-test <flag> <opt>
 
 For more information try --help
 ";
@@ -160,7 +160,7 @@ static POSITIONAL_REQ_IF_NO_VAL: &str = "error: The following required arguments
     <flag>
 
 Usage:
-    clap-test <flag> [ARGS]
+    clap-test <flag>
 
 For more information try --help
 ";

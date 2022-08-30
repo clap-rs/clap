@@ -26,7 +26,7 @@ error: The following required arguments were not provided:
     <BOOM>
 
 Usage:
-    custom-bool[EXE] [OPTIONS] --foo <FOO> <BOOM>
+    custom-bool[EXE] --foo <FOO> <BOOM>
 
 For more information try --help
 
