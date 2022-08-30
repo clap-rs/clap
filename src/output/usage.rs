@@ -365,7 +365,7 @@ impl<'cmd> Usage<'cmd> {
             &required_owned
         };
 
-        let mut unrolled_reqs = FlatSet::new();
+        let mut unrolled_reqs = Vec::new();
         for a in required.iter() {
             let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
@@ -384,11 +384,11 @@ impl<'cmd> Usage<'cmd> {
             for aa in self.cmd.unroll_arg_requires(is_relevant, a) {
                 // if we don't check for duplicates here this causes duplicate error messages
                 // see https://github.com/clap-rs/clap/issues/2770
-                unrolled_reqs.insert(aa);
+                unrolled_reqs.push(aa);
             }
             // always include the required arg itself. it will not be enumerated
             // by unroll_requirements_for_arg.
-            unrolled_reqs.insert(a.clone());
+            unrolled_reqs.push(a.clone());
         }
         debug!(
             "Usage::get_required_usage_from: unrolled_reqs={:?}",
