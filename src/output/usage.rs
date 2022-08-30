@@ -424,7 +424,7 @@ impl<'cmd> Usage<'cmd> {
         }
 
         let mut required_opts = FlatSet::new();
-        let mut required_positionals = FlatSet::new();
+        let mut required_positionals = Vec::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if let Some(arg) = self.cmd.find(req) {
                 if required_groups_members.contains(arg.get_id()) {
@@ -443,10 +443,13 @@ impl<'cmd> Usage<'cmd> {
                 }
 
                 let stylized = arg.stylized(Some(true));
-                if arg.is_positional() {
+                if let Some(index) = arg.get_index() {
                     if !arg.is_last_set() || incl_last {
-                        let index = arg.index.unwrap();
-                        required_positionals.insert((index, stylized));
+                        let new_len = index + 1;
+                        if required_positionals.len() < new_len {
+                            required_positionals.resize(new_len, None);
+                        }
+                        required_positionals[index] = Some(stylized);
                     }
                 } else {
                     required_opts.insert(stylized);
@@ -459,9 +462,8 @@ impl<'cmd> Usage<'cmd> {
         let mut ret_val = Vec::new();
         ret_val.extend(required_opts);
         ret_val.extend(required_groups);
-        required_positionals.sort_by_key(|(ind, _)| *ind); // sort by index
-        for (_, p) in required_positionals {
-            ret_val.push(p);
+        for pos in required_positionals.into_iter().flatten() {
+            ret_val.push(pos);
         }
 
         debug!("Usage::get_required_usage_from: ret_val={:?}", ret_val);
