@@ -552,14 +552,11 @@ fn disable_help_subcommand() {
 
 #[test]
 fn dont_collapse_args() {
-    let cmd = Command::new("clap-test")
-        .version("v1.4.8")
-        .dont_collapse_args_in_usage(true)
-        .args(&[
-            Arg::new("arg1").help("some"),
-            Arg::new("arg2").help("some"),
-            Arg::new("arg3").help("some"),
-        ]);
+    let cmd = Command::new("clap-test").version("v1.4.8").args(&[
+        Arg::new("arg1").help("some"),
+        Arg::new("arg2").help("some"),
+        Arg::new("arg3").help("some"),
+    ]);
     utils::assert_output(cmd, "clap-test --help", DONT_COLLAPSE_ARGS, false);
 }
 

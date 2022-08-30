@@ -56,7 +56,7 @@ pacman-sync
 Synchronize packages.
 
 Usage:
-    pacman[EXE] {sync|--sync|-S} [OPTIONS] [--] [package]...
+    pacman[EXE] {sync|--sync|-S} [OPTIONS] [package]...
 
 Arguments:
     [package]...    packages

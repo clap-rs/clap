@@ -91,7 +91,7 @@ fn req_last_arg_usage() {
     static LAST_ARG_REQ_MULT: &str = "example 1.0
 
 Usage:
-    example <FIRST>... [--] <SECOND>...
+    example <FIRST>... -- <SECOND>...
 
 Arguments:
     <FIRST>...     First
@@ -205,7 +205,7 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 Usage:
-    clap-test [OPTIONS] [ARGS] [SUBCOMMAND]
+    clap-test [OPTIONS] [positional] [positional2] [positional3]... [SUBCOMMAND]
 
 Subcommands:
     subcmd    tests subcommands
@@ -538,7 +538,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 Usage:
-    clap-test subcmd [OPTIONS] [--] [scpositional]
+    clap-test subcmd [OPTIONS] [scpositional]
 
 Arguments:
     [scpositional]    tests positionals
@@ -954,7 +954,7 @@ foo
 bar
 
 Usage:
-    myapp [OPTIONS] [--] [ARGS]
+    myapp [OPTIONS] [arg1] [arg2]...
 
 Arguments:
     [arg1]       some option
@@ -1389,7 +1389,7 @@ fn last_arg_mult_usage_req_with_sc() {
 
 Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
-    last <SUBCOMMAND>
+    last [TARGET] [CORPUS] <SUBCOMMAND>
 
 Subcommands:
     test    some
@@ -2295,7 +2295,7 @@ Options:
 static CUSTOM_HEADING_POS: &str = "test 1.4
 
 Usage:
-    test [ARGS]
+    test [gear] [speed]
 
 Arguments:
     [gear]    Which gear
@@ -2428,7 +2428,7 @@ fn missing_positional_final_multiple() {
         "test 
 
 Usage:
-    test [ARGS]
+    test [foo] [bar] [baz]...
 
 Arguments:
     [foo]       

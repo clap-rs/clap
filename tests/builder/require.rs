@@ -37,7 +37,7 @@ static MISSING_REQ: &str = "error: The following required arguments were not pro
     <positional2>
 
 Usage:
-    clap-test --long-option-2 <option2> -F <positional> <positional2>
+    clap-test --long-option-2 <option2> -F <positional> <positional2> [positional3]...
 
 For more information try --help
 ";
@@ -142,7 +142,7 @@ static POSITIONAL_REQ: &str = "error: The following required arguments were not 
     <opt>
 
 Usage:
-    clap-test <flag> <opt>
+    clap-test <flag> <opt> [bar]
 
 For more information try --help
 ";
@@ -161,7 +161,7 @@ static POSITIONAL_REQ_IF_NO_VAL: &str = "error: The following required arguments
     <flag>
 
 Usage:
-    clap-test <flag>
+    clap-test <flag> [opt] [bar]
 
 For more information try --help
 ";
@@ -182,7 +182,7 @@ static POSITIONAL_REQ_IF_VAL: &str = "error: The following required arguments we
     <opt>
 
 Usage:
-    clap-test <flag> <foo> <opt>
+    clap-test <flag> <foo> <opt> [bar]
 
 For more information try --help
 ";

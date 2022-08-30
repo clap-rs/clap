@@ -1242,25 +1242,13 @@ impl Command {
         }
     }
 
-    /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string.
-    ///
-    /// **NOTE:** This choice is propagated to all child subcommands.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{Command, Arg};
-    /// Command::new("myprog")
-    ///     .dont_collapse_args_in_usage(true)
-    ///     .get_matches();
-    /// ```
-    #[inline]
-    pub fn dont_collapse_args_in_usage(self, yes: bool) -> Self {
-        if yes {
-            self.global_setting(AppSettings::DontCollapseArgsInUsage)
-        } else {
-            self.unset_global_setting(AppSettings::DontCollapseArgsInUsage)
-        }
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "This is now the default")
+    )]
+    pub fn dont_collapse_args_in_usage(self, _yes: bool) -> Self {
+        self
     }
 
     /// Tells `clap` *not* to print possible values when displaying help information.
@@ -3574,9 +3562,13 @@ impl Command {
         self.is_set(AppSettings::HelpExpected)
     }
 
-    /// Report whether [`Command::dont_collapse_args_in_usage`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "This is now the default")
+    )]
     pub fn is_dont_collapse_args_in_usage_set(&self) -> bool {
-        self.is_set(AppSettings::DontCollapseArgsInUsage)
+        true
     }
 
     /// Report whether [`Command::infer_long_args`] is set
@@ -3808,11 +3800,6 @@ impl Command {
                 }
 
                 // Figure out implied settings
-                if a.is_last_set() {
-                    // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
-                    // in the usage string don't get confused or left out.
-                    self.settings.set(AppSettings::DontCollapseArgsInUsage);
-                }
                 a._build();
                 if hide_pv && a.is_takes_value_set() {
                     a.settings.set(ArgSettings::HidePossibleValues);
@@ -4303,10 +4290,6 @@ impl Command {
     #[inline]
     pub(crate) fn has_args(&self) -> bool {
         !self.args.is_empty()
-    }
-
-    pub(crate) fn has_positionals(&self) -> bool {
-        self.args.keys().any(|x| x.is_position())
     }
 
     pub(crate) fn has_visible_subcommands(&self) -> bool {

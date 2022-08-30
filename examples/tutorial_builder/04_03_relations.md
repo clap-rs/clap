@@ -25,7 +25,7 @@ error: The following required arguments were not provided:
     <--set-ver <VER>|--major|--minor|--patch>
 
 Usage:
-    04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch>
+    04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
 For more information try --help
 
@@ -37,7 +37,7 @@ $ 04_03_relations --major --minor
 error: The argument '--major' cannot be used with '--minor'
 
 Usage:
-    04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch>
+    04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
 For more information try --help
 

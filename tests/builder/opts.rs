@@ -11,7 +11,7 @@ static DYM: &str =
 \tIf you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
 
 Usage:
-    clap-test --option <opt>...
+    clap-test --option <opt>... [positional] [positional2] [positional3]...
 
 For more information try --help
 ";
