@@ -70,19 +70,6 @@ impl<'cmd> Usage<'cmd> {
             self.write_required_usage_from(&[], None, false, &mut styled);
         }
 
-        let has_last = self.cmd.get_positionals().any(|p| p.is_last_set());
-        // places a '--' in the usage string if there are args and options
-        // supporting multiple values
-        if self
-            .cmd
-            .get_non_positionals()
-            .any(|o| o.is_multiple_values_set())
-            && self.cmd.get_positionals().any(|p| !p.is_required_set())
-            && !(self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
-            && !has_last
-        {
-            styled.placeholder(" [--]");
-        }
         let not_req_or_hidden =
             |p: &Arg| (!p.is_required_set() || p.is_last_set()) && !p.is_hide_set();
         if self.cmd.get_positionals().any(not_req_or_hidden) {
@@ -91,6 +78,7 @@ impl<'cmd> Usage<'cmd> {
             } else {
                 styled.placeholder(" [ARGS]");
             }
+            let has_last = self.cmd.get_positionals().any(|p| p.is_last_set());
             if has_last && incl_reqs {
                 let pos = self
                     .cmd

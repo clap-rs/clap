@@ -538,7 +538,7 @@ Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
 Usage:
-    clap-test subcmd [OPTIONS] [--] [scpositional]
+    clap-test subcmd [OPTIONS] [scpositional]
 
 Arguments:
     [scpositional]    tests positionals
@@ -954,7 +954,7 @@ foo
 bar
 
 Usage:
-    myapp [OPTIONS] [--] [ARGS]
+    myapp [OPTIONS] [ARGS]
 
 Arguments:
     [arg1]       some option
