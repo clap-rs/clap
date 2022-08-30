@@ -30,6 +30,10 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Ensure required arguments for parent commands aren't shown in their subcommands when using `args_conflicts_with_subcommand`
+
 ## [3.2.18] - 2022-08-29
 
 ### Fixes
