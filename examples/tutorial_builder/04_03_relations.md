@@ -25,7 +25,7 @@ error: The following required arguments were not provided:
     <--set-ver <VER>|--major|--minor|--patch>
 
 Usage:
-    04_03_relations[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
+    04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch>
 
 For more information try --help
 

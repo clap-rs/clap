@@ -365,7 +365,7 @@ impl<'cmd> Usage<'cmd> {
             &required_owned
         };
 
-        let mut unrolled_reqs = FlatSet::new();
+        let mut unrolled_reqs = Vec::new();
         for a in required.iter() {
             let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
@@ -384,11 +384,11 @@ impl<'cmd> Usage<'cmd> {
             for aa in self.cmd.unroll_arg_requires(is_relevant, a) {
                 // if we don't check for duplicates here this causes duplicate error messages
                 // see https://github.com/clap-rs/clap/issues/2770
-                unrolled_reqs.insert(aa);
+                unrolled_reqs.push(aa);
             }
             // always include the required arg itself. it will not be enumerated
             // by unroll_requirements_for_arg.
-            unrolled_reqs.insert(a.clone());
+            unrolled_reqs.push(a.clone());
         }
         debug!(
             "Usage::get_required_usage_from: unrolled_reqs={:?}",
@@ -396,30 +396,9 @@ impl<'cmd> Usage<'cmd> {
         );
 
         let mut required_groups_members = FlatSet::new();
-        let mut required_opts = FlatSet::new();
         let mut required_groups = FlatSet::new();
-        let mut required_positionals = FlatSet::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
-            if let Some(arg) = self.cmd.find(req) {
-                let is_present = matcher
-                    .map(|m| m.check_explicit(req, &ArgPredicate::IsPresent))
-                    .unwrap_or(false);
-                debug!(
-                    "Usage::get_required_usage_from:iter:{:?} arg is_present={}",
-                    req, is_present
-                );
-                if !is_present {
-                    if arg.is_positional() {
-                        if incl_last || !arg.is_last_set() {
-                            required_positionals
-                                .insert((arg.index.unwrap(), arg.stylized(Some(true))));
-                        }
-                    } else {
-                        required_opts.insert(arg.stylized(Some(true)));
-                    }
-                }
-            } else {
-                debug_assert!(self.cmd.find_group(req).is_some());
+            if self.cmd.find_group(req).is_some() {
                 let group_members = self.cmd.unroll_args_in_group(req);
                 let is_present = matcher
                     .map(|m| {
@@ -432,31 +411,57 @@ impl<'cmd> Usage<'cmd> {
                     "Usage::get_required_usage_from:iter:{:?} group is_present={}",
                     req, is_present
                 );
-                if !is_present {
-                    let elem = self.cmd.format_group(req);
-                    required_groups.insert(elem);
-                    required_groups_members.extend(
-                        group_members
-                            .iter()
-                            .flat_map(|id| self.cmd.find(id))
-                            .map(|arg| arg.stylized(Some(true))),
-                    );
+                if is_present {
+                    continue;
                 }
+
+                let elem = self.cmd.format_group(req);
+                required_groups.insert(elem);
+                required_groups_members.extend(group_members);
+            } else {
+                debug_assert!(self.cmd.find(req).is_some());
+            }
+        }
+
+        let mut required_opts = FlatSet::new();
+        let mut required_positionals = FlatSet::new();
+        for req in unrolled_reqs.iter().chain(incls.iter()) {
+            if let Some(arg) = self.cmd.find(req) {
+                if required_groups_members.contains(arg.get_id()) {
+                    continue;
+                }
+
+                let is_present = matcher
+                    .map(|m| m.check_explicit(req, &ArgPredicate::IsPresent))
+                    .unwrap_or(false);
+                debug!(
+                    "Usage::get_required_usage_from:iter:{:?} arg is_present={}",
+                    req, is_present
+                );
+                if is_present {
+                    continue;
+                }
+
+                let stylized = arg.stylized(Some(true));
+                if arg.is_positional() {
+                    if !arg.is_last_set() || incl_last {
+                        let index = arg.index.unwrap();
+                        required_positionals.insert((index, stylized));
+                    }
+                } else {
+                    required_opts.insert(stylized);
+                }
+            } else {
+                debug_assert!(self.cmd.find_group(req).is_some());
             }
         }
 
         let mut ret_val = Vec::new();
-
-        required_opts.retain(|arg| !required_groups_members.contains(arg));
         ret_val.extend(required_opts);
-
         ret_val.extend(required_groups);
-
         required_positionals.sort_by_key(|(ind, _)| *ind); // sort by index
         for (_, p) in required_positionals {
-            if !required_groups_members.contains(&p) {
-                ret_val.push(p);
-            }
+            ret_val.push(p);
         }
 
         debug!("Usage::get_required_usage_from: ret_val={:?}", ret_val);

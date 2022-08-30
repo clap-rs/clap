@@ -240,6 +240,9 @@ impl<'cmd> Validator<'cmd> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
+        let mut missing_required = Vec::new();
+        let mut highest_index = 0;
+
         let is_exclusive_present = matcher
             .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
@@ -263,7 +266,14 @@ impl<'cmd> Validator<'cmd> {
             if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
                 if !is_exclusive_present && !self.is_missing_required_ok(arg, matcher, conflicts) {
-                    return self.missing_required_error(matcher, vec![]);
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        arg.get_id()
+                    );
+                    missing_required.push(arg.get_id().clone());
+                    if !arg.is_last_set() {
+                        highest_index = highest_index.max(arg.get_index().unwrap_or(0));
+                    }
                 }
             } else if let Some(group) = self.cmd.find_group(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
@@ -273,33 +283,82 @@ impl<'cmd> Validator<'cmd> {
                     .iter()
                     .any(|a| matcher.check_explicit(a, &ArgPredicate::IsPresent))
                 {
-                    return self.missing_required_error(matcher, vec![]);
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        group.get_id()
+                    );
+                    missing_required.push(group.get_id().clone());
                 }
             }
         }
 
         // Validate the conditionally required args
-        for a in self.cmd.get_arguments() {
+        for a in self
+            .cmd
+            .get_arguments()
+            .filter(|a| !matcher.check_explicit(a.get_id(), &ArgPredicate::IsPresent))
+        {
+            let mut required = false;
+
             for (other, val) in &a.r_ifs {
-                if matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
-                    && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
-                {
-                    return self.missing_required_error(matcher, vec![a.id.clone()]);
+                if matcher.check_explicit(other, &ArgPredicate::Equals(val.into())) {
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        a.get_id()
+                    );
+                    required = true;
                 }
             }
 
             let match_all = a.r_ifs_all.iter().all(|(other, val)| {
                 matcher.check_explicit(other, &ArgPredicate::Equals(val.into()))
             });
-            if match_all
-                && !a.r_ifs_all.is_empty()
-                && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
+            if match_all && !a.r_ifs_all.is_empty() {
+                debug!(
+                    "Validator::validate_required:iter: Missing {:?}",
+                    a.get_id()
+                );
+                required = true;
+            }
+
+            if (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
+                && self.fails_arg_required_unless(a, matcher)
             {
-                return self.missing_required_error(matcher, vec![a.id.clone()]);
+                debug!(
+                    "Validator::validate_required:iter: Missing {:?}",
+                    a.get_id()
+                );
+                required = true;
+            }
+
+            if required {
+                missing_required.push(a.get_id().clone());
+                if !a.is_last_set() {
+                    highest_index = highest_index.max(a.get_index().unwrap_or(0));
+                }
             }
         }
 
-        self.validate_required_unless(matcher)?;
+        // For display purposes, include all of the preceding positional arguments
+        if !self.cmd.is_allow_missing_positional_set() {
+            for pos in self
+                .cmd
+                .get_positionals()
+                .filter(|a| !matcher.check_explicit(a.get_id(), &ArgPredicate::IsPresent))
+            {
+                if pos.get_index() < Some(highest_index) {
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        pos.get_id()
+                    );
+                    missing_required.push(pos.get_id().clone());
+                }
+            }
+        }
+
+        if !missing_required.is_empty() {
+            self.missing_required_error(matcher, missing_required)?;
+        }
 
         Ok(())
     }
@@ -313,25 +372,6 @@ impl<'cmd> Validator<'cmd> {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
         let conflicts = conflicts.gather_conflicts(self.cmd, matcher, &a.id);
         !conflicts.is_empty()
-    }
-
-    fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
-        debug!("Validator::validate_required_unless");
-        let failed_args: Vec<_> = self
-            .cmd
-            .get_arguments()
-            .filter(|&a| {
-                (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
-                    && !matcher.check_explicit(&a.id, &ArgPredicate::IsPresent)
-                    && self.fails_arg_required_unless(a, matcher)
-            })
-            .map(|a| a.id.clone())
-            .collect();
-        if failed_args.is_empty() {
-            Ok(())
-        } else {
-            self.missing_required_error(matcher, failed_args)
-        }
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they

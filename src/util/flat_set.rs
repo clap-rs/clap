@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::borrow::Borrow;
 
 /// Flat (Vec) backed set

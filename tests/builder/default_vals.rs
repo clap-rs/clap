@@ -732,7 +732,7 @@ fn default_vals_donnot_show_in_smart_usage() {
     <input>
 
 Usage:
-    bug [OPTIONS] <input>
+    bug <input>
 
 For more information try --help
 ",
