@@ -61,6 +61,7 @@ MSRV is now 1.60.0
 
 Deprecated
 - `default_value_os`, `default_values_os`, `default_value_if_os`, and `default_value_ifs_os` as the non `_os` variants now accept either a `str` or an `OsStr`
+- `Command::dont_collapse_args_in_usage` is now the default and is deprecated
 
 ### Features
 
@@ -92,7 +93,8 @@ Deprecated
 - *(help)* Don't rely on ALL CAPS for help headers
 - *(help)* List subcommands first, focusing the emphasis on them
 - *(help)* Do not include global args in `cmd help help` (#4131)
-- *(help)* Use `[positional]` in argument list when relevant (#4145)
+- *(help)* Use `[positional]` in list when relevant (#4145)
+- *(help)* Show all `[positional]` in usage
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)

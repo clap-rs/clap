@@ -43,7 +43,6 @@ pub(crate) enum AppSettings {
     ArgsNegateSubcommands,
     SubcommandPrecedenceOverArg,
     ArgRequiredElseHelp,
-    DontCollapseArgsInUsage,
     NextLineHelp,
     DisableColoredHelp,
     DisableHelpFlag,
@@ -86,7 +85,6 @@ bitflags! {
         const DONT_DELIM_TRAIL               = 1 << 24;
         const ALLOW_NEG_NUMS                 = 1 << 25;
         const DISABLE_HELP_SC                = 1 << 27;
-        const DONT_COLLAPSE_ARGS             = 1 << 28;
         const ARGS_NEGATE_SCS                = 1 << 29;
         const PROPAGATE_VALS_DOWN            = 1 << 30;
         const ALLOW_MISSING_POS              = 1 << 31;
@@ -130,8 +128,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::COLOR_NEVER,
     DontDelimitTrailingValues
         => Flags::DONT_DELIM_TRAIL,
-    DontCollapseArgsInUsage
-        => Flags::DONT_COLLAPSE_ARGS,
     DisableColoredHelp
         => Flags::DISABLE_COLORED_HELP,
     DisableHelpSubcommand
