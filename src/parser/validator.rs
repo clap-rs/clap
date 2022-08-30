@@ -241,6 +241,7 @@ impl<'cmd> Validator<'cmd> {
         self.gather_requires(matcher);
 
         let mut missing_required = Vec::new();
+        let mut highest_index = 0;
 
         let is_exclusive_present = matcher
             .arg_ids()
@@ -270,6 +271,9 @@ impl<'cmd> Validator<'cmd> {
                         arg.get_id()
                     );
                     missing_required.push(arg.get_id().clone());
+                    if !arg.is_last_set() {
+                        highest_index = highest_index.max(arg.get_index().unwrap_or(0));
+                    }
                 }
             } else if let Some(group) = self.cmd.find_group(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
@@ -294,13 +298,15 @@ impl<'cmd> Validator<'cmd> {
             .get_arguments()
             .filter(|a| !matcher.check_explicit(a.get_id(), &ArgPredicate::IsPresent))
         {
+            let mut required = false;
+
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, &ArgPredicate::Equals(val.into())) {
                     debug!(
                         "Validator::validate_required:iter: Missing {:?}",
                         a.get_id()
                     );
-                    missing_required.push(a.get_id().clone());
+                    required = true;
                 }
             }
 
@@ -312,7 +318,7 @@ impl<'cmd> Validator<'cmd> {
                     "Validator::validate_required:iter: Missing {:?}",
                     a.get_id()
                 );
-                missing_required.push(a.get_id().clone());
+                required = true;
             }
 
             if (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
@@ -322,7 +328,31 @@ impl<'cmd> Validator<'cmd> {
                     "Validator::validate_required:iter: Missing {:?}",
                     a.get_id()
                 );
-                missing_required.push(a.id.clone());
+                required = true;
+            }
+
+            if required {
+                missing_required.push(a.get_id().clone());
+                if !a.is_last_set() {
+                    highest_index = highest_index.max(a.get_index().unwrap_or(0));
+                }
+            }
+        }
+
+        // For display purposes, include all of the preceding positional arguments
+        if !self.cmd.is_allow_missing_positional_set() {
+            for pos in self
+                .cmd
+                .get_positionals()
+                .filter(|a| !matcher.check_explicit(a.get_id(), &ArgPredicate::IsPresent))
+            {
+                if pos.get_index() < Some(highest_index) {
+                    debug!(
+                        "Validator::validate_required:iter: Missing {:?}",
+                        pos.get_id()
+                    );
+                    missing_required.push(pos.get_id().clone());
+                }
             }
         }
 

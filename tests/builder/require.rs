@@ -33,10 +33,11 @@ For more information try --help
 
 static MISSING_REQ: &str = "error: The following required arguments were not provided:
     --long-option-2 <option2>
+    <positional>
     <positional2>
 
 Usage:
-    clap-test --long-option-2 <option2> -F <positional2>
+    clap-test --long-option-2 <option2> -F <positional> <positional2>
 
 For more information try --help
 ";
