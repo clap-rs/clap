@@ -411,11 +411,13 @@ impl<'cmd> Usage<'cmd> {
                     "Usage::get_required_usage_from:iter:{:?} group is_present={}",
                     req, is_present
                 );
-                if !is_present {
-                    let elem = self.cmd.format_group(req);
-                    required_groups.insert(elem);
-                    required_groups_members.extend(group_members);
+                if is_present {
+                    continue;
                 }
+
+                let elem = self.cmd.format_group(req);
+                required_groups.insert(elem);
+                required_groups_members.extend(group_members);
             } else {
                 debug_assert!(self.cmd.find(req).is_some());
             }
@@ -425,6 +427,10 @@ impl<'cmd> Usage<'cmd> {
         let mut required_positionals = FlatSet::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if let Some(arg) = self.cmd.find(req) {
+                if required_groups_members.contains(arg.get_id()) {
+                    continue;
+                }
+
                 let is_present = matcher
                     .map(|m| m.check_explicit(req, &ArgPredicate::IsPresent))
                     .unwrap_or(false);
@@ -432,21 +438,18 @@ impl<'cmd> Usage<'cmd> {
                     "Usage::get_required_usage_from:iter:{:?} arg is_present={}",
                     req, is_present
                 );
-                if !is_present {
-                    if arg.is_positional() {
-                        if incl_last || !arg.is_last_set() {
-                            let stylized = arg.stylized(Some(true));
-                            if !required_groups_members.contains(arg.get_id()) {
-                                let index = arg.index.unwrap();
-                                required_positionals.insert((index, stylized));
-                            }
-                        }
-                    } else {
-                        let stylized = arg.stylized(Some(true));
-                        if !required_groups_members.contains(arg.get_id()) {
-                            required_opts.insert(stylized);
-                        }
+                if is_present {
+                    continue;
+                }
+
+                let stylized = arg.stylized(Some(true));
+                if arg.is_positional() {
+                    if incl_last || !arg.is_last_set() {
+                        let index = arg.index.unwrap();
+                        required_positionals.insert((index, stylized));
                     }
+                } else {
+                    required_opts.insert(stylized);
                 }
             } else {
                 debug_assert!(self.cmd.find_group(req).is_some());
