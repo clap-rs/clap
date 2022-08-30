@@ -830,14 +830,6 @@ fn multi_level_sc_help() {
 }
 
 #[test]
-fn no_wrap_help() {
-    let cmd = Command::new("ctest")
-        .term_width(0)
-        .override_help(MULTI_SC_HELP);
-    utils::assert_output(cmd, "ctest --help", &format!("{}\n", MULTI_SC_HELP), false);
-}
-
-#[test]
 fn no_wrap_default_help() {
     let cmd = Command::new("ctest").version("1.0").term_width(0);
     utils::assert_output(cmd, "ctest --help", DEFAULT_HELP, false);
@@ -2855,6 +2847,50 @@ OPTIONS:
     let mut buf = Vec::new();
     subcmd.write_help(&mut buf).unwrap();
     utils::assert_eq(EXPECTED, String::from_utf8(buf).unwrap());
+}
+
+#[test]
+fn parent_cmd_req_ignored_when_negates_reqs() {
+    static MULTI_SC_HELP: &str = "ctest-subcmd 
+
+USAGE:
+    ctest subcmd
+
+OPTIONS:
+    -h, --help    Print help information
+";
+
+    let cmd = Command::new("ctest")
+        .arg(arg!(<input>))
+        .subcommand_negates_reqs(true)
+        .subcommand(Command::new("subcmd"));
+    utils::assert_output(cmd, "ctest subcmd --help", MULTI_SC_HELP, false);
+}
+
+#[test]
+fn parent_cmd_req_ignored_when_conflicts() {
+    static MULTI_SC_HELP: &str = "ctest-subcmd 
+
+USAGE:
+    ctest subcmd
+
+OPTIONS:
+    -h, --help    Print help information
+";
+
+    let cmd = Command::new("ctest")
+        .arg(arg!(<input>))
+        .args_conflicts_with_subcommands(true)
+        .subcommand(Command::new("subcmd"));
+    utils::assert_output(cmd, "ctest subcmd --help", MULTI_SC_HELP, false);
+}
+
+#[test]
+fn no_wrap_help() {
+    let cmd = Command::new("ctest")
+        .term_width(0)
+        .override_help(MULTI_SC_HELP);
+    utils::assert_output(cmd, "ctest --help", &format!("{}\n", MULTI_SC_HELP), false);
 }
 
 #[test]
