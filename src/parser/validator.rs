@@ -289,11 +289,11 @@ impl<'cmd> Validator<'cmd> {
         }
 
         // Validate the conditionally required args
-        for a in self.cmd.get_arguments() {
-            if matcher.check_explicit(&a.id, &ArgPredicate::IsPresent) {
-                continue;
-            }
-
+        for a in self
+            .cmd
+            .get_arguments()
+            .filter(|a| !matcher.check_explicit(a.get_id(), &ArgPredicate::IsPresent))
+        {
             for (other, val) in &a.r_ifs {
                 if matcher.check_explicit(other, &ArgPredicate::Equals(val.into())) {
                     debug!(
