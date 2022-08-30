@@ -93,7 +93,7 @@ Deprecated
 - *(help)* Don't rely on ALL CAPS for help headers
 - *(help)* List subcommands first, focusing the emphasis on them
 - *(help)* Do not include global args in `cmd help help` (#4131)
-- *(help)* Use `[positional]` in list when relevant (#4145)
+- *(help)* Use `[positional]` in list when relevant (#4144)
 - *(help)* Show all `[positional]` in usage
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
