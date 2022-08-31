@@ -35,7 +35,7 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_value_enum(
         Span::call_site(),
         attrs,
         Name::Derived(name.clone()),

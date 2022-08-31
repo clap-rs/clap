@@ -45,7 +45,7 @@ pub fn gen_for_enum(
 ) -> TokenStream {
     let from_arg_matches = gen_from_arg_matches_for_enum(enum_name, generics, attrs, e);
 
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_subcommand_enum(
         Span::call_site(),
         attrs,
         Name::Derived(enum_name.clone()),
@@ -94,7 +94,7 @@ fn gen_from_arg_matches_for_enum(
     attrs: &[Attribute],
     e: &DataEnum,
 ) -> TokenStream {
-    let attrs = Attrs::from_struct(
+    let attrs = Attrs::from_subcommand_enum(
         Span::call_site(),
         attrs,
         Name::Derived(name.clone()),
@@ -148,7 +148,7 @@ fn gen_augment(
     let subcommands: Vec<_> = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_variant(
+            let attrs = Attrs::from_subcommand_variant(
                 variant,
                 parent_attribute.casing(),
                 parent_attribute.env_casing(),
@@ -337,7 +337,7 @@ fn gen_has_subcommand(
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_variant(
+            let attrs = Attrs::from_subcommand_variant(
                 variant,
                 parent_attribute.casing(),
                 parent_attribute.env_casing(),
@@ -407,7 +407,7 @@ fn gen_from_arg_matches(
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_variant(
+            let attrs = Attrs::from_subcommand_variant(
                 variant,
                 parent_attribute.casing(),
                 parent_attribute.env_casing(),
@@ -556,7 +556,7 @@ fn gen_update_from_arg_matches(
     let (flatten, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_variant(
+            let attrs = Attrs::from_subcommand_variant(
                 variant,
                 parent_attribute.casing(),
                 parent_attribute.env_casing(),
@@ -582,7 +582,7 @@ fn gen_update_from_arg_matches(
                     .named
                     .iter()
                     .map(|field| {
-                        let attrs = Attrs::from_field(
+                        let attrs = Attrs::from_args_field(
                             field,
                             parent_attribute.casing(),
                             parent_attribute.env_casing(),
