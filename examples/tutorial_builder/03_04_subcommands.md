@@ -4,9 +4,9 @@ clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:
-    03_04_subcommands[EXE] <SUBCOMMAND>
+    03_04_subcommands[EXE] <COMMAND>
 
-Subcommands:
+Commands:
     add     Adds files to myapp
     help    Print this message or the help of the given subcommand(s)
 
@@ -41,9 +41,9 @@ clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:
-    03_04_subcommands[EXE] <SUBCOMMAND>
+    03_04_subcommands[EXE] <COMMAND>
 
-Subcommands:
+Commands:
     add     Adds files to myapp
     help    Print this message or the help of the given subcommand(s)
 

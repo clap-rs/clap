@@ -7,7 +7,7 @@ use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
 Usage:
-    clap-test [SUBCOMMAND]
+    clap-test [COMMAND]
 
 Options:
     -h, --help       Print help information

@@ -6,7 +6,7 @@ use crate::util::ChildGraph;
 use crate::util::FlatSet;
 use crate::util::Id;
 
-static DEFAULT_SUB_VALUE_NAME: &str = "SUBCOMMAND";
+static DEFAULT_SUB_VALUE_NAME: &str = "COMMAND";
 
 pub(crate) struct Usage<'cmd> {
     cmd: &'cmd Command,

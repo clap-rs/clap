@@ -269,9 +269,9 @@ fn subcommand_sorted_display_order() {
     static SUBCMD_ALPHA_ORDER: &str = "test 1
 
 Usage:
-    test [SUBCOMMAND]
+    test [COMMAND]
 
-Subcommands:
+Commands:
     a1      blah a1
     b1      blah b1
     help    Print this message or the help of the given subcommand(s)
@@ -306,9 +306,9 @@ fn subcommand_derived_display_order() {
     static SUBCMD_DECL_ORDER: &str = "test 1
 
 Usage:
-    test [SUBCOMMAND]
+    test [COMMAND]
 
-Subcommands:
+Commands:
     b1      blah b1
     a1      blah a1
     help    Print this message or the help of the given subcommand(s)

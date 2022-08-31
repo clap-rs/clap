@@ -12,9 +12,9 @@ fn very_large_display_order() {
         "test 
 
 Usage:
-    test [SUBCOMMAND]
+    test [COMMAND]
 
-Subcommands:
+Commands:
     help    Print this message or the help of the given subcommand(s)
     sub     
 

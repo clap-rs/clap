@@ -205,9 +205,9 @@ Kevin K. <kbknapp@gmail.com>
 tests clap library
 
 Usage:
-    clap-test [OPTIONS] [positional] [positional2] [positional3]... [SUBCOMMAND]
+    clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
 
-Subcommands:
+Commands:
     subcmd    tests subcommands
     help      Print this message or the help of the given subcommand(s)
 
@@ -1093,9 +1093,9 @@ fn sc_negates_reqs() {
 
 Usage:
     prog --opt <FILE> [PATH]
-    prog [PATH] <SUBCOMMAND>
+    prog [PATH] <COMMAND>
 
-Subcommands:
+Commands:
     test    
     help    Print this message or the help of the given subcommand(s)
 
@@ -1145,9 +1145,9 @@ fn args_negate_sc() {
 
 Usage:
     prog [OPTIONS] [PATH]
-    prog <SUBCOMMAND>
+    prog <COMMAND>
 
-Subcommands:
+Commands:
     test    
     help    Print this message or the help of the given subcommand(s)
 
@@ -1389,9 +1389,9 @@ fn last_arg_mult_usage_req_with_sc() {
 
 Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
-    last [TARGET] [CORPUS] <SUBCOMMAND>
+    last [TARGET] [CORPUS] <COMMAND>
 
-Subcommands:
+Commands:
     test    some
     help    Print this message or the help of the given subcommand(s)
 
@@ -1428,9 +1428,9 @@ fn last_arg_mult_usage_with_sc() {
 
 Usage:
     last <TARGET> [CORPUS] [-- <ARGS>...]
-    last <SUBCOMMAND>
+    last <COMMAND>
 
-Subcommands:
+Commands:
     test    some
     help    Print this message or the help of the given subcommand(s)
 
@@ -2054,10 +2054,10 @@ fn help_subcmd_help() {
 Print this message or the help of the given subcommand(s)
 
 Usage:
-    myapp help [SUBCOMMAND]...
+    myapp help [COMMAND]...
 
 Arguments:
-    [SUBCOMMAND]...    The subcommand whose help message to display
+    [COMMAND]...    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2072,10 +2072,10 @@ fn subcmd_help_subcmd_help() {
 Print this message or the help of the given subcommand(s)
 
 Usage:
-    myapp subcmd help [SUBCOMMAND]...
+    myapp subcmd help [COMMAND]...
 
 Arguments:
-    [SUBCOMMAND]...    The subcommand whose help message to display
+    [COMMAND]...    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2094,9 +2094,9 @@ fn global_args_should_show_on_toplevel_help_message() {
     static HELP: &str = "myapp\x20
 
 Usage:
-    myapp [OPTIONS] [SUBCOMMAND]
+    myapp [OPTIONS] [COMMAND]
 
-Subcommands:
+Commands:
     subcmd\x20\x20\x20\x20
     help      Print this message or the help of the given subcommand(s)
 
@@ -2123,10 +2123,10 @@ fn global_args_should_not_show_on_help_message_for_help_help() {
 Print this message or the help of the given subcommand(s)
 
 Usage:
-    myapp help [SUBCOMMAND]...
+    myapp help [COMMAND]...
 
 Arguments:
-    [SUBCOMMAND]...    The subcommand whose help message to display
+    [COMMAND]...    The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2146,9 +2146,9 @@ fn global_args_should_show_on_help_message_for_subcommand() {
     static HELP_SUBCMD: &str = "myapp-subcmd\x20
 
 Usage:
-    myapp subcmd [OPTIONS] [SUBCOMMAND]
+    myapp subcmd [OPTIONS] [COMMAND]
 
-Subcommands:
+Commands:
     multi\x20\x20\x20\x20
     help     Print this message or the help of the given subcommand(s)
 
@@ -2231,12 +2231,12 @@ Options:
 
 #[test]
 fn prefer_about_over_long_about_in_subcommands_list() {
-    static ABOUT_IN_SUBCOMMANDS_LIST: &str = "about-in-subcommands-list 
+    static ABOUT_IN_COMMANDS_LIST: &str = "about-in-subcommands-list 
 
 Usage:
-    about-in-subcommands-list [SUBCOMMAND]
+    about-in-subcommands-list [COMMAND]
 
-Subcommands:
+Commands:
     sub     short about sub
     help    Print this message or the help of the given subcommand(s)
 
@@ -2253,7 +2253,7 @@ Options:
     utils::assert_output(
         cmd,
         "about-in-subcommands-list --help",
-        ABOUT_IN_SUBCOMMANDS_LIST,
+        ABOUT_IN_COMMANDS_LIST,
         false,
     );
 }
@@ -2663,10 +2663,10 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
 Print this message or the help of the given subcommand(s)
 
 Usage:
-    example help [SUBCOMMAND]...
+    example help [COMMAND]...
 
 Arguments:
-    [SUBCOMMAND]...    The subcommand whose help message to display
+    [COMMAND]...    The subcommand whose help message to display
 ",
         false,
     );
@@ -2706,10 +2706,10 @@ fn dont_propagate_version_to_help_subcommand() {
 Print this message or the help of the given subcommand(s)
 
 Usage:
-    example help [SUBCOMMAND]...
+    example help [COMMAND]...
 
 Arguments:
-    [SUBCOMMAND]...    The subcommand whose help message to display
+    [COMMAND]...    The subcommand whose help message to display
 ",
         false,
     );

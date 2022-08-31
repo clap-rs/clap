@@ -8,9 +8,9 @@ git
 A fictional versioning CLI
 
 Usage:
-    git[EXE] <SUBCOMMAND>
+    git[EXE] <COMMAND>
 
-Subcommands:
+Commands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -25,9 +25,9 @@ git
 A fictional versioning CLI
 
 Usage:
-    git[EXE] <SUBCOMMAND>
+    git[EXE] <COMMAND>
 
-Subcommands:
+Commands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -80,9 +80,9 @@ git-stash
 
 Usage:
     git[EXE] stash [OPTIONS]
-    git[EXE] stash <SUBCOMMAND>
+    git[EXE] stash <COMMAND>
 
-Subcommands:
+Commands:
     push     
     pop      
     apply    
