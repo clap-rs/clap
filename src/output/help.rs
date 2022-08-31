@@ -106,6 +106,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.write_templated_help(template);
         }
 
+        // Remove any extra lines caused by book keeping
+        self.writer.trim();
+        // Ensure there is still a trailing newline
         self.none("\n");
     }
 }
