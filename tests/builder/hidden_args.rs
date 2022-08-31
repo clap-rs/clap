@@ -40,7 +40,7 @@ Usage:
 
 Options:
     -v, --visible    This text should be visible
-    -h, --help       Print help information
+    -h, --help       Print help information (use `--help` for more detail)
     -V, --version    Print version information
 ";
 
@@ -86,7 +86,7 @@ Options:
             This text should be visible
 
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 
     -V, --version
             Print version information
@@ -125,7 +125,7 @@ Options:
             This text should be visible
 
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 
     -V, --version
             Print version information
@@ -164,7 +164,7 @@ Usage:
 Options:
     -c, --config     Some help text describing the --config arg
     -v, --visible    This text should be visible
-    -h, --help       Print help information
+    -h, --help       Print help information (use `--help` for more detail)
     -V, --version    Print version information
 ";
 

@@ -272,7 +272,7 @@ Usage:
     clap-test
 
 Options:
-    -h, --help       Print help information
+    -h, --help       Print help information (use `--help` for more detail)
     -V, --version    Print version information
 
 some text that comes after the help
@@ -288,7 +288,7 @@ Usage:
 
 Options:
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 
     -V, --version
             Print version information
@@ -494,7 +494,7 @@ Options:
               - second: short help
 
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 ";
     let cmd = Command::new("test")
         .term_width(67)
@@ -678,7 +678,7 @@ Options:
             A coffeehouse, coffee shop, or café.
 
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 
     -V, --version
             Print version information
@@ -1021,7 +1021,7 @@ Arguments:
 
 Options:
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 
     -V, --version
             Print version information
@@ -1743,7 +1743,7 @@ Usage:
     test [OPTIONS] --song <song> --song-volume <volume>
 
 Options:
-    -h, --help       Print help information
+    -h, --help       Print help information (use `--help` for more detail)
     -V, --version    Print version information
 
 OVERRIDE SPECIAL:
@@ -1796,7 +1796,7 @@ Usage:
 
 Options:
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 
     -V, --version
             Print version information
@@ -1820,7 +1820,7 @@ Usage:
     ctest foo
 
 Options:
-    -h, --help       Print help information
+    -h, --help       Print help information (use `--help` for more detail)
     -V, --version    Print version information
 ";
 
@@ -1847,7 +1847,7 @@ Arguments:
 
 Options:
     -f            
-    -h, --help    Print help information
+    -h, --help    Print help information (use `--help` for more detail)
 ";
 
     let cmd = Command::new("demo")
@@ -2006,7 +2006,7 @@ Options:
             and on, so I'll stop now.
 
     -h, --help
-            Print help information
+            Print help information (use `-h` for a summary)
 ";
 
     let cmd = Command::new("prog").arg(

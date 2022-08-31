@@ -101,6 +101,7 @@ Deprecated
 - *(help)* Show all `[positional]` in usage
 - *(help)* Polish up subcommands by referring to them as commands
 - *(help)* Trim extra whitespace to avoid artifacts from different uses of templates
+- *(help)* Hint to the user the difference between `-h` / `--help` when applicable (#4159)
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)

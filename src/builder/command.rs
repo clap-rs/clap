@@ -102,6 +102,7 @@ pub struct Command {
     subcommand_value_name: Option<Str>,
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
+    long_help_exists: bool,
 }
 
 /// # Basic API
@@ -4124,13 +4125,21 @@ impl Command {
     pub(crate) fn _check_help_and_version(&mut self) {
         debug!("Command::_check_help_and_version:{}", self.name,);
 
+        self.long_help_exists = self.long_help_exists_();
+
         if !self.is_disable_help_flag_set() {
             debug!("Command::_check_help_and_version: Building default --help");
-            let arg = Arg::new(Id::HELP)
+            let mut arg = Arg::new(Id::HELP)
                 .short('h')
                 .long("help")
-                .action(ArgAction::Help)
-                .help("Print help information");
+                .action(ArgAction::Help);
+            if self.long_help_exists {
+                arg = arg
+                    .help("Print help information (use `--help` for more detail)")
+                    .long_help("Print help information (use `-h` for a summary)");
+            } else {
+                arg = arg.help("Print help information");
+            }
             // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
             // `next_display_order`
             self.args.push(arg);
@@ -4454,10 +4463,10 @@ impl Command {
         debug!(
             "Command::write_help_err: {}, use_long={:?}",
             self.get_display_name().unwrap_or_else(|| self.get_name()),
-            use_long && self.use_long_help(),
+            use_long && self.long_help_exists(),
         );
 
-        use_long = use_long && self.use_long_help();
+        use_long = use_long && self.long_help_exists();
         let usage = Usage::new(self);
 
         let mut styled = StyledStr::new();
@@ -4473,8 +4482,13 @@ impl Command {
         styled
     }
 
-    pub(crate) fn use_long_help(&self) -> bool {
-        debug!("Command::use_long_help");
+    pub(crate) fn long_help_exists(&self) -> bool {
+        debug!("Command::long_help_exists: {}", self.long_help_exists);
+        self.long_help_exists
+    }
+
+    fn long_help_exists_(&self) -> bool {
+        debug!("Command::long_help_exists");
         // In this case, both must be checked. This allows the retention of
         // original formatting, but also ensures that the actual -h or --help
         // specified by the user is sent through. If hide_short_help is not included,
@@ -4545,6 +4559,7 @@ impl Default for Command {
             subcommand_value_name: Default::default(),
             subcommand_heading: Default::default(),
             external_value_parser: Default::default(),
+            long_help_exists: false,
         }
     }
 }
