@@ -79,7 +79,8 @@ impl<'cmd> Usage<'cmd> {
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
-                styled.none("\n    ");
+                styled.none("\n");
+                styled.none(TAB);
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
                     // Short-circuit full usage creation since no args will be relevant
                     styled.literal(name);
