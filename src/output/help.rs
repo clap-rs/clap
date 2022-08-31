@@ -31,15 +31,17 @@ pub(crate) struct Help<'cmd, 'writer> {
 // Public Functions
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
-        {before-help}{about-with-newline}\n\
-        {usage-heading}\n    {usage}\n\
-        \n\
-        {all-args}{after-help}\
+{before-help}{about-with-newline}
+{usage-heading}
+{tab}{usage}
+
+{all-args}{after-help}\
     ";
 
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
-        {before-help}{about-with-newline}\n\
-        {usage-heading}\n    {usage}{after-help}\
+{before-help}{about-with-newline}
+{usage-heading}
+{tab}{usage}{after-help}\
     ";
 
     /// Create a new `Help` instance.
@@ -185,6 +187,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     }
                     "subcommands" => {
                         self.write_subcommands(self.cmd);
+                    }
+                    "tab" => {
+                        self.none(TAB);
                     }
                     "after-help" => {
                         self.write_after_help();

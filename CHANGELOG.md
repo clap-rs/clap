@@ -74,6 +74,7 @@ Deprecated
 - Added `TypedValueParser::map` to make it easier to reuse existing value parsers
 - *(error)* `Error::apply` for changing the formatter for dropping binary size
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
+- *(help)* New `{tab}` variable for `Command::help_template`
 
 ### Fixes
 
