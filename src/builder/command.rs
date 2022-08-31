@@ -1660,7 +1660,7 @@ impl Command {
     ///            Does awesome things\n\
     ///            (C) me@mail.com\n\n\
     ///
-    ///            USAGE: myapp <opts> <command>\n\n\
+    ///            Usage: myapp <opts> <command>\n\n\
     ///
     ///            Options:\n\
     ///            -h, --help       Display this message\n\
@@ -1769,7 +1769,7 @@ impl Command {
     ///
     /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
     ///
-    /// This is useful if the default `OPTIONS` or `ARGS` headings are
+    /// This is useful if the default `Options` or `Arguments` headings are
     /// not specific enough for one's use case.
     ///
     /// For subcommands, see [`Command::subcommand_help_heading`]
@@ -2585,16 +2585,16 @@ impl Command {
     /// ```text
     /// cust-ord
     ///
-    /// USAGE:
+    /// Usage:
     ///     cust-ord [OPTIONS]
     ///
-    /// OPTIONS:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
-    ///
-    /// SUBCOMMANDS:
+    /// Subcommands:
     ///     beta    I should be first!
     ///     alpha   Some help and text
+    ///
+    /// Options:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     /// ```
     #[inline]
     #[must_use]
@@ -3053,16 +3053,16 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// USAGE:
+    /// Usage:
     ///     myprog [SUBCOMMAND]
     ///
-    /// OPTIONS:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
-    ///
-    /// SUBCOMMANDS:
+    /// Subcommands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
+    ///
+    /// Options:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     /// ```
     ///
     /// but usage of `subcommand_value_name`
@@ -3081,14 +3081,14 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// USAGE:
+    /// Usage:
     ///     myprog [THING]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
-    /// SUBCOMMANDS:
+    /// Subcommands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
@@ -3100,7 +3100,7 @@ impl Command {
 
     /// Sets the help heading used for subcommands when printing usage and help.
     ///
-    /// By default, this is "SUBCOMMANDS".
+    /// By default, this is "Subcommands".
     ///
     /// See also [`Command::subcommand_value_name`]
     ///
@@ -3119,14 +3119,14 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// USAGE:
+    /// Usage:
     ///     myprog [SUBCOMMAND]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
-    /// SUBCOMMANDS:
+    /// Subcommands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
@@ -3137,7 +3137,7 @@ impl Command {
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .subcommand(Command::new("sub1"))
-    ///     .subcommand_help_heading("THINGS")
+    ///     .subcommand_help_heading("Things")
     ///     .print_help()
     /// # ;
     /// ```
@@ -3147,14 +3147,14 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// USAGE:
+    /// Usage:
     ///     myprog [SUBCOMMAND]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
-    /// THINGS:
+    /// Things:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```

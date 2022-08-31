@@ -1072,10 +1072,10 @@ impl Arg {
     /// ```text
     /// valnames
     ///
-    /// USAGE:
+    /// Usage:
     ///    valnames [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     --config <FILE>     Some help text
     ///     -h, --help          Print help information
     ///     -V, --version       Print version information
@@ -1129,10 +1129,10 @@ impl Arg {
     /// ```text
     /// valnames
     ///
-    /// USAGE:
+    /// Usage:
     ///    valnames [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     -h, --help                       Print help information
     ///     --io-files <INFILE> <OUTFILE>    Some help text
     ///     -V, --version                    Print version information
@@ -1910,10 +1910,10 @@ impl Arg {
     /// ```notrust
     /// helptest
     ///
-    /// USAGE:
+    /// Usage:
     ///    helptest [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Print help information
     /// -V, --version    Print version information
@@ -1964,10 +1964,10 @@ impl Arg {
     /// ```text
     /// prog
     ///
-    /// USAGE:
+    /// Usage:
     ///     prog [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///         --config
     ///             The config file used by the myprog must be in JSON format
     ///             with only valid keys and may not contain other nonsense
@@ -2030,10 +2030,10 @@ impl Arg {
     /// ```text
     /// cust-ord
     ///
-    /// USAGE:
+    /// Usage:
     ///     cust-ord [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     -h, --help                Print help information
     ///     -V, --version             Print version information
     ///     -O, --other-option <b>    I should be first!
@@ -2090,10 +2090,10 @@ impl Arg {
     /// ```text
     /// nlh
     ///
-    /// USAGE:
+    /// Usage:
     ///     nlh [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///     -o, --long-option-flag <value1> <value2>
@@ -2136,10 +2136,10 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// USAGE:
+    /// Usage:
     ///    helptest [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
@@ -2310,10 +2310,10 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// USAGE:
+    /// Usage:
     ///    helptest [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
@@ -2337,10 +2337,10 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// USAGE:
+    /// Usage:
     ///    helptest [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Print help information
     /// -V, --version    Print version information
@@ -2383,10 +2383,10 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// USAGE:
+    /// Usage:
     ///    helptest [OPTIONS]
     ///
-    /// OPTIONS:
+    /// Options:
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
@@ -2410,7 +2410,7 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// USAGE:
+    /// Usage:
     ///    helptest [OPTIONS]
     ///
     /// OPTIONS:
