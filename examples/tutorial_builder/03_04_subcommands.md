@@ -1,6 +1,5 @@
 ```console
 $ 03_04_subcommands help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:
@@ -15,7 +14,6 @@ Options:
     -V, --version    Print version information
 
 $ 03_04_subcommands help add
-clap-add [..]
 Adds files to myapp
 
 Usage:
@@ -37,7 +35,6 @@ Because we set [`Command::arg_required_else_help`][crate::Command::arg_required_
 ```console
 $ 03_04_subcommands
 ? failed
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

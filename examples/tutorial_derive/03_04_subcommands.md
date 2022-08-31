@@ -1,6 +1,5 @@
 ```console
 $ 03_04_subcommands_derive help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:
@@ -15,7 +14,6 @@ Options:
     -V, --version    Print version information
 
 $ 03_04_subcommands_derive help add
-clap-add [..]
 Adds files to myapp
 
 Usage:
@@ -37,7 +35,6 @@ Because we used `command: Commands` instead of `command: Option<Commands>`:
 ```console
 $ 03_04_subcommands_derive
 ? failed
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

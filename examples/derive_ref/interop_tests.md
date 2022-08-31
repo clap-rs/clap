@@ -101,8 +101,6 @@ For more information try --help
 ```console
 $ interop_hand_subcommand
 ? failed
-clap 
-
 Usage:
     interop_hand_subcommand[EXE] [OPTIONS] <COMMAND>
 

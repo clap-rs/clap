@@ -29,16 +29,14 @@ pub(crate) struct Help<'cmd, 'writer> {
 // Public Functions
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
-        {before-help}{name} {version}\n\
-        {author-with-newline}{about-with-newline}\n\
+        {before-help}{about-with-newline}\n\
         {usage-heading}\n    {usage}\n\
         \n\
         {all-args}{after-help}\
     ";
 
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
-        {before-help}{name} {version}\n\
-        {author-with-newline}{about-with-newline}\n\
+        {before-help}{about-with-newline}\n\
         {usage-heading}\n    {usage}{after-help}\
     ";
 

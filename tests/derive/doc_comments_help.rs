@@ -61,7 +61,6 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     let help = utils::get_long_help::<LoremIpsum>();
     assert!(help.starts_with(
         "\
-lorem-ipsum 
 Foo.
 
 Bar

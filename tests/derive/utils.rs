@@ -7,6 +7,14 @@
 
 use clap::CommandFactory;
 
+pub const FULL_TEMPLATE: &str = "\
+{before-help}{name} {version}
+{author-with-newline}{about-with-newline}
+{usage-heading}
+    {usage}
+
+{all-args}{after-help}";
+
 pub fn get_help<T: CommandFactory>() -> String {
     let mut output = Vec::new();
     <T as CommandFactory>::command()

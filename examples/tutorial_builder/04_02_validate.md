@@ -1,6 +1,5 @@
 ```console
 $ 04_02_validate --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

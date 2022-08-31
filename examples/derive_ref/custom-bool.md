@@ -4,7 +4,6 @@ Example of overriding the magic `bool` behavior
 
 ```console
 $ custom-bool --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

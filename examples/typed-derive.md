@@ -3,8 +3,6 @@
 Help:
 ```console
 $ typed-derive --help
-clap 
-
 Usage:
     typed-derive[EXE] [OPTIONS]
 

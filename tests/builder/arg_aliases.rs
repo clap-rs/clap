@@ -190,7 +190,7 @@ fn alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_arg_aliases_help_output() {
-    static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
+    static SC_INVISIBLE_ALIAS_HELP: &str = "\
 Some help
 
 Usage:
@@ -221,7 +221,7 @@ Options:
 
 #[test]
 fn visible_arg_aliases_help_output() {
-    static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
+    static SC_VISIBLE_ALIAS_HELP: &str = "\
 Some help
 
 Usage:

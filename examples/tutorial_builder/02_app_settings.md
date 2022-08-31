@@ -1,6 +1,5 @@
 ```console
 $ 02_app_settings --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

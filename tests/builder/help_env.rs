@@ -6,8 +6,7 @@ use clap::{Arg, ArgAction, Command};
 
 use super::utils;
 
-static HIDE_ENV: &str = "ctest 0.1
-
+static HIDE_ENV: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -17,8 +16,7 @@ Options:
     -V, --version        Print version information
 ";
 
-static SHOW_ENV: &str = "ctest 0.1
-
+static SHOW_ENV: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -28,8 +26,7 @@ Options:
     -V, --version        Print version information
 ";
 
-static HIDE_ENV_VALS: &str = "ctest 0.1
-
+static HIDE_ENV_VALS: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -39,8 +36,7 @@ Options:
     -V, --version        Print version information
 ";
 
-static SHOW_ENV_VALS: &str = "ctest 0.1
-
+static SHOW_ENV_VALS: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -50,8 +46,7 @@ Options:
     -V, --version        Print version information
 ";
 
-static HIDE_ENV_FLAG: &str = "ctest 0.1
-
+static HIDE_ENV_FLAG: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -61,8 +56,7 @@ Options:
     -V, --version    Print version information
 ";
 
-static SHOW_ENV_FLAG: &str = "ctest 0.1
-
+static SHOW_ENV_FLAG: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -72,8 +66,7 @@ Options:
     -V, --version    Print version information
 ";
 
-static HIDE_ENV_VALS_FLAG: &str = "ctest 0.1
-
+static HIDE_ENV_VALS_FLAG: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -83,8 +76,7 @@ Options:
     -V, --version    Print version information
 ";
 
-static SHOW_ENV_VALS_FLAG: &str = "ctest 0.1
-
+static SHOW_ENV_VALS_FLAG: &str = "\
 Usage:
     ctest [OPTIONS]
 

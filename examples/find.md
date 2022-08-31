@@ -2,7 +2,6 @@
 
 ```console
 $ find --help
-clap 4.0.0-alpha.0
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

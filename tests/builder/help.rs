@@ -88,8 +88,7 @@ For more information try --help
 
 #[test]
 fn req_last_arg_usage() {
-    static LAST_ARG_REQ_MULT: &str = "example 1.0
-
+    static LAST_ARG_REQ_MULT: &str = "\
 Usage:
     example <FIRST>... -- <SECOND>...
 
@@ -117,8 +116,7 @@ Options:
 
 #[test]
 fn args_with_last_usage() {
-    static LAST_ARG_USAGE: &str = "flamegraph 0.1
-
+    static LAST_ARG_USAGE: &str = "\
 Usage:
     flamegraph [OPTIONS] [BINFILE] [-- <ARGS>...]
 
@@ -200,7 +198,8 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    static HELP: &str = "clap-test v1.4.8
+    static HELP: &str = "\
+clap-test v1.4.8
 Kevin K. <kbknapp@gmail.com>
 tests clap library
 
@@ -239,7 +238,6 @@ Options:
 fn after_and_before_help_output() {
     static AFTER_HELP: &str = "some text that comes before the help
 
-clap-test v1.4.8
 tests clap library
 
 Usage:
@@ -265,7 +263,6 @@ some text that comes after the help
 fn after_and_before_long_help_output() {
     static AFTER_HELP: &str = "some text that comes before the help
 
-clap-test v1.4.8
 tests clap library
 
 Usage:
@@ -280,7 +277,6 @@ some text that comes after the help
 
     static AFTER_LONG_HELP: &str = "some longer text that comes before the help
 
-clap-test v1.4.8
 tests clap library
 
 Usage:
@@ -307,8 +303,7 @@ some longer text that comes after the help
     utils::assert_output(cmd, "clap-test -h", AFTER_HELP, false);
 }
 
-static MULTI_SC_HELP: &str = "ctest-subcmd-multi 0.1
-Kevin K. <kbknapp@gmail.com>
+static MULTI_SC_HELP: &str = "\
 tests subcommands
 
 Usage:
@@ -347,8 +342,7 @@ fn multi_level_sc_help() {
 
 #[test]
 fn no_wrap_default_help() {
-    static DEFAULT_HELP: &str = "ctest 1.0
-
+    static DEFAULT_HELP: &str = "\
 Usage:
     ctest
 
@@ -364,8 +358,7 @@ Options:
 #[test]
 #[cfg(feature = "wrap_help")]
 fn wrapped_help() {
-    static WRAPPED_HELP: &str = "test 
-
+    static WRAPPED_HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -420,8 +413,7 @@ Options:
 #[test]
 #[cfg(feature = "wrap_help")]
 fn unwrapped_help() {
-    static UNWRAPPED_HELP: &str = "test 
-
+    static UNWRAPPED_HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -468,8 +460,7 @@ Options:
 #[test]
 #[cfg(all(feature = "wrap_help"))]
 fn possible_value_wrapped_help() {
-    static WRAPPED_HELP: &str = "test 
-
+    static WRAPPED_HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -557,8 +548,7 @@ Options:
 
 #[test]
 fn issue_626_unicode_cutoff() {
-    static ISSUE_626_CUTOFF: &str = "ctest 0.1
-
+    static ISSUE_626_CUTOFF: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -593,8 +583,7 @@ Options:
     utils::assert_output(cmd, "ctest --help", ISSUE_626_CUTOFF, false);
 }
 
-static HIDE_POS_VALS: &str = "ctest 0.1
-
+static HIDE_POS_VALS: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -661,8 +650,7 @@ fn hide_single_possible_val() {
 
 #[test]
 fn possible_vals_with_help() {
-    static POS_VALS_HELP: &str = "ctest 0.1
-
+    static POS_VALS_HELP: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -711,8 +699,7 @@ Options:
 
 #[test]
 fn issue_626_panic() {
-    static ISSUE_626_PANIC: &str = "ctest 0.1
-
+    static ISSUE_626_PANIC: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -767,8 +754,7 @@ fn issue_626_variable_panic() {
 
 #[test]
 fn final_word_wrapping() {
-    static FINAL_WORD_WRAPPING: &str = "ctest 0.1
-
+    static FINAL_WORD_WRAPPING: &str = "\
 Usage:
     ctest
 
@@ -787,8 +773,7 @@ Options:
     utils::assert_output(cmd, "ctest --help", FINAL_WORD_WRAPPING, false);
 }
 
-static WRAPPING_NEWLINE_CHARS: &str = "ctest 0.1
-
+static WRAPPING_NEWLINE_CHARS: &str = "\
 Usage:
     ctest [mode]
 
@@ -843,8 +828,6 @@ fn dont_wrap_urls() {
     );
 
     const EXPECTED: &str = "\
-Example-update 
-
 Usage:
     Example update [OPTIONS]
 
@@ -862,8 +845,7 @@ Options:
     utils::assert_output(cmd, "Example update --help", EXPECTED, false);
 }
 
-static OLD_NEWLINE_CHARS: &str = "ctest 0.1
-
+static OLD_NEWLINE_CHARS: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -898,8 +880,7 @@ fn old_newline_variables() {
 
 #[test]
 fn issue_688_hide_pos_vals() {
-    static ISSUE_688: &str = "ctest 0.1
-
+    static ISSUE_688: &str = "\
 Usage:
     ctest [OPTIONS]
 
@@ -949,8 +930,7 @@ Options:
 
 #[test]
 fn issue_702_multiple_values() {
-    static ISSUE_702: &str = "myapp 1.0
-foo
+    static ISSUE_702: &str = "\
 bar
 
 Usage:
@@ -1006,8 +986,7 @@ Options:
 
 #[test]
 fn long_about() {
-    static LONG_ABOUT: &str = "myapp 1.0
-foo
+    static LONG_ABOUT: &str = "\
 something really really long, with
 multiple lines of text
 that should be displayed
@@ -1038,8 +1017,9 @@ Options:
     utils::assert_output(cmd, "myapp --help", LONG_ABOUT, false);
 }
 
-static RIPGREP_USAGE: &str = "ripgrep 0.5
-
+#[test]
+fn ripgrep_usage() {
+    static RIPGREP_USAGE: &str = "\
 Usage:
     rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
@@ -1051,8 +1031,6 @@ Options:
     -V, --version    Print version information
 ";
 
-#[test]
-fn ripgrep_usage() {
     let cmd = Command::new("ripgrep").version("0.5").override_usage(
         "rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
@@ -1065,6 +1043,20 @@ fn ripgrep_usage() {
 
 #[test]
 fn ripgrep_usage_using_templates() {
+    static RIPGREP_USAGE: &str = "\
+ripgrep 0.5
+
+Usage:
+    rg [OPTIONS] <pattern> [<path> ...]
+    rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
+    rg [OPTIONS] --files [<path> ...]
+    rg [OPTIONS] --type-list
+
+Options:
+    -h, --help       Print help information
+    -V, --version    Print version information
+";
+
     let cmd = Command::new("ripgrep")
         .version("0.5")
         .override_usage(
@@ -1089,8 +1081,7 @@ Options:
 
 #[test]
 fn sc_negates_reqs() {
-    static SC_NEGATES_REQS: &str = "prog 1.0
-
+    static SC_NEGATES_REQS: &str = "\
 Usage:
     prog --opt <FILE> [PATH]
     prog [PATH] <COMMAND>
@@ -1119,8 +1110,7 @@ Options:
 
 #[test]
 fn hide_args() {
-    static HIDDEN_ARGS: &str = "prog 1.0
-
+    static HIDDEN_ARGS: &str = "\
 Usage:
     prog [OPTIONS]
 
@@ -1141,8 +1131,7 @@ Options:
 
 #[test]
 fn args_negate_sc() {
-    static ARGS_NEGATE_SC: &str = "prog 1.0
-
+    static ARGS_NEGATE_SC: &str = "\
 Usage:
     prog [OPTIONS] [PATH]
     prog <COMMAND>
@@ -1173,8 +1162,7 @@ Options:
 
 #[test]
 fn issue_1046_hide_scs() {
-    static ISSUE_1046_HIDDEN_SCS: &str = "prog 1.0
-
+    static ISSUE_1046_HIDDEN_SCS: &str = "\
 Usage:
     prog [OPTIONS] [PATH]
 
@@ -1222,12 +1210,12 @@ Options:
         .version("1.0")
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
+        .help_template(utils::FULL_TEMPLATE)
         .term_width(35);
     utils::assert_output(cmd, "ctest --help", ISSUE_777, false);
 }
 
-static OVERRIDE_HELP_SHORT: &str = "test 0.1
-
+static OVERRIDE_HELP_SHORT: &str = "\
 Usage:
     test
 
@@ -1247,8 +1235,7 @@ fn override_help_short() {
     utils::assert_output(cmd, "test -H", OVERRIDE_HELP_SHORT, false);
 }
 
-static OVERRIDE_HELP_LONG: &str = "test 0.1
-
+static OVERRIDE_HELP_LONG: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -1268,8 +1255,7 @@ fn override_help_long() {
     utils::assert_output(cmd, "test -h", OVERRIDE_HELP_LONG, false);
 }
 
-static OVERRIDE_HELP_ABOUT: &str = "test 0.1
-
+static OVERRIDE_HELP_ABOUT: &str = "\
 Usage:
     test
 
@@ -1322,8 +1308,7 @@ fn arg_long_conflict_with_help() {
 
 #[test]
 fn last_arg_mult_usage() {
-    static LAST_ARG: &str = "last 0.1
-
+    static LAST_ARG: &str = "\
 Usage:
     last <TARGET> [CORPUS] [-- <ARGS>...]
 
@@ -1353,8 +1338,7 @@ Options:
 
 #[test]
 fn last_arg_mult_usage_req() {
-    static LAST_ARG_REQ: &str = "last 0.1
-
+    static LAST_ARG_REQ: &str = "\
 Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
 
@@ -1385,8 +1369,7 @@ Options:
 
 #[test]
 fn last_arg_mult_usage_req_with_sc() {
-    static LAST_ARG_REQ_SC: &str = "last 0.1
-
+    static LAST_ARG_REQ_SC: &str = "\
 Usage:
     last <TARGET> [CORPUS] -- <ARGS>...
     last [TARGET] [CORPUS] <COMMAND>
@@ -1424,8 +1407,7 @@ Options:
 
 #[test]
 fn last_arg_mult_usage_with_sc() {
-    static LAST_ARG_SC: &str = "last 0.1
-
+    static LAST_ARG_SC: &str = "\
 Usage:
     last <TARGET> [CORPUS] [-- <ARGS>...]
     last <COMMAND>
@@ -1460,8 +1442,7 @@ Options:
     utils::assert_output(cmd, "last --help", LAST_ARG_SC, false);
 }
 
-static HIDE_DEFAULT_VAL: &str = "default 0.1
-
+static HIDE_DEFAULT_VAL: &str = "\
 Usage:
     default [OPTIONS]
 
@@ -1493,8 +1474,7 @@ fn hide_default_val() {
 
 #[test]
 fn escaped_whitespace_values() {
-    static ESCAPED_DEFAULT_VAL: &str = "default 0.1
-
+    static ESCAPED_DEFAULT_VAL: &str = "\
 Usage:
     default [OPTIONS]
 
@@ -1583,8 +1563,7 @@ fn prefer_user_subcmd_help_short_1112() {
 
 #[test]
 fn issue_1052_require_delim_help() {
-    static REQUIRE_DELIM_HELP: &str = "test 1.3
-Kevin K.
+    static REQUIRE_DELIM_HELP: &str = "\
 tests stuff
 
 Usage:
@@ -1613,8 +1592,7 @@ Options:
 
 #[test]
 fn custom_headers_headers() {
-    static CUSTOM_HELP_SECTION: &str = "blorp 1.4
-Will M.
+    static CUSTOM_HELP_SECTION: &str = "\
 does stuff
 
 Usage:
@@ -1654,8 +1632,7 @@ NETWORKING:
     utils::assert_output(cmd, "test --help", CUSTOM_HELP_SECTION, false);
 }
 
-static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "blorp 1.4
-Will M.
+static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "\
 does stuff
 
 Usage:
@@ -1735,8 +1712,7 @@ fn multiple_custom_help_headers() {
     utils::assert_output(cmd, "test --help", MULTIPLE_CUSTOM_HELP_SECTIONS, false);
 }
 
-static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "blorp 1.4
-Will M.
+static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "\
 does stuff
 
 Usage:
@@ -1788,7 +1764,7 @@ fn custom_help_headers_hide_args() {
     utils::assert_output(cmd, "test -h", CUSTOM_HELP_SECTION_HIDDEN_ARGS, false);
 }
 
-static ISSUE_897: &str = "ctest-foo 0.1
+static ISSUE_897: &str = "\
 Long about foo
 
 Usage:
@@ -1813,7 +1789,7 @@ fn show_long_about_issue_897() {
     utils::assert_output(cmd, "ctest foo --help", ISSUE_897, false);
 }
 
-static ISSUE_897_SHORT: &str = "ctest-foo 0.1
+static ISSUE_897_SHORT: &str = "\
 About foo
 
 Usage:
@@ -1837,8 +1813,7 @@ fn show_short_about_issue_897() {
 
 #[test]
 fn issue_1364_no_short_options() {
-    static ISSUE_1364: &str = "demo 
-
+    static ISSUE_1364: &str = "\
 Usage:
     demo [OPTIONS] [FILES]...
 
@@ -1871,8 +1846,7 @@ Options:
 #[rustfmt::skip]
 #[test]
 fn issue_1487() {
-static ISSUE_1487: &str = "test 
-
+static ISSUE_1487: &str = "\
 Usage:
     ctest <arg1|arg2>
 
@@ -1993,8 +1967,7 @@ fn help_required_and_no_args() {
 
 #[test]
 fn issue_1642_long_help_spacing() {
-    static ISSUE_1642: &str = "prog 
-
+    static ISSUE_1642: &str = "\
 Usage:
     prog [OPTIONS]
 
@@ -2023,8 +1996,7 @@ and on, so I'll stop now.",
     utils::assert_output(cmd, "prog --help", ISSUE_1642, false);
 }
 
-const AFTER_HELP_NO_ARGS: &str = "myapp 1.0
-
+const AFTER_HELP_NO_ARGS: &str = "\
 Usage:
     myapp
 
@@ -2050,7 +2022,7 @@ fn after_help_no_args() {
 
 #[test]
 fn help_subcmd_help() {
-    static HELP_SUBCMD_HELP: &str = "myapp-help 
+    static HELP_SUBCMD_HELP: &str = "\
 Print this message or the help of the given subcommand(s)
 
 Usage:
@@ -2068,7 +2040,7 @@ Arguments:
 
 #[test]
 fn subcmd_help_subcmd_help() {
-    static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
+    static SUBCMD_HELP_SUBCMD_HELP: &str = "\
 Print this message or the help of the given subcommand(s)
 
 Usage:
@@ -2091,8 +2063,7 @@ Arguments:
 
 #[test]
 fn global_args_should_show_on_toplevel_help_message() {
-    static HELP: &str = "myapp\x20
-
+    static HELP: &str = "\
 Usage:
     myapp [OPTIONS] [COMMAND]
 
@@ -2119,7 +2090,7 @@ Options:
 
 #[test]
 fn global_args_should_not_show_on_help_message_for_help_help() {
-    static HELP_HELP: &str = "myapp-help\x20
+    static HELP_HELP: &str = "\
 Print this message or the help of the given subcommand(s)
 
 Usage:
@@ -2143,8 +2114,7 @@ Arguments:
 
 #[test]
 fn global_args_should_show_on_help_message_for_subcommand() {
-    static HELP_SUBCMD: &str = "myapp-subcmd\x20
-
+    static HELP_SUBCMD: &str = "\
 Usage:
     myapp subcmd [OPTIONS] [COMMAND]
 
@@ -2171,8 +2141,7 @@ Options:
 
 #[test]
 fn global_args_should_show_on_help_message_for_nested_subcommand() {
-    static HELP_SUB_SUBCMD: &str = "myapp-subcmd-multi 1.0
-
+    static HELP_SUB_SUBCMD: &str = "\
 Usage:
     myapp subcmd multi [OPTIONS]
 
@@ -2196,8 +2165,7 @@ Options:
 
 #[test]
 fn option_usage_order() {
-    static OPTION_USAGE_ORDER: &str = "order 
-
+    static OPTION_USAGE_ORDER: &str = "\
 Usage:
     order [OPTIONS]
 
@@ -2231,8 +2199,7 @@ Options:
 
 #[test]
 fn prefer_about_over_long_about_in_subcommands_list() {
-    static ABOUT_IN_COMMANDS_LIST: &str = "about-in-subcommands-list 
-
+    static ABOUT_IN_COMMANDS_LIST: &str = "\
 Usage:
     about-in-subcommands-list [COMMAND]
 
@@ -2260,8 +2227,7 @@ Options:
 
 #[test]
 fn issue_1794_usage() {
-    static USAGE_WITH_GROUP: &str = "hello 
-
+    static USAGE_WITH_GROUP: &str = "\
 Usage:
     deno <pos1|--option1> [pos2]
 
@@ -2292,8 +2258,7 @@ Options:
     utils::assert_output(cmd, "deno --help", USAGE_WITH_GROUP, false);
 }
 
-static CUSTOM_HEADING_POS: &str = "test 1.4
-
+static CUSTOM_HEADING_POS: &str = "\
 Usage:
     test [gear] [speed]
 
@@ -2319,8 +2284,7 @@ fn custom_heading_pos() {
     utils::assert_output(cmd, "test --help", CUSTOM_HEADING_POS, false);
 }
 
-static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "test 1.4
-
+static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -2341,8 +2305,7 @@ fn only_custom_heading_opts_no_args() {
     utils::assert_output(cmd, "test --help", ONLY_CUSTOM_HEADING_OPTS_NO_ARGS, false);
 }
 
-static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "test 1.4
-
+static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "\
 Usage:
     test [speed]
 
@@ -2376,8 +2339,7 @@ fn issue_2508_number_of_values_with_single_value_name() {
     utils::assert_output(
         cmd,
         "my_app --help",
-        "my_app 
-
+        "\
 Usage:
     my_app [OPTIONS]
 
@@ -2399,8 +2361,7 @@ fn missing_positional_final_required() {
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test [arg1] <arg2>
 
@@ -2425,8 +2386,7 @@ fn missing_positional_final_multiple() {
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test [foo] [bar] [baz]...
 
@@ -2453,8 +2413,7 @@ fn positional_multiple_values_is_dotted() {
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test <foo>...
 
@@ -2477,8 +2436,7 @@ Options:
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test <BAR>...
 
@@ -2504,8 +2462,7 @@ fn positional_multiple_occurrences_is_dotted() {
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test <foo>...
 
@@ -2529,8 +2486,7 @@ Options:
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test <BAR>...
 
@@ -2557,8 +2513,7 @@ fn too_few_value_names_is_dotted() {
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test --foo <one> <two>...
 
@@ -2659,7 +2614,7 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
     utils::assert_output(
         cmd,
         "example help help",
-        "example-help 
+        "\
 Print this message or the help of the given subcommand(s)
 
 Usage:
@@ -2702,7 +2657,7 @@ fn dont_propagate_version_to_help_subcommand() {
     utils::assert_output(
         cmd.clone(),
         "example help help",
-        "example-help 
+        "\
 Print this message or the help of the given subcommand(s)
 
 Usage:
@@ -2737,7 +2692,7 @@ fn help_without_short() {
 
 #[test]
 fn parent_cmd_req_in_usage_with_help_flag() {
-    static EXPECTED: &str = "parent-test 
+    static EXPECTED: &str = "\
 some
 
 Usage:
@@ -2761,7 +2716,7 @@ Options:
 
 #[test]
 fn parent_cmd_req_in_usage_with_help_subcommand() {
-    static EXPECTED: &str = "parent-test 
+    static EXPECTED: &str = "\
 some
 
 Usage:
@@ -2785,7 +2740,7 @@ Options:
 
 #[test]
 fn parent_cmd_req_in_usage_with_render_help() {
-    static EXPECTED: &str = "parent-test 
+    static EXPECTED: &str = "\
 some
 
 Usage:
@@ -2814,8 +2769,7 @@ Options:
 
 #[test]
 fn parent_cmd_req_ignored_when_negates_reqs() {
-    static MULTI_SC_HELP: &str = "ctest-subcmd 
-
+    static MULTI_SC_HELP: &str = "\
 Usage:
     ctest subcmd
 
@@ -2832,8 +2786,7 @@ Options:
 
 #[test]
 fn parent_cmd_req_ignored_when_conflicts() {
-    static MULTI_SC_HELP: &str = "ctest-subcmd 
-
+    static MULTI_SC_HELP: &str = "\
 Usage:
     ctest subcmd
 

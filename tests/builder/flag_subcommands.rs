@@ -496,7 +496,7 @@ fn flag_subcommand_long_infer_exact_match() {
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
-static FLAG_SUBCOMMAND_HELP: &str = "pacman-query 
+static FLAG_SUBCOMMAND_HELP: &str = "\
 Query the package database.
 
 Usage:
@@ -545,7 +545,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
     utils::assert_output(cmd, "pacman -Qh", FLAG_SUBCOMMAND_HELP, false);
 }
 
-static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "pacman-query 
+static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "\
 Query the package database.
 
 Usage:
@@ -598,7 +598,7 @@ fn flag_subcommand_long_normal_usage_string() {
     );
 }
 
-static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "pacman-query 
+static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "\
 Query the package database.
 
 Usage:

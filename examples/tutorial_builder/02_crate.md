@@ -1,6 +1,5 @@
 ```console
 $ 02_crate --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

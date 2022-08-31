@@ -3,8 +3,6 @@ args = []
 status.code = 2
 stdout = ""
 stderr = """
-stdio-fixture 1.0
-
 Usage:
     stdio-fixture[EXE] [OPTIONS] [COMMAND]
 

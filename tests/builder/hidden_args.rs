@@ -2,8 +2,7 @@ use super::utils;
 
 use clap::{arg, Arg, ArgAction, Command};
 
-static HIDDEN_ARGS: &str = "test 1.4
-Kevin K.
+static HIDDEN_ARGS: &str = "\
 tests stuff
 
 Usage:
@@ -31,8 +30,7 @@ fn hide_args() {
     utils::assert_output(cmd, "test --help", HIDDEN_ARGS, false);
 }
 
-static HIDDEN_SHORT_ARGS: &str = "test 2.31.2
-Steve P.
+static HIDDEN_SHORT_ARGS: &str = "\
 hides short args
 
 Usage:
@@ -71,8 +69,7 @@ fn hide_short_args() {
 /// Ensure visible with opposite option
 #[test]
 fn hide_short_args_long_help() {
-    static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
-Steve P.
+    static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "\
 hides short args
 
 Usage:
@@ -113,8 +110,7 @@ Options:
     utils::assert_output(cmd, "test --help", HIDDEN_SHORT_ARGS_LONG_HELP, false);
 }
 
-static HIDDEN_LONG_ARGS: &str = "test 2.31.2
-Steve P.
+static HIDDEN_LONG_ARGS: &str = "\
 hides long args
 
 Usage:
@@ -154,8 +150,7 @@ fn hide_long_args() {
     utils::assert_output(cmd, "test --help", HIDDEN_LONG_ARGS, false);
 }
 
-static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "test 2.31.2
-Steve P.
+static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "\
 hides long args
 
 Usage:
@@ -191,8 +186,7 @@ fn hide_long_args_short_help() {
     utils::assert_output(cmd, "test -h", HIDDEN_LONG_ARGS_SHORT_HELP, false);
 }
 
-static HIDDEN_POS_ARGS: &str = "test 1.4
-
+static HIDDEN_POS_ARGS: &str = "\
 Usage:
     test [another]
 
@@ -214,8 +208,7 @@ fn hide_pos_args() {
     utils::assert_output(cmd, "test --help", HIDDEN_POS_ARGS, false);
 }
 
-static HIDDEN_SUBCMDS: &str = "test 1.4
-
+static HIDDEN_SUBCMDS: &str = "\
 Usage:
     test
 
@@ -233,8 +226,7 @@ fn hide_subcmds() {
     utils::assert_output(cmd, "test --help", HIDDEN_SUBCMDS, false);
 }
 
-static HIDDEN_OPT_ARGS_ONLY: &str = "test 1.4
-
+static HIDDEN_OPT_ARGS_ONLY: &str = "\
 Usage:
     test
 
@@ -259,8 +251,7 @@ fn hide_opt_args_only() {
     utils::assert_output(cmd, "test --help", HIDDEN_OPT_ARGS_ONLY, false);
 }
 
-static HIDDEN_POS_ARGS_ONLY: &str = "test 1.4
-
+static HIDDEN_POS_ARGS_ONLY: &str = "\
 Usage:
     test
 
@@ -281,8 +272,7 @@ fn hide_pos_args_only() {
     utils::assert_output(cmd, "test --help", HIDDEN_POS_ARGS_ONLY, false);
 }
 
-static HIDDEN_SUBCMDS_ONLY: &str = "test 1.4
-
+static HIDDEN_SUBCMDS_ONLY: &str = "\
 Usage:
     test
 

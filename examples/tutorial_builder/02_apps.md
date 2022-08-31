@@ -1,7 +1,5 @@
 ```console
 $ 02_apps --help
-MyApp 1.0
-Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
 Usage:

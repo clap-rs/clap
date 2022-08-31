@@ -9,8 +9,7 @@ fn very_large_display_order() {
     utils::assert_output(
         cmd,
         "test --help",
-        "test 
-
+        "\
 Usage:
     test [COMMAND]
 
