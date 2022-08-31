@@ -6,6 +6,7 @@ use crate::builder::StyledStr;
 use crate::error::ContextKind;
 use crate::error::ContextValue;
 use crate::error::ErrorKind;
+use crate::output::TAB;
 
 /// Defines how to format an error for displaying to the user
 pub trait ErrorFormatter: Sized {
@@ -110,7 +111,8 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
                     ContextValue::Strings(values) => {
                         styled.none(":");
                         for v in values {
-                            styled.none("\n    ");
+                            styled.none("\n");
+                            styled.none(TAB);
                             styled.warning(&**v);
                         }
                     }
@@ -161,7 +163,9 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
                 let possible_values = error.get(ContextKind::ValidValue);
                 if let Some(ContextValue::Strings(possible_values)) = possible_values {
                     if !possible_values.is_empty() {
-                        styled.none("\n\t[possible values: ");
+                        styled.none("\n");
+                        styled.none(TAB);
+                        styled.none("[possible values: ");
                         if let Some((last, elements)) = possible_values.split_last() {
                             for v in elements {
                                 styled.good(escape(v));
@@ -175,7 +179,9 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
 
                 let suggestion = error.get(ContextKind::SuggestedValue);
                 if let Some(ContextValue::String(suggestion)) = suggestion {
-                    styled.none("\n\n\tDid you mean ");
+                    styled.none("\n\n");
+                    styled.none(TAB);
+                    styled.none("Did you mean ");
                     styled.good(quote(suggestion));
                     styled.none("?");
                 }
@@ -193,7 +199,9 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
 
                 let valid_sub = error.get(ContextKind::SuggestedSubcommand);
                 if let Some(ContextValue::String(valid_sub)) = valid_sub {
-                    styled.none("\n\n\tDid you mean ");
+                    styled.none("\n\n");
+                    styled.none(TAB);
+                    styled.none("Did you mean ");
                     styled.good(valid_sub);
                     styled.none("?");
                 }
@@ -216,7 +224,8 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
             if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
                 styled.none("The following required arguments were not provided:");
                 for v in invalid_arg {
-                    styled.none("\n    ");
+                    styled.none("\n");
+                    styled.none(TAB);
                     styled.good(&**v);
                 }
                 true
@@ -337,7 +346,9 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
                         Some(ContextValue::String(valid_sub)),
                         Some(ContextValue::String(valid_arg)),
                     ) => {
-                        styled.none("\n\n\tDid you mean ");
+                        styled.none("\n\n");
+                        styled.none(TAB);
+                        styled.none("Did you mean ");
                         styled.none("to put '");
                         styled.good(valid_arg);
                         styled.none("' after the subcommand '");
@@ -345,7 +356,9 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
                         styled.none("'?");
                     }
                     (None, Some(ContextValue::String(valid_arg))) => {
-                        styled.none("\n\n\tDid you mean '");
+                        styled.none("\n\n");
+                        styled.none(TAB);
+                        styled.none("Did you mean '");
                         styled.good(valid_arg);
                         styled.none("'?");
                     }
@@ -355,16 +368,20 @@ fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
                 let invalid_arg = error.get(ContextKind::InvalidArg);
                 if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                     if invalid_arg.starts_with('-') {
+                        styled.none("\n\n");
+                        styled.none(TAB);
                         styled.none(format!(
-                                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
+                                "If you tried to supply `{}` as a value rather than a flag, use `-- {}`",
                                 invalid_arg, invalid_arg
                             ));
                     }
 
                     let trailing_arg = error.get(ContextKind::TrailingArg);
                     if trailing_arg == Some(&ContextValue::Bool(true)) {
+                        styled.none("\n\n");
+                        styled.none(TAB);
                         styled.none(format!(
-                            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
+                            "If you tried to supply `{}` as a subcommand, remove the '--' before it.",
                             invalid_arg
                         ));
                     }

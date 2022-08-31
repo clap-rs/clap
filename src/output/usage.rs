@@ -1,6 +1,7 @@
 // Internal
 use crate::builder::StyledStr;
 use crate::builder::{ArgPredicate, Command};
+use crate::output::TAB;
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
 use crate::util::FlatSet;
@@ -32,7 +33,8 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::create_usage_with_title");
         let mut styled = StyledStr::new();
         styled.header("Usage:");
-        styled.none("\n    ");
+        styled.none("\n");
+        styled.none(TAB);
         styled.extend(self.create_usage_no_title(used).into_iter());
         styled
     }

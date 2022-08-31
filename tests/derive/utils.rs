@@ -11,7 +11,7 @@ pub const FULL_TEMPLATE: &str = "\
 {before-help}{name} {version}
 {author-with-newline}{about-with-newline}
 {usage-heading}
-    {usage}
+{tab}{usage}
 
 {all-args}{after-help}";
 

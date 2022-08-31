@@ -12,6 +12,8 @@ use crate::builder::{Arg, Command};
 use crate::output::display_width;
 use crate::output::wrap;
 use crate::output::Usage;
+use crate::output::TAB;
+use crate::output::TAB_WIDTH;
 use crate::util::FlatSet;
 
 /// `clap` Help Writer.
@@ -29,15 +31,17 @@ pub(crate) struct Help<'cmd, 'writer> {
 // Public Functions
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
-        {before-help}{about-with-newline}\n\
-        {usage-heading}\n    {usage}\n\
-        \n\
-        {all-args}{after-help}\
+{before-help}{about-with-newline}
+{usage-heading}
+{tab}{usage}
+
+{all-args}{after-help}\
     ";
 
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
-        {before-help}{about-with-newline}\n\
-        {usage-heading}\n    {usage}{after-help}\
+{before-help}{about-with-newline}
+{usage-heading}
+{tab}{usage}{after-help}\
     ";
 
     /// Create a new `Help` instance.
@@ -183,6 +187,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                     }
                     "subcommands" => {
                         self.write_subcommands(self.cmd);
+                    }
+                    "tab" => {
+                        self.none(TAB);
                     }
                     "after-help" => {
                         self.write_after_help();
@@ -503,10 +510,10 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             // had a long and short, or just short
             let padding = if arg.long.is_some() {
                 // Only account 4 after the val
-                4
+                TAB_WIDTH
             } else {
                 // Only account for ', --' + 4 after the val
-                8
+                TAB_WIDTH + 4
             };
             let spcs = longest + padding - self_len;
             debug!(
@@ -517,7 +524,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             self.spaces(spcs);
         } else {
             let self_len = display_width(&arg.to_string());
-            let padding = 4;
+            let padding = TAB_WIDTH;
             let spcs = longest + padding - self_len;
             debug!(
                 "Help::align_to_about: positional=true arg_len={}, spaces={}",
@@ -555,9 +562,9 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         let trailing_indent = self.get_spaces(trailing_indent);
 
         let spaces = if next_line_help {
-            12 // "tab" * 3
+            TAB_WIDTH * 3
         } else {
-            longest + 12
+            longest + TAB_WIDTH * 3
         };
         let mut help = about.clone();
         help.replace_newline();
@@ -922,7 +929,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         self.literal(sc_str);
         if !next_line_help {
             let width = display_width(sc_str);
-            self.spaces(width.max(longest + 4) - width);
+            self.spaces(width.max(longest + TAB_WIDTH) - width);
         }
     }
 }
@@ -963,9 +970,6 @@ pub(crate) fn dimensions() -> Option<(usize, usize)> {
     #[cfg(feature = "wrap_help")]
     terminal_size::terminal_size().map(|(w, h)| (w.0.into(), h.0.into()))
 }
-
-const TAB: &str = "    ";
-const TAB_WIDTH: usize = 4;
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
     debug!(
