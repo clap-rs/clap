@@ -222,7 +222,7 @@ fn derive_generated_error_has_full_context() {
 
 Usage:
     clap --req-str <REQ_STR>
-    clap <SUBCOMMAND>
+    clap <COMMAND>
 
 For more information try --help
 "#;

@@ -10,9 +10,9 @@ git
 A fictional versioning CLI
 
 Usage:
-    git-derive[EXE] <SUBCOMMAND>
+    git-derive[EXE] <COMMAND>
 
-Subcommands:
+Commands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -27,9 +27,9 @@ git
 A fictional versioning CLI
 
 Usage:
-    git-derive[EXE] <SUBCOMMAND>
+    git-derive[EXE] <COMMAND>
 
-Subcommands:
+Commands:
     clone    Clones repos
     push     pushes things
     add      adds things
@@ -82,9 +82,9 @@ git-stash
 
 Usage:
     git-derive[EXE] stash [OPTIONS]
-    git-derive[EXE] stash <SUBCOMMAND>
+    git-derive[EXE] stash <COMMAND>
 
-Subcommands:
+Commands:
     push     
     pop      
     apply    

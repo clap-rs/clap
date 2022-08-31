@@ -4,9 +4,9 @@ clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:
-    01_quick_derive[EXE] [OPTIONS] [NAME] [SUBCOMMAND]
+    01_quick_derive[EXE] [OPTIONS] [NAME] [COMMAND]
 
-Subcommands:
+Commands:
     test    does testing things
     help    Print this message or the help of the given subcommand(s)
 

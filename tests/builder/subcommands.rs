@@ -5,9 +5,9 @@ use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
 Usage:
-    clap-test [SUBCOMMAND]
+    clap-test [COMMAND]
 
-Subcommands:
+Commands:
     test    Some help [aliases: dongle, done]
     help    Print this message or the help of the given subcommand(s)
 
@@ -19,9 +19,9 @@ Options:
 static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
 Usage:
-    clap-test [SUBCOMMAND]
+    clap-test [COMMAND]
 
-Subcommands:
+Commands:
     test    Some help
     help    Print this message or the help of the given subcommand(s)
 
@@ -38,7 +38,7 @@ static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
 If you believe you received this message in error, try re-running with 'dym -- subcm'
 
 Usage:
-    dym [SUBCOMMAND]
+    dym [COMMAND]
 
 For more information try --help
 ";
@@ -51,7 +51,7 @@ static DYM_SUBCMD_AMBIGUOUS: &str = "error: The subcommand 'te' wasn't recognize
 If you believe you received this message in error, try re-running with 'dym -- te'
 
 Usage:
-    dym [SUBCOMMAND]
+    dym [COMMAND]
 
 For more information try --help
 ";
@@ -62,7 +62,7 @@ static SUBCMD_AFTER_DOUBLE_DASH: &str =
 \tIf you tried to supply `subcmd` as a subcommand, remove the '--' before it.
 
 Usage:
-    cmd [SUBCOMMAND]
+    cmd [COMMAND]
 
 For more information try --help
 ";
@@ -184,7 +184,7 @@ fn subcmd_did_you_mean_output_arg() {
 \tIf you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
 
 Usage:
-    dym [SUBCOMMAND]
+    dym [COMMAND]
 
 For more information try --help
 ";
@@ -205,7 +205,7 @@ fn subcmd_did_you_mean_output_arg_false_positives() {
 \tIf you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
 
 Usage:
-    dym [SUBCOMMAND]
+    dym [COMMAND]
 
 For more information try --help
 ";
@@ -441,7 +441,7 @@ fn subcommand_not_recognized() {
         "error: The subcommand 'help' wasn't recognized
 
 Usage:
-    fake [SUBCOMMAND]
+    fake [COMMAND]
 
 For more information try --help
 ",
@@ -518,7 +518,7 @@ fn bad_multicall_command_error() {
 error: The subcommand 'world' wasn't recognized
 
 Usage:
-    <SUBCOMMAND>
+    <COMMAND>
 
 For more information try help
 ";
@@ -536,7 +536,7 @@ error: The subcommand 'baz' wasn't recognized
 If you believe you received this message in error, try re-running with ' -- baz'
 
 Usage:
-    <SUBCOMMAND>
+    <COMMAND>
 
 For more information try help
 ";

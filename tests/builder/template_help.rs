@@ -22,7 +22,7 @@ Options:
 {options}
 Arguments:
 {positionals}
-Subcommands:
+Commands:
 {subcommands}";
 
 static CUSTOM_TEMPL_HELP: &str = "MyApp 1.0
@@ -30,7 +30,7 @@ Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
 Usage:
-    MyApp [OPTIONS] <output> [SUBCOMMAND]
+    MyApp [OPTIONS] <output> [COMMAND]
 
 Options:
     -c, --config <FILE>    Sets a custom config file
@@ -39,7 +39,7 @@ Options:
     -V, --version          Print version information
 Arguments:
     <output>    Sets an optional output file
-Subcommands:
+Commands:
     test    does testing things
     help    Print this message or the help of the given subcommand(s)
 ";
@@ -49,9 +49,9 @@ Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
 Usage:
-    MyApp [OPTIONS] <output> [SUBCOMMAND]
+    MyApp [OPTIONS] <output> [COMMAND]
 
-Subcommands:
+Commands:
     test    does testing things
     help    Print this message or the help of the given subcommand(s)
 

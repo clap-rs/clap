@@ -9,9 +9,9 @@ $ cargo-example --help
 cargo 
 
 Usage:
-    cargo <SUBCOMMAND>
+    cargo <COMMAND>
 
-Subcommands:
+Commands:
     example    A simple to use, efficient, and full-featured Command Line Argument Parser
     help       Print this message or the help of the given subcommand(s)
 

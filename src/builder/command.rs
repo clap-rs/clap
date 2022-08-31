@@ -2588,7 +2588,7 @@ impl Command {
     /// Usage:
     ///     cust-ord [OPTIONS]
     ///
-    /// Subcommands:
+    /// Commands:
     ///     beta    I should be first!
     ///     alpha   Some help and text
     ///
@@ -3034,7 +3034,7 @@ impl Command {
 
     /// Sets the value name used for subcommands when printing usage and help.
     ///
-    /// By default, this is "SUBCOMMAND".
+    /// By default, this is "COMMAND".
     ///
     /// See also [`Command::subcommand_help_heading`]
     ///
@@ -3054,9 +3054,9 @@ impl Command {
     /// myprog
     ///
     /// Usage:
-    ///     myprog [SUBCOMMAND]
+    ///     myprog [COMMAND]
     ///
-    /// Subcommands:
+    /// Commands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     ///
@@ -3088,7 +3088,7 @@ impl Command {
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
-    /// Subcommands:
+    /// Commands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
@@ -3100,7 +3100,7 @@ impl Command {
 
     /// Sets the help heading used for subcommands when printing usage and help.
     ///
-    /// By default, this is "Subcommands".
+    /// By default, this is "Commands".
     ///
     /// See also [`Command::subcommand_value_name`]
     ///
@@ -3120,13 +3120,13 @@ impl Command {
     /// myprog
     ///
     /// Usage:
-    ///     myprog [SUBCOMMAND]
+    ///     myprog [COMMAND]
     ///
     /// Options:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
-    /// Subcommands:
+    /// Commands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
@@ -3148,7 +3148,7 @@ impl Command {
     /// myprog
     ///
     /// Usage:
-    ///     myprog [SUBCOMMAND]
+    ///     myprog [COMMAND]
     ///
     /// Options:
     ///     -h, --help       Print help information
@@ -4171,7 +4171,7 @@ impl Command {
                     Arg::new("subcommand")
                         .action(ArgAction::Append)
                         .num_args(..)
-                        .value_name("SUBCOMMAND")
+                        .value_name("COMMAND")
                         .help("The subcommand whose help message to display"),
                 )
             };

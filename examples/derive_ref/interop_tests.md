@@ -90,7 +90,7 @@ $ interop_augment_subcommands unknown
 error: Found argument 'unknown' which wasn't expected, or isn't valid in this context
 
 Usage:
-    interop_augment_subcommands[EXE] [SUBCOMMAND]
+    interop_augment_subcommands[EXE] [COMMAND]
 
 For more information try --help
 
@@ -104,9 +104,9 @@ $ interop_hand_subcommand
 clap 
 
 Usage:
-    interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
+    interop_hand_subcommand[EXE] [OPTIONS] <COMMAND>
 
-Subcommands:
+Commands:
     add       
     remove    
     help      Print this message or the help of the given subcommand(s)
@@ -199,7 +199,7 @@ $ interop_hand_subcommand unknown
 error: Found argument 'unknown' which wasn't expected, or isn't valid in this context
 
 Usage:
-    interop_hand_subcommand[EXE] [OPTIONS] <SUBCOMMAND>
+    interop_hand_subcommand[EXE] [OPTIONS] <COMMAND>
 
 For more information try --help
 

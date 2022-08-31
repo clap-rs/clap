@@ -345,7 +345,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
                 self.none("\n\n");
             }
             first = false;
-            let default_help_heading = Str::from("Subcommands");
+            let default_help_heading = Str::from("Commands");
             self.header(
                 self.cmd
                     .get_subcommand_help_heading()

@@ -8,7 +8,7 @@ error: Found argument '--unknown-argument' which wasn't expected, or isn't valid
 \tIf you tried to supply `--unknown-argument` as a value rather than a flag, use `-- --unknown-argument`
 
 Usage:
-    stdio-fixture[EXE] [OPTIONS] [SUBCOMMAND]
+    stdio-fixture[EXE] [OPTIONS] [COMMAND]
 
 For more information try --help
 """
