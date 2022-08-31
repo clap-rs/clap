@@ -1627,7 +1627,7 @@ Options:
 
 NETWORKING:
     -n, --no-proxy    Do not use system proxy settings
-        --port        
+        --port
 ";
 
     let cmd = Command::new("blorp")
@@ -2853,7 +2853,7 @@ fn no_wrap_help() {
     let cmd = Command::new("ctest")
         .term_width(0)
         .override_help(MULTI_SC_HELP);
-    utils::assert_output(cmd, "ctest --help", &format!("{}\n", MULTI_SC_HELP), false);
+    utils::assert_output(cmd, "ctest --help", MULTI_SC_HELP, false);
 }
 
 #[test]
