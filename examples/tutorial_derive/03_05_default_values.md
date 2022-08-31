@@ -1,6 +1,5 @@
 ```console
 $ 03_05_default_values_derive --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

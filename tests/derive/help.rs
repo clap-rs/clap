@@ -231,8 +231,7 @@ For more information try --help
 
 #[test]
 fn derive_order_next_order() {
-    static HELP: &str = "test 1.2
-
+    static HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -287,8 +286,7 @@ Options:
 
 #[test]
 fn derive_order_next_order_flatten() {
-    static HELP: &str = "test 1.2
-
+    static HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -343,8 +341,7 @@ Options:
 
 #[test]
 fn derive_order_no_next_order() {
-    static HELP: &str = "test 1.2
-
+    static HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -398,7 +395,7 @@ Options:
 
 #[test]
 fn derive_possible_value_help() {
-    static HELP: &str = "clap 
+    static HELP: &str = "\
 Application help
 
 Usage:

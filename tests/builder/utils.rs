@@ -5,6 +5,14 @@ use std::str;
 
 use clap::{arg, Arg, ArgAction, ArgGroup, Command};
 
+pub const FULL_TEMPLATE: &str = "\
+{before-help}{name} {version}
+{author-with-newline}{about-with-newline}
+{usage-heading}
+    {usage}
+
+{all-args}{after-help}";
+
 #[track_caller]
 pub fn assert_eq<S, S2>(expected: S, actual: S2)
 where
@@ -44,6 +52,7 @@ pub fn complex_app() -> Command {
         .version("v1.4.8")
         .about("tests clap library")
         .author("Kevin K. <kbknapp@gmail.com>")
+        .help_template(FULL_TEMPLATE)
         .arg(
             arg!(
                 -o --option <opt> "tests options"
@@ -97,6 +106,7 @@ pub fn complex_app() -> Command {
                 .about("tests subcommands")
                 .version("0.1")
                 .author("Kevin K. <kbknapp@gmail.com>")
+                .help_template(FULL_TEMPLATE)
                 .arg(
                     arg!(-o --option <scoption> "tests options")
                         .required(false)

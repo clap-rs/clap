@@ -261,8 +261,7 @@ fn group_overrides_required() {
 
 #[test]
 fn group_usage_use_val_name() {
-    static GROUP_USAGE_USE_VAL_NAME: &str = "prog 
-
+    static GROUP_USAGE_USE_VAL_NAME: &str = "\
 Usage:
     prog <A>
 

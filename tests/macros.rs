@@ -301,8 +301,6 @@ mod arg {
         let mut help = Vec::new();
         cmd.write_help(&mut help).unwrap();
         const HELP: &str = "\
-test 
-
 Usage:
     test [OPTIONS]
 

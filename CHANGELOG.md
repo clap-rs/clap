@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - *(help)* Help headings are now title cased, making any user-provided help headings inconsistent.  To get the old behavior, see `Command::help_template`, `Arg::help_heading`, and `Command::subcommand_help_heading`
 - *(help)* "Command" is used as the section heading for subcommands and `COMMAND` for the value name.  To get the old behavior, see  `Command::subcommand_help_heading` and `Arg::subcommand_value_name`
 - *(help)* Whitespace in help output is now trimmed to ensure consistency regardless of how well a template matches the users needs.
+- *(help)* name/version/author are removed by default from help output.  To get the old behavior, see `Command::help_template`.
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
 - *(derive)* Changed the default for arguments from `parse` to `value_parser`., removing `parse` support
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` (#3280)
@@ -102,6 +103,7 @@ Deprecated
 - *(help)* Polish up subcommands by referring to them as commands
 - *(help)* Trim extra whitespace to avoid artifacts from different uses of templates
 - *(help)* Hint to the user the difference between `-h` / `--help` when applicable (#4159)
+- *(help)* Shorten help by eliding name/version/author
 - *(version)* Use `Command::display_name` rather than `Command::bin_name`
 - *(parser)* Assert on unknown args when using external subcommands (#3703)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)

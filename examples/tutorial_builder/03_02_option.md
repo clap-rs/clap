@@ -1,6 +1,5 @@
 ```console
 $ 03_02_option --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

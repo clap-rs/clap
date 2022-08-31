@@ -60,6 +60,7 @@ fn issue_324() {
 
     #[derive(Parser)]
     #[clap(version = my_version())]
+    #[clap(help_template = utils::FULL_TEMPLATE)]
     struct Opt {
         #[clap(subcommand)]
         _cmd: SubCommand,

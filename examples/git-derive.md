@@ -6,7 +6,6 @@ Help:
 ```console
 $ git-derive
 ? failed
-git 
 A fictional versioning CLI
 
 Usage:
@@ -23,7 +22,6 @@ Options:
     -h, --help    Print help information
 
 $ git-derive help
-git 
 A fictional versioning CLI
 
 Usage:
@@ -40,7 +38,6 @@ Options:
     -h, --help    Print help information
 
 $ git-derive help add
-git-add 
 adds things
 
 Usage:
@@ -58,7 +55,6 @@ A basic argument:
 ```console
 $ git-derive add
 ? failed
-git-add 
 adds things
 
 Usage:
@@ -78,8 +74,6 @@ Adding ["Cargo.toml", "Cargo.lock"]
 Default subcommand:
 ```console
 $ git-derive stash -h
-git-stash 
-
 Usage:
     git-derive[EXE] stash [OPTIONS]
     git-derive[EXE] stash <COMMAND>
@@ -95,8 +89,6 @@ Options:
     -h, --help                 Print help information
 
 $ git-derive stash push -h
-git-stash-push 
-
 Usage:
     git-derive[EXE] stash push [OPTIONS]
 
@@ -105,8 +97,6 @@ Options:
     -h, --help                 Print help information
 
 $ git-derive stash pop -h
-git-stash-pop 
-
 Usage:
     git-derive[EXE] stash pop [STASH]
 

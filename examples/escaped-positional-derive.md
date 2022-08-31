@@ -5,7 +5,6 @@ You can use `--` to escape further arguments.
 Let's see what this looks like in the help:
 ```console
 $ escaped-positional-derive --help
-clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage:

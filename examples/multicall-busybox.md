@@ -25,8 +25,6 @@ Though users must pass something:
 ```console
 $ busybox
 ? failed
-busybox 
-
 Usage:
     busybox [OPTIONS] [APPLET]
 

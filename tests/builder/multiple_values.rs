@@ -429,8 +429,6 @@ fn optional_value() {
     let mut help = Vec::new();
     cmd.write_help(&mut help).unwrap();
     const HELP: &str = "\
-test 
-
 Usage:
     test [OPTIONS]
 

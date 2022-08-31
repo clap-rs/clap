@@ -35,8 +35,6 @@ Searching for name...
 In the help, this looks like:
 ```console
 $ pacman -h
-pacman 5.2.1
-Pacman Development Team
 package manager utility
 
 Usage:
@@ -52,7 +50,6 @@ Options:
     -V, --version    Print version information
 
 $ pacman -S -h
-pacman-sync 
 Synchronize packages.
 
 Usage:

@@ -3,7 +3,7 @@ use clap::{error::ErrorKind, ArgAction, Command};
 use crate::utils;
 
 fn common() -> Command {
-    Command::new("foo")
+    Command::new("foo").help_template(utils::FULL_TEMPLATE)
 }
 
 fn with_version() -> Command {

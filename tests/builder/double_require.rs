@@ -1,7 +1,6 @@
 use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
-static HELP: &str = "prog 
-
+static HELP: &str = "\
 Usage:
     prog [OPTIONS]
 

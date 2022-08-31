@@ -4,8 +4,7 @@ use super::utils;
 
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
-static ALLOW_EXT_SC: &str = "clap-test v1.4.8
-
+static ALLOW_EXT_SC: &str = "\
 Usage:
     clap-test [COMMAND]
 
@@ -14,8 +13,7 @@ Options:
     -V, --version    Print version information
 ";
 
-static DONT_COLLAPSE_ARGS: &str = "clap-test v1.4.8
-
+static DONT_COLLAPSE_ARGS: &str = "\
 Usage:
     clap-test [arg1] [arg2] [arg3]
 
@@ -125,8 +123,7 @@ fn arg_required_else_help_with_default() {
 
 #[test]
 fn arg_required_else_help_error_message() {
-    static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
-
+    static ARG_REQUIRED_ELSE_HELP: &str = "\
 Usage:
     test [OPTIONS]
 
@@ -284,8 +281,7 @@ fn no_bin_name() {
 
 #[test]
 fn skip_possible_values() {
-    static SKIP_POS_VALS: &str = "test 1.3
-Kevin K.
+    static SKIP_POS_VALS: &str = "\
 tests stuff
 
 Usage:
@@ -562,8 +558,7 @@ fn dont_collapse_args() {
 
 #[test]
 fn require_eq() {
-    static REQUIRE_EQUALS: &str = "clap-test v1.4.8
-
+    static REQUIRE_EQUALS: &str = "\
 Usage:
     clap-test --opt=<FILE>
 

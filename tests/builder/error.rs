@@ -89,8 +89,6 @@ fn null_prints_help() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::DisplayHelp;
     static MESSAGE: &str = "\
-test 
-
 Usage:
     test
 
@@ -110,8 +108,6 @@ fn raw_prints_help() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::DisplayHelp;
     static MESSAGE: &str = "\
-test 
-
 Usage:
     test
 

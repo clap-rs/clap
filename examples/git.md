@@ -4,7 +4,6 @@ Help:
 ```console
 $ git
 ? failed
-git 
 A fictional versioning CLI
 
 Usage:
@@ -21,7 +20,6 @@ Options:
     -h, --help    Print help information
 
 $ git help
-git 
 A fictional versioning CLI
 
 Usage:
@@ -38,7 +36,6 @@ Options:
     -h, --help    Print help information
 
 $ git help add
-git-add 
 adds things
 
 Usage:
@@ -56,7 +53,6 @@ A basic argument:
 ```console
 $ git add
 ? failed
-git-add 
 adds things
 
 Usage:
@@ -76,8 +72,6 @@ Adding ["Cargo.toml", "Cargo.lock"]
 Default subcommand:
 ```console
 $ git stash -h
-git-stash 
-
 Usage:
     git[EXE] stash [OPTIONS]
     git[EXE] stash <COMMAND>
@@ -93,8 +87,6 @@ Options:
     -h, --help                 Print help information
 
 $ git stash push -h
-git-stash-push 
-
 Usage:
     git[EXE] stash push [OPTIONS]
 
@@ -103,8 +95,6 @@ Options:
     -h, --help                 Print help information
 
 $ git stash pop -h
-git-stash-pop 
-
 Usage:
     git[EXE] stash pop [STASH]
 

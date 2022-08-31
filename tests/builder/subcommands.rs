@@ -2,8 +2,7 @@ use super::utils;
 
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
-static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
-
+static VISIBLE_ALIAS_HELP: &str = "\
 Usage:
     clap-test [COMMAND]
 
@@ -16,8 +15,7 @@ Options:
     -V, --version    Print version information
 ";
 
-static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
-
+static INVISIBLE_ALIAS_HELP: &str = "\
 Usage:
     clap-test [COMMAND]
 
@@ -574,8 +572,6 @@ fn cant_have_args_with_multicall() {
 #[test]
 fn multicall_help_flag() {
     static EXPECTED: &str = "\
-foo-bar 1.0.0
-
 Usage:
     foo bar [value]
 
@@ -597,8 +593,6 @@ Options:
 #[test]
 fn multicall_help_subcommand() {
     static EXPECTED: &str = "\
-foo-bar 1.0.0
-
 Usage:
     foo bar [value]
 
@@ -620,8 +614,6 @@ Options:
 #[test]
 fn multicall_render_help() {
     static EXPECTED: &str = "\
-foo-bar 1.0.0
-
 Usage:
     foo bar [value]
 

@@ -4,6 +4,8 @@ use clap::{
     crate_authors, crate_description, crate_name, crate_version, error::ErrorKind, Command,
 };
 
+use crate::utils;
+
 static DESCRIPTION_ONLY: &str = "prog 1
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -30,6 +32,7 @@ Options:
 fn crate_version() {
     let res = Command::new("prog")
         .version(crate_version!())
+        .help_template(utils::FULL_TEMPLATE)
         .try_get_matches_from(vec!["prog", "--version"]);
 
     assert!(res.is_err());
@@ -46,6 +49,7 @@ fn crate_description() {
     let res = Command::new("prog")
         .version("1")
         .about(crate_description!())
+        .help_template(utils::FULL_TEMPLATE)
         .try_get_matches_from(vec!["prog", "--help"]);
 
     assert!(res.is_err());
@@ -59,6 +63,7 @@ fn crate_authors() {
     let res = Command::new("prog")
         .version("1")
         .author(crate_authors!())
+        .help_template(utils::FULL_TEMPLATE)
         .try_get_matches_from(vec!["prog", "--help"]);
 
     assert!(res.is_err());
@@ -70,6 +75,7 @@ fn crate_authors() {
 #[test]
 fn crate_name() {
     let res = Command::new(crate_name!())
+        .help_template(utils::FULL_TEMPLATE)
         .version("3.0")
         .try_get_matches_from(vec!["clap", "--version"]);
 

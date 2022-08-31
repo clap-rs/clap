@@ -2,8 +2,6 @@ bin.name = "stdio-fixture"
 args = ["--help"]
 status.code = 0
 stdout = """
-stdio-fixture 1.0
-
 Usage:
     stdio-fixture[EXE] [OPTIONS] [COMMAND]
 
