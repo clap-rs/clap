@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
+- *(help)* Subcommands are now listed before arguments.  To get the old behavior, see `Command::help_template`
 - *(help)* Help headings are now title cased, making any user-provided help headings inconsistent.  To get the old behavior, see `Command::help_template`, `Arg::help_heading`, and `Command::subcommand_help_heading`
 - *(help)* "Command" is used as the section heading for subcommands and `COMMAND` for the value name.  To get the old behavior, see  `Command::subcommand_help_heading` and `Arg::subcommand_value_name`
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
