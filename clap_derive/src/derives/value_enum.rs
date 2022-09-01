@@ -8,20 +8,17 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use crate::{
-    dummies,
-    item::{Item, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
-    utils::Sp,
-};
-
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
 use quote::quote_spanned;
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataEnum, DeriveInput,
-    Fields, Ident, Variant,
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataEnum, DeriveInput, Fields,
+    Ident, Variant,
 };
+
+use crate::dummies;
+use crate::item::{Item, Kind, Name};
 
 pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
     let ident = &input.ident;
@@ -29,21 +26,17 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
     dummies::value_enum(ident);
 
     match input.data {
-        Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
+        Data::Enum(ref e) => {
+            let name = Name::Derived(ident.clone());
+            let item = Item::from_value_enum(input, name);
+            gen_for_enum(&item, ident, e)
+        }
         _ => abort_call_site!("`#[derive(ValueEnum)]` only supports enums"),
     }
 }
 
-pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    let item = Item::from_value_enum(
-        Span::call_site(),
-        attrs,
-        Name::Derived(name.clone()),
-        Sp::call_site(DEFAULT_CASING),
-        Sp::call_site(DEFAULT_ENV_CASING),
-    );
-
-    let lits = lits(&e.variants, &item);
+pub fn gen_for_enum(item: &Item, item_name: &Ident, e: &DataEnum) -> TokenStream {
+    let lits = lits(&e.variants, item);
     let value_variants = gen_value_variants(&lits);
     let to_possible_value = gen_to_possible_value(&lits);
 
@@ -61,7 +54,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::ValueEnum for #name {
+        impl clap::ValueEnum for #item_name {
             #value_variants
             #to_possible_value
         }

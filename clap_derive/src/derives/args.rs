@@ -12,19 +12,17 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use crate::{
-    dummies,
-    item::{Item, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
-    utils::{inner_type, sub_type, Sp, Ty},
-};
-
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataStruct,
-    DeriveInput, Field, Fields, Generics,
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
+    Fields, Generics,
 };
+
+use crate::dummies;
+use crate::item::{Item, Kind, Name};
+use crate::utils::{inner_type, sub_type, Sp, Ty};
 
 pub fn derive_args(input: &DeriveInput) -> TokenStream {
     let ident = &input.ident;
@@ -35,43 +33,43 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
         Data::Struct(DataStruct {
             fields: Fields::Named(ref fields),
             ..
-        }) => gen_for_struct(ident, &input.generics, &fields.named, &input.attrs),
+        }) => {
+            let name = Name::Derived(ident.clone());
+            let item = Item::from_args_struct(input, name);
+            gen_for_struct(&item, ident, &input.generics, &fields.named)
+        }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
             ..
-        }) => gen_for_struct(
-            ident,
-            &input.generics,
-            &Punctuated::<Field, Comma>::new(),
-            &input.attrs,
-        ),
+        }) => {
+            let name = Name::Derived(ident.clone());
+            let item = Item::from_args_struct(input, name);
+            gen_for_struct(
+                &item,
+                ident,
+                &input.generics,
+                &Punctuated::<Field, Comma>::new(),
+            )
+        }
         _ => abort_call_site!("`#[derive(Args)]` only supports non-tuple structs"),
     }
 }
 
 pub fn gen_for_struct(
-    struct_name: &Ident,
+    item: &Item,
+    item_name: &Ident,
     generics: &Generics,
     fields: &Punctuated<Field, Comma>,
-    attrs: &[Attribute],
 ) -> TokenStream {
-    let item = Item::from_args_struct(
-        Span::call_site(),
-        attrs,
-        Name::Derived(struct_name.clone()),
-        Sp::call_site(DEFAULT_CASING),
-        Sp::call_site(DEFAULT_ENV_CASING),
-    );
-
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let constructor = gen_constructor(fields, &item);
-    let updater = gen_updater(fields, &item, true);
+    let constructor = gen_constructor(fields, item);
+    let updater = gen_updater(fields, item, true);
     let raw_deprecated = raw_deprecated();
 
     let app_var = Ident::new("__clap_app", Span::call_site());
-    let augmentation = gen_augment(fields, &app_var, &item, false);
-    let augmentation_update = gen_augment(fields, &app_var, &item, true);
+    let augmentation = gen_augment(fields, &app_var, item, false);
+    let augmentation_update = gen_augment(fields, &app_var, item, true);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
@@ -87,14 +85,14 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::FromArgMatches for #struct_name #ty_generics #where_clause {
+        impl #impl_generics clap::FromArgMatches for #item_name #ty_generics #where_clause {
             fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
             }
 
             fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 #raw_deprecated
-                let v = #struct_name #constructor;
+                let v = #item_name #constructor;
                 ::std::result::Result::Ok(v)
             }
 
@@ -122,7 +120,7 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
+        impl #impl_generics clap::Args for #item_name #ty_generics #where_clause {
             fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
                 #augmentation
             }
