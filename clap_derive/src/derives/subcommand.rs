@@ -16,8 +16,8 @@ use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, Data, DataEnum, DeriveInput, FieldsUnnamed, Generics,
-    Token, Variant,
+    punctuated::Punctuated, spanned::Spanned, Data, DeriveInput, FieldsUnnamed, Generics, Token,
+    Variant,
 };
 
 use crate::derives::args;
@@ -34,7 +34,8 @@ pub fn derive_subcommand(input: &DeriveInput) -> TokenStream {
         Data::Enum(ref e) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_subcommand_enum(input, name);
-            gen_for_enum(&item, ident, &input.generics, e)
+            let variants = &e.variants;
+            gen_for_enum(&item, ident, &input.generics, variants)
         }
         _ => abort_call_site!("`#[derive(Subcommand)]` only supports enums"),
     }
@@ -44,16 +45,16 @@ pub fn gen_for_enum(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
-    e: &DataEnum,
+    variants: &Punctuated<Variant, Token![,]>,
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let from_arg_matches = gen_from_arg_matches(&e.variants, item);
-    let update_from_arg_matches = gen_update_from_arg_matches(&e.variants, item);
+    let from_arg_matches = gen_from_arg_matches(variants, item);
+    let update_from_arg_matches = gen_update_from_arg_matches(variants, item);
 
-    let augmentation = gen_augment(&e.variants, item, false);
-    let augmentation_update = gen_augment(&e.variants, item, true);
-    let has_subcommand = gen_has_subcommand(&e.variants, item);
+    let augmentation = gen_augment(variants, item, false);
+    let augmentation_update = gen_augment(variants, item, true);
+    let has_subcommand = gen_has_subcommand(variants, item);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]

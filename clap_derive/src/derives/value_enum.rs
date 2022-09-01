@@ -13,8 +13,8 @@ use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
 use quote::quote_spanned;
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataEnum, DeriveInput, Fields,
-    Ident, Variant,
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DeriveInput, Fields, Ident,
+    Variant,
 };
 
 use crate::dummies;
@@ -29,14 +29,19 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
         Data::Enum(ref e) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_value_enum(input, name);
-            gen_for_enum(&item, ident, e)
+            let variants = &e.variants;
+            gen_for_enum(&item, ident, variants)
         }
         _ => abort_call_site!("`#[derive(ValueEnum)]` only supports enums"),
     }
 }
 
-pub fn gen_for_enum(item: &Item, item_name: &Ident, e: &DataEnum) -> TokenStream {
-    let lits = lits(&e.variants, item);
+pub fn gen_for_enum(
+    item: &Item,
+    item_name: &Ident,
+    variants: &Punctuated<Variant, Comma>,
+) -> TokenStream {
+    let lits = lits(variants, item);
     let value_variants = gen_value_variants(&lits);
     let to_possible_value = gen_to_possible_value(&lits);
 

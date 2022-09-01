@@ -36,7 +36,8 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
         }) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_args_struct(input, name);
-            gen_for_struct(&item, ident, &input.generics, &fields.named)
+            let fields = &fields.named;
+            gen_for_struct(&item, ident, &input.generics, fields)
         }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
@@ -44,12 +45,8 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
         }) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_args_struct(input, name);
-            gen_for_struct(
-                &item,
-                ident,
-                &input.generics,
-                &Punctuated::<Field, Comma>::new(),
-            )
+            let fields = &Punctuated::<Field, Comma>::new();
+            gen_for_struct(&item, ident, &input.generics, fields)
         }
         _ => abort_call_site!("`#[derive(Args)]` only supports non-tuple structs"),
     }
