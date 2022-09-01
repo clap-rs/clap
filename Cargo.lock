@@ -18,15 +18,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
-name = "ansi_term"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
-dependencies = [
- "winapi",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -78,9 +69,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.10.0"
+version = "3.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37ccbd214614c6783386c1af30caf03192f17891059cecc394b4fb119e363de3"
+checksum = "c1ad822118d20d2c234f427000d5acc36eabe1e29a348c89b63dd60b13f28e5d"
 
 [[package]]
 name = "bytes"
@@ -129,7 +120,7 @@ dependencies = [
  "humantime",
  "rustversion",
  "shlex",
- "snapbox 0.2.10",
+ "snapbox",
  "static_assertions",
  "strsim",
  "termcolor",
@@ -159,9 +150,8 @@ dependencies = [
  "is_executable",
  "os_str_bytes",
  "pathdiff",
- "pretty_assertions",
  "shlex",
- "snapbox 0.2.10",
+ "snapbox",
  "trycmd",
  "unicode-xid",
 ]
@@ -172,7 +162,7 @@ version = "4.0.0-alpha.0"
 dependencies = [
  "clap 4.0.0-alpha.0",
  "clap_complete",
- "snapbox 0.2.10",
+ "snapbox",
 ]
 
 [[package]]
@@ -199,7 +189,7 @@ version = "0.1.10"
 dependencies = [
  "clap 4.0.0-alpha.0",
  "roff",
- "snapbox 0.2.10",
+ "snapbox",
 ]
 
 [[package]]
@@ -333,26 +323,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "ctor"
-version = "0.1.23"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdffe87e1d521a10f9696f833fe502293ea446d7f256c06128293a4119bdf4cb"
-dependencies = [
- "quote",
- "syn",
-]
-
-[[package]]
-name = "diff"
-version = "0.1.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56254986775e3233ffa9c4d7d3faaf6d36a2c09d30b20687e9f88bc8bafc16c8"
-
-[[package]]
 name = "either"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f107b87b6afc2a64fd13cac55fe06d6c8859f12d4b14cbcdd2c67d0976781be"
+checksum = "90e5c1c8368803113bf0c9584fc495a58b86dc8a29edbf8fe877d21d9507e797"
 
 [[package]]
 name = "errno"
@@ -454,9 +428,9 @@ dependencies = [
 
 [[package]]
 name = "io-lifetimes"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24c3f4eff5495aee4c0399d7b6a0dc2b6e81be84242ffbfcf253ebacccc1d0cb"
+checksum = "1ea37f355c05dde75b84bba2d767906ad522e97cd9e2eef2be7a4ab7fb442c06"
 
 [[package]]
 name = "is_executable"
@@ -505,9 +479,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.129"
+version = "0.2.132"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64de3cc433455c14174d42e554d4027ee631c4d046d43e3ecc6efc4636cdc7a7"
+checksum = "8371e4e5341c3a96db127eb2465ac681ced4c433e01dd0e938adbef26ba93ba5"
 
 [[package]]
 name = "linux-raw-sys"
@@ -584,9 +558,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.13.0"
+version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18a6dbe30758c9f83eb00cbea4ac95966305f5a7772f3f42ebfc7fc7eddbd8e1"
+checksum = "074864da206b4973b84eb91683020dbefd6a8c3f0f38e054d93954e891935e4e"
 
 [[package]]
 name = "oorandom"
@@ -606,18 +580,9 @@ dependencies = [
 
 [[package]]
 name = "os_str_bytes"
-version = "6.2.0"
+version = "6.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "648001efe5d5c0102d8cea768e348da85d90af8ba91f0bea908f157951493cd4"
-
-[[package]]
-name = "output_vt100"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "628223faebab4e3e40667ee0b2336d34a5b960ff60ea743ddfdbcf7770bcfb66"
-dependencies = [
- "winapi",
-]
+checksum = "9ff7415e9ae3fff1225851df9e0d9e4e5479f947619774677a63572e55e80eff"
 
 [[package]]
 name = "pathdiff"
@@ -627,9 +592,9 @@ checksum = "8835116a5c179084a830efb3adc117ab007512b535bc1a21c991d3b32a6b44dd"
 
 [[package]]
 name = "plotters"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9428003b84df1496fb9d6eeee9c5f8145cb41ca375eb0dad204328888832811f"
+checksum = "716b4eeb6c4a1d3ecc956f75b43ec2e8e8ba80026413e70a3f41fd3313d3492b"
 dependencies = [
  "num-traits",
  "plotters-backend",
@@ -646,23 +611,11 @@ checksum = "193228616381fecdc1224c62e96946dfbc73ff4384fba576e052ff8c1bea8142"
 
 [[package]]
 name = "plotters-svg"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0918736323d1baff32ee0eade54984f6f201ad7e97d5cfb5d6ab4a358529615"
+checksum = "f9a81d2759aae1dae668f783c308bc5c8ebd191ff4184aaa1b37f65a6ae5a56f"
 dependencies = [
  "plotters-backend",
-]
-
-[[package]]
-name = "pretty_assertions"
-version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c89f989ac94207d048d92db058e4f6ec7342b0971fc58d1271ca148b799b3563"
-dependencies = [
- "ansi_term",
- "ctor",
- "diff",
- "output_vt100",
 ]
 
 [[package]]
@@ -766,9 +719,9 @@ checksum = "7ef03e0a2b150c7a90d01faf6254c9c48a41e95fb2a8c2ac1c6f0d2b9aefc342"
 
 [[package]]
 name = "rustix"
-version = "0.35.7"
+version = "0.35.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d51cc38aa10f6bbb377ed28197aa052aa4e2b762c22be9d3153d01822587e787"
+checksum = "72c825b8aa8010eb9ee99b75f05e10180b9278d161583034d7574c9d617aeada"
 dependencies = [
  "bitflags",
  "errno",
@@ -807,9 +760,9 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "serde"
-version = "1.0.143"
+version = "1.0.144"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53e8e5d5b70924f74ff5c6d64d9a5acd91422117c60f48c4e07855238a254553"
+checksum = "0f747710de3dcd43b88c9168773254e809d8ddbdf9653b84e2554ab219f17860"
 dependencies = [
  "serde_derive",
 ]
@@ -826,9 +779,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.143"
+version = "1.0.144"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3d8e8de557aee63c26b85b947f5e59b690d0454c753f3adeb5cd7835ab88391"
+checksum = "94ed3a816fb1d101812f83e789f888322c34e291f894f19590dc310963e87a00"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -837,9 +790,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.83"
+version = "1.0.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38dd04e3c8279e75b31ef29dbdceebfe5ad89f4d0937213c53f7d49d01b3d5a7"
+checksum = "e55a28e3aaef9d5ce0506d0a14dbba8054ddc7e499ef522dd8b26859ec9d4a44"
 dependencies = [
  "itoa 1.0.3",
  "ryu",
@@ -860,37 +813,18 @@ checksum = "62ac7f900db32bf3fd12e0117dd3dc4da74bc52ebaac97f39668446d89694803"
 
 [[package]]
 name = "snapbox"
-version = "0.2.10"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "767a1d5da232b6959cd1bd5c9e8db8a7cce09c3038e89deedb49a549a2aefd93"
-dependencies = [
- "concolor",
- "normalize-line-endings",
- "similar",
- "snapbox-macros 0.2.1",
- "yansi",
-]
-
-[[package]]
-name = "snapbox"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc9f6603988128836d0ed032a28fac5fb049958e21578e9aed2ed05f69bb562a"
+checksum = "44d199ccf8f606592df2d145db26f2aa45344e23c64b074cc5a4047f1d99b0f7"
 dependencies = [
  "concolor",
  "normalize-line-endings",
  "os_pipe",
  "similar",
- "snapbox-macros 0.3.0",
+ "snapbox-macros",
  "wait-timeout",
  "yansi",
 ]
-
-[[package]]
-name = "snapbox-macros"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c01dea7e04cbb27ef4c86e9922184608185f7cd95c1763bc30d727cda4a5e930"
 
 [[package]]
 name = "snapbox-macros"
@@ -997,9 +931,9 @@ dependencies = [
 
 [[package]]
 name = "trycmd"
-version = "0.13.5"
+version = "0.13.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62a09d4fff814904dc04bf60dc19fd7ed41715e3e00dd423eb1c5636a942e2a4"
+checksum = "9ac9fa73959e252e7c5a4e6260544b952f5bf3989e0b7ad229f4fd6f14671b02"
 dependencies = [
  "escargot",
  "glob",
@@ -1008,7 +942,7 @@ dependencies = [
  "rayon",
  "serde",
  "shlex",
- "snapbox 0.3.1",
+ "snapbox",
  "toml_edit",
 ]
 

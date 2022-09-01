@@ -139,7 +139,6 @@ mod tests {
     use super::*;
     use clap::Arg;
     use clap::ArgAction;
-    use pretty_assertions::assert_eq;
 
     fn common_app() -> Command {
         Command::new("myapp")
