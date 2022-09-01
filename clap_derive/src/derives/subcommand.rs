@@ -550,23 +550,11 @@ fn gen_update_from_arg_matches(
         let variant_name = &variant.ident;
         let (pattern, updater) = match variant.fields {
             Named(ref fields) => {
-                let (fields, update): (Vec<_>, Vec<_>) = fields
-                    .named
-                    .iter()
-                    .map(|field| {
-                        let item = Item::from_args_field(
-                            field,
-                            parent_item.casing(),
-                            parent_item.env_casing(),
-                        );
-                        let field_name = field.ident.as_ref().unwrap();
-                        (
-                            quote!( ref mut #field_name ),
-                            args::gen_updater(&fields.named, &item, false),
-                        )
-                    })
-                    .unzip();
-                (quote!( { #( #fields, )* }), quote!( { #( #update )* } ))
+                let field_names = fields.named.iter().map(|field| {
+                    field.ident.as_ref().unwrap()
+                }).collect::<Vec<_>>();
+                let update = args::gen_updater(&fields.named, item, false);
+                (quote!( { #( #field_names, )* }), quote!( { #update } ))
             }
             Unit => (quote!(), quote!({})),
             Unnamed(ref fields) => {
