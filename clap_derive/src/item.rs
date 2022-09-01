@@ -12,21 +12,20 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use crate::{
-    parse::*,
-    utils::{inner_type, is_simple_ty, process_doc_comment, Sp, Ty},
-};
-
 use std::env;
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
+use syn::DeriveInput;
 use syn::{
     self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, MetaNameValue, Type,
     Variant,
 };
+
+use crate::attr::*;
+use crate::utils::{inner_type, is_simple_ty, process_doc_comment, Sp, Ty};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -35,7 +34,7 @@ pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
 pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 
 #[derive(Clone)]
-pub struct Attrs {
+pub struct Item {
     name: Name,
     casing: Sp<CasingStyle>,
     env_casing: Sp<CasingStyle>,
@@ -53,34 +52,28 @@ pub struct Attrs {
     kind: Sp<Kind>,
 }
 
-impl Attrs {
-    pub fn from_args_struct(
-        span: Span,
-        attrs: &[Attribute],
-        name: Name,
-        argument_casing: Sp<CasingStyle>,
-        env_casing: Sp<CasingStyle>,
-    ) -> Self {
+impl Item {
+    pub fn from_args_struct(input: &DeriveInput, name: Name) -> Self {
+        let span = Span::call_site();
+        let attrs = &input.attrs;
+        let argument_casing = Sp::call_site(DEFAULT_CASING);
+        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
         Self::from_struct(span, attrs, name, argument_casing, env_casing)
     }
 
-    pub fn from_subcommand_enum(
-        span: Span,
-        attrs: &[Attribute],
-        name: Name,
-        argument_casing: Sp<CasingStyle>,
-        env_casing: Sp<CasingStyle>,
-    ) -> Self {
+    pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
+        let span = Span::call_site();
+        let attrs = &input.attrs;
+        let argument_casing = Sp::call_site(DEFAULT_CASING);
+        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
         Self::from_struct(span, attrs, name, argument_casing, env_casing)
     }
 
-    pub fn from_value_enum(
-        span: Span,
-        attrs: &[Attribute],
-        name: Name,
-        argument_casing: Sp<CasingStyle>,
-        env_casing: Sp<CasingStyle>,
-    ) -> Self {
+    pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
+        let span = Span::call_site();
+        let attrs = &input.attrs;
+        let argument_casing = Sp::call_site(DEFAULT_CASING);
+        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
         Self::from_struct(span, attrs, name, argument_casing, env_casing)
     }
 

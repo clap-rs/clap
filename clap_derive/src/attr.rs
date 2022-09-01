@@ -1,12 +1,12 @@
 use std::iter::FromIterator;
 
+use proc_macro2::TokenStream;
+use proc_macro_error::abort;
+use proc_macro_error::ResultExt;
 use quote::quote;
 use quote::ToTokens;
-
-use proc_macro2::TokenStream;
-use proc_macro_error::{abort, ResultExt};
 use syn::{
-    self, parenthesized,
+    parenthesized,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     Attribute, Expr, Ident, LitStr, Token,
