@@ -494,6 +494,18 @@ impl Item {
         }
 
         for attr in &parsed {
+            match attr.kind.get() {
+                AttrKind::Clap => {}
+                AttrKind::StructOpt => {
+                    self.deprecations.push(Deprecation::attribute(
+                        "4.0.0",
+                        *attr.kind.get(),
+                        AttrKind::Clap,
+                        attr.kind.span(),
+                    ));
+                }
+            }
+
             if let Some(AttrValue::Call(tokens)) = &attr.value {
                 // Force raw mode with method call syntax
                 self.push_method(attr.name.clone(), quote!(#(#tokens),*));
@@ -541,7 +553,9 @@ impl Item {
                     );
                 }
 
-                Some(MagicAttrName::ValueEnum) if attr.value.is_none() => self.is_enum = true,
+                Some(MagicAttrName::ValueEnum) if attr.value.is_none() => {
+                    self.is_enum = true
+                }
 
                 Some(MagicAttrName::VerbatimDocComment) if attr.value.is_none() => {
                     self.verbatim_doc_comment = true
@@ -1180,6 +1194,21 @@ pub struct Deprecation {
     pub id: &'static str,
     pub version: &'static str,
     pub description: String,
+}
+
+impl Deprecation {
+    fn attribute(version: &'static str, old: AttrKind, new: AttrKind, span: Span) -> Self {
+        Self {
+            span,
+            id: "old_attribute",
+            version,
+            description: format!(
+                "Attribute `#[{}(...)]` has been deprecated in favor of `#[{}(...)]`",
+                old.as_str(),
+                new.as_str()
+            ),
+        }
+    }
 }
 
 impl ToTokens for Deprecation {

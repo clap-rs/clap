@@ -23,6 +23,10 @@ impl<T> Sp<T> {
         }
     }
 
+    pub fn get(&self) -> &T {
+        &self.val
+    }
+
     pub fn span(&self) -> Span {
         self.span
     }
