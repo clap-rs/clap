@@ -55,8 +55,6 @@ pub fn gen_for_struct(
     fields: &Punctuated<Field, Comma>,
     attrs: &[Attribute],
 ) -> TokenStream {
-    let from_arg_matches = gen_from_arg_matches_for_struct(struct_name, generics, fields, attrs);
-
     let attrs = Attrs::from_args_struct(
         Span::call_site(),
         attrs,
@@ -64,58 +62,16 @@ pub fn gen_for_struct(
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );
-    let app_var = Ident::new("__clap_app", Span::call_site());
-    let augmentation = gen_augment(fields, &app_var, &attrs, false);
-    let augmentation_update = gen_augment(fields, &app_var, &attrs, true);
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
-    quote! {
-        #from_arg_matches
-
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
-        #[allow(
-            clippy::style,
-            clippy::complexity,
-            clippy::pedantic,
-            clippy::restriction,
-            clippy::perf,
-            clippy::deprecated,
-            clippy::nursery,
-            clippy::cargo,
-            clippy::suspicious_else_formatting,
-        )]
-        #[deny(clippy::correctness)]
-        impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
-            fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
-                #augmentation
-            }
-            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
-                #augmentation_update
-            }
-        }
-    }
-}
-
-pub fn gen_from_arg_matches_for_struct(
-    struct_name: &Ident,
-    generics: &Generics,
-    fields: &Punctuated<Field, Comma>,
-    attrs: &[Attribute],
-) -> TokenStream {
-    let attrs = Attrs::from_args_struct(
-        Span::call_site(),
-        attrs,
-        Name::Derived(struct_name.clone()),
-        Sp::call_site(DEFAULT_CASING),
-        Sp::call_site(DEFAULT_ENV_CASING),
-    );
 
     let constructor = gen_constructor(fields, &attrs);
     let updater = gen_updater(fields, &attrs, true);
     let raw_deprecated = raw_deprecated();
 
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+    let app_var = Ident::new("__clap_app", Span::call_site());
+    let augmentation = gen_augment(fields, &app_var, &attrs, false);
+    let augmentation_update = gen_augment(fields, &app_var, &attrs, true);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
@@ -150,6 +106,28 @@ pub fn gen_from_arg_matches_for_struct(
                 #raw_deprecated
                 #updater
                 ::std::result::Result::Ok(())
+            }
+        }
+
+        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
+        )]
+        #[deny(clippy::correctness)]
+        impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
+            fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
+                #augmentation
+            }
+            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
+                #augmentation_update
             }
         }
     }

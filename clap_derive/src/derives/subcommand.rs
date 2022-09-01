@@ -43,8 +43,6 @@ pub fn gen_for_enum(
     attrs: &[Attribute],
     e: &DataEnum,
 ) -> TokenStream {
-    let from_arg_matches = gen_from_arg_matches_for_enum(enum_name, generics, attrs, e);
-
     let attrs = Attrs::from_subcommand_enum(
         Span::call_site(),
         attrs,
@@ -52,6 +50,10 @@ pub fn gen_for_enum(
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );
+
+    let from_arg_matches = gen_from_arg_matches(enum_name, &e.variants, &attrs);
+    let update_from_arg_matches = gen_update_from_arg_matches(enum_name, &e.variants, &attrs);
+
     let augmentation = gen_augment(&e.variants, &attrs, false);
     let augmentation_update = gen_augment(&e.variants, &attrs, true);
     let has_subcommand = gen_has_subcommand(&e.variants, &attrs);
@@ -59,7 +61,31 @@ pub fn gen_for_enum(
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
-        #from_arg_matches
+        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
+        )]
+        #[deny(clippy::correctness)]
+        impl #impl_generics clap::FromArgMatches for #enum_name #ty_generics #where_clause {
+            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+
+            #from_arg_matches
+
+            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+            #update_from_arg_matches
+        }
 
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
         #[allow(
@@ -84,54 +110,6 @@ pub fn gen_for_enum(
             fn has_subcommand(__clap_name: &str) -> bool {
                 #has_subcommand
             }
-        }
-    }
-}
-
-fn gen_from_arg_matches_for_enum(
-    name: &Ident,
-    generics: &Generics,
-    attrs: &[Attribute],
-    e: &DataEnum,
-) -> TokenStream {
-    let attrs = Attrs::from_subcommand_enum(
-        Span::call_site(),
-        attrs,
-        Name::Derived(name.clone()),
-        Sp::call_site(DEFAULT_CASING),
-        Sp::call_site(DEFAULT_ENV_CASING),
-    );
-
-    let from_arg_matches = gen_from_arg_matches(name, &e.variants, &attrs);
-    let update_from_arg_matches = gen_update_from_arg_matches(name, &e.variants, &attrs);
-
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
-    quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
-        #[allow(
-            clippy::style,
-            clippy::complexity,
-            clippy::pedantic,
-            clippy::restriction,
-            clippy::perf,
-            clippy::deprecated,
-            clippy::nursery,
-            clippy::cargo,
-            clippy::suspicious_else_formatting,
-        )]
-        #[deny(clippy::correctness)]
-        impl #impl_generics clap::FromArgMatches for #name #ty_generics #where_clause {
-            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
-                Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
-            }
-
-            #from_arg_matches
-
-            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
-                self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
-            }
-            #update_from_arg_matches
         }
     }
 }
