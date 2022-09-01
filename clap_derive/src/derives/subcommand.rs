@@ -48,8 +48,8 @@ pub fn gen_for_enum(
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let from_arg_matches = gen_from_arg_matches(item_name, &e.variants, item);
-    let update_from_arg_matches = gen_update_from_arg_matches(item_name, &e.variants, item);
+    let from_arg_matches = gen_from_arg_matches(&e.variants, item);
+    let update_from_arg_matches = gen_update_from_arg_matches(&e.variants, item);
 
     let augmentation = gen_augment(&e.variants, item, false);
     let augmentation_update = gen_augment(&e.variants, item, true);
@@ -367,7 +367,6 @@ fn gen_has_subcommand(
 }
 
 fn gen_from_arg_matches(
-    name: &Ident,
     variants: &Punctuated<Variant, Token![,]>,
     parent_item: &Item,
 ) -> TokenStream {
@@ -454,7 +453,7 @@ fn gen_from_arg_matches(
 
         quote! {
             if #subcommand_name_var == #sub_name && !#sub_arg_matches_var.contains_id("") {
-                return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
+                return ::std::result::Result::Ok(Self :: #variant_name #constructor_block)
             }
         }
     });
@@ -470,7 +469,7 @@ fn gen_from_arg_matches(
                         .unwrap_or_default()
                     {
                         let __clap_res = <#ty as clap::FromArgMatches>::from_arg_matches_mut(__clap_arg_matches)?;
-                        return ::std::result::Result::Ok(#name :: #variant_name (__clap_res));
+                        return ::std::result::Result::Ok(Self :: #variant_name (__clap_res));
                     }
                 }
             }
@@ -483,7 +482,7 @@ fn gen_from_arg_matches(
 
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty)) => quote_spanned! { span=>
-                ::std::result::Result::Ok(#name::#var_name(
+                ::std::result::Result::Ok(Self::#var_name(
                     ::std::iter::once(#str_ty::from(#subcommand_name_var))
                     .chain(
                         #sub_arg_matches_var
@@ -520,7 +519,6 @@ fn gen_from_arg_matches(
 }
 
 fn gen_update_from_arg_matches(
-    name: &Ident,
     variants: &Punctuated<Variant, Token![,]>,
     parent_item: &Item,
 ) -> TokenStream {
@@ -586,7 +584,7 @@ fn gen_update_from_arg_matches(
         };
 
         quote! {
-            #name :: #variant_name #pattern if #sub_name == __clap_name => {
+            Self :: #variant_name #pattern if #sub_name == __clap_name => {
                 let (_, mut __clap_arg_sub_matches) = __clap_arg_matches.remove_subcommand().unwrap();
                 let __clap_arg_matches = &mut __clap_arg_sub_matches;
                 #updater
@@ -601,7 +599,7 @@ fn gen_update_from_arg_matches(
                 let ty = &fields.unnamed[0];
                 quote! {
                     if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
-                        if let #name :: #variant_name (child) = s {
+                        if let Self :: #variant_name (child) = s {
                             <#ty as clap::FromArgMatches>::update_from_arg_matches_mut(child, __clap_arg_matches)?;
                             return ::std::result::Result::Ok(());
                         }
