@@ -35,7 +35,7 @@ pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
 pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 
 #[derive(Clone)]
-pub struct Attrs {
+pub struct Item {
     name: Name,
     casing: Sp<CasingStyle>,
     env_casing: Sp<CasingStyle>,
@@ -53,7 +53,7 @@ pub struct Attrs {
     kind: Sp<Kind>,
 }
 
-impl Attrs {
+impl Item {
     pub fn from_args_struct(
         span: Span,
         attrs: &[Attribute],

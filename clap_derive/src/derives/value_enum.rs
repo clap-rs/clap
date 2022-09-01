@@ -9,8 +9,8 @@
 // except according to those terms.
 
 use crate::{
-    attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
     dummies,
+    item::{Item, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
     utils::Sp,
 };
 
@@ -35,7 +35,7 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    let attrs = Attrs::from_value_enum(
+    let item = Item::from_value_enum(
         Span::call_site(),
         attrs,
         Name::Derived(name.clone()),
@@ -43,7 +43,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         Sp::call_site(DEFAULT_ENV_CASING),
     );
 
-    let lits = lits(&e.variants, &attrs);
+    let lits = lits(&e.variants, &item);
     let value_variants = gen_value_variants(&lits);
     let to_possible_value = gen_to_possible_value(&lits);
 
@@ -68,26 +68,23 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     }
 }
 
-fn lits(
-    variants: &Punctuated<Variant, Comma>,
-    parent_attribute: &Attrs,
-) -> Vec<(TokenStream, Ident)> {
+fn lits(variants: &Punctuated<Variant, Comma>, parent_item: &Item) -> Vec<(TokenStream, Ident)> {
     variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_value_enum_variant(
+            let item = Item::from_value_enum_variant(
                 variant,
-                parent_attribute.casing(),
-                parent_attribute.env_casing(),
+                parent_item.casing(),
+                parent_item.env_casing(),
             );
-            if let Kind::Skip(_) = &*attrs.kind() {
+            if let Kind::Skip(_) = &*item.kind() {
                 None
             } else {
                 if !matches!(variant.fields, Fields::Unit) {
                     abort!(variant.span(), "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped");
                 }
-                let fields = attrs.field_methods(false);
-                let name = attrs.cased_name();
+                let fields = item.field_methods(false);
+                let name = item.cased_name();
                 Some((
                     quote_spanned! { variant.span()=>
                         clap::builder::PossibleValue::new(#name)

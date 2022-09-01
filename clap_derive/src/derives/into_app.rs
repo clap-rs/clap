@@ -19,7 +19,7 @@ use quote::quote;
 use syn::{Attribute, Generics, Ident};
 
 use crate::{
-    attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    item::{Item, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
     utils::Sp,
 };
 
@@ -30,14 +30,14 @@ pub fn gen_for_struct(
 ) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
-    let attrs = Attrs::from_args_struct(
+    let item = Item::from_args_struct(
         Span::call_site(),
         attrs,
         Name::Assigned(quote!(#app_name)),
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );
-    let name = attrs.cased_name();
+    let name = item.cased_name();
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
@@ -75,14 +75,14 @@ pub fn gen_for_struct(
 pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute]) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
-    let attrs = Attrs::from_subcommand_enum(
+    let item = Item::from_subcommand_enum(
         Span::call_site(),
         attrs,
         Name::Assigned(quote!(#app_name)),
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );
-    let name = attrs.cased_name();
+    let name = item.cased_name();
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();

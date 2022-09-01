@@ -12,9 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 use crate::{
-    attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
     derives::args,
     dummies,
+    item::{Item, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
     utils::{is_simple_ty, subty_if_name, Sp},
 };
 
@@ -43,7 +43,7 @@ pub fn gen_for_enum(
     attrs: &[Attribute],
     e: &DataEnum,
 ) -> TokenStream {
-    let attrs = Attrs::from_subcommand_enum(
+    let item = Item::from_subcommand_enum(
         Span::call_site(),
         attrs,
         Name::Derived(enum_name.clone()),
@@ -51,12 +51,12 @@ pub fn gen_for_enum(
         Sp::call_site(DEFAULT_ENV_CASING),
     );
 
-    let from_arg_matches = gen_from_arg_matches(enum_name, &e.variants, &attrs);
-    let update_from_arg_matches = gen_update_from_arg_matches(enum_name, &e.variants, &attrs);
+    let from_arg_matches = gen_from_arg_matches(enum_name, &e.variants, &item);
+    let update_from_arg_matches = gen_update_from_arg_matches(enum_name, &e.variants, &item);
 
-    let augmentation = gen_augment(&e.variants, &attrs, false);
-    let augmentation_update = gen_augment(&e.variants, &attrs, true);
-    let has_subcommand = gen_has_subcommand(&e.variants, &attrs);
+    let augmentation = gen_augment(&e.variants, &item, false);
+    let augmentation_update = gen_augment(&e.variants, &item, true);
+    let has_subcommand = gen_has_subcommand(&e.variants, &item);
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
@@ -116,7 +116,7 @@ pub fn gen_for_enum(
 
 fn gen_augment(
     variants: &Punctuated<Variant, Token![,]>,
-    parent_attribute: &Attrs,
+    parent_item: &Item,
     override_required: bool,
 ) -> TokenStream {
     use syn::Fields::*;
@@ -126,12 +126,12 @@ fn gen_augment(
     let subcommands: Vec<_> = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_subcommand_variant(
+            let item = Item::from_subcommand_variant(
                 variant,
-                parent_attribute.casing(),
-                parent_attribute.env_casing(),
+                parent_item.casing(),
+                parent_item.env_casing(),
             );
-            let kind = attrs.kind();
+            let kind = item.kind();
 
             match &*kind {
                 Kind::Skip(_) => None,
@@ -167,8 +167,8 @@ fn gen_augment(
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
                         let old_heading_var = format_ident!("__clap_old_heading");
-                        let next_help_heading = attrs.next_help_heading();
-                        let next_display_order = attrs.next_display_order();
+                        let next_help_heading = item.next_help_heading();
+                        let next_display_order = item.next_display_order();
                         let subcommand = if override_required {
                             quote! {
                                 let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
@@ -220,9 +220,9 @@ fn gen_augment(
                         }
                     };
 
-                    let name = attrs.cased_name();
-                    let initial_app_methods = attrs.initial_top_level_methods();
-                    let final_from_attrs = attrs.final_top_level_methods();
+                    let name = item.cased_name();
+                    let initial_app_methods = item.initial_top_level_methods();
+                    let final_from_attrs = item.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::Command::new(#name);
@@ -242,12 +242,12 @@ fn gen_augment(
                     let sub_augment = match variant.fields {
                         Named(ref fields) => {
                             // Defer to `gen_augment` for adding cmd methods
-                            args::gen_augment(&fields.named, &subcommand_var, &attrs, override_required)
+                            args::gen_augment(&fields.named, &subcommand_var, &item, override_required)
                         }
                         Unit => {
                             let arg_block = quote!( #subcommand_var );
-                            let initial_app_methods = attrs.initial_top_level_methods();
-                            let final_from_attrs = attrs.final_top_level_methods();
+                            let initial_app_methods = item.initial_top_level_methods();
+                            let final_from_attrs = item.final_top_level_methods();
                             quote! {
                                 let #subcommand_var = #subcommand_var #initial_app_methods;
                                 let #subcommand_var = #arg_block;
@@ -269,8 +269,8 @@ fn gen_augment(
                                     }
                                 }
                             };
-                            let initial_app_methods = attrs.initial_top_level_methods();
-                            let final_from_attrs = attrs.final_top_level_methods();
+                            let initial_app_methods = item.initial_top_level_methods();
+                            let final_from_attrs = item.final_top_level_methods();
                             quote! {
                                 let #subcommand_var = #subcommand_var #initial_app_methods;
                                 let #subcommand_var = #arg_block;
@@ -282,7 +282,7 @@ fn gen_augment(
                         }
                     };
 
-                    let name = attrs.cased_name();
+                    let name = item.cased_name();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::Command::new(#name);
@@ -295,8 +295,8 @@ fn gen_augment(
         })
         .collect();
 
-    let initial_app_methods = parent_attribute.initial_top_level_methods();
-    let final_app_methods = parent_attribute.final_top_level_methods();
+    let initial_app_methods = parent_item.initial_top_level_methods();
+    let final_app_methods = parent_item.final_top_level_methods();
     quote! {
             let #app_var = #app_var #initial_app_methods;
             #( #subcommands )*;
@@ -306,7 +306,7 @@ fn gen_augment(
 
 fn gen_has_subcommand(
     variants: &Punctuated<Variant, Token![,]>,
-    parent_attribute: &Attrs,
+    parent_item: &Item,
 ) -> TokenStream {
     use syn::Fields::*;
 
@@ -315,26 +315,26 @@ fn gen_has_subcommand(
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_subcommand_variant(
+            let item = Item::from_subcommand_variant(
                 variant,
-                parent_attribute.casing(),
-                parent_attribute.env_casing(),
+                parent_item.casing(),
+                parent_item.env_casing(),
             );
 
-            if let Kind::ExternalSubcommand = &*attrs.kind() {
+            if let Kind::ExternalSubcommand = &*item.kind() {
                 ext_subcmd = true;
                 None
             } else {
-                Some((variant, attrs))
+                Some((variant, item))
             }
         })
-        .partition(|(_, attrs)| {
-            let kind = attrs.kind();
+        .partition(|(_, item)| {
+            let kind = item.kind();
             matches!(&*kind, Kind::Flatten)
         });
 
-    let subcommands = variants.iter().map(|(_variant, attrs)| {
-        let sub_name = attrs.cased_name();
+    let subcommands = variants.iter().map(|(_variant, item)| {
+        let sub_name = item.cased_name();
         quote! {
             if #sub_name == __clap_name {
                 return true
@@ -374,7 +374,7 @@ fn gen_has_subcommand(
 fn gen_from_arg_matches(
     name: &Ident,
     variants: &Punctuated<Variant, Token![,]>,
-    parent_attribute: &Attrs,
+    parent_item: &Item,
 ) -> TokenStream {
     use syn::Fields::*;
 
@@ -385,16 +385,16 @@ fn gen_from_arg_matches(
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_subcommand_variant(
+            let item = Item::from_subcommand_variant(
                 variant,
-                parent_attribute.casing(),
-                parent_attribute.env_casing(),
+                parent_item.casing(),
+                parent_item.env_casing(),
             );
 
-            if let Kind::ExternalSubcommand = &*attrs.kind() {
+            if let Kind::ExternalSubcommand = &*item.kind() {
                 if ext_subcmd.is_some() {
                     abort!(
-                        attrs.kind().span(),
+                        item.kind().span(),
                         "Only one variant can be marked with `external_subcommand`, \
                          this is the second"
                     );
@@ -436,19 +436,19 @@ fn gen_from_arg_matches(
                 ext_subcmd = Some((span, &variant.ident, str_ty));
                 None
             } else {
-                Some((variant, attrs))
+                Some((variant, item))
             }
         })
-        .partition(|(_, attrs)| {
-            let kind = attrs.kind();
+        .partition(|(_, item)| {
+            let kind = item.kind();
             matches!(&*kind, Kind::Flatten)
         });
 
-    let subcommands = variants.iter().map(|(variant, attrs)| {
-        let sub_name = attrs.cased_name();
+    let subcommands = variants.iter().map(|(variant, item)| {
+        let sub_name = item.cased_name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
-            Named(ref fields) => args::gen_constructor(&fields.named, attrs),
+            Named(ref fields) => args::gen_constructor(&fields.named, item),
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
@@ -527,32 +527,32 @@ fn gen_from_arg_matches(
 fn gen_update_from_arg_matches(
     name: &Ident,
     variants: &Punctuated<Variant, Token![,]>,
-    parent_attribute: &Attrs,
+    parent_item: &Item,
 ) -> TokenStream {
     use syn::Fields::*;
 
     let (flatten, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
-            let attrs = Attrs::from_subcommand_variant(
+            let item = Item::from_subcommand_variant(
                 variant,
-                parent_attribute.casing(),
-                parent_attribute.env_casing(),
+                parent_item.casing(),
+                parent_item.env_casing(),
             );
 
-            match &*attrs.kind() {
+            match &*item.kind() {
                 // Fallback to `from_arg_matches_mut`
                 Kind::ExternalSubcommand => None,
-                _ => Some((variant, attrs)),
+                _ => Some((variant, item)),
             }
         })
-        .partition(|(_, attrs)| {
-            let kind = attrs.kind();
+        .partition(|(_, item)| {
+            let kind = item.kind();
             matches!(&*kind, Kind::Flatten)
         });
 
-    let subcommands = variants.iter().map(|(variant, attrs)| {
-        let sub_name = attrs.cased_name();
+    let subcommands = variants.iter().map(|(variant, item)| {
+        let sub_name = item.cased_name();
         let variant_name = &variant.ident;
         let (pattern, updater) = match variant.fields {
             Named(ref fields) => {
@@ -560,15 +560,15 @@ fn gen_update_from_arg_matches(
                     .named
                     .iter()
                     .map(|field| {
-                        let attrs = Attrs::from_args_field(
+                        let item = Item::from_args_field(
                             field,
-                            parent_attribute.casing(),
-                            parent_attribute.env_casing(),
+                            parent_item.casing(),
+                            parent_item.env_casing(),
                         );
                         let field_name = field.ident.as_ref().unwrap();
                         (
                             quote!( ref mut #field_name ),
-                            args::gen_updater(&fields.named, &attrs, false),
+                            args::gen_updater(&fields.named, &item, false),
                         )
                     })
                     .unzip();

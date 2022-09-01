@@ -3,7 +3,7 @@
 //! #[derive(Parser)] works in terms of "paragraphs". Paragraph is a sequence of
 //! non-empty adjacent lines, delimited by sequences of blank (whitespace only) lines.
 
-use crate::attrs::Method;
+use crate::item::Method;
 
 use quote::{format_ident, quote};
 use std::iter;
