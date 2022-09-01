@@ -50,7 +50,7 @@ unicode-xid = { version = "0.2.2", optional = true }
 
 [dev-dependencies]
 pretty_assertions = "1.0"
-snapbox = { version = "0.2", features = ["diff"] }
+snapbox = { version = "0.3", features = ["diff"] }
 # Cutting out `filesystem` feature
 trycmd = { version = "0.13", default-features = false, features = ["color-auto", "diff", "examples"] }
 clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std", "derive"] }
