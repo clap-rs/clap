@@ -16,7 +16,6 @@ use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::Ident;
-use syn::Token;
 use syn::Variant;
 use syn::{
     self, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput, Field, Fields,
@@ -42,8 +41,15 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
                 .ok()
                 .unwrap_or_default()));
             let item = Item::from_args_struct(input, name);
-            let fields = &fields.named;
-            gen_for_struct(&item, ident, &input.generics, fields)
+            let fields = fields
+                .named
+                .iter()
+                .map(|field| {
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                    (field, item)
+                })
+                .collect::<Vec<_>>();
+            gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
@@ -55,8 +61,15 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
                 .ok()
                 .unwrap_or_default()));
             let item = Item::from_args_struct(input, name);
-            let fields = &Punctuated::<Field, Comma>::new();
-            gen_for_struct(&item, ident, &input.generics, fields)
+            let fields = Punctuated::<Field, Comma>::new();
+            let fields = fields
+                .iter()
+                .map(|field| {
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                    (field, item)
+                })
+                .collect::<Vec<_>>();
+            gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Enum(ref e) => {
             dummies::parser_enum(ident);
@@ -65,8 +78,16 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
                 .ok()
                 .unwrap_or_default()));
             let item = Item::from_subcommand_enum(input, name);
-            let variants = &e.variants;
-            gen_for_enum(&item, ident, &input.generics, variants)
+            let variants = e
+                .variants
+                .iter()
+                .map(|variant| {
+                    let item =
+                        Item::from_subcommand_variant(variant, item.casing(), item.env_casing());
+                    (variant, item)
+                })
+                .collect::<Vec<_>>();
+            gen_for_enum(&item, ident, &input.generics, &variants)
         }
         _ => abort_call_site!("`#[derive(Parser)]` only supports non-tuple structs and enums"),
     }
@@ -76,7 +97,7 @@ fn gen_for_struct(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
-    fields: &Punctuated<Field, Comma>,
+    fields: &[(&Field, Item)],
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
@@ -95,7 +116,7 @@ fn gen_for_enum(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
-    variants: &Punctuated<Variant, Token![,]>,
+    variants: &[(&Variant, Item)],
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 

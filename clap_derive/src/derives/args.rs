@@ -36,8 +36,15 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
         }) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_args_struct(input, name);
-            let fields = &fields.named;
-            gen_for_struct(&item, ident, &input.generics, fields)
+            let fields = fields
+                .named
+                .iter()
+                .map(|field| {
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                    (field, item)
+                })
+                .collect::<Vec<_>>();
+            gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
@@ -45,8 +52,15 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
         }) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_args_struct(input, name);
-            let fields = &Punctuated::<Field, Comma>::new();
-            gen_for_struct(&item, ident, &input.generics, fields)
+            let fields = Punctuated::<Field, Comma>::new();
+            let fields = fields
+                .iter()
+                .map(|field| {
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                    (field, item)
+                })
+                .collect::<Vec<_>>();
+            gen_for_struct(&item, ident, &input.generics, &fields)
         }
         _ => abort_call_site!("`#[derive(Args)]` only supports non-tuple structs"),
     }
@@ -56,12 +70,12 @@ pub fn gen_for_struct(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
-    fields: &Punctuated<Field, Comma>,
+    fields: &[(&Field, Item)],
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let constructor = gen_constructor(fields, item);
-    let updater = gen_updater(fields, item, true);
+    let constructor = gen_constructor(fields);
+    let updater = gen_updater(fields, true);
     let raw_deprecated = raw_deprecated();
 
     let app_var = Ident::new("__clap_app", Span::call_site());
@@ -131,17 +145,12 @@ pub fn gen_for_struct(
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an cmd.
 pub fn gen_augment(
-    fields: &Punctuated<Field, Comma>,
+    fields: &[(&Field, Item)],
     app_var: &Ident,
     parent_item: &Item,
     override_required: bool,
 ) -> TokenStream {
-    let mut subcmds = fields.iter().filter_map(|field| {
-        let item = Item::from_args_field(
-            field,
-            parent_item.casing(),
-            parent_item.env_casing(),
-        );
+    let mut subcmds = fields.iter().filter_map(|(field, item)| {
         let kind = item.kind();
         if let Kind::Subcommand(ty) = &*kind {
             let subcmd_type = match (**ty, sub_type(&field.ty)) {
@@ -182,12 +191,7 @@ pub fn gen_augment(
         );
     }
 
-    let args = fields.iter().filter_map(|field| {
-        let item = Item::from_args_field(
-            field,
-            parent_item.casing(),
-            parent_item.env_casing(),
-        );
+    let args = fields.iter().filter_map(|(field, item)| {
         let kind = item.kind();
         match &*kind {
             Kind::Subcommand(_)
@@ -313,13 +317,8 @@ pub fn gen_augment(
     }}
 }
 
-pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_item: &Item) -> TokenStream {
-    let fields = fields.iter().map(|field| {
-        let item = Item::from_args_field(
-            field,
-            parent_item.casing(),
-            parent_item.env_casing(),
-        );
+pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
+    let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
         let arg_matches = format_ident!("__clap_arg_matches");
@@ -366,7 +365,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_item: &Item) ->
             },
 
             Kind::Arg(ty) | Kind::FromGlobal(ty) => {
-                gen_parsers(&item, ty, field_name, field, None)
+                gen_parsers(item, ty, field_name, field, None)
             }
         }
     });
@@ -376,17 +375,8 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_item: &Item) ->
     }}
 }
 
-pub fn gen_updater(
-    fields: &Punctuated<Field, Comma>,
-    parent_item: &Item,
-    use_self: bool,
-) -> TokenStream {
-    let fields = fields.iter().map(|field| {
-        let item = Item::from_args_field(
-            field,
-            parent_item.casing(),
-            parent_item.env_casing(),
-        );
+pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
+    let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
 
@@ -447,7 +437,7 @@ pub fn gen_updater(
 
             Kind::Skip(_) => quote!(),
 
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&item, ty, field_name, field, Some(&access)),
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(item, ty, field_name, field, Some(&access)),
         }
     });
 

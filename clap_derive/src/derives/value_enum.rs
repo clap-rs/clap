@@ -12,10 +12,7 @@ use proc_macro2::TokenStream;
 use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
 use quote::quote_spanned;
-use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DeriveInput, Fields, Ident,
-    Variant,
-};
+use syn::{spanned::Spanned, Data, DeriveInput, Fields, Ident, Variant};
 
 use crate::dummies;
 use crate::item::{Item, Kind, Name};
@@ -29,19 +26,23 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
         Data::Enum(ref e) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_value_enum(input, name);
-            let variants = &e.variants;
-            gen_for_enum(&item, ident, variants)
+            let variants = e
+                .variants
+                .iter()
+                .map(|variant| {
+                    let item =
+                        Item::from_value_enum_variant(variant, item.casing(), item.env_casing());
+                    (variant, item)
+                })
+                .collect::<Vec<_>>();
+            gen_for_enum(&item, ident, &variants)
         }
         _ => abort_call_site!("`#[derive(ValueEnum)]` only supports enums"),
     }
 }
 
-pub fn gen_for_enum(
-    item: &Item,
-    item_name: &Ident,
-    variants: &Punctuated<Variant, Comma>,
-) -> TokenStream {
-    let lits = lits(variants, item);
+pub fn gen_for_enum(_item: &Item, item_name: &Ident, variants: &[(&Variant, Item)]) -> TokenStream {
+    let lits = lits(variants);
     let value_variants = gen_value_variants(&lits);
     let to_possible_value = gen_to_possible_value(&lits);
 
@@ -66,15 +67,10 @@ pub fn gen_for_enum(
     }
 }
 
-fn lits(variants: &Punctuated<Variant, Comma>, parent_item: &Item) -> Vec<(TokenStream, Ident)> {
+fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
     variants
         .iter()
-        .filter_map(|variant| {
-            let item = Item::from_value_enum_variant(
-                variant,
-                parent_item.casing(),
-                parent_item.env_casing(),
-            );
+        .filter_map(|(variant, item)| {
             if let Kind::Skip(_) = &*item.kind() {
                 None
             } else {
