@@ -13,7 +13,7 @@
 // MIT/Apache 2.0 license.
 
 use crate::{
-    parse::*,
+    attr::*,
     utils::{inner_type, is_simple_ty, process_doc_comment, Sp, Ty},
 };
 
