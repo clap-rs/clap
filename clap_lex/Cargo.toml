@@ -38,4 +38,4 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
-os_str_bytes = { version = "6.0", default-features = false, features = ["raw_os_str"] }
+os_str_bytes = { version = "6.3", default-features = false, features = ["raw_os_str"] }
