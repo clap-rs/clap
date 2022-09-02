@@ -29,7 +29,7 @@ mod item;
 mod utils;
 
 /// Generates the `ValueEnum` impl.
-#[proc_macro_derive(ValueEnum, attributes(clap))]
+#[proc_macro_derive(ValueEnum, attributes(clap, value))]
 #[proc_macro_error]
 pub fn value_enum(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
@@ -42,7 +42,7 @@ pub fn value_enum(input: TokenStream) -> TokenStream {
 /// receiving an instance of `clap::ArgMatches` from conducting parsing, and then
 /// implementing a conversion code to instantiate an instance of the user
 /// context struct.
-#[proc_macro_derive(Parser, attributes(clap, structopt))]
+#[proc_macro_derive(Parser, attributes(clap, structopt, command, arg))]
 #[proc_macro_error]
 pub fn parser(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
@@ -50,7 +50,7 @@ pub fn parser(input: TokenStream) -> TokenStream {
 }
 
 /// Generates the `Subcommand` impl.
-#[proc_macro_derive(Subcommand, attributes(clap))]
+#[proc_macro_derive(Subcommand, attributes(clap, command, arg))]
 #[proc_macro_error]
 pub fn subcommand(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
@@ -58,7 +58,7 @@ pub fn subcommand(input: TokenStream) -> TokenStream {
 }
 
 /// Generates the `Args` impl.
-#[proc_macro_derive(Args, attributes(clap))]
+#[proc_macro_derive(Args, attributes(clap, command, arg))]
 #[proc_macro_error]
 pub fn args(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);

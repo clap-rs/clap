@@ -78,7 +78,7 @@ fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
     variants
         .iter()
         .filter_map(|(variant, item)| {
-            if let Kind::Skip(_) = &*item.kind() {
+            if let Kind::Skip(_, _) = &*item.kind() {
                 None
             } else {
                 if !matches!(variant.fields, Fields::Unit) {
