@@ -1,3 +1,5 @@
+use clap::builder::PossibleValue;
+
 pub fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
@@ -154,9 +156,11 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
                     clap::Arg::new("config")
                         .long("config")
                         .action(clap::ArgAction::Set)
-                        .value_parser([clap::builder::PossibleValue::new(
-                            "Lest quotes aren't escaped.",
-                        )])
+                        .value_parser([
+                            PossibleValue::new("Lest quotes, aren't escaped.")
+                                .help("help,with,comma"),
+                            PossibleValue::new("Second to trigger display of options"),
+                        ])
                         .help("the other case to test"),
                 ),
             ),

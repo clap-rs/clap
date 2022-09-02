@@ -61,9 +61,10 @@ _arguments "${_arguments_options[@]}" \
         case $line[1] in
             (sub_cmd)
 _arguments "${_arguments_options[@]}" \
-'*--config=[the other case to test]: :(Lest quotes aren't escaped.)' \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'*--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
+Second\ to\ trigger\ display\ of\ options\:""))' \
+'*-h[Print help information (use `--help` for more detail)]' \
+'*--help[Print help information (use `--help` for more detail)]' \
 '*-V[Print version information]' \
 '*--version[Print version information]' \
 && ret=0
