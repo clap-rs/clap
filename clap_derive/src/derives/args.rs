@@ -291,9 +291,16 @@ pub fn gen_augment(
 
                 let id = item.id();
                 let explicit_methods = item.field_methods(true);
+                let deprecations = if !override_required {
+                    item.deprecations()
+                } else {
+                    quote!()
+                };
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg({
+                        #deprecations
+
                         #[allow(deprecated)]
                         let arg = clap::Arg::new(#id)
                             #implicit_methods;
@@ -307,9 +314,15 @@ pub fn gen_augment(
         }
     });
 
+    let deprecations = if !override_required {
+        parent_item.deprecations()
+    } else {
+        quote!()
+    };
     let initial_app_methods = parent_item.initial_top_level_methods();
     let final_app_methods = parent_item.final_top_level_methods();
     quote! {{
+        #deprecations
         let #app_var = #app_var #initial_app_methods;
         #( #args )*
         #subcmd

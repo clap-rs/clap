@@ -41,6 +41,7 @@ pub struct Item {
     ty: Option<Type>,
     doc_comment: Vec<Method>,
     methods: Vec<Method>,
+    deprecations: Vec<Deprecation>,
     value_parser: Option<ValueParser>,
     action: Option<Action>,
     verbatim_doc_comment: bool,
@@ -409,6 +410,7 @@ impl Item {
             env_casing,
             doc_comment: vec![],
             methods: vec![],
+            deprecations: vec![],
             value_parser: None,
             action: None,
             verbatim_doc_comment: false,
@@ -512,11 +514,23 @@ impl Item {
 
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::ValueParser) if attr.value.is_none() => {
+                    self.deprecations.push(Deprecation {
+                        span: attr.name.span(),
+                        id: "bare_value_parser",
+                        version: "4.0.0",
+                        description: "`#[clap(value_parser)]` is now the default and is no longer needed`".to_owned(),
+                    });
                     self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
                 }
 
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::Action) if attr.value.is_none() => {
+                    self.deprecations.push(Deprecation {
+                        span: attr.name.span(),
+                        id: "bare_action",
+                        version: "4.0.0",
+                        description: "`#[clap(action)]` is now the default and is no longer needed`".to_owned(),
+                    });
                     self.action = Some(Action::Implicit(attr.name.clone()));
                 }
 
@@ -903,6 +917,11 @@ impl Item {
         }
     }
 
+    pub fn deprecations(&self) -> proc_macro2::TokenStream {
+        let deprecations = &self.deprecations;
+        quote!( #(#deprecations)* )
+    }
+
     pub fn next_display_order(&self) -> TokenStream {
         let next_display_order = self.next_display_order.as_ref().into_iter();
         quote!( #(#next_display_order)* )
@@ -1150,6 +1169,39 @@ impl ToTokens for Method {
         let Method { ref name, ref args } = self;
 
         let tokens = quote!( .#name(#args) );
+
+        tokens.to_tokens(ts);
+    }
+}
+
+#[derive(Clone)]
+pub struct Deprecation {
+    pub span: Span,
+    pub id: &'static str,
+    pub version: &'static str,
+    pub description: String,
+}
+
+impl ToTokens for Deprecation {
+    fn to_tokens(&self, ts: &mut proc_macro2::TokenStream) {
+        let tokens = if cfg!(feature = "deprecated") {
+            let Deprecation {
+                span,
+                id,
+                version,
+                description,
+            } = self;
+            let span = *span;
+            let id = Ident::new(id, span);
+
+            quote_spanned!(span=> {
+                #[deprecated(since = #version, note = #description)]
+                fn #id() {}
+                #id();
+            })
+        } else {
+            quote!()
+        };
 
         tokens.to_tokens(ts);
     }
