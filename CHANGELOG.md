@@ -30,6 +30,11 @@ _gated behind `unstable-v4`_
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `ArgMatches::get_count` help for `ArgAction::Count`
+- `ArgMatches::get_flag` help for `ArgAction::SetTrue` / `ArgAction::SetFalse`
+
 ## [3.2.19] - 2022-08-30
 
 ### Fixes
