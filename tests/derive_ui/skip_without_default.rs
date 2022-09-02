@@ -15,11 +15,11 @@ enum Kind {
 }
 
 #[derive(Parser, Debug)]
-#[clap(name = "test")]
+#[command(name = "test")]
 pub struct Opt {
-    #[clap(short)]
+    #[arg(short)]
     number: u32,
-    #[clap(skip)]
+    #[arg(skip)]
     k: Kind,
 }
 

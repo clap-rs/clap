@@ -527,7 +527,7 @@ impl Item {
                         span: attr.name.span(),
                         id: "bare_value_parser",
                         version: "4.0.0",
-                        description: "`#[clap(value_parser)]` is now the default and is no longer needed`".to_owned(),
+                        description: "`#[arg(value_parser)]` is now the default and is no longer needed`".to_owned(),
                     });
                     self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
                 }
@@ -538,7 +538,7 @@ impl Item {
                         span: attr.name.span(),
                         id: "bare_action",
                         version: "4.0.0",
-                        description: "`#[clap(action)]` is now the default and is no longer needed`".to_owned(),
+                        description: "`#[arg(action)]` is now the default and is no longer needed`".to_owned(),
                     });
                     self.action = Some(Action::Implicit(attr.name.clone()));
                 }
@@ -584,7 +584,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_value_t)] (without an argument) can be used \
+                            "#[arg(default_value_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -626,7 +626,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_t)] (without an argument) can be used \
+                            "#[arg(default_values_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -638,7 +638,7 @@ impl Item {
                     if *container_type != Ty::Vec {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_t)] can be used only on Vec types";
+                            "#[arg(default_values_t)] can be used only on Vec types";
 
                             note = "see \
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
@@ -695,7 +695,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_value_os_t)] (without an argument) can be used \
+                            "#[arg(default_value_os_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -737,7 +737,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_os_t)] (without an argument) can be used \
+                            "#[arg(default_values_os_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -749,7 +749,7 @@ impl Item {
                     if *container_type != Ty::Vec {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_os_t)] can be used only on Vec types";
+                            "#[arg(default_values_os_t)] can be used only on Vec types";
 
                             note = "see \
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")

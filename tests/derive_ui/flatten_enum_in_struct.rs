@@ -1,6 +1,6 @@
 #[derive(clap::Parser)]
 struct Opt {
-    #[clap(flatten)]
+    #[command(flatten)]
     sub: SubCmd,
 }
 

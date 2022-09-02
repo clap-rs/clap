@@ -1,11 +1,11 @@
-error: expected attribute arguments in parentheses: #[clap(...)]
- --> $DIR/clap_empty_attr.rs:4:1
+error: expected attribute arguments in parentheses: #[command(...)]
+ --> tests/derive_ui/clap_empty_attr.rs:4:1
   |
-4 | #[clap]
-  | ^^^^^^^
+4 | #[command]
+  | ^^^^^^^^^^
 
-error: expected parentheses: #[clap(...)]
- --> $DIR/clap_empty_attr.rs:9:12
+error: expected parentheses: #[arg(...)]
+ --> tests/derive_ui/clap_empty_attr.rs:9:11
   |
-9 |     #[clap = "short"]
-  |            ^
+9 |     #[arg = "short"]
+  |           ^

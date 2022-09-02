@@ -1,6 +1,6 @@
 #[derive(clap::Parser)]
 enum Opt {
-    #[clap(flatten)]
+    #[command(flatten)]
     Sub(SubCmd),
 }
 

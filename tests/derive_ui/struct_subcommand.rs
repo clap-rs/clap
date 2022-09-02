@@ -9,9 +9,9 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(name = "basic", subcommand)]
+#[command(name = "basic", subcommand)]
 struct Opt {
-    #[clap(short)]
+    #[arg(short)]
     s: String,
 }
 

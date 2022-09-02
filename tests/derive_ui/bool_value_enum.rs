@@ -1,9 +1,9 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(name = "basic")]
+#[command(name = "basic")]
 struct Opt {
-    #[clap(short, value_enum, default_value_t)]
+    #[arg(short, value_enum, default_value_t)]
     opts: bool,
 }
 
