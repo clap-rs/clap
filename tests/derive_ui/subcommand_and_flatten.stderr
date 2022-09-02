@@ -1,5 +1,5 @@
 error: `flatten` cannot be used with `subcommand`
-  --> tests/derive_ui/subcommand_and_flatten.rs:16:24
+  --> tests/derive_ui/subcommand_and_flatten.rs:16:27
    |
-16 |     #[clap(subcommand, flatten)]
-   |                        ^^^^^^^
+16 |     #[command(subcommand, flatten)]
+   |                           ^^^^^^^

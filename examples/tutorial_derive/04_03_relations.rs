@@ -1,38 +1,38 @@
 use clap::{ArgGroup, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
-#[clap(group(
+#[command(author, version, about, long_about = None)]
+#[command(group(
             ArgGroup::new("vers")
                 .required(true)
                 .args(["set_ver", "major", "minor", "patch"]),
         ))]
 struct Cli {
     /// set version manually
-    #[clap(long, value_name = "VER")]
+    #[arg(long, value_name = "VER")]
     set_ver: Option<String>,
 
     /// auto inc major
-    #[clap(long)]
+    #[arg(long)]
     major: bool,
 
     /// auto inc minor
-    #[clap(long)]
+    #[arg(long)]
     minor: bool,
 
     /// auto inc patch
-    #[clap(long)]
+    #[arg(long)]
     patch: bool,
 
     /// some regular input
-    #[clap(group = "input")]
+    #[arg(group = "input")]
     input_file: Option<String>,
 
     /// some special input argument
-    #[clap(long, group = "input")]
+    #[arg(long, group = "input")]
     spec_in: Option<String>,
 
-    #[clap(short, requires = "input")]
+    #[arg(short, requires = "input")]
     config: Option<String>,
 }
 

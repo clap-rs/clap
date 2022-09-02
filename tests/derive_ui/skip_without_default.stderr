@@ -1,5 +1,5 @@
 error[E0277]: the trait bound `Kind: Default` is not satisfied
-  --> tests/derive_ui/skip_without_default.rs:22:12
+  --> tests/derive_ui/skip_without_default.rs:22:11
    |
-22 |     #[clap(skip)]
-   |            ^^^^ the trait `Default` is not implemented for `Kind`
+22 |     #[arg(skip)]
+   |           ^^^^ the trait `Default` is not implemented for `Kind`

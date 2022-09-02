@@ -197,7 +197,7 @@ impl Item {
 
             Kind::ExternalSubcommand
             | Kind::FromGlobal(_)
-            | Kind::Skip(_)
+            | Kind::Skip(_, _)
             | Kind::Command(_)
             | Kind::Value(_)
             | Kind::Arg(_) => (),
@@ -321,7 +321,7 @@ impl Item {
 
                 res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
-            Kind::Skip(_) => {
+            Kind::Skip(_, _) => {
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -463,7 +463,10 @@ impl Item {
                 }
                 Some(MagicAttrName::Skip) => {
                     let expr = attr.value.clone();
-                    let kind = Sp::new(Kind::Skip(expr), attr.name.clone().span());
+                    let kind = Sp::new(
+                        Kind::Skip(expr, self.kind.attr_kind()),
+                        attr.name.clone().span(),
+                    );
                     Some(kind)
                 }
                 _ => None,
@@ -475,16 +478,28 @@ impl Item {
         }
 
         for attr in &parsed {
-            match attr.kind.get() {
-                AttrKind::Clap => {}
-                AttrKind::StructOpt => {
+            let actual_attr_kind = *attr.kind.get();
+            let expected_attr_kind = self.kind.attr_kind();
+            match (actual_attr_kind, expected_attr_kind) {
+                (AttrKind::Clap, _) | (AttrKind::StructOpt, _) => {
                     self.deprecations.push(Deprecation::attribute(
                         "4.0.0",
-                        *attr.kind.get(),
-                        AttrKind::Clap,
+                        actual_attr_kind,
+                        expected_attr_kind,
                         attr.kind.span(),
                     ));
                 }
+
+                _ if attr.kind != expected_attr_kind => {
+                    abort!(
+                        attr.kind.span(),
+                        "Expected `{}` attribute instead of `{}`",
+                        expected_attr_kind.as_str(),
+                        actual_attr_kind.as_str()
+                    );
+                }
+
+                _ => {}
             }
 
             if let Some(AttrValue::Call(tokens)) = &attr.value {
@@ -511,7 +526,7 @@ impl Item {
                         span: attr.name.span(),
                         id: "bare_value_parser",
                         version: "4.0.0",
-                        description: "`#[clap(value_parser)]` is now the default and is no longer needed`".to_owned(),
+                        description: "`#[arg(value_parser)]` is now the default and is no longer needed`".to_owned(),
                     });
                     self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
                 }
@@ -522,7 +537,7 @@ impl Item {
                         span: attr.name.span(),
                         id: "bare_action",
                         version: "4.0.0",
-                        description: "`#[clap(action)]` is now the default and is no longer needed`".to_owned(),
+                        description: "`#[arg(action)]` is now the default and is no longer needed`".to_owned(),
                     });
                     self.action = Some(Action::Implicit(attr.name.clone()));
                 }
@@ -568,7 +583,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_value_t)] (without an argument) can be used \
+                            "#[arg(default_value_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -610,7 +625,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_t)] (without an argument) can be used \
+                            "#[arg(default_values_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -622,7 +637,7 @@ impl Item {
                     if *container_type != Ty::Vec {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_t)] can be used only on Vec types";
+                            "#[arg(default_values_t)] can be used only on Vec types";
 
                             note = "see \
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
@@ -679,7 +694,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_value_os_t)] (without an argument) can be used \
+                            "#[arg(default_value_os_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -721,7 +736,7 @@ impl Item {
                     } else {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_os_t)] (without an argument) can be used \
+                            "#[arg(default_values_os_t)] (without an argument) can be used \
                             only on field level";
 
                             note = "see \
@@ -733,7 +748,7 @@ impl Item {
                     if *container_type != Ty::Vec {
                         abort!(
                             attr.name.clone(),
-                            "#[clap(default_values_os_t)] can be used only on Vec types";
+                            "#[arg(default_values_os_t)] can be used only on Vec types";
 
                             note = "see \
                                 https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
@@ -868,12 +883,12 @@ impl Item {
             (Kind::Arg(_), Kind::FromGlobal(_))
             | (Kind::Arg(_), Kind::Subcommand(_))
             | (Kind::Arg(_), Kind::Flatten)
-            | (Kind::Arg(_), Kind::Skip(_))
+            | (Kind::Arg(_), Kind::Skip(_, _))
             | (Kind::Command(_), Kind::Subcommand(_))
             | (Kind::Command(_), Kind::Flatten)
-            | (Kind::Command(_), Kind::Skip(_))
+            | (Kind::Command(_), Kind::Skip(_, _))
             | (Kind::Command(_), Kind::ExternalSubcommand)
-            | (Kind::Value(_), Kind::Skip(_)) => {
+            | (Kind::Value(_), Kind::Skip(_, _)) => {
                 self.kind = kind;
             }
 
@@ -1117,7 +1132,7 @@ pub enum Kind {
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
-    Skip(Option<AttrValue>),
+    Skip(Option<AttrValue>, AttrKind),
     ExternalSubcommand,
 }
 
@@ -1130,8 +1145,21 @@ impl Kind {
             Self::FromGlobal(_) => "from_global",
             Self::Subcommand(_) => "subcommand",
             Self::Flatten => "flatten",
-            Self::Skip(_) => "skip",
+            Self::Skip(_, _) => "skip",
             Self::ExternalSubcommand => "external_subcommand",
+        }
+    }
+
+    pub fn attr_kind(&self) -> AttrKind {
+        match self {
+            Self::Arg(_) => AttrKind::Arg,
+            Self::Command(_) => AttrKind::Command,
+            Self::Value(_) => AttrKind::Value,
+            Self::FromGlobal(_) => AttrKind::Arg,
+            Self::Subcommand(_) => AttrKind::Command,
+            Self::Flatten => AttrKind::Command,
+            Self::Skip(_, kind) => *kind,
+            Self::ExternalSubcommand => AttrKind::Command,
         }
     }
 }

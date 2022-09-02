@@ -12,9 +12,9 @@ use clap::Parser;
 fn skip_1() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         x: u32,
-        #[clap(skip)]
+        #[arg(skip)]
         s: u32,
     }
 
@@ -39,15 +39,15 @@ fn skip_1() {
 fn skip_2() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         x: u32,
-        #[clap(skip)]
+        #[arg(skip)]
         ss: String,
-        #[clap(skip)]
+        #[arg(skip)]
         sn: u8,
 
         y: u32,
-        #[clap(skip)]
+        #[arg(skip)]
         sz: u16,
 
         t: u32,
@@ -83,11 +83,11 @@ fn skip_enum() {
 
     #[derive(Parser, Debug, PartialEq)]
     pub struct Opt {
-        #[clap(long, short)]
+        #[arg(long, short)]
         number: u32,
-        #[clap(skip)]
+        #[arg(skip)]
         k: Kind,
-        #[clap(skip)]
+        #[arg(skip)]
         v: Vec<u32>,
     }
 
@@ -105,19 +105,19 @@ fn skip_enum() {
 fn skip_help_doc_comments() {
     #[derive(Parser, Debug, PartialEq, Eq)]
     pub struct Opt {
-        #[clap(skip, help = "internal_stuff")]
+        #[arg(skip, help = "internal_stuff")]
         a: u32,
 
-        #[clap(skip, long_help = "internal_stuff\ndo not touch")]
+        #[arg(skip, long_help = "internal_stuff\ndo not touch")]
         b: u32,
 
         /// Not meant to be used by clap.
         ///
         /// I want a default here.
-        #[clap(skip)]
+        #[arg(skip)]
         c: u32,
 
-        #[clap(short)]
+        #[arg(short)]
         n: u32,
     }
 
@@ -136,13 +136,13 @@ fn skip_help_doc_comments() {
 fn skip_val() {
     #[derive(Parser, Debug, PartialEq, Eq)]
     pub struct Opt {
-        #[clap(long, short)]
+        #[arg(long, short)]
         number: u32,
 
-        #[clap(skip = "key")]
+        #[arg(skip = "key")]
         k: String,
 
-        #[clap(skip = vec![1, 2, 3])]
+        #[arg(skip = vec![1, 2, 3])]
         v: Vec<u32>,
     }
 

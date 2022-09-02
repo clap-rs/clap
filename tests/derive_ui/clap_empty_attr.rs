@@ -1,12 +1,12 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap]
+#[command]
 struct Opt {}
 
 #[derive(Parser, Debug)]
 struct Opt1 {
-    #[clap = "short"]
+    #[arg = "short"]
     foo: u32,
 }
 

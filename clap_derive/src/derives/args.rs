@@ -204,7 +204,7 @@ pub fn gen_augment(
             Kind::Command(_)
             | Kind::Value(_)
             | Kind::Subcommand(_)
-            | Kind::Skip(_)
+            | Kind::Skip(_, _)
             | Kind::FromGlobal(_)
             | Kind::ExternalSubcommand => None,
             Kind::Flatten => {
@@ -384,7 +384,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                 #field_name: clap::FromArgMatches::from_arg_matches_mut(#arg_matches)?
             },
 
-            Kind::Skip(val) => match val {
+            Kind::Skip(val, _) => match val {
                 None => quote_spanned!(kind.span()=> #field_name: Default::default()),
                 Some(val) => quote_spanned!(kind.span()=> #field_name: (#val).into()),
             },
@@ -463,7 +463,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                 }
             },
 
-            Kind::Skip(_) => quote!(),
+            Kind::Skip(_, _) => quote!(),
 
             Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(item, ty, field_name, field, Some(&access)),
         }

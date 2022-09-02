@@ -19,19 +19,19 @@ use std::path::PathBuf;
 
 #[derive(Parser, PartialEq, Debug)]
 struct PathOpt {
-    #[clap(short, long)]
+    #[arg(short, long)]
     path: PathBuf,
 
-    #[clap(short, default_value = "../")]
+    #[arg(short, default_value = "../")]
     default_path: PathBuf,
 
-    #[clap(short)]
+    #[arg(short)]
     vector_path: Vec<PathBuf>,
 
-    #[clap(short)]
+    #[arg(short)]
     option_path_1: Option<PathBuf>,
 
-    #[clap(short = 'q')]
+    #[arg(short = 'q')]
     option_path_2: Option<PathBuf>,
 }
 
@@ -63,7 +63,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
 
 #[derive(Parser, PartialEq, Debug)]
 struct HexOpt {
-    #[clap(short, value_parser = parse_hex)]
+    #[arg(short, value_parser = parse_hex)]
     number: u64,
 }
 
@@ -102,7 +102,7 @@ fn custom_parser_2(_: &str) -> Result<&'static str, ErrCode> {
 
 #[derive(Parser, PartialEq, Debug)]
 struct NoOpOpt {
-    #[clap(short, value_parser = custom_parser_2)]
+    #[arg(short, value_parser = custom_parser_2)]
     b: &'static str,
 }
 
@@ -125,10 +125,10 @@ fn update_every_custom_parser() {
 
 #[derive(Parser, PartialEq, Debug)]
 struct DefaultedOpt {
-    #[clap(short)]
+    #[arg(short)]
     integer: u64,
 
-    #[clap(short)]
+    #[arg(short)]
     path: PathBuf,
 }
 

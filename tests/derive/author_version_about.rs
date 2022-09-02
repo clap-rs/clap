@@ -19,8 +19,8 @@ use clap::Parser;
 #[test]
 fn no_author_version_about() {
     #[derive(Parser, PartialEq, Debug)]
-    #[clap(name = "foo")]
-    #[clap(help_template = utils::FULL_TEMPLATE)]
+    #[command(name = "foo")]
+    #[command(help_template = utils::FULL_TEMPLATE)]
     struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
@@ -30,8 +30,8 @@ fn no_author_version_about() {
 #[test]
 fn use_env() {
     #[derive(Parser, PartialEq, Debug)]
-    #[clap(author, about, version)]
-    #[clap(help_template = utils::FULL_TEMPLATE)]
+    #[command(author, about, version)]
+    #[command(help_template = utils::FULL_TEMPLATE)]
     struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
@@ -45,8 +45,8 @@ fn explicit_version_not_str_lit() {
     const VERSION: &str = "custom version";
 
     #[derive(Parser)]
-    #[clap(version = VERSION)]
-    #[clap(help_template = utils::FULL_TEMPLATE)]
+    #[command(version = VERSION)]
+    #[command(help_template = utils::FULL_TEMPLATE)]
     pub struct Opt {}
 
     let output = utils::get_long_help::<Opt>();

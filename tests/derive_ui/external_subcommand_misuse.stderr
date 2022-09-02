@@ -1,5 +1,5 @@
 error: `external_subcommand` cannot be used with `arg`
- --> tests/derive_ui/external_subcommand_misuse.rs:5:12
+ --> tests/derive_ui/external_subcommand_misuse.rs:5:15
   |
-5 |     #[clap(external_subcommand)]
-  |            ^^^^^^^^^^^^^^^^^^^
+5 |     #[command(external_subcommand)]
+  |               ^^^^^^^^^^^^^^^^^^^

@@ -1,11 +1,11 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(name = "test")]
+#[command(name = "test")]
 pub struct Opt {
-    #[clap(long)]
+    #[arg(long)]
     a: u32,
-    #[clap(skip, long)]
+    #[arg(skip, long)]
     b: u32,
 }
 

@@ -7,7 +7,7 @@ struct AddArgs {
 }
 #[derive(Parser, Debug)]
 struct RemoveArgs {
-    #[clap(short, long)]
+    #[arg(short, long)]
     force: bool,
     name: Vec<String>,
 }
@@ -67,7 +67,7 @@ impl Subcommand for CliSub {
 
 #[derive(Parser, Debug)]
 struct Cli {
-    #[clap(short, long)]
+    #[arg(short, long)]
     top_level: bool,
     #[clap(subcommand)]
     subcommand: CliSub,

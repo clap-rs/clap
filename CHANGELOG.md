@@ -66,6 +66,7 @@ Deprecated
 - `Arg::number_of_values` in favor of `Arg::num_args`
 - `default_value_os`, `default_values_os`, `default_value_if_os`, and `default_value_ifs_os` as the non `_os` variants now accept either a `str` or an `OsStr`
 - `Command::dont_collapse_args_in_usage` is now the default and is deprecated
+- *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value`
 
 ### Features
 

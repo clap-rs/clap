@@ -1,5 +1,5 @@
 error: methods in attributes are not allowed for subcommand
-  --> $DIR/subcommand_and_methods.rs:16:12
+  --> tests/derive_ui/subcommand_and_methods.rs:16:15
    |
-16 |     #[clap(subcommand, long)]
-   |            ^^^^^^^^^^
+16 |     #[command(subcommand, long)]
+   |               ^^^^^^^^^^

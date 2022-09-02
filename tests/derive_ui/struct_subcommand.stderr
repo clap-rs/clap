@@ -1,5 +1,5 @@
 error: `subcommand` cannot be used with `command`
-  --> tests/derive_ui/struct_subcommand.rs:12:24
+  --> tests/derive_ui/struct_subcommand.rs:12:27
    |
-12 | #[clap(name = "basic", subcommand)]
-   |                        ^^^^^^^^^^
+12 | #[command(name = "basic", subcommand)]
+   |                           ^^^^^^^^^^

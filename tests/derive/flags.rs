@@ -22,7 +22,7 @@ use clap::Parser;
 fn bool_type_is_flag() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[arg(short, long)]
         alice: bool,
     }
 
@@ -58,9 +58,9 @@ fn non_bool_type_flag() {
 
     #[derive(Parser, Debug)]
     struct Opt {
-        #[clap(short, long, action = ArgAction::SetTrue, value_parser = BoolishValueParser::new().map(parse_from_flag))]
+        #[arg(short, long, action = ArgAction::SetTrue, value_parser = BoolishValueParser::new().map(parse_from_flag))]
         alice: usize,
-        #[clap(short, long, action = ArgAction::SetTrue, value_parser = BoolishValueParser::new().map(parse_from_flag))]
+        #[arg(short, long, action = ArgAction::SetTrue, value_parser = BoolishValueParser::new().map(parse_from_flag))]
         bob: usize,
     }
 
@@ -87,7 +87,7 @@ fn inferred_help() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         /// Foo
-        #[clap(short, long)]
+        #[arg(short, long)]
         help: bool,
     }
 
@@ -108,7 +108,7 @@ fn inferred_version() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
         /// Foo
-        #[clap(short, long)]
+        #[arg(short, long)]
         version: bool,
     }
 
@@ -130,9 +130,9 @@ fn inferred_version() {
 fn count() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
-        #[clap(short, long, action = clap::ArgAction::Count)]
+        #[arg(short, long, action = clap::ArgAction::Count)]
         alice: u8,
-        #[clap(short, long, action = clap::ArgAction::Count)]
+        #[arg(short, long, action = clap::ArgAction::Count)]
         bob: u8,
     }
 
@@ -164,9 +164,9 @@ fn count() {
 fn mixed_type_flags() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[arg(short, long)]
         alice: bool,
-        #[clap(short, long, action = clap::ArgAction::Count)]
+        #[arg(short, long, action = clap::ArgAction::Count)]
         bob: u8,
     }
 
@@ -247,7 +247,7 @@ fn ignore_qualified_bool_type() {
 fn override_implicit_action() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
-        #[clap(long, action = clap::ArgAction::Set)]
+        #[arg(long, action = clap::ArgAction::Set)]
         arg: bool,
     }
 
@@ -266,7 +266,7 @@ fn override_implicit_action() {
 fn override_implicit_from_flag_positional() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
-        #[clap(action = clap::ArgAction::Set)]
+        #[arg(action = clap::ArgAction::Set)]
         arg: bool,
     }
 

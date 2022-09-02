@@ -33,7 +33,7 @@ fn required_argument() {
 fn argument_with_default() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value = "42")]
+        #[arg(default_value = "42")]
         arg: i32,
     }
     assert_eq!(
@@ -67,7 +67,7 @@ fn auto_value_name() {
 fn explicit_value_name() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_name = "BROWNIE_POINTS")]
+        #[arg(value_name = "BROWNIE_POINTS")]
         my_special_arg: i32,
     }
 

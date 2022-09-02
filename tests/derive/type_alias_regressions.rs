@@ -11,9 +11,9 @@ type Option<T> = std::option::Option<T>;
 #[derive(Parser)]
 pub struct Opts {
     another_string: String,
-    #[clap(subcommand)]
+    #[command(subcommand)]
     command: Command,
-    #[clap(short, long, value_enum)]
+    #[arg(short, long, value_enum)]
     choice: ArgChoice,
 }
 

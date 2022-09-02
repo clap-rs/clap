@@ -137,7 +137,7 @@ fn gen_augment(
             let kind = item.kind();
 
             match &*kind {
-                Kind::Skip(_) => None,
+                Kind::Skip(_, _) => None,
 
                 Kind::ExternalSubcommand => {
                     let ty = match variant.fields {

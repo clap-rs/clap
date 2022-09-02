@@ -32,6 +32,12 @@ impl ClapAttr {
                     Some(Sp::new(AttrKind::Clap, attr.path.span()))
                 } else if attr.path.is_ident("structopt") {
                     Some(Sp::new(AttrKind::StructOpt, attr.path.span()))
+                } else if attr.path.is_ident("command") {
+                    Some(Sp::new(AttrKind::Command, attr.path.span()))
+                } else if attr.path.is_ident("arg") {
+                    Some(Sp::new(AttrKind::Arg, attr.path.span()))
+                } else if attr.path.is_ident("value") {
+                    Some(Sp::new(AttrKind::Value, attr.path.span()))
                 } else {
                     None
                 };
@@ -194,6 +200,9 @@ impl ToTokens for AttrValue {
 pub enum AttrKind {
     Clap,
     StructOpt,
+    Command,
+    Arg,
+    Value,
 }
 
 impl AttrKind {
@@ -201,6 +210,9 @@ impl AttrKind {
         match self {
             Self::Clap => "clap",
             Self::StructOpt => "structopt",
+            Self::Command => "command",
+            Self::Arg => "arg",
+            Self::Value => "value",
         }
     }
 }

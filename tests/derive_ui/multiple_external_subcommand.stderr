@@ -1,5 +1,5 @@
 error: Only one variant can be marked with `external_subcommand`, this is the second
-  --> $DIR/multiple_external_subcommand.rs:14:12
+  --> tests/derive_ui/multiple_external_subcommand.rs:14:15
    |
-14 |     #[clap(external_subcommand)]
-   |            ^^^^^^^^^^^^^^^^^^^
+14 |     #[command(external_subcommand)]
+   |               ^^^^^^^^^^^^^^^^^^^

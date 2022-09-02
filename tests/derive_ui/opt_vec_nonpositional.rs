@@ -9,7 +9,7 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(name = "basic")]
+#[command(name = "basic")]
 struct Opt {
     n: Option<Vec<u32>>,
 }

@@ -9,7 +9,7 @@ fn generic_struct_flatten() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Outer<T: Args> {
-        #[clap(flatten)]
+        #[command(flatten)]
         pub inner: T,
     }
 
@@ -33,7 +33,7 @@ fn generic_struct_flatten_w_where_clause() {
     where
         T: Args,
     {
-        #[clap(flatten)]
+        #[command(flatten)]
         pub inner: T,
     }
 
@@ -112,7 +112,7 @@ fn generic_wo_trait_bound() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt<T> {
         answer: isize,
-        #[clap(skip)]
+        #[arg(skip)]
         took: Option<T>,
     }
 

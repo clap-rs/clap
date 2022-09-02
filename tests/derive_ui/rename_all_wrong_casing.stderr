@@ -1,5 +1,5 @@
 error: unsupported casing: `fail`
-  --> $DIR/rename_all_wrong_casing.rs:12:37
+  --> tests/derive_ui/rename_all_wrong_casing.rs:12:40
    |
-12 | #[clap(name = "basic", rename_all = "fail")]
-   |                                     ^^^^^^
+12 | #[command(name = "basic", rename_all = "fail")]
+   |                                        ^^^^^^

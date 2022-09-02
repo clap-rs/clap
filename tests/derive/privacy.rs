@@ -17,7 +17,7 @@ mod options {
 
     #[derive(Debug, Parser)]
     pub struct Options {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         pub subcommand: super::subcommands::SubCommand,
     }
 }

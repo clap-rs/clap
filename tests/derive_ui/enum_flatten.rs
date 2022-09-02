@@ -9,9 +9,9 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(name = "basic")]
+#[command(name = "basic")]
 enum Opt {
-    #[clap(flatten)]
+    #[command(flatten)]
     Variant1,
 }
 

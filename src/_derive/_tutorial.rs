@@ -49,7 +49,7 @@
 //!
 #![doc = include_str!("../../examples/tutorial_derive/02_apps.md")]
 //!
-//! You can use `#[clap(author, version, about)]` attribute defaults to fill these fields in from your `Cargo.toml` file.
+//! You can use `#[command(author, version, about)]` attribute defaults to fill these fields in from your `Cargo.toml` file.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.rs")]
@@ -88,9 +88,9 @@
 //! - They can be optional
 //! - Intent is clearer
 //!
-//! The `#[clap(short = 'n')]` and `#[clap(long = "name")]` attributes that define
+//! The `#[arg(short = 'n')]` and `#[arg(long = "name")]` attributes that define
 //! the flags are [`Arg`][crate::Args] methods that are derived from the field name when no value
-//! is specified (`#[clap(short)]` and `#[clap(long)]`).
+//! is specified (`#[arg(short)]` and `#[arg(long)]`).
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option.rs")]
@@ -107,7 +107,7 @@
 //! ### Flags
 //!
 //! Flags can also be switches that can be on/off.  This is enabled via the
-//! `#[clap(action = ArgAction::SetTrue)]` attribute though this is implied when the field is a
+//! `#[arg(action = ArgAction::SetTrue)]` attribute though this is implied when the field is a
 //! `bool`.
 //!
 //! ```rust
@@ -126,7 +126,7 @@
 //!
 //! ### Subcommands
 //!
-//! Subcommands are derived with `#[derive(Subcommand)]` and be added via `#[clap(subcommand)]` attribute. Each
+//! Subcommands are derived with `#[derive(Subcommand)]` and be added via `#[command(subcommand)]` attribute. Each
 //! instance of a [Subcommand][crate::Subcommand] can have its own version, author(s), Args, and even its own
 //! subcommands.
 //!
@@ -145,7 +145,7 @@
 //!
 //! We've previously showed that arguments can be [`required`][crate::Arg::required] or optional.
 //! When optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
-//! set `#[clap(default_value_t)]`.
+//! set `#[arg(default_value_t)]`.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]

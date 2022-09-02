@@ -8,7 +8,7 @@ use crate::utils;
 fn default_value() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value = "3")]
+        #[arg(default_value = "3")]
         arg: i32,
     }
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
@@ -22,7 +22,7 @@ fn default_value() {
 fn default_value_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value_t = 3)]
+        #[arg(default_value_t = 3)]
         arg: i32,
     }
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
@@ -36,7 +36,7 @@ fn default_value_t() {
 fn auto_default_value_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value_t)]
+        #[arg(default_value_t)]
         arg: i32,
     }
     assert_eq!(Opt { arg: 0 }, Opt::try_parse_from(&["test"]).unwrap());
@@ -50,22 +50,22 @@ fn auto_default_value_t() {
 fn default_values_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_values_t = vec![1, 2, 3])]
+        #[arg(default_values_t = vec![1, 2, 3])]
         arg1: Vec<i32>,
 
-        #[clap(long, default_values_t = &[4, 5, 6])]
+        #[arg(long, default_values_t = &[4, 5, 6])]
         arg2: Vec<i32>,
 
-        #[clap(long, default_values_t = [7, 8, 9])]
+        #[arg(long, default_values_t = [7, 8, 9])]
         arg3: Vec<i32>,
 
-        #[clap(long, default_values_t = 10..=12)]
+        #[arg(long, default_values_t = 10..=12)]
         arg4: Vec<i32>,
 
-        #[clap(long, default_values_t = vec!["hello".to_string(), "world".to_string()])]
+        #[arg(long, default_values_t = vec!["hello".to_string(), "world".to_string()])]
         arg5: Vec<String>,
 
-        #[clap(long, default_values_t = &vec!["foo".to_string(), "bar".to_string()])]
+        #[arg(long, default_values_t = &vec!["foo".to_string(), "bar".to_string()])]
         arg6: Vec<String>,
     }
     assert_eq!(
@@ -110,7 +110,7 @@ fn default_values_t() {
 fn default_value_os_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(default_value_os_t = PathBuf::from("abc.def"))]
+        #[arg(default_value_os_t = PathBuf::from("abc.def"))]
         arg: PathBuf,
     }
     assert_eq!(
@@ -134,12 +134,12 @@ fn default_value_os_t() {
 fn default_values_os_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(
+        #[arg(
             default_values_os_t = vec![PathBuf::from("abc.def"), PathBuf::from("123.foo")]
         )]
         arg1: Vec<PathBuf>,
 
-        #[clap(
+        #[arg(
             long,
             default_values_os_t = &[PathBuf::from("bar.baz")]
         )]
@@ -170,7 +170,7 @@ fn detect_os_variant() {
 
     #[derive(clap::Parser)]
     pub struct Options {
-        #[clap(default_value_os = "123")]
+        #[arg(default_value_os = "123")]
         x: String,
     }
     Options::command().debug_assert();
