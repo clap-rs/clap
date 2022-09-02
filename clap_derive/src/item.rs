@@ -104,14 +104,16 @@ impl Item {
             );
         }
         match &*res.kind {
-            Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
-            Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
             Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => res,
-            Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
-            Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
+            Kind::Subcommand(_) | Kind::Skip(_) | Kind::FromGlobal(_) | Kind::Flatten => abort!(
+                res.kind.span(),
+                "`{}` is only allowed on fields",
+                res.kind.name(),
+            ),
             Kind::ExternalSubcommand => abort!(
                 res.kind.span(),
-                "external_subcommand is only allowed on fields"
+                "`{}` is only allowed on variants",
+                res.kind.name(),
             ),
         }
     }
@@ -207,7 +209,11 @@ impl Item {
             }
             Kind::Skip(_) => (),
             Kind::FromGlobal(_) => {
-                abort!(res.kind.span(), "from_global is not supported on variants");
+                abort!(
+                    res.kind.span(),
+                    "`{}` is only allowed on fields",
+                    res.kind.name(),
+                )
             }
             Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => (),
         }
@@ -245,14 +251,17 @@ impl Item {
             );
         }
         match &*res.kind {
-            Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
-            Kind::Skip(_) => res,
             Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => res,
-            Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
-            Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
+            Kind::Skip(_) => res,
+            Kind::Subcommand(_) | Kind::FromGlobal(_) | Kind::Flatten => abort!(
+                res.kind.span(),
+                "`{}` is only allowed on fields",
+                res.kind.name(),
+            ),
             Kind::ExternalSubcommand => abort!(
                 res.kind.span(),
-                "external_subcommand is only allowed on fields"
+                "`{}` is only allowed on variants",
+                res.kind.name(),
             ),
         }
     }
@@ -300,11 +309,11 @@ impl Item {
                 res.doc_comment = vec![];
             }
 
-            Kind::ExternalSubcommand => {
-                abort! { res.kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
-                }
-            }
+            Kind::ExternalSubcommand => abort!(
+                res.kind.span(),
+                "`{}` is only allowed on variants",
+                res.kind.name(),
+            ),
 
             Kind::Subcommand(_) => {
                 if let Some(value_parser) = res.value_parser.as_ref() {
@@ -886,10 +895,24 @@ impl Item {
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
-        if let (Some(old), Some(new)) = (self.kind.name(), kind.name()) {
-            abort!(kind.span(), "`{}` cannot be used with `{}`", new, old);
-        } else {
-            self.kind = kind;
+        match (self.kind.get(), kind.get()) {
+            (Kind::Arg(_), Kind::FromGlobal(_))
+            | (Kind::Arg(_), Kind::Subcommand(_))
+            | (Kind::Arg(_), Kind::Flatten)
+            | (Kind::Arg(_), Kind::Skip(_))
+            | (Kind::Command(_), Kind::Subcommand(_))
+            | (Kind::Command(_), Kind::Flatten)
+            | (Kind::Command(_), Kind::Skip(_))
+            | (Kind::Command(_), Kind::ExternalSubcommand)
+            | (Kind::Value(_), Kind::Skip(_)) => {
+                self.kind = kind;
+            }
+
+            (_, _) => {
+                let old = self.kind.name();
+                let new = kind.name();
+                abort!(kind.span(), "`{}` cannot be used with `{}`", new, old);
+            }
         }
     }
 
@@ -1130,16 +1153,16 @@ pub enum Kind {
 }
 
 impl Kind {
-    fn name(&self) -> Option<&'static str> {
+    fn name(&self) -> &'static str {
         match self {
-            Self::Arg(_) => None,
-            Self::Command(_) => None,
-            Self::Value(_) => None,
-            Self::FromGlobal(_) => Some("from_global"),
-            Self::Subcommand(_) => Some("subcommand"),
-            Self::Flatten => Some("flatten"),
-            Self::Skip(_) => Some("skip"),
-            Self::ExternalSubcommand => Some("external_subcommand"),
+            Self::Arg(_) => "arg",
+            Self::Command(_) => "command",
+            Self::Value(_) => "value",
+            Self::FromGlobal(_) => "from_global",
+            Self::Subcommand(_) => "subcommand",
+            Self::Flatten => "flatten",
+            Self::Skip(_) => "skip",
+            Self::ExternalSubcommand => "external_subcommand",
         }
     }
 }
