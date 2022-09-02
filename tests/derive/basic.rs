@@ -18,7 +18,7 @@ use clap::Parser;
 fn basic() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = 'a', long = "arg")]
+        #[arg(short = 'a', long = "arg")]
         arg: i32,
     }
     assert_eq!(
@@ -31,7 +31,7 @@ fn basic() {
 fn update_basic() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = 'a', long = "arg")]
+        #[arg(short = 'a', long = "arg")]
         single_value: i32,
     }
 

@@ -50,7 +50,7 @@ Options:
 
 ```
 
-Because we added `#[clap(propagate_version = true)]`:
+Because we added `#[command(propagate_version = true)]`:
 ```console
 $ 03_04_subcommands_derive --version
 clap [..]

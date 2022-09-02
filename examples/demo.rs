@@ -2,14 +2,14 @@ use clap::Parser;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None)]
 struct Args {
     /// Name of the person to greet
-    #[clap(short, long)]
+    #[arg(short, long)]
     name: String,
 
     /// Number of times to greet
-    #[clap(short, long, default_value_t = 1)]
+    #[arg(short, long, default_value_t = 1)]
     count: u8,
 }
 

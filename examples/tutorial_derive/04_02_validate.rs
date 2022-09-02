@@ -3,10 +3,10 @@ use std::ops::RangeInclusive;
 use clap::Parser;
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None)]
 struct Cli {
     /// Network port to use
-    #[clap(value_parser = port_in_range)]
+    #[arg(value_parser = port_in_range)]
     port: u16,
 }
 

@@ -20,19 +20,19 @@ use clap::{Args, Parser, Subcommand};
 enum Opt {
     /// Fetch stuff from GitHub
     Fetch {
-        #[clap(long)]
+        #[arg(long)]
         all: bool,
         /// Overwrite local branches.
-        #[clap(short, long)]
+        #[arg(short, long)]
         force: bool,
 
         repo: String,
     },
 
     Add {
-        #[clap(short, long)]
+        #[arg(short, long)]
         interactive: bool,
-        #[clap(short, long)]
+        #[arg(short, long)]
         verbose: bool,
     },
 }
@@ -122,7 +122,7 @@ fn test_null_commands() {
 }
 
 #[derive(Parser, PartialEq, Eq, Debug)]
-#[clap(about = "Not shown")]
+#[command(about = "Not shown")]
 struct Add {
     file: String,
 }
@@ -168,9 +168,9 @@ fn test_tuple_commands() {
 fn global_passed_down() {
     #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
-        #[clap(global = true, long)]
+        #[arg(global = true, long)]
         other: bool,
-        #[clap(subcommand)]
+        #[command(subcommand)]
         sub: Subcommands,
     }
 
@@ -182,7 +182,7 @@ fn global_passed_down() {
 
     #[derive(Debug, PartialEq, Eq, Args)]
     struct GlobalCmd {
-        #[clap(from_global)]
+        #[arg(from_global)]
         other: bool,
     }
 
@@ -207,7 +207,7 @@ fn global_passed_down() {
 fn external_subcommand() {
     #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         sub: Subcommands,
     }
 
@@ -215,7 +215,7 @@ fn external_subcommand() {
     enum Subcommands {
         Add,
         Remove,
-        #[clap(external_subcommand)]
+        #[command(external_subcommand)]
         Other(Vec<String>),
     }
 
@@ -249,13 +249,13 @@ fn external_subcommand_os_string() {
 
     #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         sub: Subcommands,
     }
 
     #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
-        #[clap(external_subcommand)]
+        #[command(external_subcommand)]
         Other(Vec<OsString>),
     }
 
@@ -273,13 +273,13 @@ fn external_subcommand_os_string() {
 fn external_subcommand_optional() {
     #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         sub: Option<Subcommands>,
     }
 
     #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum Subcommands {
-        #[clap(external_subcommand)]
+        #[command(external_subcommand)]
         Other(Vec<String>),
     }
 
@@ -297,9 +297,9 @@ fn external_subcommand_optional() {
 fn enum_in_enum_subsubcommand() {
     #[derive(Parser, Debug, PartialEq, Eq)]
     pub enum Opt {
-        #[clap(alias = "l")]
+        #[command(alias = "l")]
         List,
-        #[clap(subcommand, alias = "d")]
+        #[command(subcommand, alias = "d")]
         Daemon(DaemonCommand),
     }
 
@@ -378,9 +378,9 @@ fn update_subcommands() {
 fn update_sub_subcommands() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     enum Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         Child1(Child1),
-        #[clap(subcommand)]
+        #[command(subcommand)]
         Child2(Child2),
     }
 
@@ -451,7 +451,7 @@ fn update_ext_subcommand() {
     enum Opt {
         Command1(Command1),
         Command2(Command2),
-        #[clap(external_subcommand)]
+        #[command(external_subcommand)]
         Ext(Vec<String>),
     }
 
@@ -503,13 +503,13 @@ fn subcommand_name_not_literal() {
 
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         subcmd: SubCmd,
     }
 
     #[derive(Subcommand, PartialEq, Eq, Debug)]
     enum SubCmd {
-        #[clap(name = get_name())]
+        #[command(name = get_name())]
         SubCmd1,
     }
 
@@ -520,7 +520,7 @@ fn subcommand_name_not_literal() {
 fn skip_subcommand() {
     #[derive(Debug, PartialEq, Eq, Parser)]
     struct Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         sub: Subcommands,
     }
 
@@ -530,7 +530,7 @@ fn skip_subcommand() {
         Remove,
 
         #[allow(dead_code)]
-        #[clap(skip)]
+        #[command(skip)]
         Skip,
     }
 
@@ -562,7 +562,7 @@ fn built_in_subcommand_escaped() {
         Install {
             arg: Option<String>,
         },
-        #[clap(external_subcommand)]
+        #[command(external_subcommand)]
         Custom(Vec<String>),
     }
 

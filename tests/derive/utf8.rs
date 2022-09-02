@@ -12,7 +12,7 @@ struct Positional {
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct Named {
-    #[clap(short, long)]
+    #[arg(short, long)]
     arg: String,
 }
 
@@ -82,7 +82,7 @@ struct PositionalOs {
 
 #[derive(Parser, Debug, PartialEq, Eq)]
 struct NamedOs {
-    #[clap(short, long)]
+    #[arg(short, long)]
     arg: OsString,
 }
 
@@ -171,7 +171,7 @@ fn invalid_utf8_option_long_equals() {
 
 #[derive(Debug, PartialEq, Parser)]
 enum External {
-    #[clap(external_subcommand)]
+    #[command(external_subcommand)]
     Other(Vec<String>),
 }
 
@@ -201,7 +201,7 @@ fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
 
 #[derive(Debug, PartialEq, Parser)]
 enum ExternalOs {
-    #[clap(external_subcommand)]
+    #[command(external_subcommand)]
     Other(Vec<OsString>),
 }
 

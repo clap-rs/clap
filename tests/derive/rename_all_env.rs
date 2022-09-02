@@ -7,9 +7,9 @@ use clap::Parser;
 #[test]
 fn it_works() {
     #[derive(Debug, PartialEq, Parser)]
-    #[clap(rename_all_env = "kebab")]
+    #[command(rename_all_env = "kebab")]
     struct BehaviorModel {
-        #[clap(env)]
+        #[arg(env)]
         be_nice: String,
     }
 
@@ -21,7 +21,7 @@ fn it_works() {
 fn default_is_screaming() {
     #[derive(Debug, PartialEq, Parser)]
     struct BehaviorModel {
-        #[clap(env)]
+        #[arg(env)]
         be_nice: String,
     }
 
@@ -32,12 +32,12 @@ fn default_is_screaming() {
 #[test]
 fn overridable() {
     #[derive(Debug, PartialEq, Parser)]
-    #[clap(rename_all_env = "kebab")]
+    #[command(rename_all_env = "kebab")]
     struct BehaviorModel {
-        #[clap(env)]
+        #[arg(env)]
         be_nice: String,
 
-        #[clap(rename_all_env = "pascal", env)]
+        #[arg(rename_all_env = "pascal", env)]
         be_aggressive: String,
     }
 

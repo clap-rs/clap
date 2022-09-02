@@ -3,7 +3,7 @@ use clap::Parser;
 #[test]
 fn app_name_in_short_help_from_struct() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     struct MyApp {}
 
     let mut help = Vec::new();
@@ -16,7 +16,7 @@ fn app_name_in_short_help_from_struct() {
 #[test]
 fn app_name_in_long_help_from_struct() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     struct MyApp {}
 
     let mut help = Vec::new();
@@ -29,7 +29,7 @@ fn app_name_in_long_help_from_struct() {
 #[test]
 fn app_name_in_short_help_from_enum() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     enum MyApp {}
 
     let mut help = Vec::new();
@@ -42,7 +42,7 @@ fn app_name_in_short_help_from_enum() {
 #[test]
 fn app_name_in_long_help_from_enum() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     enum MyApp {}
 
     let mut help = Vec::new();
@@ -55,7 +55,7 @@ fn app_name_in_long_help_from_enum() {
 #[test]
 fn app_name_in_short_version_from_struct() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     struct MyApp {}
 
     let version = MyApp::command().render_version();
@@ -66,7 +66,7 @@ fn app_name_in_short_version_from_struct() {
 #[test]
 fn app_name_in_long_version_from_struct() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     struct MyApp {}
 
     let version = MyApp::command().render_long_version();
@@ -77,7 +77,7 @@ fn app_name_in_long_version_from_struct() {
 #[test]
 fn app_name_in_short_version_from_enum() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     enum MyApp {}
 
     let version = MyApp::command().render_version();
@@ -88,7 +88,7 @@ fn app_name_in_short_version_from_enum() {
 #[test]
 fn app_name_in_long_version_from_enum() {
     #[derive(Parser)]
-    #[clap(name = "my-cmd")]
+    #[command(name = "my-cmd")]
     enum MyApp {}
 
     let version = MyApp::command().render_long_version();

@@ -23,7 +23,7 @@ fn doc_comments() {
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz
-        #[clap(short, long)]
+        #[arg(short, long)]
         foo: bool,
     }
 
@@ -36,10 +36,10 @@ fn doc_comments() {
 fn help_is_better_than_comments() {
     /// Lorem ipsum
     #[derive(Parser, PartialEq, Debug)]
-    #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
+    #[command(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[clap(short, long, help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
+        #[arg(short, long, help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
         foo: bool,
     }
 
@@ -55,7 +55,7 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     ///
     /// Bar
     #[derive(Parser, PartialEq, Debug)]
-    #[clap(name = "lorem-ipsum")]
+    #[command(name = "lorem-ipsum")]
     struct LoremIpsum {}
 
     let help = utils::get_long_help::<LoremIpsum>();
@@ -73,16 +73,16 @@ Usage:"
 fn field_long_doc_comment_both_help_long_help() {
     /// Lorem ipsumclap
     #[derive(Parser, PartialEq, Debug)]
-    #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
+    #[command(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Dot is removed from multiline comments.
         ///
         /// Long help
-        #[clap(long)]
+        #[arg(long)]
         foo: bool,
 
         /// Dot is removed from one short comment.
-        #[clap(long)]
+        #[arg(long)]
         bar: bool,
     }
 
@@ -101,9 +101,9 @@ fn field_long_doc_comment_both_help_long_help() {
 fn top_long_doc_comment_both_help_long_help() {
     /// Lorem ipsumclap
     #[derive(Parser, Debug)]
-    #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
+    #[command(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         foo: SubCommand,
     }
 
@@ -113,7 +113,7 @@ fn top_long_doc_comment_both_help_long_help() {
         ///
         /// Or something else
         Foo {
-            #[clap(help = "foo")]
+            #[arg(help = "foo")]
             bars: String,
         },
     }
@@ -146,9 +146,9 @@ fn verbatim_doc_comment() {
     ///      ( ()    ||
     ///       (      () ) )
     #[derive(Parser, Debug)]
-    #[clap(verbatim_doc_comment)]
+    #[command(verbatim_doc_comment)]
     struct SeeFigure1 {
-        #[clap(long)]
+        #[arg(long)]
         foo: bool,
     }
 
@@ -178,10 +178,10 @@ fn verbatim_doc_comment_field() {
     #[derive(Parser, Debug)]
     struct Command {
         /// This help ends in a period.
-        #[clap(long, verbatim_doc_comment)]
+        #[arg(long, verbatim_doc_comment)]
         foo: bool,
         /// This help does not end in a period.
-        #[clap(long)]
+        #[arg(long)]
         bar: bool,
     }
 
@@ -198,7 +198,7 @@ fn multiline_separates_default() {
         /// Multiline
         ///
         /// Doc comment
-        #[clap(long, default_value = "x")]
+        #[arg(long, default_value = "x")]
         x: String,
     }
 
@@ -227,7 +227,7 @@ fn doc_comment_about_handles_both_abouts() {
     /// Opts doc comment summary
     #[derive(Parser, Debug)]
     pub struct Opts {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         pub cmd: Sub,
     }
 

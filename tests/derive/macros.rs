@@ -22,7 +22,7 @@ fn use_option() {
         ($name:ident: $ty:ty) => {
             #[derive(Parser)]
             struct Outer {
-                #[clap(short, long)]
+                #[arg(short, long)]
                 #[allow(dead_code)]
                 $name: $ty,
             }
@@ -47,7 +47,7 @@ fn issue_447() {
     }
 
     Command! {GitCmd, [
-      #[clap(external_subcommand)]
+      #[command(external_subcommand)]
       Ext(Vec<String>)
     ]}
 }

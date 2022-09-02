@@ -2,32 +2,32 @@ use clap::error::ErrorKind;
 use clap::{CommandFactory, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None)]
 struct Cli {
     /// set version manually
-    #[clap(long, value_name = "VER")]
+    #[arg(long, value_name = "VER")]
     set_ver: Option<String>,
 
     /// auto inc major
-    #[clap(long)]
+    #[arg(long)]
     major: bool,
 
     /// auto inc minor
-    #[clap(long)]
+    #[arg(long)]
     minor: bool,
 
     /// auto inc patch
-    #[clap(long)]
+    #[arg(long)]
     patch: bool,
 
     /// some regular input
     input_file: Option<String>,
 
     /// some special input argument
-    #[clap(long)]
+    #[arg(long)]
     spec_in: Option<String>,
 
-    #[clap(short)]
+    #[arg(short)]
     config: Option<String>,
 }
 

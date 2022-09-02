@@ -8,7 +8,7 @@ pub mod bash {
     use unicode_xid::UnicodeXID;
 
     #[derive(clap::Subcommand)]
-    #[clap(hide = true)]
+    #[command(hide = true)]
     #[allow(missing_docs)]
     #[derive(Clone, Debug)]
     pub enum CompleteCommand {
@@ -17,15 +17,15 @@ pub mod bash {
     }
 
     #[derive(clap::Args)]
-    #[clap(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
+    #[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
     #[allow(missing_docs)]
     #[derive(Clone, Debug)]
     pub struct CompleteArgs {
         /// Path to write completion-registration to
-        #[clap(long, required = true)]
+        #[arg(long, required = true)]
         register: Option<std::path::PathBuf>,
 
-        #[clap(
+        #[arg(
             long,
             required = true,
             value_name = "COMP_CWORD",
@@ -34,10 +34,10 @@ pub mod bash {
         )]
         index: Option<usize>,
 
-        #[clap(long, hide_short_help = true, group = "complete")]
+        #[arg(long, hide_short_help = true, group = "complete")]
         ifs: Option<String>,
 
-        #[clap(
+        #[arg(
             long = "type",
             required = true,
             hide_short_help = true,
@@ -45,10 +45,10 @@ pub mod bash {
         )]
         comp_type: Option<CompType>,
 
-        #[clap(long, hide_short_help = true, group = "complete")]
+        #[arg(long, hide_short_help = true, group = "complete")]
         space: bool,
 
-        #[clap(
+        #[arg(
             long,
             conflicts_with = "space",
             hide_short_help = true,
@@ -56,7 +56,7 @@ pub mod bash {
         )]
         no_space: bool,
 
-        #[clap(raw = true, hide_short_help = true, group = "complete")]
+        #[arg(raw = true, hide_short_help = true, group = "complete")]
         comp_words: Vec<OsString>,
     }
 

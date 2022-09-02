@@ -1,10 +1,10 @@
 use clap::{Parser, ValueEnum};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None)]
 struct Cli {
     /// What mode to run the program in
-    #[clap(value_enum)]
+    #[arg(value_enum)]
     mode: Mode,
 }
 

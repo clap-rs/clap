@@ -27,54 +27,54 @@
 //!
 //! /// Doc comment
 //! #[derive(Parser)]
-//! #[clap(APP ATTRIBUTE)]
+//! #[command(CMD ATTRIBUTE)]
 //! struct Cli {
 //!     /// Doc comment
-//!     #[clap(ARG ATTRIBUTE)]
+//!     #[arg(ARG ATTRIBUTE)]
 //!     field: UserType,
 //!
-//!     #[clap(value_enum, ARG ATTRIBUTE...)]
+//!     #[arg(value_enum, ARG ATTRIBUTE...)]
 //!     field: EnumValues,
 //!
-//!     #[clap(flatten)]
+//!     #[command(flatten)]
 //!     delegate: Struct,
 //!
-//!     #[clap(subcommand)]
+//!     #[command(subcommand)]
 //!     command: Command,
 //! }
 //!
 //! /// Doc comment
 //! #[derive(Args)]
-//! #[clap(PARENT APP ATTRIBUTE)]
+//! #[command(PARENT CMD ATTRIBUTE)]
 //! struct Struct {
 //!     /// Doc comment
-//!     #[clap(ARG ATTRIBUTE)]
+//!     #[command(ARG ATTRIBUTE)]
 //!     field: UserType,
 //! }
 //!
 //! /// Doc comment
 //! #[derive(Subcommand)]
-//! #[clap(PARENT APP ATTRIBUTE)]
+//! #[command(PARENT CMD ATTRIBUTE)]
 //! enum Command {
 //!     /// Doc comment
-//!     #[clap(APP ATTRIBUTE)]
+//!     #[command(CMD ATTRIBUTE)]
 //!     Variant1(Struct),
 //!
 //!     /// Doc comment
-//!     #[clap(APP ATTRIBUTE)]
+//!     #[command(CMD ATTRIBUTE)]
 //!     Variant2 {
 //!         /// Doc comment
-//!         #[clap(ARG ATTRIBUTE)]
+//!         #[arg(ARG ATTRIBUTE)]
 //!         field: UserType,
 //!     }
 //! }
 //!
 //! /// Doc comment
 //! #[derive(ValueEnum)]
-//! #[clap(VALUE ENUM ATTRIBUTE)]
+//! #[value(VALUE ENUM ATTRIBUTE)]
 //! enum EnumValues {
 //!     /// Doc comment
-//!     #[clap(POSSIBLE VALUE ATTRIBUTE)]
+//!     #[value(POSSIBLE VALUE ATTRIBUTE)]
 //!     Variant1,
 //! }
 //!
@@ -102,7 +102,7 @@
 //!
 //! Raw attributes come in two different syntaxes:
 //! ```rust,ignore
-//! #[clap(
+//! #[arg(
 //!     global = true, // name = arg form, neat for one-arg methods
 //!     required_if_eq("out", "file") // name(arg1, arg2, ...) form.
 //! )]
@@ -134,7 +134,7 @@
 //!
 //! **Raw attributes:**  Any [`Command` method][crate::Command] can also be used as an attribute,
 //! see [Terminology](#terminology) for syntax.
-//! - e.g. `#[clap(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
+//! - e.g. `#[command(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
 //!
 //! **Magic attributes:**
 //! - `name  = <expr>`: [`Command::name`][crate::Command::name]
@@ -149,7 +149,7 @@
 //!   - When not present: [Doc comment summary](#doc-comments)
 //!   - Without `<expr>`: [crate `description`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-description-field) ([`Parser`][crate::Parser] container)
 //!     - **TIP:** When a doc comment is also present, you most likely want to add
-//!       `#[clap(long_about = None)]` to clear the doc comment so only [`about`][crate::Command::about]
+//!       `#[arg(long_about = None)]` to clear the doc comment so only [`about`][crate::Command::about]
 //!       gets shown with both `-h` and `--help`.
 //! - `long_about = <expr>`: [`Command::long_about`][crate::Command::long_about]
 //!   - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
@@ -178,7 +178,7 @@
 //! These correspond to a [`Arg`][crate::Arg].
 //!
 //! **Raw attributes:**  Any [`Arg` method][crate::Arg] can also be used as an attribute, see [Terminology](#terminology) for syntax.
-//! - e.g. `#[clap(max_values(3))]` would translate to `arg.max_values(3)`
+//! - e.g. `#[arg(max_values(3))]` would translate to `arg.max_values(3)`
 //!
 //! **Magic attributes**:
 //! - `id = <expr>`: [`Arg::id`][crate::Arg::id]
@@ -219,16 +219,16 @@
 //!   - Without `<expr>`: fills the field with `Default::default()`
 //! - `default_value = <str>`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
 //! - `default_value_t [= <expr>]`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
-//!   - Requires `std::fmt::Display` or `#[clap(value_enum)]`
+//!   - Requires `std::fmt::Display` or `#[arg(value_enum)]`
 //!   - Without `<expr>`, relies on `Default::default()`
 //! - `default_values_t = <expr>`: [`Arg::default_values`][crate::Arg::default_values] and [`Arg::required(false)`][crate::Arg::required]
-//!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::fmt::Display` or `#[clap(value_enum)]`
+//!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::fmt::Display` or `#[arg(value_enum)]`
 //!   - `<expr>` must implement `IntoIterator<T>`
 //! - `default_value_os_t [= <expr>]`: [`Arg::default_value_os`][crate::Arg::default_value_os] and [`Arg::required(false)`][crate::Arg::required]
-//!   - Requires `std::convert::Into<OsString>` or `#[clap(value_enum)]`
+//!   - Requires `std::convert::Into<OsString>` or `#[arg(value_enum)]`
 //!   - Without `<expr>`, relies on `Default::default()`
 //! - `default_values_os_t = <expr>`: [`Arg::default_values_os`][crate::Arg::default_values_os] and [`Arg::required(false)`][crate::Arg::required]
-//!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::convert::Into<OsString>` or `#[clap(value_enum)]`
+//!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::convert::Into<OsString>` or `#[arg(value_enum)]`
 //!   - `<expr>` must implement `IntoIterator<T>`
 //!
 //! ### ValueEnum Attributes
@@ -242,7 +242,7 @@
 //! These correspond to a [`PossibleValue`][crate::builder::PossibleValue].
 //!
 //! **Raw attributes:**  Any [`PossibleValue` method][crate::builder::PossibleValue] can also be used as an attribute, see [Terminology](#terminology) for syntax.
-//! - e.g. `#[clap(alias("foo"))]` would translate to `pv.alias("foo")`
+//! - e.g. `#[value(alias("foo"))]` would translate to `pv.alias("foo")`
 //!
 //! **Magic attributes**:
 //! - `name = <expr>`: [`PossibleValue::new`][crate::builder::PossibleValue::new]
@@ -282,9 +282,9 @@
 //! # use clap::Parser;
 //!
 //! #[derive(Parser)]
-//! #[clap(about = "I am a program and I work, just pass `-h`", long_about = None)]
+//! #[command(about = "I am a program and I work, just pass `-h`", long_about = None)]
 //! struct Foo {
-//!     #[clap(short, help = "Pass `-h` and you'll see me!")]
+//!     #[arg(short, help = "Pass `-h` and you'll see me!")]
 //!     bar: String,
 //! }
 //! ```
@@ -309,7 +309,7 @@
 //! If you really want to use the `Command::about/long_about` methods (you likely don't),
 //! use the `about` / `long_about` attributes to override the calls generated from
 //! the doc comment.  To clear `long_about`, you can use
-//! `#[clap(long_about = None)]`.
+//! `#[command(long_about = None)]`.
 //!
 //! **TIP:** Set `#![deny(missing_docs)]` to catch missing `--help` documentation at compile time.
 //!
@@ -329,7 +329,7 @@
 //!     /// I am artificial superintelligence. I won't rest
 //!     /// until I'll have destroyed humanity. Enjoy your
 //!     /// pathetic existence, you mere mortals.
-//!     #[clap(long, action)]
+//!     #[arg(long, action)]
 //!     kill_all_humans: bool,
 //! }
 //! ```
@@ -380,7 +380,7 @@
 //!
 //! ### Using derived arguments in a builder application
 //!
-//! When using the derive API, you can `#[clap(flatten)]` a struct deriving `Args` into a struct
+//! When using the derive API, you can `#[command(flatten)]` a struct deriving `Args` into a struct
 //! deriving `Args` or `Parser`. This example shows how you can augment a `Command` instance
 //! created using the builder API with `Args` created using the derive API.
 //!
@@ -398,7 +398,7 @@
 //!
 //! ### Using derived subcommands in a builder application
 //!
-//! When using the derive API, you can use `#[clap(subcommand)]` inside the struct to add
+//! When using the derive API, you can use `#[command(subcommand)]` inside the struct to add
 //! subcommands. The type of the field is usually an enum that derived `Parser`. However, you can
 //! also add the subcommands in that enum to a `Command` instance created with the builder API.
 //!
@@ -412,7 +412,7 @@
 //!
 //! ### Adding hand-implemented subcommands to a derived application
 //!
-//! When using the derive API, you can use `#[clap(subcommand)]` inside the struct to add
+//! When using the derive API, you can use `#[command(subcommand)]` inside the struct to add
 //! subcommands. The type of the field is usually an enum that derived `Parser`. However, you can
 //! also implement the `Subcommand` trait manually on this enum (or any other type) and it can
 //! still be used inside the struct created with the derive API. The implementation of the
@@ -423,7 +423,7 @@
 //! [`augment_subcommands`][crate::Subcommand::augment_subcommands] on an enum that derived
 //! `Parser`, whereas now we implement
 //! [`augment_subcommands`][crate::Subcommand::augment_subcommands] ourselves, but the derive API
-//! calls it automatically since we used the `#[clap(subcommand)]` attribute.
+//! calls it automatically since we used the `#[command(subcommand)]` attribute.
 //!
 //! For example:
 //! ```rust
@@ -432,7 +432,7 @@
 //!
 //! ### Flattening hand-implemented args into a derived application
 //!
-//! When using the derive API, you can use `#[clap(flatten)]` inside the struct to add arguments as
+//! When using the derive API, you can use `#[command(flatten)]` inside the struct to add arguments as
 //! if they were added directly to the containing struct. The type of the field is usually an
 //! struct that derived `Args`. However, you can also implement the `Args` trait manually on this
 //! struct (or any other type) and it can still be used inside the struct created with the derive
@@ -442,7 +442,7 @@
 //! Notice how in the previous example we used [`augment_args`][crate::Args::augment_args] on the
 //! struct that derived `Parser`, whereas now we implement
 //! [`augment_args`][crate::Args::augment_args] ourselves, but the derive API calls it
-//! automatically since we used the `#[clap(flatten)]` attribute.
+//! automatically since we used the `#[command(flatten)]` attribute.
 //!
 //! For example:
 //! ```rust

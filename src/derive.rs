@@ -34,13 +34,13 @@ use std::ffi::OsString;
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// /// My super CLI
 /// #[derive(clap::Parser)]
-/// #[clap(name = "demo")]
+/// #[command(name = "demo")]
 /// struct Context {
 ///     /// More verbose output
-///     #[clap(long)]
+///     #[arg(long)]
 ///     verbose: bool,
 ///     /// An optional name
-///     #[clap(short, long)]
+///     #[arg(short, long)]
 ///     name: Option<String>,
 /// }
 /// ```
@@ -257,7 +257,7 @@ pub trait FromArgMatches: Sized {
 ///
 /// Implementing this trait lets a parent container delegate argument parsing behavior to `Self`.
 /// with:
-/// - `#[clap(flatten)] args: ChildArgs`: Attribute can only be used with struct fields that impl
+/// - `#[command(flatten)] args: ChildArgs`: Attribute can only be used with struct fields that impl
 ///   `Args`.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
@@ -271,13 +271,13 @@ pub trait FromArgMatches: Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(flatten)]
+///     #[command(flatten)]
 ///     logging: LogArgs,
 /// }
 ///
 /// #[derive(clap::Args)]
 /// struct LogArgs {
-///     #[clap(long, short = 'v', action = clap::ArgAction::Count)]
+///     #[arg(long, short = 'v', action = clap::ArgAction::Count)]
 ///     verbose: i8,
 /// }
 /// ```
@@ -288,7 +288,7 @@ pub trait Args: FromArgMatches + Sized {
     fn augment_args(cmd: Command) -> Command;
     /// Append to [`Command`] so it can update `self`.
     ///
-    /// This is used to implement `#[clap(flatten)]`
+    /// This is used to implement `#[command(flatten)]`
     ///
     /// See also [`CommandFactory`].
     fn augment_args_for_update(cmd: Command) -> Command;
@@ -298,9 +298,9 @@ pub trait Args: FromArgMatches + Sized {
 ///
 /// Implementing this trait lets a parent container delegate subcommand behavior to `Self`.
 /// with:
-/// - `#[clap(subcommand)] field: SubCmd`: Attribute can be used with either struct fields or enum
+/// - `#[command(subcommand)] field: SubCmd`: Attribute can be used with either struct fields or enum
 ///   variants that impl `Subcommand`.
-/// - `#[clap(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
+/// - `#[command(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
 ///   `Subcommand`.
 ///
 /// See the [derive reference](crate::_derive) for attributes and best practices.
@@ -313,7 +313,7 @@ pub trait Args: FromArgMatches + Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(subcommand)]
+///     #[command(subcommand)]
 ///     action: Action,
 /// }
 ///
@@ -330,7 +330,7 @@ pub trait Subcommand: FromArgMatches + Sized {
     fn augment_subcommands(cmd: Command) -> Command;
     /// Append to [`Command`] so it can update `self`.
     ///
-    /// This is used to implement `#[clap(flatten)]`
+    /// This is used to implement `#[command(flatten)]`
     ///
     /// See also [`CommandFactory`].
     fn augment_subcommands_for_update(cmd: Command) -> Command;
@@ -341,9 +341,9 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// Parse arguments into enums.
 ///
 /// When deriving [`Parser`], a field whose type implements `ValueEnum` can have the attribute
-/// `#[clap(value_enum)]` which will
+/// `#[arg(value_enum)]` which will
 /// - Call [EnumValueParser`][crate::builder::EnumValueParser]`
-/// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
+/// - Allowing using the `#[arg(default_value_t)]` attribute without implementing `Display`.
 ///
 /// See the [derive reference](crate::_derive) for attributes and best practices.
 ///
@@ -355,7 +355,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 #[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
-///     #[clap(value_enum)]
+///     #[arg(value_enum)]
 ///     level: Level,
 /// }
 ///

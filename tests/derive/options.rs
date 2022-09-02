@@ -22,7 +22,7 @@ use clap::{Parser, Subcommand};
 fn required_option() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[arg(short, long)]
         arg: i32,
     }
     assert_eq!(
@@ -48,7 +48,7 @@ fn required_option() {
 fn option_with_default() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, default_value = "42")]
+        #[arg(short, default_value = "42")]
         arg: i32,
     }
     assert_eq!(
@@ -66,7 +66,7 @@ fn option_with_default() {
 fn option_with_raw_default() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, default_value = "42")]
+        #[arg(short, default_value = "42")]
         arg: i32,
     }
     assert_eq!(
@@ -148,7 +148,7 @@ fn option_vec_from_str() {
 
     #[derive(Debug, Parser, PartialEq)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         a: Option<Vec<A>>,
     }
 
@@ -163,7 +163,7 @@ fn option_vec_from_str() {
 fn option_type_is_optional() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         arg: Option<i32>,
     }
     assert_eq!(
@@ -180,19 +180,19 @@ fn option_type_is_optional() {
 #[test]
 fn required_with_option_type() {
     #[derive(Debug, PartialEq, Eq, Parser)]
-    #[clap(subcommand_negates_reqs = true)]
+    #[command(subcommand_negates_reqs = true)]
     struct Opt {
-        #[clap(required = true)]
+        #[arg(required = true)]
         req_str: Option<String>,
 
-        #[clap(subcommand)]
+        #[command(subcommand)]
         cmd: Option<SubCommands>,
     }
 
     #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum SubCommands {
         ExSub {
-            #[clap(short, long, action = clap::ArgAction::Count)]
+            #[arg(short, long, action = clap::ArgAction::Count)]
             verbose: u8,
         },
     }
@@ -224,7 +224,7 @@ fn ignore_qualified_option_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser = parser)]
+        #[arg(value_parser = parser)]
         arg: ::std::option::Option<String>,
     }
 
@@ -240,7 +240,7 @@ fn ignore_qualified_option_type() {
 fn option_option_type_is_optional_value() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         #[allow(clippy::option_option)]
         arg: Option<Option<i32>>,
     }
@@ -267,7 +267,7 @@ fn option_option_type_is_optional_value() {
 fn option_option_type_help() {
     #[derive(Parser, Debug)]
     struct Opt {
-        #[clap(long, value_name = "val")]
+        #[arg(long, value_name = "val")]
         arg: Option<Option<i32>>,
     }
     let help = utils::get_help::<Opt>();
@@ -279,10 +279,10 @@ fn option_option_type_help() {
 fn two_option_option_types() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         arg: Option<Option<i32>>,
 
-        #[clap(long)]
+        #[arg(long)]
         field: Option<Option<String>>,
     }
     assert_eq!(
@@ -333,7 +333,7 @@ fn two_option_option_types() {
 fn vec_type_is_multiple_occurrences() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[arg(short, long)]
         arg: Vec<i32>,
     }
     assert_eq!(
@@ -351,7 +351,7 @@ fn vec_type_is_multiple_occurrences() {
 fn vec_type_with_required() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, required = true)]
+        #[arg(short, long, required = true)]
         arg: Vec<i32>,
     }
     assert_eq!(
@@ -369,7 +369,7 @@ fn vec_type_with_required() {
 fn vec_type_with_multiple_values_only() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, num_args(1..))]
+        #[arg(short, long, num_args(1..))]
         arg: Vec<i32>,
     }
     assert_eq!(
@@ -391,7 +391,7 @@ fn ignore_qualified_vec_type() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(value_parser = parser)]
+        #[arg(value_parser = parser)]
         arg: ::std::vec::Vec<String>,
     }
 
@@ -407,7 +407,7 @@ fn ignore_qualified_vec_type() {
 fn option_vec_type() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(
@@ -429,7 +429,7 @@ fn option_vec_type() {
 fn option_vec_type_structopt_behavior() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long, num_args(0..))]
+        #[arg(short, long, num_args(0..))]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(
@@ -456,10 +456,10 @@ fn option_vec_type_structopt_behavior() {
 fn two_option_vec_types() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[arg(short)]
         arg: Option<Vec<i32>>,
 
-        #[clap(short)]
+        #[arg(short)]
         b: Option<Vec<i32>>,
     }
 
@@ -497,7 +497,7 @@ fn two_option_vec_types() {
 fn explicit_value_parser() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(long, value_parser = clap::value_parser!(i32))]
+        #[arg(long, value_parser = clap::value_parser!(i32))]
         arg: i32,
     }
     assert_eq!(
@@ -510,7 +510,7 @@ fn explicit_value_parser() {
 fn implicit_value_parser() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(long)]
+        #[arg(long)]
         arg: i32,
     }
     assert_eq!(

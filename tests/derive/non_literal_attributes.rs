@@ -20,9 +20,9 @@ pub const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
 #[derive(Parser, Debug, PartialEq, Eq)]
-#[clap(allow_hyphen_values = true)]
+#[command(allow_hyphen_values = true)]
 struct Opt {
-    #[clap(
+    #[arg(
         long = "x",
         display_order = DISPLAY_ORDER,
         next_line_help = true,
@@ -31,13 +31,13 @@ struct Opt {
     )]
     x: i32,
 
-    #[clap(short = 'l', long = "level", aliases = ["set-level", "lvl"])]
+    #[arg(short = 'l', long = "level", aliases = ["set-level", "lvl"])]
     level: String,
 
-    #[clap(long("values"))]
+    #[arg(long("values"))]
     values: Vec<i32>,
 
-    #[clap(name = "FILE", requires_if("FILE", "values"))]
+    #[arg(name = "FILE", requires_if("FILE", "values"))]
     files: Vec<String>,
 }
 
@@ -131,7 +131,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
 
 #[derive(Parser, PartialEq, Debug)]
 struct HexOpt {
-    #[clap(short, value_parser = parse_hex)]
+    #[arg(short, value_parser = parse_hex)]
     number: u64,
 }
 

@@ -4,11 +4,11 @@ use clap::{ArgAction, Args, CommandFactory, Parser, Subcommand};
 fn arg_help_heading_applied() {
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
-        #[clap(long)]
-        #[clap(help_heading = Some("HEADING A"))]
+        #[arg(long)]
+        #[arg(help_heading = Some("HEADING A"))]
         should_be_in_section_a: u32,
 
-        #[clap(long)]
+        #[arg(long)]
         no_section: u32,
     }
 
@@ -30,13 +30,13 @@ fn arg_help_heading_applied() {
 #[test]
 fn app_help_heading_applied() {
     #[derive(Debug, Clone, Parser)]
-    #[clap(next_help_heading = "DEFAULT")]
+    #[command(next_help_heading = "DEFAULT")]
     struct CliOptions {
-        #[clap(long)]
-        #[clap(help_heading = Some("HEADING A"))]
+        #[arg(long)]
+        #[arg(help_heading = Some("HEADING A"))]
         should_be_in_section_a: u32,
 
-        #[clap(long)]
+        #[arg(long)]
         should_be_in_default_section: u32,
     }
 
@@ -65,41 +65,41 @@ fn app_help_heading_flattened() {
 
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
-        #[clap(flatten)]
+        #[command(flatten)]
         options_a: OptionsA,
 
-        #[clap(flatten)]
+        #[command(flatten)]
         options_b: OptionsB,
 
-        #[clap(subcommand)]
+        #[command(subcommand)]
         sub_a: SubA,
 
-        #[clap(long)]
+        #[arg(long)]
         should_be_in_default_section: u32,
     }
 
     #[derive(Debug, Clone, Args)]
-    #[clap(next_help_heading = "HEADING A")]
+    #[command(next_help_heading = "HEADING A")]
     struct OptionsA {
-        #[clap(long)]
+        #[arg(long)]
         should_be_in_section_a: u32,
     }
 
     #[derive(Debug, Clone, Args)]
-    #[clap(next_help_heading = "HEADING B")]
+    #[command(next_help_heading = "HEADING B")]
     struct OptionsB {
-        #[clap(long)]
+        #[arg(long)]
         should_be_in_section_b: u32,
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubA {
-        #[clap(flatten)]
+        #[command(flatten)]
         SubB(SubB),
-        #[clap(subcommand)]
+        #[command(subcommand)]
         SubC(SubC),
         SubAOne,
-        #[clap(next_help_heading = "SUB A")]
+        #[command(next_help_heading = "SUB A")]
         SubATwo {
             should_be_in_sub_a: u32,
         },
@@ -107,13 +107,13 @@ fn app_help_heading_flattened() {
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubB {
-        #[clap(next_help_heading = "SUB B")]
+        #[command(next_help_heading = "SUB B")]
         SubBOne { should_be_in_sub_b: u32 },
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubC {
-        #[clap(next_help_heading = "SUB C")]
+        #[command(next_help_heading = "SUB C")]
         SubCOne { should_be_in_sub_c: u32 },
     }
 
@@ -167,14 +167,14 @@ fn app_help_heading_flattened() {
 fn flatten_field_with_help_heading() {
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
-        #[clap(flatten)]
-        #[clap(next_help_heading = "HEADING A")]
+        #[command(flatten)]
+        #[command(next_help_heading = "HEADING A")]
         options_a: OptionsA,
     }
 
     #[derive(Debug, Clone, Args)]
     struct OptionsA {
-        #[clap(long)]
+        #[arg(long)]
         should_be_in_section_a: u32,
     }
 
@@ -194,19 +194,19 @@ fn flatten_field_with_help_heading() {
 #[test]
 fn derive_generated_error_has_full_context() {
     #[derive(Debug, Parser)]
-    #[clap(subcommand_negates_reqs = true)]
+    #[command(subcommand_negates_reqs = true)]
     struct Opts {
-        #[clap(long)]
+        #[arg(long)]
         req_str: String,
 
-        #[clap(subcommand)]
+        #[command(subcommand)]
         cmd: Option<SubCommands>,
     }
 
     #[derive(Debug, Parser)]
     enum SubCommands {
         Sub {
-            #[clap(short, long, action = clap::ArgAction::Count)]
+            #[arg(short, long, action = clap::ArgAction::Count)]
             verbose: u8,
         },
     }
@@ -245,33 +245,33 @@ Options:
 ";
 
     #[derive(Parser, Debug)]
-    #[clap(name = "test", version = "1.2")]
+    #[command(name = "test", version = "1.2")]
     struct Args {
-        #[clap(flatten)]
+        #[command(flatten)]
         a: A,
-        #[clap(flatten)]
+        #[command(flatten)]
         b: B,
     }
 
     #[derive(Args, Debug)]
-    #[clap(next_display_order = 10000)]
+    #[command(next_display_order = 10000)]
     struct A {
         /// second flag
-        #[clap(long)]
+        #[arg(long)]
         flag_a: bool,
         /// second option
-        #[clap(long)]
+        #[arg(long)]
         option_a: Option<String>,
     }
 
     #[derive(Args, Debug)]
-    #[clap(next_display_order = 10)]
+    #[command(next_display_order = 10)]
     struct B {
         /// first flag
-        #[clap(long)]
+        #[arg(long)]
         flag_b: bool,
         /// first option
-        #[clap(long)]
+        #[arg(long)]
         option_b: Option<String>,
     }
 
@@ -300,33 +300,33 @@ Options:
 ";
 
     #[derive(Parser, Debug)]
-    #[clap(name = "test", version = "1.2")]
+    #[command(name = "test", version = "1.2")]
     struct Args {
-        #[clap(flatten)]
-        #[clap(next_display_order = 10000)]
+        #[command(flatten)]
+        #[command(next_display_order = 10000)]
         a: A,
-        #[clap(flatten)]
-        #[clap(next_display_order = 10)]
+        #[command(flatten)]
+        #[command(next_display_order = 10)]
         b: B,
     }
 
     #[derive(Args, Debug)]
     struct A {
         /// second flag
-        #[clap(long)]
+        #[arg(long)]
         flag_a: bool,
         /// second option
-        #[clap(long)]
+        #[arg(long)]
         option_a: Option<String>,
     }
 
     #[derive(Args, Debug)]
     struct B {
         /// first flag
-        #[clap(long)]
+        #[arg(long)]
         flag_b: bool,
         /// first option
-        #[clap(long)]
+        #[arg(long)]
         option_b: Option<String>,
     }
 
@@ -355,32 +355,32 @@ Options:
 ";
 
     #[derive(Parser, Debug)]
-    #[clap(name = "test", version = "1.2")]
-    #[clap(next_display_order = None)]
+    #[command(name = "test", version = "1.2")]
+    #[command(next_display_order = None)]
     struct Args {
-        #[clap(flatten)]
+        #[command(flatten)]
         a: A,
-        #[clap(flatten)]
+        #[command(flatten)]
         b: B,
     }
 
     #[derive(Args, Debug)]
     struct A {
         /// first flag
-        #[clap(long)]
+        #[arg(long)]
         flag_a: bool,
         /// first option
-        #[clap(long)]
+        #[arg(long)]
         option_a: Option<String>,
     }
 
     #[derive(Args, Debug)]
     struct B {
         /// second flag
-        #[clap(long)]
+        #[arg(long)]
         flag_b: bool,
         /// second option
-        #[clap(long)]
+        #[arg(long)]
         option_b: Option<String>,
     }
 
@@ -418,7 +418,7 @@ Options:
     #[derive(Parser, PartialEq, Debug)]
     struct Args {
         /// Argument help
-        #[clap(value_enum)]
+        #[arg(value_enum)]
         arg: ArgChoice,
     }
 
@@ -442,9 +442,9 @@ Options:
 #[test]
 fn custom_help_flag() {
     #[derive(Debug, Clone, Parser)]
-    #[clap(disable_help_flag = true)]
+    #[command(disable_help_flag = true)]
     struct CliOptions {
-        #[clap(short = 'h', long = "verbose-help", action = ArgAction::Help)]
+        #[arg(short = 'h', long = "verbose-help", action = ArgAction::Help)]
         help: bool,
     }
 
@@ -456,9 +456,9 @@ fn custom_help_flag() {
 #[test]
 fn custom_version_flag() {
     #[derive(Debug, Clone, Parser)]
-    #[clap(disable_version_flag = true, version = "2.0.0")]
+    #[command(disable_version_flag = true, version = "2.0.0")]
     struct CliOptions {
-        #[clap(short = 'V', long = "verbose-version", action = ArgAction::Version)]
+        #[arg(short = 'V', long = "verbose-version", action = ArgAction::Version)]
         version: bool,
     }
 

@@ -7,17 +7,17 @@ use clap::{ArgGroup, Args, Parser, Subcommand};
 #[test]
 fn issue_151_groups_within_subcommands() {
     #[derive(Args, Debug)]
-    #[clap(group = ArgGroup::new("verb").required(true).multiple(true))]
+    #[command(group = ArgGroup::new("verb").required(true).multiple(true))]
     struct Opt {
-        #[clap(long, group = "verb")]
+        #[arg(long, group = "verb")]
         foo: Option<String>,
-        #[clap(long, group = "verb")]
+        #[arg(long, group = "verb")]
         bar: Option<String>,
     }
 
     #[derive(Debug, Parser)]
     struct Cli {
-        #[clap(flatten)]
+        #[command(flatten)]
         a: Opt,
     }
 
@@ -31,17 +31,17 @@ fn issue_151_groups_within_subcommands() {
 #[test]
 fn issue_289() {
     #[derive(Parser)]
-    #[clap(infer_subcommands = true)]
+    #[command(infer_subcommands = true)]
     enum Args {
         SomeCommand {
-            #[clap(subcommand)]
+            #[command(subcommand)]
             sub: SubSubCommand,
         },
         AnotherCommand,
     }
 
     #[derive(Subcommand)]
-    #[clap(infer_subcommands = true)]
+    #[command(infer_subcommands = true)]
     enum SubSubCommand {
         TestCommand,
     }
@@ -59,10 +59,10 @@ fn issue_324() {
     }
 
     #[derive(Parser)]
-    #[clap(version = my_version())]
-    #[clap(help_template = utils::FULL_TEMPLATE)]
+    #[command(version = my_version())]
+    #[command(help_template = utils::FULL_TEMPLATE)]
     struct Opt {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         _cmd: SubCommand,
     }
 
@@ -79,7 +79,7 @@ fn issue_324() {
 fn issue_418() {
     #[derive(Debug, Parser)]
     struct Opts {
-        #[clap(subcommand)]
+        #[command(subcommand)]
         /// The command to run
         command: Command,
     }
@@ -87,13 +87,13 @@ fn issue_418() {
     #[derive(Debug, Subcommand)]
     enum Command {
         /// Reticulate the splines
-        #[clap(visible_alias = "ret")]
+        #[command(visible_alias = "ret")]
         Reticulate {
             /// How many splines
             num_splines: u8,
         },
         /// Frobnicate the rest
-        #[clap(visible_alias = "frob")]
+        #[command(visible_alias = "frob")]
         Frobnicate,
     }
 
@@ -123,7 +123,7 @@ fn issue_490() {
     #[derive(Parser, Debug)]
     struct Opt {
         opt_vec: Vec<u16>,
-        #[clap(long)]
+        #[arg(long)]
         opt_opt_vec: Option<Vec<u16>>,
     }
 
