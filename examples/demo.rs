@@ -1,8 +1,8 @@
-use clap::Parser;
+use clap::{Parser, builder::Resettable};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 struct Args {
     /// Name of the person to greet
     #[clap(short, long)]

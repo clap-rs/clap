@@ -1,8 +1,9 @@
+use clap::builder::Resettable;
 use clap::error::ErrorKind;
 use clap::{CommandFactory, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 struct Cli {
     /// set version manually
     #[clap(long, value_name = "VER")]

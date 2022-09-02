@@ -1,7 +1,7 @@
-use clap::Parser;
+use clap::{Parser, builder::Resettable};
 
 #[derive(Parser, Debug, PartialEq)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 struct Opt {
     // Default parser for `Set` is FromStr::from_str.
     // `impl FromStr for bool` parses `true` or `false` so this

@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, builder::Resettable};
 
 #[derive(Parser)] // requires `derive` feature
 #[clap(name = "cargo")]
@@ -8,7 +8,7 @@ enum Cargo {
 }
 
 #[derive(clap::Args)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 struct ExampleDerive {
     #[clap(long)]
     manifest_path: Option<std::path::PathBuf>,

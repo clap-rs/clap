@@ -1,7 +1,7 @@
-use clap::Parser;
+use clap::{Parser, builder::Resettable};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)] // Read from `Cargo.toml`
+#[clap(author, version, about, long_about = Resettable::Reset)] // Read from `Cargo.toml`
 struct Cli {
     #[clap(long)]
     two: String,

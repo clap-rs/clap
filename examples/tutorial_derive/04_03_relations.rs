@@ -1,7 +1,7 @@
-use clap::{ArgGroup, Parser};
+use clap::{ArgGroup, Parser, builder::Resettable};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 #[clap(group(
             ArgGroup::new("vers")
                 .required(true)

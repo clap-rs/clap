@@ -1,7 +1,7 @@
-use clap::{Parser, ValueEnum};
+use clap::{Parser, ValueEnum, builder::Resettable};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 struct Cli {
     /// What mode to run the program in
     #[clap(value_enum)]

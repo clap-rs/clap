@@ -63,7 +63,7 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
 
         vec![
             Method::new(short_name, quote!(#short)),
-            Method::new(long_name, quote!(None)),
+            Method::new(long_name, quote!(::clap::builder::Resettable::Reset)),
         ]
     }
 }

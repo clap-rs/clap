@@ -1,7 +1,7 @@
-use clap::Parser;
+use clap::{Parser, builder::Resettable};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 #[clap(allow_negative_numbers = true)]
 struct Cli {
     #[clap(long)]

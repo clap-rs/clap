@@ -1,7 +1,7 @@
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, builder::Resettable};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = Resettable::Reset)]
 #[clap(propagate_version = true)]
 struct Cli {
     #[clap(subcommand)]

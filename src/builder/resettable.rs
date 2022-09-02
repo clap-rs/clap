@@ -44,26 +44,8 @@ pub trait IntoResettable<T> {
     fn into_resettable(self) -> Resettable<T>;
 }
 
-impl IntoResettable<StyledStr> for Option<&'static str> {
-    fn into_resettable(self) -> Resettable<StyledStr> {
-        match self {
-            Some(s) => Resettable::Value(s.into()),
-            None => Resettable::Reset,
-        }
-    }
-}
-
 impl IntoResettable<OsStr> for Option<&'static str> {
     fn into_resettable(self) -> Resettable<OsStr> {
-        match self {
-            Some(s) => Resettable::Value(s.into()),
-            None => Resettable::Reset,
-        }
-    }
-}
-
-impl IntoResettable<Str> for Option<&'static str> {
-    fn into_resettable(self) -> Resettable<Str> {
         match self {
             Some(s) => Resettable::Value(s.into()),
             None => Resettable::Reset,
@@ -83,6 +65,12 @@ impl<I: Into<StyledStr>> IntoResettable<StyledStr> for I {
     }
 }
 
+impl<I: Into<StyledStr>> IntoResettable<StyledStr> for Option<I> {
+    fn into_resettable(self) -> Resettable<StyledStr> {
+        self.map(Into::into).into()
+    }
+}
+
 impl<I: Into<OsStr>> IntoResettable<OsStr> for I {
     fn into_resettable(self) -> Resettable<OsStr> {
         Resettable::Value(self.into())
@@ -92,6 +80,12 @@ impl<I: Into<OsStr>> IntoResettable<OsStr> for I {
 impl<I: Into<Str>> IntoResettable<Str> for I {
     fn into_resettable(self) -> Resettable<Str> {
         Resettable::Value(self.into())
+    }
+}
+
+impl<I: Into<Str>> IntoResettable<Str> for Option<I> {
+    fn into_resettable(self) -> Resettable<Str> {
+        self.map(Into::into).into()
     }
 }
 

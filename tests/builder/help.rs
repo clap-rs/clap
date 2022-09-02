@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, builder::PossibleValue, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
+use clap::{arg, builder::{PossibleValue, Resettable}, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 fn setup() -> Command {
     Command::new("test")
@@ -1685,12 +1685,12 @@ fn multiple_custom_help_headers() {
         .arg(
             arg!(--style <style> "Choose musical style to play the song")
                 .required(false)
-                .help_heading(None),
+                .help_heading(Resettable::Reset),
         )
         .arg(arg!(
             -v --"birthday-song-volume" <volume> "Change the volume of the birthday song"
         ))
-        .next_help_heading(None)
+        .next_help_heading(Resettable::Reset)
         .arg(
             Arg::new("server-addr")
                 .short('a')
@@ -1751,7 +1751,7 @@ fn custom_help_headers_hide_args() {
         .arg(arg!(
             -v --"song-volume" <volume> "Change the volume of the birthday song"
         ))
-        .next_help_heading(None)
+        .next_help_heading(Resettable::Reset)
         .arg(
             Arg::new("server-addr")
                 .short('a')

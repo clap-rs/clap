@@ -1,10 +1,10 @@
-use clap::Parser;
+use clap::{Parser, builder::Resettable};
 
 #[derive(Parser)]
 #[clap(name = "MyApp")]
 #[clap(author = "Kevin K. <kbknapp@gmail.com>")]
 #[clap(version = "1.0")]
-#[clap(about = "Does awesome things", long_about = None)]
+#[clap(about = "Does awesome things", long_about = Resettable::Reset)]
 struct Cli {
     #[clap(long)]
     two: String,
