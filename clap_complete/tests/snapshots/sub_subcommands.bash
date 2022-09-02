@@ -178,7 +178,7 @@ _my-app() {
             fi
             case "${prev}" in
                 --config)
-                    COMPREPLY=($(compgen -W "Lest quotes aren't escaped." -- "${cur}"))
+                    COMPREPLY=($(compgen -W "Lest quotes, aren't escaped. Second to trigger display of options" -- "${cur}"))
                     return 0
                     ;;
                 *)

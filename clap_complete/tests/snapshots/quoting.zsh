@@ -14,19 +14,19 @@ _my-app() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" /
-'*--single-quotes[Can be '/''always'/'', '/''auto'/'', or '/''never'/'']' /
-'*--double-quotes[Can be "always", "auto", or "never"]' /
-'*--backticks[For more information see `echo test`]' /
-'*--backslash[Avoid '/''//n'/'']' /
-'*--brackets[List packages /[filter/]]' /
-'*--expansions[Execute the shell command with $SHELL]' /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
-":: :_my-app_commands" /
-"*::: :->my-app" /
+    _arguments "${_arguments_options[@]}" \
+'*--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
+'*--double-quotes[Can be "always", "auto", or "never"]' \
+'*--backticks[For more information see `echo test`]' \
+'*--backslash[Avoid '\''\\n'\'']' \
+'*--brackets[List packages \[filter\]]' \
+'*--expansions[Execute the shell command with $SHELL]' \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*-V[Print version information]' \
+'*--version[Print version information]' \
+":: :_my-app_commands" \
+"*::: :->my-app" \
 && ret=0
     case $state in
     (my-app)
@@ -35,45 +35,45 @@ _my-app() {
         curcontext="${curcontext%:*:*}:my-app-command-$line[1]:"
         case $line[1] in
             (cmd-single-quotes)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
 && ret=0
 ;;
 (cmd-double-quotes)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
 && ret=0
 ;;
 (cmd-backticks)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
 && ret=0
 ;;
 (cmd-backslash)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
 && ret=0
 ;;
 (cmd-brackets)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
 && ret=0
 ;;
 (cmd-expansions)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" /
-":: :_my-app__help_commands" /
-"*::: :->help" /
+_arguments "${_arguments_options[@]}" \
+":: :_my-app__help_commands" \
+"*::: :->help" \
 && ret=0
 
     case $state in
@@ -83,31 +83,31 @@ _arguments "${_arguments_options[@]}" /
         curcontext="${curcontext%:*:*}:my-app-help-command-$line[1]:"
         case $line[1] in
             (cmd-single-quotes)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (cmd-double-quotes)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (cmd-backticks)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (cmd-backslash)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (cmd-brackets)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (cmd-expansions)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
         esac
@@ -122,13 +122,13 @@ esac
 (( $+functions[_my-app_commands] )) ||
 _my-app_commands() {
     local commands; commands=(
-'cmd-single-quotes:Can be '/''always'/'', '/''auto'/'', or '/''never'/''' /
-'cmd-double-quotes:Can be "always", "auto", or "never"' /
-'cmd-backticks:For more information see `echo test`' /
-'cmd-backslash:Avoid '/''//n'/''' /
-'cmd-brackets:List packages /[filter/]' /
-'cmd-expansions:Execute the shell command with $SHELL' /
-'help:Print this message or the help of the given subcommand(s)' /
+'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
+'cmd-double-quotes:Can be "always", "auto", or "never"' \
+'cmd-backticks:For more information see `echo test`' \
+'cmd-backslash:Avoid '\''\\n'\''' \
+'cmd-brackets:List packages \[filter\]' \
+'cmd-expansions:Execute the shell command with $SHELL' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app commands' commands "$@"
 }
@@ -195,13 +195,13 @@ _my-app__help__cmd-single-quotes_commands() {
 (( $+functions[_my-app__help_commands] )) ||
 _my-app__help_commands() {
     local commands; commands=(
-'cmd-single-quotes:Can be '/''always'/'', '/''auto'/'', or '/''never'/''' /
-'cmd-double-quotes:Can be "always", "auto", or "never"' /
-'cmd-backticks:For more information see `echo test`' /
-'cmd-backslash:Avoid '/''//n'/''' /
-'cmd-brackets:List packages /[filter/]' /
-'cmd-expansions:Execute the shell command with $SHELL' /
-'help:Print this message or the help of the given subcommand(s)' /
+'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
+'cmd-double-quotes:Can be "always", "auto", or "never"' \
+'cmd-backticks:For more information see `echo test`' \
+'cmd-backslash:Avoid '\''\\n'\''' \
+'cmd-brackets:List packages \[filter\]' \
+'cmd-expansions:Execute the shell command with $SHELL' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app help commands' commands "$@"
 }

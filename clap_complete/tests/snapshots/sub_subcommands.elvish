@@ -47,8 +47,8 @@ set edit:completion:arg-completer[my-app] = {|@words|
         }
         &'my-app;some_cmd;sub_cmd'= {
             cand --config 'the other case to test'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help information (use `--help` for more detail)'
+            cand --help 'Print help information (use `--help` for more detail)'
             cand -V 'Print version information'
             cand --version 'Print version information'
         }

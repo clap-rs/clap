@@ -11,8 +11,8 @@ complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -s V -l version -d 'Print version information'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -f -a "sub_cmd" -d 'sub-subcommand'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
-complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "{Lest quotes aren/'t escaped.	}"
-complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help information'
+complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "{Lest quotes\, aren\'t escaped.	help\,with\,comma,Second to trigger display of options	}"
+complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help information (use `--help` for more detail)'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version information'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -f -a "sub_cmd" -d 'sub-subcommand'
 complete -c my-app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help; and not __fish_seen_subcommand_from sub_cmd; and not __fish_seen_subcommand_from help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'

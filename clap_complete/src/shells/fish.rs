@@ -27,8 +27,13 @@ impl Generator for Fish {
 }
 
 // Escape string inside single quotes
-fn escape_string(string: &str) -> String {
-    string.replace('\\', "\\\\").replace('\'', "\\'")
+fn escape_string(string: &str, escape_comma: bool) -> String {
+    let string = string.replace('\\', "\\\\").replace('\'', "\\'");
+    if escape_comma {
+        string.replace(',', "\\,")
+    } else {
+        string
+    }
 }
 
 fn gen_fish_inner(
@@ -88,12 +93,13 @@ fn gen_fish_inner(
 
         if let Some(longs) = option.get_long_and_visible_aliases() {
             for long in longs {
-                template.push_str(format!(" -l {}", escape_string(long)).as_str());
+                template.push_str(format!(" -l {}", escape_string(long, false)).as_str());
             }
         }
 
         if let Some(data) = option.get_help() {
-            template.push_str(format!(" -d '{}'", escape_string(&data.to_string())).as_str());
+            template
+                .push_str(format!(" -d '{}'", escape_string(&data.to_string(), false)).as_str());
         }
 
         template.push_str(value_completion(option).as_str());
@@ -113,12 +119,13 @@ fn gen_fish_inner(
 
         if let Some(longs) = flag.get_long_and_visible_aliases() {
             for long in longs {
-                template.push_str(format!(" -l {}", escape_string(long)).as_str());
+                template.push_str(format!(" -l {}", escape_string(long, false)).as_str());
             }
         }
 
         if let Some(data) = flag.get_help() {
-            template.push_str(format!(" -d '{}'", escape_string(&data.to_string())).as_str());
+            template
+                .push_str(format!(" -d '{}'", escape_string(&data.to_string(), false)).as_str());
         }
 
         buffer.push_str(template.as_str());
@@ -132,7 +139,7 @@ fn gen_fish_inner(
         template.push_str(format!(" -a \"{}\"", &subcommand.get_name()).as_str());
 
         if let Some(data) = subcommand.get_about() {
-            template.push_str(format!(" -d '{}'", escape_string(&data.to_string())).as_str())
+            template.push_str(format!(" -d '{}'", escape_string(&data.to_string(), false)).as_str())
         }
 
         buffer.push_str(template.as_str());
@@ -163,8 +170,8 @@ fn value_completion(option: &Arg) -> String {
                 } else {
                     Some(format!(
                         "{}\t{}",
-                        escape_string(value.get_name()).as_str(),
-                        escape_string(&value.get_help().unwrap_or_default().to_string())
+                        escape_string(value.get_name(), true).as_str(),
+                        escape_string(&value.get_help().unwrap_or_default().to_string(), true)
                     ))
                 })
                 .collect::<Vec<_>>()
