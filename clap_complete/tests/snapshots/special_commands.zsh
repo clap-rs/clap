@@ -14,19 +14,19 @@ _my-app() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" /
-'*-c[some config file]' /
-'*-C[some config file]' /
-'*--config[some config file]' /
-'*--conf[some config file]' /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
-'::file -- some input file:_files' /
-'::choice:(first second)' /
-":: :_my-app_commands" /
-"*::: :->my-app" /
+    _arguments "${_arguments_options[@]}" \
+'*-c[some config file]' \
+'*-C[some config file]' \
+'*--config[some config file]' \
+'*--conf[some config file]' \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*-V[Print version information]' \
+'*--version[Print version information]' \
+'::file -- some input file:_files' \
+'::choice:(first second)' \
+":: :_my-app_commands" \
+"*::: :->my-app" \
 && ret=0
     case $state in
     (my-app)
@@ -35,44 +35,44 @@ _my-app() {
         curcontext="${curcontext%:*:*}:my-app-command-$line[3]:"
         case $line[3] in
             (test)
-_arguments "${_arguments_options[@]}" /
-'*--case=[the case to test]: : ' /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
+_arguments "${_arguments_options[@]}" \
+'*--case=[the case to test]: : ' \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*-V[Print version information]' \
+'*--version[Print version information]' \
 && ret=0
 ;;
 (some_cmd)
-_arguments "${_arguments_options[@]}" /
-'*--config=[the other case to test]: : ' /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
-'*::path:' /
+_arguments "${_arguments_options[@]}" \
+'*--config=[the other case to test]: : ' \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*-V[Print version information]' \
+'*--version[Print version information]' \
+'*::path:' \
 && ret=0
 ;;
 (some-cmd-with-hyphens)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*-V[Print version information]' \
+'*--version[Print version information]' \
 && ret=0
 ;;
 (some-hidden-cmd)
-_arguments "${_arguments_options[@]}" /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*-V[Print version information]' /
-'*--version[Print version information]' /
+_arguments "${_arguments_options[@]}" \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*-V[Print version information]' \
+'*--version[Print version information]' \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" /
-":: :_my-app__help_commands" /
-"*::: :->help" /
+_arguments "${_arguments_options[@]}" \
+":: :_my-app__help_commands" \
+"*::: :->help" \
 && ret=0
 
     case $state in
@@ -82,23 +82,23 @@ _arguments "${_arguments_options[@]}" /
         curcontext="${curcontext%:*:*}:my-app-help-command-$line[1]:"
         case $line[1] in
             (test)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (some_cmd)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (some-cmd-with-hyphens)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (some-hidden-cmd)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" /
+_arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
         esac
@@ -113,22 +113,22 @@ esac
 (( $+functions[_my-app_commands] )) ||
 _my-app_commands() {
     local commands; commands=(
-'test:tests things' /
-'some_cmd:tests other things' /
-'some-cmd-with-hyphens:' /
-'some-hidden-cmd:' /
-'help:Print this message or the help of the given subcommand(s)' /
+'test:tests things' \
+'some_cmd:tests other things' \
+'some-cmd-with-hyphens:' \
+'some-hidden-cmd:' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app commands' commands "$@"
 }
 (( $+functions[_my-app__help_commands] )) ||
 _my-app__help_commands() {
     local commands; commands=(
-'test:tests things' /
-'some_cmd:tests other things' /
-'some-cmd-with-hyphens:' /
-'some-hidden-cmd:' /
-'help:Print this message or the help of the given subcommand(s)' /
+'test:tests things' \
+'some_cmd:tests other things' \
+'some-cmd-with-hyphens:' \
+'some-hidden-cmd:' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app help commands' commands "$@"
 }

@@ -14,30 +14,30 @@ _my-app() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" /
-'*--choice=[]: :(bash fish zsh)' /
-'*--unknown=[]: : ' /
-'*--other=[]: :( )' /
-'*-p+[]: :_files' /
-'*--path=[]: :_files' /
-'*-f+[]: :_files' /
-'*--file=[]: :_files' /
-'*-d+[]: :_files -/' /
-'*--dir=[]: :_files -/' /
-'*-e+[]: :_absolute_command_paths' /
-'*--exe=[]: :_absolute_command_paths' /
-'*--cmd-name=[]: :_command_names -e' /
-'*-c+[]: :_cmdstring' /
-'*--cmd=[]: :_cmdstring' /
-'*-u+[]: :_users' /
-'*--user=[]: :_users' /
-'*-H+[]: :_hosts' /
-'*--host=[]: :_hosts' /
-'*--url=[]: :_urls' /
-'*--email=[]: :_email_addresses' /
-'*-h[Print help information]' /
-'*--help[Print help information]' /
-'*::command_with_args:_cmdambivalent' /
+    _arguments "${_arguments_options[@]}" \
+'*--choice=[]: :(bash fish zsh)' \
+'*--unknown=[]: : ' \
+'*--other=[]: :( )' \
+'*-p+[]: :_files' \
+'*--path=[]: :_files' \
+'*-f+[]: :_files' \
+'*--file=[]: :_files' \
+'*-d+[]: :_files -/' \
+'*--dir=[]: :_files -/' \
+'*-e+[]: :_absolute_command_paths' \
+'*--exe=[]: :_absolute_command_paths' \
+'*--cmd-name=[]: :_command_names -e' \
+'*-c+[]: :_cmdstring' \
+'*--cmd=[]: :_cmdstring' \
+'*-u+[]: :_users' \
+'*--user=[]: :_users' \
+'*-H+[]: :_hosts' \
+'*--host=[]: :_hosts' \
+'*--url=[]: :_urls' \
+'*--email=[]: :_email_addresses' \
+'*-h[Print help information]' \
+'*--help[Print help information]' \
+'*::command_with_args:_cmdambivalent' \
 && ret=0
 }
 

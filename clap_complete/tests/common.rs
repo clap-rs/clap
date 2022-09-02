@@ -258,5 +258,6 @@ pub fn assert_matches_path(
 
     snapbox::Assert::new()
         .action_env("SNAPSHOTS")
+        .normalize_paths(false)
         .matches_path(expected_path, buf);
 }
