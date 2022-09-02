@@ -20,10 +20,7 @@ fn main() {
     // This is what will happen with `myprog -f -p=bob -- sloppy slop slop`...
 
     // -f used: true
-    println!(
-        "-f used: {:?}",
-        *matches.get_one::<bool>("eff").expect("defaulted by clap")
-    );
+    println!("-f used: {:?}", matches.get_flag("eff"));
     // -p's value: Some("bob")
     println!("-p's value: {:?}", matches.get_one::<String>("pea"));
     // 'slops' values: Some(["sloppy", "slop", "slop"])

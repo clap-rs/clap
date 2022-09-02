@@ -89,10 +89,7 @@ fn main() {
                 .collect();
             let values = packages.join(", ");
 
-            if *sync_matches
-                .get_one::<bool>("info")
-                .expect("defaulted by clap")
-            {
+            if sync_matches.get_flag("info") {
                 println!("Retrieving info for {}...", values);
             } else {
                 println!("Installing {}...", values);

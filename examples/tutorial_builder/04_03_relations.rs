@@ -50,9 +50,9 @@ fn main() {
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
         let (maj, min, pat) = (
-            *matches.get_one::<bool>("major").expect("defaulted by clap"),
-            *matches.get_one::<bool>("minor").expect("defaulted by clap"),
-            *matches.get_one::<bool>("patch").expect("defaulted by clap"),
+            matches.get_flag("major"),
+            matches.get_flag("minor"),
+            matches.get_flag("patch"),
         );
         match (maj, min, pat) {
             (true, _, _) => major += 1,
