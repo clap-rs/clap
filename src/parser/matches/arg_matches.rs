@@ -119,6 +119,69 @@ impl ArgMatches {
         MatchesError::unwrap(&internal_id, self.try_get_one(id))
     }
 
+    /// Gets the value of a specific [`ArgAction::Count`][crate::ArgAction::Count] flag
+    ///
+    /// # Panic
+    ///
+    /// If the argument's action is not [`ArgAction::Count`][crate::ArgAction::Count]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::ArgAction::Count)
+    ///     );
+    ///
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert_eq!(
+    ///     matches.get_count("flag"),
+    ///     2
+    /// );
+    /// ```
+    #[track_caller]
+    pub fn get_count(&self, id: &str) -> u8 {
+        *self
+            .get_one::<u8>(id)
+            .expect("ArgAction::Count is defaulted")
+    }
+
+    /// Gets the value of a specific [`ArgAction::SetTrue`][crate::ArgAction::SetTrue] or [`ArgAction::SetFalse`][crate::ArgAction::SetFalse] flag
+    ///
+    /// # Panic
+    ///
+    /// If the argument's action is not [`ArgAction::SetTrue`][crate::ArgAction::SetTrue] or [`ArgAction::SetFalse`][crate::ArgAction::SetFalse]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .action(clap::ArgAction::SetTrue)
+    ///     );
+    ///
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// assert!(matches.contains_id("flag"));
+    /// assert_eq!(
+    ///     matches.get_flag("flag"),
+    ///     true
+    /// );
+    /// ```
+    #[track_caller]
+    pub fn get_flag(&self, id: &str) -> bool {
+        *self
+            .get_one::<bool>(id)
+            .expect("ArgAction::SetTrue / ArgAction::SetFalse is defaulted")
+    }
+
     /// Iterate over values of a specific option or positional argument.
     ///
     /// i.e. an argument that takes multiple values at runtime.

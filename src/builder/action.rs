@@ -183,16 +183,16 @@ pub enum ArgAction {
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
-    ///     matches.get_one::<u8>("flag").copied(),
-    ///     Some(2)
+    ///     matches.get_count("flag"),
+    ///     2
     /// );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(matches.occurrences_of("flag"), 0);
     /// assert_eq!(
-    ///     matches.get_one::<u8>("flag").copied(),
-    ///     Some(0)
+    ///     matches.get_count("flag"),
+    ///     0
     /// );
     /// ```
     Count,

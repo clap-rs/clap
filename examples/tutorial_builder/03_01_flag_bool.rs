@@ -10,10 +10,5 @@ fn main() {
         )
         .get_matches();
 
-    println!(
-        "verbose: {:?}",
-        *matches
-            .get_one::<bool>("verbose")
-            .expect("defaulted by clap")
-    );
+    println!("verbose: {:?}", matches.get_flag("verbose"));
 }
