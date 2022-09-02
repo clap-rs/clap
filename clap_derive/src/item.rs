@@ -481,8 +481,7 @@ impl Item {
             let actual_attr_kind = *attr.kind.get();
             let expected_attr_kind = self.kind.attr_kind();
             match (actual_attr_kind, expected_attr_kind) {
-                (AttrKind::Clap, _) => {}
-                (AttrKind::StructOpt, _) => {
+                (AttrKind::Clap, _) | (AttrKind::StructOpt, _) => {
                     self.deprecations.push(Deprecation::attribute(
                         "4.0.0",
                         actual_attr_kind,
