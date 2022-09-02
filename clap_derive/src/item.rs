@@ -949,11 +949,11 @@ impl Item {
     }
 
     pub fn casing(&self) -> Sp<CasingStyle> {
-        self.casing.clone()
+        self.casing
     }
 
     pub fn env_casing(&self) -> Sp<CasingStyle> {
-        self.env_casing.clone()
+        self.env_casing
     }
 
     pub fn has_explicit_methods(&self) -> bool {
