@@ -46,7 +46,6 @@ pub struct Item {
     verbatim_doc_comment: bool,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
-    help_heading: Option<Method>,
     is_enum: bool,
     is_positional: bool,
     kind: Sp<Kind>,
@@ -415,7 +414,6 @@ impl Item {
             verbatim_doc_comment: false,
             next_display_order: None,
             next_help_heading: None,
-            help_heading: None,
             is_enum: false,
             is_positional: true,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
@@ -756,10 +754,6 @@ impl Item {
                     self.next_display_order = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
 
-                Some(MagicAttrName::HelpHeading) => {
-                    let expr = attr.value_or_abort();
-                    self.help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
-                }
                 Some(MagicAttrName::NextHelpHeading) => {
                     let expr = attr.value_or_abort();
                     self.next_help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
@@ -851,11 +845,9 @@ impl Item {
     pub fn initial_top_level_methods(&self) -> TokenStream {
         let next_display_order = self.next_display_order.as_ref().into_iter();
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
-        let help_heading = self.help_heading.as_ref().into_iter();
         quote!(
             #(#next_display_order)*
             #(#next_help_heading)*
-            #(#help_heading)*
         )
     }
 
@@ -869,18 +861,17 @@ impl Item {
     /// generate methods on top of a field
     pub fn field_methods(&self, supports_long_help: bool) -> proc_macro2::TokenStream {
         let methods = &self.methods;
-        let help_heading = self.help_heading.as_ref().into_iter();
         match supports_long_help {
             true => {
                 let doc_comment = &self.doc_comment;
-                quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
+                quote!( #(#doc_comment)* #(#methods)* )
             }
             false => {
                 let doc_comment = self
                     .doc_comment
                     .iter()
                     .filter(|mth| mth.name != "long_help");
-                quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
+                quote!( #(#doc_comment)* #(#methods)* )
             }
         }
     }
@@ -892,8 +883,7 @@ impl Item {
 
     pub fn next_help_heading(&self) -> TokenStream {
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
-        let help_heading = self.help_heading.as_ref().into_iter();
-        quote!( #(#next_help_heading)*  #(#help_heading)* )
+        quote!( #(#next_help_heading)* )
     }
 
     pub fn id(&self) -> TokenStream {
