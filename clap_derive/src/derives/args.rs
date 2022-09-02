@@ -72,6 +72,13 @@ pub fn gen_for_struct(
     generics: &Generics,
     fields: &[(&Field, Item)],
 ) -> TokenStream {
+    if !matches!(&*item.kind(), Kind::Command(_)) {
+        abort! { item.kind().span(),
+            "`{}` cannot be used with `command`",
+            item.kind().name(),
+        }
+    }
+
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let constructor = gen_constructor(fields);
@@ -194,12 +201,9 @@ pub fn gen_augment(
     let args = fields.iter().filter_map(|(field, item)| {
         let kind = item.kind();
         match &*kind {
-            Kind::Command(ty)
-            | Kind::Value(ty) => {
-                abort!(ty.span(), "Invalid attribute are for arguments")
-            }
-
-            Kind::Subcommand(_)
+            Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::Subcommand(_)
             | Kind::Skip(_)
             | Kind::FromGlobal(_)
             | Kind::ExternalSubcommand => None,
@@ -341,14 +345,12 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
         let kind = item.kind();
         let arg_matches = format_ident!("__clap_arg_matches");
         match &*kind {
-            Kind::Command(ty)
-            | Kind::Value(ty) => {
-                abort!(ty.span(), "Invalid attribute are for arguments")
-            }
-
-            Kind::ExternalSubcommand => {
+            Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
+                    "`{}` cannot be used with `arg`",
+                    kind.name(),
                 }
             }
             Kind::Subcommand(ty) => {
@@ -414,14 +416,12 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
         let arg_matches = format_ident!("__clap_arg_matches");
 
         match &*kind {
-            Kind::Command(ty)
-            | Kind::Value(ty) => {
-                abort!(ty.span(), "Invalid attribute are for arguments")
-            }
-
-            Kind::ExternalSubcommand => {
+            Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
+                    "`{}` cannot be used with `arg`",
+                    kind.name(),
                 }
             }
             Kind::Subcommand(ty) => {

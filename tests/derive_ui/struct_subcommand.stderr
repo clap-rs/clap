@@ -1,4 +1,4 @@
-error: `subcommand` is only allowed on fields
+error: `subcommand` cannot be used with `command`
   --> tests/derive_ui/struct_subcommand.rs:12:24
    |
 12 | #[clap(name = "basic", subcommand)]

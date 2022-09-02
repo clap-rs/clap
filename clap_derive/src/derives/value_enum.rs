@@ -42,6 +42,13 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)]) -> TokenStream {
+    if !matches!(&*item.kind(), Kind::Value(_)) {
+        abort! { item.kind().span(),
+            "`{}` cannot be used with `value`",
+            item.kind().name(),
+        }
+    }
+
     let lits = lits(variants);
     let value_variants = gen_value_variants(&lits);
     let to_possible_value = gen_to_possible_value(item, &lits);

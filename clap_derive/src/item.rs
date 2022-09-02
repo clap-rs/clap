@@ -103,19 +103,8 @@ impl Item {
                 "`action` attribute is only allowed on fields"
             );
         }
-        match &*res.kind {
-            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => res,
-            Kind::Subcommand(_) | Kind::Skip(_) | Kind::FromGlobal(_) | Kind::Flatten => abort!(
-                res.kind.span(),
-                "`{}` is only allowed on fields",
-                res.kind.name(),
-            ),
-            Kind::ExternalSubcommand => abort!(
-                res.kind.span(),
-                "`{}` is only allowed on variants",
-                res.kind.name(),
-            ),
-        }
+
+        res
     }
 
     pub fn from_subcommand_variant(
@@ -154,8 +143,6 @@ impl Item {
                 // ignore doc comments
                 res.doc_comment = vec![];
             }
-
-            Kind::ExternalSubcommand => (),
 
             Kind::Subcommand(_) => {
                 if let Some(value_parser) = res.value_parser.as_ref() {
@@ -207,15 +194,13 @@ impl Item {
 
                 res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
-            Kind::Skip(_) => (),
-            Kind::FromGlobal(_) => {
-                abort!(
-                    res.kind.span(),
-                    "`{}` is only allowed on fields",
-                    res.kind.name(),
-                )
-            }
-            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => (),
+
+            Kind::ExternalSubcommand
+            | Kind::FromGlobal(_)
+            | Kind::Skip(_)
+            | Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::Arg(_) => (),
         }
 
         res
@@ -250,20 +235,8 @@ impl Item {
                 "`action` attribute is only allowed on fields"
             );
         }
-        match &*res.kind {
-            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => res,
-            Kind::Skip(_) => res,
-            Kind::Subcommand(_) | Kind::FromGlobal(_) | Kind::Flatten => abort!(
-                res.kind.span(),
-                "`{}` is only allowed on fields",
-                res.kind.name(),
-            ),
-            Kind::ExternalSubcommand => abort!(
-                res.kind.span(),
-                "`{}` is only allowed on variants",
-                res.kind.name(),
-            ),
-        }
+
+        res
     }
 
     pub fn from_args_field(
@@ -308,12 +281,6 @@ impl Item {
                 // ignore doc comments
                 res.doc_comment = vec![];
             }
-
-            Kind::ExternalSubcommand => abort!(
-                res.kind.span(),
-                "`{}` is only allowed on variants",
-                res.kind.name(),
-            ),
 
             Kind::Subcommand(_) => {
                 if let Some(value_parser) = res.value_parser.as_ref() {
@@ -366,7 +333,7 @@ impl Item {
                 let ty = Ty::from_syn_ty(&field.ty);
                 res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
             }
-            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => {
+            Kind::Arg(_) => {
                 let ty = Ty::from_syn_ty(&field.ty);
 
                 match *ty {
@@ -403,6 +370,8 @@ impl Item {
                         .unwrap_or_else(|| field.ty.span()),
                 );
             }
+
+            Kind::Command(_) | Kind::Value(_) | Kind::ExternalSubcommand => {}
         }
 
         res
@@ -1153,7 +1122,7 @@ pub enum Kind {
 }
 
 impl Kind {
-    fn name(&self) -> &'static str {
+    pub fn name(&self) -> &'static str {
         match self {
             Self::Arg(_) => "arg",
             Self::Command(_) => "command",

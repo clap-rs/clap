@@ -52,6 +52,13 @@ pub fn gen_for_enum(
     generics: &Generics,
     variants: &[(&Variant, Item)],
 ) -> TokenStream {
+    if !matches!(&*item.kind(), Kind::Command(_)) {
+        abort! { item.kind().span(),
+            "`{}` cannot be used with `command`",
+            item.kind().name(),
+        }
+    }
+
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let from_arg_matches = gen_from_arg_matches(variants);
