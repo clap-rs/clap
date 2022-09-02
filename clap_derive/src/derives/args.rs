@@ -194,6 +194,11 @@ pub fn gen_augment(
     let args = fields.iter().filter_map(|(field, item)| {
         let kind = item.kind();
         match &*kind {
+            Kind::Command(ty)
+            | Kind::Value(ty) => {
+                abort!(ty.span(), "Invalid attribute are for arguments")
+            }
+
             Kind::Subcommand(_)
             | Kind::Skip(_)
             | Kind::FromGlobal(_)
@@ -336,6 +341,11 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
         let kind = item.kind();
         let arg_matches = format_ident!("__clap_arg_matches");
         match &*kind {
+            Kind::Command(ty)
+            | Kind::Value(ty) => {
+                abort!(ty.span(), "Invalid attribute are for arguments")
+            }
+
             Kind::ExternalSubcommand => {
                 abort! { kind.span(),
                     "`external_subcommand` can be used only on enum variants"
@@ -404,6 +414,11 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
         let arg_matches = format_ident!("__clap_arg_matches");
 
         match &*kind {
+            Kind::Command(ty)
+            | Kind::Value(ty) => {
+                abort!(ty.span(), "Invalid attribute are for arguments")
+            }
+
             Kind::ExternalSubcommand => {
                 abort! { kind.span(),
                     "`external_subcommand` can be used only on enum variants"

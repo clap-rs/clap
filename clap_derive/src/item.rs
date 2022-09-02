@@ -58,7 +58,8 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
@@ -66,7 +67,8 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
@@ -74,17 +76,18 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
+        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     fn from_struct(
-        span: Span,
         attrs: &[Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
+        kind: Sp<Kind>,
     ) -> Self {
-        let mut res = Self::new(span, name, None, argument_casing, env_casing);
+        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
@@ -103,7 +106,7 @@ impl Item {
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) => res,
+            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => res,
             Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
             Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
             Kind::ExternalSubcommand => abort!(
@@ -119,13 +122,9 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let name = variant.ident.clone();
-        let mut res = Self::new(
-            variant.span(),
-            Name::Derived(name),
-            None,
-            struct_casing,
-            env_casing,
-        );
+        let span = variant.span();
+        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "about");
 
@@ -210,7 +209,7 @@ impl Item {
             Kind::FromGlobal(_) => {
                 abort!(res.kind.span(), "from_global is not supported on variants");
             }
-            Kind::Arg(_) => (),
+            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => (),
         }
 
         res
@@ -221,12 +220,14 @@ impl Item {
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Self {
+        let span = variant.span();
+        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
         let mut res = Self::new(
-            variant.span(),
             Name::Derived(variant.ident.clone()),
             None,
             argument_casing,
             env_casing,
+            kind,
         );
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "help");
@@ -246,7 +247,7 @@ impl Item {
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => res,
-            Kind::Arg(_) => res,
+            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => res,
             Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
             Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
             Kind::ExternalSubcommand => abort!(
@@ -262,12 +263,14 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let name = field.ident.clone().unwrap();
+        let span = field.span();
+        let kind = Sp::new(Kind::Arg(Sp::new(Ty::Other, span)), span);
         let mut res = Self::new(
-            field.span(),
             Name::Derived(name),
             Some(field.ty.clone()),
             struct_casing,
             env_casing,
+            kind,
         );
         res.push_attrs(&field.attrs);
         res.push_doc_comment(&field.attrs, "help");
@@ -354,7 +357,7 @@ impl Item {
                 let ty = Ty::from_syn_ty(&field.ty);
                 res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
             }
-            Kind::Arg(_) => {
+            Kind::Command(_) | Kind::Value(_) | Kind::Arg(_) => {
                 let ty = Ty::from_syn_ty(&field.ty);
 
                 match *ty {
@@ -397,11 +400,11 @@ impl Item {
     }
 
     fn new(
-        default_span: Span,
         name: Name,
         ty: Option<Type>,
         casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
+        kind: Sp<Kind>,
     ) -> Self {
         Self {
             name,
@@ -418,7 +421,7 @@ impl Item {
             next_help_heading: None,
             is_enum: false,
             is_positional: true,
-            kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
+            kind,
         }
     }
 
@@ -1117,6 +1120,8 @@ fn default_action(field_type: &Type, span: Span) -> Method {
 #[derive(Clone)]
 pub enum Kind {
     Arg(Sp<Ty>),
+    Command(Sp<Ty>),
+    Value(Sp<Ty>),
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
@@ -1128,6 +1133,8 @@ impl Kind {
     fn name(&self) -> Option<&'static str> {
         match self {
             Self::Arg(_) => None,
+            Self::Command(_) => None,
+            Self::Value(_) => None,
             Self::FromGlobal(_) => Some("from_global"),
             Self::Subcommand(_) => Some("subcommand"),
             Self::Flatten => Some("flatten"),
