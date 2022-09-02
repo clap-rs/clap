@@ -437,6 +437,60 @@ impl Item {
 
     fn push_attrs(&mut self, attrs: &[Attribute]) {
         let parsed = ClapAttr::parse_all(attrs);
+
+        for attr in &parsed {
+            if let Some(AttrValue::Call(_)) = &attr.value {
+                continue;
+            }
+
+            let kind = match &attr.magic {
+                Some(MagicAttrName::FromGlobal) => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let ty = Sp::call_site(Ty::Other);
+                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::Subcommand) if attr.value.is_none() => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let ty = Sp::call_site(Ty::Other);
+                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::ExternalSubcommand) if attr.value.is_none() => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::Flatten) if attr.value.is_none() => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::Skip) => {
+                    let expr = attr.value.clone();
+                    let kind = Sp::new(Kind::Skip(expr), attr.name.clone().span());
+                    Some(kind)
+                }
+                _ => None,
+            };
+
+            if let Some(kind) = kind {
+                self.set_kind(kind);
+            }
+        }
+
         for attr in &parsed {
             if let Some(AttrValue::Call(tokens)) = &attr.value {
                 // Force raw mode with method call syntax
@@ -475,28 +529,6 @@ impl Item {
 
                 Some(MagicAttrName::ValueEnum) if attr.value.is_none() => self.is_enum = true,
 
-                Some(MagicAttrName::FromGlobal) if attr.value.is_none() => {
-                    let ty = Sp::call_site(Ty::Other);
-                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
-                Some(MagicAttrName::Subcommand) if attr.value.is_none() => {
-                    let ty = Sp::call_site(Ty::Other);
-                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
-                Some(MagicAttrName::ExternalSubcommand) if attr.value.is_none() => {
-                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
-                Some(MagicAttrName::Flatten) if attr.value.is_none() => {
-                    let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
                 Some(MagicAttrName::VerbatimDocComment) if attr.value.is_none() => {
                     self.verbatim_doc_comment = true
                 }
@@ -519,12 +551,6 @@ impl Item {
                     if let Some(method) = Method::from_env(attr.name.clone(), "CARGO_PKG_VERSION") {
                         self.methods.push(method);
                     }
-                }
-
-                Some(MagicAttrName::Skip) => {
-                    let expr = attr.value.clone();
-                    let kind = Sp::new(Kind::Skip(expr), attr.name.clone().span());
-                    self.set_kind(kind);
                 }
 
                 Some(MagicAttrName::DefaultValueT) => {
@@ -791,13 +817,17 @@ impl Item {
 
                 // Directives that never receive a value
                 Some(MagicAttrName::ValueEnum)
-                | Some(MagicAttrName::FromGlobal)
-                | Some(MagicAttrName::Subcommand)
-                | Some(MagicAttrName::ExternalSubcommand)
-                | Some(MagicAttrName::Flatten)
                 | Some(MagicAttrName::VerbatimDocComment) => {
                     let expr = attr.value_or_abort();
                     abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                }
+
+                // Kinds
+                Some(MagicAttrName::FromGlobal)
+                | Some(MagicAttrName::Subcommand)
+                | Some(MagicAttrName::ExternalSubcommand)
+                | Some(MagicAttrName::Flatten)
+                | Some(MagicAttrName::Skip) => {
                 }
             }
         }
