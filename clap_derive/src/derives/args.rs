@@ -72,6 +72,13 @@ pub fn gen_for_struct(
     generics: &Generics,
     fields: &[(&Field, Item)],
 ) -> TokenStream {
+    if !matches!(&*item.kind(), Kind::Command(_)) {
+        abort! { item.kind().span(),
+            "`{}` cannot be used with `command`",
+            item.kind().name(),
+        }
+    }
+
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let constructor = gen_constructor(fields);
@@ -194,7 +201,9 @@ pub fn gen_augment(
     let args = fields.iter().filter_map(|(field, item)| {
         let kind = item.kind();
         match &*kind {
-            Kind::Subcommand(_)
+            Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::Subcommand(_)
             | Kind::Skip(_)
             | Kind::FromGlobal(_)
             | Kind::ExternalSubcommand => None,
@@ -291,9 +300,16 @@ pub fn gen_augment(
 
                 let id = item.id();
                 let explicit_methods = item.field_methods(true);
+                let deprecations = if !override_required {
+                    item.deprecations()
+                } else {
+                    quote!()
+                };
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg({
+                        #deprecations
+
                         #[allow(deprecated)]
                         let arg = clap::Arg::new(#id)
                             #implicit_methods;
@@ -307,9 +323,15 @@ pub fn gen_augment(
         }
     });
 
+    let deprecations = if !override_required {
+        parent_item.deprecations()
+    } else {
+        quote!()
+    };
     let initial_app_methods = parent_item.initial_top_level_methods();
     let final_app_methods = parent_item.final_top_level_methods();
     quote! {{
+        #deprecations
         let #app_var = #app_var #initial_app_methods;
         #( #args )*
         #subcmd
@@ -323,9 +345,12 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
         let kind = item.kind();
         let arg_matches = format_ident!("__clap_arg_matches");
         match &*kind {
-            Kind::ExternalSubcommand => {
+            Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
+                    "`{}` cannot be used with `arg`",
+                    kind.name(),
                 }
             }
             Kind::Subcommand(ty) => {
@@ -391,9 +416,12 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
         let arg_matches = format_ident!("__clap_arg_matches");
 
         match &*kind {
-            Kind::ExternalSubcommand => {
+            Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
+                    "`{}` cannot be used with `arg`",
+                    kind.name(),
                 }
             }
             Kind::Subcommand(ty) => {

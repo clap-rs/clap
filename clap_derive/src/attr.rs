@@ -5,6 +5,7 @@ use proc_macro_error::abort;
 use proc_macro_error::ResultExt;
 use quote::quote;
 use quote::ToTokens;
+use syn::spanned::Spanned;
 use syn::{
     parenthesized,
     parse::{Parse, ParseStream},
@@ -12,8 +13,11 @@ use syn::{
     Attribute, Expr, Ident, LitStr, Token,
 };
 
+use crate::utils::Sp;
+
 #[derive(Clone)]
 pub struct ClapAttr {
+    pub kind: Sp<AttrKind>,
     pub name: Ident,
     pub magic: Option<MagicAttrName>,
     pub value: Option<AttrValue>,
@@ -23,10 +27,24 @@ impl ClapAttr {
     pub fn parse_all(all_attrs: &[Attribute]) -> Vec<Self> {
         all_attrs
             .iter()
-            .filter(|attr| attr.path.is_ident("clap"))
-            .flat_map(|attr| {
+            .filter_map(|attr| {
+                let kind = if attr.path.is_ident("clap") {
+                    Some(Sp::new(AttrKind::Clap, attr.path.span()))
+                } else if attr.path.is_ident("structopt") {
+                    Some(Sp::new(AttrKind::StructOpt, attr.path.span()))
+                } else {
+                    None
+                };
+                kind.map(|k| (k, attr))
+            })
+            .flat_map(|(k, attr)| {
                 attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
                     .unwrap_or_abort()
+                    .into_iter()
+                    .map(move |mut a| {
+                        a.kind = k;
+                        a
+                    })
             })
             .collect()
     }
@@ -113,7 +131,12 @@ impl Parse for ClapAttr {
             None
         };
 
-        Ok(Self { name, magic, value })
+        Ok(Self {
+            kind: Sp::new(AttrKind::Clap, name.span()),
+            name,
+            magic,
+            value,
+        })
     }
 }
 
@@ -163,6 +186,21 @@ impl ToTokens for AttrValue {
                 let t = quote!(#(#t),*);
                 t.to_tokens(tokens)
             }
+        }
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum AttrKind {
+    Clap,
+    StructOpt,
+}
+
+impl AttrKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Clap => "clap",
+            Self::StructOpt => "structopt",
         }
     }
 }

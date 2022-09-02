@@ -41,10 +41,17 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
     }
 }
 
-pub fn gen_for_enum(_item: &Item, item_name: &Ident, variants: &[(&Variant, Item)]) -> TokenStream {
+pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)]) -> TokenStream {
+    if !matches!(&*item.kind(), Kind::Value(_)) {
+        abort! { item.kind().span(),
+            "`{}` cannot be used with `value`",
+            item.kind().name(),
+        }
+    }
+
     let lits = lits(variants);
     let value_variants = gen_value_variants(&lits);
-    let to_possible_value = gen_to_possible_value(&lits);
+    let to_possible_value = gen_to_possible_value(item, &lits);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
@@ -78,12 +85,14 @@ fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
                     abort!(variant.span(), "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped");
                 }
                 let fields = item.field_methods(false);
+                let deprecations = item.deprecations();
                 let name = item.cased_name();
                 Some((
-                    quote_spanned! { variant.span()=>
+                    quote_spanned! { variant.span()=> {
+                        #deprecations
                         clap::builder::PossibleValue::new(#name)
                         #fields
-                    },
+                    }},
                     variant.ident.clone(),
                 ))
             }
@@ -101,11 +110,14 @@ fn gen_value_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
     }
 }
 
-fn gen_to_possible_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
+fn gen_to_possible_value(item: &Item, lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
+
+    let deprecations = item.deprecations();
 
     quote! {
         fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue> {
+            #deprecations
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None

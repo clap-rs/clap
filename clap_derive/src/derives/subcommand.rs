@@ -52,6 +52,13 @@ pub fn gen_for_enum(
     generics: &Generics,
     variants: &[(&Variant, Item)],
 ) -> TokenStream {
+    if !matches!(&*item.kind(), Kind::Command(_)) {
+        abort! { item.kind().span(),
+            "`{}` cannot be used with `command`",
+            item.kind().name(),
+        }
+    }
+
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let from_arg_matches = gen_from_arg_matches(variants);
@@ -143,9 +150,15 @@ fn gen_augment(
                              or `Vec<OsString>`."
                         ),
                     };
+                    let deprecations = if !override_required {
+                        item.deprecations()
+                    } else {
+                        quote!()
+                    };
                     let subcommand = match subty_if_name(ty, "Vec") {
                         Some(subty) => {
                             quote_spanned! { kind.span()=>
+                                #deprecations
                                 let #app_var = #app_var.external_subcommand_value_parser(clap::value_parser!(#subty));
                             }
                         }
@@ -162,11 +175,17 @@ fn gen_augment(
                 Kind::Flatten => match variant.fields {
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
+                        let deprecations = if !override_required {
+                            item.deprecations()
+                        } else {
+                            quote!()
+                        };
                         let old_heading_var = format_ident!("__clap_old_heading");
                         let next_help_heading = item.next_help_heading();
                         let next_display_order = item.next_display_order();
                         let subcommand = if override_required {
                             quote! {
+                                #deprecations
                                 let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
                                 let #app_var = #app_var #next_help_heading #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
@@ -174,6 +193,7 @@ fn gen_augment(
                             }
                         } else {
                             quote! {
+                                #deprecations
                                 let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
                                 let #app_var = #app_var #next_help_heading #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
@@ -217,10 +237,16 @@ fn gen_augment(
                     };
 
                     let name = item.cased_name();
+                    let deprecations = if !override_required {
+                        item.deprecations()
+                    } else {
+                        quote!()
+                    };
                     let initial_app_methods = item.initial_top_level_methods();
                     let final_from_attrs = item.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
+                            #deprecations;
                             let #subcommand_var = clap::Command::new(#name);
                             let #subcommand_var = #subcommand_var #initial_app_methods;
                             let #subcommand_var = #arg_block;
@@ -286,9 +312,15 @@ fn gen_augment(
                         }
                     };
 
+                    let deprecations = if !override_required {
+                        item.deprecations()
+                    } else {
+                        quote!()
+                    };
                     let name = item.cased_name();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
+                            #deprecations
                             let #subcommand_var = clap::Command::new(#name);
                             #sub_augment
                         });
@@ -299,12 +331,18 @@ fn gen_augment(
         })
         .collect();
 
+    let deprecations = if !override_required {
+        parent_item.deprecations()
+    } else {
+        quote!()
+    };
     let initial_app_methods = parent_item.initial_top_level_methods();
     let final_app_methods = parent_item.final_top_level_methods();
     quote! {
-            let #app_var = #app_var #initial_app_methods;
-            #( #subcommands )*;
-            #app_var #final_app_methods
+        #deprecations;
+        let #app_var = #app_var #initial_app_methods;
+        #( #subcommands )*;
+        #app_var #final_app_methods
     }
 }
 

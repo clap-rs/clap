@@ -41,6 +41,7 @@ pub struct Item {
     ty: Option<Type>,
     doc_comment: Vec<Method>,
     methods: Vec<Method>,
+    deprecations: Vec<Deprecation>,
     value_parser: Option<ValueParser>,
     action: Option<Action>,
     verbatim_doc_comment: bool,
@@ -57,7 +58,8 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
@@ -65,7 +67,8 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
@@ -73,17 +76,18 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        Self::from_struct(span, attrs, name, argument_casing, env_casing)
+        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
+        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     fn from_struct(
-        span: Span,
         attrs: &[Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
+        kind: Sp<Kind>,
     ) -> Self {
-        let mut res = Self::new(span, name, None, argument_casing, env_casing);
+        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
@@ -99,17 +103,8 @@ impl Item {
                 "`action` attribute is only allowed on fields"
             );
         }
-        match &*res.kind {
-            Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
-            Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) => res,
-            Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
-            Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
-            Kind::ExternalSubcommand => abort!(
-                res.kind.span(),
-                "external_subcommand is only allowed on fields"
-            ),
-        }
+
+        res
     }
 
     pub fn from_subcommand_variant(
@@ -118,13 +113,9 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let name = variant.ident.clone();
-        let mut res = Self::new(
-            variant.span(),
-            Name::Derived(name),
-            None,
-            struct_casing,
-            env_casing,
-        );
+        let span = variant.span();
+        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "about");
 
@@ -152,8 +143,6 @@ impl Item {
                 // ignore doc comments
                 res.doc_comment = vec![];
             }
-
-            Kind::ExternalSubcommand => (),
 
             Kind::Subcommand(_) => {
                 if let Some(value_parser) = res.value_parser.as_ref() {
@@ -205,11 +194,13 @@ impl Item {
 
                 res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
-            Kind::Skip(_) => (),
-            Kind::FromGlobal(_) => {
-                abort!(res.kind.span(), "from_global is not supported on variants");
-            }
-            Kind::Arg(_) => (),
+
+            Kind::ExternalSubcommand
+            | Kind::FromGlobal(_)
+            | Kind::Skip(_)
+            | Kind::Command(_)
+            | Kind::Value(_)
+            | Kind::Arg(_) => (),
         }
 
         res
@@ -220,12 +211,14 @@ impl Item {
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Self {
+        let span = variant.span();
+        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
         let mut res = Self::new(
-            variant.span(),
             Name::Derived(variant.ident.clone()),
             None,
             argument_casing,
             env_casing,
+            kind,
         );
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "help");
@@ -242,17 +235,8 @@ impl Item {
                 "`action` attribute is only allowed on fields"
             );
         }
-        match &*res.kind {
-            Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
-            Kind::Skip(_) => res,
-            Kind::Arg(_) => res,
-            Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
-            Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
-            Kind::ExternalSubcommand => abort!(
-                res.kind.span(),
-                "external_subcommand is only allowed on fields"
-            ),
-        }
+
+        res
     }
 
     pub fn from_args_field(
@@ -261,12 +245,14 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let name = field.ident.clone().unwrap();
+        let span = field.span();
+        let kind = Sp::new(Kind::Arg(Sp::new(Ty::Other, span)), span);
         let mut res = Self::new(
-            field.span(),
             Name::Derived(name),
             Some(field.ty.clone()),
             struct_casing,
             env_casing,
+            kind,
         );
         res.push_attrs(&field.attrs);
         res.push_doc_comment(&field.attrs, "help");
@@ -294,12 +280,6 @@ impl Item {
 
                 // ignore doc comments
                 res.doc_comment = vec![];
-            }
-
-            Kind::ExternalSubcommand => {
-                abort! { res.kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
-                }
             }
 
             Kind::Subcommand(_) => {
@@ -390,17 +370,19 @@ impl Item {
                         .unwrap_or_else(|| field.ty.span()),
                 );
             }
+
+            Kind::Command(_) | Kind::Value(_) | Kind::ExternalSubcommand => {}
         }
 
         res
     }
 
     fn new(
-        default_span: Span,
         name: Name,
         ty: Option<Type>,
         casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
+        kind: Sp<Kind>,
     ) -> Self {
         Self {
             name,
@@ -409,6 +391,7 @@ impl Item {
             env_casing,
             doc_comment: vec![],
             methods: vec![],
+            deprecations: vec![],
             value_parser: None,
             action: None,
             verbatim_doc_comment: false,
@@ -416,7 +399,7 @@ impl Item {
             next_help_heading: None,
             is_enum: false,
             is_positional: true,
-            kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
+            kind,
         }
     }
 
@@ -437,7 +420,73 @@ impl Item {
 
     fn push_attrs(&mut self, attrs: &[Attribute]) {
         let parsed = ClapAttr::parse_all(attrs);
+
         for attr in &parsed {
+            if let Some(AttrValue::Call(_)) = &attr.value {
+                continue;
+            }
+
+            let kind = match &attr.magic {
+                Some(MagicAttrName::FromGlobal) => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let ty = Sp::call_site(Ty::Other);
+                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::Subcommand) if attr.value.is_none() => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let ty = Sp::call_site(Ty::Other);
+                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::ExternalSubcommand) if attr.value.is_none() => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::Flatten) if attr.value.is_none() => {
+                    if attr.value.is_some() {
+                        let expr = attr.value_or_abort();
+                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                    }
+                    let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
+                    Some(kind)
+                }
+                Some(MagicAttrName::Skip) => {
+                    let expr = attr.value.clone();
+                    let kind = Sp::new(Kind::Skip(expr), attr.name.clone().span());
+                    Some(kind)
+                }
+                _ => None,
+            };
+
+            if let Some(kind) = kind {
+                self.set_kind(kind);
+            }
+        }
+
+        for attr in &parsed {
+            match attr.kind.get() {
+                AttrKind::Clap => {}
+                AttrKind::StructOpt => {
+                    self.deprecations.push(Deprecation::attribute(
+                        "4.0.0",
+                        *attr.kind.get(),
+                        AttrKind::Clap,
+                        attr.kind.span(),
+                    ));
+                }
+            }
+
             if let Some(AttrValue::Call(tokens)) = &attr.value {
                 // Force raw mode with method call syntax
                 self.push_method(attr.name.clone(), quote!(#(#tokens),*));
@@ -458,11 +507,23 @@ impl Item {
 
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::ValueParser) if attr.value.is_none() => {
+                    self.deprecations.push(Deprecation {
+                        span: attr.name.span(),
+                        id: "bare_value_parser",
+                        version: "4.0.0",
+                        description: "`#[clap(value_parser)]` is now the default and is no longer needed`".to_owned(),
+                    });
                     self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
                 }
 
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::Action) if attr.value.is_none() => {
+                    self.deprecations.push(Deprecation {
+                        span: attr.name.span(),
+                        id: "bare_action",
+                        version: "4.0.0",
+                        description: "`#[clap(action)]` is now the default and is no longer needed`".to_owned(),
+                    });
                     self.action = Some(Action::Implicit(attr.name.clone()));
                 }
 
@@ -473,28 +534,8 @@ impl Item {
                     );
                 }
 
-                Some(MagicAttrName::ValueEnum) if attr.value.is_none() => self.is_enum = true,
-
-                Some(MagicAttrName::FromGlobal) if attr.value.is_none() => {
-                    let ty = Sp::call_site(Ty::Other);
-                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
-                Some(MagicAttrName::Subcommand) if attr.value.is_none() => {
-                    let ty = Sp::call_site(Ty::Other);
-                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
-                Some(MagicAttrName::ExternalSubcommand) if attr.value.is_none() => {
-                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.clone().span());
-                    self.set_kind(kind);
-                }
-
-                Some(MagicAttrName::Flatten) if attr.value.is_none() => {
-                    let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
-                    self.set_kind(kind);
+                Some(MagicAttrName::ValueEnum) if attr.value.is_none() => {
+                    self.is_enum = true
                 }
 
                 Some(MagicAttrName::VerbatimDocComment) if attr.value.is_none() => {
@@ -519,12 +560,6 @@ impl Item {
                     if let Some(method) = Method::from_env(attr.name.clone(), "CARGO_PKG_VERSION") {
                         self.methods.push(method);
                     }
-                }
-
-                Some(MagicAttrName::Skip) => {
-                    let expr = attr.value.clone();
-                    let kind = Sp::new(Kind::Skip(expr), attr.name.clone().span());
-                    self.set_kind(kind);
                 }
 
                 Some(MagicAttrName::DefaultValueT) => {
@@ -791,13 +826,17 @@ impl Item {
 
                 // Directives that never receive a value
                 Some(MagicAttrName::ValueEnum)
-                | Some(MagicAttrName::FromGlobal)
-                | Some(MagicAttrName::Subcommand)
-                | Some(MagicAttrName::ExternalSubcommand)
-                | Some(MagicAttrName::Flatten)
                 | Some(MagicAttrName::VerbatimDocComment) => {
                     let expr = attr.value_or_abort();
                     abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                }
+
+                // Kinds
+                Some(MagicAttrName::FromGlobal)
+                | Some(MagicAttrName::Subcommand)
+                | Some(MagicAttrName::ExternalSubcommand)
+                | Some(MagicAttrName::Flatten)
+                | Some(MagicAttrName::Skip) => {
                 }
             }
         }
@@ -825,13 +864,24 @@ impl Item {
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
-        if let Kind::Arg(_) = *self.kind {
-            self.kind = kind;
-        } else {
-            abort!(
-                kind.span(),
-                "`subcommand`, `flatten`, `external_subcommand` and `skip` cannot be used together"
-            );
+        match (self.kind.get(), kind.get()) {
+            (Kind::Arg(_), Kind::FromGlobal(_))
+            | (Kind::Arg(_), Kind::Subcommand(_))
+            | (Kind::Arg(_), Kind::Flatten)
+            | (Kind::Arg(_), Kind::Skip(_))
+            | (Kind::Command(_), Kind::Subcommand(_))
+            | (Kind::Command(_), Kind::Flatten)
+            | (Kind::Command(_), Kind::Skip(_))
+            | (Kind::Command(_), Kind::ExternalSubcommand)
+            | (Kind::Value(_), Kind::Skip(_)) => {
+                self.kind = kind;
+            }
+
+            (_, _) => {
+                let old = self.kind.name();
+                let new = kind.name();
+                abort!(kind.span(), "`{}` cannot be used with `{}`", new, old);
+            }
         }
     }
 
@@ -874,6 +924,11 @@ impl Item {
                 quote!( #(#doc_comment)* #(#methods)* )
             }
         }
+    }
+
+    pub fn deprecations(&self) -> proc_macro2::TokenStream {
+        let deprecations = &self.deprecations;
+        quote!( #(#deprecations)* )
     }
 
     pub fn next_display_order(&self) -> TokenStream {
@@ -949,11 +1004,11 @@ impl Item {
     }
 
     pub fn casing(&self) -> Sp<CasingStyle> {
-        self.casing.clone()
+        self.casing
     }
 
     pub fn env_casing(&self) -> Sp<CasingStyle> {
-        self.env_casing.clone()
+        self.env_casing
     }
 
     pub fn has_explicit_methods(&self) -> bool {
@@ -1057,11 +1112,28 @@ fn default_action(field_type: &Type, span: Span) -> Method {
 #[derive(Clone)]
 pub enum Kind {
     Arg(Sp<Ty>),
+    Command(Sp<Ty>),
+    Value(Sp<Ty>),
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
     Skip(Option<AttrValue>),
     ExternalSubcommand,
+}
+
+impl Kind {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::Arg(_) => "arg",
+            Self::Command(_) => "command",
+            Self::Value(_) => "value",
+            Self::FromGlobal(_) => "from_global",
+            Self::Subcommand(_) => "subcommand",
+            Self::Flatten => "flatten",
+            Self::Skip(_) => "skip",
+            Self::ExternalSubcommand => "external_subcommand",
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -1110,6 +1182,54 @@ impl ToTokens for Method {
         let Method { ref name, ref args } = self;
 
         let tokens = quote!( .#name(#args) );
+
+        tokens.to_tokens(ts);
+    }
+}
+
+#[derive(Clone)]
+pub struct Deprecation {
+    pub span: Span,
+    pub id: &'static str,
+    pub version: &'static str,
+    pub description: String,
+}
+
+impl Deprecation {
+    fn attribute(version: &'static str, old: AttrKind, new: AttrKind, span: Span) -> Self {
+        Self {
+            span,
+            id: "old_attribute",
+            version,
+            description: format!(
+                "Attribute `#[{}(...)]` has been deprecated in favor of `#[{}(...)]`",
+                old.as_str(),
+                new.as_str()
+            ),
+        }
+    }
+}
+
+impl ToTokens for Deprecation {
+    fn to_tokens(&self, ts: &mut proc_macro2::TokenStream) {
+        let tokens = if cfg!(feature = "deprecated") {
+            let Deprecation {
+                span,
+                id,
+                version,
+                description,
+            } = self;
+            let span = *span;
+            let id = Ident::new(id, span);
+
+            quote_spanned!(span=> {
+                #[deprecated(since = #version, note = #description)]
+                fn #id() {}
+                #id();
+            })
+        } else {
+            quote!()
+        };
 
         tokens.to_tokens(ts);
     }
