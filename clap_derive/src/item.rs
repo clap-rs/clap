@@ -855,13 +855,10 @@ impl Item {
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
-        if let Kind::Arg(_) = *self.kind {
-            self.kind = kind;
+        if let (Some(old), Some(new)) = (self.kind.name(), kind.name()) {
+            abort!(kind.span(), "`{}` cannot be used with `{}`", new, old);
         } else {
-            abort!(
-                kind.span(),
-                "`subcommand`, `flatten`, `external_subcommand` and `skip` cannot be used together"
-            );
+            self.kind = kind;
         }
     }
 
@@ -1092,6 +1089,19 @@ pub enum Kind {
     Flatten,
     Skip(Option<AttrValue>),
     ExternalSubcommand,
+}
+
+impl Kind {
+    fn name(&self) -> Option<&'static str> {
+        match self {
+            Self::Arg(_) => None,
+            Self::FromGlobal(_) => Some("from_global"),
+            Self::Subcommand(_) => Some("subcommand"),
+            Self::Flatten => Some("flatten"),
+            Self::Skip(_) => Some("skip"),
+            Self::ExternalSubcommand => Some("external_subcommand"),
+        }
+    }
 }
 
 #[derive(Clone)]
