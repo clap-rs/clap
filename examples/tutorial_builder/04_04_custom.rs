@@ -35,10 +35,7 @@ fn main() {
 
     // See if --set-ver was used to set the version manually
     let version = if let Some(ver) = matches.get_one::<String>("set-ver") {
-        if *matches.get_one::<bool>("major").expect("defaulted by clap")
-            || *matches.get_one::<bool>("minor").expect("defaulted by clap")
-            || *matches.get_one::<bool>("patch").expect("defaulted by clap")
-        {
+        if matches.get_flag("major") || matches.get_flag("minor") || matches.get_flag("patch") {
             cmd.error(
                 ErrorKind::ArgumentConflict,
                 "Can't do relative and absolute version change",
@@ -49,9 +46,9 @@ fn main() {
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
         let (maj, min, pat) = (
-            *matches.get_one::<bool>("major").expect("defaulted by clap"),
-            *matches.get_one::<bool>("minor").expect("defaulted by clap"),
-            *matches.get_one::<bool>("patch").expect("defaulted by clap"),
+            matches.get_flag("major"),
+            matches.get_flag("minor"),
+            matches.get_flag("patch"),
         );
         match (maj, min, pat) {
             (true, false, false) => major += 1,

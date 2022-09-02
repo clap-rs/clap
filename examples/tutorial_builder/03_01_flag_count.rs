@@ -10,10 +10,5 @@ fn main() {
         )
         .get_matches();
 
-    println!(
-        "verbose: {:?}",
-        matches
-            .get_one::<u8>("verbose")
-            .expect("Count always defaulted")
-    );
+    println!("verbose: {:?}", matches.get_count("verbose"));
 }
