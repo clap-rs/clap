@@ -33,7 +33,7 @@ fn test_custom_long_overwrites_default_name() {
 fn test_standalone_long_uses_previous_defined_custom_name() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[arg(name = "foo", long)]
+        #[arg(id = "foo", long)]
         foo_option: bool,
     }
 
@@ -47,7 +47,7 @@ fn test_standalone_long_uses_previous_defined_custom_name() {
 fn test_standalone_long_ignores_afterwards_defined_custom_name() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[arg(long, name = "foo")]
+        #[arg(long, id = "foo")]
         foo_option: bool,
     }
 
@@ -118,7 +118,7 @@ fn test_custom_short_overwrites_default_name() {
 fn test_standalone_short_uses_previous_defined_custom_name() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[arg(name = "option", short)]
+        #[arg(id = "option", short)]
         foo_option: bool,
     }
 
@@ -132,7 +132,7 @@ fn test_standalone_short_uses_previous_defined_custom_name() {
 fn test_standalone_short_ignores_afterwards_defined_custom_name() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[arg(short, name = "option")]
+        #[arg(short, id = "option")]
         foo_option: bool,
     }
 

@@ -27,7 +27,7 @@ fn explicit_short_long_no_rename() {
 fn explicit_name_no_rename() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[arg(name = ".options")]
+        #[arg(id = ".options")]
         foo: String,
     }
 

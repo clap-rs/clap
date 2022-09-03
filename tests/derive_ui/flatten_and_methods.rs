@@ -19,7 +19,7 @@ struct DaemonOpts {
 #[derive(Parser, Debug)]
 #[command(name = "basic")]
 struct Opt {
-    #[command(short, flatten)]
+    #[command(flatten, version = "foo")]
     opts: DaemonOpts,
 }
 

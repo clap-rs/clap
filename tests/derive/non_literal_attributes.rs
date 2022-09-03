@@ -37,7 +37,7 @@ struct Opt {
     #[arg(long("values"))]
     values: Vec<i32>,
 
-    #[arg(name = "FILE", requires_if("FILE", "values"))]
+    #[arg(id = "FILE", requires_if("FILE", "values"))]
     files: Vec<String>,
 }
 
