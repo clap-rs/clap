@@ -13,7 +13,7 @@ struct MakeCookie {
     #[arg(short)]
     s: String,
 
-    #[command(subcommand, long)]
+    #[command(subcommand, version = "foo")]
     cmd: Command,
 }
 

@@ -91,19 +91,6 @@ impl Item {
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
-        if let Some(value_parser) = res.value_parser.as_ref() {
-            abort!(
-                value_parser.span(),
-                "`value_parser` attribute is only allowed on fields"
-            );
-        }
-        if let Some(action) = res.action.as_ref() {
-            abort!(
-                action.span(),
-                "`action` attribute is only allowed on fields"
-            );
-        }
-
         res
     }
 
@@ -121,18 +108,6 @@ impl Item {
 
         match &*res.kind {
             Kind::Flatten => {
-                if let Some(value_parser) = res.value_parser.as_ref() {
-                    abort!(
-                        value_parser.span(),
-                        "`value_parser` attribute is not allowed for flattened entry"
-                    );
-                }
-                if let Some(action) = res.action.as_ref() {
-                    abort!(
-                        action.span(),
-                        "`action` attribute is not allowed for flattened entry"
-                    );
-                }
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -145,19 +120,6 @@ impl Item {
             }
 
             Kind::Subcommand(_) => {
-                if let Some(value_parser) = res.value_parser.as_ref() {
-                    abort!(
-                        value_parser.span(),
-                        "`value_parser` attribute is not allowed for subcommand"
-                    );
-                }
-                if let Some(action) = res.action.as_ref() {
-                    abort!(
-                        action.span(),
-                        "`action` attribute is not allowed for subcommand"
-                    );
-                }
-
                 use syn::Fields::*;
                 use syn::FieldsUnnamed;
                 let field_ty = match variant.fields {
@@ -223,19 +185,6 @@ impl Item {
         res.push_attrs(&variant.attrs);
         res.push_doc_comment(&variant.attrs, "help");
 
-        if let Some(value_parser) = res.value_parser.as_ref() {
-            abort!(
-                value_parser.span(),
-                "`value_parser` attribute is only allowed on fields"
-            );
-        }
-        if let Some(action) = res.action.as_ref() {
-            abort!(
-                action.span(),
-                "`action` attribute is only allowed on fields"
-            );
-        }
-
         res
     }
 
@@ -259,18 +208,6 @@ impl Item {
 
         match &*res.kind {
             Kind::Flatten => {
-                if let Some(value_parser) = res.value_parser.as_ref() {
-                    abort!(
-                        value_parser.span(),
-                        "`value_parser` attribute is not allowed for flattened entry"
-                    );
-                }
-                if let Some(action) = res.action.as_ref() {
-                    abort!(
-                        action.span(),
-                        "`action` attribute is not allowed for flattened entry"
-                    );
-                }
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -283,18 +220,6 @@ impl Item {
             }
 
             Kind::Subcommand(_) => {
-                if let Some(value_parser) = res.value_parser.as_ref() {
-                    abort!(
-                        value_parser.span(),
-                        "`value_parser` attribute is not allowed for subcommand"
-                    );
-                }
-                if let Some(action) = res.action.as_ref() {
-                    abort!(
-                        action.span(),
-                        "`action` attribute is not allowed for subcommand"
-                    );
-                }
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -510,6 +435,8 @@ impl Item {
 
             match &attr.magic {
                 Some(MagicAttrName::Short) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     self.push_method(
                         attr.name.clone(),
                         self.name.clone().translate_char(*self.casing),
@@ -517,11 +444,15 @@ impl Item {
                 }
 
                 Some(MagicAttrName::Long) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     self.push_method(attr.name.clone(), self.name.clone().translate(*self.casing));
                 }
 
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::ValueParser) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     self.deprecations.push(Deprecation {
                         span: attr.name.span(),
                         id: "bare_value_parser",
@@ -533,6 +464,8 @@ impl Item {
 
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::Action) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     self.deprecations.push(Deprecation {
                         span: attr.name.span(),
                         id: "bare_action",
@@ -543,6 +476,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::Env) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     self.push_method(
                         attr.name.clone(),
                         self.name.clone().translate(*self.env_casing),
@@ -550,6 +485,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::ValueEnum) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     self.is_enum = true
                 }
 
@@ -558,6 +495,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::About) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Command]);
+
                     if let Some(method) =
                         Method::from_env(attr.name.clone(), "CARGO_PKG_DESCRIPTION")
                     {
@@ -566,18 +505,24 @@ impl Item {
                 }
 
                 Some(MagicAttrName::Author) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Command]);
+
                     if let Some(method) = Method::from_env(attr.name.clone(), "CARGO_PKG_AUTHORS") {
                         self.methods.push(method);
                     }
                 }
 
                 Some(MagicAttrName::Version) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Command]);
+
                     if let Some(method) = Method::from_env(attr.name.clone(), "CARGO_PKG_VERSION") {
                         self.methods.push(method);
                     }
                 }
 
                 Some(MagicAttrName::DefaultValueT) => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
@@ -620,6 +565,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::DefaultValuesT) => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
@@ -689,6 +636,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::DefaultValueOsT) => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
@@ -731,6 +680,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::DefaultValuesOsT) => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
                     let ty = if let Some(ty) = self.ty.as_ref() {
                         ty
                     } else {
@@ -800,11 +751,15 @@ impl Item {
                 }
 
                 Some(MagicAttrName::NextDisplayOrder) => {
+                    assert_attr_kind(attr, &[AttrKind::Command]);
+
                     let expr = attr.value_or_abort();
                     self.next_display_order = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
 
                 Some(MagicAttrName::NextHelpHeading) => {
+                    assert_attr_kind(attr, &[AttrKind::Command]);
+
                     let expr = attr.value_or_abort();
                     self.next_help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
@@ -815,6 +770,8 @@ impl Item {
                 }
 
                 Some(MagicAttrName::RenameAllEnv) => {
+                    assert_attr_kind(attr, &[AttrKind::Command, AttrKind::Arg]);
+
                     let lit = attr.lit_str_or_abort();
                     self.env_casing = CasingStyle::from_lit(lit);
                 }
@@ -1260,6 +1217,22 @@ impl ToTokens for Deprecation {
         };
 
         tokens.to_tokens(ts);
+    }
+}
+
+fn assert_attr_kind(attr: &ClapAttr, possible_kind: &[AttrKind]) {
+    if !possible_kind.contains(attr.kind.get()) {
+        let options = possible_kind
+            .iter()
+            .map(|k| format!("`#[{}({})]", k.as_str(), attr.name))
+            .collect::<Vec<_>>();
+        abort!(
+            attr.name,
+            "Unknown `#[{}({})]` attribute ({} exists)",
+            attr.kind.as_str(),
+            attr.name,
+            options.join(", ")
+        );
     }
 }
 

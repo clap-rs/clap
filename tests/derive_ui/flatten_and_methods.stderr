@@ -1,5 +1,5 @@
 error: methods are not allowed for flattened entry
-  --> tests/derive_ui/flatten_and_methods.rs:22:22
+  --> tests/derive_ui/flatten_and_methods.rs:22:15
    |
-22 |     #[command(short, flatten)]
-   |                      ^^^^^^^
+22 |     #[command(flatten, version = "foo")]
+   |               ^^^^^^^
