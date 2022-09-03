@@ -328,8 +328,41 @@ impl Item {
         }
     }
 
-    fn push_method(&mut self, name: Ident, arg: impl ToTokens) {
-        if name == "name" || name == "id" {
+    fn push_method(&mut self, kind: AttrKind, name: Ident, arg: impl ToTokens) {
+        if name == "id" {
+            match kind {
+                AttrKind::Command | AttrKind::Value => {
+                    self.deprecations.push(Deprecation {
+                        span: name.span(),
+                        id: "id_is_only_for_arg",
+                        version: "4.0.0",
+                        description: format!(
+                            "`#[{}(id)] was allowed by mistake, instead use `#[{}(name)]`",
+                            kind.as_str(),
+                            kind.as_str()
+                        ),
+                    });
+                }
+                AttrKind::Arg | AttrKind::Clap | AttrKind::StructOpt => {}
+            }
+            self.name = Name::Assigned(quote!(#arg));
+        } else if name == "name" {
+            match kind {
+                AttrKind::Arg => {
+                    self.deprecations.push(Deprecation {
+                        span: name.span(),
+                        id: "id_is_only_for_arg",
+                        version: "4.0.0",
+                        description: format!(
+                            "`#[{}(name)] was allowed by mistake, instead use `#[{}(id)]` or `#[{}(value_name)]`",
+                            kind.as_str(),
+                            kind.as_str(),
+                            kind.as_str()
+                        ),
+                    });
+                }
+                AttrKind::Command | AttrKind::Value | AttrKind::Clap | AttrKind::StructOpt => {}
+            }
             self.name = Name::Assigned(quote!(#arg));
         } else if name == "value_parser" {
             self.value_parser = Some(ValueParser::Explicit(Method::new(name, quote!(#arg))));
@@ -429,7 +462,7 @@ impl Item {
 
             if let Some(AttrValue::Call(tokens)) = &attr.value {
                 // Force raw mode with method call syntax
-                self.push_method(attr.name.clone(), quote!(#(#tokens),*));
+                self.push_method(*attr.kind.get(), attr.name.clone(), quote!(#(#tokens),*));
                 continue;
             }
 
@@ -438,6 +471,7 @@ impl Item {
                     assert_attr_kind(attr, &[AttrKind::Arg]);
 
                     self.push_method(
+                        *attr.kind.get(),
                         attr.name.clone(),
                         self.name.clone().translate_char(*self.casing),
                     );
@@ -446,7 +480,7 @@ impl Item {
                 Some(MagicAttrName::Long) if attr.value.is_none() => {
                     assert_attr_kind(attr, &[AttrKind::Arg]);
 
-                    self.push_method(attr.name.clone(), self.name.clone().translate(*self.casing));
+                    self.push_method(*attr.kind.get(), attr.name.clone(), self.name.clone().translate(*self.casing));
                 }
 
                 #[cfg(not(feature = "unstable-v5"))]
@@ -479,6 +513,7 @@ impl Item {
                     assert_attr_kind(attr, &[AttrKind::Arg]);
 
                     self.push_method(
+                        *attr.kind.get(),
                         attr.name.clone(),
                         self.name.clone().translate(*self.env_casing),
                     );
@@ -786,14 +821,14 @@ impl Item {
                 | Some(MagicAttrName::Version)
                  => {
                     let expr = attr.value_or_abort();
-                    self.push_method(attr.name.clone(), expr);
+                    self.push_method(*attr.kind.get(), attr.name.clone(), expr);
                 }
 
                 // Magic only for the default, otherwise just forward to the builder
                 #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::ValueParser) | Some(MagicAttrName::Action) => {
                     let expr = attr.value_or_abort();
-                    self.push_method(attr.name.clone(), expr);
+                    self.push_method(*attr.kind.get(), attr.name.clone(), expr);
                 }
 
                 // Directives that never receive a value
