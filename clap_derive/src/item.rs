@@ -88,7 +88,8 @@ impl Item {
         kind: Sp<Kind>,
     ) -> Self {
         let mut res = Self::new(name, None, argument_casing, env_casing, kind);
-        res.push_attrs(attrs);
+        let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.push_attrs(&parsed_attrs);
         res.push_doc_comment(attrs, "about");
 
         res
@@ -103,7 +104,8 @@ impl Item {
         let span = variant.span();
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
         let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
-        res.push_attrs(&variant.attrs);
+        let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.push_attrs(&parsed_attrs);
         res.push_doc_comment(&variant.attrs, "about");
 
         match &*res.kind {
@@ -182,7 +184,8 @@ impl Item {
             env_casing,
             kind,
         );
-        res.push_attrs(&variant.attrs);
+        let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.push_attrs(&parsed_attrs);
         res.push_doc_comment(&variant.attrs, "help");
 
         res
@@ -203,7 +206,8 @@ impl Item {
             env_casing,
             kind,
         );
-        res.push_attrs(&field.attrs);
+        let parsed_attrs = ClapAttr::parse_all(&field.attrs);
+        res.push_attrs(&parsed_attrs);
         res.push_doc_comment(&field.attrs, "help");
 
         match &*res.kind {
@@ -376,10 +380,8 @@ impl Item {
         }
     }
 
-    fn push_attrs(&mut self, attrs: &[Attribute]) {
-        let parsed = ClapAttr::parse_all(attrs);
-
-        for attr in &parsed {
+    fn push_attrs(&mut self, attrs: &[ClapAttr]) {
+        for attr in attrs {
             if let Some(AttrValue::Call(_)) = &attr.value {
                 continue;
             }
@@ -435,7 +437,7 @@ impl Item {
             }
         }
 
-        for attr in &parsed {
+        for attr in attrs {
             let actual_attr_kind = *attr.kind.get();
             let expected_attr_kind = self.kind.attr_kind();
             match (actual_attr_kind, expected_attr_kind) {
@@ -576,7 +578,7 @@ impl Item {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -628,7 +630,7 @@ impl Item {
 
                     // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
                     // `Vec<#inner_type>`.
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -691,7 +693,7 @@ impl Item {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -743,7 +745,7 @@ impl Item {
 
                     // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
                     // `Vec<#inner_type>`.
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
