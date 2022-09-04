@@ -89,6 +89,7 @@ impl Item {
     ) -> Self {
         let mut res = Self::new(name, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         res.push_doc_comment(attrs, "about");
 
@@ -105,6 +106,7 @@ impl Item {
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
         let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         res.push_doc_comment(&variant.attrs, "about");
 
@@ -185,6 +187,7 @@ impl Item {
             kind,
         );
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         res.push_doc_comment(&variant.attrs, "help");
 
@@ -207,6 +210,7 @@ impl Item {
             kind,
         );
         let parsed_attrs = ClapAttr::parse_all(&field.attrs);
+        res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         res.push_doc_comment(&field.attrs, "help");
 
@@ -380,7 +384,7 @@ impl Item {
         }
     }
 
-    fn push_attrs(&mut self, attrs: &[ClapAttr]) {
+    fn infer_kind(&mut self, attrs: &[ClapAttr]) {
         for attr in attrs {
             if let Some(AttrValue::Call(_)) = &attr.value {
                 continue;
@@ -436,7 +440,9 @@ impl Item {
                 self.set_kind(kind);
             }
         }
+    }
 
+    fn push_attrs(&mut self, attrs: &[ClapAttr]) {
         for attr in attrs {
             let actual_attr_kind = *attr.kind.get();
             let expected_attr_kind = self.kind.attr_kind();
