@@ -137,7 +137,10 @@ fn gen_augment(
             let kind = item.kind();
 
             match &*kind {
-                Kind::Skip(_, _) => None,
+                Kind::Skip(_, _) |
+                Kind::Arg(_) |
+                Kind::FromGlobal(_) |
+                Kind::Value => None,
 
                 Kind::ExternalSubcommand => {
                     let ty = match variant.fields {
@@ -155,19 +158,17 @@ fn gen_augment(
                     } else {
                         quote!()
                     };
-                    let subcommand = match subty_if_name(ty, "Vec") {
-                        Some(subty) => {
-                            quote_spanned! { kind.span()=>
-                                #deprecations
-                                let #app_var = #app_var.external_subcommand_value_parser(clap::value_parser!(#subty));
-                            }
-                        }
-
-                        None => abort!(
+                    let subty = subty_if_name(ty, "Vec").unwrap_or_else(|| {
+                        abort!(
                             ty.span(),
                             "The type must be `Vec<_>` \
                              to be used with `external_subcommand`."
-                        ),
+                        )
+                    });
+                    let subcommand = quote_spanned! { kind.span()=>
+                        #deprecations
+                        let #app_var = #app_var
+                            .external_subcommand_value_parser(clap::value_parser!(#subty));
                     };
                     Some(subcommand)
                 }
@@ -187,7 +188,9 @@ fn gen_augment(
                             quote! {
                                 #deprecations
                                 let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
-                                let #app_var = #app_var #next_help_heading #next_display_order;
+                                let #app_var = #app_var
+                                    #next_help_heading
+                                    #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
                                 let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                             }
@@ -195,7 +198,9 @@ fn gen_augment(
                             quote! {
                                 #deprecations
                                 let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
-                                let #app_var = #app_var #next_help_heading #next_display_order;
+                                let #app_var = #app_var
+                                    #next_help_heading
+                                    #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
                                 let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                             }
@@ -259,7 +264,7 @@ fn gen_augment(
                     Some(subcommand)
                 }
 
-                _ => {
+                Kind::Command(_) => {
                     let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
                     let sub_augment = match variant.fields {
                         Named(ref fields) => {

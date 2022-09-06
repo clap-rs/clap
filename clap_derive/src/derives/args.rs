@@ -199,14 +199,18 @@ pub fn gen_augment(
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
                         let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
-                        let #app_var = #app_var #next_help_heading #next_display_order;
+                        let #app_var = #app_var
+                            #next_help_heading
+                            #next_display_order;
                         let #app_var = <#ty as clap::Args>::augment_args_for_update(#app_var);
                         let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
                         let #old_heading_var = #app_var.get_next_help_heading().map(|s| clap::builder::Str::from(s.to_owned()));
-                        let #app_var = #app_var #next_help_heading #next_display_order;
+                        let #app_var = #app_var
+                            #next_help_heading
+                            #next_display_order;
                         let #app_var = <#ty as clap::Args>::augment_args(#app_var);
                         let #app_var = #app_var.next_help_heading(clap::builder::Resettable::from(#old_heading_var));
                     })
