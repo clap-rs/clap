@@ -59,7 +59,14 @@ impl Item {
         let argument_casing = Sp::new(DEFAULT_CASING, span);
         let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
-        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
+
+        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        res.push_doc_comment(attrs, "about");
+
+        res
     }
 
     pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
@@ -68,7 +75,14 @@ impl Item {
         let argument_casing = Sp::new(DEFAULT_CASING, span);
         let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
-        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
+
+        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        res.push_doc_comment(attrs, "about");
+
+        res
     }
 
     pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
@@ -77,16 +91,7 @@ impl Item {
         let argument_casing = Sp::new(DEFAULT_CASING, span);
         let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Value, span);
-        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
-    }
 
-    fn from_struct(
-        attrs: &[Attribute],
-        name: Name,
-        argument_casing: Sp<CasingStyle>,
-        env_casing: Sp<CasingStyle>,
-        kind: Sp<Kind>,
-    ) -> Self {
         let mut res = Self::new(name, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
