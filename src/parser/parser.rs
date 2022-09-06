@@ -846,6 +846,9 @@ impl<'cmd> Parser<'cmd> {
             .map_or(false, |arg| {
                 arg.is_allow_hyphen_values_set() && !arg.is_last_set()
             })
+            && short_arg
+                .clone()
+                .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
         {
             debug!(
                 "Parser::parse_short_args: positional at {} allows hyphens",
