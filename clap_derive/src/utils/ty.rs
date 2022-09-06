@@ -35,6 +35,16 @@ impl Ty {
             t(Other)
         }
     }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Vec => "Vec<T>",
+            Self::Option => "Option<T>",
+            Self::OptionOption => "Option<Option<T>>",
+            Self::OptionVec => "Option<Vec<T>>",
+            Self::Other => "...other...",
+        }
+    }
 }
 
 pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {

@@ -54,42 +54,58 @@ pub struct Item {
 
 impl Item {
     pub fn from_args_struct(input: &DeriveInput, name: Name) -> Self {
-        let span = Span::call_site();
+        let span = input.ident.span();
         let attrs = &input.attrs;
-        let argument_casing = Sp::call_site(DEFAULT_CASING);
-        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
+        let argument_casing = Sp::new(DEFAULT_CASING, span);
+        let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
-        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
+
+        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        res.push_doc_comment(attrs, "about", true);
+
+        res
     }
 
     pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
-        let span = Span::call_site();
+        let span = input.ident.span();
         let attrs = &input.attrs;
-        let argument_casing = Sp::call_site(DEFAULT_CASING);
-        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
+        let argument_casing = Sp::new(DEFAULT_CASING, span);
+        let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
-        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
+
+        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        res.push_doc_comment(attrs, "about", true);
+
+        res
     }
 
     pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
-        let span = Span::call_site();
+        let span = input.ident.span();
         let attrs = &input.attrs;
-        let argument_casing = Sp::call_site(DEFAULT_CASING);
-        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
-        Self::from_struct(attrs, name, argument_casing, env_casing, kind)
-    }
+        let argument_casing = Sp::new(DEFAULT_CASING, span);
+        let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
+        let kind = Sp::new(Kind::Value, span);
 
-    fn from_struct(
-        attrs: &[Attribute],
-        name: Name,
-        argument_casing: Sp<CasingStyle>,
-        env_casing: Sp<CasingStyle>,
-        kind: Sp<Kind>,
-    ) -> Self {
         let mut res = Self::new(name, None, argument_casing, env_casing, kind);
-        res.push_attrs(attrs);
-        res.push_doc_comment(attrs, "about");
+        let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        // Ignoring `push_doc_comment` as there is no top-level clap builder to add documentation
+        // to
+
+        if res.has_explicit_methods() {
+            abort!(
+                res.methods[0].name.span(),
+                "{} doesn't exist for `ValueEnum` enums",
+                res.methods[0].name
+            );
+        }
 
         res
     }
@@ -101,10 +117,22 @@ impl Item {
     ) -> Self {
         let name = variant.ident.clone();
         let span = variant.span();
-        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        let ty = match variant.fields {
+            syn::Fields::Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                Ty::from_syn_ty(&unnamed[0].ty)
+            }
+            syn::Fields::Named(_) | syn::Fields::Unnamed(..) | syn::Fields::Unit => {
+                Sp::new(Ty::Other, span)
+            }
+        };
+        let kind = Sp::new(Kind::Command(ty), span);
         let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
-        res.push_attrs(&variant.attrs);
-        res.push_doc_comment(&variant.attrs, "about");
+        let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        if matches!(&*res.kind, Kind::Command(_)) {
+            res.push_doc_comment(&variant.attrs, "about", true);
+        }
 
         match &*res.kind {
             Kind::Flatten => {
@@ -114,54 +142,14 @@ impl Item {
                         "methods are not allowed for flattened entry"
                     );
                 }
-
-                // ignore doc comments
-                res.doc_comment = vec![];
             }
 
-            Kind::Subcommand(_) => {
-                use syn::Fields::*;
-                use syn::FieldsUnnamed;
-                let field_ty = match variant.fields {
-                    Named(_) => {
-                        abort!(variant.span(), "structs are not allowed for subcommand");
-                    }
-                    Unit => abort!(variant.span(), "unit-type is not allowed for subcommand"),
-                    Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                        &unnamed[0].ty
-                    }
-                    Unnamed(..) => {
-                        abort!(
-                            variant,
-                            "non single-typed tuple is not allowed for subcommand"
-                        )
-                    }
-                };
-                let ty = Ty::from_syn_ty(field_ty);
-                match *ty {
-                    Ty::OptionOption => {
-                        abort!(
-                            field_ty,
-                            "Option<Option<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    Ty::OptionVec => {
-                        abort!(
-                            field_ty,
-                            "Option<Vec<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    _ => (),
-                }
-
-                res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
-            }
-
-            Kind::ExternalSubcommand
+            Kind::Subcommand(_)
+            | Kind::ExternalSubcommand
             | Kind::FromGlobal(_)
             | Kind::Skip(_, _)
             | Kind::Command(_)
-            | Kind::Value(_)
+            | Kind::Value
             | Kind::Arg(_) => (),
         }
 
@@ -174,7 +162,7 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let span = variant.span();
-        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
+        let kind = Sp::new(Kind::Value, span);
         let mut res = Self::new(
             Name::Derived(variant.ident.clone()),
             None,
@@ -182,8 +170,12 @@ impl Item {
             env_casing,
             kind,
         );
-        res.push_attrs(&variant.attrs);
-        res.push_doc_comment(&variant.attrs, "help");
+        let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        if matches!(&*res.kind, Kind::Value) {
+            res.push_doc_comment(&variant.attrs, "help", false);
+        }
 
         res
     }
@@ -195,7 +187,8 @@ impl Item {
     ) -> Self {
         let name = field.ident.clone().unwrap();
         let span = field.span();
-        let kind = Sp::new(Kind::Arg(Sp::new(Ty::Other, span)), span);
+        let ty = Ty::from_syn_ty(&field.ty);
+        let kind = Sp::new(Kind::Arg(ty), span);
         let mut res = Self::new(
             Name::Derived(name),
             Some(field.ty.clone()),
@@ -203,8 +196,12 @@ impl Item {
             env_casing,
             kind,
         );
-        res.push_attrs(&field.attrs);
-        res.push_doc_comment(&field.attrs, "help");
+        let parsed_attrs = ClapAttr::parse_all(&field.attrs);
+        res.infer_kind(&parsed_attrs);
+        res.push_attrs(&parsed_attrs);
+        if matches!(&*res.kind, Kind::Arg(_)) {
+            res.push_doc_comment(&field.attrs, "help", true);
+        }
 
         match &*res.kind {
             Kind::Flatten => {
@@ -214,9 +211,6 @@ impl Item {
                         "methods are not allowed for flattened entry"
                     );
                 }
-
-                // ignore doc comments
-                res.doc_comment = vec![];
             }
 
             Kind::Subcommand(_) => {
@@ -226,77 +220,13 @@ impl Item {
                         "methods in attributes are not allowed for subcommand"
                     );
                 }
-
-                let ty = Ty::from_syn_ty(&field.ty);
-                match *ty {
-                    Ty::OptionOption => {
-                        abort!(
-                            field.ty,
-                            "Option<Option<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    Ty::OptionVec => {
-                        abort!(
-                            field.ty,
-                            "Option<Vec<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    _ => (),
-                }
-
-                res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
-            Kind::Skip(_, _) => {
-                if res.has_explicit_methods() {
-                    abort!(
-                        res.kind.span(),
-                        "methods are not allowed for skipped fields"
-                    );
-                }
-            }
-            Kind::FromGlobal(orig_ty) => {
-                let ty = Ty::from_syn_ty(&field.ty);
-                res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
-            }
-            Kind::Arg(_) => {
-                let ty = Ty::from_syn_ty(&field.ty);
-
-                match *ty {
-                    Ty::Option => {
-                        if let Some(m) = res.find_default_method() {
-                            abort!(m.name, "default_value is meaningless for Option")
-                        }
-                    }
-                    Ty::OptionOption => {
-                        if res.is_positional() {
-                            abort!(
-                                field.ty,
-                                "Option<Option<T>> type is meaningless for positional argument"
-                            )
-                        }
-                    }
-                    Ty::OptionVec => {
-                        if res.is_positional() {
-                            abort!(
-                                field.ty,
-                                "Option<Vec<T>> type is meaningless for positional argument"
-                            )
-                        }
-                    }
-
-                    _ => (),
-                }
-                res.kind = Sp::new(
-                    Kind::Arg(ty),
-                    field
-                        .ident
-                        .as_ref()
-                        .map(|i| i.span())
-                        .unwrap_or_else(|| field.ty.span()),
-                );
-            }
-
-            Kind::Command(_) | Kind::Value(_) | Kind::ExternalSubcommand => {}
+            Kind::Skip(_, _)
+            | Kind::FromGlobal(_)
+            | Kind::Arg(_)
+            | Kind::Command(_)
+            | Kind::Value
+            | Kind::ExternalSubcommand => {}
         }
 
         res
@@ -376,10 +306,8 @@ impl Item {
         }
     }
 
-    fn push_attrs(&mut self, attrs: &[Attribute]) {
-        let parsed = ClapAttr::parse_all(attrs);
-
-        for attr in &parsed {
+    fn infer_kind(&mut self, attrs: &[ClapAttr]) {
+        for attr in attrs {
             if let Some(AttrValue::Call(_)) = &attr.value {
                 continue;
             }
@@ -390,7 +318,11 @@ impl Item {
                         let expr = attr.value_or_abort();
                         abort!(expr, "attribute `{}` does not accept a value", attr.name);
                     }
-                    let ty = Sp::call_site(Ty::Other);
+                    let ty = self
+                        .kind()
+                        .ty()
+                        .cloned()
+                        .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
                     let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
                     Some(kind)
                 }
@@ -399,7 +331,11 @@ impl Item {
                         let expr = attr.value_or_abort();
                         abort!(expr, "attribute `{}` does not accept a value", attr.name);
                     }
-                    let ty = Sp::call_site(Ty::Other);
+                    let ty = self
+                        .kind()
+                        .ty()
+                        .cloned()
+                        .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
                     let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
                     Some(kind)
                 }
@@ -434,8 +370,10 @@ impl Item {
                 self.set_kind(kind);
             }
         }
+    }
 
-        for attr in &parsed {
+    fn push_attrs(&mut self, attrs: &[ClapAttr]) {
+        for attr in attrs {
             let actual_attr_kind = *attr.kind.get();
             let expected_attr_kind = self.kind.attr_kind();
             match (actual_attr_kind, expected_attr_kind) {
@@ -576,7 +514,7 @@ impl Item {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -628,7 +566,7 @@ impl Item {
 
                     // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
                     // `Vec<#inner_type>`.
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -691,7 +629,7 @@ impl Item {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -743,7 +681,7 @@ impl Item {
 
                     // Use `Borrow<#inner_type>` so we accept `&Vec<#inner_type>` and
                     // `Vec<#inner_type>`.
-                    let val = if parsed
+                    let val = if attrs
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
@@ -847,9 +785,27 @@ impl Item {
                 }
             }
         }
+
+        if self.has_explicit_methods() {
+            if let Kind::Skip(_, attr) = &*self.kind {
+                abort!(
+                    self.methods[0].name.span(),
+                    "`{}` cannot be used with `#[{}(skip)]",
+                    self.methods[0].name,
+                    attr.as_str(),
+                );
+            }
+            if let Kind::FromGlobal(_) = &*self.kind {
+                abort!(
+                    self.methods[0].name.span(),
+                    "`{}` cannot be used with `#[arg(from_global)]",
+                    self.methods[0].name,
+                );
+            }
+        }
     }
 
-    fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
+    fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str, supports_long_help: bool) {
         use syn::Lit::*;
         use syn::Meta::*;
 
@@ -867,7 +823,11 @@ impl Item {
             })
             .collect();
 
-        self.doc_comment = process_doc_comment(comment_parts, name, !self.verbatim_doc_comment);
+        let (short, long) = process_doc_comment(comment_parts, name, !self.verbatim_doc_comment);
+        self.doc_comment.extend(short);
+        if supports_long_help {
+            self.doc_comment.extend(long);
+        }
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
@@ -880,7 +840,7 @@ impl Item {
             | (Kind::Command(_), Kind::Flatten)
             | (Kind::Command(_), Kind::Skip(_, _))
             | (Kind::Command(_), Kind::ExternalSubcommand)
-            | (Kind::Value(_), Kind::Skip(_, _)) => {
+            | (Kind::Value, Kind::Skip(_, _)) => {
                 self.kind = kind;
             }
 
@@ -916,21 +876,10 @@ impl Item {
     }
 
     /// generate methods on top of a field
-    pub fn field_methods(&self, supports_long_help: bool) -> proc_macro2::TokenStream {
+    pub fn field_methods(&self) -> proc_macro2::TokenStream {
         let methods = &self.methods;
-        match supports_long_help {
-            true => {
-                let doc_comment = &self.doc_comment;
-                quote!( #(#doc_comment)* #(#methods)* )
-            }
-            false => {
-                let doc_comment = self
-                    .doc_comment
-                    .iter()
-                    .filter(|mth| mth.name != "long_help");
-                quote!( #(#doc_comment)* #(#methods)* )
-            }
-        }
+        let doc_comment = &self.doc_comment;
+        quote!( #(#doc_comment)* #(#methods)* )
     }
 
     pub fn deprecations(&self) -> proc_macro2::TokenStream {
@@ -1120,7 +1069,7 @@ fn default_action(field_type: &Type, span: Span) -> Method {
 pub enum Kind {
     Arg(Sp<Ty>),
     Command(Sp<Ty>),
-    Value(Sp<Ty>),
+    Value,
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
@@ -1133,7 +1082,7 @@ impl Kind {
         match self {
             Self::Arg(_) => "arg",
             Self::Command(_) => "command",
-            Self::Value(_) => "value",
+            Self::Value => "value",
             Self::FromGlobal(_) => "from_global",
             Self::Subcommand(_) => "subcommand",
             Self::Flatten => "flatten",
@@ -1146,12 +1095,21 @@ impl Kind {
         match self {
             Self::Arg(_) => AttrKind::Arg,
             Self::Command(_) => AttrKind::Command,
-            Self::Value(_) => AttrKind::Value,
+            Self::Value => AttrKind::Value,
             Self::FromGlobal(_) => AttrKind::Arg,
             Self::Subcommand(_) => AttrKind::Command,
             Self::Flatten => AttrKind::Command,
             Self::Skip(_, kind) => *kind,
             Self::ExternalSubcommand => AttrKind::Command,
+        }
+    }
+
+    pub fn ty(&self) -> Option<&Sp<Ty>> {
+        match self {
+            Self::Arg(ty) | Self::Command(ty) | Self::FromGlobal(ty) | Self::Subcommand(ty) => {
+                Some(ty)
+            }
+            Self::Value | Self::Flatten | Self::Skip(_, _) | Self::ExternalSubcommand => None,
         }
     }
 }

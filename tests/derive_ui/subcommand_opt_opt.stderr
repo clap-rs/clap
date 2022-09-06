@@ -1,5 +1,5 @@
-error: Option<Option<T>> type is not allowed for subcommand
-  --> $DIR/subcommand_opt_opt.rs:17:10
+error: Option<Option<T>> types are not supported for subcommand
+  --> tests/derive_ui/subcommand_opt_opt.rs:17:10
    |
 17 |     cmd: Option<Option<Command>>,
-   |          ^^^^^^^^^^^^^^^^^^^^^^^
+   |          ^^^^^^

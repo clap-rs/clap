@@ -1,5 +1,5 @@
-error: Option<Vec<T>> type is not allowed for subcommand
-  --> $DIR/subcommand_opt_vec.rs:17:10
+error: Option<Vec<T>> types are not supported for subcommand
+  --> tests/derive_ui/subcommand_opt_vec.rs:17:10
    |
 17 |     cmd: Option<Vec<Command>>,
-   |          ^^^^^^^^^^^^^^^^^^^^
+   |          ^^^^^^

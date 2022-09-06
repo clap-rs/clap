@@ -42,7 +42,7 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)]) -> TokenStream {
-    if !matches!(&*item.kind(), Kind::Value(_)) {
+    if !matches!(&*item.kind(), Kind::Value) {
         abort! { item.kind().span(),
             "`{}` cannot be used with `value`",
             item.kind().name(),
@@ -84,7 +84,7 @@ fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
                 if !matches!(variant.fields, Fields::Unit) {
                     abort!(variant.span(), "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped");
                 }
-                let fields = item.field_methods(false);
+                let fields = item.field_methods();
                 let deprecations = item.deprecations();
                 let name = item.cased_name();
                 Some((

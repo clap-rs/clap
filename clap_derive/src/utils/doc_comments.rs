@@ -8,7 +8,11 @@ use crate::item::Method;
 use quote::{format_ident, quote};
 use std::iter;
 
-pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> Vec<Method> {
+pub fn process_doc_comment(
+    lines: Vec<String>,
+    name: &str,
+    preprocess: bool,
+) -> (Option<Method>, Option<Method>) {
     // multiline comments (`/** ... */`) may have LFs (`\n`) in them,
     // we need to split so we could handle the lines correctly
     //
@@ -31,7 +35,7 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
     }
 
     if lines.is_empty() {
-        return vec![];
+        return (None, None);
     }
 
     let short_name = format_ident!("{}", name);
@@ -49,10 +53,10 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
             (short, long)
         };
 
-        vec![
-            Method::new(short_name, quote!(#short)),
-            Method::new(long_name, quote!(#long)),
-        ]
+        (
+            Some(Method::new(short_name, quote!(#short))),
+            Some(Method::new(long_name, quote!(#long))),
+        )
     } else {
         let short = if preprocess {
             let s = merge_lines(&lines);
@@ -61,10 +65,10 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
             lines.join("\n")
         };
 
-        vec![
-            Method::new(short_name, quote!(#short)),
-            Method::new(long_name, quote!(None)),
-        ]
+        (
+            Some(Method::new(short_name, quote!(#short))),
+            Some(Method::new(long_name, quote!(None))),
+        )
     }
 }
 
