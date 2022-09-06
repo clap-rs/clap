@@ -370,13 +370,22 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
-                    _ => {
+                    Ty::Vec |
+                    Ty::Other => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
                                 <#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
                             }
                         }
                     },
+                    Ty::OptionOption |
+                    Ty::OptionVec => {
+                        abort!(
+                            ty.span(),
+                            "{} types are not supported for subcommand",
+                            ty.as_str()
+                        );
+                    }
                 }
             }
 

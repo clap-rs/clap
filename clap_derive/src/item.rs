@@ -126,38 +126,12 @@ impl Item {
             Kind::Subcommand(_) => {
                 use syn::Fields::*;
                 use syn::FieldsUnnamed;
-                let field_ty = match variant.fields {
-                    Named(_) => {
-                        abort!(variant.span(), "structs are not allowed for subcommand");
-                    }
-                    Unit => abort!(variant.span(), "unit-type is not allowed for subcommand"),
+                let ty = match variant.fields {
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                        &unnamed[0].ty
+                        Ty::from_syn_ty(&unnamed[0].ty)
                     }
-                    Unnamed(..) => {
-                        abort!(
-                            variant,
-                            "non single-typed tuple is not allowed for subcommand"
-                        )
-                    }
+                    Named(_) | Unnamed(..) | Unit => Sp::new(Ty::Other, span),
                 };
-                let ty = Ty::from_syn_ty(field_ty);
-                match *ty {
-                    Ty::OptionOption => {
-                        abort!(
-                            field_ty,
-                            "Option<Option<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    Ty::OptionVec => {
-                        abort!(
-                            field_ty,
-                            "Option<Vec<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    _ => (),
-                }
-
                 res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
 
@@ -236,22 +210,6 @@ impl Item {
                 }
 
                 let ty = Ty::from_syn_ty(&field.ty);
-                match *ty {
-                    Ty::OptionOption => {
-                        abort!(
-                            field.ty,
-                            "Option<Option<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    Ty::OptionVec => {
-                        abort!(
-                            field.ty,
-                            "Option<Vec<T>> type is not allowed for subcommand"
-                        );
-                    }
-                    _ => (),
-                }
-
                 res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
             Kind::Skip(_, _) => {
