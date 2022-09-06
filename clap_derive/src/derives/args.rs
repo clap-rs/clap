@@ -299,7 +299,7 @@ pub fn gen_augment(
                 };
 
                 let id = item.id();
-                let explicit_methods = item.field_methods(true);
+                let explicit_methods = item.field_methods();
                 let deprecations = if !override_required {
                     item.deprecations()
                 } else {

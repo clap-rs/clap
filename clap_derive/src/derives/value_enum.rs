@@ -84,7 +84,7 @@ fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
                 if !matches!(variant.fields, Fields::Unit) {
                     abort!(variant.span(), "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped");
                 }
-                let fields = item.field_methods(false);
+                let fields = item.field_methods();
                 let deprecations = item.deprecations();
                 let name = item.cased_name();
                 Some((
