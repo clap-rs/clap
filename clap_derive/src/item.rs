@@ -96,7 +96,8 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
-        res.push_doc_comment(attrs, "about");
+        // Ignoring `push_doc_comment` as there is no top-level clap builder to add documentation
+        // to
 
         res
     }
