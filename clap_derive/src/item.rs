@@ -221,15 +221,8 @@ impl Item {
                     );
                 }
             }
-            Kind::Skip(_, _) => {
-                if res.has_explicit_methods() {
-                    abort!(
-                        res.kind.span(),
-                        "methods are not allowed for skipped fields"
-                    );
-                }
-            }
-            Kind::FromGlobal(_)
+            Kind::Skip(_, _)
+            | Kind::FromGlobal(_)
             | Kind::Arg(_)
             | Kind::Command(_)
             | Kind::Value
@@ -790,6 +783,17 @@ impl Item {
                 | Some(MagicAttrName::Flatten)
                 | Some(MagicAttrName::Skip) => {
                 }
+            }
+        }
+
+        if let Kind::Skip(_, attr) = &*self.kind {
+            if self.has_explicit_methods() {
+                abort!(
+                    self.methods[0].name.span(),
+                    "`{}` cannot be used with `#[{}(skip)]",
+                    self.methods[0].name,
+                    attr.as_str(),
+                );
             }
         }
     }
