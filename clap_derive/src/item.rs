@@ -103,7 +103,15 @@ impl Item {
     ) -> Self {
         let name = variant.ident.clone();
         let span = variant.span();
-        let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
+        let ty = match variant.fields {
+            syn::Fields::Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                Ty::from_syn_ty(&unnamed[0].ty)
+            }
+            syn::Fields::Named(_) | syn::Fields::Unnamed(..) | syn::Fields::Unit => {
+                Sp::new(Ty::Other, span)
+            }
+        };
+        let kind = Sp::new(Kind::Command(ty), span);
         let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
         res.infer_kind(&parsed_attrs);
@@ -123,19 +131,8 @@ impl Item {
                 res.doc_comment = vec![];
             }
 
-            Kind::Subcommand(_) => {
-                use syn::Fields::*;
-                use syn::FieldsUnnamed;
-                let ty = match variant.fields {
-                    Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                        Ty::from_syn_ty(&unnamed[0].ty)
-                    }
-                    Named(_) | Unnamed(..) | Unit => Sp::new(Ty::Other, span),
-                };
-                res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
-            }
-
-            Kind::ExternalSubcommand
+            Kind::Subcommand(_)
+            | Kind::ExternalSubcommand
             | Kind::FromGlobal(_)
             | Kind::Skip(_, _)
             | Kind::Command(_)
@@ -175,7 +172,8 @@ impl Item {
     ) -> Self {
         let name = field.ident.clone().unwrap();
         let span = field.span();
-        let kind = Sp::new(Kind::Arg(Sp::new(Ty::Other, span)), span);
+        let ty = Ty::from_syn_ty(&field.ty);
+        let kind = Sp::new(Kind::Arg(ty), span);
         let mut res = Self::new(
             Name::Derived(name),
             Some(field.ty.clone()),
@@ -208,9 +206,6 @@ impl Item {
                         "methods in attributes are not allowed for subcommand"
                     );
                 }
-
-                let ty = Ty::from_syn_ty(&field.ty);
-                res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
             Kind::Skip(_, _) => {
                 if res.has_explicit_methods() {
@@ -220,23 +215,11 @@ impl Item {
                     );
                 }
             }
-            Kind::FromGlobal(orig_ty) => {
-                let ty = Ty::from_syn_ty(&field.ty);
-                res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
-            }
-            Kind::Arg(_) => {
-                let ty = Ty::from_syn_ty(&field.ty);
-                res.kind = Sp::new(
-                    Kind::Arg(ty),
-                    field
-                        .ident
-                        .as_ref()
-                        .map(|i| i.span())
-                        .unwrap_or_else(|| field.ty.span()),
-                );
-            }
-
-            Kind::Command(_) | Kind::Value | Kind::ExternalSubcommand => {}
+            Kind::FromGlobal(_)
+            | Kind::Arg(_)
+            | Kind::Command(_)
+            | Kind::Value
+            | Kind::ExternalSubcommand => {}
         }
 
         res
@@ -328,7 +311,11 @@ impl Item {
                         let expr = attr.value_or_abort();
                         abort!(expr, "attribute `{}` does not accept a value", attr.name);
                     }
-                    let ty = Sp::call_site(Ty::Other);
+                    let ty = self
+                        .kind()
+                        .ty()
+                        .cloned()
+                        .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
                     let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
                     Some(kind)
                 }
@@ -337,7 +324,11 @@ impl Item {
                         let expr = attr.value_or_abort();
                         abort!(expr, "attribute `{}` does not accept a value", attr.name);
                     }
-                    let ty = Sp::call_site(Ty::Other);
+                    let ty = self
+                        .kind()
+                        .ty()
+                        .cloned()
+                        .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
                     let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
                     Some(kind)
                 }
@@ -1092,6 +1083,15 @@ impl Kind {
             Self::Flatten => AttrKind::Command,
             Self::Skip(_, kind) => *kind,
             Self::ExternalSubcommand => AttrKind::Command,
+        }
+    }
+
+    pub fn ty(&self) -> Option<&Sp<Ty>> {
+        match self {
+            Self::Arg(ty) | Self::Command(ty) | Self::FromGlobal(ty) | Self::Subcommand(ty) => {
+                Some(ty)
+            }
+            Self::Value | Self::Flatten | Self::Skip(_, _) | Self::ExternalSubcommand => None,
         }
     }
 }

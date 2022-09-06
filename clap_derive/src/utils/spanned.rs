@@ -16,13 +16,6 @@ impl<T> Sp<T> {
         Sp { val, span }
     }
 
-    pub fn call_site(val: T) -> Self {
-        Sp {
-            val,
-            span: Span::call_site(),
-        }
-    }
-
     pub fn get(&self) -> &T {
         &self.val
     }
