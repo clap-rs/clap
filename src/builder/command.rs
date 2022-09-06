@@ -2001,9 +2001,11 @@ impl Command {
     }
 
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
-    /// attempt to parse any further args.
+    /// attempt to parse any further args, as if the user had used a `--`.
     ///
     /// The values of the trailing positional argument will contain all args from itself on.
+    ///
+    /// **NOTE:** [`Arg::value_delimiter`] still applies if set.
     ///
     /// **NOTE:** The final positional argument **must** have [`Arg::num_args(..)`].
     ///
