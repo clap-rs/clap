@@ -157,56 +157,46 @@ pub fn gen_augment(
     parent_item: &Item,
     override_required: bool,
 ) -> TokenStream {
-    let mut subcmds = fields.iter().filter_map(|(field, item)| {
-        let kind = item.kind();
-        if let Kind::Subcommand(ty) = &*kind {
-            let subcmd_type = match (**ty, sub_type(&field.ty)) {
-                (Ty::Option, Some(sub_type)) => sub_type,
-                _ => &field.ty,
-            };
-            let required = if **ty == Ty::Option {
-                quote!()
-            } else {
-                quote_spanned! { kind.span()=>
-                    let #app_var = #app_var
-                        .subcommand_required(true)
-                        .arg_required_else_help(true);
-                }
-            };
-
-            let span = field.span();
-            let ts = if override_required {
-                quote! {
-                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands_for_update( #app_var );
-                }
-            } else{
-                quote! {
-                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
-                    #required
-                }
-            };
-            Some((span, ts))
-        } else {
-            None
-        }
-    });
-    let subcmd = subcmds.next().map(|(_, ts)| ts);
-    if let Some((span, _)) = subcmds.next() {
-        abort!(
-            span,
-            "multiple subcommand sets are not allowed, that's the second"
-        );
-    }
-
+    let mut subcommand_specified = false;
     let args = fields.iter().filter_map(|(field, item)| {
         let kind = item.kind();
         match &*kind {
             Kind::Command(_)
             | Kind::Value
-            | Kind::Subcommand(_)
             | Kind::Skip(_, _)
             | Kind::FromGlobal(_)
             | Kind::ExternalSubcommand => None,
+            Kind::Subcommand(ty) => {
+                if subcommand_specified {
+                    abort!(field.span(), "`#[command(subcommand)]` can only be used once per container");
+                }
+                subcommand_specified = true;
+
+                let subcmd_type = match (**ty, sub_type(&field.ty)) {
+                    (Ty::Option, Some(sub_type)) => sub_type,
+                    _ => &field.ty,
+                };
+                let required = if **ty == Ty::Option {
+                    quote!()
+                } else {
+                    quote_spanned! { kind.span()=>
+                        let #app_var = #app_var
+                            .subcommand_required(true)
+                            .arg_required_else_help(true);
+                    }
+                };
+
+                if override_required {
+                    Some(quote! {
+                        let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands_for_update( #app_var );
+                    })
+                } else{
+                    Some(quote! {
+                        let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
+                        #required
+                    })
+                }
+            }
             Kind::Flatten => {
                 let ty = &field.ty;
                 let old_heading_var = format_ident!("__clap_old_heading");
@@ -334,7 +324,6 @@ pub fn gen_augment(
         #deprecations
         let #app_var = #app_var #initial_app_methods;
         #( #args )*
-        #subcmd
         #app_var #final_app_methods
     }}
 }
