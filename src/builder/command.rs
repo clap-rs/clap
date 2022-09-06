@@ -1938,32 +1938,11 @@ impl Command {
         }
     }
 
-    /// Specifies that leading hyphens are allowed in all argument *values* (e.g. `-10`).
-    ///
-    /// Otherwise they will be parsed as another flag or option.  See also
-    /// [`Command::allow_negative_numbers`].
-    ///
-    /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
-    /// otherwise be an error (such as accidentally forgetting to specify a value for leading
-    /// option). It is preferred to set this on a per argument basis, via [`Arg::allow_hyphen_values`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Arg, Command};
-    /// // Imagine you needed to represent negative numbers as well, such as -10
-    /// let m = Command::new("nums")
-    ///     .allow_hyphen_values(true)
-    ///     .arg(Arg::new("neg"))
-    ///     .get_matches_from(vec![
-    ///         "nums", "-20"
-    ///     ]);
-    ///
-    /// assert_eq!(m.get_one::<String>("neg").unwrap(), "-20");
-    /// # ;
-    /// ```
-    /// [`Arg::allow_hyphen_values`]: crate::Arg::allow_hyphen_values()
-    #[inline]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::allow_hyphen_values`")
+    )]
     pub fn allow_hyphen_values(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::AllowHyphenValues)
@@ -3573,7 +3552,14 @@ impl Command {
         self.is_set(AppSettings::ArgRequiredElseHelp)
     }
 
-    /// Report whether [`Command::allow_hyphen_values`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "4.0.0",
+            note = "Replaced with `Arg::is_allow_hyphen_values_set`"
+        )
+    )]
     pub(crate) fn is_allow_hyphen_values_set(&self) -> bool {
         self.is_set(AppSettings::AllowHyphenValues)
     }

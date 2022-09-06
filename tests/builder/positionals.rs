@@ -18,12 +18,12 @@ fn only_pos_follow() {
 #[test]
 fn issue_946() {
     let r = Command::new("compiletest")
-        .allow_hyphen_values(true)
         .arg(arg!(--exact    "filters match exactly").action(ArgAction::SetTrue))
         .arg(
             clap::Arg::new("filter")
                 .index(1)
                 .action(ArgAction::Set)
+                .allow_hyphen_values(true)
                 .help("filters to apply to output"),
         )
         .try_get_matches_from(vec!["compiletest", "--exact"]);

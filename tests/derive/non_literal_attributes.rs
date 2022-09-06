@@ -20,7 +20,7 @@ pub const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
 #[derive(Parser, Debug, PartialEq, Eq)]
-#[command(allow_hyphen_values = true)]
+#[command(group = clap::ArgGroup::new("foo"))]
 struct Opt {
     #[arg(
         long = "x",

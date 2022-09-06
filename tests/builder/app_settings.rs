@@ -428,8 +428,7 @@ fn delim_values_trailingvararg_with_delim() {
 #[test]
 fn leading_hyphen_short() {
     let res = Command::new("leadhy")
-        .allow_hyphen_values(true)
-        .arg(Arg::new("some"))
+        .arg(Arg::new("some").allow_hyphen_values(true))
         .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
@@ -449,8 +448,7 @@ fn leading_hyphen_short() {
 #[test]
 fn leading_hyphen_long() {
     let res = Command::new("leadhy")
-        .allow_hyphen_values(true)
-        .arg(Arg::new("some"))
+        .arg(Arg::new("some").allow_hyphen_values(true))
         .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
@@ -470,8 +468,12 @@ fn leading_hyphen_long() {
 #[test]
 fn leading_hyphen_opt() {
     let res = Command::new("leadhy")
-        .allow_hyphen_values(true)
-        .arg(Arg::new("some").action(ArgAction::Set).long("opt"))
+        .arg(
+            Arg::new("some")
+                .action(ArgAction::Set)
+                .long("opt")
+                .allow_hyphen_values(true),
+        )
         .arg(Arg::new("other").short('o').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--opt", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
@@ -836,32 +838,9 @@ fn missing_positional_hyphen_req_error() {
 }
 
 #[test]
-fn issue_1066_allow_leading_hyphen_and_unknown_args() {
-    let res = Command::new("prog")
-        .allow_hyphen_values(true)
-        .arg(arg!(--"some-argument"))
-        .try_get_matches_from(vec!["prog", "hello"]);
-
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
-}
-
-#[test]
-fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
-    let res = Command::new("prog")
-        .allow_hyphen_values(true)
-        .arg(arg!(--"some-argument"))
-        .try_get_matches_from(vec!["prog", "--hello"]);
-
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
-}
-
-#[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = Command::new("prog")
-        .allow_hyphen_values(true)
-        .arg(arg!(--"some-argument" <val>))
+        .arg(arg!(--"some-argument" <val>).allow_hyphen_values(true))
         .try_get_matches_from(vec!["prog", "-fish"]);
 
     assert!(res.is_err());
