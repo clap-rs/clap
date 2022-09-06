@@ -54,28 +54,28 @@ pub struct Item {
 
 impl Item {
     pub fn from_args_struct(input: &DeriveInput, name: Name) -> Self {
-        let span = Span::call_site();
+        let span = input.ident.span();
         let attrs = &input.attrs;
-        let argument_casing = Sp::call_site(DEFAULT_CASING);
-        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
+        let argument_casing = Sp::new(DEFAULT_CASING, span);
+        let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
         Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
-        let span = Span::call_site();
+        let span = input.ident.span();
         let attrs = &input.attrs;
-        let argument_casing = Sp::call_site(DEFAULT_CASING);
-        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
+        let argument_casing = Sp::new(DEFAULT_CASING, span);
+        let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
         Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
     pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
-        let span = Span::call_site();
+        let span = input.ident.span();
         let attrs = &input.attrs;
-        let argument_casing = Sp::call_site(DEFAULT_CASING);
-        let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
+        let argument_casing = Sp::new(DEFAULT_CASING, span);
+        let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Value, span);
         Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
