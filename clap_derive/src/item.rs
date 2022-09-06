@@ -99,6 +99,14 @@ impl Item {
         // Ignoring `push_doc_comment` as there is no top-level clap builder to add documentation
         // to
 
+        if res.has_explicit_methods() {
+            abort!(
+                res.methods[0].name.span(),
+                "{} doesn't exist for `ValueEnum` enums",
+                res.methods[0].name
+            );
+        }
+
         res
     }
 
