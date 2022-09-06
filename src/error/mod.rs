@@ -74,7 +74,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// Format the existing message with the Command's context
     #[must_use]
     pub fn format(mut self, cmd: &mut Command) -> Self {
-        cmd._build_self();
+        cmd._build_self(false);
         let usage = cmd.render_usage_();
         if let Some(message) = self.inner.message.as_mut() {
             message.format(cmd, usage);

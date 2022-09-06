@@ -51,7 +51,7 @@ where
         None => subcommands
             .into_iter()
             .filter_map(|subcommand| {
-                subcommand._build_self();
+                subcommand._build_self(false);
 
                 let longs = subcommand.get_keymap().keys().filter_map(|a| {
                     if let KeyType::Long(v) = a {
