@@ -2000,28 +2000,11 @@ impl Command {
         }
     }
 
-    /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
-    /// attempt to parse any further args, as if the user had used a `--`.
-    ///
-    /// The values of the trailing positional argument will contain all args from itself on.
-    ///
-    /// **NOTE:** [`Arg::value_delimiter`] still applies if set.
-    ///
-    /// **NOTE:** The final positional argument **must** have [`Arg::num_args(..)`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, arg};
-    /// let m = Command::new("myprog")
-    ///     .trailing_var_arg(true)
-    ///     .arg(arg!(<cmd> ... "commands to run"))
-    ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
-    ///
-    /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
-    /// assert_eq!(trail, ["arg1", "-r", "val1"]);
-    /// ```
-    /// [`Arg::num_args(..)`]: crate::Arg::num_args()
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::trailing_var_arg`")
+    )]
     pub fn trailing_var_arg(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::TrailingVarArg)
@@ -3600,7 +3583,11 @@ impl Command {
         self.is_set(AppSettings::AllowNegativeNumbers)
     }
 
-    /// Report whether [`Command::trailing_var_arg`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::is_trailing_var_arg_set`")
+    )]
     pub fn is_trailing_var_arg_set(&self) -> bool {
         self.is_set(AppSettings::TrailingVarArg)
     }

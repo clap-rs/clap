@@ -336,9 +336,8 @@ fn stop_delim_values_only_pos_follows() {
 #[test]
 fn dont_delim_values_trailingvararg() {
     let m = Command::new("positional")
-        .trailing_var_arg(true)
         .dont_delimit_trailing_values(true)
-        .arg(arg!([opt] ... "some pos"))
+        .arg(arg!([opt] ... "some pos").trailing_var_arg(true))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
     assert!(m.contains_id("opt"));
@@ -372,8 +371,7 @@ fn delim_values_only_pos_follows() {
 #[test]
 fn delim_values_trailingvararg() {
     let m = Command::new("positional")
-        .trailing_var_arg(true)
-        .arg(arg!([opt] ... "some pos"))
+        .arg(arg!([opt] ... "some pos").trailing_var_arg(true))
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
     assert!(m.contains_id("opt"));
@@ -410,8 +408,11 @@ fn delim_values_only_pos_follows_with_delim() {
 #[test]
 fn delim_values_trailingvararg_with_delim() {
     let m = Command::new("positional")
-        .trailing_var_arg(true)
-        .arg(arg!([opt] ... "some pos").value_delimiter(','))
+        .arg(
+            arg!([opt] ... "some pos")
+                .value_delimiter(',')
+                .trailing_var_arg(true),
+        )
         .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
         .unwrap();
     assert!(m.contains_id("opt"));
@@ -520,9 +521,8 @@ fn allow_negative_numbers_fail() {
 #[test]
 fn leading_double_hyphen_trailingvararg() {
     let m = Command::new("positional")
-        .trailing_var_arg(true)
         .allow_hyphen_values(true)
-        .arg(arg!([opt] ... "some pos"))
+        .arg(arg!([opt] ... "some pos").trailing_var_arg(true))
         .try_get_matches_from(vec!["", "--foo", "-Wl", "bar"])
         .unwrap();
     assert!(m.contains_id("opt"));

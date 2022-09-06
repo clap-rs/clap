@@ -165,7 +165,6 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
 
 pub fn value_hint_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
-        .trailing_var_arg(true)
         .arg(
             clap::Arg::new("choice")
                 .long("choice")
@@ -221,6 +220,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command {
             clap::Arg::new("command_with_args")
                 .action(clap::ArgAction::Set)
                 .num_args(1..)
+                .trailing_var_arg(true)
                 .value_hint(clap::ValueHint::CommandWithArguments),
         )
         .arg(

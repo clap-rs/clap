@@ -19,11 +19,7 @@ use std::io;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug, PartialEq)]
-#[command(
-    name = "value_hints_derive",
-    // Command::trailing_var_ar is required to use ValueHint::CommandWithArguments
-    trailing_var_arg = true,
-)]
+#[command(name = "value_hints_derive")]
 struct Opt {
     /// If provided, outputs the completion file for given shell
     #[arg(long = "generate", value_enum)]
@@ -45,7 +41,8 @@ struct Opt {
     cmd_name: Option<OsString>,
     #[arg(short, long, value_hint = ValueHint::CommandString)]
     cmd: Option<String>,
-    #[arg(value_hint = ValueHint::CommandWithArguments)]
+    // Command::trailing_var_ar is required to use ValueHint::CommandWithArguments
+    #[arg(trailing_var_arg = true, value_hint = ValueHint::CommandWithArguments)]
     command_with_args: Vec<String>,
     #[arg(short, long, value_hint = ValueHint::Username)]
     user: Option<String>,
