@@ -718,6 +718,7 @@ impl<'cmd> Parser<'cmd> {
         if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
             self.cmd[opt].is_allow_hyphen_values_set())
         {
+            debug!("Parser::parse_long_arg: prior arg accepts hyphenated values",);
             return Ok(ParseResult::MaybeHyphenValue);
         }
 
@@ -804,6 +805,7 @@ impl<'cmd> Parser<'cmd> {
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
         } else if self.cmd.is_allow_hyphen_values_set() {
+            debug!("Parser::parse_long_arg: contains non-long flag");
             Ok(ParseResult::MaybeHyphenValue)
         } else {
             Ok(ParseResult::NoMatchingArg {
@@ -824,7 +826,12 @@ impl<'cmd> Parser<'cmd> {
         debug!("Parser::parse_short_arg: short_arg={:?}", short_arg);
 
         #[allow(clippy::blocks_in_if_conditions)]
-        if self.cmd.is_allow_negative_numbers_set() && short_arg.is_number() {
+        if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
+                if self.cmd[opt].is_allow_hyphen_values_set())
+        {
+            debug!("Parser::parse_short_args: prior arg accepts hyphenated values",);
+            return Ok(ParseResult::MaybeHyphenValue);
+        } else if self.cmd.is_allow_negative_numbers_set() && short_arg.is_number() {
             debug!("Parser::parse_short_arg: negative number");
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self.cmd.is_allow_hyphen_values_set()
@@ -833,11 +840,6 @@ impl<'cmd> Parser<'cmd> {
                 .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
         {
             debug!("Parser::parse_short_args: contains non-short flag");
-            return Ok(ParseResult::MaybeHyphenValue);
-        } else if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
-                if self.cmd[opt].is_allow_hyphen_values_set())
-        {
-            debug!("Parser::parse_short_args: prior arg accepts hyphenated values",);
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self
             .cmd
