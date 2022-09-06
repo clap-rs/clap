@@ -42,7 +42,7 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)]) -> TokenStream {
-    if !matches!(&*item.kind(), Kind::Value(_)) {
+    if !matches!(&*item.kind(), Kind::Value) {
         abort! { item.kind().span(),
             "`{}` cannot be used with `value`",
             item.kind().name(),

@@ -202,7 +202,7 @@ pub fn gen_augment(
         let kind = item.kind();
         match &*kind {
             Kind::Command(_)
-            | Kind::Value(_)
+            | Kind::Value
             | Kind::Subcommand(_)
             | Kind::Skip(_, _)
             | Kind::FromGlobal(_)
@@ -346,7 +346,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
         let arg_matches = format_ident!("__clap_arg_matches");
         match &*kind {
             Kind::Command(_)
-            | Kind::Value(_)
+            | Kind::Value
             | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
                     "`{}` cannot be used with `arg`",
@@ -417,7 +417,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
 
         match &*kind {
             Kind::Command(_)
-            | Kind::Value(_)
+            | Kind::Value
             | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
                     "`{}` cannot be used with `arg`",

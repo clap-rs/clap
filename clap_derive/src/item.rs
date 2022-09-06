@@ -76,7 +76,7 @@ impl Item {
         let attrs = &input.attrs;
         let argument_casing = Sp::call_site(DEFAULT_CASING);
         let env_casing = Sp::call_site(DEFAULT_ENV_CASING);
-        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
+        let kind = Sp::new(Kind::Value, span);
         Self::from_struct(attrs, name, argument_casing, env_casing, kind)
     }
 
@@ -165,7 +165,7 @@ impl Item {
             | Kind::FromGlobal(_)
             | Kind::Skip(_, _)
             | Kind::Command(_)
-            | Kind::Value(_)
+            | Kind::Value
             | Kind::Arg(_) => (),
         }
 
@@ -178,7 +178,7 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let span = variant.span();
-        let kind = Sp::new(Kind::Value(Sp::new(Ty::Other, span)), span);
+        let kind = Sp::new(Kind::Value, span);
         let mut res = Self::new(
             Name::Derived(variant.ident.clone()),
             None,
@@ -304,7 +304,7 @@ impl Item {
                 );
             }
 
-            Kind::Command(_) | Kind::Value(_) | Kind::ExternalSubcommand => {}
+            Kind::Command(_) | Kind::Value | Kind::ExternalSubcommand => {}
         }
 
         res
@@ -888,7 +888,7 @@ impl Item {
             | (Kind::Command(_), Kind::Flatten)
             | (Kind::Command(_), Kind::Skip(_, _))
             | (Kind::Command(_), Kind::ExternalSubcommand)
-            | (Kind::Value(_), Kind::Skip(_, _)) => {
+            | (Kind::Value, Kind::Skip(_, _)) => {
                 self.kind = kind;
             }
 
@@ -1128,7 +1128,7 @@ fn default_action(field_type: &Type, span: Span) -> Method {
 pub enum Kind {
     Arg(Sp<Ty>),
     Command(Sp<Ty>),
-    Value(Sp<Ty>),
+    Value,
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
@@ -1141,7 +1141,7 @@ impl Kind {
         match self {
             Self::Arg(_) => "arg",
             Self::Command(_) => "command",
-            Self::Value(_) => "value",
+            Self::Value => "value",
             Self::FromGlobal(_) => "from_global",
             Self::Subcommand(_) => "subcommand",
             Self::Flatten => "flatten",
@@ -1154,7 +1154,7 @@ impl Kind {
         match self {
             Self::Arg(_) => AttrKind::Arg,
             Self::Command(_) => AttrKind::Command,
-            Self::Value(_) => AttrKind::Value,
+            Self::Value => AttrKind::Value,
             Self::FromGlobal(_) => AttrKind::Arg,
             Self::Subcommand(_) => AttrKind::Command,
             Self::Flatten => AttrKind::Command,
