@@ -717,7 +717,7 @@ impl Command {
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
     pub fn print_help(&mut self) -> io::Result<()> {
-        self._build_self();
+        self._build_self(false);
         let color = self.color_help();
 
         let mut styled = StyledStr::new();
@@ -744,7 +744,7 @@ impl Command {
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn print_long_help(&mut self) -> io::Result<()> {
-        self._build_self();
+        self._build_self(false);
         let color = self.color_help();
 
         let mut styled = StyledStr::new();
@@ -772,7 +772,7 @@ impl Command {
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
-        self._build_self();
+        self._build_self(false);
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
@@ -798,7 +798,7 @@ impl Command {
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
-        self._build_self();
+        self._build_self(false);
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
@@ -872,7 +872,7 @@ impl Command {
     pub(crate) fn render_usage_(&mut self) -> StyledStr {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
-        self._build_self();
+        self._build_self(false);
 
         Usage::new(self).create_usage_with_title(&[])
     }
@@ -3716,7 +3716,7 @@ impl Command {
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing in case we run into a subcommand
-        self._build_self();
+        self._build_self(false);
 
         let mut matcher = ArgMatcher::new(self);
 
@@ -3743,23 +3743,18 @@ impl Command {
     /// Call this on the top-level [`Command`] when done building and before reading state for
     /// cases like completions, custom help output, etc.
     pub fn build(&mut self) {
-        self._prepare_build_for_completion();
-        self._build_recursive();
+        self._build_recursive(true);
         self._build_bin_names_internal();
     }
 
-    fn _prepare_build_for_completion(&mut self) {
-        self.g_settings.set(AppSettings::ExpandHelpSubcommandTrees);
-    }
-
-    pub(crate) fn _build_recursive(&mut self) {
-        self._build_self();
+    pub(crate) fn _build_recursive(&mut self, expand_help_tree: bool) {
+        self._build_self(expand_help_tree);
         for subcmd in self.get_subcommands_mut() {
-            subcmd._build_recursive();
+            subcmd._build_recursive(expand_help_tree);
         }
     }
 
-    pub(crate) fn _build_self(&mut self) {
+    pub(crate) fn _build_self(&mut self, expand_help_tree: bool) {
         debug!("Command::_build: name={:?}", self.get_name());
         if !self.settings.is_set(AppSettings::Built) {
             // Make sure all the globally set flags apply to us as well
@@ -3784,7 +3779,7 @@ impl Command {
             }
 
             self._propagate();
-            self._check_help_and_version();
+            self._check_help_and_version(expand_help_tree);
             self._propagate_global_args();
 
             let mut pos_counter = 1;
@@ -3901,7 +3896,7 @@ impl Command {
         }
 
         // Ensure all args are built and ready to parse
-        sc._build_self();
+        sc._build_self(false);
 
         Some(sc)
     }
@@ -4123,8 +4118,11 @@ impl Command {
         }
     }
 
-    pub(crate) fn _check_help_and_version(&mut self) {
-        debug!("Command::_check_help_and_version:{}", self.name,);
+    pub(crate) fn _check_help_and_version(&mut self, expand_help_tree: bool) {
+        debug!(
+            "Command::_check_help_and_version:{} expand_help_tree={}",
+            self.name, expand_help_tree
+        );
 
         self.long_help_exists = self.long_help_exists_();
 
@@ -4161,7 +4159,7 @@ impl Command {
             debug!("Command::_check_help_and_version: Building help subcommand");
             let help_about = "Print this message or the help of the given subcommand(s)";
 
-            let mut help_subcmd = if self.is_set(AppSettings::ExpandHelpSubcommandTrees) {
+            let mut help_subcmd = if expand_help_tree {
                 // Slow code path to recursively clone all other subcommand subtrees under help
                 let help_subcmd = Command::new("help")
                     .about(help_about)

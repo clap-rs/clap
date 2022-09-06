@@ -52,7 +52,6 @@ pub(crate) enum AppSettings {
     Hidden,
     HidePossibleValues,
     HelpExpected,
-    ExpandHelpSubcommandTrees,
     NoBinaryName,
     #[allow(dead_code)]
     ColorAuto,
@@ -142,8 +141,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::NO_POS_VALUES,
     HelpExpected
         => Flags::HELP_REQUIRED,
-    ExpandHelpSubcommandTrees
-        => Flags::EXPAND_HELP_SUBCOMMAND_TREES,
     Hidden
         => Flags::HIDDEN,
     Multicall
