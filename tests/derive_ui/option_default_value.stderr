@@ -1,5 +1,0 @@
-error: default_value is meaningless for Option
-  --> tests/derive_ui/option_default_value.rs:14:18
-   |
-14 |     #[arg(short, default_value = 1)]
-   |                  ^^^^^^^^^^^^^

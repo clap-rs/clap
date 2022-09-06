@@ -226,32 +226,6 @@ impl Item {
             }
             Kind::Arg(_) => {
                 let ty = Ty::from_syn_ty(&field.ty);
-
-                match *ty {
-                    Ty::Option => {
-                        if let Some(m) = res.find_default_method() {
-                            abort!(m.name, "default_value is meaningless for Option")
-                        }
-                    }
-                    Ty::OptionOption => {
-                        if res.is_positional() {
-                            abort!(
-                                field.ty,
-                                "Option<Option<T>> type is meaningless for positional argument"
-                            )
-                        }
-                    }
-                    Ty::OptionVec => {
-                        if res.is_positional() {
-                            abort!(
-                                field.ty,
-                                "Option<Vec<T>> type is meaningless for positional argument"
-                            )
-                        }
-                    }
-
-                    _ => (),
-                }
                 res.kind = Sp::new(
                     Kind::Arg(ty),
                     field
