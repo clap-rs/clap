@@ -786,13 +786,20 @@ impl Item {
             }
         }
 
-        if let Kind::Skip(_, attr) = &*self.kind {
-            if self.has_explicit_methods() {
+        if self.has_explicit_methods() {
+            if let Kind::Skip(_, attr) = &*self.kind {
                 abort!(
                     self.methods[0].name.span(),
                     "`{}` cannot be used with `#[{}(skip)]",
                     self.methods[0].name,
                     attr.as_str(),
+                );
+            }
+            if let Kind::FromGlobal(_) = &*self.kind {
+                abort!(
+                    self.methods[0].name.span(),
+                    "`{}` cannot be used with `#[arg(from_global)]",
+                    self.methods[0].name,
                 );
             }
         }
