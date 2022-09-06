@@ -862,7 +862,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = Command::new("prog")
         .allow_hyphen_values(true)
         .arg(arg!(--"some-argument" <val>))
-        .try_get_matches_from(vec!["prog", "-hello"]);
+        .try_get_matches_from(vec!["prog", "-fish"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);

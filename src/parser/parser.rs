@@ -634,8 +634,7 @@ impl<'cmd> Parser<'cmd> {
             current_positional.get_id()
         );
 
-        if self.cmd.is_allow_hyphen_values_set()
-            || self.cmd[&current_positional.id].is_allow_hyphen_values_set()
+        if self.cmd[&current_positional.id].is_allow_hyphen_values_set()
             || (self.cmd.is_allow_negative_numbers_set() && next.is_number())
         {
             // If allow hyphen, this isn't a new arg.
@@ -807,9 +806,6 @@ impl<'cmd> Parser<'cmd> {
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
-        } else if self.cmd.is_allow_hyphen_values_set() {
-            debug!("Parser::parse_long_arg: contains non-long flag");
-            Ok(ParseResult::MaybeHyphenValue)
         } else if self
             .cmd
             .get_keymap()
@@ -849,13 +845,6 @@ impl<'cmd> Parser<'cmd> {
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self.cmd.is_allow_negative_numbers_set() && short_arg.is_number() {
             debug!("Parser::parse_short_arg: negative number");
-            return Ok(ParseResult::MaybeHyphenValue);
-        } else if self.cmd.is_allow_hyphen_values_set()
-            && short_arg
-                .clone()
-                .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
-        {
-            debug!("Parser::parse_short_args: contains non-short flag");
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self
             .cmd

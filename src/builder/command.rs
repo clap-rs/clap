@@ -3818,6 +3818,14 @@ impl Command {
                     }
                 }
             }
+            #[allow(deprecated)]
+            if self.is_allow_hyphen_values_set() {
+                for arg in self.args.args_mut() {
+                    if arg.is_takes_value_set() {
+                        arg.settings.insert(ArgSettings::AllowHyphenValues.into());
+                    }
+                }
+            }
 
             #[cfg(debug_assertions)]
             assert_app(self);
