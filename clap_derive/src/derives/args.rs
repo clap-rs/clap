@@ -176,26 +176,20 @@ pub fn gen_augment(
                     (Ty::Option, Some(sub_type)) => sub_type,
                     _ => &field.ty,
                 };
-                let required = if **ty == Ty::Option {
+                let implicit_methods = if **ty == Ty::Option || override_required {
                     quote!()
                 } else {
                     quote_spanned! { kind.span()=>
-                        let #app_var = #app_var
-                            .subcommand_required(true)
-                            .arg_required_else_help(true);
+                        .subcommand_required(true)
+                        .arg_required_else_help(true)
                     }
                 };
 
-                if override_required {
-                    Some(quote! {
-                        let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands_for_update( #app_var );
-                    })
-                } else{
-                    Some(quote! {
-                        let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
-                        #required
-                    })
-                }
+                Some(quote! {
+                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
+                    let #app_var = #app_var
+                        #implicit_methods;
+                })
             }
             Kind::Flatten => {
                 let ty = &field.ty;
