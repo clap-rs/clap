@@ -547,11 +547,13 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         // Is help on next line, if so then indent
         if next_line_help {
             debug!("Help::help: Next Line...{:?}", next_line_help);
-            self.none(format!("\n{}{}{}", TAB, TAB, TAB));
+            self.none("\n");
+            self.none(TAB);
+            self.none(NEXT_LINE_INDENT);
         }
 
         let trailing_indent = if next_line_help {
-            TAB_WIDTH * 3
+            TAB.len() + NEXT_LINE_INDENT.len()
         } else if let Some(true) = arg.map(|a| a.is_positional()) {
             longest + TAB_WIDTH * 2
         } else {
@@ -560,7 +562,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         let trailing_indent = self.get_spaces(trailing_indent);
 
         let spaces = if next_line_help {
-            TAB_WIDTH * 3
+            TAB.len() + NEXT_LINE_INDENT.len()
         } else {
             longest + TAB_WIDTH * 3
         };
@@ -931,6 +933,8 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         }
     }
 }
+
+const NEXT_LINE_INDENT: &str = "        ";
 
 type ArgSortKey = fn(arg: &Arg) -> (usize, String);
 
