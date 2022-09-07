@@ -5,17 +5,17 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: 04_04_custom_derive[EXE] [OPTIONS] [INPUT_FILE]
 
 Arguments:
-    [INPUT_FILE]    some regular input
+  [INPUT_FILE]  some regular input
 
 Options:
-        --set-ver <VER>        set version manually
-        --major                auto inc major
-        --minor                auto inc minor
-        --patch                auto inc patch
-        --spec-in <SPEC_IN>    some special input argument
-    -c <CONFIG>                
-    -h, --help                 Print help information
-    -V, --version              Print version information
+      --set-ver <VER>      set version manually
+      --major              auto inc major
+      --minor              auto inc minor
+      --patch              auto inc patch
+      --spec-in <SPEC_IN>  some special input argument
+  -c <CONFIG>              
+  -h, --help               Print help information
+  -V, --version            Print version information
 
 $ 04_04_custom_derive
 ? failed

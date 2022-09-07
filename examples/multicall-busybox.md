@@ -28,12 +28,12 @@ $ busybox
 Usage: busybox [OPTIONS] [APPLET]
 
 APPLETS:
-    true     does nothing successfully
-    false    does nothing unsuccessfully
-    help     Print this message or the help of the given subcommand(s)
+  true   does nothing successfully
+  false  does nothing unsuccessfully
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-        --install <install>    Install hardlinks for all subcommands in path
-    -h, --help                 Print help information
+      --install <install>  Install hardlinks for all subcommands in path
+  -h, --help               Print help information
 
 ```

@@ -3,43 +3,47 @@ use super::utils;
 use clap::builder::ArgPredicate;
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
-static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
-    --opt=<FILE>
+static REQUIRE_EQUALS: &str = "\
+error: The following required arguments were not provided:
+  --opt=<FILE>
 
 Usage: clap-test --opt=<FILE>
 
 For more information try --help
 ";
 
-static REQUIRE_EQUALS_FILTERED: &str = "error: The following required arguments were not provided:
-    --opt=<FILE>
+static REQUIRE_EQUALS_FILTERED: &str = "\
+error: The following required arguments were not provided:
+  --opt=<FILE>
 
 Usage: clap-test --opt=<FILE> --foo=<FILE>
 
 For more information try --help
 ";
 
-static REQUIRE_EQUALS_FILTERED_GROUP: &str =
-    "error: The following required arguments were not provided:
-    --opt=<FILE>
+static REQUIRE_EQUALS_FILTERED_GROUP: &str = "\
+error: The following required arguments were not provided:
+  --opt=<FILE>
 
 Usage: clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
 
 For more information try --help
 ";
 
-static MISSING_REQ: &str = "error: The following required arguments were not provided:
-    --long-option-2 <option2>
-    <positional>
-    <positional2>
+static MISSING_REQ: &str = "\
+error: The following required arguments were not provided:
+  --long-option-2 <option2>
+  <positional>
+  <positional2>
 
 Usage: clap-test --long-option-2 <option2> -F <positional> <positional2> [positional3]...
 
 For more information try --help
 ";
 
-static COND_REQ_IN_USAGE: &str = "error: The following required arguments were not provided:
-    --output <output>
+static COND_REQ_IN_USAGE: &str = "\
+error: The following required arguments were not provided:
+  --output <output>
 
 Usage: test --target <target> --input <input> --output <output>
 
@@ -132,9 +136,10 @@ fn positional_required_with_requires() {
     utils::assert_output(cmd, "clap-test", POSITIONAL_REQ, true);
 }
 
-static POSITIONAL_REQ: &str = "error: The following required arguments were not provided:
-    <flag>
-    <opt>
+static POSITIONAL_REQ: &str = "\
+error: The following required arguments were not provided:
+  <flag>
+  <opt>
 
 Usage: clap-test <flag> <opt> [bar]
 
@@ -151,8 +156,9 @@ fn positional_required_with_requires_if_no_value() {
     utils::assert_output(cmd, "clap-test", POSITIONAL_REQ_IF_NO_VAL, true);
 }
 
-static POSITIONAL_REQ_IF_NO_VAL: &str = "error: The following required arguments were not provided:
-    <flag>
+static POSITIONAL_REQ_IF_NO_VAL: &str = "\
+error: The following required arguments were not provided:
+  <flag>
 
 Usage: clap-test <flag> [opt] [bar]
 
@@ -170,9 +176,10 @@ fn positional_required_with_requires_if_value() {
     utils::assert_output(cmd, "clap-test val", POSITIONAL_REQ_IF_VAL, true);
 }
 
-static POSITIONAL_REQ_IF_VAL: &str = "error: The following required arguments were not provided:
-    <foo>
-    <opt>
+static POSITIONAL_REQ_IF_VAL: &str = "\
+error: The following required arguments were not provided:
+  <foo>
+  <opt>
 
 Usage: clap-test <flag> <foo> <opt> [bar]
 
@@ -1018,10 +1025,11 @@ fn require_eq_filtered_group() {
     );
 }
 
-static ISSUE_1158: &str = "error: The following required arguments were not provided:
-    -x <X>
-    -y <Y>
-    -z <Z>
+static ISSUE_1158: &str = "\
+error: The following required arguments were not provided:
+  -x <X>
+  -y <Y>
+  -z <Z>
 
 Usage: example -x <X> -y <Y> -z <Z> <ID>
 
@@ -1053,10 +1061,10 @@ fn issue_1158_app() -> Command {
 
 #[test]
 fn multiple_required_unless_usage_printing() {
-    static MULTIPLE_REQUIRED_UNLESS_USAGE: &str =
-        "error: The following required arguments were not provided:
-    --a <a>
-    --b <b>
+    static MULTIPLE_REQUIRED_UNLESS_USAGE: &str = "\
+error: The following required arguments were not provided:
+  --a <a>
+  --b <b>
 
 Usage: test --c <c> --a <a> --b <b>
 
@@ -1445,7 +1453,7 @@ fn required_require_with_group_shows_flag() {
         );
     const EXPECTED: &str = "\
 error: The following required arguments were not provided:
-    --first
+  --first
 
 Usage: test --require-first <--first|--second>
 

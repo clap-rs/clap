@@ -8,21 +8,21 @@ static ALLOW_EXT_SC: &str = "\
 Usage: clap-test [COMMAND]
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 static DONT_COLLAPSE_ARGS: &str = "\
 Usage: clap-test [arg1] [arg2] [arg3]
 
 Arguments:
-    [arg1]    some
-    [arg2]    some
-    [arg3]    some
+  [arg1]  some
+  [arg2]  some
+  [arg3]  some
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -125,9 +125,9 @@ fn arg_required_else_help_error_message() {
 Usage: test [OPTIONS]
 
 Options:
-    -i, --info       Provides more info
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -i, --info     Provides more info
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("test")
@@ -284,12 +284,12 @@ tests stuff
 Usage: test [OPTIONS] [arg1]
 
 Arguments:
-    [arg1]    some pos arg
+  [arg1]  some pos arg
 
 Options:
-    -o, --opt <opt>    some option
-    -h, --help         Print help information
-    -V, --version      Print version information
+  -o, --opt <opt>  some option
+  -h, --help       Print help information
+  -V, --version    Print version information
 ";
 
     let cmd = Command::new("test")
@@ -624,9 +624,9 @@ fn require_eq() {
 Usage: clap-test --opt=<FILE>
 
 Options:
-    -o, --opt=<FILE>    some
-    -h, --help          Print help information
-    -V, --version       Print version information
+  -o, --opt=<FILE>  some
+  -h, --help        Print help information
+  -V, --version     Print version information
 ";
 
     let cmd = Command::new("clap-test").version("v1.4.8").arg(

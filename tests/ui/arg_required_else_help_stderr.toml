@@ -6,11 +6,11 @@ stderr = """
 Usage: stdio-fixture[EXE] [OPTIONS] [COMMAND]
 
 Commands:
-    more    
-    help    Print this message or the help of the given subcommand(s)
+  more  
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-        --verbose    log
-    -h, --help       Print help information (use `--help` for more detail)
-    -V, --version    Print version information
+      --verbose  log
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 """

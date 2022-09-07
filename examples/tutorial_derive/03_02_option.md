@@ -5,9 +5,9 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: 03_02_option_derive[EXE] [OPTIONS]
 
 Options:
-    -n, --name <NAME>    
-    -h, --help           Print help information
-    -V, --version        Print version information
+  -n, --name <NAME>  
+  -h, --help         Print help information
+  -V, --version      Print version information
 
 $ 03_02_option_derive
 name: None

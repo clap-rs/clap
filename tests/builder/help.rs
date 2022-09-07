@@ -91,12 +91,12 @@ fn req_last_arg_usage() {
 Usage: example <FIRST>... -- <SECOND>...
 
 Arguments:
-    <FIRST>...     First
-    <SECOND>...    Second
+  <FIRST>...   First
+  <SECOND>...  Second
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("example")
@@ -118,15 +118,15 @@ fn args_with_last_usage() {
 Usage: flamegraph [OPTIONS] [BINFILE] [-- <ARGS>...]
 
 Arguments:
-    [BINFILE]    The path of the binary to be profiled. for a binary.
-    [ARGS]...    Any arguments you wish to pass to the being profiled.
+  [BINFILE]  The path of the binary to be profiled. for a binary.
+  [ARGS]...  Any arguments you wish to pass to the being profiled.
 
 Options:
-    -v, --verbose              Prints out more stuff.
-    -t, --timeout <SECONDS>    Timeout in seconds.
-    -f, --frequency <HERTZ>    The sampling frequency.
-    -h, --help                 Print help information
-    -V, --version              Print version information
+  -v, --verbose            Prints out more stuff.
+  -t, --timeout <SECONDS>  Timeout in seconds.
+  -f, --frequency <HERTZ>  The sampling frequency.
+  -h, --help               Print help information
+  -V, --version            Print version information
 ";
 
     let cmd = Command::new("flamegraph")
@@ -202,28 +202,28 @@ tests clap library
 Usage: clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
 
 Commands:
-    subcmd    tests subcommands
-    help      Print this message or the help of the given subcommand(s)
+  subcmd  tests subcommands
+  help    Print this message or the help of the given subcommand(s)
 
 Arguments:
-    [positional]        tests positionals
-    [positional2]       tests positionals with exclusions
-    [positional3]...    tests specific values [possible values: vi, emacs]
+  [positional]      tests positionals
+  [positional2]     tests positionals with exclusions
+  [positional3]...  tests specific values [possible values: vi, emacs]
 
 Options:
-    -o, --option <opt>...                    tests options
-    -f, --flag...                            tests flags
-    -F                                       tests flags with exclusions
-        --long-option-2 <option2>            tests long options with exclusions
-    -O, --option3 <option3>                  specific vals [possible values: fast, slow]
-        --multvals <one> <two>               Tests multiple values, not mult occs
-        --multvalsmo <one> <two>             Tests multiple values, and mult occs
-        --minvals2 <minvals> <minvals>...    Tests 2 min vals
-        --maxvals3 <maxvals>...              Tests 3 max vals
-        --optvaleq[=<optval>]                Tests optional value, require = sign
-        --optvalnoeq [<optval>]              Tests optional value
-    -h, --help                               Print help information
-    -V, --version                            Print version information
+  -o, --option <opt>...                  tests options
+  -f, --flag...                          tests flags
+  -F                                     tests flags with exclusions
+      --long-option-2 <option2>          tests long options with exclusions
+  -O, --option3 <option3>                specific vals [possible values: fast, slow]
+      --multvals <one> <two>             Tests multiple values, not mult occs
+      --multvalsmo <one> <two>           Tests multiple values, and mult occs
+      --minvals2 <minvals> <minvals>...  Tests 2 min vals
+      --maxvals3 <maxvals>...            Tests 3 max vals
+      --optvaleq[=<optval>]              Tests optional value, require = sign
+      --optvalnoeq [<optval>]            Tests optional value
+  -h, --help                             Print help information
+  -V, --version                          Print version information
 ";
 
     utils::assert_output(utils::complex_app(), "clap-test --help", HELP, false);
@@ -238,8 +238,8 @@ tests clap library
 Usage: clap-test
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 some text that comes after the help
 ";
@@ -262,8 +262,8 @@ tests clap library
 Usage: clap-test
 
 Options:
-    -h, --help       Print help information (use `--help` for more detail)
-    -V, --version    Print version information
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 
 some text that comes after the help
 ";
@@ -275,11 +275,11 @@ tests clap library
 Usage: clap-test
 
 Options:
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-    -V, --version
-            Print version information
+  -V, --version
+          Print version information
 
 some longer text that comes after the help
 ";
@@ -301,10 +301,10 @@ tests subcommands
 Usage: ctest subcmd multi [OPTIONS]
 
 Options:
-    -f, --flag                    tests flags
-    -o, --option <scoption>...    tests options
-    -h, --help                    Print help information
-    -V, --version                 Print version information
+  -f, --flag                  tests flags
+  -o, --option <scoption>...  tests options
+  -h, --help                  Print help information
+  -V, --version               Print version information
 ";
 
 #[test]
@@ -337,8 +337,8 @@ fn no_wrap_default_help() {
 Usage: ctest
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("ctest").version("1.0").term_width(0);
@@ -352,18 +352,17 @@ fn wrapped_help() {
 Usage: test [OPTIONS]
 
 Options:
-    -a, --all
-            Also do versioning for private crates (will not be
-            published)
-        --exact
-            Specify inter dependency version numbers exactly with
-            `=`
-        --no-git-commit
-            Do not commit version changes
-        --no-git-push
-            Do not push generated commit and tags to git remote
-    -h, --help
-            Print help information
+  -a, --all
+          Also do versioning for private crates (will not be
+          published)
+      --exact
+          Specify inter dependency version numbers exactly with `=`
+      --no-git-commit
+          Do not commit version changes
+      --no-git-push
+          Do not push generated commit and tags to git remote
+  -h, --help
+          Print help information
 ";
     let cmd = Command::new("test")
         .term_width(67)
@@ -402,14 +401,14 @@ fn unwrapped_help() {
 Usage: test [OPTIONS]
 
 Options:
-    -a, --all              Also do versioning for private crates
-                           (will not be published)
-        --exact            Specify inter dependency version numbers
-                           exactly with `=`
-        --no-git-commit    Do not commit version changes
-        --no-git-push      Do not push generated commit and tags to
-                           git remote
-    -h, --help             Print help information
+  -a, --all            Also do versioning for private crates (will
+                       not be published)
+      --exact          Specify inter dependency version numbers
+                       exactly with `=`
+      --no-git-commit  Do not commit version changes
+      --no-git-push    Do not push generated commit and tags to git
+                       remote
+  -h, --help           Print help information
 ";
     let cmd = Command::new("test")
         .term_width(68)
@@ -448,27 +447,27 @@ fn possible_value_wrapped_help() {
 Usage: test [OPTIONS]
 
 Options:
-        --possible-values <possible_values>
-            Possible values:
-              - short_name:
-                Long enough help message, barely warrant wrapping
-              - second:
-                Short help gets handled the same
+      --possible-values <possible_values>
+          Possible values:
+          - short_name:
+            Long enough help message, barely warrant wrapping
+          - second:
+            Short help gets handled the same
 
-        --possible-values-with-new-line <possible_values_with_new_line>
-            Possible values:
-              - long enough name to trigger new line:
-                Really long enough help message to clearly warrant
-                wrapping believe me
-              - second
+      --possible-values-with-new-line <possible_values_with_new_line>
+          Possible values:
+          - long enough name to trigger new line:
+            Really long enough help message to clearly warrant
+            wrapping believe me
+          - second
 
-        --possible-values-without-new-line <possible_values_without_new_line>
-            Possible values:
-              - name:   Short enough help message with no wrapping
-              - second: short help
+      --possible-values-without-new-line <possible_values_without_new_line>
+          Possible values:
+          - name:   Short enough help message with no wrapping
+          - second: short help
 
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 ";
     let cmd = Command::new("test")
         .term_width(67)
@@ -514,14 +513,14 @@ tests subcommands
 Usage: clap-test subcmd [OPTIONS] [scpositional]
 
 Arguments:
-    [scpositional]    tests positionals
+  [scpositional]  tests positionals
 
 Options:
-    -o, --option <scoption>...     tests options
-    -f, --flag...                  tests flags
-    -s, --subcmdarg <subcmdarg>    tests other args
-    -h, --help                     Print help information
-    -V, --version                  Print version information
+  -o, --option <scoption>...   tests options
+  -f, --flag...                tests flags
+  -s, --subcmdarg <subcmdarg>  tests other args
+  -h, --help                   Print help information
+  -V, --version                Print version information
 ";
 
     let a = utils::complex_app();
@@ -534,16 +533,16 @@ fn issue_626_unicode_cutoff() {
 Usage: ctest [OPTIONS]
 
 Options:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café is an
-                         establishment which primarily serves hot
-                         coffee, related coffee beverages (e.g., café
-                         latte, cappuccino, espresso), tea, and other
-                         hot beverages. Some coffeehouses also serve
-                         cold beverages such as iced coffee and iced
-                         tea. Many cafés also serve some type of food,
-                         such as light snacks, muffins, or pastries.
-    -h, --help           Print help information
-    -V, --version        Print version information
+  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café is an
+                     establishment which primarily serves hot coffee,
+                     related coffee beverages (e.g., café latte,
+                     cappuccino, espresso), tea, and other hot
+                     beverages. Some coffeehouses also serve cold
+                     beverages such as iced coffee and iced tea. Many
+                     cafés also serve some type of food, such as light
+                     snacks, muffins, or pastries.
+  -h, --help         Print help information
+  -V, --version      Print version information
 ";
 
     let cmd = Command::new("ctest").version("0.1").term_width(70).arg(
@@ -553,11 +552,11 @@ Options:
             .value_name("FILE")
             .help(
                 "A coffeehouse, coffee shop, or café is an establishment \
-                 which primarily serves hot coffee, related coffee beverages \
-                 (e.g., café latte, cappuccino, espresso), tea, and other hot \
-                 beverages. Some coffeehouses also serve cold beverages such as \
-                 iced coffee and iced tea. Many cafés also serve some type of \
-                 food, such as light snacks, muffins, or pastries.",
+             which primarily serves hot coffee, related coffee beverages \
+             (e.g., café latte, cappuccino, espresso), tea, and other hot \
+             beverages. Some coffeehouses also serve cold beverages such as \
+             iced coffee and iced tea. Many cafés also serve some type of \
+             food, such as light snacks, muffins, or pastries.",
             )
             .action(ArgAction::Set),
     );
@@ -568,10 +567,10 @@ static HIDE_POS_VALS: &str = "\
 Usage: ctest [OPTIONS]
 
 Options:
-    -p, --pos <VAL>      Some vals [possible values: fast, slow]
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
-    -h, --help           Print help information
-    -V, --version        Print version information
+  -p, --pos <VAL>    Some vals [possible values: fast, slow]
+  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café.
+  -h, --help         Print help information
+  -V, --version      Print version information
 ";
 
 #[test]
@@ -634,21 +633,21 @@ fn possible_vals_with_help() {
 Usage: ctest [OPTIONS]
 
 Options:
-    -p, --pos <VAL>
-            Some vals
+  -p, --pos <VAL>
+          Some vals
 
-            Possible values:
-              - fast
-              - slow: not as fast
+          Possible values:
+          - fast
+          - slow: not as fast
 
-    -c, --cafe <FILE>
-            A coffeehouse, coffee shop, or café.
+  -c, --cafe <FILE>
+          A coffeehouse, coffee shop, or café.
 
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-    -V, --version
-            Print version information
+  -V, --version
+          Print version information
 ";
     let app = Command::new("ctest")
         .version("0.1")
@@ -682,18 +681,18 @@ fn issue_626_panic() {
 Usage: ctest [OPTIONS]
 
 Options:
-    -c, --cafe <FILE>
-            La culture du café est très développée
-            dans de nombreux pays à climat chaud
-            d\'Amérique, d\'Afrique et d\'Asie, dans
-            des plantations qui sont cultivées pour
-            les marchés d\'exportation. Le café est
-            souvent une contribution majeure aux
-            exportations des régions productrices.
-    -h, --help
-            Print help information
-    -V, --version
-            Print version information
+  -c, --cafe <FILE>
+          La culture du café est très développée
+          dans de nombreux pays à climat chaud
+          d\'Amérique, d\'Afrique et d\'Asie, dans des
+          plantations qui sont cultivées pour les
+          marchés d\'exportation. Le café est souvent
+          une contribution majeure aux exportations
+          des régions productrices.
+  -h, --help
+          Print help information
+  -V, --version
+          Print version information
 ";
 
     let cmd = Command::new("ctest")
@@ -734,13 +733,12 @@ fn final_word_wrapping() {
 Usage: ctest
 
 Options:
-    -h, --help
-            Print help
-            information
-    -V, --version
-            Print
-            version
-            information
+  -h, --help
+          Print help
+          information
+  -V, --version
+          Print version
+          information
 ";
 
     let cmd = Command::new("ctest").version("0.1").term_width(24);
@@ -751,16 +749,15 @@ static WRAPPING_NEWLINE_CHARS: &str = "\
 Usage: ctest [mode]
 
 Arguments:
-    [mode]    x, max, maximum   20 characters, contains
-              symbols.
-              l, long           Copy-friendly, 14
-              characters, contains symbols.
-              m, med, medium    Copy-friendly, 8 characters,
-              contains symbols.
+  [mode]  x, max, maximum   20 characters, contains symbols.
+          l, long           Copy-friendly, 14 characters,
+          contains symbols.
+          m, med, medium    Copy-friendly, 8 characters,
+          contains symbols.
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -804,14 +801,14 @@ fn dont_wrap_urls() {
 Usage: Example update [OPTIONS]
 
 Options:
-        --force-non-host
-            Install toolchains
-            that require an
-            emulator. See
-            https://github.com/rust-lang/rustup/wiki/Non-host-toolchains
-    -h, --help
-            Print help
-            information
+      --force-non-host
+          Install toolchains
+          that require an
+          emulator. See
+          https://github.com/rust-lang/rustup/wiki/Non-host-toolchains
+  -h, --help
+          Print help
+          information
 ";
     utils::assert_output(cmd, "Example update --help", EXPECTED, false);
 }
@@ -820,10 +817,10 @@ static OLD_NEWLINE_CHARS: &str = "\
 Usage: ctest [OPTIONS]
 
 Options:
-    -m               Some help with some wrapping
-                     (Defaults to something)
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -m             Some help with some wrapping
+                 (Defaults to something)
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -854,44 +851,44 @@ fn issue_688_hide_pos_vals() {
 Usage: ctest [OPTIONS]
 
 Options:
-        --filter <filter>    Sets the filter, or sampling method, to use for interpolation when resizing the particle
-                             images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic,
-                             Gaussian, Lanczos3]
-    -h, --help               Print help information
-    -V, --version            Print version information
+      --filter <filter>  Sets the filter, or sampling method, to use for interpolation when resizing the particle
+                         images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian,
+                         Lanczos3]
+  -h, --help             Print help information
+  -V, --version          Print version information
 ";
 
     let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
 
     let app1 = Command::new("ctest")
-            .version("0.1")
+        .version("0.1")
 			.term_width(120)
 			.hide_possible_values(true)
 			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
-                images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
+            images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.value_parser(filter_values)
 				.action(ArgAction::Set));
     utils::assert_output(app1, "ctest --help", ISSUE_688, false);
 
     let app2 = Command::new("ctest")
-            .version("0.1")
+        .version("0.1")
 			.term_width(120)
 			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
-                images. The default is Linear (Bilinear).")
+            images. The default is Linear (Bilinear).")
 				.long("filter")
 				.value_parser(filter_values)
 				.action(ArgAction::Set));
     utils::assert_output(app2, "ctest --help", ISSUE_688, false);
 
     let app3 = Command::new("ctest")
-            .version("0.1")
+        .version("0.1")
 			.term_width(120)
 			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
-                images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
+            images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.action(ArgAction::Set));
     utils::assert_output(app3, "ctest --help", ISSUE_688, false);
@@ -905,15 +902,15 @@ bar
 Usage: myapp [OPTIONS] [arg1] [arg2]...
 
 Arguments:
-    [arg1]       some option
-    [arg2]...    some option
+  [arg1]     some option
+  [arg2]...  some option
 
 Options:
-    -s, --some <some>         some option
-    -o, --other <other>       some other option
-    -l, --label <label>...    a label
-    -h, --help                Print help information
-    -V, --version             Print version information
+  -s, --some <some>       some option
+  -o, --other <other>     some other option
+  -l, --label <label>...  a label
+  -h, --help              Print help information
+  -V, --version           Print version information
 ";
 
     let cmd = Command::new("myapp")
@@ -962,15 +959,15 @@ that should be displayed
 Usage: myapp [arg1]
 
 Arguments:
-    [arg1]
-            some option
+  [arg1]
+          some option
 
 Options:
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-    -V, --version
-            Print version information
+  -V, --version
+          Print version information
 ";
 
     let cmd = Command::new("myapp")
@@ -993,8 +990,8 @@ Usage: rg [OPTIONS] <pattern> [<path> ...]
        rg [OPTIONS] --type-list
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("ripgrep").version("0.5").override_usage(
@@ -1018,8 +1015,8 @@ Usage: rg [OPTIONS] <pattern> [<path> ...]
        rg [OPTIONS] --type-list
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("ripgrep")
@@ -1051,16 +1048,16 @@ Usage: prog --opt <FILE> [PATH]
        prog [PATH] <COMMAND>
 
 Commands:
-    test    
-    help    Print this message or the help of the given subcommand(s)
+  test  
+  help  Print this message or the help of the given subcommand(s)
 
 Arguments:
-    [PATH]    help
+  [PATH]  help
 
 Options:
-    -o, --opt <FILE>    tests options
-    -h, --help          Print help information
-    -V, --version       Print version information
+  -o, --opt <FILE>  tests options
+  -h, --help        Print help information
+  -V, --version     Print version information
 ";
 
     let cmd = Command::new("prog")
@@ -1078,10 +1075,10 @@ fn hide_args() {
 Usage: prog [OPTIONS]
 
 Options:
-    -f, --flag          testing flags
-    -o, --opt <FILE>    tests options
-    -h, --help          Print help information
-    -V, --version       Print version information
+  -f, --flag        testing flags
+  -o, --opt <FILE>  tests options
+  -h, --help        Print help information
+  -V, --version     Print version information
 ";
 
     let cmd = Command::new("prog")
@@ -1099,17 +1096,17 @@ Usage: prog [OPTIONS] [PATH]
        prog <COMMAND>
 
 Commands:
-    test    
-    help    Print this message or the help of the given subcommand(s)
+  test  
+  help  Print this message or the help of the given subcommand(s)
 
 Arguments:
-    [PATH]    help
+  [PATH]  help
 
 Options:
-    -f, --flag          testing flags
-    -o, --opt <FILE>    tests options
-    -h, --help          Print help information
-    -V, --version       Print version information
+  -f, --flag        testing flags
+  -o, --opt <FILE>  tests options
+  -h, --help        Print help information
+  -V, --version     Print version information
 ";
 
     let cmd = Command::new("prog")
@@ -1128,13 +1125,13 @@ fn issue_1046_hide_scs() {
 Usage: prog [OPTIONS] [PATH]
 
 Arguments:
-    [PATH]    some
+  [PATH]  some
 
 Options:
-    -f, --flag          testing flags
-    -o, --opt <FILE>    tests options
-    -h, --help          Print help information
-    -V, --version       Print version information
+  -f, --flag        testing flags
+  -o, --opt <FILE>  tests options
+  -h, --help        Print help information
+  -V, --version     Print version information
 ";
 
     let cmd = Command::new("prog")
@@ -1158,11 +1155,10 @@ wrapped
 Usage: ctest
 
 Options:
-    -h, --help
-            Print help information
-    -V, --version
-            Print version
-            information
+  -h, --help
+          Print help information
+  -V, --version
+          Print version information
 ";
 
     let cmd = Command::new("A cmd with a crazy very long long long name hahaha")
@@ -1178,8 +1174,8 @@ static OVERRIDE_HELP_SHORT: &str = "\
 Usage: test
 
 Options:
-    -H, --help       Print help information
-    -V, --version    Print version information
+  -H, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -1197,8 +1193,8 @@ static OVERRIDE_HELP_LONG: &str = "\
 Usage: test [OPTIONS]
 
 Options:
-    -h, --hell       Print help information
-    -V, --version    Print version information
+  -h, --hell     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -1216,8 +1212,8 @@ static OVERRIDE_HELP_ABOUT: &str = "\
 Usage: test
 
 Options:
-    -h, --help       Print custom help information
-    -V, --version    Print version information
+  -h, --help     Print custom help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -1268,13 +1264,13 @@ fn last_arg_mult_usage() {
 Usage: last <TARGET> [CORPUS] [-- <ARGS>...]
 
 Arguments:
-    <TARGET>     some
-    [CORPUS]     some
-    [ARGS]...    some
+  <TARGET>   some
+  [CORPUS]   some
+  [ARGS]...  some
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("last")
@@ -1297,13 +1293,13 @@ fn last_arg_mult_usage_req() {
 Usage: last <TARGET> [CORPUS] -- <ARGS>...
 
 Arguments:
-    <TARGET>     some
-    [CORPUS]     some
-    <ARGS>...    some
+  <TARGET>   some
+  [CORPUS]   some
+  <ARGS>...  some
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("last")
@@ -1328,17 +1324,17 @@ Usage: last <TARGET> [CORPUS] -- <ARGS>...
        last [TARGET] [CORPUS] <COMMAND>
 
 Commands:
-    test    some
-    help    Print this message or the help of the given subcommand(s)
+  test  some
+  help  Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <TARGET>     some
-    [CORPUS]     some
-    <ARGS>...    some
+  <TARGET>   some
+  [CORPUS]   some
+  <ARGS>...  some
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("last")
@@ -1365,17 +1361,17 @@ Usage: last <TARGET> [CORPUS] [-- <ARGS>...]
        last <COMMAND>
 
 Commands:
-    test    some
-    help    Print this message or the help of the given subcommand(s)
+  test  some
+  help  Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <TARGET>     some
-    [CORPUS]     some
-    [ARGS]...    some
+  <TARGET>   some
+  [CORPUS]   some
+  [ARGS]...  some
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let cmd = Command::new("last")
@@ -1398,9 +1394,9 @@ static HIDE_DEFAULT_VAL: &str = "\
 Usage: default [OPTIONS]
 
 Options:
-        --arg <argument>    Pass an argument to the program. [default: default-argument]
-    -h, --help              Print help information
-    -V, --version           Print version information
+      --arg <argument>  Pass an argument to the program. [default: default-argument]
+  -h, --help            Print help information
+  -V, --version         Print version information
 ";
 
 #[test]
@@ -1429,10 +1425,10 @@ fn escaped_whitespace_values() {
 Usage: default [OPTIONS]
 
 Options:
-        --arg <argument>    Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \" \", \"\\n\", \"\\t\",
-                            other]
-    -h, --help              Print help information
-    -V, --version           Print version information
+      --arg <argument>  Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \" \", \"\\n\", \"\\t\",
+                        other]
+  -h, --help            Print help information
+  -V, --version         Print version information
 ";
 
     let app1 = Command::new("default").version("0.1").term_width(120).arg(
@@ -1519,9 +1515,9 @@ tests stuff
 Usage: test --fake <some> <val>
 
 Options:
-    -f, --fake <some> <val>    some help
-    -h, --help                 Print help information
-    -V, --version              Print version information
+  -f, --fake <some> <val>  some help
+  -h, --help               Print help information
+  -V, --version            Print version information
 ";
 
     let cmd = Command::new("test")
@@ -1547,13 +1543,13 @@ does stuff
 Usage: test [OPTIONS] --fake <some> <val>
 
 Options:
-    -f, --fake <some> <val>    some help
-    -h, --help                 Print help information
-    -V, --version              Print version information
+  -f, --fake <some> <val>  some help
+  -h, --help               Print help information
+  -V, --version            Print version information
 
 NETWORKING:
-    -n, --no-proxy    Do not use system proxy settings
-        --port
+  -n, --no-proxy  Do not use system proxy settings
+      --port
 ";
 
     let cmd = Command::new("blorp")
@@ -1586,21 +1582,21 @@ does stuff
 Usage: test [OPTIONS] --fake <some> <val> --birthday-song <song> --birthday-song-volume <volume>
 
 Options:
-    -f, --fake <some> <val>    some help
-        --style <style>        Choose musical style to play the song
-    -s, --speed <SPEED>        How fast? [possible values: fast, slow]
-    -h, --help                 Print help information
-    -V, --version              Print version information
+  -f, --fake <some> <val>  some help
+      --style <style>      Choose musical style to play the song
+  -s, --speed <SPEED>      How fast? [possible values: fast, slow]
+  -h, --help               Print help information
+  -V, --version            Print version information
 
 NETWORKING:
-    -n, --no-proxy       Do not use system proxy settings
-    -a, --server-addr    Set server address
+  -n, --no-proxy     Do not use system proxy settings
+  -a, --server-addr  Set server address
 
 OVERRIDE SPECIAL:
-    -b, --birthday-song <song>    Change which song is played for birthdays
+  -b, --birthday-song <song>  Change which song is played for birthdays
 
 SPECIAL:
-    -v, --birthday-song-volume <volume>    Change the volume of the birthday song
+  -v, --birthday-song-volume <volume>  Change the volume of the birthday song
 ";
 
 #[test]
@@ -1665,14 +1661,14 @@ does stuff
 Usage: test [OPTIONS] --song <song> --song-volume <volume>
 
 Options:
-    -h, --help       Print help information (use `--help` for more detail)
-    -V, --version    Print version information
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 
 OVERRIDE SPECIAL:
-    -b, --song <song>    Change which song is played for birthdays
+  -b, --song <song>  Change which song is played for birthdays
 
 SPECIAL:
-    -v, --song-volume <volume>    Change the volume of the birthday song
+  -v, --song-volume <volume>  Change the volume of the birthday song
 ";
 
 #[test]
@@ -1716,11 +1712,11 @@ Long about foo
 Usage: ctest foo
 
 Options:
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-    -V, --version
-            Print version information
+  -V, --version
+          Print version information
 ";
 
 #[test]
@@ -1740,8 +1736,8 @@ About foo
 Usage: ctest foo
 
 Options:
-    -h, --help       Print help information (use `--help` for more detail)
-    -V, --version    Print version information
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -1761,11 +1757,11 @@ fn issue_1364_no_short_options() {
 Usage: demo [OPTIONS] [FILES]...
 
 Arguments:
-    [FILES]...    
+  [FILES]...  
 
 Options:
-    -f            
-    -h, --help    Print help information (use `--help` for more detail)
+  -f          
+  -h, --help  Print help information (use `--help` for more detail)
 ";
 
     let cmd = Command::new("demo")
@@ -1793,21 +1789,21 @@ static ISSUE_1487: &str = "\
 Usage: ctest <arg1|arg2>
 
 Arguments:
-    [arg1]    
-    [arg2]    
+  [arg1]  
+  [arg2]  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
 
     let cmd = Command::new("test")
-        .arg(Arg::new("arg1")
-            .group("group1"))
-        .arg(Arg::new("arg2")
-            .group("group1"))
-        .group(ArgGroup::new("group1")
-            .args(["arg1", "arg2"])
-            .required(true));
+    .arg(Arg::new("arg1")
+        .group("group1"))
+    .arg(Arg::new("arg2")
+        .group("group1"))
+    .group(ArgGroup::new("group1")
+        .args(["arg1", "arg2"])
+        .required(true));
     utils::assert_output(cmd, "ctest -h", ISSUE_1487, false);
 }
 
@@ -1913,14 +1909,14 @@ fn issue_1642_long_help_spacing() {
 Usage: prog [OPTIONS]
 
 Options:
-        --config
-            The config file used by the myprog must be in JSON format
-            with only valid keys and may not contain other nonsense
-            that cannot be read by this program. Obviously I'm going on
-            and on, so I'll stop now.
+      --config
+          The config file used by the myprog must be in JSON format
+          with only valid keys and may not contain other nonsense
+          that cannot be read by this program. Obviously I'm going on
+          and on, so I'll stop now.
 
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 ";
 
     let cmd = Command::new("prog").arg(
@@ -1968,7 +1964,7 @@ Print this message or the help of the given subcommand(s)
 Usage: myapp help [COMMAND]...
 
 Arguments:
-    [COMMAND]...    The subcommand whose help message to display
+  [COMMAND]...  The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -1985,7 +1981,7 @@ Print this message or the help of the given subcommand(s)
 Usage: myapp subcmd help [COMMAND]...
 
 Arguments:
-    [COMMAND]...    The subcommand whose help message to display
+  [COMMAND]...  The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2005,12 +2001,12 @@ fn global_args_should_show_on_toplevel_help_message() {
 Usage: myapp [OPTIONS] [COMMAND]
 
 Commands:
-    subcmd\x20\x20\x20\x20
-    help      Print this message or the help of the given subcommand(s)
+  subcmd\x20\x20
+  help    Print this message or the help of the given subcommand(s)
 
 Options:
-    -g, --some-global <someglobal>\x20\x20\x20\x20
-    -h, --help                        Print help information
+  -g, --some-global <someglobal>\x20\x20
+  -h, --help                      Print help information
 ";
 
     let cmd = Command::new("myapp")
@@ -2033,7 +2029,7 @@ Print this message or the help of the given subcommand(s)
 Usage: myapp help [COMMAND]...
 
 Arguments:
-    [COMMAND]...    The subcommand whose help message to display
+  [COMMAND]...  The subcommand whose help message to display
 ";
 
     let cmd = Command::new("myapp")
@@ -2054,12 +2050,12 @@ fn global_args_should_show_on_help_message_for_subcommand() {
 Usage: myapp subcmd [OPTIONS] [COMMAND]
 
 Commands:
-    multi\x20\x20\x20\x20
-    help     Print this message or the help of the given subcommand(s)
+  multi\x20\x20
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-    -g, --some-global <someglobal>\x20\x20\x20\x20
-    -h, --help                        Print help information
+  -g, --some-global <someglobal>\x20\x20
+  -h, --help                      Print help information
 ";
 
     let cmd = Command::new("myapp")
@@ -2080,9 +2076,9 @@ fn global_args_should_show_on_help_message_for_nested_subcommand() {
 Usage: myapp subcmd multi [OPTIONS]
 
 Options:
-    -g, --some-global <someglobal>\x20\x20\x20\x20
-    -h, --help                        Print help information
-    -V, --version                     Print version information
+  -g, --some-global <someglobal>\x20\x20
+  -h, --help                      Print help information
+  -V, --version                   Print version information
 ";
 
     let cmd = Command::new("myapp")
@@ -2103,14 +2099,14 @@ fn option_usage_order() {
 Usage: order [OPTIONS]
 
 Options:
-    -a                     
-    -B                     
-    -b                     
-    -s                     
-        --select_file      
-        --select_folder    
-    -x                     
-    -h, --help             Print help information
+  -a                   
+  -B                   
+  -b                   
+  -s                   
+      --select_file    
+      --select_folder  
+  -x                   
+  -h, --help           Print help information
 ";
 
     let cmd = Command::new("order").args([
@@ -2136,11 +2132,11 @@ fn prefer_about_over_long_about_in_subcommands_list() {
 Usage: about-in-subcommands-list [COMMAND]
 
 Commands:
-    sub     short about sub
-    help    Print this message or the help of the given subcommand(s)
+  sub   short about sub
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
 
     let cmd = Command::new("about-in-subcommands-list").subcommand(
@@ -2163,12 +2159,12 @@ fn issue_1794_usage() {
 Usage: deno <pos1|--option1> [pos2]
 
 Arguments:
-    [pos1]    
-    [pos2]    
+  [pos1]  
+  [pos2]  
 
 Options:
-        --option1    
-    -h, --help       Print help information
+      --option1  
+  -h, --help     Print help information
 ";
 
     let cmd = clap::Command::new("hello")
@@ -2193,14 +2189,14 @@ static CUSTOM_HEADING_POS: &str = "\
 Usage: test [gear] [speed]
 
 Arguments:
-    [gear]    Which gear
+  [gear]  Which gear
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 NETWORKING:
-    [speed]    How fast
+  [speed]  How fast
 ";
 
 #[test]
@@ -2218,7 +2214,7 @@ static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "\
 Usage: test [OPTIONS]
 
 NETWORKING:
-    -s, --speed <SPEED>    How fast
+  -s, --speed <SPEED>  How fast
 ";
 
 #[test]
@@ -2238,7 +2234,7 @@ static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "\
 Usage: test [speed]
 
 NETWORKING:
-    [speed]    How fast
+  [speed]  How fast
 ";
 
 #[test]
@@ -2271,9 +2267,9 @@ fn issue_2508_number_of_values_with_single_value_name() {
 Usage: my_app [OPTIONS]
 
 Options:
-        --some_arg <some_arg> <some_arg>    
-        --some_arg_issue <ARG> <ARG>        
-    -h, --help                              Print help information
+      --some_arg <some_arg> <some_arg>  
+      --some_arg_issue <ARG> <ARG>      
+  -h, --help                            Print help information
 ",
         false,
     );
@@ -2292,11 +2288,11 @@ fn missing_positional_final_required() {
 Usage: test [arg1] <arg2>
 
 Arguments:
-    [arg1]    
-    <arg2>    
+  [arg1]  
+  <arg2>  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ",
         false,
     );
@@ -2316,12 +2312,12 @@ fn missing_positional_final_multiple() {
 Usage: test [foo] [bar] [baz]...
 
 Arguments:
-    [foo]       
-    [bar]       
-    [baz]...    
+  [foo]     
+  [bar]     
+  [baz]...  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ",
         false,
     );
@@ -2342,10 +2338,10 @@ fn positional_multiple_values_is_dotted() {
 Usage: test <foo>...
 
 Arguments:
-    <foo>...    
+  <foo>...  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ",
         false,
     );
@@ -2364,10 +2360,10 @@ Options:
 Usage: test <BAR>...
 
 Arguments:
-    <BAR>...    
+  <BAR>...  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ",
         false,
     );
@@ -2389,10 +2385,10 @@ fn positional_multiple_occurrences_is_dotted() {
 Usage: test <foo>...
 
 Arguments:
-    <foo>...    
+  <foo>...  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ",
         false,
     );
@@ -2412,10 +2408,10 @@ Options:
 Usage: test <BAR>...
 
 Arguments:
-    <BAR>...    
+  <BAR>...  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ",
         false,
     );
@@ -2438,8 +2434,8 @@ fn too_few_value_names_is_dotted() {
 Usage: test --foo <one> <two>...
 
 Options:
-        --foo <one> <two>...    
-    -h, --help                  Print help information
+      --foo <one> <two>...  
+  -h, --help                Print help information
 ",
         false,
     );
@@ -2540,7 +2536,7 @@ Print this message or the help of the given subcommand(s)
 Usage: example help [COMMAND]...
 
 Arguments:
-    [COMMAND]...    The subcommand whose help message to display
+  [COMMAND]...  The subcommand whose help message to display
 ",
         false,
     );
@@ -2582,7 +2578,7 @@ Print this message or the help of the given subcommand(s)
 Usage: example help [COMMAND]...
 
 Arguments:
-    [COMMAND]...    The subcommand whose help message to display
+  [COMMAND]...  The subcommand whose help message to display
 ",
         false,
     );
@@ -2616,7 +2612,7 @@ some
 Usage: parent <TARGET> <ARGS> test
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
     let cmd = Command::new("parent")
         .version("0.1")
@@ -2639,7 +2635,7 @@ some
 Usage: parent <TARGET> <ARGS> test
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
     let cmd = Command::new("parent")
         .version("0.1")
@@ -2662,7 +2658,7 @@ some
 Usage: parent <TARGET> <ARGS> test
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
     let mut cmd = Command::new("parent")
         .version("0.1")
@@ -2688,7 +2684,7 @@ fn parent_cmd_req_ignored_when_negates_reqs() {
 Usage: ctest subcmd
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
 
     let cmd = Command::new("ctest")
@@ -2704,7 +2700,7 @@ fn parent_cmd_req_ignored_when_conflicts() {
 Usage: ctest subcmd
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
 
     let cmd = Command::new("ctest")

@@ -10,12 +10,12 @@ fn no_derive_order() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag_a                 second flag
-        --flag_b                 first flag
-    -h, --help                   Print help information
-        --option_a <option_a>    second option
-        --option_b <option_b>    first option
-    -V, --version                Print version information
+      --flag_a               second flag
+      --flag_b               first flag
+  -h, --help                 Print help information
+      --option_a <option_a>  second option
+      --option_b <option_b>  first option
+  -V, --version              Print version information
 ";
 
     let cmd = Command::new("test")
@@ -49,12 +49,12 @@ fn derive_order() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag_b                 first flag
-        --option_b <option_b>    first option
-        --flag_a                 second flag
-        --option_a <option_a>    second option
-    -h, --help                   Print help information
-    -V, --version                Print version information
+      --flag_b               first flag
+      --option_b <option_b>  first option
+      --flag_a               second flag
+      --option_a <option_a>  second option
+  -h, --help                 Print help information
+  -V, --version              Print version information
 ";
 
     let cmd = Command::new("test").version("1.2").args(&[
@@ -85,12 +85,12 @@ fn derive_order_next_order() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag_b                 first flag
-        --option_b <option_b>    first option
-    -h, --help                   Print help information
-    -V, --version                Print version information
-        --flag_a                 second flag
-        --option_a <option_a>    second option
+      --flag_b               first flag
+      --option_b <option_b>  first option
+  -h, --help                 Print help information
+  -V, --version              Print version information
+      --flag_a               second flag
+      --option_a <option_a>  second option
 ";
 
     let cmd = Command::new("test")
@@ -131,12 +131,12 @@ fn derive_order_no_next_order() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag_a                 first flag
-        --flag_b                 second flag
-    -h, --help                   Print help information
-        --option_a <option_a>    first option
-        --option_b <option_b>    second option
-    -V, --version                Print version information
+      --flag_a               first flag
+      --flag_b               second flag
+  -h, --help                 Print help information
+      --option_a <option_a>  first option
+      --option_b <option_b>  second option
+  -V, --version              Print version information
 ";
 
     let cmd = Command::new("test")
@@ -176,12 +176,12 @@ fn derive_order_subcommand_propagate() {
 Usage: test sub [OPTIONS]
 
 Options:
-        --flag_b                 first flag
-        --option_b <option_b>    first option
-        --flag_a                 second flag
-        --option_a <option_a>    second option
-    -h, --help                   Print help information
-    -V, --version                Print version information
+      --flag_b               first flag
+      --option_b <option_b>  first option
+      --flag_a               second flag
+      --option_a <option_a>  second option
+  -h, --help                 Print help information
+  -V, --version              Print version information
 ";
 
     let cmd = Command::new("test").subcommand(
@@ -214,12 +214,12 @@ fn derive_order_subcommand_propagate_with_explicit_display_order() {
 Usage: test sub [OPTIONS]
 
 Options:
-        --flag_a                 second flag
-        --flag_b                 first flag
-        --option_b <option_b>    first option
-        --option_a <option_a>    second option
-    -h, --help                   Print help information
-    -V, --version                Print version information
+      --flag_a               second flag
+      --flag_b               first flag
+      --option_b <option_b>  first option
+      --option_a <option_a>  second option
+  -h, --help                 Print help information
+  -V, --version              Print version information
 ";
 
     let cmd = Command::new("test").subcommand(
@@ -258,13 +258,13 @@ fn subcommand_sorted_display_order() {
 Usage: test [COMMAND]
 
 Commands:
-    a1      blah a1
-    b1      blah b1
-    help    Print this message or the help of the given subcommand(s)
+  a1    blah a1
+  b1    blah b1
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let app_subcmd_alpha_order = Command::new("test")
@@ -293,13 +293,13 @@ fn subcommand_derived_display_order() {
 Usage: test [COMMAND]
 
 Commands:
-    b1      blah b1
-    a1      blah a1
-    help    Print this message or the help of the given subcommand(s)
+  b1    blah b1
+  a1    blah a1
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
     let app_subcmd_decl_order = Command::new("test").version("1").subcommands(vec![

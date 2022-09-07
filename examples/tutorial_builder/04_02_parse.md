@@ -5,11 +5,11 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: 04_02_parse[EXE] <PORT>
 
 Arguments:
-    <PORT>    Network port to use
+  <PORT>  Network port to use
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 $ 04_02_parse 22
 PORT = 22

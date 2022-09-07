@@ -10,13 +10,13 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
 Arguments:
-    [SLOP]...    
+  [SLOP]...  
 
 Options:
-    -f               
-    -p <PEAR>        
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -f             
+  -p <PEAR>      
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 ```
 

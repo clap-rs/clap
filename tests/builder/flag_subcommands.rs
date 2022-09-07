@@ -502,9 +502,9 @@ Query the package database.
 Usage: pacman {query|--query|-Q} [OPTIONS]
 
 Options:
-    -s, --search <search>...    search locally installed packages for matching strings
-    -i, --info <info>...        view package information
-    -h, --help                  Print help information
+  -s, --search <search>...  search locally installed packages for matching strings
+  -i, --info <info>...      view package information
+  -h, --help                Print help information
 ";
 
 #[test]
@@ -550,9 +550,9 @@ Query the package database.
 Usage: pacman {query|--query} [OPTIONS]
 
 Options:
-    -s, --search <search>...    search locally installed packages for matching strings
-    -i, --info <info>...        view package information
-    -h, --help                  Print help information
+  -s, --search <search>...  search locally installed packages for matching strings
+  -i, --info <info>...      view package information
+  -h, --help                Print help information
 ";
 
 #[test]
@@ -602,9 +602,9 @@ Query the package database.
 Usage: pacman {query|-Q} [OPTIONS]
 
 Options:
-    -s, --search <search>...    search locally installed packages for matching strings
-    -i, --info <info>...        view package information
-    -h, --help                  Print help information
+  -s, --search <search>...  search locally installed packages for matching strings
+  -i, --info <info>...      view package information
+  -h, --help                Print help information
 ";
 
 #[test]

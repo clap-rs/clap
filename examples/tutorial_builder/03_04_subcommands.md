@@ -5,12 +5,12 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: 03_04_subcommands[EXE] <COMMAND>
 
 Commands:
-    add     Adds files to myapp
-    help    Print this message or the help of the given subcommand(s)
+  add   Adds files to myapp
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 $ 03_04_subcommands help add
 Adds files to myapp
@@ -18,11 +18,11 @@ Adds files to myapp
 Usage: 03_04_subcommands[EXE] add [NAME]
 
 Arguments:
-    [NAME]    
+  [NAME]  
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 $ 03_04_subcommands add bob
 'myapp add' was used, name is: Some("bob")
@@ -38,12 +38,12 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: 03_04_subcommands[EXE] <COMMAND>
 
 Commands:
-    add     Adds files to myapp
-    help    Print this message or the help of the given subcommand(s)
+  add   Adds files to myapp
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 ```
 

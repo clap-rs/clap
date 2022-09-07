@@ -69,14 +69,14 @@ A fictional versioning CLI
 Usage: git <COMMAND>
 
 Commands:
-    clone    Clones repos
-    push     pushes things
-    add      adds things
-    stash
-    help     Print this message or the help of the given subcommand(s)
+  clone  Clones repos
+  push   pushes things
+  add    adds things
+  stash
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ```
 - name/version header was removed because we couldn't justify the space it occupied when
   - Usage already includes the name
@@ -85,6 +85,7 @@ Options:
 - Focus is put on the subcommands
 - Headings are now Title case
 - The more general term "command" is used rather than being explicit about being "subcommands"
+- The output is more dense with the expectation that it won't affect legibility but will allow more content
 - We've moved to a more neutral palette for highlighting elements (not highlighted above)
 
 In talking to users, we found some that liked clap's `man`-like experience.
@@ -260,6 +261,7 @@ Deprecated
 - *(help)* Hint to the user the difference between `-h` / `--help` when applicable (#4132, #4159)
 - *(help)* Shorten help by eliding name/version/author (#4132, #4160)
 - *(help)* When short help is long enough to activate `next_line_help`, don't add blank lines (#4132, #4190)
+- *(help)* Make help output more dense (reducing horizontal whitespace) (#4132, #4192)
 - *(version)* Use `Command::display_name` rather than `Command::bin_name` (#3966)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, like `Command::allow_hyphen_values` (#4187)
