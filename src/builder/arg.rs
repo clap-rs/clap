@@ -462,6 +462,10 @@ impl Arg {
     /// This is a "VarArg" and everything that follows should be captured by it, as if the user had
     /// used a `--`.
     ///
+    /// **NOTE:** To start the trailing "VarArg" on unknown flags (and not just a positional
+    /// value), set [`allow_hyphen_values`][Arg::allow_hyphen_values].  Either way, users still
+    /// have the option to explicitly escape ambiguous arguments with `--`.
+    ///
     /// **NOTE:** [`Arg::value_delimiter`] still applies if set.
     ///
     /// **NOTE:** Setting this requires [`Arg::num_args(..)`].
@@ -1271,17 +1275,15 @@ impl Arg {
     ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
-    /// **WARNING**: Take caution when using this setting combined with
+    /// **NOTE:** If a positional argument has `allow_hyphen_values` and is followed by a known
+    /// flag, it will be treated as a flag (see [`trailing_var_arg`][Arg::trailing_var_arg] for
+    /// consuming known flags).  If an option has `allow_hyphen_values` and is followed by a known
+    /// flag, it will be treated as the value for the option.
+    ///
+    /// **WARNING**: Take caution when using this setting combined with another argument using
     /// [`Arg::num_args`], as this becomes ambiguous `$ prog --arg -- -- val`. All
     /// three `--, --, val` will be values when the user may have thought the second `--` would
     /// constitute the normal, "Only positional args follow" idiom.
-    ///
-    /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
-    /// the user passing in a value that matches a valid short. For example, `prog -opt -F` where
-    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for another arg.
-    /// Care should be taken when designing these args. This is compounded by the ability to "stack"
-    /// short args. I.e. if `-val` is supposed to be a value, but `-v`, `-a`, and `-l` are all valid
-    /// shorts.
     ///
     /// # Examples
     ///
