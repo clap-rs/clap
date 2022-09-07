@@ -136,7 +136,7 @@ fn verify_cli() {
 Note: the idomatic / recommended way of specifying different types of args in the Builder API has changed:
 
 Before
-```rust:
+```rust
 .arg(Arg::new("flag").long("flag"))  # --flag
 .arg(Arg::new("option").long("option").takes_value(true))  # --option <option>
 ```
