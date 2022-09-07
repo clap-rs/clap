@@ -2,8 +2,7 @@
 $ 04_01_possible --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    04_01_possible[EXE] <MODE>
+Usage: 04_01_possible[EXE] <MODE>
 
 Arguments:
     <MODE>    What mode to run the program in [possible values: fast, slow]

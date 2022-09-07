@@ -2,8 +2,7 @@
 $ 01_quick_derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    01_quick_derive[EXE] [OPTIONS] [NAME] [COMMAND]
+Usage: 01_quick_derive[EXE] [OPTIONS] [NAME] [COMMAND]
 
 Commands:
     test    does testing things

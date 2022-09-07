@@ -37,8 +37,7 @@ In the help, this looks like:
 $ pacman -h
 package manager utility
 
-Usage:
-    pacman[EXE] <COMMAND>
+Usage: pacman[EXE] <COMMAND>
 
 Commands:
     query -Q --query    Query the package database.
@@ -52,8 +51,7 @@ Options:
 $ pacman -S -h
 Synchronize packages.
 
-Usage:
-    pacman[EXE] {sync|--sync|-S} [OPTIONS] [package]...
+Usage: pacman[EXE] {sync|--sync|-S} [OPTIONS] [package]...
 
 Arguments:
     [package]...    packages
@@ -71,8 +69,7 @@ $ pacman -S -s foo -i bar
 ? failed
 error: The argument '--search <search>...' cannot be used with '--info'
 
-Usage:
-    pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
+Usage: pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
 
 For more information try --help
 

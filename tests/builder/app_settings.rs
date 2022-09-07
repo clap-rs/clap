@@ -5,8 +5,7 @@ use super::utils;
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 static ALLOW_EXT_SC: &str = "\
-Usage:
-    clap-test [COMMAND]
+Usage: clap-test [COMMAND]
 
 Options:
     -h, --help       Print help information
@@ -14,8 +13,7 @@ Options:
 ";
 
 static DONT_COLLAPSE_ARGS: &str = "\
-Usage:
-    clap-test [arg1] [arg2] [arg3]
+Usage: clap-test [arg1] [arg2] [arg3]
 
 Arguments:
     [arg1]    some
@@ -124,8 +122,7 @@ fn arg_required_else_help_with_default() {
 #[test]
 fn arg_required_else_help_error_message() {
     static ARG_REQUIRED_ELSE_HELP: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
     -i, --info       Provides more info
@@ -284,8 +281,7 @@ fn skip_possible_values() {
     static SKIP_POS_VALS: &str = "\
 tests stuff
 
-Usage:
-    test [OPTIONS] [arg1]
+Usage: test [OPTIONS] [arg1]
 
 Arguments:
     [arg1]    some pos arg
@@ -625,8 +621,7 @@ fn dont_collapse_args() {
 #[test]
 fn require_eq() {
     static REQUIRE_EQUALS: &str = "\
-Usage:
-    clap-test --opt=<FILE>
+Usage: clap-test --opt=<FILE>
 
 Options:
     -o, --opt=<FILE>    some

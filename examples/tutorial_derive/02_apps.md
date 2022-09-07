@@ -2,8 +2,7 @@
 $ 02_apps_derive --help
 Does awesome things
 
-Usage:
-    02_apps_derive[EXE] --two <TWO> --one <ONE>
+Usage: 02_apps_derive[EXE] --two <TWO> --one <ONE>
 
 Options:
         --two <TWO>    

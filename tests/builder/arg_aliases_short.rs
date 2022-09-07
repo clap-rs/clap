@@ -160,8 +160,7 @@ fn invisible_short_arg_aliases_help_output() {
     static SC_INVISIBLE_ALIAS_HELP: &str = "\
 Some help
 
-Usage:
-    ct test [OPTIONS]
+Usage: ct test [OPTIONS]
 
 Options:
     -o, --opt <opt>    
@@ -191,8 +190,7 @@ fn visible_short_arg_aliases_help_output() {
     static SC_VISIBLE_ALIAS_HELP: &str = "\
 Some help
 
-Usage:
-    ct test [OPTIONS]
+Usage: ct test [OPTIONS]
 
 Options:
     -o, --opt <opt>    [short aliases: v]

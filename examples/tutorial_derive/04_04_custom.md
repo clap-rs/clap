@@ -2,8 +2,7 @@
 $ 04_04_custom_derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    04_04_custom_derive[EXE] [OPTIONS] [INPUT_FILE]
+Usage: 04_04_custom_derive[EXE] [OPTIONS] [INPUT_FILE]
 
 Arguments:
     [INPUT_FILE]    some regular input
@@ -22,8 +21,7 @@ $ 04_04_custom_derive
 ? failed
 error: Can only modify one version field
 
-Usage:
-    clap [OPTIONS] [INPUT_FILE]
+Usage: clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
 
@@ -34,8 +32,7 @@ $ 04_04_custom_derive --major --minor
 ? failed
 error: Can only modify one version field
 
-Usage:
-    clap [OPTIONS] [INPUT_FILE]
+Usage: clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
 
@@ -44,8 +41,7 @@ $ 04_04_custom_derive --major -c config.toml
 Version: 2.2.3
 error: INPUT_FILE or --spec-in is required when using --config
 
-Usage:
-    clap [OPTIONS] [INPUT_FILE]
+Usage: clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
 

@@ -6,8 +6,7 @@ mimicking cargo's interface.
 The help looks like:
 ```console
 $ cargo-example-derive --help
-Usage:
-    cargo <COMMAND>
+Usage: cargo <COMMAND>
 
 Commands:
     example-derive    A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -19,8 +18,7 @@ Options:
 $ cargo-example-derive example-derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    cargo example-derive [OPTIONS]
+Usage: cargo example-derive [OPTIONS]
 
 Options:
         --manifest-path <MANIFEST_PATH>    

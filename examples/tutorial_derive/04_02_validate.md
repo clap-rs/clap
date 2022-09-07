@@ -2,8 +2,7 @@
 $ 04_02_validate_derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    04_02_validate_derive[EXE] <PORT>
+Usage: 04_02_validate_derive[EXE] <PORT>
 
 Arguments:
     <PORT>    Network port to use

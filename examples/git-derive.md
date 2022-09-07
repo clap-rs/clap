@@ -8,8 +8,7 @@ $ git-derive
 ? failed
 A fictional versioning CLI
 
-Usage:
-    git-derive[EXE] <COMMAND>
+Usage: git-derive[EXE] <COMMAND>
 
 Commands:
     clone    Clones repos
@@ -24,8 +23,7 @@ Options:
 $ git-derive help
 A fictional versioning CLI
 
-Usage:
-    git-derive[EXE] <COMMAND>
+Usage: git-derive[EXE] <COMMAND>
 
 Commands:
     clone    Clones repos
@@ -40,8 +38,7 @@ Options:
 $ git-derive help add
 adds things
 
-Usage:
-    git-derive[EXE] add <PATH>...
+Usage: git-derive[EXE] add <PATH>...
 
 Arguments:
     <PATH>...    Stuff to add
@@ -57,8 +54,7 @@ $ git-derive add
 ? failed
 adds things
 
-Usage:
-    git-derive[EXE] add <PATH>...
+Usage: git-derive[EXE] add <PATH>...
 
 Arguments:
     <PATH>...    Stuff to add
@@ -74,9 +70,8 @@ Adding ["Cargo.toml", "Cargo.lock"]
 Default subcommand:
 ```console
 $ git-derive stash -h
-Usage:
-    git-derive[EXE] stash [OPTIONS]
-    git-derive[EXE] stash <COMMAND>
+Usage: git-derive[EXE] stash [OPTIONS]
+       git-derive[EXE] stash <COMMAND>
 
 Commands:
     push     
@@ -89,16 +84,14 @@ Options:
     -h, --help                 Print help information
 
 $ git-derive stash push -h
-Usage:
-    git-derive[EXE] stash push [OPTIONS]
+Usage: git-derive[EXE] stash push [OPTIONS]
 
 Options:
     -m, --message <MESSAGE>    
     -h, --help                 Print help information
 
 $ git-derive stash pop -h
-Usage:
-    git-derive[EXE] stash pop [STASH]
+Usage: git-derive[EXE] stash pop [STASH]
 
 Arguments:
     [STASH]    

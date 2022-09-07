@@ -105,8 +105,7 @@ fn help_short_flag_no_version() {
     static EXPECTED: &str = "\
 foo 
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help    Print help information
@@ -120,8 +119,7 @@ fn help_long_flag_no_version() {
     static EXPECTED: &str = "\
 foo 
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help    Print help information
@@ -135,8 +133,7 @@ fn help_short_flag_with_version() {
     static EXPECTED: &str = "\
 foo 3.0
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help       Print help information
@@ -151,8 +148,7 @@ fn help_long_flag_with_version() {
     static EXPECTED: &str = "\
 foo 3.0
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help       Print help information
@@ -167,8 +163,7 @@ fn help_short_flag_with_long_version() {
     static EXPECTED: &str = "\
 foo 3.0 (abcdefg)
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help       Print help information
@@ -183,8 +178,7 @@ fn help_long_flag_with_long_version() {
     static EXPECTED: &str = "\
 foo 3.0 (abcdefg)
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help       Print help information
@@ -199,8 +193,7 @@ fn help_short_flag_with_both() {
     static EXPECTED: &str = "\
 foo 3.0
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help       Print help information
@@ -215,8 +208,7 @@ fn help_long_flag_with_both() {
     static EXPECTED: &str = "\
 foo 3.0
 
-Usage:
-    foo
+Usage: foo
 
 Options:
     -h, --help       Print help information

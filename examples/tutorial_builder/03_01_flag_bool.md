@@ -2,8 +2,7 @@
 $ 03_01_flag_bool --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_01_flag_bool[EXE] [OPTIONS]
+Usage: 03_01_flag_bool[EXE] [OPTIONS]
 
 Options:
     -v, --verbose    

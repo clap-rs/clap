@@ -2,8 +2,7 @@
 $ 03_03_positional --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_03_positional[EXE] [name]
+Usage: 03_03_positional[EXE] [name]
 
 Arguments:
     [name]    

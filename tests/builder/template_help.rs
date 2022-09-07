@@ -6,8 +6,7 @@ static EXAMPLE1_TMPL_S: &str = "{bin} {version}
 {author}
 {about}
 
-Usage:
-    {usage}
+Usage: {usage}
 
 {all-args}";
 
@@ -15,8 +14,7 @@ static EXAMPLE1_TMPS_F: &str = "{bin} {version}
 {author}
 {about}
 
-Usage:
-    {usage}
+Usage: {usage}
 
 Options:
 {options}
@@ -29,8 +27,7 @@ static CUSTOM_TEMPL_HELP: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
-Usage:
-    MyApp [OPTIONS] <output> [COMMAND]
+Usage: MyApp [OPTIONS] <output> [COMMAND]
 
 Options:
     -c, --config <FILE>    Sets a custom config file
@@ -48,8 +45,7 @@ static SIMPLE_TEMPLATE: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
-Usage:
-    MyApp [OPTIONS] <output> [COMMAND]
+Usage: MyApp [OPTIONS] <output> [COMMAND]
 
 Commands:
     test    does testing things

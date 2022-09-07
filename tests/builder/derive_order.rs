@@ -7,8 +7,7 @@ use clap::{Arg, ArgAction, Command};
 #[test]
 fn no_derive_order() {
     static NO_DERIVE_ORDER: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag_a                 second flag
@@ -47,8 +46,7 @@ Options:
 #[test]
 fn derive_order() {
     static UNIFIED_HELP_AND_DERIVE: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag_b                 first flag
@@ -84,8 +82,7 @@ Options:
 #[test]
 fn derive_order_next_order() {
     static HELP: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag_b                 first flag
@@ -131,8 +128,7 @@ Options:
 #[test]
 fn derive_order_no_next_order() {
     static HELP: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag_a                 first flag
@@ -177,8 +173,7 @@ Options:
 #[test]
 fn derive_order_subcommand_propagate() {
     static UNIFIED_DERIVE_SC_PROP: &str = "\
-Usage:
-    test sub [OPTIONS]
+Usage: test sub [OPTIONS]
 
 Options:
         --flag_b                 first flag
@@ -216,8 +211,7 @@ Options:
 #[test]
 fn derive_order_subcommand_propagate_with_explicit_display_order() {
     static UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER: &str = "\
-Usage:
-    test sub [OPTIONS]
+Usage: test sub [OPTIONS]
 
 Options:
         --flag_a                 second flag
@@ -261,8 +255,7 @@ Options:
 #[test]
 fn subcommand_sorted_display_order() {
     static SUBCMD_ALPHA_ORDER: &str = "\
-Usage:
-    test [COMMAND]
+Usage: test [COMMAND]
 
 Commands:
     a1      blah a1
@@ -297,8 +290,7 @@ Options:
 #[test]
 fn subcommand_derived_display_order() {
     static SUBCMD_DECL_ORDER: &str = "\
-Usage:
-    test [COMMAND]
+Usage: test [COMMAND]
 
 Commands:
     b1      blah b1

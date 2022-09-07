@@ -2,8 +2,7 @@
 $ 03_04_subcommands help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_04_subcommands[EXE] <COMMAND>
+Usage: 03_04_subcommands[EXE] <COMMAND>
 
 Commands:
     add     Adds files to myapp
@@ -16,8 +15,7 @@ Options:
 $ 03_04_subcommands help add
 Adds files to myapp
 
-Usage:
-    03_04_subcommands[EXE] add [NAME]
+Usage: 03_04_subcommands[EXE] add [NAME]
 
 Arguments:
     [NAME]    
@@ -37,8 +35,7 @@ $ 03_04_subcommands
 ? failed
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_04_subcommands[EXE] <COMMAND>
+Usage: 03_04_subcommands[EXE] <COMMAND>
 
 Commands:
     add     Adds files to myapp

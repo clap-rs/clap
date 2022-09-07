@@ -2,8 +2,7 @@
 $ 01_quick --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    01_quick[EXE] [OPTIONS] [name] [COMMAND]
+Usage: 01_quick[EXE] [OPTIONS] [name] [COMMAND]
 
 Commands:
     test    does testing things

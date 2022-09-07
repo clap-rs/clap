@@ -32,16 +32,14 @@ pub(crate) struct Help<'cmd, 'writer> {
 impl<'cmd, 'writer> Help<'cmd, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
 {before-help}{about-with-newline}
-{usage-heading}
-{tab}{usage}
+{usage-heading} {usage}
 
 {all-args}{after-help}\
     ";
 
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
 {before-help}{about-with-newline}
-{usage-heading}
-{tab}{usage}{after-help}\
+{usage-heading} {usage}{after-help}\
     ";
 
     /// Create a new `Help` instance.

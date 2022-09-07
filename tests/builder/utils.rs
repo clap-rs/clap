@@ -8,8 +8,7 @@ use clap::{arg, Arg, ArgAction, ArgGroup, Command};
 pub const FULL_TEMPLATE: &str = "\
 {before-help}{name} {version}
 {author-with-newline}{about-with-newline}
-{usage-heading}
-{tab}{usage}
+{usage-heading} {usage}
 
 {all-args}{after-help}";
 

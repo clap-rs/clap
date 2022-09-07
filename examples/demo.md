@@ -2,8 +2,7 @@
 $ demo --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    demo[EXE] [OPTIONS] --name <NAME>
+Usage: demo[EXE] [OPTIONS] --name <NAME>
 
 Options:
     -n, --name <NAME>      Name of the person to greet

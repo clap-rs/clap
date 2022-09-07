@@ -731,8 +731,7 @@ fn default_vals_donnot_show_in_smart_usage() {
         "error: The following required arguments were not provided:
     <input>
 
-Usage:
-    bug <input>
+Usage: bug <input>
 
 For more information try --help
 ",

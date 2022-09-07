@@ -1,8 +1,7 @@
 use clap::{error::ErrorKind, Arg, ArgAction, Command};
 
 static HELP: &str = "\
-Usage:
-    prog [OPTIONS]
+Usage: prog [OPTIONS]
 
 Options:
     -a            
@@ -14,8 +13,7 @@ Options:
 static ONLY_B_ERROR: &str = "error: The following required arguments were not provided:
     -c
 
-Usage:
-    prog -b -c
+Usage: prog -b -c
 
 For more information try --help
 ";
@@ -23,8 +21,7 @@ For more information try --help
 static ONLY_C_ERROR: &str = "error: The following required arguments were not provided:
     -b
 
-Usage:
-    prog -c -b
+Usage: prog -c -b
 
 For more information try --help
 ";

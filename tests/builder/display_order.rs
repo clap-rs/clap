@@ -10,8 +10,7 @@ fn very_large_display_order() {
         cmd,
         "test --help",
         "\
-Usage:
-    test [COMMAND]
+Usage: test [COMMAND]
 
 Commands:
     help    Print this message or the help of the given subcommand(s)

@@ -9,8 +9,7 @@ use crate::utils;
 static DESCRIPTION_ONLY: &str = "prog 1
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    prog
+Usage: prog
 
 Options:
     -h, --help       Print help information
@@ -20,8 +19,7 @@ Options:
 static AUTHORS_ONLY: &str = "prog 1
 
 
-Usage:
-    prog
+Usage: prog
 
 Options:
     -h, --help       Print help information

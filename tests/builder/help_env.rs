@@ -7,8 +7,7 @@ use clap::{Arg, ArgAction, Command};
 use super::utils;
 
 static HIDE_ENV: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
@@ -17,8 +16,7 @@ Options:
 ";
 
 static SHOW_ENV: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
@@ -27,8 +25,7 @@ Options:
 ";
 
 static HIDE_ENV_VALS: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
@@ -37,8 +34,7 @@ Options:
 ";
 
 static SHOW_ENV_VALS: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
@@ -47,8 +43,7 @@ Options:
 ";
 
 static HIDE_ENV_FLAG: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe       A coffeehouse, coffee shop, or café.
@@ -57,8 +52,7 @@ Options:
 ";
 
 static SHOW_ENV_FLAG: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
@@ -67,8 +61,7 @@ Options:
 ";
 
 static HIDE_ENV_VALS_FLAG: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR]
@@ -77,8 +70,7 @@ Options:
 ";
 
 static SHOW_ENV_VALS_FLAG: &str = "\
-Usage:
-    ctest [OPTIONS]
+Usage: ctest [OPTIONS]
 
 Options:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]

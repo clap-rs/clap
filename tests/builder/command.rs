@@ -7,8 +7,7 @@ use crate::utils;
 static EVERYTHING: &str = "clap {{version}}
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    clap
+Usage: clap
 
 Options:
     -h, --help       Print help information

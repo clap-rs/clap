@@ -2,8 +2,7 @@
 $ 03_01_flag_count_derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_01_flag_count_derive[EXE] [OPTIONS]
+Usage: 03_01_flag_count_derive[EXE] [OPTIONS]
 
 Options:
     -v, --verbose...    

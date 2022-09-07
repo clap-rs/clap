@@ -1,7 +1,6 @@
 // Internal
 use crate::builder::StyledStr;
 use crate::builder::{ArgPredicate, Command};
-use crate::output::TAB;
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
 use crate::util::FlatSet;
@@ -33,8 +32,7 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::create_usage_with_title");
         let mut styled = StyledStr::new();
         styled.header("Usage:");
-        styled.none("\n");
-        styled.none(TAB);
+        styled.none(" ");
         styled.extend(self.create_usage_no_title(used).into_iter());
         styled
     }
@@ -80,7 +78,7 @@ impl<'cmd> Usage<'cmd> {
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
                 styled.none("\n");
-                styled.none(TAB);
+                styled.none("       ");
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
                     // Short-circuit full usage creation since no args will be relevant
                     styled.literal(name);
