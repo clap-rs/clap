@@ -33,8 +33,10 @@ pub(crate) enum ArgSettings {
     NextLineHelp,
     HidePossibleValues,
     AllowHyphenValues,
+    AllowNegativeNumbers,
     RequireEquals,
     Last,
+    TrailingVarArg,
     HideDefaultValue,
     IgnoreCase,
     #[cfg(feature = "env")]
@@ -51,6 +53,8 @@ bitflags! {
         const REQUIRED         = 1;
         const GLOBAL           = 1 << 3;
         const HIDDEN           = 1 << 4;
+        const TRAILING_VARARG  = 1 << 5;
+        const ALLOW_NEG_NUMS   = 1 << 6;
         const NEXT_LINE_HELP   = 1 << 7;
         const DELIM_NOT_SET    = 1 << 10;
         const HIDE_POS_VALS    = 1 << 11;
@@ -77,8 +81,10 @@ impl_settings! { ArgSettings, ArgFlags,
     NextLineHelp => Flags::NEXT_LINE_HELP,
     HidePossibleValues => Flags::HIDE_POS_VALS,
     AllowHyphenValues => Flags::ALLOW_TAC_VALS,
+    AllowNegativeNumbers => Flags::ALLOW_NEG_NUMS,
     RequireEquals => Flags::REQUIRE_EQUALS,
     Last => Flags::LAST,
+    TrailingVarArg => Flags::TRAILING_VARARG,
     IgnoreCase => Flags::CASE_INSENSITIVE,
     #[cfg(feature = "env")]
     HideEnv => Flags::HIDE_ENV,

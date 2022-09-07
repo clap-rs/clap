@@ -459,6 +459,37 @@ impl Arg {
         self
     }
 
+    /// This is a "VarArg" and everything that follows should be captured by it, as if the user had
+    /// used a `--`.
+    ///
+    /// **NOTE:** To start the trailing "VarArg" on unknown flags (and not just a positional
+    /// value), set [`allow_hyphen_values`][Arg::allow_hyphen_values].  Either way, users still
+    /// have the option to explicitly escape ambiguous arguments with `--`.
+    ///
+    /// **NOTE:** [`Arg::value_delimiter`] still applies if set.
+    ///
+    /// **NOTE:** Setting this requires [`Arg::num_args(..)`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, arg};
+    /// let m = Command::new("myprog")
+    ///     .arg(arg!(<cmd> ... "commands to run").trailing_var_arg(true))
+    ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
+    ///
+    /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
+    /// assert_eq!(trail, ["arg1", "-r", "val1"]);
+    /// ```
+    /// [`Arg::num_args(..)`]: crate::Arg::num_args()
+    pub fn trailing_var_arg(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::TrailingVarArg)
+        } else {
+            self.unset_setting(ArgSettings::TrailingVarArg)
+        }
+    }
+
     /// This arg is the last, or final, positional argument (i.e. has the highest
     /// index) and is *only* able to be accessed via the `--` syntax (i.e. `$ prog args --
     /// last_arg`).
@@ -1242,19 +1273,20 @@ impl Arg {
 
     /// Allows values which start with a leading hyphen (`-`)
     ///
+    /// To limit values to just numbers, see
+    /// [`allow_negative_numbers`][Arg::allow_negative_numbers].
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
-    /// **WARNING**: Take caution when using this setting combined with
+    /// **NOTE:** If a positional argument has `allow_hyphen_values` and is followed by a known
+    /// flag, it will be treated as a flag (see [`trailing_var_arg`][Arg::trailing_var_arg] for
+    /// consuming known flags).  If an option has `allow_hyphen_values` and is followed by a known
+    /// flag, it will be treated as the value for the option.
+    ///
+    /// **WARNING**: Take caution when using this setting combined with another argument using
     /// [`Arg::num_args`], as this becomes ambiguous `$ prog --arg -- -- val`. All
     /// three `--, --, val` will be values when the user may have thought the second `--` would
     /// constitute the normal, "Only positional args follow" idiom.
-    ///
-    /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
-    /// the user passing in a value that matches a valid short. For example, `prog -opt -F` where
-    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for another arg.
-    /// Care should be taken when designing these args. This is compounded by the ability to "stack"
-    /// short args. I.e. if `-val` is supposed to be a value, but `-v`, `-a`, and `-l` are all valid
-    /// shorts.
     ///
     /// # Examples
     ///
@@ -1296,6 +1328,35 @@ impl Arg {
             self.setting(ArgSettings::AllowHyphenValues)
         } else {
             self.unset_setting(ArgSettings::AllowHyphenValues)
+        }
+    }
+
+    /// Allows negative numbers to pass as values.
+    ///
+    /// This is similar to [`Arg::allow_hyphen_values`] except that it only allows numbers,
+    /// all other undefined leading hyphens will fail to parse.
+    ///
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg};
+    /// let res = Command::new("myprog")
+    ///     .arg(Arg::new("num").allow_negative_numbers(true))
+    ///     .try_get_matches_from(vec![
+    ///         "myprog", "-20"
+    ///     ]);
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
+    /// ```
+    #[inline]
+    pub fn allow_negative_numbers(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::AllowNegativeNumbers)
+        } else {
+            self.unset_setting(ArgSettings::AllowNegativeNumbers)
         }
     }
 
@@ -3807,6 +3868,11 @@ impl Arg {
         self.is_set(ArgSettings::AllowHyphenValues)
     }
 
+    /// Report whether [`Arg::allow_negative_numbers`] is set
+    pub fn is_allow_negative_numbers_set(&self) -> bool {
+        self.is_set(ArgSettings::AllowNegativeNumbers)
+    }
+
     /// Behavior when parsing the argument
     pub fn get_action(&self) -> &super::ArgAction {
         const DEFAULT: super::ArgAction = super::ArgAction::Set;
@@ -3892,6 +3958,11 @@ impl Arg {
     /// Reports whether [`Arg::exclusive`] is set
     pub fn is_exclusive_set(&self) -> bool {
         self.is_set(ArgSettings::Exclusive)
+    }
+
+    /// Report whether [`Arg::trailing_var_arg`] is set
+    pub fn is_trailing_var_arg_set(&self) -> bool {
+        self.is_set(ArgSettings::TrailingVarArg)
     }
 
     /// Reports whether [`Arg::last`] is set

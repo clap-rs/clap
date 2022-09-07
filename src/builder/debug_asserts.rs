@@ -271,7 +271,7 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
 
             assert!(
-                cmd.is_trailing_var_arg_set(),
+                arg.is_trailing_var_arg_set(),
                 "Command {}: Positional argument '{}' has hint CommandWithArguments, so Command must have TrailingVarArg set.",
                     cmd.get_name(),
                 arg.get_id()
@@ -516,6 +516,33 @@ fn _verify_positionals(cmd: &Command) -> bool {
         highest_idx,
         num_p
     );
+
+    for arg in cmd.get_arguments() {
+        if arg.index.unwrap_or(0) == highest_idx {
+            assert!(
+                !arg.is_trailing_var_arg_set() || !arg.is_last_set(),
+                "{}:{}: `Arg::trailing_var_arg` and `Arg::last` cannot be used together",
+                cmd.get_name(),
+                arg.get_id()
+            );
+
+            if arg.is_trailing_var_arg_set() {
+                assert!(
+                    arg.is_multiple(),
+                    "{}:{}: `Arg::trailing_var_arg` must accept multiple values",
+                    cmd.get_name(),
+                    arg.get_id()
+                );
+            }
+        } else {
+            assert!(
+                !arg.is_trailing_var_arg_set(),
+                "{}:{}: `Arg::trailing_var_arg` can only apply to last positional",
+                cmd.get_name(),
+                arg.get_id()
+            );
+        }
+    }
 
     // Next we verify that only the highest index has takes multiple arguments (if any)
     let only_highest = |a: &Arg| a.is_multiple() && (a.index.unwrap_or(0) != highest_idx);
@@ -804,6 +831,7 @@ fn assert_arg_flags(arg: &Arg) {
 
     checker!(is_hide_possible_values_set requires is_takes_value_set);
     checker!(is_allow_hyphen_values_set requires is_takes_value_set);
+    checker!(is_allow_negative_numbers_set requires is_takes_value_set);
     checker!(is_require_equals_set requires is_takes_value_set);
     checker!(is_last_set requires is_takes_value_set);
     checker!(is_hide_default_value_set requires is_takes_value_set);

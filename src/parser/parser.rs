@@ -135,6 +135,7 @@ impl<'cmd> Parser<'cmd> {
                         long_arg,
                         long_value,
                         &parse_state,
+                        pos_counter,
                         &mut valid_arg_found,
                     )?;
                     debug!(
@@ -383,7 +384,7 @@ impl<'cmd> Parser<'cmd> {
                     ));
                 }
 
-                if self.cmd.is_trailing_var_arg_set() && pos_counter == positional_count {
+                if arg.is_trailing_var_arg_set() {
                     trailing_values = true;
                 }
 
@@ -633,9 +634,9 @@ impl<'cmd> Parser<'cmd> {
             current_positional.get_id()
         );
 
-        if self.cmd.is_allow_hyphen_values_set()
-            || self.cmd[&current_positional.id].is_allow_hyphen_values_set()
-            || (self.cmd.is_allow_negative_numbers_set() && next.is_number())
+        if self.cmd[&current_positional.id].is_allow_hyphen_values_set()
+            || (self.cmd[&current_positional.id].is_allow_negative_numbers_set()
+                && next.is_number())
         {
             // If allow hyphen, this isn't a new arg.
             debug!("Parser::is_new_arg: Allow hyphen");
@@ -710,14 +711,17 @@ impl<'cmd> Parser<'cmd> {
         long_arg: Result<&str, &RawOsStr>,
         long_value: Option<&RawOsStr>,
         parse_state: &ParseState,
+        pos_counter: usize,
         valid_arg_found: &mut bool,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
 
+        #[allow(clippy::blocks_in_if_conditions)]
         if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
             self.cmd[opt].is_allow_hyphen_values_set())
         {
+            debug!("Parser::parse_long_arg: prior arg accepts hyphenated values",);
             return Ok(ParseResult::MaybeHyphenValue);
         }
 
@@ -803,7 +807,18 @@ impl<'cmd> Parser<'cmd> {
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
             Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
-        } else if self.cmd.is_allow_hyphen_values_set() {
+        } else if self
+            .cmd
+            .get_keymap()
+            .get(&pos_counter)
+            .map_or(false, |arg| {
+                arg.is_allow_hyphen_values_set() && !arg.is_last_set()
+            })
+        {
+            debug!(
+                "Parser::parse_long_args: positional at {} allows hyphens",
+                pos_counter
+            );
             Ok(ParseResult::MaybeHyphenValue)
         } else {
             Ok(ParseResult::NoMatchingArg {
@@ -824,20 +839,19 @@ impl<'cmd> Parser<'cmd> {
         debug!("Parser::parse_short_arg: short_arg={:?}", short_arg);
 
         #[allow(clippy::blocks_in_if_conditions)]
-        if self.cmd.is_allow_negative_numbers_set() && short_arg.is_number() {
-            debug!("Parser::parse_short_arg: negative number");
-            return Ok(ParseResult::MaybeHyphenValue);
-        } else if self.cmd.is_allow_hyphen_values_set()
-            && short_arg
-                .clone()
-                .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
-        {
-            debug!("Parser::parse_short_args: contains non-short flag");
-            return Ok(ParseResult::MaybeHyphenValue);
-        } else if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
-                if self.cmd[opt].is_allow_hyphen_values_set())
+        if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
+                if self.cmd[opt].is_allow_hyphen_values_set() || (self.cmd[opt].is_allow_negative_numbers_set() && short_arg.is_number()))
         {
             debug!("Parser::parse_short_args: prior arg accepts hyphenated values",);
+            return Ok(ParseResult::MaybeHyphenValue);
+        } else if self
+            .cmd
+            .get_keymap()
+            .get(&pos_counter)
+            .map_or(false, |arg| arg.is_allow_negative_numbers_set())
+            && short_arg.is_number()
+        {
+            debug!("Parser::parse_short_arg: negative number");
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self
             .cmd
@@ -846,6 +860,9 @@ impl<'cmd> Parser<'cmd> {
             .map_or(false, |arg| {
                 arg.is_allow_hyphen_values_set() && !arg.is_last_set()
             })
+            && short_arg
+                .clone()
+                .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
         {
             debug!(
                 "Parser::parse_short_args: positional at {} allows hyphens",

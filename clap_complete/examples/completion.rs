@@ -18,8 +18,6 @@ use std::io;
 
 fn build_cli() -> Command {
     Command::new("value_hints")
-        // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
-        .trailing_var_arg(true)
         .arg(
             Arg::new("generator")
                 .long("generate")
@@ -69,6 +67,8 @@ fn build_cli() -> Command {
         .arg(
             Arg::new("command_with_args")
                 .num_args(1..)
+                // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
+                .trailing_var_arg(true)
                 .value_hint(ValueHint::CommandWithArguments),
         )
         .arg(

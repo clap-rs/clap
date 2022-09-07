@@ -1938,32 +1938,11 @@ impl Command {
         }
     }
 
-    /// Specifies that leading hyphens are allowed in all argument *values* (e.g. `-10`).
-    ///
-    /// Otherwise they will be parsed as another flag or option.  See also
-    /// [`Command::allow_negative_numbers`].
-    ///
-    /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
-    /// otherwise be an error (such as accidentally forgetting to specify a value for leading
-    /// option). It is preferred to set this on a per argument basis, via [`Arg::allow_hyphen_values`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Arg, Command};
-    /// // Imagine you needed to represent negative numbers as well, such as -10
-    /// let m = Command::new("nums")
-    ///     .allow_hyphen_values(true)
-    ///     .arg(Arg::new("neg"))
-    ///     .get_matches_from(vec![
-    ///         "nums", "-20"
-    ///     ]);
-    ///
-    /// assert_eq!(m.get_one::<String>("neg").unwrap(), "-20");
-    /// # ;
-    /// ```
-    /// [`Arg::allow_hyphen_values`]: crate::Arg::allow_hyphen_values()
-    #[inline]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::allow_hyphen_values`")
+    )]
     pub fn allow_hyphen_values(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::AllowHyphenValues)
@@ -1972,26 +1951,11 @@ impl Command {
         }
     }
 
-    /// Allows negative numbers to pass as values.
-    ///
-    /// This is similar to [`Command::allow_hyphen_values`] except that it only allows numbers,
-    /// all other undefined leading hyphens will fail to parse.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let res = Command::new("myprog")
-    ///     .allow_negative_numbers(true)
-    ///     .arg(Arg::new("num"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "-20"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
-    /// ```
-    #[inline]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::allow_negative_numbers`")
+    )]
     pub fn allow_negative_numbers(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::AllowNegativeNumbers)
@@ -2000,26 +1964,11 @@ impl Command {
         }
     }
 
-    /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
-    /// attempt to parse any further args.
-    ///
-    /// The values of the trailing positional argument will contain all args from itself on.
-    ///
-    /// **NOTE:** The final positional argument **must** have [`Arg::num_args(..)`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, arg};
-    /// let m = Command::new("myprog")
-    ///     .trailing_var_arg(true)
-    ///     .arg(arg!(<cmd> ... "commands to run"))
-    ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
-    ///
-    /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
-    /// assert_eq!(trail, ["arg1", "-r", "val1"]);
-    /// ```
-    /// [`Arg::num_args(..)`]: crate::Arg::num_args()
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::trailing_var_arg`")
+    )]
     pub fn trailing_var_arg(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::TrailingVarArg)
@@ -3588,17 +3537,35 @@ impl Command {
         self.is_set(AppSettings::ArgRequiredElseHelp)
     }
 
-    /// Report whether [`Command::allow_hyphen_values`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "4.0.0",
+            note = "Replaced with `Arg::is_allow_hyphen_values_set`"
+        )
+    )]
     pub(crate) fn is_allow_hyphen_values_set(&self) -> bool {
         self.is_set(AppSettings::AllowHyphenValues)
     }
 
-    /// Report whether [`Command::allow_negative_numbers`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "4.0.0",
+            note = "Replaced with `Arg::is_allow_negative_numbers_set`"
+        )
+    )]
     pub fn is_allow_negative_numbers_set(&self) -> bool {
         self.is_set(AppSettings::AllowNegativeNumbers)
     }
 
-    /// Report whether [`Command::trailing_var_arg`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::is_trailing_var_arg_set`")
+    )]
     pub fn is_trailing_var_arg_set(&self) -> bool {
         self.is_set(AppSettings::TrailingVarArg)
     }
@@ -3808,6 +3775,37 @@ impl Command {
             }
 
             self.args._build();
+
+            #[allow(deprecated)]
+            {
+                let highest_idx = self
+                    .get_keymap()
+                    .keys()
+                    .filter_map(|x| {
+                        if let crate::mkeymap::KeyType::Position(n) = x {
+                            Some(*n)
+                        } else {
+                            None
+                        }
+                    })
+                    .max()
+                    .unwrap_or(0);
+                let is_trailing_var_arg_set = self.is_trailing_var_arg_set();
+                let is_allow_hyphen_values_set = self.is_allow_hyphen_values_set();
+                let is_allow_negative_numbers_set = self.is_allow_negative_numbers_set();
+                for arg in self.args.args_mut() {
+                    if is_allow_hyphen_values_set && arg.is_takes_value_set() {
+                        arg.settings.insert(ArgSettings::AllowHyphenValues.into());
+                    }
+                    if is_allow_negative_numbers_set && arg.is_takes_value_set() {
+                        arg.settings
+                            .insert(ArgSettings::AllowNegativeNumbers.into());
+                    }
+                    if is_trailing_var_arg_set && arg.get_index() == Some(highest_idx) {
+                        arg.settings.insert(ArgSettings::TrailingVarArg.into());
+                    }
+                }
+            }
 
             #[cfg(debug_assertions)]
             assert_app(self);
