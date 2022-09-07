@@ -476,7 +476,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         if let Some(s) = arg.get_short() {
             self.literal(format!("-{}", s));
         } else if arg.get_long().is_some() {
-            self.none(TAB)
+            self.none("    ");
         }
     }
 
