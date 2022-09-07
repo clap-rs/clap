@@ -438,7 +438,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         for (i, (_, arg)) in ord_v.iter().enumerate() {
             if i != 0 {
                 self.none("\n");
-                if next_line_help {
+                if next_line_help && self.use_long {
                     self.none("\n");
                 }
             }

@@ -355,17 +355,13 @@ Options:
     -a, --all
             Also do versioning for private crates (will not be
             published)
-
         --exact
             Specify inter dependency version numbers exactly with
             `=`
-
         --no-git-commit
             Do not commit version changes
-
         --no-git-push
             Do not push generated commit and tags to git remote
-
     -h, --help
             Print help information
 ";
@@ -694,10 +690,8 @@ Options:
             les marchés d\'exportation. Le café est
             souvent une contribution majeure aux
             exportations des régions productrices.
-
     -h, --help
             Print help information
-
     -V, --version
             Print version information
 ";
@@ -743,7 +737,6 @@ Options:
     -h, --help
             Print help
             information
-
     -V, --version
             Print
             version
@@ -816,7 +809,6 @@ Options:
             that require an
             emulator. See
             https://github.com/rust-lang/rustup/wiki/Non-host-toolchains
-
     -h, --help
             Print help
             information
@@ -1168,7 +1160,6 @@ Usage: ctest
 Options:
     -h, --help
             Print help information
-
     -V, --version
             Print version
             information

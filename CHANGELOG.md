@@ -259,6 +259,7 @@ Deprecated
 - *(help)* Trim extra whitespace to avoid artifacts from different uses of templates (#4132, #4156)
 - *(help)* Hint to the user the difference between `-h` / `--help` when applicable (#4132, #4159)
 - *(help)* Shorten help by eliding name/version/author (#4132, #4160)
+- *(help)* When short help is long enough to activate `next_line_help`, don't add blank lines (#4132, #4190)
 - *(version)* Use `Command::display_name` rather than `Command::bin_name` (#3966)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, like `Command::allow_hyphen_values` (#4187)
