@@ -4,29 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-
-## 4.0.0 - Upcoming
-
-_gated behind `unstable-v4`_
-
-### Features
-
-- *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
-
-### Fixes
-
-- Leading dashes in `Arg::long` are no longer allowed (#3691)
-- Verify `required` is not used with conditional required settings (#3660)
-- Disallow more `value_names` than `number_of_values` (#2695)
-- *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
-- *(assert)* Add missing `#[track_caller]`s to make it easier to debug asserts
-- *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
-- *(parser)* Assert on unknown args when using external subcommands (#3703)
-- *(parser)* Always fill in `""` argument for external subcommands (#3263)
-- *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
-- *(derive)* Leave `Arg::id` as `verbatim` casing (#3282)
-- *(derive)* Default to `#[clap(value_parser, action)]` instead of `#[clap(parse)]` (#3827)
-
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
