@@ -3785,7 +3785,7 @@ impl Command {
             self.args._build();
 
             #[allow(deprecated)]
-            if self.is_trailing_var_arg_set() {
+            {
                 let highest_idx = self
                     .get_keymap()
                     .keys()
@@ -3798,17 +3798,14 @@ impl Command {
                     })
                     .max()
                     .unwrap_or(0);
-                for pos in self.args.args_mut() {
-                    if pos.get_index() == Some(highest_idx) {
-                        pos.settings.insert(ArgSettings::TrailingVarArg.into());
-                    }
-                }
-            }
-            #[allow(deprecated)]
-            if self.is_allow_hyphen_values_set() {
+                let is_trailing_var_arg_set = self.is_trailing_var_arg_set();
+                let is_allow_hyphen_values_set = self.is_allow_hyphen_values_set();
                 for arg in self.args.args_mut() {
-                    if arg.is_takes_value_set() {
+                    if is_allow_hyphen_values_set && arg.is_takes_value_set() {
                         arg.settings.insert(ArgSettings::AllowHyphenValues.into());
+                    }
+                    if is_trailing_var_arg_set && arg.get_index() == Some(highest_idx) {
+                        arg.settings.insert(ArgSettings::TrailingVarArg.into());
                     }
                 }
             }
