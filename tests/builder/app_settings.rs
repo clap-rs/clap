@@ -491,7 +491,7 @@ fn leading_hyphen_opt() {
 }
 
 #[test]
-fn allow_negative_numbers() {
+fn allow_negative_numbers_success() {
     let res = Command::new("negnum")
         .allow_negative_numbers(true)
         .arg(Arg::new("panum"))

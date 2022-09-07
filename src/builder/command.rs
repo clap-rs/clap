@@ -3800,9 +3800,14 @@ impl Command {
                     .unwrap_or(0);
                 let is_trailing_var_arg_set = self.is_trailing_var_arg_set();
                 let is_allow_hyphen_values_set = self.is_allow_hyphen_values_set();
+                let is_allow_negative_numbers_set = self.is_allow_negative_numbers_set();
                 for arg in self.args.args_mut() {
                     if is_allow_hyphen_values_set && arg.is_takes_value_set() {
                         arg.settings.insert(ArgSettings::AllowHyphenValues.into());
+                    }
+                    if is_allow_negative_numbers_set && arg.is_takes_value_set() {
+                        arg.settings
+                            .insert(ArgSettings::AllowNegativeNumbers.into());
                     }
                     if is_trailing_var_arg_set && arg.get_index() == Some(highest_idx) {
                         arg.settings.insert(ArgSettings::TrailingVarArg.into());

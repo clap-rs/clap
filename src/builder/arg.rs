@@ -1273,6 +1273,9 @@ impl Arg {
 
     /// Allows values which start with a leading hyphen (`-`)
     ///
+    /// To limit values to just numbers, see
+    /// [`allow_negative_numbers`][Arg::allow_negative_numbers].
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
     /// **NOTE:** If a positional argument has `allow_hyphen_values` and is followed by a known
@@ -1325,6 +1328,35 @@ impl Arg {
             self.setting(ArgSettings::AllowHyphenValues)
         } else {
             self.unset_setting(ArgSettings::AllowHyphenValues)
+        }
+    }
+
+    /// Allows negative numbers to pass as values.
+    ///
+    /// This is similar to [`Arg::allow_hyphen_values`] except that it only allows numbers,
+    /// all other undefined leading hyphens will fail to parse.
+    ///
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg};
+    /// let res = Command::new("myprog")
+    ///     .arg(Arg::new("num").allow_negative_numbers(true))
+    ///     .try_get_matches_from(vec![
+    ///         "myprog", "-20"
+    ///     ]);
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
+    /// ```
+    #[inline]
+    pub fn allow_negative_numbers(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::AllowNegativeNumbers)
+        } else {
+            self.unset_setting(ArgSettings::AllowNegativeNumbers)
         }
     }
 
@@ -3834,6 +3866,11 @@ impl Arg {
     /// Report whether [`Arg::allow_hyphen_values`] is set
     pub fn is_allow_hyphen_values_set(&self) -> bool {
         self.is_set(ArgSettings::AllowHyphenValues)
+    }
+
+    /// Report whether [`Arg::allow_negative_numbers`] is set
+    pub fn is_allow_negative_numbers_set(&self) -> bool {
+        self.is_set(ArgSettings::AllowNegativeNumbers)
     }
 
     /// Behavior when parsing the argument
