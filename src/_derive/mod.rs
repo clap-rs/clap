@@ -311,8 +311,6 @@
 //! the doc comment.  To clear `long_about`, you can use
 //! `#[command(long_about = None)]`.
 //!
-//! **TIP:** Set `#![deny(missing_docs)]` to catch missing `--help` documentation at compile time.
-//!
 //! ### Pre-processing
 //!
 //! ```rust
@@ -457,6 +455,7 @@
 //! - Proactively check for bad [`Command`][crate::Command] configurations by calling
 //!   [`Command::debug_assert`][crate::Command::debug_assert] in a test
 //!   ([example](../tutorial_derive/05_01_assert.rs))
+//! - Always remember to [document](#doc-comments) args and commands with `#![deny(missing_docs)]`
 
 pub mod _tutorial;
 #[doc(inline)]
