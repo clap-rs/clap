@@ -85,6 +85,7 @@ Options:
 - Focus is put on the subcommands
 - Headings are now Title case
 - The more general term "command" is used rather than being explicit about being "subcommands"
+- We've moved to a more neutral palette for highlighting elements (not highlighted above)
 
 In talking to users, we found some that liked clap's `man`-like experience.
 When deviating from this, we are making the assumption that those are more
