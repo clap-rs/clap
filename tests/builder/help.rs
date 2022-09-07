@@ -755,8 +755,8 @@ Arguments:
               symbols.
               l, long           Copy-friendly, 14
               characters, contains symbols.
-              m, med, medium    Copy-friendly, 8
-              characters, contains symbols.
+              m, med, medium    Copy-friendly, 8 characters,
+              contains symbols.
 
 Options:
     -h, --help       Print help information
