@@ -3811,6 +3811,27 @@ impl Command {
 
             self.args._build();
 
+            #[allow(deprecated)]
+            if self.is_trailing_var_arg_set() {
+                let highest_idx = self
+                    .get_keymap()
+                    .keys()
+                    .filter_map(|x| {
+                        if let crate::mkeymap::KeyType::Position(n) = x {
+                            Some(*n)
+                        } else {
+                            None
+                        }
+                    })
+                    .max()
+                    .unwrap_or(0);
+                for pos in self.args.args_mut() {
+                    if pos.get_index() == Some(highest_idx) {
+                        pos.settings.insert(ArgSettings::TrailingVarArg.into());
+                    }
+                }
+            }
+
             #[cfg(debug_assertions)]
             assert_app(self);
             self.settings.set(AppSettings::Built);

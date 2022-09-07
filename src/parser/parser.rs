@@ -383,7 +383,7 @@ impl<'cmd> Parser<'cmd> {
                     ));
                 }
 
-                if self.cmd.is_trailing_var_arg_set() && pos_counter == positional_count {
+                if arg.is_trailing_var_arg_set() {
                     trailing_values = true;
                 }
 

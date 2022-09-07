@@ -134,7 +134,6 @@ Options:
 
     let cmd = Command::new("flamegraph")
         .version("0.1")
-        .trailing_var_arg(true)
         .arg(
             Arg::new("verbose")
                 .help("Prints out more stuff.")

@@ -459,6 +459,33 @@ impl Arg {
         self
     }
 
+    /// This is a "VarArg" and everything that follows should be captured by it, as if the user had
+    /// used a `--`.
+    ///
+    /// **NOTE:** [`Arg::value_delimiter`] still applies if set.
+    ///
+    /// **NOTE:** Setting this requires [`Arg::num_args(..)`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, arg};
+    /// let m = Command::new("myprog")
+    ///     .arg(arg!(<cmd> ... "commands to run").trailing_var_arg(true))
+    ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
+    ///
+    /// let trail: Vec<_> = m.get_many::<String>("cmd").unwrap().collect();
+    /// assert_eq!(trail, ["arg1", "-r", "val1"]);
+    /// ```
+    /// [`Arg::num_args(..)`]: crate::Arg::num_args()
+    pub fn trailing_var_arg(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::TrailingVarArg)
+        } else {
+            self.unset_setting(ArgSettings::TrailingVarArg)
+        }
+    }
+
     /// This arg is the last, or final, positional argument (i.e. has the highest
     /// index) and is *only* able to be accessed via the `--` syntax (i.e. `$ prog args --
     /// last_arg`).
@@ -3892,6 +3919,11 @@ impl Arg {
     /// Reports whether [`Arg::exclusive`] is set
     pub fn is_exclusive_set(&self) -> bool {
         self.is_set(ArgSettings::Exclusive)
+    }
+
+    /// Report whether [`Arg::trailing_var_arg`] is set
+    pub fn is_trailing_var_arg_set(&self) -> bool {
+        self.is_set(ArgSettings::TrailingVarArg)
     }
 
     /// Reports whether [`Arg::last`] is set
