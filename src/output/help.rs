@@ -557,7 +557,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         } else if let Some(true) = arg.map(|a| a.is_positional()) {
             longest + TAB_WIDTH * 2
         } else {
-            longest + TAB_WIDTH * 3
+            longest + TAB_WIDTH * 2 + 4 // See `fn short` for the 4
         };
         let trailing_indent = spaces; // Don't indent any further than the first line is indented
         let trailing_indent = self.get_spaces(trailing_indent);
