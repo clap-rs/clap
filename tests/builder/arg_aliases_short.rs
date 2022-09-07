@@ -163,10 +163,10 @@ Some help
 Usage: ct test [OPTIONS]
 
 Options:
-    -o, --opt <opt>    
-    -f, --flag         
-    -h, --help         Print help information
-    -V, --version      Print version information
+  -o, --opt <opt>  
+  -f, --flag       
+  -h, --help       Print help information
+  -V, --version    Print version information
 ";
 
     let cmd = Command::new("ct").author("Salim Afiune").subcommand(
@@ -193,10 +193,10 @@ Some help
 Usage: ct test [OPTIONS]
 
 Options:
-    -o, --opt <opt>    [short aliases: v]
-    -f, --flag         [aliases: flag1] [short aliases: a, b, 🦆]
-    -h, --help         Print help information
-    -V, --version      Print version information
+  -o, --opt <opt>  [short aliases: v]
+  -f, --flag       [aliases: flag1] [short aliases: a, b, 🦆]
+  -h, --help       Print help information
+  -V, --version    Print version information
 ";
 
     let cmd = Command::new("ct").author("Salim Afiune").subcommand(

@@ -476,7 +476,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         if let Some(s) = arg.get_short() {
             self.literal(format!("-{}", s));
         } else if arg.get_long().is_some() {
-            self.none(TAB)
+            self.none("    ");
         }
     }
 
@@ -547,23 +547,21 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         // Is help on next line, if so then indent
         if next_line_help {
             debug!("Help::help: Next Line...{:?}", next_line_help);
-            self.none(format!("\n{}{}{}", TAB, TAB, TAB));
+            self.none("\n");
+            self.none(TAB);
+            self.none(NEXT_LINE_INDENT);
         }
 
-        let trailing_indent = if next_line_help {
-            TAB_WIDTH * 3
+        let spaces = if next_line_help {
+            TAB.len() + NEXT_LINE_INDENT.len()
         } else if let Some(true) = arg.map(|a| a.is_positional()) {
             longest + TAB_WIDTH * 2
         } else {
-            longest + TAB_WIDTH * 3
+            longest + TAB_WIDTH * 2 + 4 // See `fn short` for the 4
         };
+        let trailing_indent = spaces; // Don't indent any further than the first line is indented
         let trailing_indent = self.get_spaces(trailing_indent);
 
-        let spaces = if next_line_help {
-            TAB_WIDTH * 3
-        } else {
-            longest + TAB_WIDTH * 3
-        };
         let mut help = about.clone();
         help.replace_newline();
         if !spec_vals.is_empty() {
@@ -588,7 +586,6 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         help.indent("", &trailing_indent);
         let help_is_empty = help.is_empty();
         self.writer.extend(help.into_iter());
-
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
@@ -931,6 +928,8 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         }
     }
 }
+
+const NEXT_LINE_INDENT: &str = "        ";
 
 type ArgSortKey = fn(arg: &Arg) -> (usize, String);
 

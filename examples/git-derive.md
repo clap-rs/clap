@@ -11,15 +11,15 @@ A fictional versioning CLI
 Usage: git-derive[EXE] <COMMAND>
 
 Commands:
-    clone    Clones repos
-    diff     Compare two commits
-    push     pushes things
-    add      adds things
-    stash    
-    help     Print this message or the help of the given subcommand(s)
+  clone  Clones repos
+  diff   Compare two commits
+  push   pushes things
+  add    adds things
+  stash  
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 $ git-derive help
 A fictional versioning CLI
@@ -27,15 +27,15 @@ A fictional versioning CLI
 Usage: git-derive[EXE] <COMMAND>
 
 Commands:
-    clone    Clones repos
-    diff     Compare two commits
-    push     pushes things
-    add      adds things
-    stash    
-    help     Print this message or the help of the given subcommand(s)
+  clone  Clones repos
+  diff   Compare two commits
+  push   pushes things
+  add    adds things
+  stash  
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 $ git-derive help add
 adds things
@@ -43,10 +43,10 @@ adds things
 Usage: git-derive[EXE] add <PATH>...
 
 Arguments:
-    <PATH>...    Stuff to add
+  <PATH>...  Stuff to add
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 ```
 
@@ -59,10 +59,10 @@ adds things
 Usage: git-derive[EXE] add <PATH>...
 
 Arguments:
-    <PATH>...    Stuff to add
+  <PATH>...  Stuff to add
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 $ git-derive add Cargo.toml Cargo.lock
 Adding ["Cargo.toml", "Cargo.lock"]
@@ -76,30 +76,30 @@ Usage: git-derive[EXE] stash [OPTIONS]
        git-derive[EXE] stash <COMMAND>
 
 Commands:
-    push     
-    pop      
-    apply    
-    help     Print this message or the help of the given subcommand(s)
+  push   
+  pop    
+  apply  
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
-    -m, --message <MESSAGE>    
-    -h, --help                 Print help information
+  -m, --message <MESSAGE>  
+  -h, --help               Print help information
 
 $ git-derive stash push -h
 Usage: git-derive[EXE] stash push [OPTIONS]
 
 Options:
-    -m, --message <MESSAGE>    
-    -h, --help                 Print help information
+  -m, --message <MESSAGE>  
+  -h, --help               Print help information
 
 $ git-derive stash pop -h
 Usage: git-derive[EXE] stash pop [STASH]
 
 Arguments:
-    [STASH]    
+  [STASH]  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 $ git-derive stash -m "Prototype"
 Pushing StashPush { message: Some("Prototype") }
@@ -130,12 +130,12 @@ Compare two commits
 Usage: git-derive[EXE] diff [COMMIT] [COMMIT] [-- <PATH>]
 
 Arguments:
-    [COMMIT]    
-    [COMMIT]    
-    [PATH]      
+  [COMMIT]  
+  [COMMIT]  
+  [PATH]    
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 $ git-derive diff
 Diffing stage..worktree 

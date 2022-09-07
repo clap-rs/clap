@@ -9,11 +9,11 @@ $ cargo-example --help
 Usage: cargo <COMMAND>
 
 Commands:
-    example    A simple to use, efficient, and full-featured Command Line Argument Parser
-    help       Print this message or the help of the given subcommand(s)
+  example  A simple to use, efficient, and full-featured Command Line Argument Parser
+  help     Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 
 $ cargo-example example --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -21,9 +21,9 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: cargo example [OPTIONS]
 
 Options:
-        --manifest-path <PATH>    
-    -h, --help                    Print help information
-    -V, --version                 Print version information
+      --manifest-path <PATH>  
+  -h, --help                  Print help information
+  -V, --version               Print version information
 
 ```
 

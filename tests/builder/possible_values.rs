@@ -3,33 +3,37 @@ use super::utils;
 use clap::{builder::PossibleValue, error::ErrorKind, Arg, ArgAction, Command};
 
 #[cfg(feature = "suggestions")]
-static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
-    [possible values: slow, fast, \"ludicrous speed\"]
+static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
 
-    Did you mean \"slow\"?
+  Did you mean \"slow\"?
 
 For more information try --help
 ";
 
 #[cfg(not(feature = "suggestions"))]
-static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
-    [possible values: slow, fast, \"ludicrous speed\"]
+static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
 
 For more information try --help
 ";
 
 #[cfg(feature = "suggestions")]
-static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
-    [possible values: slow, fast, \"ludicrous speed\"]
+static PV_ERROR_ESCAPED: &str = "\
+error: \"ludicrous\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
 
-    Did you mean \"ludicrous speed\"?
+  Did you mean \"ludicrous speed\"?
 
 For more information try --help
 ";
 
 #[cfg(not(feature = "suggestions"))]
-static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
-    [possible values: slow, fast, \"ludicrous speed\"]
+static PV_ERROR_ESCAPED: &str = "\
+error: \"ludicrous\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
 
 For more information try --help
 ";
@@ -293,9 +297,9 @@ fn missing_possible_value_error() {
     );
 }
 
-static MISSING_PV_ERROR: &str =
-    "error: The argument '-O <option>' requires a value but none was supplied
-    [possible values: slow, fast, \"ludicrous speed\"]
+static MISSING_PV_ERROR: &str = "\
+error: The argument '-O <option>' requires a value but none was supplied
+  [possible values: slow, fast, \"ludicrous speed\"]
 
 For more information try --help
 ";

@@ -728,8 +728,9 @@ fn default_vals_donnot_show_in_smart_usage() {
     utils::assert_output(
         cmd,
         "bug",
-        "error: The following required arguments were not provided:
-    <input>
+        "\
+error: The following required arguments were not provided:
+  <input>
 
 Usage: bug <input>
 

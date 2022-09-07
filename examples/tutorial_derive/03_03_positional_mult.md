@@ -5,11 +5,11 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: 03_03_positional_mult_derive[EXE] [NAME]...
 
 Arguments:
-    [NAME]...    
+  [NAME]...  
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 $ 03_03_positional_mult_derive
 name: []

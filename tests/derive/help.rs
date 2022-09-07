@@ -234,12 +234,12 @@ fn derive_order_next_order() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag-b                 first flag
-        --option-b <OPTION_B>    first option
-    -h, --help                   Print help information
-    -V, --version                Print version information
-        --flag-a                 second flag
-        --option-a <OPTION_A>    second option
+      --flag-b               first flag
+      --option-b <OPTION_B>  first option
+  -h, --help                 Print help information
+  -V, --version              Print version information
+      --flag-a               second flag
+      --option-a <OPTION_A>  second option
 ";
 
     #[derive(Parser, Debug)]
@@ -288,12 +288,12 @@ fn derive_order_next_order_flatten() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag-b                 first flag
-        --option-b <OPTION_B>    first option
-    -h, --help                   Print help information
-    -V, --version                Print version information
-        --flag-a                 second flag
-        --option-a <OPTION_A>    second option
+      --flag-b               first flag
+      --option-b <OPTION_B>  first option
+  -h, --help                 Print help information
+  -V, --version              Print version information
+      --flag-a               second flag
+      --option-a <OPTION_A>  second option
 ";
 
     #[derive(Parser, Debug)]
@@ -342,12 +342,12 @@ fn derive_order_no_next_order() {
 Usage: test [OPTIONS]
 
 Options:
-        --flag-a                 first flag
-        --flag-b                 second flag
-    -h, --help                   Print help information
-        --option-a <OPTION_A>    first option
-        --option-b <OPTION_B>    second option
-    -V, --version                Print version information
+      --flag-a               first flag
+      --flag-b               second flag
+  -h, --help                 Print help information
+      --option-a <OPTION_A>  first option
+      --option-b <OPTION_B>  second option
+  -V, --version              Print version information
 ";
 
     #[derive(Parser, Debug)]
@@ -397,16 +397,16 @@ Application help
 Usage: clap <ARG>
 
 Arguments:
-    <ARG>
-            Argument help
+  <ARG>
+          Argument help
 
-            Possible values:
-              - foo: Foo help
-              - bar: Bar help
+          Possible values:
+          - foo: Foo help
+          - bar: Bar help
 
 Options:
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 ";
 
     /// Application help

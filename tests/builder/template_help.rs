@@ -30,15 +30,15 @@ Does awesome things
 Usage: MyApp [OPTIONS] <output> [COMMAND]
 
 Options:
-    -c, --config <FILE>    Sets a custom config file
-    -d...                  Turn debugging information on
-    -h, --help             Print help information
-    -V, --version          Print version information
+  -c, --config <FILE>  Sets a custom config file
+  -d...                Turn debugging information on
+  -h, --help           Print help information
+  -V, --version        Print version information
 Arguments:
-    <output>    Sets an optional output file
+  <output>  Sets an optional output file
 Commands:
-    test    does testing things
-    help    Print this message or the help of the given subcommand(s)
+  test  does testing things
+  help  Print this message or the help of the given subcommand(s)
 ";
 
 static SIMPLE_TEMPLATE: &str = "MyApp 1.0
@@ -48,17 +48,17 @@ Does awesome things
 Usage: MyApp [OPTIONS] <output> [COMMAND]
 
 Commands:
-    test    does testing things
-    help    Print this message or the help of the given subcommand(s)
+  test  does testing things
+  help  Print this message or the help of the given subcommand(s)
 
 Arguments:
-    <output>    Sets an optional output file
+  <output>  Sets an optional output file
 
 Options:
-    -c, --config <FILE>    Sets a custom config file
-    -d...                  Turn debugging information on
-    -h, --help             Print help information
-    -V, --version          Print version information
+  -c, --config <FILE>  Sets a custom config file
+  -d...                Turn debugging information on
+  -h, --help           Print help information
+  -V, --version        Print version information
 ";
 
 #[test]

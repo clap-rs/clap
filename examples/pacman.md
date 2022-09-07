@@ -40,13 +40,13 @@ package manager utility
 Usage: pacman[EXE] <COMMAND>
 
 Commands:
-    query -Q --query    Query the package database.
-    sync -S --sync      Synchronize packages.
-    help                Print this message or the help of the given subcommand(s)
+  query -Q --query  Query the package database.
+  sync -S --sync    Synchronize packages.
+  help              Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 
 $ pacman -S -h
 Synchronize packages.
@@ -54,12 +54,12 @@ Synchronize packages.
 Usage: pacman[EXE] {sync|--sync|-S} [OPTIONS] [package]...
 
 Arguments:
-    [package]...    packages
+  [package]...  packages
 
 Options:
-    -s, --search <search>...    search remote repositories for matching strings
-    -i, --info                  view package information
-    -h, --help                  Print help information
+  -s, --search <search>...  search remote repositories for matching strings
+  -i, --info                view package information
+  -h, --help                Print help information
 
 ```
 

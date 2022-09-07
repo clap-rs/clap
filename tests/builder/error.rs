@@ -91,7 +91,7 @@ fn null_prints_help() {
 Usage: test
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
     assert_error(err, expected_kind, MESSAGE, false);
 }
@@ -109,7 +109,7 @@ fn raw_prints_help() {
 Usage: test
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
     assert_error(err, expected_kind, MESSAGE, false);
 }

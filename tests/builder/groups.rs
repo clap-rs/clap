@@ -3,23 +3,23 @@ use super::utils;
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command, Id};
 
 static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
-    <base|--delete>
+  <base|--delete>
 
 Usage: clap-test <base|--delete>
 
 For more information try --help
 ";
 
-static REQ_GROUP_CONFLICT_USAGE: &str =
-    "error: The argument '--delete' cannot be used with '[base]'
+static REQ_GROUP_CONFLICT_USAGE: &str = "\
+error: The argument '--delete' cannot be used with '[base]'
 
 Usage: clap-test <base|--delete>
 
 For more information try --help
 ";
 
-static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
-    "error: The argument '--delete' cannot be used with '--all'
+static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str = "\
+error: The argument '--delete' cannot be used with '--all'
 
 Usage: clap-test <--all|--delete>
 
@@ -262,10 +262,10 @@ fn group_usage_use_val_name() {
 Usage: prog <A>
 
 Arguments:
-    [A]    
+  [A]  
 
 Options:
-    -h, --help    Print help information
+  -h, --help  Print help information
 ";
     let cmd = Command::new("prog")
         .arg(Arg::new("a").value_name("A"))

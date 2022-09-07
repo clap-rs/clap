@@ -6,30 +6,31 @@ static VISIBLE_ALIAS_HELP: &str = "\
 Usage: clap-test [COMMAND]
 
 Commands:
-    test    Some help [aliases: dongle, done]
-    help    Print this message or the help of the given subcommand(s)
+  test  Some help [aliases: dongle, done]
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 static INVISIBLE_ALIAS_HELP: &str = "\
 Usage: clap-test [COMMAND]
 
 Commands:
-    test    Some help
-    help    Print this message or the help of the given subcommand(s)
+  test  Some help
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[cfg(feature = "suggestions")]
-static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
+static DYM_SUBCMD: &str = "\
+error: The subcommand 'subcm' wasn't recognized
 
-    Did you mean 'subcmd'?
+  Did you mean 'subcmd'?
 
 If you believe you received this message in error, try re-running with 'dym -- subcm'
 
@@ -39,9 +40,10 @@ For more information try --help
 ";
 
 #[cfg(feature = "suggestions")]
-static DYM_SUBCMD_AMBIGUOUS: &str = "error: The subcommand 'te' wasn't recognized
+static DYM_SUBCMD_AMBIGUOUS: &str = "\
+error: The subcommand 'te' wasn't recognized
 
-    Did you mean 'test' or 'temp'?
+  Did you mean 'test' or 'temp'?
 
 If you believe you received this message in error, try re-running with 'dym -- te'
 
@@ -50,10 +52,10 @@ Usage: dym [COMMAND]
 For more information try --help
 ";
 
-static SUBCMD_AFTER_DOUBLE_DASH: &str =
-    "error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
+static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
+error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
 
-    If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
+  If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
 
 Usage: cmd [COMMAND]
 
@@ -169,12 +171,12 @@ fn subcmd_did_you_mean_output_ambiguous() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg() {
-    static EXPECTED: &str =
-        "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+    static EXPECTED: &str = "\
+error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
 
-    Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+  Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
-    If you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
+  If you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
 
 Usage: dym [COMMAND]
 
@@ -191,10 +193,10 @@ For more information try --help
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
-    static EXPECTED: &str =
-        "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+    static EXPECTED: &str = "\
+error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
 
-    If you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
+  If you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
 
 Usage: dym [COMMAND]
 
@@ -520,7 +522,7 @@ For more information try help
         static BAZ_EXPECTED: &str = "\
 error: The subcommand 'baz' wasn't recognized
 
-    Did you mean 'bar'?
+  Did you mean 'bar'?
 
 If you believe you received this message in error, try re-running with ' -- baz'
 
@@ -565,11 +567,11 @@ fn multicall_help_flag() {
 Usage: foo bar [value]
 
 Arguments:
-    [value]    
+  [value]  
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
     let cmd = Command::new("repl")
         .version("1.0.0")
@@ -585,11 +587,11 @@ fn multicall_help_subcommand() {
 Usage: foo bar [value]
 
 Arguments:
-    [value]    
+  [value]  
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
     let cmd = Command::new("repl")
         .version("1.0.0")
@@ -605,11 +607,11 @@ fn multicall_render_help() {
 Usage: foo bar [value]
 
 Arguments:
-    [value]    
+  [value]  
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
     let mut cmd = Command::new("repl")
         .version("1.0.0")

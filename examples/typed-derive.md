@@ -6,12 +6,12 @@ $ typed-derive --help
 Usage: typed-derive[EXE] [OPTIONS]
 
 Options:
-    -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`
-    -I <DIR>                 Allow invalid UTF-8 paths
-        --bind <BIND>        Handle IP addresses
-        --sleep <SLEEP>      Allow human-readable durations
-    -D <DEFINES>             Hand-written parser for tuples
-    -h, --help               Print help information
+  -O <OPTIMIZATION>      Implicitly using `std::str::FromStr`
+  -I <DIR>               Allow invalid UTF-8 paths
+      --bind <BIND>      Handle IP addresses
+      --sleep <SLEEP>    Allow human-readable durations
+  -D <DEFINES>           Hand-written parser for tuples
+  -h, --help             Print help information
 
 ```
 

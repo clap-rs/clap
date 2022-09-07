@@ -8,10 +8,10 @@ tests stuff
 Usage: test [OPTIONS]
 
 Options:
-    -F, --flag2           some other flag
-        --option <opt>    some option
-    -h, --help            Print help information
-    -V, --version         Print version information
+  -F, --flag2         some other flag
+      --option <opt>  some option
+  -h, --help          Print help information
+  -V, --version       Print version information
 ";
 
 #[test]
@@ -35,9 +35,9 @@ hides short args
 Usage: test [OPTIONS]
 
 Options:
-    -v, --visible    This text should be visible
-    -h, --help       Print help information (use `--help` for more detail)
-    -V, --version    Print version information
+  -v, --visible  This text should be visible
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 ";
 
 /// Ensure hide with short option
@@ -73,17 +73,17 @@ hides short args
 Usage: test [OPTIONS]
 
 Options:
-    -c, --config
-            Some help text describing the --config arg
+  -c, --config
+          Some help text describing the --config arg
 
-    -v, --visible
-            This text should be visible
+  -v, --visible
+          This text should be visible
 
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-    -V, --version
-            Print version information
+  -V, --version
+          Print version information
 ";
 
     let cmd = Command::new("test")
@@ -113,14 +113,14 @@ hides long args
 Usage: test [OPTIONS]
 
 Options:
-    -v, --visible
-            This text should be visible
+  -v, --visible
+          This text should be visible
 
-    -h, --help
-            Print help information (use `-h` for a summary)
+  -h, --help
+          Print help information (use `-h` for a summary)
 
-    -V, --version
-            Print version information
+  -V, --version
+          Print version information
 ";
 
 #[test]
@@ -152,10 +152,10 @@ hides long args
 Usage: test [OPTIONS]
 
 Options:
-    -c, --config     Some help text describing the --config arg
-    -v, --visible    This text should be visible
-    -h, --help       Print help information (use `--help` for more detail)
-    -V, --version    Print version information
+  -c, --config   Some help text describing the --config arg
+  -v, --visible  This text should be visible
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -185,11 +185,11 @@ static HIDDEN_POS_ARGS: &str = "\
 Usage: test [another]
 
 Arguments:
-    [another]    another pos
+  [another]  another pos
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]
@@ -206,8 +206,8 @@ static HIDDEN_SUBCMDS: &str = "\
 Usage: test
 
 Options:
-    -h, --help       Print help information
-    -V, --version    Print version information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ";
 
 #[test]

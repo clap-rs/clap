@@ -4,22 +4,24 @@ static HELP: &str = "\
 Usage: prog [OPTIONS]
 
 Options:
-    -a            
-    -b            
-    -c            
-    -h, --help    Print help information
+  -a          
+  -b          
+  -c          
+  -h, --help  Print help information
 ";
 
-static ONLY_B_ERROR: &str = "error: The following required arguments were not provided:
-    -c
+static ONLY_B_ERROR: &str = "\
+error: The following required arguments were not provided:
+  -c
 
 Usage: prog -b -c
 
 For more information try --help
 ";
 
-static ONLY_C_ERROR: &str = "error: The following required arguments were not provided:
-    -b
+static ONLY_C_ERROR: &str = "\
+error: The following required arguments were not provided:
+  -b
 
 Usage: prog -c -b
 
