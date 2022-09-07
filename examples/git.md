@@ -10,6 +10,7 @@ Usage: git[EXE] <COMMAND>
 
 Commands:
     clone    Clones repos
+    diff     Compare two commits
     push     pushes things
     add      adds things
     stash    
@@ -25,6 +26,7 @@ Usage: git[EXE] <COMMAND>
 
 Commands:
     clone    Clones repos
+    diff     Compare two commits
     push     pushes things
     add      adds things
     stash    
@@ -115,5 +117,34 @@ External subcommands:
 ```console
 $ git custom-tool arg1 --foo bar
 Calling out to "custom-tool" with ["arg1", "--foo", "bar"]
+
+```
+
+Last argument:
+```console
+$ git diff --help
+Compare two commits
+
+Usage: git[EXE] diff [COMMIT] [COMMIT] [-- <PATH>]
+
+Arguments:
+    [COMMIT]    
+    [COMMIT]    
+    [PATH]      
+
+Options:
+    -h, --help    Print help information
+
+$ git diff
+Diffing stage..worktree 
+
+$ git diff ./src
+Diffing stage..worktree ./src
+
+$ git diff HEAD ./src
+Diffing HEAD..worktree ./src
+
+$ git diff HEAD~~ -- HEAD
+Diffing HEAD~~..worktree HEAD
 
 ```
