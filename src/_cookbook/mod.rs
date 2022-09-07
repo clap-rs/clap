@@ -26,6 +26,7 @@
 //!   - External subcommands
 //!   - Optional subcommands
 //!   - Default subcommands
+//!   - [`last`][crate::Arg::last]
 //!
 //! pacman-like interface: [builder][pacman]
 //! - Topics:
