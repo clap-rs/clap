@@ -3,8 +3,7 @@
 Help:
 ```console
 $ typed-derive --help
-Usage:
-    typed-derive[EXE] [OPTIONS]
+Usage: typed-derive[EXE] [OPTIONS]
 
 Options:
     -O <OPTIMIZATION>        Implicitly using `std::str::FromStr`

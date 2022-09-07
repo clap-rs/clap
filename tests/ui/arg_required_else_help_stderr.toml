@@ -3,8 +3,7 @@ args = []
 status.code = 2
 stdout = ""
 stderr = """
-Usage:
-    stdio-fixture[EXE] [OPTIONS] [COMMAND]
+Usage: stdio-fixture[EXE] [OPTIONS] [COMMAND]
 
 Commands:
     more    

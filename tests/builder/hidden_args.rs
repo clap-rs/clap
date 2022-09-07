@@ -5,8 +5,7 @@ use clap::{arg, Arg, ArgAction, Command};
 static HIDDEN_ARGS: &str = "\
 tests stuff
 
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
     -F, --flag2           some other flag
@@ -33,8 +32,7 @@ fn hide_args() {
 static HIDDEN_SHORT_ARGS: &str = "\
 hides short args
 
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
     -v, --visible    This text should be visible
@@ -72,8 +70,7 @@ fn hide_short_args_long_help() {
     static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "\
 hides short args
 
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
     -c, --config
@@ -113,8 +110,7 @@ Options:
 static HIDDEN_LONG_ARGS: &str = "\
 hides long args
 
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
     -v, --visible
@@ -153,8 +149,7 @@ fn hide_long_args() {
 static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "\
 hides long args
 
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
     -c, --config     Some help text describing the --config arg
@@ -187,8 +182,7 @@ fn hide_long_args_short_help() {
 }
 
 static HIDDEN_POS_ARGS: &str = "\
-Usage:
-    test [another]
+Usage: test [another]
 
 Arguments:
     [another]    another pos
@@ -209,8 +203,7 @@ fn hide_pos_args() {
 }
 
 static HIDDEN_SUBCMDS: &str = "\
-Usage:
-    test
+Usage: test
 
 Options:
     -h, --help       Print help information
@@ -227,8 +220,7 @@ fn hide_subcmds() {
 }
 
 static HIDDEN_OPT_ARGS_ONLY: &str = "\
-Usage:
-    test
+Usage: test
 
 After help
 ";
@@ -252,8 +244,7 @@ fn hide_opt_args_only() {
 }
 
 static HIDDEN_POS_ARGS_ONLY: &str = "\
-Usage:
-    test
+Usage: test
 
 After help
 ";
@@ -273,8 +264,7 @@ fn hide_pos_args_only() {
 }
 
 static HIDDEN_SUBCMDS_ONLY: &str = "\
-Usage:
-    test
+Usage: test
 
 After help
 ";

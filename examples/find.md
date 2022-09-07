@@ -4,8 +4,7 @@
 $ find --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    find[EXE] [OPTIONS] --name <NAME>
+Usage: find[EXE] [OPTIONS] --name <NAME>
 
 Options:
     -h, --help       Print help information

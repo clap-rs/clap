@@ -499,8 +499,7 @@ fn flag_subcommand_long_infer_exact_match() {
 static FLAG_SUBCOMMAND_HELP: &str = "\
 Query the package database.
 
-Usage:
-    pacman {query|--query|-Q} [OPTIONS]
+Usage: pacman {query|--query|-Q} [OPTIONS]
 
 Options:
     -s, --search <search>...    search locally installed packages for matching strings
@@ -548,8 +547,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
 static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "\
 Query the package database.
 
-Usage:
-    pacman {query|--query} [OPTIONS]
+Usage: pacman {query|--query} [OPTIONS]
 
 Options:
     -s, --search <search>...    search locally installed packages for matching strings
@@ -601,8 +599,7 @@ fn flag_subcommand_long_normal_usage_string() {
 static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "\
 Query the package database.
 
-Usage:
-    pacman {query|-Q} [OPTIONS]
+Usage: pacman {query|-Q} [OPTIONS]
 
 Options:
     -s, --search <search>...    search locally installed packages for matching strings

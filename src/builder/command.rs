@@ -2536,8 +2536,7 @@ impl Command {
     /// ```text
     /// cust-ord
     ///
-    /// Usage:
-    ///     cust-ord [OPTIONS]
+    /// Usage: cust-ord [OPTIONS]
     ///
     /// Commands:
     ///     beta    I should be first!
@@ -3004,8 +3003,7 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// Usage:
-    ///     myprog [COMMAND]
+    /// Usage: myprog [COMMAND]
     ///
     /// Commands:
     ///     help    Print this message or the help of the given subcommand(s)
@@ -3032,16 +3030,15 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// Usage:
-    ///     myprog [THING]
-    ///
-    /// Options:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    /// Usage: myprog [THING]
     ///
     /// Commands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
+    ///
+    /// Options:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     /// ```
     #[must_use]
     pub fn subcommand_value_name(mut self, value_name: impl Into<Str>) -> Self {
@@ -3070,16 +3067,15 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// Usage:
-    ///     myprog [COMMAND]
-    ///
-    /// Options:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    /// Usage: myprog [COMMAND]
     ///
     /// Commands:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
+    ///
+    /// Options:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     /// ```
     ///
     /// but usage of `subcommand_help_heading`
@@ -3098,16 +3094,15 @@ impl Command {
     /// ```text
     /// myprog
     ///
-    /// Usage:
-    ///     myprog [COMMAND]
-    ///
-    /// Options:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    /// Usage: myprog [COMMAND]
     ///
     /// Things:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
+    ///
+    /// Options:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     /// ```
     #[must_use]
     pub fn subcommand_help_heading(mut self, heading: impl Into<Str>) -> Self {

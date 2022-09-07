@@ -2,8 +2,7 @@
 $ 03_02_option --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_02_option[EXE] [OPTIONS]
+Usage: 03_02_option[EXE] [OPTIONS]
 
 Options:
     -n, --name <name>    

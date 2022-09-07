@@ -6,8 +6,7 @@ $ git
 ? failed
 A fictional versioning CLI
 
-Usage:
-    git[EXE] <COMMAND>
+Usage: git[EXE] <COMMAND>
 
 Commands:
     clone    Clones repos
@@ -22,8 +21,7 @@ Options:
 $ git help
 A fictional versioning CLI
 
-Usage:
-    git[EXE] <COMMAND>
+Usage: git[EXE] <COMMAND>
 
 Commands:
     clone    Clones repos
@@ -38,8 +36,7 @@ Options:
 $ git help add
 adds things
 
-Usage:
-    git[EXE] add <PATH>...
+Usage: git[EXE] add <PATH>...
 
 Arguments:
     <PATH>...    Stuff to add
@@ -55,8 +52,7 @@ $ git add
 ? failed
 adds things
 
-Usage:
-    git[EXE] add <PATH>...
+Usage: git[EXE] add <PATH>...
 
 Arguments:
     <PATH>...    Stuff to add
@@ -72,9 +68,8 @@ Adding ["Cargo.toml", "Cargo.lock"]
 Default subcommand:
 ```console
 $ git stash -h
-Usage:
-    git[EXE] stash [OPTIONS]
-    git[EXE] stash <COMMAND>
+Usage: git[EXE] stash [OPTIONS]
+       git[EXE] stash <COMMAND>
 
 Commands:
     push     
@@ -87,16 +82,14 @@ Options:
     -h, --help                 Print help information
 
 $ git stash push -h
-Usage:
-    git[EXE] stash push [OPTIONS]
+Usage: git[EXE] stash push [OPTIONS]
 
 Options:
     -m, --message <MESSAGE>    
     -h, --help                 Print help information
 
 $ git stash pop -h
-Usage:
-    git[EXE] stash pop [STASH]
+Usage: git[EXE] stash pop [STASH]
 
 Arguments:
     [STASH]    

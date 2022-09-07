@@ -2,8 +2,7 @@
 $ 03_02_option_derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_02_option_derive[EXE] [OPTIONS]
+Usage: 03_02_option_derive[EXE] [OPTIONS]
 
 Options:
     -n, --name <NAME>    

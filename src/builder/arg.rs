@@ -1103,8 +1103,7 @@ impl Arg {
     /// ```text
     /// valnames
     ///
-    /// Usage:
-    ///    valnames [OPTIONS]
+    /// Usage: valnames [OPTIONS]
     ///
     /// Options:
     ///     --config <FILE>     Some help text
@@ -1160,8 +1159,7 @@ impl Arg {
     /// ```text
     /// valnames
     ///
-    /// Usage:
-    ///    valnames [OPTIONS]
+    /// Usage: valnames [OPTIONS]
     ///
     /// Options:
     ///     -h, --help                       Print help information
@@ -1971,8 +1969,7 @@ impl Arg {
     /// ```notrust
     /// helptest
     ///
-    /// Usage:
-    ///    helptest [OPTIONS]
+    /// Usage: helptest [OPTIONS]
     ///
     /// Options:
     ///     --config     Some help text describing the --config arg
@@ -2025,8 +2022,7 @@ impl Arg {
     /// ```text
     /// prog
     ///
-    /// Usage:
-    ///     prog [OPTIONS]
+    /// Usage: prog [OPTIONS]
     ///
     /// Options:
     ///         --config
@@ -2091,8 +2087,7 @@ impl Arg {
     /// ```text
     /// cust-ord
     ///
-    /// Usage:
-    ///     cust-ord [OPTIONS]
+    /// Usage: cust-ord [OPTIONS]
     ///
     /// Options:
     ///     -h, --help                Print help information
@@ -2151,8 +2146,7 @@ impl Arg {
     /// ```text
     /// nlh
     ///
-    /// Usage:
-    ///     nlh [OPTIONS]
+    /// Usage: nlh [OPTIONS]
     ///
     /// Options:
     ///     -h, --help       Print help information
@@ -2197,8 +2191,7 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// Usage:
-    ///    helptest [OPTIONS]
+    /// Usage: helptest [OPTIONS]
     ///
     /// Options:
     /// -h, --help       Print help information
@@ -2371,8 +2364,7 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// Usage:
-    ///    helptest [OPTIONS]
+    /// Usage: helptest [OPTIONS]
     ///
     /// Options:
     /// -h, --help       Print help information
@@ -2398,8 +2390,7 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// Usage:
-    ///    helptest [OPTIONS]
+    /// Usage: helptest [OPTIONS]
     ///
     /// Options:
     ///     --config     Some help text describing the --config arg
@@ -2444,8 +2435,7 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// Usage:
-    ///    helptest [OPTIONS]
+    /// Usage: helptest [OPTIONS]
     ///
     /// Options:
     /// -h, --help       Print help information
@@ -2471,8 +2461,7 @@ impl Arg {
     /// ```text
     /// helptest
     ///
-    /// Usage:
-    ///    helptest [OPTIONS]
+    /// Usage: helptest [OPTIONS]
     ///
     /// OPTIONS:
     ///     --config     Some help text describing the --config arg

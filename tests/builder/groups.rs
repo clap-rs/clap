@@ -5,8 +5,7 @@ use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command, Id};
 static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
     <base|--delete>
 
-Usage:
-    clap-test <base|--delete>
+Usage: clap-test <base|--delete>
 
 For more information try --help
 ";
@@ -14,8 +13,7 @@ For more information try --help
 static REQ_GROUP_CONFLICT_USAGE: &str =
     "error: The argument '--delete' cannot be used with '[base]'
 
-Usage:
-    clap-test <base|--delete>
+Usage: clap-test <base|--delete>
 
 For more information try --help
 ";
@@ -23,8 +21,7 @@ For more information try --help
 static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
     "error: The argument '--delete' cannot be used with '--all'
 
-Usage:
-    clap-test <--all|--delete>
+Usage: clap-test <--all|--delete>
 
 For more information try --help
 ";
@@ -262,8 +259,7 @@ fn group_overrides_required() {
 #[test]
 fn group_usage_use_val_name() {
     static GROUP_USAGE_USE_VAL_NAME: &str = "\
-Usage:
-    prog <A>
+Usage: prog <A>
 
 Arguments:
     [A]    

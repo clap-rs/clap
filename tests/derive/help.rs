@@ -220,9 +220,8 @@ fn derive_generated_error_has_full_context() {
 
     let expected = r#"error: The following required argument was not provided: req_str
 
-Usage:
-    clap --req-str <REQ_STR>
-    clap <COMMAND>
+Usage: clap --req-str <REQ_STR>
+       clap <COMMAND>
 
 For more information try --help
 "#;
@@ -232,8 +231,7 @@ For more information try --help
 #[test]
 fn derive_order_next_order() {
     static HELP: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag-b                 first flag
@@ -287,8 +285,7 @@ Options:
 #[test]
 fn derive_order_next_order_flatten() {
     static HELP: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag-b                 first flag
@@ -342,8 +339,7 @@ Options:
 #[test]
 fn derive_order_no_next_order() {
     static HELP: &str = "\
-Usage:
-    test [OPTIONS]
+Usage: test [OPTIONS]
 
 Options:
         --flag-a                 first flag
@@ -398,8 +394,7 @@ fn derive_possible_value_help() {
     static HELP: &str = "\
 Application help
 
-Usage:
-    clap <ARG>
+Usage: clap <ARG>
 
 Arguments:
     <ARG>

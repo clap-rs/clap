@@ -7,8 +7,7 @@ Let's see what this looks like in the help:
 $ escaped-positional --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    escaped-positional[EXE] [OPTIONS] [-- <SLOP>...]
+Usage: escaped-positional[EXE] [OPTIONS] [-- <SLOP>...]
 
 Arguments:
     [SLOP]...    
@@ -36,8 +35,7 @@ $ escaped-positional foo bar
 ? failed
 error: Found argument 'foo' which wasn't expected, or isn't valid in this context
 
-Usage:
-    escaped-positional[EXE] [OPTIONS] [-- <SLOP>...]
+Usage: escaped-positional[EXE] [OPTIONS] [-- <SLOP>...]
 
 For more information try --help
 

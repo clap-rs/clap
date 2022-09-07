@@ -2,8 +2,7 @@
 $ 03_03_positional_mult_derive --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_03_positional_mult_derive[EXE] [NAME]...
+Usage: 03_03_positional_mult_derive[EXE] [NAME]...
 
 Arguments:
     [NAME]...    

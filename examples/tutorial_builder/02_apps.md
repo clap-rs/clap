@@ -2,8 +2,7 @@
 $ 02_apps --help
 Does awesome things
 
-Usage:
-    02_apps[EXE] --two <VALUE> --one <VALUE>
+Usage: 02_apps[EXE] --two <VALUE> --one <VALUE>
 
 Options:
         --two <VALUE>    

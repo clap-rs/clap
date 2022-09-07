@@ -6,8 +6,7 @@ const USE_FLAG_AS_ARGUMENT: &str =
 
     If you tried to supply `--another-flag` as a value rather than a flag, use `-- --another-flag`
 
-Usage:
-    mycat [OPTIONS] [filename]
+Usage: mycat [OPTIONS] [filename]
 
 For more information try --help
 ";
@@ -183,8 +182,7 @@ fn issue_2308_multiple_dashes() {
 
     If you tried to supply `-----` as a value rather than a flag, use `-- -----`
 
-Usage:
-    test <arg>
+Usage: test <arg>
 
 For more information try --help
 ";

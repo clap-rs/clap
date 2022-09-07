@@ -2,8 +2,7 @@
 $ 04_02_validate --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    04_02_validate[EXE] <PORT>
+Usage: 04_02_validate[EXE] <PORT>
 
 Arguments:
     <PORT>    Network port to use

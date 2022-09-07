@@ -2,8 +2,7 @@
 $ 03_05_default_values --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    03_05_default_values[EXE] [NAME]
+Usage: 03_05_default_values[EXE] [NAME]
 
 Arguments:
     [NAME]    [default: alice]

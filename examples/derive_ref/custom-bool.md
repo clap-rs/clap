@@ -6,8 +6,7 @@ Example of overriding the magic `bool` behavior
 $ custom-bool --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    custom-bool[EXE] [OPTIONS] --foo <FOO> <BOOM>
+Usage: custom-bool[EXE] [OPTIONS] --foo <FOO> <BOOM>
 
 Arguments:
     <BOOM>    [possible values: true, false]
@@ -24,8 +23,7 @@ error: The following required arguments were not provided:
     --foo <FOO>
     <BOOM>
 
-Usage:
-    custom-bool[EXE] --foo <FOO> <BOOM>
+Usage: custom-bool[EXE] --foo <FOO> <BOOM>
 
 For more information try --help
 

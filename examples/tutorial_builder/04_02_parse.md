@@ -2,8 +2,7 @@
 $ 04_02_parse --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage:
-    04_02_parse[EXE] <PORT>
+Usage: 04_02_parse[EXE] <PORT>
 
 Arguments:
     <PORT>    Network port to use

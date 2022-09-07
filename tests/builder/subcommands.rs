@@ -3,8 +3,7 @@ use super::utils;
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 static VISIBLE_ALIAS_HELP: &str = "\
-Usage:
-    clap-test [COMMAND]
+Usage: clap-test [COMMAND]
 
 Commands:
     test    Some help [aliases: dongle, done]
@@ -16,8 +15,7 @@ Options:
 ";
 
 static INVISIBLE_ALIAS_HELP: &str = "\
-Usage:
-    clap-test [COMMAND]
+Usage: clap-test [COMMAND]
 
 Commands:
     test    Some help
@@ -35,8 +33,7 @@ static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
 
 If you believe you received this message in error, try re-running with 'dym -- subcm'
 
-Usage:
-    dym [COMMAND]
+Usage: dym [COMMAND]
 
 For more information try --help
 ";
@@ -48,8 +45,7 @@ static DYM_SUBCMD_AMBIGUOUS: &str = "error: The subcommand 'te' wasn't recognize
 
 If you believe you received this message in error, try re-running with 'dym -- te'
 
-Usage:
-    dym [COMMAND]
+Usage: dym [COMMAND]
 
 For more information try --help
 ";
@@ -59,8 +55,7 @@ static SUBCMD_AFTER_DOUBLE_DASH: &str =
 
     If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
 
-Usage:
-    cmd [COMMAND]
+Usage: cmd [COMMAND]
 
 For more information try --help
 ";
@@ -181,8 +176,7 @@ fn subcmd_did_you_mean_output_arg() {
 
     If you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
 
-Usage:
-    dym [COMMAND]
+Usage: dym [COMMAND]
 
 For more information try --help
 ";
@@ -202,8 +196,7 @@ fn subcmd_did_you_mean_output_arg_false_positives() {
 
     If you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
 
-Usage:
-    dym [COMMAND]
+Usage: dym [COMMAND]
 
 For more information try --help
 ";
@@ -356,7 +349,7 @@ fn subcommand_placeholder_test() {
         .subcommand_value_name("TEST_PLACEHOLDER")
         .subcommand_help_heading("TEST_HEADER");
 
-    assert_eq!(&cmd.render_usage(), "Usage:\n    myprog [TEST_PLACEHOLDER]");
+    assert_eq!(&cmd.render_usage(), "Usage: myprog [TEST_PLACEHOLDER]");
 
     let mut help_text = Vec::new();
     cmd.write_help(&mut help_text)
@@ -438,8 +431,7 @@ fn subcommand_not_recognized() {
         "fake help",
         "error: The subcommand 'help' wasn't recognized
 
-Usage:
-    fake [COMMAND]
+Usage: fake [COMMAND]
 
 For more information try --help
 ",
@@ -515,8 +507,7 @@ fn bad_multicall_command_error() {
     static HELLO_EXPECTED: &str = "\
 error: The subcommand 'world' wasn't recognized
 
-Usage:
-    <COMMAND>
+Usage: <COMMAND>
 
 For more information try help
 ";
@@ -533,8 +524,7 @@ error: The subcommand 'baz' wasn't recognized
 
 If you believe you received this message in error, try re-running with ' -- baz'
 
-Usage:
-    <COMMAND>
+Usage: <COMMAND>
 
 For more information try help
 ";
@@ -572,8 +562,7 @@ fn cant_have_args_with_multicall() {
 #[test]
 fn multicall_help_flag() {
     static EXPECTED: &str = "\
-Usage:
-    foo bar [value]
+Usage: foo bar [value]
 
 Arguments:
     [value]    
@@ -593,8 +582,7 @@ Options:
 #[test]
 fn multicall_help_subcommand() {
     static EXPECTED: &str = "\
-Usage:
-    foo bar [value]
+Usage: foo bar [value]
 
 Arguments:
     [value]    
@@ -614,8 +602,7 @@ Options:
 #[test]
 fn multicall_render_help() {
     static EXPECTED: &str = "\
-Usage:
-    foo bar [value]
+Usage: foo bar [value]
 
 Arguments:
     [value]    
