@@ -1951,26 +1951,11 @@ impl Command {
         }
     }
 
-    /// Allows negative numbers to pass as values.
-    ///
-    /// This is similar to [`Command::allow_hyphen_values`] except that it only allows numbers,
-    /// all other undefined leading hyphens will fail to parse.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{Command, Arg};
-    /// let res = Command::new("myprog")
-    ///     .allow_negative_numbers(true)
-    ///     .arg(Arg::new("num"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "-20"
-    ///     ]);
-    /// assert!(res.is_ok());
-    /// let m = res.unwrap();
-    /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
-    /// ```
-    #[inline]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::allow_negative_numbers`")
+    )]
     pub fn allow_negative_numbers(self, yes: bool) -> Self {
         if yes {
             self.setting(AppSettings::AllowNegativeNumbers)
@@ -3564,7 +3549,14 @@ impl Command {
         self.is_set(AppSettings::AllowHyphenValues)
     }
 
-    /// Report whether [`Command::allow_negative_numbers`] is set
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(
+            since = "4.0.0",
+            note = "Replaced with `Arg::is_allow_negative_numbers_set`"
+        )
+    )]
     pub fn is_allow_negative_numbers_set(&self) -> bool {
         self.is_set(AppSettings::AllowNegativeNumbers)
     }

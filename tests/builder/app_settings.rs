@@ -493,9 +493,13 @@ fn leading_hyphen_opt() {
 #[test]
 fn allow_negative_numbers_success() {
     let res = Command::new("negnum")
-        .allow_negative_numbers(true)
-        .arg(Arg::new("panum"))
-        .arg(Arg::new("onum").short('o').action(ArgAction::Set))
+        .arg(Arg::new("panum").allow_negative_numbers(true))
+        .arg(
+            Arg::new("onum")
+                .short('o')
+                .action(ArgAction::Set)
+                .allow_negative_numbers(true),
+        )
         .try_get_matches_from(vec!["negnum", "-20", "-o", "-1.2"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
@@ -512,9 +516,13 @@ fn allow_negative_numbers_success() {
 #[test]
 fn allow_negative_numbers_fail() {
     let res = Command::new("negnum")
-        .allow_negative_numbers(true)
-        .arg(Arg::new("panum"))
-        .arg(Arg::new("onum").short('o').action(ArgAction::Set))
+        .arg(Arg::new("panum").allow_negative_numbers(true))
+        .arg(
+            Arg::new("onum")
+                .short('o')
+                .action(ArgAction::Set)
+                .allow_negative_numbers(true),
+        )
         .try_get_matches_from(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument)

@@ -2,7 +2,7 @@ use clap::Parser;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
-#[command(allow_negative_numbers = true)]
+#[command(next_line_help = true)]
 struct Cli {
     #[arg(long)]
     two: String,

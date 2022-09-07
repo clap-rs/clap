@@ -2,7 +2,7 @@ use clap::{arg, command, ArgAction};
 
 fn main() {
     let matches = command!() // requires `cargo` feature
-        .allow_negative_numbers(true)
+        .next_line_help(true)
         .arg(arg!(--two <VALUE>).action(ArgAction::Set))
         .arg(arg!(--one <VALUE>).action(ArgAction::Set))
         .get_matches();

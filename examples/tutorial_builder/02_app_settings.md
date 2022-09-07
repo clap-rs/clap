@@ -6,13 +6,16 @@ Usage:
     02_app_settings[EXE] --two <VALUE> --one <VALUE>
 
 Options:
-        --two <VALUE>    
-        --one <VALUE>    
-    -h, --help           Print help information
-    -V, --version        Print version information
+        --two <VALUE>
+            
 
-$ 02_app_settings --one -1 --one -3 --two 10
-two: "10"
-one: "-3"
+        --one <VALUE>
+            
+
+    -h, --help
+            Print help information
+
+    -V, --version
+            Print version information
 
 ```
