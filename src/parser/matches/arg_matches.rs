@@ -107,7 +107,7 @@ impl ArgMatches {
     /// ```
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_one<T: Any + Clone + Send + Sync + 'static>(&self, id: &str) -> Option<&T> {
         MatchesError::unwrap(id, self.try_get_one(id))
     }
@@ -136,7 +136,7 @@ impl ArgMatches {
     ///     2
     /// );
     /// ```
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_count(&self, id: &str) -> u8 {
         *self
             .get_one::<u8>(id)
@@ -168,7 +168,7 @@ impl ArgMatches {
     ///     true
     /// );
     /// ```
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_flag(&self, id: &str) -> bool {
         *self
             .get_one::<bool>(id)
@@ -207,7 +207,7 @@ impl ArgMatches {
     ///     .collect();
     /// assert_eq!(vals, [22, 80, 2020]);
     /// ```
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
@@ -256,7 +256,7 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_raw(&self, id: &str) -> Option<RawValues<'_>> {
         MatchesError::unwrap(id, self.try_get_raw(id))
     }
@@ -294,7 +294,7 @@ impl ArgMatches {
     /// ```
     /// [positional]: crate::Arg::index()
     /// [`default_value`]: crate::Arg::default_value()
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn remove_one<T: Any + Clone + Send + Sync + 'static>(&mut self, id: &str) -> Option<T> {
         MatchesError::unwrap(id, self.try_remove_one(id))
     }
@@ -329,7 +329,7 @@ impl ArgMatches {
     ///     .collect();
     /// assert_eq!(vals, ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]);
     /// ```
-    #[track_caller]
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn remove_many<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         id: &str,
