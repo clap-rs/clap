@@ -5,19 +5,18 @@ fn command() -> clap::Command {
     let cmd = clap::Command::new("dynamic")
         .arg(
             clap::Arg::new("input")
-                .long("--input")
+                .long("input")
                 .short('i')
                 .value_hint(clap::ValueHint::FilePath),
         )
         .arg(
             clap::Arg::new("format")
-                .long("--format")
+                .long("format")
                 .short('F')
                 .value_parser(["json", "yaml", "toml"]),
         )
         .args_conflicts_with_subcommands(true);
-    let cmd = clap_complete::dynamic::bash::CompleteCommand::augment_subcommands(cmd);
-    cmd
+    clap_complete::dynamic::bash::CompleteCommand::augment_subcommands(cmd)
 }
 
 fn main() {
@@ -34,6 +33,5 @@ fn main() {
 
 #[test]
 fn verify_cli() {
-    use clap::CommandFactory;
-    command().command().debug_assert();
+    command().debug_assert();
 }

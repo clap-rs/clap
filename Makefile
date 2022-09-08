@@ -18,7 +18,7 @@ _FEATURES_default =
 _FEATURES_wasm = --features "deprecated derive cargo env unicode perf unstable-replace unstable-grouped"
 _FEATURES_full = --features "deprecated derive cargo env unicode perf unstable-replace unstable-grouped wrap_help"
 _FEATURES_next = ${_FEATURES_full} --features unstable-v5
-_FEATURES_debug = ${_FEATURES_full} --features debug
+_FEATURES_debug = ${_FEATURES_full} --features debug --features clap_complete/debug
 _FEATURES_release = ${_FEATURES_full} --release
 
 check-%:

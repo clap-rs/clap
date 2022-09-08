@@ -11,7 +11,7 @@ fn suggest_subcommand_subset() {
     let args = [name, "he"];
     let arg_index = 1;
     let args = IntoIterator::into_iter(args)
-        .map(|s| std::ffi::OsString::from(s))
+        .map(std::ffi::OsString::from)
         .collect::<Vec<_>>();
     let comp_type = clap_complete::dynamic::bash::CompType::default();
     let trailing_space = true;
@@ -40,24 +40,24 @@ fn suggest_long_flag_subset() {
     let mut cmd = clap::Command::new(name)
         .arg(
             clap::Arg::new("hello-world")
-                .long("--hello-world")
-                .multiple_occurrences(true),
+                .long("hello-world")
+                .action(clap::ArgAction::Count),
         )
         .arg(
             clap::Arg::new("hello-moon")
-                .long("--hello-moon")
-                .multiple_occurrences(true),
+                .long("hello-moon")
+                .action(clap::ArgAction::Count),
         )
         .arg(
             clap::Arg::new("goodbye-world")
-                .long("--goodbye-world")
-                .multiple_occurrences(true),
+                .long("goodbye-world")
+                .action(clap::ArgAction::Count),
         );
 
     let args = [name, "--he"];
     let arg_index = 1;
     let args = IntoIterator::into_iter(args)
-        .map(|s| std::ffi::OsString::from(s))
+        .map(std::ffi::OsString::from)
         .collect::<Vec<_>>();
     let comp_type = clap_complete::dynamic::bash::CompType::default();
     let trailing_space = true;
@@ -77,13 +77,13 @@ fn suggest_long_flag_subset() {
         .map(|s| s.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
-    assert_eq!(completions, ["--help", "--hello-world", "--hello-moon"]);
+    assert_eq!(completions, ["--hello-world", "--hello-moon", "--help"]);
 }
 
 #[test]
 fn suggest_possible_value_subset() {
     let name = "test";
-    let mut cmd = clap::Command::new(name).arg(clap::Arg::new("hello-world").possible_values([
+    let mut cmd = clap::Command::new(name).arg(clap::Arg::new("hello-world").value_parser([
         "hello-world",
         "hello-moon",
         "goodbye-world",
@@ -92,7 +92,7 @@ fn suggest_possible_value_subset() {
     let args = [name, "hello"];
     let arg_index = 1;
     let args = IntoIterator::into_iter(args)
-        .map(|s| std::ffi::OsString::from(s))
+        .map(std::ffi::OsString::from)
         .collect::<Vec<_>>();
     let comp_type = clap_complete::dynamic::bash::CompType::default();
     let trailing_space = true;
@@ -119,14 +119,26 @@ fn suggest_possible_value_subset() {
 fn suggest_additional_short_flags() {
     let name = "test";
     let mut cmd = clap::Command::new(name)
-        .arg(clap::Arg::new("a").short('a').multiple_occurrences(true))
-        .arg(clap::Arg::new("b").short('b').multiple_occurrences(true))
-        .arg(clap::Arg::new("c").short('c').multiple_occurrences(true));
+        .arg(
+            clap::Arg::new("a")
+                .short('a')
+                .action(clap::ArgAction::Count),
+        )
+        .arg(
+            clap::Arg::new("b")
+                .short('b')
+                .action(clap::ArgAction::Count),
+        )
+        .arg(
+            clap::Arg::new("c")
+                .short('c')
+                .action(clap::ArgAction::Count),
+        );
 
     let args = [name, "-a"];
     let arg_index = 1;
     let args = IntoIterator::into_iter(args)
-        .map(|s| std::ffi::OsString::from(s))
+        .map(std::ffi::OsString::from)
         .collect::<Vec<_>>();
     let comp_type = clap_complete::dynamic::bash::CompType::default();
     let trailing_space = true;
@@ -146,5 +158,5 @@ fn suggest_additional_short_flags() {
         .map(|s| s.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
-    assert_eq!(completions, ["-ah", "-aa", "-ab", "-ac"]);
+    assert_eq!(completions, ["-aa", "-ab", "-ac", "-ah"]);
 }
