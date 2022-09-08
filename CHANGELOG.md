@@ -155,17 +155,16 @@ other `num_args` use cases.
 Subtle changes (i.e. compiler won't catch):
 
 - `arg!` now sets one of (#3795):
-  - `ArgAction::SetTrue` requiring `ArgMatches::get_flag`
-  - `ArgAction::Count` requiring `ArgMatches::get_count`
-  - `ArgAction::Set` requiring `ArgMatches::get_one`
-  - `ArgAction::Append` requiring `ArgMatches::get_many`
-- By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::IncOccurrence` (#4032, see also #3977)
-- Sometimes `Arg::default_missing_value` didn't require `num_args(0..=1)`, now it does (#4023)
+  - `ArgAction::SetTrue`, requiring `ArgMatches::get_flag` instead of `ArgMatches::is_present`
+  - `ArgAction::Count`, requiring `ArgMatches::get_count` instead of `ArgMatches::occurrences_of`
+  - `ArgAction::Set`, requiring `ArgMatches::get_one` instead of `ArgMatches::value_of`
+  - `ArgAction::Append`, requiring `ArgMatches::get_many` instead of `ArgMatches::values_of`
+- By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::IncOccurrence` to reduce confusing magic through consistency (#2687, #4032, see also #3977)
 - `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own (#4056)
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`
-- *(parser)* Always fill in `""` argument for external subcommands (#3263)
-- *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, like `Command::allow_hyphen_values` (#4187)
-- *(parser)* `Arg::value_terminator` must stand on its own now rather than being in a delimited list (#4025)
+- *(parser)* Always fill in `""` argument for external subcommands to make it easier to distinguish them from built-in commands (#3263)
+- *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, to be consistent with `Command::allow_hyphen_values` (#4187)
+- *(parser)* `Arg::value_terminator` must be its own argument on the CLI rather than being in a delimited list (#4025)
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(help)* Subcommands are now listed before arguments.  To get the old behavior, see `Command::help_template` (#4132)
@@ -180,34 +179,35 @@ Subtle changes (i.e. compiler won't catch):
 
 Easier to catch changes:
 
-- Looking up a group in `ArgMatches` now returns the arg `Id`s, rather than the values. (#4072)
+- Looking up a group in `ArgMatches` now returns the arg `Id`s, rather than the values to reduce overhead and offer more flexibility. (#4072)
 - Changed `Arg::number_of_values` (average-across-occurrences) to `Arg::num_args` (per-occurrence) (raw CLI args, not parsed values) (#2688, #4023)
   - `num_args(0)` no longer implies `takes_value(true).multiple_values(true)` (#4023)
   - `num_args(1)` no longer implies `multiple_values(true)` (#4023)
   - Does not check default or env values, only what the user explicitly passes in (#4025)
   - No longer terminates on delimited values (#4025)
-- Replace `Arg::min_values` (across all occurrences) with `Arg::num_args(N..)` (per occurrence) (#4023)
-- Replace `Arg::max_values` (across all occurrences) with `Arg::num_args(1..=M)` (per occurrence) (#4023)
-- Replace `Arg::multiple_values(true)` with `Arg::num_args(1..)` and `Arg::multiple_values(false)` with `Arg::num_args(0)` (#4023)
-- Replace `Arg::takes_value(true)` with `Arg::num_args(1)` and `Arg::takes_value(false)` with `Arg::num_args(0)`
-- Remove `Arg::require_value_delimiter`, either users could use `Arg::value_delimiter` or implement a custom parser with `TypedValueParser` (#4026)
+- Replace `Arg::min_values` (across all occurrences) with `Arg::num_args(N..)` (per occurrence) to reduce confusion over different value count APIs (#4023)
+- Replace `Arg::max_values` (across all occurrences) with `Arg::num_args(1..=M)` (per occurrence) to reduce confusion over different value count APIs  (#4023)
+- Replace `Arg::multiple_values(true)` with `Arg::num_args(1..)` and `Arg::multiple_values(false)` with `Arg::num_args(0)` to reduce confusion over different value count APIs  (#4023)
+- Replace `Arg::takes_value(true)` with `Arg::num_args(1)` and `Arg::takes_value(false)` with `Arg::num_args(0)` to reduce confusion over different value count APIs 
+- Remove `Arg::require_value_delimiter`, either users could use `Arg::value_delimiter` or implement a custom parser with `TypedValueParser` as it was mostly to make `multiple_values(true)` act like `multiple_values(false)` and isn't needed anymore (#4026)
 - `Arg::new("help")` and `Arg::new("version")` no longer implicitly disable the
   built-in flags and be copied to all subcommands, instead disable
   the built-in flags (`Command::disable_help_flag`,
   `Command::disable_version_flag`) and mark the custom flags as `global(true)`. (#4056)
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior (#4000)
 - Changed `Arg::requires_ifs` and `Arg::default_value*_ifs*` to taking an `ArgPredicate`, removing ambiguity with `None` when accepting owned and borrowed types (#4084)
-- Removed `PartialEq` and `Eq` from `Command` (#3990)
-- Various `Arg`, `Command`, and `ArgGroup` calls were switched from accepting `&[]` to `[]` via `IntoIterator` (#4072)
+- Removed `PartialEq` and `Eq` from `Command` so we could change external subcommands to use a `ValueParser` (#3990)
+- Various `Arg`, `Command`, and `ArgGroup` calls were switched from accepting `&[]` to `[]` via `IntoIterator` to be more flexible (#4072)
 - `Arg::short_aliases` and other builder functions that took `&[]` need the `&` dropped (#4081)
-- `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue` (#3676, #3968)
-- `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` (#3676)
-- Changed the default type of `allow_external_subcommands` from `String` to `OsString` (#3990)
+- `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue` to remove an unnecessary special case (#3676, #3968)
+- `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` to remove an unnecessary special case (#3676)
+- Changed the default type of `allow_external_subcommands` from `String` to `OsString` as that is less likely to cause bugs in user applications (#3990)
 - *(derive)* Changed the default for arguments from `parse` to `value_parser`, removing `parse` support (#3827, #3981)
   - `#[clap(value_parser)]` and `#[clap(action)]` are now redundant
-- *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` (#3280)
-- *(derive)* Remove `arg_enum` attribute in favor of `value_enum` (#4127)
-- *(parser)* Assert on unknown args when using external subcommands (#3703)
+- *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` to give more meaningful errors when subcommands are missing and to reduce redundancy (#3280)
+- *(derive)* Remove `arg_enum` attribute in favor of `value_enum` to match the new name (we didn't have support in v3 to mark it deprecated) (#4127)
+- *(parser)* Assert when the CLI looksup an unknown args when external subcommand support is enabled to help catch bugs (#3703)
+- *(assert)* Sometimes `Arg::default_missing_value` didn't require `num_args(0..=N)`, now it does (#4023)
 - *(assert)* Leading dashes in `Arg::long` are no longer allowed (#3691)
 - *(assert)* Disallow more `value_names` than `num_args` (#2695)
 - *(assert)* Always enforce that version is specified when the `ArgAction::Version` is used
@@ -221,15 +221,15 @@ Easier to catch changes:
 MSRV is now 1.60.0
 
 Deprecated
-- `Arg::use_value_delimiter` in favor of `Arg::value_delimiter`
-- `Arg::requires_all` in favor of `Arg::requires_ifs` now that it takes an `ArgPredicate`
-- `Arg::number_of_values` in favor of `Arg::num_args`
+- `Arg::use_value_delimiter` in favor of `Arg::value_delimiter` to avoid having multiple ways of doing the same thing
+- `Arg::requires_all` in favor of `Arg::requires_ifs` now that it takes an `ArgPredicate` to avoid having multiple ways of doing the same thing
+- `Arg::number_of_values` in favor of `Arg::num_args` to clarify semantic differences
 - `default_value_os`, `default_values_os`, `default_value_if_os`, and `default_value_ifs_os` as the non `_os` variants now accept either a `str` or an `OsStr` (#4141)
-- `Command::dont_collapse_args_in_usage` is now the default and is deprecated (#4151)
-- `Command::trailing_var_arg` in favor of `Arg::trailing_var_arg` (#4187)
-- `Command::allow_hyphen_values` in favor of `Arg::allow_hyphen_values` (#4187)
-- `Command::allow_negative_numbers` in favor of `Arg::allow_negative_numbers` (#4187)
-- *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value` (#1807, #4180)
+- `Command::dont_collapse_args_in_usage` is now the default (#4151)
+- `Command::trailing_var_arg` in favor of `Arg::trailing_var_arg` to make it clearer which arg it is meant to apply to (#4187)
+- `Command::allow_hyphen_values` in favor of `Arg::allow_hyphen_values` to make it clearer which arg it is meant to apply to (#4187)
+- `Command::allow_negative_numbers` in favor of `Arg::allow_negative_numbers` to make it clearer which arg it is meant to apply to (#4187)
+- *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value` to open the door for [more features](https://github.com/clap-rs/clap/issues/1807) and [clarify relationship to the builder](https://github.com/clap-rs/clap/discussions/4090) (#1807, #4180)
 
 ### Features
 
