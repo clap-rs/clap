@@ -92,7 +92,7 @@ See [Issue 4132](https://github.com/clap-rs/clap/issues/4132) for more backgroun
 
 Steps:
 
-0. Upgrade to [v3](https://github.com/clap-rs/clap/blob/v3-master/CHANGELOG.md#migrating) if you haven't already
+0. [Upgrade to v3](https://github.com/clap-rs/clap/blob/v3-master/CHANGELOG.md#migrating) if you haven't already
 1. Add CLI tests (including example below), `-h` and `--help` output at a minimum (recommendation: [trycmd](https://docs.rs/trycmd/) for snapshot testing)
 2. Run `cargo check --features clap/deprecated` and resolve all deprecation warnings
 3. *If using Builder API*: Explicitly set the `arg.action(ArgAction::...)` on each argument
