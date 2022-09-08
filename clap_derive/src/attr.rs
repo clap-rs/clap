@@ -93,9 +93,7 @@ impl Parse for ClapAttr {
             "default_values_os_t" => Some(MagicAttrName::DefaultValuesOsT),
             "long" => Some(MagicAttrName::Long),
             "short" => Some(MagicAttrName::Short),
-            #[cfg(not(feature = "unstable-v5"))]
             "value_parser" => Some(MagicAttrName::ValueParser),
-            #[cfg(not(feature = "unstable-v5"))]
             "action" => Some(MagicAttrName::Action),
             "env" => Some(MagicAttrName::Env),
             "flatten" => Some(MagicAttrName::Flatten),
@@ -150,9 +148,7 @@ impl Parse for ClapAttr {
 pub enum MagicAttrName {
     Short,
     Long,
-    #[cfg(not(feature = "unstable-v5"))]
     ValueParser,
-    #[cfg(not(feature = "unstable-v5"))]
     Action,
     Env,
     Flatten,
