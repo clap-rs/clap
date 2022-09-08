@@ -421,7 +421,6 @@ impl Item {
                     self.push_method(*attr.kind.get(), attr.name.clone(), self.name.clone().translate(*self.casing));
                 }
 
-                #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::ValueParser) if attr.value.is_none() => {
                     assert_attr_kind(attr, &[AttrKind::Arg]);
 
@@ -434,7 +433,6 @@ impl Item {
                     self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
                 }
 
-                #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::Action) if attr.value.is_none() => {
                     assert_attr_kind(attr, &[AttrKind::Arg]);
 
@@ -763,7 +761,6 @@ impl Item {
                 }
 
                 // Magic only for the default, otherwise just forward to the builder
-                #[cfg(not(feature = "unstable-v5"))]
                 Some(MagicAttrName::ValueParser) | Some(MagicAttrName::Action) => {
                     let expr = attr.value_or_abort();
                     self.push_method(*attr.kind.get(), attr.name.clone(), expr);
@@ -977,7 +974,6 @@ impl Item {
 #[derive(Clone)]
 enum ValueParser {
     Explicit(Method),
-    #[cfg(not(feature = "unstable-v5"))]
     Implicit(Ident),
 }
 
@@ -985,7 +981,6 @@ impl ValueParser {
     fn resolve(self, _inner_type: &Type) -> Method {
         match self {
             Self::Explicit(method) => method,
-            #[cfg(not(feature = "unstable-v5"))]
             Self::Implicit(ident) => default_value_parser(_inner_type, ident.span()),
         }
     }
@@ -993,7 +988,6 @@ impl ValueParser {
     fn span(&self) -> Span {
         match self {
             Self::Explicit(method) => method.name.span(),
-            #[cfg(not(feature = "unstable-v5"))]
             Self::Implicit(ident) => ident.span(),
         }
     }
@@ -1012,7 +1006,6 @@ fn default_value_parser(inner_type: &Type, span: Span) -> Method {
 #[derive(Clone)]
 pub enum Action {
     Explicit(Method),
-    #[cfg(not(feature = "unstable-v5"))]
     Implicit(Ident),
 }
 
@@ -1020,7 +1013,6 @@ impl Action {
     pub fn resolve(self, _field_type: &Type) -> Method {
         match self {
             Self::Explicit(method) => method,
-            #[cfg(not(feature = "unstable-v5"))]
             Self::Implicit(ident) => default_action(_field_type, ident.span()),
         }
     }
@@ -1028,7 +1020,6 @@ impl Action {
     pub fn span(&self) -> Span {
         match self {
             Self::Explicit(method) => method.name.span(),
-            #[cfg(not(feature = "unstable-v5"))]
             Self::Implicit(ident) => ident.span(),
         }
     }

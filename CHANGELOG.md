@@ -4,13 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-
-## 5.0.0 - Upcoming
-
-### Breaking Changes
-
-- *(derive)* Removed `#[clap(value_parser)]` and `#[clap(action)]` defaulted attributes (its the default) (#3976)
-
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
@@ -230,6 +223,7 @@ Deprecated
 - `Command::allow_hyphen_values` in favor of `Arg::allow_hyphen_values` to make it clearer which arg it is meant to apply to (#4187)
 - `Command::allow_negative_numbers` in favor of `Arg::allow_negative_numbers` to make it clearer which arg it is meant to apply to (#4187)
 - *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value` to open the door for [more features](https://github.com/clap-rs/clap/issues/1807) and [clarify relationship to the builder](https://github.com/clap-rs/clap/discussions/4090) (#1807, #4180)
+- *(derive)* `#[clap(value_parser)]` and `#[clap(action)]` defaulted attributes (its the default) (#3976)
 
 ### Features
 
