@@ -129,9 +129,17 @@ impl<'help> ArgGroup<'help> {
     }
 
     /// Deprecated, replaced with [`ArgGroup::id`]
+    ///
+    /// Builder: replaced `group.name(...)` with `group.id(...)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `ArgGroup::id`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `ArgGroup::id`
+
+Builder: replaced `group.name(...)` with `group.id(...)`
+"
+        )
     )]
     pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
         self.id(n)

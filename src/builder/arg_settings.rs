@@ -33,235 +33,463 @@ impl Default for ArgFlags {
 #[non_exhaustive]
 pub enum ArgSettings {
     /// Deprecated, replaced with [`Arg::required`] and [`Arg::is_required_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Required)]` with `#[clap(required = true)]`
+    ///
+    /// Builder: replace `arg.setting(Required)` with `arg.required(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::required` and `Arg::is_required_set`"
+            note = "Replaced with `Arg::required` and `Arg::is_required_set`
+
+Derive: replace `#[clap(setting = Required)]` with `#[clap(required = true)]`
+
+Builder: replace `arg.setting(Required)` with `arg.required(true)`
+"
         )
     )]
     Required,
     /// Deprecated, replaced with [`Arg::multiple_values`] and [`Arg::is_multiple_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = MultipleValues)]` with `#[clap(multiple_values = true)]`
+    ///
+    /// Builder: replace `arg.setting(MultipleValues)` with `arg.multiple_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::multiple_values` and `Arg::`is_multiple_values_set`"
+            note = "Replaced with `Arg::multiple_values` and `Arg::`is_multiple_values_set`
+
+Derive: replace `#[clap(setting = MultipleValues)]` with `#[clap(multiple_values = true)]`
+
+Builder: replace `arg.setting(MultipleValues)` with `arg.multiple_values(true)`
+"
         )
     )]
     MultipleValues,
     /// Deprecated, replaced with [`Arg::action`] ([Issue #3772](https://github.com/clap-rs/clap/issues/3772))
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::action` (Issue #3772)")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Arg::action` (Issue #3772)
+
+Builder: replace `arg.setting(MultipleOccurrences)` with `arg.action(ArgAction::Append)` when taking a value and `arg.action(ArgAction::Count)` with `matches.get_count` when not
+"
+        )
     )]
     MultipleOccurrences,
     /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
     /// [`ArgSettings::MultipleValues`]
+    ///
+    /// Derive: replace `#[clap(setting = Multiple)]` with `#[clap(multiple_values = true, multiple_occurrences = true)]`
+    ///
+    /// Builder: replace `arg.setting(Multiple)` with `arg.multiple_values(true).multiple_occurrences(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
+            note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`
+
+Derive: replace `#[clap(setting = Multiple)]` with `#[clap(multiple_values = true, multiple_occurrences = true)]`
+
+Builder: replace `arg.setting(Multiple)` with `arg.multiple_values(true).multiple_occurrences(true)`
+"
         )
     )]
     #[doc(hidden)]
     Multiple,
     /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
+    ///
+    /// Derive: replace `#[clap(setting = ForbidEmptyValues)]` with `#[clap(value_parser = NonEmptyStringValueParser::new())]`
+    ///
+    /// Builder: replace `arg.setting(Multiple)` with `arg.value_parser(NonEmptyStringValueParser::new())`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
+            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`
+
+Derive: replace `#[clap(setting = ForbidEmptyValues)]` with `#[clap(value_parser = NonEmptyStringValueParser::new())]`
+
+Builder: replace `arg.setting(Multiple)` with `arg.value_parser(NonEmptyStringValueParser::new())`
+"
         )
     )]
     ForbidEmptyValues,
     /// Deprecated, replaced with [`Arg::global`] and [`Arg::is_global_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Global)]` with `#[clap(global = true)]`
+    ///
+    /// Builder: replace `arg.setting(Global)` with `arg.global(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::global` and `Arg::is_global_set`"
+            note = "Replaced with `Arg::global` and `Arg::is_global_set`
+
+Derive: replace `#[clap(setting = Global)]` with `#[clap(global = true)]`
+
+Builder: replace `arg.setting(Global)` with `arg.global(true)`
+"
         )
     )]
     Global,
     /// Deprecated, replaced with [`Arg::hide`] and [`Arg::is_hide_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Hidden)]` with `#[clap(hide = true)]`
+    ///
+    /// Builder: replace `arg.setting(Hidden)` with `arg.hide(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide` and `Arg::is_hide_set`"
+            note = "Replaced with `Arg::hide` and `Arg::is_hide_set`
+
+Derive: replace `#[clap(setting = Hidden)]` with `#[clap(hide = true)]`
+
+Builder: replace `arg.setting(Hidden)` with `arg.hide(true)`
+"
         )
     )]
     Hidden,
     /// Deprecated, replaced with [`Arg::takes_value`] and [`Arg::is_takes_value_set`]
+    ///
+    /// Derive: this setting shouldn't be needed
+    ///
+    /// Builder: replace `arg.setting(TakesValue)` with `arg.takes_value(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::takes_value` and `Arg::is_takes_value_set`"
+            note = "Replaced with `Arg::takes_value` and `Arg::is_takes_value_set`
+
+Derive: this setting shouldn't be needed
+
+Builder: replace `arg.setting(TakesValue)` with `arg.takes_value(true)`
+"
         )
     )]
     TakesValue,
     /// Deprecated, replaced with [`Arg::use_value_delimiter`] and
     /// [`Arg::is_use_value_delimiter_set`]
+    ///
+    /// Derive: replace `#[clap(setting = UseValueDelimiter)]` with `#[clap(use_value_delimiter = true)]`
+    ///
+    /// Builder: replace `arg.setting(UseValueDelimiter)` with `arg.use_value_delimiter(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::use_value_delimiter` and `Arg::is_use_value_delimiter_set`"
+            note = "Replaced with `Arg::use_value_delimiter` and `Arg::is_use_value_delimiter_set`
+
+Derive: replace `#[clap(setting = UseValueDelimiter)]` with `#[clap(use_value_delimiter = true)]`
+
+Builder: replace `arg.setting(UseValueDelimiter)` with `arg.use_value_delimiter(true)`
+"
         )
     )]
     UseValueDelimiter,
     /// Deprecated, replaced with [`Arg::next_line_help`] and [`Arg::is_next_line_help_set`]
+    ///
+    /// Derive: replace `#[clap(setting = NextLineHelp)]` with `#[clap(next_line_help = true)]`
+    ///
+    /// Builder: replace `arg.setting(NextLineHelp)` with `arg.next_line_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::next_line_help` and `Arg::is_next_line_help_set`"
+            note = "Replaced with `Arg::next_line_help` and `Arg::is_next_line_help_set`
+
+Derive: replace `#[clap(setting = NextLineHelp)]` with `#[clap(next_line_help = true)]`
+
+Builder: replace `arg.setting(NextLineHelp)` with `arg.next_line_help(true)`
+"
         )
     )]
     NextLineHelp,
     /// Deprecated, replaced with [`Arg::require_value_delimiter`] and
     /// [`Arg::is_require_value_delimiter_set`]
+    ///
+    /// Derive: replace `#[clap(setting = RequireDelimiter)]` with `#[clap(require_value_delimiter = true)]`
+    ///
+    /// Builder: replace `arg.setting(RequireDelimiter)` with `arg.require_value_delimiter(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::require_value_delimiter` and `Arg::is_require_value_delimiter_set`"
+            note = "Replaced with `Arg::require_value_delimiter` and `Arg::is_require_value_delimiter_set`
+
+Derive: replace `#[clap(setting = RequireDelimiter)]` with `#[clap(require_value_delimiter = true)]`
+
+Builder: replace `arg.setting(RequireDelimiter)` with `arg.require_value_delimiter(true)`
+"
         )
     )]
     RequireDelimiter,
     /// Deprecated, replaced with [`Arg::hide_possible_values`] and
     /// [`Arg::is_hide_possible_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HidePossibleValues)]` with `#[clap(hide_possible_values = true)]`
+    ///
+    /// Builder: replace `arg.setting(HidePossibleValues)` with `arg.hide_possible_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide_possible_values` and `Arg::is_hide_possible_values_set`"
+            note = "Replaced with `Arg::hide_possible_values` and `Arg::is_hide_possible_values_set`
+
+Derive: replace `#[clap(setting = HidePossibleValues)]` with `#[clap(hide_possible_values = true)]`
+
+Builder: replace `arg.setting(HidePossibleValues)` with `arg.hide_possible_values(true)`
+"
         )
     )]
     HidePossibleValues,
     /// Deprecated, replaced with [`Arg::allow_hyphen_values`] and
     /// [`Arg::is_allow_hyphen_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowHyphenValues)]` with `#[clap(allow_hyphen_values = true)]`
+    ///
+    /// Builder: replace `arg.setting(AllowHyphenValues)` with `arg.allow_hyphen_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
+            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`
+
+Derive: replace `#[clap(setting = AllowHyphenValues)]` with `#[clap(allow_hyphen_values = true)]`
+
+Builder: replace `arg.setting(AllowHyphenValues)` with `arg.allow_hyphen_values(true)`
+"
         )
     )]
     AllowHyphenValues,
     /// Deprecated, replaced with [`Arg::allow_hyphen_values`] and
     /// [`Arg::is_allow_hyphen_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowLeadingHyphen)]` with `#[clap(allow_hyphen_values = true)]`
+    ///
+    /// Builder: replace `arg.setting(AllowLeadingHyphen)` with `arg.allow_hyphen_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
+            note = "Replaced with `Arg::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`
+
+Derive: replace `#[clap(setting = AllowLeadingHyphen)]` with `#[clap(allow_hyphen_values = true)]`
+
+Builder: replace `arg.setting(AllowLeadingHyphen)` with `arg.allow_hyphen_values(true)`
+"
         )
     )]
     #[doc(hidden)]
     AllowLeadingHyphen,
     /// Deprecated, replaced with [`Arg::require_equals`] and [`Arg::is_require_equals_set`]
+    ///
+    /// Derive: replace `#[clap(setting = RequireEquals)]` with `#[clap(require_equals = true)]`
+    ///
+    /// Builder: replace `arg.setting(RequireEquals)` with `arg.require_equals(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::require_equals` and `Arg::is_require_equals_set`"
+            note = "Replaced with `Arg::require_equals` and `Arg::is_require_equals_set`
+
+Derive: replace `#[clap(setting = RequireEquals)]` with `#[clap(require_equals = true)]`
+
+Builder: replace `arg.setting(RequireEquals)` with `arg.require_equals(true)`
+"
         )
     )]
     RequireEquals,
     /// Deprecated, replaced with [`Arg::last`] and [`Arg::is_last_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Last)]` with `#[clap(last = true)]`
+    ///
+    /// Builder: replace `arg.setting(Last)` with `arg.last(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::last` and `Arg::is_last_set`"
+            note = "Replaced with `Arg::last` and `Arg::is_last_set`
+
+Derive: replace `#[clap(setting = Last)]` with `#[clap(last = true)]`
+
+Builder: replace `arg.setting(Last)` with `arg.last(true)`
+"
         )
     )]
     Last,
     /// Deprecated, replaced with [`Arg::hide_default_value`] and [`Arg::is_hide_default_value_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HideDefaultValue)]` with `#[clap(hide_default_value = true)]`
+    ///
+    /// Builder: replace `arg.setting(HideDefaultValue)` with `arg.hide_default_value(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide_default_value` and `Arg::is_hide_default_value_set`"
+            note = "Replaced with `Arg::hide_default_value` and `Arg::is_hide_default_value_set`
+
+Derive: replace `#[clap(setting = HideDefaultValue)]` with `#[clap(hide_default_value = true)]`
+
+Builder: replace `arg.setting(HideDefaultValue)` with `arg.hide_default_value(true)`
+"
         )
     )]
     HideDefaultValue,
     /// Deprecated, replaced with [`Arg::ignore_case`] and [`Arg::is_ignore_case_set`]
+    ///
+    /// Derive: replace `#[clap(setting = IgnoreCase)]` with `#[clap(ignore_case = true)]`
+    ///
+    /// Builder: replace `arg.setting(IgnoreCase)` with `arg.ignore_case(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`"
+            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`
+
+Derive: replace `#[clap(setting = IgnoreCase)]` with `#[clap(ignore_case = true)]`
+
+Builder: replace `arg.setting(IgnoreCase)` with `arg.ignore_case(true)`
+"
         )
     )]
     IgnoreCase,
     /// Deprecated, replaced with [`Arg::ignore_case`] and [`Arg::is_ignore_case_set`]
+    ///
+    /// Derive: replace `#[clap(setting = CaseInsensitive)]` with `#[clap(ignore_case = true)]`
+    ///
+    /// Builder: replace `arg.setting(CaseInsensitive)` with `arg.ignore_case(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`"
+            note = "Replaced with `Arg::ignore_case` and `Arg::is_ignore_case_set`
+
+Derive: replace `#[clap(setting = CaseInsensitive)]` with `#[clap(ignore_case = true)]`
+
+Builder: replace `arg.setting(CaseInsensitive)` with `arg.ignore_case(true)`
+"
         )
     )]
     #[doc(hidden)]
     CaseInsensitive,
     /// Deprecated, replaced with [`Arg::hide_env`] and [`Arg::is_hide_env_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HideEnv)]` with `#[clap(hide_env = true)]`
+    ///
+    /// Builder: replace `arg.setting(HideEnv)` with `arg.hide_env(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide_env` and `Arg::is_hide_env_set`"
+            note = "Replaced with `Arg::hide_env` and `Arg::is_hide_env_set`
+
+Derive: replace `#[clap(setting = HideEnv)]` with `#[clap(hide_env = true)]`
+
+Builder: replace `arg.setting(HideEnv)` with `arg.hide_env(true)`
+"
         )
     )]
     #[cfg(feature = "env")]
     HideEnv,
     /// Deprecated, replaced with [`Arg::hide_env_values`] and [`Arg::is_hide_env_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HideEnvValues)]` with `#[clap(hide_env_values = true)]`
+    ///
+    /// Builder: replace `arg.setting(HideEnvValues)` with `arg.hide_env_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide_env_values` and `Arg::is_hide_env_values_set`"
+            note = "Replaced with `Arg::hide_env_values` and `Arg::is_hide_env_values_set`
+
+Derive: replace `#[clap(setting = HideEnvValues)]` with `#[clap(hide_env_values = true)]`
+
+Builder: replace `arg.setting(HideEnvValues)` with `arg.hide_env_values(true)`
+"
         )
     )]
     #[cfg(feature = "env")]
     HideEnvValues,
     /// Deprecated, replaced with [`Arg::hide_short_help`] and [`Arg::is_hide_short_help_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HiddenShortHelp)]` with `#[clap(hide_short_help = true)]`
+    ///
+    /// Builder: replace `arg.setting(HiddenShortHelp)` with `arg.hide_short_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide_short_help` and `Arg::is_hide_short_help_set`"
+            note = "Replaced with `Arg::hide_short_help` and `Arg::is_hide_short_help_set`
+
+Derive: replace `#[clap(setting = HiddenShortHelp)]` with `#[clap(hide_short_help = true)]`
+
+Builder: replace `arg.setting(HiddenShortHelp)` with `arg.hide_short_help(true)`
+"
         )
     )]
     HiddenShortHelp,
     /// Deprecated, replaced with [`Arg::hide_long_help`] and [`Arg::is_hide_long_help_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HiddenLongHelp)]` with `#[clap(hide_long_help = true)]`
+    ///
+    /// Builder: replace `arg.setting(HiddenLongHelp)` with `arg.hide_long_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::hide_long_help` and `Arg::is_hide_long_help_set`"
+            note = "Replaced with `Arg::hide_long_help` and `Arg::is_hide_long_help_set`
+
+Derive: replace `#[clap(setting = HiddenLongHelp)]` with `#[clap(hide_long_help = true)]`
+
+Builder: replace `arg.setting(HiddenLongHelp)` with `arg.hide_long_help(true)`
+"
         )
     )]
     HiddenLongHelp,
-    /// Deprecated, replaced with [`Arg::allow_invalid_utf8`] and [`Arg::is_allow_invalid_utf8_set`]
+    /// Deprecated, replaced with [`Arg::value_parser`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowInvalidUtf8)]` with `#[clap(action)]` (which opts-in to the
+    /// new clap v4 behavior which gets the type via `value_parser!`)
+    ///
+    /// Builder: replace `arg.setting(AllowInvalidUtf8)` with `arg.value_parser(value_parser!(T))` where
+    /// `T` is the type of interest, like `OsString` or `PathBuf`, and `matches.value_of_os` with
+    /// `matches.get_one::<T>` or `matches.values_of_os` with `matches.get_many::<T>`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::allow_invalid_utf8` and `Arg::is_allow_invalid_utf8_set`"
+            note = "Replaced with `value_parser`
+
+Derive: replace `#[clap(setting = AllowInvalidUtf8)]` with `#[clap(action)]` (which opts-in to the
+new clap v4 behavior which gets the type via `value_parser!`)
+
+Builder: replace `arg.setting(AllowInvalidUtf8)` with `arg.value_parser(value_parser!(T))` where
+`T` is the type of interest, like `OsString` or `PathBuf`, and `matches.value_of_os` with
+`matches.get_one::<T>` or `matches.values_of_os` with `matches.get_many::<T>`
+"
         )
     )]
     AllowInvalidUtf8,
     /// Deprecated, replaced with [`Arg::exclusive`] and [`Arg::is_exclusive_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Exclusive)]` with `#[clap(exclusive = true)]`
+    ///
+    /// Builder: replace `arg.setting(Exclusive)` with `arg.exclusive(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Arg::exclusive` and `Arg::is_exclusive_set`"
+            note = "Replaced with `Arg::exclusive` and `Arg::is_exclusive_set`
+
+Derive: replace `#[clap(setting = Exclusive)]` with `#[clap(exclusive = true)]`
+
+Builder: replace `arg.setting(Exclusive)` with `arg.exclusive(true)`
+"
         )
     )]
     Exclusive,

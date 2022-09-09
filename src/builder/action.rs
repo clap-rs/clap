@@ -71,11 +71,24 @@ pub enum ArgAction {
     /// ```
     Append,
     /// Deprecated, replaced with [`ArgAction::Set`] or [`ArgAction::Append`]
+    ///
+    /// Builder: Instead of `arg.action(ArgAction::StoreValue)`,
+    /// - Use `arg.action(ArgAction::Set)` for single-occurrence arguments
+    /// - Use `arg.action(ArgAction::Append)` for multiple-occurrence arguments
+    ///
+    /// Derive: opt-in to the new behavior with `#[clap(action)]`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with `ArgAction::Set` or `ArgAction::Append`"
+            note = "Replaced with `ArgAction::Set` or `ArgAction::Append`
+
+Derive: opt-in to the new behavior with `#[clap(action)]`
+
+Builder: Instead of `arg.action(ArgAction::StoreValue)`,
+- Use `arg.action(ArgAction::Set)` for single-occurrence arguments
+- Use `arg.action(ArgAction::Append)` for multiple-occurrence arguments
+"
         )
     )]
     StoreValue,
@@ -84,7 +97,14 @@ pub enum ArgAction {
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with `ArgAction::SetTrue` or `ArgAction::Count`"
+            note = "Replaced with `ArgAction::SetTrue` or `ArgAction::Count`
+
+Derive: opt-in to the new behavior with `#[clap(action)]`
+
+Builder: Instead of `arg.action(ArgAction::IncOccurrence)`,
+- Use `arg.action(ArgAction::SetTrue)` if you just care if its set, then switch `matches.is_present` to `matches.get_flag`
+- Use `arg.action(ArgAction::Count)` if you care how many times its set, then switch `matches.occurrences_of` to `matches.get_count`
+"
         )
     )]
     IncOccurrence,

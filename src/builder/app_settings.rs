@@ -33,9 +33,21 @@ impl Default for AppFlags {
 #[non_exhaustive]
 pub enum AppSettings {
     /// Deprecated, replaced with [`Command::ignore_errors`]
+    ///
+    /// Derive: replace `#[clap(setting = IgnoreErrors)]` with `#[clap(ignore_errors = true)]`
+    ///
+    /// Builder: replace `cmd.setting(IgnoreErrors)` with `cmd.ignore_errors = true`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::ignore_errors`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Command::ignore_errors`
+
+Derive: replace `#[clap(setting = IgnoreErrors)]` with `#[clap(ignore_errors = true)]`
+
+Builder: replace `cmd.setting(IgnoreErrors)` with `cmd.ignore_errors(true)`
+"
+        )
     )]
     IgnoreErrors,
 
@@ -81,179 +93,353 @@ pub enum AppSettings {
 
     /// Deprecated, replaced with [`Command::allow_hyphen_values`] and
     /// [`Arg::is_allow_hyphen_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowHyphenValues)]` with `#[clap(allow_hyphen_values = true)]`
+    ///
+    /// Builder: replace `cmd.setting(AllowHyphenValues)` with `cmd.allow_hyphen_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`"
+            note = "Replaced with `Command::allow_hyphen_values` and `Arg::is_allow_hyphen_values_set`
+
+Derive: replace `#[clap(setting = AllowHyphenValues)]` with `#[clap(allow_hyphen_values = true)]`
+
+Builder: replace `cmd.setting(AllowHyphenValues)` with `cmd.allow_hyphen_values(true)`
+"
         )
     )]
     AllowHyphenValues,
 
     /// Deprecated, replaced with [`Command::allow_negative_numbers`] and
     /// [`Command::is_allow_negative_numbers_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowNegativeNumbers)]` with `#[clap(allow_negative_numbers = true)]`
+    ///
+    /// Builder: replace `cmd.setting(AllowNegativeNumbers)` with `cmd.allow_negative_numbers(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::allow_negative_numbers` and `Command::is_allow_negative_numbers_set`"
+            note = "Replaced with `Command::allow_negative_numbers` and `Command::is_allow_negative_numbers_set`
+
+Derive: replace `#[clap(setting = AllowNegativeNumbers)]` with `#[clap(allow_negative_numbers = true)]`
+
+Builder: replace `cmd.setting(AllowNegativeNumbers)` with `cmd.allow_negative_numbers(true)`
+"
         )
     )]
     AllowNegativeNumbers,
 
-    /// Deprecated, replaced with [`Command::args_override_self`]
+    /// Deprecated, replaced with [`ArgAction::Set`][super::ArgAction::Set]
+    ///
+    /// The new actions (`ArgAction::Set`, `ArgAction::SetTrue`) do this by default.
+    ///
+    /// See `ArgAction::StoreValue` and `ArgAction::IncOccurrence` for how to migrate
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::args_override_self`")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::action(ArgAction::...)`
+
+The new actions (`ArgAction::Set`, `ArgAction::SetTrue`) do this by default.
+
+See `ArgAction::StoreValue` and `ArgAction::IncOccurrence` for how to migrate
+"
+        )
     )]
     AllArgsOverrideSelf,
 
     /// Deprecated, replaced with [`Command::allow_missing_positional`] and
     /// [`Command::is_allow_missing_positional_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowMissingPositional)]` with `#[clap(allow_missing_positional = true)]`
+    ///
+    /// Builder: replace `cmd.setting(AllowMissingPositional)` with `cmd.allow_missing_positional(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::allow_missing_positional` and `Command::is_allow_missing_positional_set`"
+            note = "Replaced with `Command::allow_missing_positional` and `Command::is_allow_missing_positional_set`
+
+Derive: replace `#[clap(setting = AllowMissingPositional)]` with `#[clap(allow_missing_positional = true)]`
+
+Builder: replace `cmd.setting(AllowMissingPositional)` with `cmd.allow_missing_positional(true)`
+"
         )
     )]
     AllowMissingPositional,
 
     /// Deprecated, replaced with [`Command::trailing_var_arg`] and [`Command::is_trailing_var_arg_set`]
+    ///
+    /// Derive: replace `#[clap(setting = TrailingVarArg)]` with `#[clap(trailing_var_arg = true)]`
+    ///
+    /// Builder: replace `cmd.setting(TrailingVarArg)` with `cmd.trailing_var_arg(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::trailing_var_arg` and `Command::is_trailing_var_arg_set`"
+            note = "Replaced with `Command::trailing_var_arg` and `Command::is_trailing_var_arg_set`
+
+Derive: replace `#[clap(setting = TrailingVarArg)]` with `#[clap(trailing_var_arg = true)]`
+
+Builder: replace `cmd.setting(TrailingVarArg)` with `cmd.trailing_var_arg(true)`
+"
         )
     )]
     TrailingVarArg,
 
     /// Deprecated, replaced with [`Command::dont_delimit_trailing_values`] and
     /// [`Command::is_dont_delimit_trailing_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DontDelimitTrailingValues)]` with `#[clap(dont_delimit_trailing_values = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DontDelimitTrailingValues)` with `cmd.dont_delimit_trailing_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::dont_delimit_trailing_values` and `Command::is_dont_delimit_trailing_values_set`"
+            note = "Replaced with `Command::dont_delimit_trailing_values` and `Command::is_dont_delimit_trailing_values_set`
+
+Derive: replace `#[clap(setting = DontDelimitTrailingValues)]` with `#[clap(dont_delimit_trailing_values = true)]`
+
+Builder: replace `cmd.setting(DontDelimitTrailingValues)` with `cmd.dont_delimit_trailing_values(true)`
+"
         )
     )]
     DontDelimitTrailingValues,
 
     /// Deprecated, replaced with [`Command::infer_long_args`]
+    ///
+    /// Derive: replace `#[clap(setting = InferLongArgs)]` with `#[clap(infer_long_args = true)]`
+    ///
+    /// Builder: replace `cmd.setting(InferLongArgs)` with `cmd.infer_long_args(true)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::infer_long_args`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Command::infer_long_args`
+
+Derive: replace `#[clap(setting = InferLongArgs)]` with `#[clap(infer_long_args = true)]`
+
+Builder: replace `cmd.setting(InferLongArgs)` with `cmd.infer_long_args(true)`
+"
+        )
     )]
     InferLongArgs,
 
     /// Deprecated, replaced with [`Command::infer_subcommands`]
+    ///
+    /// Derive: replace `#[clap(setting = InferSubcommands)]` with `#[clap(infer_subcommands = true)]`
+    ///
+    /// Builder: replace `cmd.setting(InferSubcommands)` with `cmd.infer_subcommands(true)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::infer_subcommands`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Command::infer_subcommands`
+
+Derive: replace `#[clap(setting = InferSubcommands)]` with `#[clap(infer_subcommands = true)]`
+
+Builder: replace `cmd.setting(InferSubcommands)` with `cmd.infer_subcommands(true)`
+"
+        )
     )]
     InferSubcommands,
 
     /// Deprecated, replaced with [`Command::subcommand_required`] and
     /// [`Command::is_subcommand_required_set`]
+    ///
+    /// Derive: replace `#[clap(setting = SubcommandRequired)]` with `#[clap(subcommand_required = true)]`
+    ///
+    /// Builder: replace `cmd.setting(SubcommandRequired)` with `cmd.subcommand_required(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::subcommand_required` and `Command::is_subcommand_required_set`"
+            note = "Replaced with `Command::subcommand_required` and `Command::is_subcommand_required_set`
+
+Derive: replace `#[clap(setting = SubcommandRequired)]` with `#[clap(subcommand_required = true)]`
+
+Builder: replace `cmd.setting(SubcommandRequired)` with `cmd.subcommand_required(true)`
+"
         )
     )]
     SubcommandRequired,
 
     /// Deprecated, replaced with [`Command::subcommand_required`] combined with
     /// [`Command::arg_required_else_help`].
+    ///
+    /// Derive: replace `#[clap(setting = SubcommandRequiredElseHelp)]` with `#[clap(subcommand_required = true, arg_required_else_help = true)]`
+    ///
+    /// Builder: replace `cmd.setting(SubcommandRequiredElseHelp)` with `cmd.subcommand_required(true).arg_required_else_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::subcommand_required` combined with `Command::arg_required_else_help`"
+            note = "Replaced with `Command::subcommand_required` combined with `Command::arg_required_else_help`
+
+Derive: replace `#[clap(setting = SubcommandRequiredElseHelp)]` with `#[clap(subcommand_required = true, arg_required_else_help = true)]`
+
+Builder: replace `cmd.setting(SubcommandRequiredElseHelp)` with `cmd.subcommand_required(true).arg_required_else_help(true)`
+"
         )
     )]
     SubcommandRequiredElseHelp,
 
     /// Deprecated, replaced with [`Command::allow_external_subcommands`] and
     /// [`Command::is_allow_external_subcommands_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowExternalSubcommands)]` with `#[clap(allow_external_subcommands = true)]`
+    ///
+    /// Builder: replace `cmd.setting(AllowExternalSubcommands)` with `cmd.allow_external_subcommands(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::allow_external_subcommands` and `Command::is_allow_external_subcommands_set`"
+            note = "Replaced with `Command::allow_external_subcommands` and `Command::is_allow_external_subcommands_set`
+
+Derive: replace `#[clap(setting = AllowExternalSubcommands)]` with `#[clap(allow_external_subcommands = true)]`
+
+Builder: replace `cmd.setting(AllowExternalSubcommands)` with `cmd.allow_external_subcommands(true)`
+"
         )
     )]
     AllowExternalSubcommands,
 
     /// Deprecated, replaced with [`Command::multicall`] and [`Command::is_multicall_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Multicall)]` with `#[clap(multicall = true)]`
+    ///
+    /// Builder: replace `cmd.setting(Multicall)` with `cmd.multicall(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::multicall` and `Command::is_multicall_set`"
+            note = "Replaced with `Command::multicall` and `Command::is_multicall_set`
+
+Derive: replace `#[clap(setting = Multicall)]` with `#[clap(multicall = true)]`
+
+Builder: replace `cmd.setting(Multicall)` with `cmd.multicall(true)`
+"
         )
     )]
     Multicall,
 
     /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowInvalidUtf8ForExternalSubcommands)]` with `#[clap(allow_invalid_utf8_for_external_subcommands = true)]`
+    ///
+    /// Builder: replace `cmd.setting(AllowInvalidUtf8ForExternalSubcommands)` with `cmd.allow_invalid_utf8_for_external_subcommands(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`"
+            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`
+
+Derive: replace `#[clap(setting = AllowInvalidUtf8ForExternalSubcommands)]` with `#[clap(allow_invalid_utf8_for_external_subcommands = true)]`
+
+Builder: replace `cmd.setting(AllowInvalidUtf8ForExternalSubcommands)` with `cmd.allow_invalid_utf8_for_external_subcommands(true)`
+"
         )
     )]
     AllowInvalidUtf8ForExternalSubcommands,
 
     /// Deprecated, this is now the default
+    ///
+    /// Derive: remove `#[clap(setting = UseLongFormatForHelpSubcommand)]`
+    ///
+    /// Builder: remove `cmd.setting(UseLongFormatForHelpSubcommand)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "This is now the default")
+        deprecated(
+            since = "3.1.0",
+            note = "This is now the default
+
+Derive: remove `#[clap(setting = UseLongFormatForHelpSubcommand)]`
+
+Builder: remove `cmd.setting(UseLongFormatForHelpSubcommand)`
+"
+        )
     )]
     UseLongFormatForHelpSubcommand,
 
     /// Deprecated, replaced with [`Command::subcommand_negates_reqs`] and
     /// [`Command::is_subcommand_negates_reqs_set`]
+    ///
+    /// Derive: replace `#[clap(setting = SubcommandsNegateReqs)]` with `#[clap(subcommand_negates_reqs = true)]`
+    ///
+    /// Builder: replace `cmd.setting(SubcommandsNegateReqs)` with `cmd.subcommand_negates_reqs(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::subcommand_negates_reqs` and `Command::is_subcommand_negates_reqs_set`"
+            note = "Replaced with `Command::subcommand_negates_reqs` and `Command::is_subcommand_negates_reqs_set`
+
+Derive: replace `#[clap(setting = SubcommandsNegateReqs)]` with `#[clap(subcommand_negates_reqs = true)]`
+
+Builder: replace `cmd.setting(SubcommandsNegateReqs)` with `cmd.subcommand_negates_reqs(true)`
+"
         )
     )]
     SubcommandsNegateReqs,
 
     /// Deprecated, replaced with [`Command::args_conflicts_with_subcommands`] and
     /// [`Command::is_args_conflicts_with_subcommands_set`]
+    ///
+    /// Derive: replace `#[clap(setting = ArgsNegateSubcommands)]` with `#[clap(args_conflicts_with_subcommands = true)]`
+    ///
+    /// Builder: replace `cmd.setting(ArgsNegateSubcommands)` with `cmd.args_conflicts_with_subcommands(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::args_conflicts_with_subcommands` and `Command::is_args_conflicts_with_subcommands_set`"
+            note = "Replaced with `Command::args_conflicts_with_subcommands` and `Command::is_args_conflicts_with_subcommands_set`
+
+Derive: replace `#[clap(setting = ArgsNegateSubcommands)]` with `#[clap(args_conflicts_with_subcommands = true)]`
+
+Builder: replace `cmd.setting(ArgsNegateSubcommands)` with `cmd.args_conflicts_with_subcommands(true)`
+"
         )
     )]
     ArgsNegateSubcommands,
 
     /// Deprecated, replaced with [`Command::subcommand_precedence_over_arg`] and
     /// [`Command::is_subcommand_precedence_over_arg_set`]
+    ///
+    /// Derive: replace `#[clap(setting = SubcommandPrecedenceOverArg)]` with `#[clap(subcommand_precedence_over_arg = true)]`
+    ///
+    /// Builder: replace `cmd.setting(SubcommandPrecedenceOverArg)` with `cmd.subcommand_precedence_over_arg(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::subcommand_precedence_over_arg` and `Command::is_subcommand_precedence_over_arg_set`"
+            note = "Replaced with `Command::subcommand_precedence_over_arg` and `Command::is_subcommand_precedence_over_arg_set`
+
+Derive: replace `#[clap(setting = SubcommandPrecedenceOverArg)]` with `#[clap(subcommand_precedence_over_arg = true)]`
+
+Builder: replace `cmd.setting(SubcommandPrecedenceOverArg)` with `cmd.subcommand_precedence_over_arg(true)`
+"
         )
     )]
     SubcommandPrecedenceOverArg,
 
     /// Deprecated, replaced with [`Command::arg_required_else_help`] and
     /// [`Command::is_arg_required_else_help_set`]
+    ///
+    /// Derive: replace `#[clap(setting = ArgRequiredElseHelp)]` with `#[clap(arg_required_else_help = true)]`
+    ///
+    /// Builder: replace `cmd.setting(ArgRequiredElseHelp)` with `cmd.arg_required_else_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::arg_required_else_help` and `Command::is_arg_required_else_help_set`"
+            note = "Replaced with `Command::arg_required_else_help` and `Command::is_arg_required_else_help_set`
+
+Derive: replace `#[clap(setting = ArgRequiredElseHelp)]` with `#[clap(arg_required_else_help = true)]`
+
+Builder: replace `cmd.setting(ArgRequiredElseHelp)` with `cmd.arg_required_else_help(true)`
+"
         )
     )]
     ArgRequiredElseHelp,
@@ -279,192 +465,411 @@ pub enum AppSettings {
 
     /// Deprecated, replaced with [`Command::dont_collapse_args_in_usage`] and
     /// [`Command::is_dont_collapse_args_in_usage_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DontCollapseArgsInUsage)]` with `#[clap(dont_collapse_args_in_usage = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DontCollapseArgsInUsage)` with `cmd.dont_collapse_args_in_usage(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::dont_collapse_args_in_usage` and `Command::is_dont_collapse_args_in_usage_set`"
+            note = "Replaced with `Command::dont_collapse_args_in_usage` and `Command::is_dont_collapse_args_in_usage_set`
+
+Derive: replace `#[clap(setting = DontCollapseArgsInUsage)]` with `#[clap(dont_collapse_args_in_usage = true)]`
+
+Builder: replace `cmd.setting(DontCollapseArgsInUsage)` with `cmd.dont_collapse_args_in_usage(true)`
+"
         )
     )]
     DontCollapseArgsInUsage,
 
     /// Deprecated, replaced with [`Command::next_line_help`] and [`Command::is_next_line_help_set`]
+    ///
+    /// Derive: replace `#[clap(setting = NextLineHelp)]` with `#[clap(next_line_help = true)]`
+    ///
+    /// Builder: replace `cmd.setting(NextLineHelp)` with `cmd.next_line_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::next_line_help` and `Command::is_next_line_help_set`"
+            note = "Replaced with `Command::next_line_help` and `Command::is_next_line_help_set`
+
+Derive: replace `#[clap(setting = NextLineHelp)]` with `#[clap(next_line_help = true)]`
+
+Builder: replace `cmd.setting(NextLineHelp)` with `cmd.next_line_help(true)`
+"
         )
     )]
     NextLineHelp,
 
     /// Deprecated, replaced with [`Command::disable_colored_help`] and
     /// [`Command::is_disable_colored_help_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DisableColoredHelp)]` with `#[clap(disable_colored_help = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DisableColoredHelp)` with `cmd.disable_colored_help(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::disable_colored_help` and `Command::is_disable_colored_help_set`"
+            note = "Replaced with `Command::disable_colored_help` and `Command::is_disable_colored_help_set`
+
+Derive: replace `#[clap(setting = DisableColoredHelp)]` with `#[clap(disable_colored_help = true)]`
+
+Builder: replace `cmd.setting(DisableColoredHelp)` with `cmd.disable_colored_help(true)`
+"
         )
     )]
     DisableColoredHelp,
 
     /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DisableHelpFlag)]` with `#[clap(disable_help_flag = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DisableHelpFlag)` with `cmd.disable_help_flag(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
+            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`
+
+Derive: replace `#[clap(setting = DisableHelpFlag)]` with `#[clap(disable_help_flag = true)]`
+
+Builder: replace `cmd.setting(DisableHelpFlag)` with `cmd.disable_help_flag(true)`
+"
         )
     )]
     DisableHelpFlag,
 
     /// Deprecated, replaced with [`Command::disable_help_subcommand`] and
     /// [`Command::is_disable_help_subcommand_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DisableHelpSubcommand)]` with `#[clap(disable_help_subcommand = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DisableHelpSubcommand)` with `cmd.disable_help_subcommand(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::disable_help_subcommand` and `Command::is_disable_help_subcommand_set`"
+            note = "Replaced with `Command::disable_help_subcommand` and `Command::is_disable_help_subcommand_set`
+
+Derive: replace `#[clap(setting = DisableHelpSubcommand)]` with `#[clap(disable_help_subcommand = true)]`
+
+Builder: replace `cmd.setting(DisableHelpSubcommand)` with `cmd.disable_help_subcommand(true)`
+"
         )
     )]
     DisableHelpSubcommand,
 
     /// Deprecated, replaced with [`Command::disable_version_flag`] and
     /// [`Command::is_disable_version_flag_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DisableVersionFlag)]` with `#[clap(disable_version_flag = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DisableVersionFlag)` with `cmd.disable_version_flag(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
+            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`
+
+Derive: replace `#[clap(setting = DisableVersionFlag)]` with `#[clap(disable_version_flag = true)]`
+
+Builder: replace `cmd.setting(DisableVersionFlag)` with `cmd.disable_version_flag(true)`
+"
         )
     )]
     DisableVersionFlag,
 
     /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
+    ///
+    /// Derive: replace `#[clap(setting = PropagateVersion)]` with `#[clap(propagate_version = true)]`
+    ///
+    /// Builder: replace `cmd.setting(PropagateVersion)` with `cmd.propagate_version(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
+            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`
+
+Derive: replace `#[clap(setting = PropagateVersion)]` with `#[clap(propagate_version = true)]`
+
+Builder: replace `cmd.setting(PropagateVersion)` with `cmd.propagate_version(true)`
+"
         )
     )]
     PropagateVersion,
 
     /// Deprecated, replaced with [`Command::hide`] and [`Command::is_hide_set`]
+    ///
+    /// Derive: replace `#[clap(setting = Hidden)]` with `#[clap(hide = true)]`
+    ///
+    /// Builder: replace `cmd.setting(Hidden)` with `cmd.hide(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::hide` and `Command::is_hide_set`"
+            note = "Replaced with `Command::hide` and `Command::is_hide_set`
+
+Derive: replace `#[clap(setting = Hidden)]` with `#[clap(hide = true)]`
+
+Builder: replace `cmd.setting(Hidden)` with `cmd.hide(true)`
+"
         )
     )]
     Hidden,
 
     /// Deprecated, replaced with [`Command::hide_possible_values`] and
     /// [`Arg::is_hide_possible_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HidePossibleValues)]` with `#[clap(hide_possible_values = true)]`
+    ///
+    /// Builder: replace `cmd.setting(HidePossibleValues)` with `cmd.hide_possible_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.1.0",
-            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
+            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`
+
+Derive: replace `#[clap(setting = HidePossibleValues)]` with `#[clap(hide_possible_values = true)]`
+
+Builder: replace `cmd.setting(HidePossibleValues)` with `cmd.hide_possible_values(true)`
+"
         )
     )]
     HidePossibleValues,
 
     /// Deprecated, replaced with [`Command::help_expected`]
+    ///
+    /// Derive: replace `#[clap(setting = HelpExpected)]` with `#[clap(help_expected = true)]`
+    ///
+    /// Builder: replace `cmd.setting(HelpExpected)` with `cmd.help_expected(true)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::help_expected`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Command::help_expected`
+
+Derive: replace `#[clap(setting = HelpExpected)]` with `#[clap(help_expected = true)]`
+
+Builder: replace `cmd.setting(HelpExpected)` with `cmd.help_expected(true)`
+"
+        )
     )]
     HelpExpected,
 
     /// Deprecated, replaced with [`Command::no_binary_name`]
+    ///
+    /// Derive: replace `#[clap(setting = NoBinaryName)]` with `#[clap(no_binary_name = true)]`
+    ///
+    /// Builder: replace `cmd.setting(NoBinaryName)` with `cmd.no_binary_name(true)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Command::no_binary_name`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Command::no_binary_name`
+
+Derive: replace `#[clap(setting = NoBinaryName)]` with `#[clap(no_binary_name = true)]`
+
+Builder: replace `cmd.setting(NoBinaryName)` with `cmd.no_binary_name(true)`
+"
+        )
     )]
     NoBinaryName,
 
     /// Deprecated, replaced with [`Arg::action`][super::Arg::action]
+    ///
+    /// Derive: replace `#[clap(setting = NoAutoHelp)]` with setting an explicit action on your help argument
+    ///
+    /// Builder: replace `cmd.setting(NoAutoHelp)` with setting an explicit action on your help argument
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action`")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::action`
+
+Derive: replace `#[clap(setting = NoAutoHelp)]` with setting an explicit action on your help argument
+
+Builder: replace `cmd.setting(NoAutoHelp)` with setting an explicit action on your help argument
+"
+        )
     )]
     NoAutoHelp,
 
     /// Deprecated, replaced with [`Arg::action`][super::Arg::action]
+    ///
+    /// Derive: replace `#[clap(setting = NoAutoVersion)]` with setting an explicit action on your version argument
+    ///
+    /// Builder: replace `cmd.setting(NoAutoVersion)` with setting an explicit action on your version argument
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action`")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::action`
+
+Derive: replace `#[clap(setting = NoAutoVersion)]` with setting an explicit action on your version argument
+
+Builder: replace `cmd.setting(NoAutoVersion)` with setting an explicit action on your version argument
+"
+        )
     )]
     NoAutoVersion,
 
     /// Deprecated, replaced with [`Command::allow_hyphen_values`]
+    ///
+    /// Derive: replace `#[clap(setting = AllowLeadingHyphen)]` with `#[clap(allow_hyphen_values = true)]`
+    ///
+    /// Builder: replace `cmd.setting(AllowLeadingHyphen)` with `cmd.allow_hyphen_values(true)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::allow_hyphen_values`")
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Command::allow_hyphen_values`
+
+Derive: replace `#[clap(setting = AllowLeadingHyphen)]` with `#[clap(allow_hyphen_values = true)]`
+
+Builder: replace `cmd.setting(AllowLeadingHyphen)` with `cmd.allow_hyphen_values(true)`
+"
+        )
     )]
     #[doc(hidden)]
     AllowLeadingHyphen,
 
     /// Deprecated, replaced with [`Command::allow_invalid_utf8_for_external_subcommands`] and [`Command::is_allow_invalid_utf8_for_external_subcommands_set`]
+    ///
+    /// Derive: replace `#[clap(setting = StrictUtf8)]` with `#[clap(allow_invalid_utf8_for_external_subcommands = true)]`
+    ///
+    /// Builder: replace `cmd.setting(StrictUtf8)` with `cmd.allow_invalid_utf8_for_external_subcommands(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`"
+            note = "Replaced with `Command::allow_invalid_utf8_for_external_subcommands` and `Command::is_allow_invalid_utf8_for_external_subcommands_set`
+
+Derive: replace `#[clap(setting = StrictUtf8)]` with `#[clap(allow_invalid_utf8_for_external_subcommands = true)]`
+
+Builder: replace `cmd.setting(StrictUtf8)` with `cmd.allow_invalid_utf8_for_external_subcommands(true)`
+"
         )
     )]
     #[doc(hidden)]
     StrictUtf8,
 
     /// Deprecated, this is now the default
+    ///
+    /// Derive: remove `#[clap(setting = UnifiedHelpMessage)]`
+    ///
+    /// Builder: remove `cmd.setting(UnifiedHelpMessage)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
+        deprecated(
+            since = "3.0.0",
+            note = "This is now the default
+
+Derive: remove `#[clap(setting = UnifiedHelpMessage)]`
+
+Builder: remove `cmd.setting(UnifiedHelpMessage)`
+"
+        )
     )]
     #[doc(hidden)]
     UnifiedHelpMessage,
 
     /// Deprecated, this is now the default
+    ///
+    /// Derive: remove `#[clap(setting = ColoredHelp)]`
+    ///
+    /// Builder: remove `cmd.setting(ColoredHelp)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
+        deprecated(
+            since = "3.0.0",
+            note = "This is now the default
+
+Derive: remove `#[clap(setting = ColoredHelp)]`
+
+Builder: remove `cmd.setting(ColoredHelp)`
+"
+        )
     )]
     #[doc(hidden)]
     ColoredHelp,
 
     /// Deprecated, see [`Command::color`][crate::Command::color]
+    ///
+    /// Derive: replace `#[clap(setting = ColorAuto)]` with `#[clap(color = ColorChoice::Auto)]``
+    ///
+    /// Builder: replace `cmd.setting(ColorAuto)` with `cmd.color(Color::Auto)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::color`")
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Command::color`
+
+Derive: replace `#[clap(setting = ColorAuto)]` with `#[clap(color = ColorChoice::Auto)]``
+
+Builder: replace `cmd.setting(ColorAuto)` with `cmd.color(Color::Auto)`
+"
+        )
     )]
     #[doc(hidden)]
     ColorAuto,
 
     /// Deprecated, replaced with [`Command::color`][crate::Command::color]
+    ///
+    /// Derive: replace `#[clap(setting = ColorAlways)]` with `#[clap(color = ColorChoice::Always)]``
+    ///
+    /// Builder: replace `cmd.setting(ColorAlways)` with `cmd.color(Color::Always)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::color`")
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Command::color`
+
+Derive: replace `#[clap(setting = ColorAlways)]` with `#[clap(color = ColorChoice::Always)]``
+
+Builder: replace `cmd.setting(ColorAlways)` with `cmd.color(Color::Always)`
+"
+        )
     )]
     #[doc(hidden)]
     ColorAlways,
 
     /// Deprecated, replaced with [`Command::color`][crate::Command::color]
+    ///
+    /// Derive: replace `#[clap(setting = ColorNever)]` with `#[clap(color = ColorChoice::Never)]``
+    ///
+    /// Builder: replace `cmd.setting(ColorNever)` with `cmd.color(Color::Never)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "Replaced with `Command::color`")
+        deprecated(
+            since = "3.0.0",
+            note = "Replaced with `Command::color`
+
+Derive: replace `#[clap(setting = ColorNever)]` with `#[clap(color = ColorChoice::Never)]``
+
+Builder: replace `cmd.setting(ColorNever)` with `cmd.color(Color::Never)`
+"
+        )
     )]
     #[doc(hidden)]
     ColorNever,
 
     /// Deprecated, replaced with [`Command::disable_help_flag`] and [`Command::is_disable_help_flag_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DisableHelpFlags)]` with `#[clap(disable_help_flag = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DisableHelpFlags)` with `cmd.disable_help_flag(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`"
+            note = "Replaced with `Command::disable_help_flag` and `Command::is_disable_help_flag_set`
+
+Derive: replace `#[clap(setting = DisableHelpFlags)]` with `#[clap(disable_help_flag = true)]`
+
+Builder: replace `cmd.setting(DisableHelpFlags)` with `cmd.disable_help_flag(true)`
+"
         )
     )]
     #[doc(hidden)]
@@ -472,22 +877,40 @@ pub enum AppSettings {
 
     /// Deprecated, replaced with [`Command::disable_version_flag`] and
     /// [`Command::is_disable_version_flag_set`]
+    ///
+    /// Derive: replace `#[clap(setting = DisableVersion)]` with `#[clap(disable_version_flag = true)]`
+    ///
+    /// Builder: replace `cmd.setting(DisableVersion)` with `cmd.disable_version_flag(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`"
+            note = "Replaced with `Command::disable_version_flag` and `Command::is_disable_version_flag_set`
+
+Derive: replace `#[clap(setting = DisableVersion)]` with `#[clap(disable_version_flag = true)]`
+
+Builder: replace `cmd.setting(DisableVersion)` with `cmd.disable_version_flag(true)`
+"
         )
     )]
     #[doc(hidden)]
     DisableVersion,
 
     /// Deprecated, replaced with [`Command::propagate_version`] and [`Command::is_propagate_version_set`]
+    ///
+    /// Derive: replace `#[clap(setting = GlobalVersion)]` with `#[clap(propagate_version = true)]`
+    ///
+    /// Builder: replace `cmd.setting(GlobalVersion)` with `cmd.propagate_version(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`"
+            note = "Replaced with `Command::propagate_version` and `Command::is_propagate_version_set`
+
+Derive: replace `#[clap(setting = GlobalVersion)]` with `#[clap(propagate_version = true)]`
+
+Builder: replace `cmd.setting(GlobalVersion)` with `cmd.propagate_version(true)`
+"
         )
     )]
     #[doc(hidden)]
@@ -495,20 +918,41 @@ pub enum AppSettings {
 
     /// Deprecated, replaced with [`Command::hide_possible_values`] and
     /// [`Arg::is_hide_possible_values_set`]
+    ///
+    /// Derive: replace `#[clap(setting = HidePossibleValuesInHelp)]` with `#[clap(hide_possible_values = true)]`
+    ///
+    /// Builder: replace `cmd.setting(HidePossibleValuesInHelp)` with `cmd.hide_possible_values(true)`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.0.0",
-            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`"
+            note = "Replaced with `Command::hide_possible_values` and `Arg::is_hide_possible_values_set`
+
+Derive: replace `#[clap(setting = HidePossibleValuesInHelp)]` with `#[clap(hide_possible_values = true)]`
+
+Builder: replace `cmd.setting(HidePossibleValuesInHelp)` with `cmd.hide_possible_values(true)`
+"
         )
     )]
     #[doc(hidden)]
     HidePossibleValuesInHelp,
 
     /// Deprecated, this is now the default
+    ///
+    /// Derive: remove `#[clap(setting = UnifiedHelp)]`
+    ///
+    /// Builder: remove `cmd.setting(UnifiedHelp)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.0.0", note = "This is now the default")
+        deprecated(
+            since = "3.0.0",
+            note = "This is now the default
+
+Derive: remove `#[clap(setting = UnifiedHelp)]`
+
+Builder: remove `cmd.setting(UnifiedHelp)`
+"
+        )
     )]
     #[doc(hidden)]
     UnifiedHelp,
