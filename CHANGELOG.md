@@ -88,6 +88,34 @@ consistent with `man`.
 
 See [Issue 4132](https://github.com/clap-rs/clap/issues/4132) for more background.
 
+**More Dynamicism**
+
+Clap's API has focused on `&str` for performance but this can make
+dealing with owned data difficult, like `#[arg(default_value_t)]` generating a
+String from the default value.
+
+Additionally, to avoid `ArgMatches` from borrowing (and for some features we
+decided to forgo), clap took the `&str` argument IDs and hashed them.  This
+prevented us from providing a usable API for iterating over existing arguments.
+
+Now clap has switched to a String newtype that gives us the flexibility to
+decide whether we want to focus on performance with `Cow<'static, str>` or
+compile times with `Box<str>`.
+
+As an extension of that work, you can now call `ArgMatches::ids` to iterate
+over the arguments and groups that were found when parsing.  The newtype `Id`
+was used to prevent some classes of bugs and to make it easier to understand
+when opaque Ids are used vs user-visible strings.
+
+**Clearing Out Deprecations**
+
+Instead of doing all development on clap 4.0.0, we implemented a lot of new features during clap 3's development, deprecating the old API while introducing the new API, including:
+- Replacing the implicit behavior for args when parsing them with `ArgAction`
+- Replacing various one-off forms of value validation with the `ValueParser` API
+  - Allowing derives to automatically do the right thing for `PathBuf` (allowing invalid UTF-8)
+- Replacing `AppSettings` and `ArgSettings` enums with getters/setters
+- Clarifying terms and making them more consistent
+
 ### Migrating
 
 Steps:
