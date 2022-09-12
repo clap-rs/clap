@@ -923,8 +923,8 @@ impl Command {
     /// # use clap::{Command, arg};
     /// let cmd = Command::new("cmd")
     ///   .ignore_errors(true)
-    ///   .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
-    ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file").required(false))
+    ///   .arg(arg!(-c --config <FILE> "Sets a custom config file"))
+    ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file"))
     ///   .arg(arg!(f: -f "Flag"));
     ///
     /// let r = cmd.try_get_matches_from(vec!["cmd", "-c", "file", "-f", "-x"]);

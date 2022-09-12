@@ -10,7 +10,7 @@ macro_rules! create_app {
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
-            .arg(arg!(-o --option <opt> ... "tests options").required(false))
+            .arg(arg!(-o --option <opt> ... "tests options"))
             .arg(arg!([positional] "tests positionals"))
             .arg(arg!(-f --flag ... "tests flags").global(true))
             .args([
@@ -18,28 +18,26 @@ macro_rules! create_app {
                     .conflicts_with("flag")
                     .requires("option2"),
                 arg!(option2: --"long-option-2" <option2> "tests long options with exclusions")
-                    .required(false)
                     .conflicts_with("option")
                     .requires("positional2"),
                 arg!([positional2] "tests positionals with exclusions"),
                 arg!(-O --Option <option3> "tests options with specific value sets")
-                .required(false)
                     .value_parser(OPT3_VALS),
                 arg!([positional3] ... "tests positionals with specific values")
                     .value_parser(POS3_VALS),
-                arg!(--multvals <s> "Tests multiple values not mult occs").required(false).value_names(["one", "two"]),
+                arg!(--multvals <s> "Tests multiple values not mult occs").value_names(["one", "two"]),
                 arg!(
                     --multvalsmo <s> "Tests multiple values, not mult occs"
                 ).required(false).value_names(["one", "two"]),
-                arg!(--minvals2 <minvals> ... "Tests 2 min vals").num_args(2..).required(false),
-                arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").num_args(1..=3).required(false),
+                arg!(--minvals2 <minvals> ... "Tests 2 min vals").num_args(2..),
+                arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").num_args(1..=3),
             ])
             .subcommand(
                 Command::new("subcmd")
                     .about("tests subcommands")
                     .version("0.1")
                     .author("Kevin K. <kbknapp@gmail.com>")
-                    .arg(arg!(-o --option <scoption> ... "tests options").required(false))
+                    .arg(arg!(-o --option <scoption> ... "tests options"))
                     .arg(arg!([scpositional] "tests positionals"))
             )
     }};

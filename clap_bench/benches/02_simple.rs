@@ -8,7 +8,7 @@ macro_rules! create_app {
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
             .arg(arg!(-f --flag         "tests flags"))
-            .arg(arg!(-o --option <opt> "tests options").required(false))
+            .arg(arg!(-o --option <opt> "tests options"))
             .arg(arg!([positional]      "tests positional"))
     }};
 }
@@ -34,14 +34,14 @@ pub fn build_with_flag_ref(c: &mut Criterion) {
 
 pub fn build_with_opt(c: &mut Criterion) {
     c.bench_function("build_with_opt", |b| {
-        b.iter(|| Command::new("claptests").arg(arg!(-s --some <FILE> "something")))
+        b.iter(|| Command::new("claptests").arg(arg!(-s --some <FILE> "something").required(true)))
     });
 }
 
 pub fn build_with_opt_ref(c: &mut Criterion) {
     c.bench_function("build_with_opt_ref", |b| {
         b.iter(|| {
-            let arg = arg!(-s --some <FILE> "something");
+            let arg = arg!(-s --some <FILE> "something").required(true);
             Command::new("claptests").arg(&arg)
         })
     });

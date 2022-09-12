@@ -5,7 +5,6 @@ fn main() {
         .subcommand(
             clap::command!("example").arg(
                 clap::arg!(--"manifest-path" <PATH>)
-                    .required(false)
                     .value_parser(clap::value_parser!(std::path::PathBuf)),
             ),
         );

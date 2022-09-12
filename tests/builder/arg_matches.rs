@@ -5,16 +5,8 @@ use clap::{Arg, ArgAction};
 #[test]
 fn ids() {
     let m = Command::new("test")
-        .arg(
-            arg!(--color <when>)
-                .value_parser(["auto", "always", "never"])
-                .required(false),
-        )
-        .arg(
-            arg!(--config <path>)
-                .value_parser(value_parser!(std::path::PathBuf))
-                .required(false),
-        )
+        .arg(arg!(--color <when>).value_parser(["auto", "always", "never"]))
+        .arg(arg!(--config <path>).value_parser(value_parser!(std::path::PathBuf)))
         .try_get_matches_from(["test", "--config=config.toml", "--color=auto"])
         .unwrap();
     assert_eq!(
@@ -27,16 +19,8 @@ fn ids() {
 #[test]
 fn ids_ignore_unused() {
     let m = Command::new("test")
-        .arg(
-            arg!(--color <when>)
-                .value_parser(["auto", "always", "never"])
-                .required(false),
-        )
-        .arg(
-            arg!(--config <path>)
-                .value_parser(value_parser!(std::path::PathBuf))
-                .required(false),
-        )
+        .arg(arg!(--color <when>).value_parser(["auto", "always", "never"]))
+        .arg(arg!(--config <path>).value_parser(value_parser!(std::path::PathBuf)))
         .try_get_matches_from(["test", "--config=config.toml"])
         .unwrap();
     assert_eq!(
@@ -49,15 +33,10 @@ fn ids_ignore_unused() {
 #[test]
 fn ids_ignore_overridden() {
     let m = Command::new("test")
-        .arg(
-            arg!(--color <when>)
-                .value_parser(["auto", "always", "never"])
-                .required(false),
-        )
+        .arg(arg!(--color <when>).value_parser(["auto", "always", "never"]))
         .arg(
             arg!(--config <path>)
                 .value_parser(value_parser!(std::path::PathBuf))
-                .required(false)
                 .overrides_with("color"),
         )
         .try_get_matches_from(["test", "--config=config.toml", "--color=auto"])

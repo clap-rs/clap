@@ -45,7 +45,7 @@ fn cli() -> Command {
 }
 
 fn push_args() -> Vec<clap::Arg> {
-    vec![arg!(-m --message <MESSAGE>).required(false)]
+    vec![arg!(-m --message <MESSAGE>)]
 }
 
 fn main() {

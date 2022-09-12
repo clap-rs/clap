@@ -295,7 +295,9 @@ macro_rules! arg_impl {
 
                 let mut arg = $arg;
 
-                arg = arg.required(true);
+                if arg.get_long().is_none() && arg.get_short().is_none() {
+                    arg = arg.required(true);
+                }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
                 if arg.get_id() == "" {
@@ -322,7 +324,9 @@ macro_rules! arg_impl {
 
                 let mut arg = $arg;
 
-                arg = arg.required(true);
+                if arg.get_long().is_none() && arg.get_short().is_none() {
+                    arg = arg.required(true);
+                }
 
                 let value_name = $crate::arg_impl! { @string $value_name };
                 if arg.get_id() == "" {

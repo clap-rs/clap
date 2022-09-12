@@ -108,7 +108,7 @@ fn arg_required_else_help_over_req_subcommand() {
 fn arg_required_else_help_with_default() {
     let result = Command::new("arg_required")
         .arg_required_else_help(true)
-        .arg(arg!(--input <PATH>).required(false).default_value("-"))
+        .arg(arg!(--input <PATH>).default_value("-"))
         .try_get_matches_from(vec![""]);
 
     assert!(result.is_err());
@@ -298,9 +298,7 @@ Options:
         .version("1.3")
         .hide_possible_values(true)
         .args(&[
-            arg!(-o --opt <opt> "some option")
-                .required(false)
-                .value_parser(["one", "two"]),
+            arg!(-o --opt <opt> "some option").value_parser(["one", "two"]),
             arg!([arg1] "some pos arg").value_parser(["three", "four"]),
         ]);
 
@@ -311,10 +309,7 @@ Options:
 fn stop_delim_values_only_pos_follows() {
     let r = Command::new("onlypos")
         .dont_delimit_trailing_values(true)
-        .args(&[
-            arg!(f: -f <flag> "some opt").required(false),
-            arg!([arg] ... "some arg"),
-        ])
+        .args(&[arg!(f: -f <flag> "some opt"), arg!([arg] ... "some arg")])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -843,7 +838,11 @@ fn missing_positional_hyphen_req_error() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = Command::new("prog")
-        .arg(arg!(--"some-argument" <val>).allow_hyphen_values(true))
+        .arg(
+            arg!(--"some-argument" <val>)
+                .required(true)
+                .allow_hyphen_values(true),
+        )
         .try_get_matches_from(vec!["prog", "-fish"]);
 
     assert!(res.is_err());
@@ -1027,7 +1026,11 @@ fn aaos_flags_mult() {
 fn aaos_opts() {
     // opts
     let res = Command::new("posix")
-        .arg(arg!(--opt <val> "some option").action(ArgAction::Set))
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(true)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
@@ -1042,14 +1045,9 @@ fn aaos_opts() {
 fn aaos_opts_w_other_overrides() {
     // opts with other overrides
     let res = Command::new("posix")
-        .arg(
-            arg!(--opt <val> "some option")
-                .required(false)
-                .action(ArgAction::Set),
-        )
+        .arg(arg!(--opt <val> "some option").action(ArgAction::Set))
         .arg(
             arg!(--other <val> "some other option")
-                .required(false)
                 .overrides_with("opt")
                 .action(ArgAction::Set),
         )
@@ -1096,15 +1094,10 @@ fn aaos_opts_w_other_overrides_2() {
     let res = Command::new("posix")
         .arg(
             arg!(--opt <val> "some option")
-                .required(false)
                 .overrides_with("other")
                 .action(ArgAction::Set),
         )
-        .arg(
-            arg!(--other <val> "some other option")
-                .required(false)
-                .action(ArgAction::Set),
-        )
+        .arg(arg!(--other <val> "some other option").action(ArgAction::Set))
         .try_get_matches_from(vec!["", "--opt=some", "--other=test", "--opt=other"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
@@ -1266,7 +1259,11 @@ fn aaos_pos_mult() {
 #[test]
 fn aaos_option_use_delim_false() {
     let m = Command::new("posix")
-        .arg(arg!(--opt <val> "some option").action(ArgAction::Set))
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(true)
+                .action(ArgAction::Set),
+        )
         .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
         .unwrap();
     assert!(m.contains_id("opt"));

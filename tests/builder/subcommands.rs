@@ -183,9 +183,8 @@ Usage: dym [COMMAND]
 For more information try --help
 ";
 
-    let cmd = Command::new("dym").subcommand(
-        Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
-    );
+    let cmd = Command::new("dym")
+        .subcommand(Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests")));
 
     utils::assert_output(cmd, "dym --subcmarg subcmd", EXPECTED, true);
 }
@@ -203,9 +202,8 @@ Usage: dym [COMMAND]
 For more information try --help
 ";
 
-    let cmd = Command::new("dym").subcommand(
-        Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests").required(false)),
-    );
+    let cmd = Command::new("dym")
+        .subcommand(Command::new("subcmd").arg(arg!(-s --subcmdarg <subcmdarg> "tests")));
 
     utils::assert_output(cmd, "dym --subcmarg foo", EXPECTED, true);
 }
@@ -260,7 +258,7 @@ fn replace() {
 #[test]
 fn issue_1031_args_with_same_name() {
     let res = Command::new("prog")
-        .arg(arg!(--"ui-path" <PATH>))
+        .arg(arg!(--"ui-path" <PATH>).required(true))
         .subcommand(Command::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "signer"]);
 
@@ -275,7 +273,7 @@ fn issue_1031_args_with_same_name() {
 #[test]
 fn issue_1031_args_with_same_name_no_more_vals() {
     let res = Command::new("prog")
-        .arg(arg!(--"ui-path" <PATH>))
+        .arg(arg!(--"ui-path" <PATH>).required(true))
         .subcommand(Command::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "value", "signer"]);
 

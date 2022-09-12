@@ -72,33 +72,21 @@ pub fn complex_app() -> Command {
                 .requires("long-option-2")
                 .action(ArgAction::SetTrue),
             arg!(--"long-option-2" <option2> "tests long options with exclusions")
-                .required(false)
                 .conflicts_with("option")
                 .requires("positional2"),
             arg!([positional2] "tests positionals with exclusions"),
-            arg!(-O --option3 <option3> "specific vals")
-                .required(false)
-                .value_parser(opt3_vals),
+            arg!(-O --option3 <option3> "specific vals").value_parser(opt3_vals),
             arg!([positional3] ... "tests specific values").value_parser(pos3_vals),
             arg!(--multvals <val> "Tests multiple values, not mult occs")
-                .value_names(["one", "two"])
-                .required(false),
+                .value_names(["one", "two"]),
             arg!(--multvalsmo <val> ... "Tests multiple values, and mult occs")
-                .value_names(["one", "two"])
-                .required(false),
-            arg!(--minvals2 <minvals> "Tests 2 min vals")
-                .required(false)
-                .num_args(2..),
-            arg!(--maxvals3 <maxvals> "Tests 3 max vals")
-                .required(false)
-                .num_args(1..=3),
+                .value_names(["one", "two"]),
+            arg!(--minvals2 <minvals> "Tests 2 min vals").num_args(2..),
+            arg!(--maxvals3 <maxvals> "Tests 3 max vals").num_args(1..=3),
             arg!(--optvaleq <optval> "Tests optional value, require = sign")
-                .required(false)
                 .num_args(0..=1)
                 .require_equals(true),
-            arg!(--optvalnoeq <optval> "Tests optional value")
-                .required(false)
-                .num_args(0..=1),
+            arg!(--optvalnoeq <optval> "Tests optional value").num_args(0..=1),
         ])
         .subcommand(
             Command::new("subcmd")
@@ -106,12 +94,8 @@ pub fn complex_app() -> Command {
                 .version("0.1")
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .help_template(FULL_TEMPLATE)
-                .arg(
-                    arg!(-o --option <scoption> "tests options")
-                        .required(false)
-                        .num_args(1..),
-                )
-                .arg(arg!(-s --subcmdarg <subcmdarg> "tests other args").required(false))
+                .arg(arg!(-o --option <scoption> "tests options").num_args(1..))
+                .arg(arg!(-s --subcmdarg <subcmdarg> "tests other args"))
                 .arg(arg!([scpositional] "tests positionals")),
         )
 }

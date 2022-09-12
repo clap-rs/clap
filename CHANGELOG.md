@@ -183,6 +183,7 @@ Subtle changes (i.e. compiler won't catch):
 - By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::IncOccurrence` to reduce confusing magic through consistency (#2687, #4032, see also #3977)
 - `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own (#4056)
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`
+- `arg!(--flag <value>)` is now optional, instead of required.  Add `.required(true)` at the end to restore the original behavior (#4206)
 - *(parser)* Always fill in `""` argument for external subcommands to make it easier to distinguish them from built-in commands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, to be consistent with `Command::allow_hyphen_values` (#4187)
 - *(parser)* `Arg::value_terminator` must be its own argument on the CLI rather than being in a delimited list (#4025)

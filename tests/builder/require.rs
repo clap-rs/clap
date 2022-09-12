@@ -79,8 +79,8 @@ fn flag_required_2() {
 #[test]
 fn option_required() {
     let result = Command::new("option_required")
-        .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
-        .arg(arg!(c: -c <color> "third flag").required(false))
+        .arg(arg!(f: -f <flag> "some flag").requires("c"))
+        .arg(arg!(c: -c <color> "third flag"))
         .try_get_matches_from(vec!["", "-f", "val"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -90,8 +90,8 @@ fn option_required() {
 #[test]
 fn option_required_2() {
     let m = Command::new("option_required")
-        .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
-        .arg(arg!(c: -c <color> "third flag").required(false))
+        .arg(arg!(f: -f <flag> "some flag").requires("c"))
+        .arg(arg!(c: -c <color> "third flag"))
         .try_get_matches_from(vec!["", "-f", "val", "-c", "other_val"])
         .unwrap();
     assert!(m.contains_id("c"));
@@ -295,15 +295,10 @@ fn issue_753() {
         )
         .arg(
             arg!(-f --file <TESTFILE> "Fetch NTP packets from pcap file")
-                .required(false)
                 .conflicts_with("iface")
                 .required_unless_present("list"),
         )
-        .arg(
-            arg!(-s --server <SERVER_IP> "NTP server IP address")
-                .required(false)
-                .required_unless_present("list"),
-        )
+        .arg(arg!(-s --server <SERVER_IP> "NTP server IP address").required_unless_present("list"))
         .try_get_matches_from(vec!["test", "--list"]);
     assert!(m.is_ok(), "{}", m.unwrap_err());
 }
@@ -1040,7 +1035,6 @@ fn issue_1158_app() -> Command {
     Command::new("example")
         .arg(
             arg!(-c --config <FILE> "Custom config file.")
-                .required(false)
                 .required_unless_present("ID")
                 .conflicts_with("ID"),
         )
@@ -1054,9 +1048,9 @@ fn issue_1158_app() -> Command {
                     (ArgPredicate::IsPresent, "z"),
                 ]),
         )
-        .arg(arg!(x: -x <X> "X").required(false))
-        .arg(arg!(y: -y <Y> "Y").required(false))
-        .arg(arg!(z: -z <Z> "Z").required(false))
+        .arg(arg!(x: -x <X> "X"))
+        .arg(arg!(y: -y <Y> "Y"))
+        .arg(arg!(z: -z <Z> "Z"))
 }
 
 #[test]

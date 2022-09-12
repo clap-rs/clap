@@ -49,12 +49,8 @@ fn exclusive_flag() {
 #[test]
 fn exclusive_option() {
     let result = Command::new("flag_conflict")
-        .arg(
-            arg!(-f --flag <VALUE> "some flag")
-                .required(false)
-                .exclusive(true),
-        )
-        .arg(arg!(-o --other <VALUE> "some flag").required(false))
+        .arg(arg!(-f --flag <VALUE> "some flag").exclusive(true))
+        .arg(arg!(-o --other <VALUE> "some flag"))
         .try_get_matches_from(vec!["myprog", "-o=val1", "-f=val2"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -64,11 +60,7 @@ fn exclusive_option() {
 #[test]
 fn not_exclusive_with_defaults() {
     let result = Command::new("flag_conflict")
-        .arg(
-            arg!(-f --flag <VALUE> "some flag")
-                .required(false)
-                .exclusive(true),
-        )
+        .arg(arg!(-f --flag <VALUE> "some flag").exclusive(true))
         .arg(
             arg!(-o --other <VALUE> "some flag")
                 .required(false)
@@ -83,15 +75,10 @@ fn default_doesnt_activate_exclusive() {
     let result = Command::new("flag_conflict")
         .arg(
             arg!(-f --flag <VALUE> "some flag")
-                .required(false)
                 .exclusive(true)
                 .default_value("val2"),
         )
-        .arg(
-            arg!(-o --other <VALUE> "some flag")
-                .required(false)
-                .default_value("val1"),
-        )
+        .arg(arg!(-o --other <VALUE> "some flag").default_value("val1"))
         .try_get_matches_from(vec!["myprog"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
 }
@@ -135,14 +122,9 @@ fn arg_conflicts_with_group_with_multiple_sources() {
     let mut cmd = clap::Command::new("group_conflict")
         .arg(clap::arg!(-f --flag "some flag").conflicts_with("gr"))
         .group(clap::ArgGroup::new("gr").multiple(true))
-        .arg(
-            clap::arg!(--some <name> "some arg")
-                .required(false)
-                .group("gr"),
-        )
+        .arg(clap::arg!(--some <name> "some arg").group("gr"))
         .arg(
             clap::arg!(--other <secs> "other arg")
-                .required(false)
                 .default_value("1000")
                 .group("gr"),
         );
@@ -480,11 +462,7 @@ fn conflicts_with_invalid_arg() {
 #[test]
 fn conflict_with_unused_default() {
     let result = Command::new("conflict")
-        .arg(
-            arg!(-o --opt <opt> "some opt")
-                .required(false)
-                .default_value("default"),
-        )
+        .arg(arg!(-o --opt <opt> "some opt").default_value("default"))
         .arg(
             arg!(-f --flag "some flag")
                 .conflicts_with("opt")
@@ -508,7 +486,6 @@ fn conflicts_with_alongside_default() {
         .arg(
             arg!(-o --opt <opt> "some opt")
                 .default_value("default")
-                .required(false)
                 .conflicts_with("flag"),
         )
         .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
@@ -644,7 +621,7 @@ fn subcommand_conflict_negates_required() {
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
         .subcommand(Command::new("config"))
-        .arg(arg!(-p --place <"place id"> "Place ID to open"));
+        .arg(arg!(-p --place <"place id"> "Place ID to open").required(true));
 
     let result = cmd.try_get_matches_from(["test", "config"]);
     assert!(

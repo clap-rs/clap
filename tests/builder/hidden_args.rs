@@ -23,7 +23,7 @@ fn hide_args() {
         .args(&[
             arg!(-f --flag "some flag").hide(true),
             arg!(-F --flag2 "some other flag"),
-            arg!(--option <opt> "some option").required(false),
+            arg!(--option <opt> "some option"),
             Arg::new("DUMMY").hide(true),
         ]);
     utils::assert_output(cmd, "test --help", HIDDEN_ARGS, false);
@@ -234,11 +234,7 @@ fn hide_opt_args_only() {
         .disable_version_flag(true)
         .arg(arg!(-h - -help).action(ArgAction::Help).hide(true))
         .arg(arg!(-v - -version).hide(true))
-        .arg(
-            arg!(--option <opt> "some option")
-                .required(false)
-                .hide(true),
-        );
+        .arg(arg!(--option <opt> "some option").hide(true));
 
     utils::assert_output(cmd, "test --help", HIDDEN_OPT_ARGS_ONLY, false);
 }

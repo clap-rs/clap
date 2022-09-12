@@ -7,7 +7,7 @@ fn main() {
     // Create application like normal
     let mut cmd = command!() // requires `cargo` feature
         // Add the version arguments
-        .arg(arg!(--"set-ver" <VER> "set version manually").required(false))
+        .arg(arg!(--"set-ver" <VER> "set version manually"))
         .arg(arg!(--major         "auto inc major").action(ArgAction::SetTrue))
         .arg(arg!(--minor         "auto inc minor").action(ArgAction::SetTrue))
         .arg(arg!(--patch         "auto inc patch").action(ArgAction::SetTrue))
@@ -16,16 +16,11 @@ fn main() {
         .arg(arg!([INPUT_FILE] "some regular input").value_parser(value_parser!(PathBuf)))
         .arg(
             arg!(--"spec-in" <SPEC_IN> "some special input argument")
-                .required(false)
                 .value_parser(value_parser!(PathBuf)),
         )
         // Now let's assume we have a -c [config] argument which requires one of
         // (but **not** both) the "input" arguments
-        .arg(
-            arg!(config: -c <CONFIG>)
-                .required(false)
-                .value_parser(value_parser!(PathBuf)),
-        );
+        .arg(arg!(config: -c <CONFIG>).value_parser(value_parser!(PathBuf)));
     let matches = cmd.get_matches_mut();
 
     // Let's assume the old version 1.2.3

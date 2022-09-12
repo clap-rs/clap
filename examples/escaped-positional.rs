@@ -3,11 +3,7 @@ use clap::{arg, command, value_parser, ArgAction};
 fn main() {
     let matches = command!() // requires `cargo` feature
         .arg(arg!(eff: -f).action(ArgAction::SetTrue))
-        .arg(
-            arg!(pea: -p <PEAR>)
-                .required(false)
-                .value_parser(value_parser!(String)),
-        )
+        .arg(arg!(pea: -p <PEAR>).value_parser(value_parser!(String)))
         .arg(
             // Indicates that `slop` is only accessible after `--`.
             arg!(slop: [SLOP])

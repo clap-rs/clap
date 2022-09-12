@@ -5,7 +5,7 @@ mod arg {
         assert_eq!(arg.get_id(), "foo");
         assert_eq!(arg.get_long(), Some("bar"));
         assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
-        assert!(arg.is_required_set());
+        assert!(!arg.is_required_set());
     }
 
     #[test]
@@ -14,7 +14,7 @@ mod arg {
         assert_eq!(arg.get_id(), "bar");
         assert_eq!(arg.get_long(), Some("bar"));
         assert_eq!(arg.get_value_names(), Some(vec!["NUM".into()].as_slice()));
-        assert!(arg.is_required_set());
+        assert!(!arg.is_required_set());
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod arg {
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
-        assert!(arg.is_required_set());
+        assert!(!arg.is_required_set());
         assert_eq!(arg.get_help().map(|s| s.to_string()), None);
 
         let arg = clap::arg!(foo: -'b' <NUM>);
@@ -199,7 +199,7 @@ mod arg {
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
-        assert!(arg.is_required_set());
+        assert!(!arg.is_required_set());
         assert_eq!(arg.get_help().map(|s| s.to_string()), None);
 
         let arg = clap::arg!(foo: -b  <NUM> ...);
@@ -207,7 +207,7 @@ mod arg {
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Append));
         assert_eq!(arg.get_num_args(), None);
-        assert!(arg.is_required_set());
+        assert!(!arg.is_required_set());
         assert_eq!(arg.get_help().map(|s| s.to_string()), None);
 
         let arg = clap::arg!(foo: -b  <NUM> "How to use it");
@@ -215,7 +215,7 @@ mod arg {
         assert_eq!(arg.get_short(), Some('b'));
         assert!(matches!(arg.get_action(), clap::ArgAction::Set));
         assert_eq!(arg.get_num_args(), None);
-        assert!(arg.is_required_set());
+        assert!(!arg.is_required_set());
         assert_eq!(
             arg.get_help().map(|s| s.to_string()),
             Some("How to use it".to_owned())

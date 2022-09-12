@@ -174,7 +174,7 @@ fn opts_using_short() {
 #[test]
 fn lots_o_vals() {
     let r = Command::new("opts")
-        .arg(arg!(o: -o <opt> "some opt").num_args(1..))
+        .arg(arg!(o: -o <opt> "some opt").num_args(1..).required(true))
         .try_get_matches_from(vec![
             "", "-o", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -344,7 +344,11 @@ fn require_delims_no_delim() {
 #[test]
 fn require_delims() {
     let r = Command::new("mvae")
-        .arg(arg!(o: -o <opt> "some opt").value_delimiter(','))
+        .arg(
+            arg!(o: -o <opt> "some opt")
+                .value_delimiter(',')
+                .required(true),
+        )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -369,6 +373,7 @@ fn leading_hyphen_pass() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
+                .required(true)
                 .num_args(1..)
                 .allow_hyphen_values(true),
         )
@@ -388,7 +393,7 @@ fn leading_hyphen_pass() {
 #[test]
 fn leading_hyphen_fail() {
     let r = Command::new("mvae")
-        .arg(arg!(o: -o <opt> "some opt"))
+        .arg(arg!(o: -o <opt> "some opt").required(true))
         .try_get_matches_from(vec!["", "-o", "-2"]);
     assert!(r.is_err());
     let m = r.unwrap_err();
@@ -400,6 +405,7 @@ fn leading_hyphen_with_flag_after() {
     let r = Command::new("mvae")
         .arg(
             arg!(o: -o <opt> "some opt")
+                .required(true)
                 .num_args(1..)
                 .allow_hyphen_values(true),
         )
@@ -488,7 +494,7 @@ fn issue_1047_min_zero_vals_default_val() {
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> {
     Command::new("opts")
-        .arg(arg!(-o --option <opt> "some option"))
+        .arg(arg!(-o --option <opt> "some option").required(true))
         .arg(arg!(--flag "some flag"))
         .try_get_matches_from(argv)
 }
@@ -572,7 +578,7 @@ fn issue_1073_suboptimal_flag_suggestion() {
 #[test]
 fn short_non_ascii_no_space() {
     let matches = Command::new("cmd")
-        .arg(arg!(opt: -'磨' <opt>))
+        .arg(arg!(opt: -'磨' <opt>).required(true))
         .try_get_matches_from(&["test", "-磨VALUE"])
         .unwrap();
 
@@ -588,7 +594,7 @@ fn short_non_ascii_no_space() {
 #[test]
 fn short_eq_val_starts_with_eq() {
     let matches = Command::new("cmd")
-        .arg(arg!(opt: -f <opt>))
+        .arg(arg!(opt: -f <opt>).required(true))
         .try_get_matches_from(&["test", "-f==value"])
         .unwrap();
 
@@ -604,7 +610,7 @@ fn short_eq_val_starts_with_eq() {
 #[test]
 fn long_eq_val_starts_with_eq() {
     let matches = Command::new("cmd")
-        .arg(arg!(opt: --foo <opt>))
+        .arg(arg!(opt: --foo <opt>).required(true))
         .try_get_matches_from(&["test", "--foo==value"])
         .unwrap();
 
