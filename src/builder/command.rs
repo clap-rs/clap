@@ -959,9 +959,21 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated, replaced with [`ArgAction::Set`][super::ArgAction::Set]
+    ///
+    /// The new actions (`ArgAction::Set`, `ArgAction::SetTrue`) do this by default.
+    ///
+    /// See `ArgAction::StoreValue` and `ArgAction::IncOccurrence` for how to migrate
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action(ArgAction::Set)`")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::action(ArgAction::...)`
+
+The new actions (`ArgAction::Set`, `ArgAction::SetTrue`) do this by default.
+
+See `ArgAction::StoreValue` and `ArgAction::IncOccurrence` for how to migrate
+"
+        )
     )]
     pub fn args_override_self(self, yes: bool) -> Self {
         if yes {

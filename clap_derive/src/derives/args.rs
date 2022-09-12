@@ -302,7 +302,7 @@ pub fn gen_augment(
                         parse_try_from_os_str();
                     },
                     ParserKind::FromFlag => quote_spanned! { func.span()=>
-                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(action = ArgAction::SetTrue)]`")]
+                        #[deprecated(since = "3.2.0", note = "Replaced with `#[clap(action = ArgAction::SetTrue, default_value = <absent>, default_missing_value = <present>)]`")]
                         fn parse_from_flag() {
                         }
                         parse_from_flag();

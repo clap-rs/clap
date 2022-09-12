@@ -134,10 +134,18 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, replaced with [`Arg::id`]
+    /// Deprecated, replaced with [`Arg::id`] to avoid confusion with [`Arg::value_name`]
+    ///
+    /// Builder: replaced `arg.name(...)` with `arg.id(...)`
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::id`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Arg::id` to avoid confusion with `Arg::value_name`
+
+Builder: replaced `arg.name(...)` with `arg.id(...)`
+"
+        )
     )]
     pub fn name<S: Into<&'help str>>(self, n: S) -> Self {
         self.id(n)
@@ -790,7 +798,13 @@ impl<'help> Arg<'help> {
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::action` (Issue #3772)")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::action` (Issue #3772)
+
+Builder: replace `arg.multiple_occurrences(true)` with `arg.action(ArgAction::Append)` when taking a value and `arg.action(ArgAction::Count)` with `matches.get_count` when not
+"
+        )
     )]
     pub fn multiple_occurrences(self, yes: bool) -> Self {
         if yes {
@@ -800,14 +814,23 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, for flags this is replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
+    /// Deprecated, for flags, this is replaced with `RangedI64ValueParser::range`
+    ///
+    /// Derive: `#[clap(action = ArgAction::Count, value_parser = value_parser!(u8).range(..max))]`
+    ///
+    /// Builder: `arg.action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
     #[inline]
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "For flags, replaced with `action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`"
+            note = "For flags, this is replaced with `RangedI64ValueParser::range`
+
+Derive: `#[clap(action = ArgAction::Count, value_parser = value_parser!(u8).range(..max))]`
+
+Builder: `arg.action(ArgAction::Count).value_parser(value_parser!(u8).range(..max))`
+"
         )
     )]
     pub fn max_occurrences(mut self, qty: usize) -> Self {
@@ -1516,11 +1539,25 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(...)`]
+    ///
+    /// Derive: replace `#[clap(validator = ...)]` with `#[clap(value_parser = ...)]`
+    ///
+    /// Builder: replace `arg.validator(...)` with `arg.value_parser(...)` and `matches.value_of` with
+    /// `matches.get_one::<T>` or `matches.values_of` with `matches.get_many::<T>`
     #[inline]
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::value_parser(...)`
+
+Derive: replace `#[clap(validator = <fn>)]` with `#[clap(value_parser = <fn>)]`
+
+Builder: replace `arg.validator(<fn>)` with `arg.value_parser(<fn>)` and `matches.value_of` with
+`matches.get_one::<T>` or `matches.values_of` with `matches.get_many::<T>`
+"
+        )
     )]
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
@@ -1537,7 +1574,16 @@ impl<'help> Arg<'help> {
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.2.0", note = "Replaced with `Arg::value_parser(...)`")
+        deprecated(
+            since = "3.2.0",
+            note = "Replaced with `Arg::value_parser(...)`
+
+Derive: replace `#[clap(validator = <fn>)]` with `#[clap(value_parser = <TypedValueParser>)]`
+
+Builder: replace `arg.validator(<fn>)` with `arg.value_parser(<TypedValueParser>)` and `matches.value_of_os` with
+`matches.get_one::<T>` or `matches.values_of_os` with `matches.get_many::<T>`
+"
+        )
     )]
     pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
@@ -1551,11 +1597,20 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated in [Issue #3743](https://github.com/clap-rs/clap/issues/3743), replaced with [`Arg::value_parser(...)`]
+    ///
+    /// Derive: replace `#[clap(validator_regex = ...)]` with `#[clap(value_parser = |s: &str| regex.is_match(s).then(|| s.to_owned()).ok_or_else(|| ...))]`
+    ///
+    /// Builder: replace `arg.validator_regex(...)` with `arg.value_parser(|s: &str| regex.is_match(s).then(|| s.to_owned()).ok_or_else(|| ...))`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Deprecated in Issue #3743; eplaced with `Arg::value_parser(...)`"
+            note = "Deprecated in Issue #3743; replaced with `Arg::value_parser(...)`
+
+Derive: replace `#[clap(validator_regex = ...)]` with `#[clap(value_parser = |s: &str| regex.is_match(s).then(|| s.to_owned()).ok_or_else(|| ...))]`
+
+Builder: replace `arg.validator_regex(...)` with `arg.value_parser(|s: &str| regex.is_match(s).then(|| s.to_owned()).ok_or_else(|| ...))`
+"
         )
     )]
     #[cfg(feature = "regex")]
@@ -1576,11 +1631,22 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
+    ///
+    /// Derive: replace `#[clap(possible_value = <1>, possible_value = <2>, ...)]` with `#[clap(value_parser = [<1>, <2>])]`.
+    /// If the field is not a `String`, instead do `#[clap(value_parser = PossibleValueParser::new([<1>, <2>]).map(T::from_str))]`
+    ///
+    /// Builder: replace `arg.possible_value(<1>).possible_value(<2>) with `arg.value_parser([<1>, <2>])`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`
+
+Derive: replace `#[clap(possible_value = <1>, possible_value = <2>, ...)]` with `#[clap(value_parser = [<1>, <2>])]`.
+If the field is not a `String`, instead do `#[clap(value_parser = PossibleValueParser::new([<1>, <2>]).map(T::from_str))]`
+
+Builder: replace `arg.possible_value(<1>).possible_value(<2>) with `arg.value_parser([<1>, <2>])`
+"
         )
     )]
     #[must_use]
@@ -1593,11 +1659,22 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(PossibleValuesParser::new(...))`]
+    ///
+    /// Derive: replace `#[clap(possible_values = [<1>, <2>])]` with `#[clap(value_parser = [<1>, <2>])]`.
+    /// If the field is not a `String`, instead do `#[clap(value_parser = PossibleValueParser::new([<1>, <2>]).map(T::from_str))]`
+    ///
+    /// Builder: replace `arg.possible_values([<1>, <2>) with `arg.value_parser([<1>, <2>])`
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`"
+            note = "Replaced with `Arg::value_parser(PossibleValuesParser::new(...)).takes_value(true)`
+
+Derive: replace `#[clap(possible_values = [<1>, <2>])]` with `#[clap(value_parser = [<1>, <2>])]`.
+If the field is not a `String`, instead do `#[clap(value_parser = PossibleValueParser::new([<1>, <2>]).map(T::from_str))]`
+
+Builder: replace `arg.possible_values([<1>, <2>) with `arg.value_parser([<1>, <2>])`
+"
         )
     )]
     #[must_use]
@@ -1729,15 +1806,29 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, replaced with [`Arg::value_parser(...)`] with either [`ValueParser::os_string()`][crate::builder::ValueParser::os_string]
-    /// or [`ValueParser::path_buf()`][crate::builder::ValueParser::path_buf]
+    /// Deprecated, replaced with [`value_parser`][Arg::value_parser]
+    ///
+    /// Derive: replace `#[clap(allow_invalid_utf8 = true)]` with `#[clap(action)]` (which opts-in to the
+    /// new clap v4 behavior which gets the type via `value_parser!`)
+    ///
+    /// Builder: replace `arg.allow_invalid_utf8(true)` with `arg.value_parser(value_parser!(T))` where
+    /// `T` is the type of interest, like `OsString` or `PathBuf`, and `matches.value_of_os` with
+    /// `matches.get_one::<T>` or `matches.values_of_os` with `matches.get_many::<T>`
     #[inline]
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(...)` with either `ValueParser::os_string()` or `ValueParser::path_buf()`"
+            note = "Replaced with `value_parser`
+
+Derive: replace `#[clap(allow_invalid_utf8 = true)]` with `#[clap(action)]` (which opts-in to the
+new clap v4 behavior which gets the type via `value_parser!`)
+
+Builder: replace `arg.allow_invalid_utf8(true)` with `arg.value_parser(value_parser!(T))` where
+`T` is the type of interest, like `OsString` or `PathBuf`, and `matches.value_of_os` with
+`matches.get_one::<T>` or `matches.values_of_os` with `matches.get_many::<T>`
+"
         )
     )]
     pub fn allow_invalid_utf8(self, yes: bool) -> Self {
@@ -1749,13 +1840,22 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::value_parser(NonEmptyStringValueParser::new())`]
+    ///
+    /// Derive: replace `#[clap(forbid_empty_values = true)]` with `#[clap(value_parser = NonEmptyStringValueParser::new())]`
+    ///
+    /// Builder: replace `arg.forbid_empty_values(true)` with `arg.value_parser(NonEmptyStringValueParser::new())`
     #[inline]
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(
             since = "3.2.0",
-            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`"
+            note = "Replaced with `Arg::value_parser(NonEmptyStringValueParser::new())`
+
+Derive: replace `#[clap(forbid_empty_values = true)]` with `#[clap(value_parser = NonEmptyStringValueParser::new())]`
+
+Builder: replace `arg.forbid_empty_values(true)` with `arg.value_parser(NonEmptyStringValueParser::new())`
+"
         )
     )]
     pub fn forbid_empty_values(self, yes: bool) -> Self {
@@ -1881,11 +1981,23 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::use_value_delimiter`]
+    ///
+    /// Derive: replace `#[clap(use_delimiter = true)]` with `#[clap(use_value_delimiter = true)]`
+    ///
+    /// Builder: replace `arg.use_delimiter(true)` with `arg.use_value_delimiter(true)`
     #[inline]
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::use_value_delimiter`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Arg::use_value_delimiter`
+
+Derive: replace `#[clap(use_delimiter = true)]` with `#[clap(use_value_delimiter = true)]`
+
+Builder: replace `arg.use_delimiter(true)` with `arg.use_value_delimiter(true)`
+"
+        )
     )]
     pub fn use_delimiter(self, yes: bool) -> Self {
         self.use_value_delimiter(yes)
@@ -2008,11 +2120,23 @@ impl<'help> Arg<'help> {
     }
 
     /// Deprecated, replaced with [`Arg::require_value_delimiter`]
+    ///
+    /// Derive: replace `#[clap(require_delimiter = true)]` with `#[clap(require_value_delimiter = true)]`
+    ///
+    /// Builder: replace `arg.require_delimiter(true)` with `arg.require_value_delimiter(true)`
     #[inline]
     #[must_use]
     #[cfg_attr(
         feature = "deprecated",
-        deprecated(since = "3.1.0", note = "Replaced with `Arg::require_value_delimiter`")
+        deprecated(
+            since = "3.1.0",
+            note = "Replaced with `Arg::require_value_delimiter`
+
+Derive: replace `#[clap(require_delimiter = true)]` with `#[clap(require_value_delimiter = true)]`
+
+Builder: replace `arg.require_delimiter(true)` with `arg.require_value_delimiter(true)`
+"
+        )
     )]
     pub fn require_delimiter(self, yes: bool) -> Self {
         self.require_value_delimiter(yes)
