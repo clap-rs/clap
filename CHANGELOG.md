@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `TypedValueParser::map` to allow reusing existing value parsers for other purposes
+
 ## [3.2.20] - 2022-09-02
 
 ### Features
