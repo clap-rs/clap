@@ -256,7 +256,6 @@ Deprecated
 ### Features
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence (#2688, #4023)
-- Added `TypedValueParser::map` to make it easier to reuse existing value parsers (#4095)
 - Allow non-bool `value_parser`s for `ArgAction::SetTrue` / `ArgAction::SetFalse` (#4092)
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
