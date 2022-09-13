@@ -248,6 +248,7 @@ Deprecated
 - `Arg::requires_all` in favor of `Arg::requires_ifs` now that it takes an `ArgPredicate` to avoid having multiple ways of doing the same thing
 - `Arg::number_of_values` in favor of `Arg::num_args` to clarify semantic differences
 - `default_value_os`, `default_values_os`, `default_value_if_os`, and `default_value_ifs_os` as the non `_os` variants now accept either a `str` or an `OsStr` (#4141)
+- `Arg::env_os` in favor of `Arg::env`
 - `Command::dont_collapse_args_in_usage` is now the default (#4151)
 - `Command::trailing_var_arg` in favor of `Arg::trailing_var_arg` to make it clearer which arg it is meant to apply to (#4187)
 - `Command::allow_hyphen_values` in favor of `Arg::allow_hyphen_values` to make it clearer which arg it is meant to apply to (#4187)

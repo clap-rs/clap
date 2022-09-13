@@ -1916,21 +1916,21 @@ impl Arg {
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
-    pub fn env(self, name: impl Into<OsStr>) -> Self {
-        self.env_os(name)
-    }
-
-    /// Read from `name` environment variable when argument is not present.
-    ///
-    /// See [`Arg::env`].
-    #[cfg(feature = "env")]
-    #[inline]
-    #[must_use]
-    pub fn env_os(mut self, name: impl Into<OsStr>) -> Self {
+    pub fn env(mut self, name: impl Into<OsStr>) -> Self {
         let name = name.into();
         let value = env::var_os(&name);
         self.env = Some((name, value));
         self
+    }
+
+    #[cfg(feature = "env")]
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::env`")
+    )]
+    pub fn env_os(self, name: impl Into<OsStr>) -> Self {
+        self.env(name)
     }
 }
 

@@ -69,7 +69,7 @@ fn env_os() {
     let r = Command::new("df")
         .arg(
             arg!([arg] "some opt")
-                .env_os(OsStr::new("CLP_TEST_ENV_OS"))
+                .env(OsStr::new("CLP_TEST_ENV_OS"))
                 .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
