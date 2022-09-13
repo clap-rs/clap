@@ -282,6 +282,10 @@ pub trait FromArgMatches: Sized {
 /// }
 /// ```
 pub trait Args: FromArgMatches + Sized {
+    /// Report the [`ArgGroup::id`][crate::ArgGroup::id] for this set of arguments
+    fn group_id() -> Option<crate::Id> {
+        None
+    }
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`CommandFactory`].
