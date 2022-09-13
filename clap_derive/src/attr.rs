@@ -34,6 +34,11 @@ impl ClapAttr {
                     Some(Sp::new(AttrKind::StructOpt, attr.path.span()))
                 } else if attr.path.is_ident("command") {
                     Some(Sp::new(AttrKind::Command, attr.path.span()))
+                } else if attr.path.is_ident("group") {
+                    abort!(
+                        attr.path.span(),
+                        "`#[group()]` attributes are not supported yet"
+                    )
                 } else if attr.path.is_ident("arg") {
                     Some(Sp::new(AttrKind::Arg, attr.path.span()))
                 } else if attr.path.is_ident("value") {
