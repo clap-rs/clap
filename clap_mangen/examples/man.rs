@@ -19,7 +19,6 @@ And a few newlines.",
         .arg(
             arg!(-c --config <FILE> "Sets a custom config file")
                 .long_help("Some more text about how to set a custom config file")
-                .required(false)
                 .default_value("config.toml")
                 .env("CONFIG_FILE"),
         )

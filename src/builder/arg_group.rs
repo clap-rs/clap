@@ -36,7 +36,7 @@ use crate::util::Id;
 /// ```rust
 /// # use clap::{Command, arg, ArgGroup, error::ErrorKind};
 /// let result = Command::new("cmd")
-///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+///     .arg(arg!(--"set-ver" <ver> "set the version manually"))
 ///     .arg(arg!(--major           "auto increase major"))
 ///     .arg(arg!(--minor           "auto increase minor"))
 ///     .arg(arg!(--patch           "auto increase patch"))
@@ -54,7 +54,7 @@ use crate::util::Id;
 /// ```rust
 /// # use clap::{Command, arg, ArgGroup, Id};
 /// let result = Command::new("cmd")
-///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+///     .arg(arg!(--"set-ver" <ver> "set the version manually"))
 ///     .arg(arg!(--major           "auto increase major"))
 ///     .arg(arg!(--minor           "auto increase minor"))
 ///     .arg(arg!(--patch           "auto increase patch"))

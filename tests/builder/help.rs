@@ -1063,7 +1063,7 @@ Options:
     let cmd = Command::new("prog")
         .version("1.0")
         .subcommand_negates_reqs(true)
-        .arg(arg!(-o --opt <FILE> "tests options"))
+        .arg(arg!(-o --opt <FILE> "tests options").required(true))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(Command::new("test"));
     utils::assert_output(cmd, "prog --help", SC_NEGATES_REQS, false);
@@ -1084,7 +1084,7 @@ Options:
     let cmd = Command::new("prog")
         .version("1.0")
         .arg(arg!(-f --flag "testing flags"))
-        .arg(arg!(-o --opt <FILE> "tests options").required(false))
+        .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("pos").hide(true));
     utils::assert_output(cmd, "prog --help", HIDDEN_ARGS, false);
 }
@@ -1113,7 +1113,7 @@ Options:
         .version("1.0")
         .args_conflicts_with_subcommands(true)
         .arg(arg!(-f --flag "testing flags"))
-        .arg(arg!(-o --opt <FILE> "tests options").required(false))
+        .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(Command::new("test"));
     utils::assert_output(cmd, "prog --help", ARGS_NEGATE_SC, false);
@@ -1137,7 +1137,7 @@ Options:
     let cmd = Command::new("prog")
         .version("1.0")
         .arg(arg!(-f --flag "testing flags"))
-        .arg(arg!(-o --opt <FILE> "tests options").required(false))
+        .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("PATH").help("some"))
         .subcommand(Command::new("test").hide(true));
     utils::assert_output(cmd, "prog --help", ISSUE_1046_HIDDEN_SCS, false);
@@ -1623,16 +1623,16 @@ fn multiple_custom_help_headers() {
         .next_help_heading(Some("SPECIAL"))
         .arg(
             arg!(-b --"birthday-song" <song> "Change which song is played for birthdays")
+                .required(true)
                 .help_heading(Some("OVERRIDE SPECIAL")),
         )
+        .arg(arg!(--style <style> "Choose musical style to play the song").help_heading(None))
         .arg(
-            arg!(--style <style> "Choose musical style to play the song")
-                .required(false)
-                .help_heading(None),
+            arg!(
+                -v --"birthday-song-volume" <volume> "Change the volume of the birthday song"
+            )
+            .required(true),
         )
-        .arg(arg!(
-            -v --"birthday-song-volume" <volume> "Change the volume of the birthday song"
-        ))
         .next_help_heading(None)
         .arg(
             Arg::new("server-addr")
@@ -1688,11 +1688,15 @@ fn custom_help_headers_hide_args() {
         .next_help_heading(Some("SPECIAL"))
         .arg(
             arg!(-b --song <song> "Change which song is played for birthdays")
+                .required(true)
                 .help_heading(Some("OVERRIDE SPECIAL")),
         )
-        .arg(arg!(
-            -v --"song-volume" <volume> "Change the volume of the birthday song"
-        ))
+        .arg(
+            arg!(
+                -v --"song-volume" <volume> "Change the volume of the birthday song"
+            )
+            .required(true),
+        )
         .next_help_heading(None)
         .arg(
             Arg::new("server-addr")
@@ -2225,7 +2229,7 @@ fn only_custom_heading_opts_no_args() {
         .disable_help_flag(true)
         .arg(arg!(--help).action(ArgAction::Help).hide(true))
         .next_help_heading(Some("NETWORKING"))
-        .arg(arg!(-s --speed <SPEED> "How fast").required(false));
+        .arg(arg!(-s --speed <SPEED> "How fast"));
 
     utils::assert_output(cmd, "test --help", ONLY_CUSTOM_HEADING_OPTS_NO_ARGS, false);
 }
@@ -2589,7 +2593,7 @@ Arguments:
 #[test]
 fn help_without_short() {
     let mut cmd = clap::Command::new("test")
-        .arg(arg!(-h --hex <NUM>))
+        .arg(arg!(-h --hex <NUM>).required(true))
         .arg(arg!(--help).action(ArgAction::Help))
         .disable_help_flag(true);
 

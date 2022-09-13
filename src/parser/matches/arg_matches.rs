@@ -376,11 +376,9 @@ impl ArgMatches {
     ///
     /// let m = Command::new("myprog")
     ///     .arg(arg!(--color <when>)
-    ///         .value_parser(["auto", "always", "never"])
-    ///         .required(false))
+    ///         .value_parser(["auto", "always", "never"]))
     ///     .arg(arg!(--config <path>)
-    ///         .value_parser(value_parser!(std::path::PathBuf))
-    ///         .required(false))
+    ///         .value_parser(value_parser!(std::path::PathBuf)))
     ///     .get_matches_from(["myprog", "--config=config.toml", "--color=auto"]);
     /// assert_eq!(m.ids().len(), 2);
     /// assert_eq!(
@@ -1168,11 +1166,9 @@ pub(crate) struct SubCommand {
 ///
 /// let m = Command::new("myprog")
 ///     .arg(arg!(--color <when>)
-///         .value_parser(["auto", "always", "never"])
-///         .required(false))
+///         .value_parser(["auto", "always", "never"]))
 ///     .arg(arg!(--config <path>)
-///         .value_parser(value_parser!(std::path::PathBuf))
-///         .required(false))
+///         .value_parser(value_parser!(std::path::PathBuf)))
 ///     .get_matches_from(["myprog", "--config=config.toml", "--color=auto"]);
 /// assert_eq!(
 ///     m.ids()

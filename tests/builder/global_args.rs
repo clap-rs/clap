@@ -55,11 +55,11 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
 fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
     let m = Command::new("opts")
         .arg(arg!(--"global-flag").global(true))
-        .arg(arg!(--"global-str" <str>).required(false).global(true))
+        .arg(arg!(--"global-str" <str>).global(true))
         .subcommand(
             Command::new("test")
                 .arg(arg!(--"sub-flag").global(true))
-                .arg(arg!(--"sub-str" <str>).required(false).global(true))
+                .arg(arg!(--"sub-str" <str>).global(true))
                 .subcommand(Command::new("test")),
         )
         .try_get_matches_from(&[
