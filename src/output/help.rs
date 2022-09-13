@@ -53,13 +53,15 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         let term_w = match cmd.get_term_width() {
             Some(0) => usize::MAX,
             Some(w) => w,
-            None => cmp::min(
-                dimensions().map_or(100, |(w, _)| w),
-                match cmd.get_max_term_width() {
+            None => {
+                let (current_width, _h) = dimensions();
+                let current_width = current_width.unwrap_or(100);
+                let max_width = match cmd.get_max_term_width() {
                     None | Some(0) => usize::MAX,
                     Some(mw) => mw,
-                },
-            ),
+                };
+                cmp::min(current_width, max_width)
+            }
         };
         let next_line_help = cmd.is_next_line_help_set();
 
@@ -960,12 +962,14 @@ fn option_sort_key(arg: &Arg) -> (usize, String) {
     (arg.get_display_order(), key)
 }
 
-pub(crate) fn dimensions() -> Option<(usize, usize)> {
+pub(crate) fn dimensions() -> (Option<usize>, Option<usize>) {
     #[cfg(not(feature = "wrap_help"))]
-    return None;
+    return (None, None);
 
     #[cfg(feature = "wrap_help")]
-    terminal_size::terminal_size().map(|(w, h)| (w.0.into(), h.0.into()))
+    terminal_size::terminal_size()
+        .map(|(w, h)| (Some(w.0.into()), Some(h.0.into())))
+        .unwrap_or((None, None))
 }
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
