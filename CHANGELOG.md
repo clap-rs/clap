@@ -198,6 +198,7 @@ Subtle changes (i.e. compiler won't catch):
 - *(env)* Parse `--help` and `--version` like any `ArgAction::SetTrue` flag (#3776)
 - *(derive)* Leave `Arg::id` as `verbatim` casing, requiring updating of string references to other args like in `conflicts_with` or `requires` (#3282)
 - *(derive)* Doc comments for `ValueEnum` variants will now show up in `--help` (#3312)
+- *(derive)* When deriving `Args`, and `ArgGroup` is created using the type's name, reserving it for future use (#2621, #4209)
 
 Easier to catch changes:
 

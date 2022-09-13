@@ -15,6 +15,7 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::{format_ident, quote, quote_spanned};
+use syn::ext::IdentExt;
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
     Fields, Generics,
@@ -317,10 +318,13 @@ pub fn gen_augment(
         quote!()
     };
     let initial_app_methods = parent_item.initial_top_level_methods();
+    let group_id = parent_item.ident().unraw().to_string();
     let final_app_methods = parent_item.final_top_level_methods();
     quote! {{
         #deprecations
-        let #app_var = #app_var #initial_app_methods;
+        let #app_var = #app_var
+            #initial_app_methods
+            .group(clap::ArgGroup::new(#group_id).multiple(true));
         #( #args )*
         #app_var #final_app_methods
     }}
