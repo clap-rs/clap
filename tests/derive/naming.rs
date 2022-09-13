@@ -1,3 +1,4 @@
+use clap::Args;
 use clap::Parser;
 
 #[test]
@@ -251,7 +252,7 @@ fn test_rename_all_is_not_propagated_from_struct_into_flattened() {
         foo: Foo,
     }
 
-    #[derive(Parser, Debug, PartialEq)]
+    #[derive(Args, Debug, PartialEq)]
     struct Foo {
         #[arg(long)]
         foo: bool,

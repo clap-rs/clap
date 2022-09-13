@@ -50,7 +50,7 @@ pub fn parser(input: TokenStream) -> TokenStream {
 }
 
 /// Generates the `Subcommand` impl.
-#[proc_macro_derive(Subcommand, attributes(clap, command, arg))]
+#[proc_macro_derive(Subcommand, attributes(clap, command, arg, group))]
 #[proc_macro_error]
 pub fn subcommand(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
@@ -58,7 +58,7 @@ pub fn subcommand(input: TokenStream) -> TokenStream {
 }
 
 /// Generates the `Args` impl.
-#[proc_macro_derive(Args, attributes(clap, command, arg))]
+#[proc_macro_derive(Args, attributes(clap, command, arg, group))]
 #[proc_macro_error]
 pub fn args(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);

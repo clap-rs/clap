@@ -36,6 +36,7 @@ pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 #[derive(Clone)]
 pub struct Item {
     name: Name,
+    ident: Ident,
     casing: Sp<CasingStyle>,
     env_casing: Sp<CasingStyle>,
     ty: Option<Type>,
@@ -54,13 +55,14 @@ pub struct Item {
 
 impl Item {
     pub fn from_args_struct(input: &DeriveInput, name: Name) -> Self {
+        let ident = input.ident.clone();
         let span = input.ident.span();
         let attrs = &input.attrs;
         let argument_casing = Sp::new(DEFAULT_CASING, span);
         let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
 
-        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let mut res = Self::new(name, ident, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
@@ -70,13 +72,14 @@ impl Item {
     }
 
     pub fn from_subcommand_enum(input: &DeriveInput, name: Name) -> Self {
+        let ident = input.ident.clone();
         let span = input.ident.span();
         let attrs = &input.attrs;
         let argument_casing = Sp::new(DEFAULT_CASING, span);
         let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Command(Sp::new(Ty::Other, span)), span);
 
-        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let mut res = Self::new(name, ident, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
@@ -86,13 +89,14 @@ impl Item {
     }
 
     pub fn from_value_enum(input: &DeriveInput, name: Name) -> Self {
+        let ident = input.ident.clone();
         let span = input.ident.span();
         let attrs = &input.attrs;
         let argument_casing = Sp::new(DEFAULT_CASING, span);
         let env_casing = Sp::new(DEFAULT_ENV_CASING, span);
         let kind = Sp::new(Kind::Value, span);
 
-        let mut res = Self::new(name, None, argument_casing, env_casing, kind);
+        let mut res = Self::new(name, ident, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
@@ -116,6 +120,7 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let name = variant.ident.clone();
+        let ident = variant.ident.clone();
         let span = variant.span();
         let ty = match variant.fields {
             syn::Fields::Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
@@ -126,7 +131,14 @@ impl Item {
             }
         };
         let kind = Sp::new(Kind::Command(ty), span);
-        let mut res = Self::new(Name::Derived(name), None, struct_casing, env_casing, kind);
+        let mut res = Self::new(
+            Name::Derived(name),
+            ident,
+            None,
+            struct_casing,
+            env_casing,
+            kind,
+        );
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
@@ -161,10 +173,12 @@ impl Item {
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Self {
+        let ident = variant.ident.clone();
         let span = variant.span();
         let kind = Sp::new(Kind::Value, span);
         let mut res = Self::new(
             Name::Derived(variant.ident.clone()),
+            ident,
             None,
             argument_casing,
             env_casing,
@@ -186,11 +200,13 @@ impl Item {
         env_casing: Sp<CasingStyle>,
     ) -> Self {
         let name = field.ident.clone().unwrap();
+        let ident = field.ident.clone().unwrap();
         let span = field.span();
         let ty = Ty::from_syn_ty(&field.ty);
         let kind = Sp::new(Kind::Arg(ty), span);
         let mut res = Self::new(
             Name::Derived(name),
+            ident,
             Some(field.ty.clone()),
             struct_casing,
             env_casing,
@@ -234,6 +250,7 @@ impl Item {
 
     fn new(
         name: Name,
+        ident: Ident,
         ty: Option<Type>,
         casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
@@ -241,6 +258,7 @@ impl Item {
     ) -> Self {
         Self {
             name,
+            ident,
             ty,
             casing,
             env_casing,
@@ -892,6 +910,10 @@ impl Item {
     pub fn next_help_heading(&self) -> TokenStream {
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
         quote!( #(#next_help_heading)* )
+    }
+
+    pub fn ident(&self) -> &Ident {
+        &self.ident
     }
 
     pub fn id(&self) -> TokenStream {
