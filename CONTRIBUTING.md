@@ -65,7 +65,7 @@ Some practices to avoid breaking changes
 As we work towards [a more flexible architecture](https://github.com/clap-rs/clap/discussions/3476), we hope to support multiple major versions to help ease users through the upgrade churn.
 
 | Version                                              | Status        | Support | End-of-Life |
-|------------------------------------------------------|---------------|---------|
+|------------------------------------------------------|---------------|---------|-------------|
 | [v4](https://github.com/clap-rs/clap/tree/master)    | active        | Features and bug fixes target `master` by default | TBD |
 | [v3](https://github.com/clap-rs/clap/tree/v3-master) | maintenance   | Accepting trivial cherry-picks from `master` (i.e. minimal conflict resolution) by contributors | TBD |
 | [v2](https://github.com/clap-rs/clap/tree/v2-master) | deprecated    | Only accepting fixes for ecosystem-wide critical bugs | TBD |
