@@ -254,6 +254,9 @@ Deprecated
 - *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value` to open the door for [more features](https://github.com/clap-rs/clap/issues/1807) and [clarify relationship to the builder](https://github.com/clap-rs/clap/discussions/4090) (#1807, #4180)
 - *(derive)* `#[clap(value_parser)]` and `#[clap(action)]` defaulted attributes (its the default) (#3976)
 
+Behavior Changes
+- *(help)* With `wrap_help` feature, if the terminal size cannot be determined, `LINES` and `COLUMNS` variables are used (#4186)
+
 ### Features
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence (#2688, #4023)
@@ -270,6 +273,7 @@ Deprecated
 - `arg!(--long [value])` to accept `0..=1` per occurrence rather than across all occurrences, making it safe to use with `ArgAction::Append` (#4001)
 - Allow `OsStr`s for `Arg::{required_if_eq,required_if_eq_any,required_if_eq_all}` (#4084)
 - Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes
+- *(help)* With `wrap_help` feature, if the terminal size cannot be determined, `LINES` and `COLUMNS` variables are used (#4186)
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(help)* Show when a flag is `ArgAction::Count` by adding an `...` (#4003)
 - *(help)* Use a more neutral palette for coloring (#4132, #4117)
