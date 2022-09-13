@@ -1026,12 +1026,12 @@ impl Command {
         self
     }
 
-    /// Sets the maximum terminal width at which to wrap help messages.
+    /// Limit the line length for wrapping help when using the current terminal's width.
     ///
-    /// This only applies when setting the current terminal width.  See [`Command::term_width`] for
-    /// more details.
+    /// This only applies when [`term_width`][Command::term_width] is unset so that the current
+    /// terminal's width will be used.  See [`Command::term_width`] for more details.
     ///
-    /// Using `0` will ignore terminal widths and use source formatting.
+    /// Using `0` will ignore terminal widths and use source formatting (default).
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
