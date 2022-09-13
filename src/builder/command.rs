@@ -1375,8 +1375,8 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn bin_name(mut self, name: impl Into<Str>) -> Self {
-        self.bin_name = Some(name.into());
+    pub fn bin_name(mut self, name: impl IntoResettable<Str>) -> Self {
+        self.bin_name = name.into_resettable().into_option();
         self
     }
 
@@ -1391,8 +1391,8 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn display_name(mut self, name: impl Into<Str>) -> Self {
-        self.display_name = Some(name.into());
+    pub fn display_name(mut self, name: impl IntoResettable<Str>) -> Self {
+        self.display_name = name.into_resettable().into_option();
         self
     }
 
@@ -1412,8 +1412,8 @@ impl Command {
     /// ```
     /// [`crate_authors!`]: ./macro.crate_authors!.html
     #[must_use]
-    pub fn author(mut self, author: impl Into<Str>) -> Self {
-        self.author = Some(author.into());
+    pub fn author(mut self, author: impl IntoResettable<Str>) -> Self {
+        self.author = author.into_resettable().into_option();
         self
     }
 
@@ -1482,8 +1482,8 @@ impl Command {
     /// ```
     ///
     #[must_use]
-    pub fn after_help(mut self, help: impl Into<StyledStr>) -> Self {
-        self.after_help = Some(help.into());
+    pub fn after_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+        self.after_help = help.into_resettable().into_option();
         self
     }
 
@@ -1504,8 +1504,8 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn after_long_help(mut self, help: impl Into<StyledStr>) -> Self {
-        self.after_long_help = Some(help.into());
+    pub fn after_long_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+        self.after_long_help = help.into_resettable().into_option();
         self
     }
 
@@ -1524,8 +1524,8 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn before_help(mut self, help: impl Into<StyledStr>) -> Self {
-        self.before_help = Some(help.into());
+    pub fn before_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+        self.before_help = help.into_resettable().into_option();
         self
     }
 
@@ -1544,8 +1544,8 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn before_long_help(mut self, help: impl Into<StyledStr>) -> Self {
-        self.before_long_help = Some(help.into());
+    pub fn before_long_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+        self.before_long_help = help.into_resettable().into_option();
         self
     }
 
@@ -1567,8 +1567,8 @@ impl Command {
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
-    pub fn version(mut self, ver: impl Into<Str>) -> Self {
-        self.version = Some(ver.into());
+    pub fn version(mut self, ver: impl IntoResettable<Str>) -> Self {
+        self.version = ver.into_resettable().into_option();
         self
     }
 
@@ -1595,8 +1595,8 @@ impl Command {
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
-    pub fn long_version(mut self, ver: impl Into<Str>) -> Self {
-        self.long_version = Some(ver.into());
+    pub fn long_version(mut self, ver: impl IntoResettable<Str>) -> Self {
+        self.long_version = ver.into_resettable().into_option();
         self
     }
 
@@ -1638,8 +1638,8 @@ impl Command {
     ///
     /// [`ArgMatches::usage`]: ArgMatches::usage()
     #[must_use]
-    pub fn override_usage(mut self, usage: impl Into<StyledStr>) -> Self {
-        self.usage_str = Some(usage.into());
+    pub fn override_usage(mut self, usage: impl IntoResettable<StyledStr>) -> Self {
+        self.usage_str = usage.into_resettable().into_option();
         self
     }
 
@@ -1675,8 +1675,8 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn override_help(mut self, help: impl Into<StyledStr>) -> Self {
-        self.help_str = Some(help.into());
+    pub fn override_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+        self.help_str = help.into_resettable().into_option();
         self
     }
 
@@ -1726,8 +1726,8 @@ impl Command {
     /// [`Command::before_help`]: Command::before_help()
     /// [`Command::before_long_help`]: Command::before_long_help()
     #[must_use]
-    pub fn help_template(mut self, s: impl Into<StyledStr>) -> Self {
-        self.template = Some(s.into());
+    pub fn help_template(mut self, s: impl IntoResettable<StyledStr>) -> Self {
+        self.template = s.into_resettable().into_option();
         self
     }
 
@@ -1790,8 +1790,8 @@ impl Command {
     /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
     #[inline]
     #[must_use]
-    pub fn next_display_order(mut self, disp_ord: impl Into<Option<usize>>) -> Self {
-        self.current_disp_ord = disp_ord.into();
+    pub fn next_display_order(mut self, disp_ord: impl IntoResettable<usize>) -> Self {
+        self.current_disp_ord = disp_ord.into_resettable().into_option();
         self
     }
 
@@ -2122,8 +2122,8 @@ impl Command {
     /// ```
     /// [`Arg::short`]: Arg::short()
     #[must_use]
-    pub fn short_flag(mut self, short: char) -> Self {
-        self.short_flag = Some(short);
+    pub fn short_flag(mut self, short: impl IntoResettable<char>) -> Self {
+        self.short_flag = short.into_resettable().into_option();
         self
     }
 
@@ -2191,8 +2191,12 @@ impl Command {
     /// ```
     /// [`Command::visible_alias`]: Command::visible_alias()
     #[must_use]
-    pub fn alias(mut self, name: impl Into<Str>) -> Self {
-        self.aliases.push((name.into(), false));
+    pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.aliases.push((name, false));
+        } else {
+            self.aliases.clear();
+        }
         self
     }
 
@@ -2213,9 +2217,13 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     #[must_use]
-    pub fn short_flag_alias(mut self, name: char) -> Self {
-        assert!(name != '-', "short alias name cannot be `-`");
-        self.short_flag_aliases.push((name, false));
+    pub fn short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            assert!(name != '-', "short alias name cannot be `-`");
+            self.short_flag_aliases.push((name, false));
+        } else {
+            self.short_flag_aliases.clear();
+        }
         self
     }
 
@@ -2236,8 +2244,12 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     #[must_use]
-    pub fn long_flag_alias(mut self, name: impl Into<Str>) -> Self {
-        self.long_flag_aliases.push((name.into(), false));
+    pub fn long_flag_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.long_flag_aliases.push((name, false));
+        } else {
+            self.long_flag_aliases.clear();
+        }
         self
     }
 
@@ -2359,8 +2371,12 @@ impl Command {
     /// ```
     /// [`Command::alias`]: Command::alias()
     #[must_use]
-    pub fn visible_alias(mut self, name: impl Into<Str>) -> Self {
-        self.aliases.push((name.into(), true));
+    pub fn visible_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.aliases.push((name, true));
+        } else {
+            self.aliases.clear();
+        }
         self
     }
 
@@ -2384,9 +2400,13 @@ impl Command {
     /// ```
     /// [`Command::short_flag_alias`]: Command::short_flag_alias()
     #[must_use]
-    pub fn visible_short_flag_alias(mut self, name: char) -> Self {
-        assert!(name != '-', "short alias name cannot be `-`");
-        self.short_flag_aliases.push((name, true));
+    pub fn visible_short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            assert!(name != '-', "short alias name cannot be `-`");
+            self.short_flag_aliases.push((name, true));
+        } else {
+            self.short_flag_aliases.clear();
+        }
         self
     }
 
@@ -2410,8 +2430,12 @@ impl Command {
     /// ```
     /// [`Command::long_flag_alias`]: Command::long_flag_alias()
     #[must_use]
-    pub fn visible_long_flag_alias(mut self, name: impl Into<Str>) -> Self {
-        self.long_flag_aliases.push((name.into(), true));
+    pub fn visible_long_flag_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.long_flag_aliases.push((name, true));
+        } else {
+            self.long_flag_aliases.clear();
+        }
         self
     }
 
@@ -2548,8 +2572,8 @@ impl Command {
     /// ```
     #[inline]
     #[must_use]
-    pub fn display_order(mut self, ord: usize) -> Self {
-        self.disp_ord = Some(ord);
+    pub fn display_order(mut self, ord: impl IntoResettable<usize>) -> Self {
+        self.disp_ord = ord.into_resettable().into_option();
         self
     }
 
@@ -2707,9 +2731,9 @@ impl Command {
     /// [`subcommands`]: crate::Command::subcommand()
     pub fn external_subcommand_value_parser(
         mut self,
-        parser: impl Into<super::ValueParser>,
+        parser: impl IntoResettable<super::ValueParser>,
     ) -> Self {
-        self.external_value_parser = Some(parser.into());
+        self.external_value_parser = parser.into_resettable().into_option();
         self
     }
 
@@ -3041,8 +3065,8 @@ impl Command {
     ///     -V, --version    Print version information
     /// ```
     #[must_use]
-    pub fn subcommand_value_name(mut self, value_name: impl Into<Str>) -> Self {
-        self.subcommand_value_name = Some(value_name.into());
+    pub fn subcommand_value_name(mut self, value_name: impl IntoResettable<Str>) -> Self {
+        self.subcommand_value_name = value_name.into_resettable().into_option();
         self
     }
 
@@ -3105,8 +3129,8 @@ impl Command {
     ///     -V, --version    Print version information
     /// ```
     #[must_use]
-    pub fn subcommand_help_heading(mut self, heading: impl Into<Str>) -> Self {
-        self.subcommand_heading = Some(heading.into());
+    pub fn subcommand_help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.subcommand_heading = heading.into_resettable().into_option();
         self
     }
 }

@@ -1,5 +1,6 @@
 use std::{borrow::Cow, iter};
 
+use crate::builder::IntoResettable;
 use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::util::eq_ignore_case;
@@ -76,8 +77,8 @@ impl PossibleValue {
     /// ```
     #[inline]
     #[must_use]
-    pub fn help(mut self, help: impl Into<StyledStr>) -> Self {
-        self.help = Some(help.into());
+    pub fn help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+        self.help = help.into_resettable().into_option();
         self
     }
 
@@ -113,8 +114,12 @@ impl PossibleValue {
     /// # ;
     /// ```
     #[must_use]
-    pub fn alias(mut self, name: impl Into<Str>) -> Self {
-        self.aliases.push(name.into());
+    pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.aliases.push(name);
+        } else {
+            self.aliases.clear();
+        }
         self
     }
 

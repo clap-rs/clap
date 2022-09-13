@@ -144,10 +144,13 @@ impl Arg {
     /// ```
     #[inline]
     #[must_use]
-    pub fn short(mut self, s: char) -> Self {
-        assert!(s != '-', "short option name cannot be `-`");
-
-        self.short = Some(s);
+    pub fn short(mut self, s: impl IntoResettable<char>) -> Self {
+        if let Some(s) = s.into_resettable().into_option() {
+            assert!(s != '-', "short option name cannot be `-`");
+            self.short = Some(s);
+        } else {
+            self.short = None;
+        }
         self
     }
 
@@ -182,8 +185,8 @@ impl Arg {
     /// ```
     #[inline]
     #[must_use]
-    pub fn long(mut self, l: impl Into<Str>) -> Self {
-        self.long = Some(l.into());
+    pub fn long(mut self, l: impl IntoResettable<Str>) -> Self {
+        self.long = l.into_resettable().into_option();
         self
     }
 
@@ -207,8 +210,12 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
-    pub fn alias(mut self, name: impl Into<Str>) -> Self {
-        self.aliases.push((name.into(), false));
+    pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.aliases.push((name, false));
+        } else {
+            self.aliases.clear();
+        }
         self
     }
 
@@ -232,10 +239,13 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
     #[must_use]
-    pub fn short_alias(mut self, name: char) -> Self {
-        assert!(name != '-', "short alias name cannot be `-`");
-
-        self.short_aliases.push((name, false));
+    pub fn short_alias(mut self, name: impl IntoResettable<char>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            assert!(name != '-', "short alias name cannot be `-`");
+            self.short_aliases.push((name, false));
+        } else {
+            self.short_aliases.clear();
+        }
         self
     }
 
@@ -317,8 +327,12 @@ impl Arg {
     /// ```
     /// [`Command::alias`]: Arg::alias()
     #[must_use]
-    pub fn visible_alias(mut self, name: impl Into<Str>) -> Self {
-        self.aliases.push((name.into(), true));
+    pub fn visible_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.aliases.push((name, true));
+        } else {
+            self.aliases.clear();
+        }
         self
     }
 
@@ -341,10 +355,13 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
     #[must_use]
-    pub fn visible_short_alias(mut self, name: char) -> Self {
-        assert!(name != '-', "short alias name cannot be `-`");
-
-        self.short_aliases.push((name, true));
+    pub fn visible_short_alias(mut self, name: impl IntoResettable<char>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            assert!(name != '-', "short alias name cannot be `-`");
+            self.short_aliases.push((name, true));
+        } else {
+            self.short_aliases.clear();
+        }
         self
     }
 
@@ -454,8 +471,8 @@ impl Arg {
     /// [`Command`]: crate::Command
     #[inline]
     #[must_use]
-    pub fn index(mut self, idx: usize) -> Self {
-        self.index = Some(idx);
+    pub fn index(mut self, idx: impl IntoResettable<usize>) -> Self {
+        self.index = idx.into_resettable().into_option();
         self
     }
 
@@ -694,8 +711,12 @@ impl Arg {
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
     #[must_use]
-    pub fn requires(mut self, arg_id: impl Into<Id>) -> Self {
-        self.requires.push((ArgPredicate::IsPresent, arg_id.into()));
+    pub fn requires(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+        if let Some(arg_id) = arg_id.into_resettable().into_option() {
+            self.requires.push((ArgPredicate::IsPresent, arg_id));
+        } else {
+            self.requires.clear();
+        }
         self
     }
 
@@ -841,8 +862,8 @@ impl Arg {
     /// ```
     #[inline]
     #[must_use]
-    pub fn action(mut self, action: ArgAction) -> Self {
-        self.action = Some(action);
+    pub fn action(mut self, action: impl IntoResettable<ArgAction>) -> Self {
+        self.action = action.into_resettable().into_option();
         self
     }
 
@@ -901,8 +922,8 @@ impl Arg {
     ///     .expect("required");
     /// assert_eq!(port, 3001);
     /// ```
-    pub fn value_parser(mut self, parser: impl Into<super::ValueParser>) -> Self {
-        self.value_parser = Some(parser.into());
+    pub fn value_parser(mut self, parser: impl IntoResettable<super::ValueParser>) -> Self {
+        self.value_parser = parser.into_resettable().into_option();
         self
     }
 
@@ -1053,9 +1074,8 @@ impl Arg {
     /// ```
     #[inline]
     #[must_use]
-    pub fn num_args(mut self, qty: impl Into<ValueRange>) -> Self {
-        let qty = qty.into();
-        self.num_vals = Some(qty);
+    pub fn num_args(mut self, qty: impl IntoResettable<ValueRange>) -> Self {
+        self.num_vals = qty.into_resettable().into_option();
         self
     }
 
@@ -1114,8 +1134,13 @@ impl Arg {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
     #[must_use]
-    pub fn value_name(self, name: impl Into<Str>) -> Self {
-        self.value_names([name])
+    pub fn value_name(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.value_names([name])
+        } else {
+            self.val_names.clear();
+            self
+        }
     }
 
     /// Placeholders for the argument's values in the help message / usage.
@@ -1206,8 +1231,8 @@ impl Arg {
     ///     );
     /// ```
     #[must_use]
-    pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
-        self.value_hint = Some(value_hint);
+    pub fn value_hint(mut self, value_hint: impl IntoResettable<ValueHint>) -> Self {
+        self.value_hint = value_hint.into_resettable().into_option();
         self
     }
 
@@ -1451,8 +1476,8 @@ impl Arg {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
     #[must_use]
-    pub fn value_delimiter(mut self, d: impl Into<Option<char>>) -> Self {
-        self.val_delim = d.into();
+    pub fn value_delimiter(mut self, d: impl IntoResettable<char>) -> Self {
+        self.val_delim = d.into_resettable().into_option();
         self
     }
 
@@ -1504,8 +1529,8 @@ impl Arg {
     /// [`num_args`]: Arg::num_args()
     #[inline]
     #[must_use]
-    pub fn value_terminator(mut self, term: impl Into<Str>) -> Self {
-        self.terminator = Some(term.into());
+    pub fn value_terminator(mut self, term: impl IntoResettable<Str>) -> Self {
+        self.terminator = term.into_resettable().into_option();
         self
     }
 
@@ -1596,8 +1621,13 @@ impl Arg {
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
     #[must_use]
-    pub fn default_value(self, val: impl Into<OsStr>) -> Self {
-        self.default_values([val])
+    pub fn default_value(mut self, val: impl IntoResettable<OsStr>) -> Self {
+        if let Some(val) = val.into_resettable().into_option() {
+            self.default_values([val])
+        } else {
+            self.default_vals.clear();
+            self
+        }
     }
 
     #[inline]
@@ -1725,8 +1755,13 @@ impl Arg {
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     #[must_use]
-    pub fn default_missing_value(self, val: impl Into<OsStr>) -> Self {
-        self.default_missing_values_os([val])
+    pub fn default_missing_value(mut self, val: impl IntoResettable<OsStr>) -> Self {
+        if let Some(val) = val.into_resettable().into_option() {
+            self.default_missing_values_os([val])
+        } else {
+            self.default_missing_vals.clear();
+            self
+        }
     }
 
     /// Value for the argument when the flag is present but no value is specified.
@@ -1916,21 +1951,24 @@ impl Arg {
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
-    pub fn env(self, name: impl Into<OsStr>) -> Self {
-        self.env_os(name)
+    pub fn env(mut self, name: impl IntoResettable<OsStr>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            let value = env::var_os(&name);
+            self.env = Some((name, value));
+        } else {
+            self.env = None;
+        }
+        self
     }
 
-    /// Read from `name` environment variable when argument is not present.
-    ///
-    /// See [`Arg::env`].
     #[cfg(feature = "env")]
-    #[inline]
-    #[must_use]
-    pub fn env_os(mut self, name: impl Into<OsStr>) -> Self {
-        let name = name.into();
-        let value = env::var_os(&name);
-        self.env = Some((name, value));
-        self
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Arg::env`")
+    )]
+    pub fn env_os(self, name: impl Into<OsStr>) -> Self {
+        self.env(name)
     }
 }
 
@@ -2099,8 +2137,8 @@ impl Arg {
     /// [index]: Arg::index()
     #[inline]
     #[must_use]
-    pub fn display_order(mut self, ord: usize) -> Self {
-        self.disp_ord = Some(ord);
+    pub fn display_order(mut self, ord: impl IntoResettable<usize>) -> Self {
+        self.disp_ord = ord.into_resettable().into_option();
         self
     }
 
@@ -2516,8 +2554,12 @@ impl Arg {
     ///
     /// [`ArgGroup`]: crate::ArgGroup
     #[must_use]
-    pub fn group(mut self, group_id: impl Into<Id>) -> Self {
-        self.groups.push(group_id.into());
+    pub fn group(mut self, group_id: impl IntoResettable<Id>) -> Self {
+        if let Some(group_id) = group_id.into_resettable().into_option() {
+            self.groups.push(group_id);
+        } else {
+            self.groups.clear();
+        }
         self
     }
 
@@ -2873,8 +2915,12 @@ impl Arg {
     /// ```
     /// [required]: Arg::required()
     #[must_use]
-    pub fn required_unless_present(mut self, arg_id: impl Into<Id>) -> Self {
-        self.r_unless.push(arg_id.into());
+    pub fn required_unless_present(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+        if let Some(arg_id) = arg_id.into_resettable().into_option() {
+            self.r_unless.push(arg_id);
+        } else {
+            self.r_unless.clear();
+        }
         self
     }
 
@@ -3476,8 +3522,12 @@ impl Arg {
     /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
-    pub fn conflicts_with(mut self, arg_id: impl Into<Id>) -> Self {
-        self.blacklist.push(arg_id.into());
+    pub fn conflicts_with(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+        if let Some(arg_id) = arg_id.into_resettable().into_option() {
+            self.blacklist.push(arg_id);
+        } else {
+            self.blacklist.clear();
+        }
         self
     }
 
@@ -3564,8 +3614,12 @@ impl Arg {
     /// assert!(!*m.get_one::<bool>("flag").unwrap());
     /// ```
     #[must_use]
-    pub fn overrides_with(mut self, arg_id: impl Into<Id>) -> Self {
-        self.overrides.push(arg_id.into());
+    pub fn overrides_with(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+        if let Some(arg_id) = arg_id.into_resettable().into_option() {
+            self.overrides.push(arg_id);
+        } else {
+            self.overrides.clear();
+        }
         self
     }
 
