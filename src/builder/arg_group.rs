@@ -1,4 +1,5 @@
 // Internal
+use crate::builder::IntoResettable;
 use crate::util::Id;
 
 /// Family of related [arguments].
@@ -148,8 +149,12 @@ impl ArgGroup {
     /// ```
     /// [argument]: crate::Arg
     #[must_use]
-    pub fn arg(mut self, arg_id: impl Into<Id>) -> Self {
-        self.args.push(arg_id.into());
+    pub fn arg(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+        if let Some(arg_id) = arg_id.into_resettable().into_option() {
+            self.args.push(arg_id);
+        } else {
+            self.args.clear();
+        }
         self
     }
 
@@ -314,8 +319,12 @@ impl ArgGroup {
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires()
     #[must_use]
-    pub fn requires(mut self, id: impl Into<Id>) -> Self {
-        self.requires.push(id.into());
+    pub fn requires(mut self, id: impl IntoResettable<Id>) -> Self {
+        if let Some(id) = id.into_resettable().into_option() {
+            self.requires.push(id);
+        } else {
+            self.requires.clear();
+        }
         self
     }
 
@@ -397,8 +406,12 @@ impl ArgGroup {
     /// ```
     /// [argument exclusion rules]: crate::Arg::conflicts_with()
     #[must_use]
-    pub fn conflicts_with(mut self, id: impl Into<Id>) -> Self {
-        self.conflicts.push(id.into());
+    pub fn conflicts_with(mut self, id: impl IntoResettable<Id>) -> Self {
+        if let Some(id) = id.into_resettable().into_option() {
+            self.conflicts.push(id);
+        } else {
+            self.conflicts.clear();
+        }
         self
     }
 

@@ -263,6 +263,7 @@ Behavior Changes
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence (#2688, #4023)
 - Allow non-bool `value_parser`s for `ArgAction::SetTrue` / `ArgAction::SetFalse` (#4092)
+- Allow resetting most builder methods
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
