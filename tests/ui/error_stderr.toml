@@ -9,5 +9,5 @@ error: Found argument '--unknown-argument' which wasn't expected, or isn't valid
 
 Usage: stdio-fixture[EXE] [OPTIONS] [COMMAND]
 
-For more information try --help
+For more information try '--help'
 """

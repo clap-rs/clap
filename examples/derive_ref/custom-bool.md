@@ -25,7 +25,7 @@ error: The following required arguments were not provided:
 
 Usage: custom-bool[EXE] --foo <FOO> <BOOM>
 
-For more information try --help
+For more information try '--help'
 
 $ custom-bool --foo true false
 [examples/derive_ref/custom-bool.rs:31] opt = Opt {

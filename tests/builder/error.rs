@@ -27,7 +27,7 @@ fn app_error() {
 
 Usage: test [OPTIONS] --all
 
-For more information try --help
+For more information try '--help'
 ";
     let cmd = Command::new("test")
         .arg(
@@ -139,7 +139,7 @@ error: Found argument 'unused' which wasn't expected, or isn't valid in this con
 
 Usage: test
 
-For more information try --help
+For more information try '--help'
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }

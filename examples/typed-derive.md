@@ -24,7 +24,7 @@ $ typed-derive -O plaid
 ? failed
 error: Invalid value "plaid" for '-O <OPTIMIZATION>': invalid digit found in string
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -44,7 +44,7 @@ $ typed-derive --bind localhost
 ? failed
 error: Invalid value "localhost" for '--bind <BIND>': invalid IP address syntax
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -57,7 +57,7 @@ $ typed-derive --sleep forever
 ? failed
 error: Invalid value "forever" for '--sleep <SLEEP>': expected number at 0
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -70,12 +70,12 @@ $ typed-derive -D Foo
 ? failed
 error: Invalid value "Foo" for '-D <DEFINES>': invalid KEY=value: no `=` found in `Foo`
 
-For more information try --help
+For more information try '--help'
 
 $ typed-derive -D Foo=Bar
 ? failed
 error: Invalid value "Foo=Bar" for '-D <DEFINES>': invalid digit found in string
 
-For more information try --help
+For more information try '--help'
 
 ```

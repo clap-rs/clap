@@ -7,7 +7,7 @@ static REQ_GROUP_USAGE: &str = "error: The following required arguments were not
 
 Usage: clap-test <base|--delete>
 
-For more information try --help
+For more information try '--help'
 ";
 
 static REQ_GROUP_CONFLICT_USAGE: &str = "\
@@ -15,7 +15,7 @@ error: The argument '--delete' cannot be used with '[base]'
 
 Usage: clap-test <base|--delete>
 
-For more information try --help
+For more information try '--help'
 ";
 
 static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str = "\
@@ -23,7 +23,7 @@ error: The argument '--delete' cannot be used with '--all'
 
 Usage: clap-test <--all|--delete>
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]

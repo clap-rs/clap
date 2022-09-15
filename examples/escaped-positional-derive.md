@@ -37,7 +37,7 @@ error: Found argument 'foo' which wasn't expected, or isn't valid in this contex
 
 Usage: escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
-For more information try --help
+For more information try '--help'
 
 ```
 
