@@ -294,6 +294,7 @@ Behavior Changes
 - *(version)* Use `Command::display_name` rather than `Command::bin_name` (#3966)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, like `Command::allow_hyphen_values` (#4187)
+- *(parser)* Prefer `InvalidSubcommand` over `UnknownArgument` in more cases (#4219)
 - *(derive)* Detect escaped external subcommands that look like built-in subcommands (#3703)
 - *(derive)* Leave `Arg::id` as `verbatim` casing (#3282)
 - *(derive)* Default to `#[clap(value_parser, action)]` instead of `#[clap(parse)]` (#3827)

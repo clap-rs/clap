@@ -600,7 +600,7 @@ fn disable_help_subcommand() {
         .try_get_matches_from(vec!["", "help"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[test]

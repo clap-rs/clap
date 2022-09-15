@@ -113,11 +113,6 @@ impl MKeyMap {
             .map(|k| &self.args[k.index])
     }
 
-    /// Find out if the map have no arg.
-    pub(crate) fn is_empty(&self) -> bool {
-        self.args.is_empty()
-    }
-
     /// Return iterators of all keys.
     pub(crate) fn keys(&self) -> impl Iterator<Item = &KeyType> {
         self.keys.iter().map(|x| &x.key)

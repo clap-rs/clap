@@ -1166,7 +1166,7 @@ impl Command {
     ///         "myprog", "help"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
     /// ```
     ///
     /// [`subcommand`]: crate::Command::subcommand()
@@ -4313,8 +4313,8 @@ impl Command {
     }
 
     #[inline]
-    pub(crate) fn has_args(&self) -> bool {
-        !self.args.is_empty()
+    pub(crate) fn has_positionals(&self) -> bool {
+        self.get_positionals().next().is_some()
     }
 
     pub(crate) fn has_visible_subcommands(&self) -> bool {

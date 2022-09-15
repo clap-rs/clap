@@ -85,7 +85,7 @@ For more information try --help
 ```console
 $ interop_augment_subcommands unknown
 ? failed
-error: Found argument 'unknown' which wasn't expected, or isn't valid in this context
+error: The subcommand 'unknown' wasn't recognized
 
 Usage: interop_augment_subcommands[EXE] [COMMAND]
 
@@ -189,7 +189,7 @@ Cli {
 ```console
 $ interop_hand_subcommand unknown
 ? failed
-error: Found argument 'unknown' which wasn't expected, or isn't valid in this context
+error: The subcommand 'unknown' wasn't recognized
 
 Usage: interop_hand_subcommand[EXE] [OPTIONS] <COMMAND>
 
