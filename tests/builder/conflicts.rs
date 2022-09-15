@@ -277,7 +277,7 @@ error: The argument '--flag...' cannot be used with '-F'
 
 Usage: clap-test --flag... --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try --help
+For more information try '--help'
 ";
 
     utils::assert_output(
@@ -295,7 +295,7 @@ error: The argument '-F' cannot be used with '--flag...'
 
 Usage: clap-test -F --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try --help
+For more information try '--help'
 ";
 
     utils::assert_output(
@@ -313,7 +313,7 @@ error: The argument '--flag...' cannot be used with '-F'
 
 Usage: clap-test --flag... --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try --help
+For more information try '--help'
 ";
 
     utils::assert_output(
@@ -331,7 +331,7 @@ error: The argument '-F' cannot be used with '--flag...'
 
 Usage: clap-test -F --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try --help
+For more information try '--help'
 ";
 
     utils::assert_output(
@@ -351,7 +351,7 @@ error: The argument '--one' cannot be used with:
 
 Usage: three_conflicting_arguments --one
 
-For more information try --help
+For more information try '--help'
 ";
 
     let cmd = Command::new("three_conflicting_arguments")

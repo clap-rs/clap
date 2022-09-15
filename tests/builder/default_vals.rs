@@ -713,7 +713,7 @@ error: The following required arguments were not provided:
 
 Usage: bug <input>
 
-For more information try --help
+For more information try '--help'
 ",
         true,
     );

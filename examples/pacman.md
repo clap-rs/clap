@@ -71,7 +71,7 @@ error: The argument '--search <search>...' cannot be used with '--info'
 
 Usage: pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
 
-For more information try --help
+For more information try '--help'
 
 ```
 

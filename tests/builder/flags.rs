@@ -8,7 +8,7 @@ error: Found argument '--another-flag' which wasn't expected, or isn't valid in 
 
 Usage: mycat [OPTIONS] [filename]
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -184,7 +184,7 @@ error: Found argument '-----' which wasn't expected, or isn't valid in this cont
 
 Usage: test <arg>
 
-For more information try --help
+For more information try '--help'
 ";
     let cmd = Command::new("test").arg(Arg::new("arg").action(ArgAction::Set).required(true));
 

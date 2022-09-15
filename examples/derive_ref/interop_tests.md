@@ -41,7 +41,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 
 Usage: interop_augment_args[EXE] [OPTIONS]
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -78,7 +78,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 
 Usage: interop_augment_subcommands[EXE] derived [OPTIONS]
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -89,7 +89,7 @@ error: The subcommand 'unknown' wasn't recognized
 
 Usage: interop_augment_subcommands[EXE] [COMMAND]
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -150,7 +150,7 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 
 Usage: interop_hand_subcommand[EXE] add [NAME]...
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -193,7 +193,7 @@ error: The subcommand 'unknown' wasn't recognized
 
 Usage: interop_hand_subcommand[EXE] [OPTIONS] <COMMAND>
 
-For more information try --help
+For more information try '--help'
 
 ```
 
@@ -249,6 +249,6 @@ error: Found argument '--unknown' which wasn't expected, or isn't valid in this 
 
 Usage: interop_flatten_hand_args[EXE] [OPTIONS]
 
-For more information try --help
+For more information try '--help'
 
 ```

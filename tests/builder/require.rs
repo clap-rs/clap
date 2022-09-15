@@ -9,7 +9,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test --opt=<FILE>
 
-For more information try --help
+For more information try '--help'
 ";
 
 static REQUIRE_EQUALS_FILTERED: &str = "\
@@ -18,7 +18,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test --opt=<FILE> --foo=<FILE>
 
-For more information try --help
+For more information try '--help'
 ";
 
 static REQUIRE_EQUALS_FILTERED_GROUP: &str = "\
@@ -27,7 +27,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
 
-For more information try --help
+For more information try '--help'
 ";
 
 static MISSING_REQ: &str = "\
@@ -38,7 +38,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test --long-option-2 <option2> -F <positional> <positional2> [positional3]...
 
-For more information try --help
+For more information try '--help'
 ";
 
 static COND_REQ_IN_USAGE: &str = "\
@@ -47,7 +47,7 @@ error: The following required arguments were not provided:
 
 Usage: test --target <target> --input <input> --output <output>
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -143,7 +143,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test <flag> <opt> [bar]
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -162,7 +162,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test <flag> [opt] [bar]
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -183,7 +183,7 @@ error: The following required arguments were not provided:
 
 Usage: clap-test <flag> <foo> <opt> [bar]
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -1028,7 +1028,7 @@ error: The following required arguments were not provided:
 
 Usage: example -x <X> -y <Y> -z <Z> <ID>
 
-For more information try --help
+For more information try '--help'
 ";
 
 fn issue_1158_app() -> Command {
@@ -1062,7 +1062,7 @@ error: The following required arguments were not provided:
 
 Usage: test --c <c> --a <a> --b <b>
 
-For more information try --help
+For more information try '--help'
 ";
     let cmd = Command::new("test")
         .arg(
@@ -1429,7 +1429,7 @@ error: The argument '-b <b>' cannot be used with '-c <c>'
 
 Usage: clap-test -b <b> <a>
 
-For more information try --help
+For more information try '--help'
 ";
     utils::assert_output(cmd, "clap-test aaa -b bbb -c ccc", EXPECTED, true);
 }
@@ -1451,7 +1451,7 @@ error: The following required arguments were not provided:
 
 Usage: test --require-first <--first|--second>
 
-For more information try --help
+For more information try '--help'
 ";
     utils::assert_output(cmd, "test --require-first --second", EXPECTED, true);
 }

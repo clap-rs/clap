@@ -16,7 +16,7 @@ error: The following required arguments were not provided:
 
 Usage: prog -b -c
 
-For more information try --help
+For more information try '--help'
 ";
 
 static ONLY_C_ERROR: &str = "\
@@ -25,7 +25,7 @@ error: The following required arguments were not provided:
 
 Usage: prog -c -b
 
-For more information try --help
+For more information try '--help'
 ";
 
 fn cmd() -> Command {

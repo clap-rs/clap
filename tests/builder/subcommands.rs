@@ -36,7 +36,7 @@ If you believe you received this message in error, try re-running with 'dym -- s
 
 Usage: dym [COMMAND]
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[cfg(feature = "suggestions")]
@@ -49,7 +49,7 @@ If you believe you received this message in error, try re-running with 'dym -- t
 
 Usage: dym [COMMAND]
 
-For more information try --help
+For more information try '--help'
 ";
 
 static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
@@ -59,7 +59,7 @@ error: Found argument 'subcmd' which wasn't expected, or isn't valid in this con
 
 Usage: cmd [COMMAND]
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -180,7 +180,7 @@ error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this
 
 Usage: dym [COMMAND]
 
-For more information try --help
+For more information try '--help'
 ";
 
     let cmd = Command::new("dym")
@@ -199,7 +199,7 @@ error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this
 
 Usage: dym [COMMAND]
 
-For more information try --help
+For more information try '--help'
 ";
 
     let cmd = Command::new("dym")
@@ -433,7 +433,7 @@ fn subcommand_not_recognized() {
 
 Usage: fake [COMMAND]
 
-For more information try --help
+For more information try '--help'
 ",
         true,
     );
@@ -509,7 +509,7 @@ error: The subcommand 'world' wasn't recognized
 
 Usage: <COMMAND>
 
-For more information try help
+For more information try 'help'
 ";
     utils::assert_eq(HELLO_EXPECTED, err.to_string());
 
@@ -526,7 +526,7 @@ If you believe you received this message in error, try re-running with ' -- baz'
 
 Usage: <COMMAND>
 
-For more information try help
+For more information try 'help'
 ";
         utils::assert_eq(BAZ_EXPECTED, err.to_string());
     }

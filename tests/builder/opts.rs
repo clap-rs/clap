@@ -12,7 +12,7 @@ error: Found argument '--optio' which wasn't expected, or isn't valid in this co
 
 Usage: clap-test --option <opt>... [positional] [positional2] [positional3]...
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[cfg(feature = "suggestions")]
@@ -25,7 +25,7 @@ error: Found argument '--files-without-matches' which wasn't expected, or isn't 
 
 Usage: ripgrep-616 --files-without-match
 
-For more information try --help
+For more information try '--help'
 ";
 
 #[test]
@@ -50,7 +50,7 @@ fn require_equals_fail_message() {
 
 Usage: prog [OPTIONS]
 
-For more information try --help
+For more information try '--help'
 ";
     let cmd = Command::new("prog").arg(
         Arg::new("cfg")
