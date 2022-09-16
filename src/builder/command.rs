@@ -4217,7 +4217,7 @@ impl Command {
     }
 
     fn _copy_subtree_for_help(&self) -> Command {
-        let mut cmd = Command::new(self.get_name().to_string())
+        let mut cmd = Command::new(self.name.clone())
             .hide(self.is_hide_set())
             .global_setting(AppSettings::DisableHelpFlag)
             .global_setting(AppSettings::DisableVersionFlag)
