@@ -840,7 +840,7 @@ impl ArgMatches {
     /// }
     /// ```
     /// [subcommand]: crate::Command::subcommand
-    pub fn remove_subcommand(&mut self) -> Option<(Box<str>, ArgMatches)> {
+    pub fn remove_subcommand(&mut self) -> Option<(String, ArgMatches)> {
         self.subcommand.take().map(|sc| (sc.name, sc.matches))
     }
 
@@ -1139,7 +1139,7 @@ impl ArgMatches {
         }
 
         if let Some(ref sc) = self.subcommand {
-            if sc.name.as_ref() == name {
+            if sc.name == name {
                 return Some(sc);
             }
         }
@@ -1150,7 +1150,7 @@ impl ArgMatches {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
-    pub(crate) name: Box<str>,
+    pub(crate) name: String,
     pub(crate) matches: ArgMatches,
 }
 

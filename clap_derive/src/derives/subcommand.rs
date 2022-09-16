@@ -491,7 +491,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
         };
 
         quote! {
-            if #subcommand_name_var.as_ref() == #sub_name && !#sub_arg_matches_var.contains_id("") {
+            if #subcommand_name_var == #sub_name && !#sub_arg_matches_var.contains_id("") {
                 return ::std::result::Result::Ok(Self :: #variant_name #constructor_block)
             }
         }
@@ -522,7 +522,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty)) => quote_spanned! { span=>
                 ::std::result::Result::Ok(Self::#var_name(
-                    ::std::iter::once(#str_ty::from(#subcommand_name_var.as_ref()))
+                    ::std::iter::once(#str_ty::from(#subcommand_name_var))
                     .chain(
                         #sub_arg_matches_var
                             .remove_many::<#str_ty>("")

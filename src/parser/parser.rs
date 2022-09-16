@@ -417,7 +417,7 @@ impl<'cmd> Parser<'cmd> {
             {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_value() {
-                    Ok(s) => Box::from(s),
+                    Ok(s) => s.to_owned(),
                     Err(_) => {
                         let _ = self.resolve_pending(matcher);
                         return Err(ClapError::invalid_utf8(
@@ -701,7 +701,7 @@ impl<'cmd> Parser<'cmd> {
                 }
             }
             matcher.subcommand(SubCommand {
-                name: Box::from(sc.get_name()),
+                name: sc.get_name().to_owned(),
                 matches: sc_matcher.into_inner(),
             });
         }
