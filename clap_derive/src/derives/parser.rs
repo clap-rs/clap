@@ -29,6 +29,7 @@ use crate::item::Name;
 
 pub fn derive_parser(input: &DeriveInput) -> TokenStream {
     let ident = &input.ident;
+    let pkg_name = std::env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     match input.data {
         Data::Struct(DataStruct {
@@ -37,9 +38,7 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
         }) => {
             dummies::parser_struct(ident);
 
-            let name = Name::Assigned(quote!(std::env::var("CARGO_PKG_NAME")
-                .ok()
-                .unwrap_or_default()));
+            let name = Name::Assigned(quote!(#pkg_name));
             let item = Item::from_args_struct(input, name);
             let fields = fields
                 .named
@@ -57,9 +56,7 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
         }) => {
             dummies::parser_struct(ident);
 
-            let name = Name::Assigned(quote!(std::env::var("CARGO_PKG_NAME")
-                .ok()
-                .unwrap_or_default()));
+            let name = Name::Assigned(quote!(#pkg_name));
             let item = Item::from_args_struct(input, name);
             let fields = Punctuated::<Field, Comma>::new();
             let fields = fields
@@ -74,9 +71,7 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
         Data::Enum(ref e) => {
             dummies::parser_enum(ident);
 
-            let name = Name::Assigned(quote!(std::env::var("CARGO_PKG_NAME")
-                .ok()
-                .unwrap_or_default()));
+            let name = Name::Assigned(quote!(#pkg_name));
             let item = Item::from_subcommand_enum(input, name);
             let variants = e
                 .variants
