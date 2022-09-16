@@ -146,7 +146,7 @@ impl Arg {
     #[must_use]
     pub fn short(mut self, s: impl IntoResettable<char>) -> Self {
         if let Some(s) = s.into_resettable().into_option() {
-            assert!(s != '-', "short option name cannot be `-`");
+            debug_assert!(s != '-', "short option name cannot be `-`");
             self.short = Some(s);
         } else {
             self.short = None;
@@ -241,7 +241,7 @@ impl Arg {
     #[must_use]
     pub fn short_alias(mut self, name: impl IntoResettable<char>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            assert!(name != '-', "short alias name cannot be `-`");
+            debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_aliases.push((name, false));
         } else {
             self.short_aliases.clear();
@@ -301,7 +301,7 @@ impl Arg {
     #[must_use]
     pub fn short_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
         for s in names {
-            assert!(s != '-', "short alias name cannot be `-`");
+            debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_aliases.push((s, false));
         }
         self
@@ -357,7 +357,7 @@ impl Arg {
     #[must_use]
     pub fn visible_short_alias(mut self, name: impl IntoResettable<char>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            assert!(name != '-', "short alias name cannot be `-`");
+            debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_aliases.push((name, true));
         } else {
             self.short_aliases.clear();
@@ -412,7 +412,7 @@ impl Arg {
     #[must_use]
     pub fn visible_short_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
         for n in names {
-            assert!(n != '-', "short alias name cannot be `-`");
+            debug_assert!(n != '-', "short alias name cannot be `-`");
             self.short_aliases.push((n, true));
         }
         self

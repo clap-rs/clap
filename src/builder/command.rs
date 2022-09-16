@@ -195,10 +195,6 @@ impl Command {
     /// [arguments]: Arg
     #[must_use]
     pub fn args(mut self, args: impl IntoIterator<Item = impl Into<Arg>>) -> Self {
-        let args = args.into_iter();
-        let (lower, _) = args.size_hint();
-        self.args.reserve(lower);
-
         for arg in args {
             self = self.arg(arg);
         }
@@ -407,10 +403,6 @@ impl Command {
     /// [`IntoIterator`]: std::iter::IntoIterator
     #[must_use]
     pub fn subcommands(mut self, subcmds: impl IntoIterator<Item = impl Into<Self>>) -> Self {
-        let subcmds = subcmds.into_iter();
-        let (lower, _) = subcmds.size_hint();
-        self.subcommands.reserve(lower);
-
         for subcmd in subcmds {
             self = self.subcommand(subcmd);
         }
@@ -2219,7 +2211,7 @@ impl Command {
     #[must_use]
     pub fn short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            assert!(name != '-', "short alias name cannot be `-`");
+            debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((name, false));
         } else {
             self.short_flag_aliases.clear();
@@ -2310,7 +2302,7 @@ impl Command {
     #[must_use]
     pub fn short_flag_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
         for s in names {
-            assert!(s != '-', "short alias name cannot be `-`");
+            debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((s, false));
         }
         self
@@ -2402,7 +2394,7 @@ impl Command {
     #[must_use]
     pub fn visible_short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            assert!(name != '-', "short alias name cannot be `-`");
+            debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((name, true));
         } else {
             self.short_flag_aliases.clear();
@@ -2491,7 +2483,7 @@ impl Command {
     #[must_use]
     pub fn visible_short_flag_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
         for s in names {
-            assert!(s != '-', "short alias name cannot be `-`");
+            debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((s, true));
         }
         self
@@ -4041,7 +4033,7 @@ impl Command {
                 .map(|arg| arg.get_id().clone())
                 .collect();
 
-            assert!(args_missing_help.is_empty(),
+            debug_assert!(args_missing_help.is_empty(),
                     "Command::help_expected is enabled for the Command {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
@@ -4299,7 +4291,7 @@ impl Command {
 
     #[inline]
     pub(crate) fn contains_short(&self, s: char) -> bool {
-        assert!(
+        debug_assert!(
             self.is_set(AppSettings::Built),
             "If Command::_build hasn't been called, manually search through Arg shorts"
         );

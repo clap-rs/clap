@@ -90,11 +90,6 @@ impl MKeyMap {
         self.keys.iter().any(|x| x.key == key)
     }
 
-    /// Reserves capacity for at least additional more elements to be inserted
-    pub(crate) fn reserve(&mut self, additional: usize) {
-        self.args.reserve(additional);
-    }
-
     /// Push an argument in the map.
     pub(crate) fn push(&mut self, new_arg: Arg) {
         self.args.push(new_arg);
