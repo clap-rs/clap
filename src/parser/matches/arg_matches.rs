@@ -66,7 +66,7 @@ pub struct ArgMatches {
     #[cfg(debug_assertions)]
     pub(crate) valid_args: Vec<Id>,
     #[cfg(debug_assertions)]
-    pub(crate) valid_subcommands: Vec<String>,
+    pub(crate) valid_subcommands: Vec<Str>,
     pub(crate) args: FlatMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
@@ -924,8 +924,7 @@ impl ArgMatches {
     pub fn is_valid_subcommand(&self, _name: &str) -> bool {
         #[cfg(debug_assertions)]
         {
-            let _name = _name.to_owned();
-            _name == String::default() || self.valid_subcommands.contains(&_name)
+            _name.is_empty() || self.valid_subcommands.iter().any(|s| *s == _name)
         }
         #[cfg(not(debug_assertions))]
         {
@@ -1094,8 +1093,7 @@ impl ArgMatches {
     fn verify_arg(&self, _arg: &str) -> Result<(), MatchesError> {
         #[cfg(debug_assertions)]
         {
-            let _arg = Id::from(_arg.to_owned());
-            if _arg == Id::EXTERNAL || self.valid_args.contains(&_arg) {
+            if _arg == Id::EXTERNAL || self.valid_args.iter().any(|s| *s == _arg) {
             } else {
                 debug!(
                     "`{:?}` is not an id of an argument or a group.\n\
@@ -1114,8 +1112,7 @@ impl ArgMatches {
     fn get_arg<'s>(&'s self, arg: &str) -> Option<&'s MatchedArg> {
         #[cfg(debug_assertions)]
         {
-            let arg = Id::from(arg.to_owned());
-            if arg == Id::EXTERNAL || self.valid_args.contains(&arg) {
+            if arg == Id::EXTERNAL || self.valid_args.iter().any(|s| *s == arg) {
             } else {
                 panic!(
                     "`{:?}` is not an id of an argument or a group.\n\
@@ -1134,8 +1131,7 @@ impl ArgMatches {
     fn get_subcommand(&self, name: &str) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            let name = name.to_owned();
-            if name == String::default() || self.valid_subcommands.contains(&name) {
+            if name.is_empty() || self.valid_subcommands.iter().any(|s| *s == name) {
             } else {
                 panic!("`{}` is not a name of a subcommand.", name);
             }
