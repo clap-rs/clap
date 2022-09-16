@@ -70,7 +70,7 @@ suggestions = ["dep:strsim"]
 # Optional
 deprecated = ["clap_derive?/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
 derive = ["clap_derive"]
-cargo = [] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
+cargo = ["dep:once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["dep:terminal_size"]
 env = [] # Use environment variables during arg parsing
 unicode = ["dep:unicode-width", "dep:unicase"]  # Support for unicode characters in arguments and help messages
@@ -95,6 +95,7 @@ termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.2.1", optional = true }
 backtrace = { version = "0.3", optional = true }
 unicode-width = { version = "0.1.9", optional = true }
+once_cell = { version = "1.12.0", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.18"
