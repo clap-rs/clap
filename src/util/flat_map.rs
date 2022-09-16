@@ -57,13 +57,22 @@ impl<K: PartialEq + Eq, V> FlatMap<K, V> {
         K: Borrow<Q>,
         Q: std::hash::Hash + Eq,
     {
+        self.remove_entry(key).map(|(_, v)| v)
+    }
+
+    pub fn remove_entry<Q: ?Sized>(&mut self, key: &Q) -> Option<(K, V)>
+    where
+        K: Borrow<Q>,
+        Q: std::hash::Hash + Eq,
+    {
         let index = self
             .keys
             .iter()
             .enumerate()
             .find_map(|(i, k)| (k.borrow() == key).then(|| i))?;
-        self.keys.remove(index);
-        Some(self.values.remove(index))
+        let key = self.keys.remove(index);
+        let value = self.values.remove(index);
+        Some((key, value))
     }
 
     pub(crate) fn is_empty(&self) -> bool {

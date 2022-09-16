@@ -1060,8 +1060,8 @@ impl ArgMatches {
         arg: &str,
     ) -> Result<Option<MatchedArg>, MatchesError> {
         self.verify_arg(arg)?;
-        let matched = match self.args.remove(arg) {
-            Some(matched) => matched,
+        let (id, matched) = match self.args.remove_entry(arg) {
+            Some((id, matched)) => (id, matched),
             None => {
                 return Ok(None);
             }
@@ -1072,7 +1072,7 @@ impl ArgMatches {
         if actual == expected {
             Ok(Some(matched))
         } else {
-            self.args.insert(Id::from(arg.to_owned()), matched);
+            self.args.insert(id, matched);
             Err(MatchesError::Downcast { actual, expected })
         }
     }
