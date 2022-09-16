@@ -71,6 +71,20 @@ fn crate_authors() {
 }
 
 #[test]
+fn crate_authors_with_sep() {
+    let res = Command::new("prog")
+        .version("1")
+        .author(crate_authors!(", "))
+        .help_template(utils::FULL_TEMPLATE)
+        .try_get_matches_from(vec!["prog", "--help"]);
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
+    assert_eq!(err.to_string(), AUTHORS_ONLY);
+}
+
+#[test]
 fn crate_name() {
     let res = Command::new(crate_name!())
         .help_template(utils::FULL_TEMPLATE)
