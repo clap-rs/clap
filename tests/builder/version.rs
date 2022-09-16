@@ -291,13 +291,9 @@ fn version_required() {
 }
 
 #[test]
+#[should_panic = "Argument `version` is undefined"]
 fn mut_arg_version_no_auto_version() {
-    let res = common()
-        .mut_arg("version", |v| v.short('z').action(ArgAction::SetTrue))
-        .try_get_matches_from("foo -z".split(' '));
-
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    assert_eq!(res.unwrap().get_one::<bool>("version").copied(), Some(true));
+    let _ = common().mut_arg("version", |v| v.short('z').action(ArgAction::SetTrue));
 }
 
 #[cfg(debug_assertions)]

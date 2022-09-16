@@ -195,10 +195,6 @@ impl Command {
     /// [arguments]: Arg
     #[must_use]
     pub fn args(mut self, args: impl IntoIterator<Item = impl Into<Arg>>) -> Self {
-        let args = args.into_iter();
-        let (lower, _) = args.size_hint();
-        self.args.reserve(lower);
-
         for arg in args {
             self = self.arg(arg);
         }
@@ -208,6 +204,10 @@ impl Command {
     /// Allows one to mutate an [`Arg`] after it's been added to a [`Command`].
     ///
     /// This can be useful for modifying the auto-generated help or version arguments.
+    ///
+    /// # Panics
+    ///
+    /// If the argument is undefined
     ///
     /// # Examples
     ///
@@ -231,15 +231,16 @@ impl Command {
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
-    pub fn mut_arg<F>(mut self, arg_id: impl Into<Id>, f: F) -> Self
+    #[cfg_attr(debug_assertions, track_caller)]
+    pub fn mut_arg<F>(mut self, arg_id: impl AsRef<str>, f: F) -> Self
     where
         F: FnOnce(Arg) -> Arg,
     {
-        let id = arg_id.into();
+        let id = arg_id.as_ref();
         let a = self
             .args
-            .remove_by_name(id.as_str())
-            .unwrap_or_else(|| Arg::new(id));
+            .remove_by_name(id)
+            .unwrap_or_else(|| panic!("Argument `{}` is undefined", id));
 
         self.args.push(f(a));
         self
@@ -249,6 +250,10 @@ impl Command {
     ///
     /// This can be useful for modifying auto-generated arguments of nested subcommands with
     /// [`Command::mut_arg`].
+    ///
+    /// # Panics
+    ///
+    /// If the subcommand is undefined
     ///
     /// # Examples
     ///
@@ -279,7 +284,7 @@ impl Command {
         let subcmd = if let Some(idx) = pos {
             self.subcommands.remove(idx)
         } else {
-            Self::new(Str::from(name.to_owned()))
+            panic!("Command `{}` is undefined", name)
         };
 
         self.subcommands.push(f(subcmd));
@@ -407,10 +412,6 @@ impl Command {
     /// [`IntoIterator`]: std::iter::IntoIterator
     #[must_use]
     pub fn subcommands(mut self, subcmds: impl IntoIterator<Item = impl Into<Self>>) -> Self {
-        let subcmds = subcmds.into_iter();
-        let (lower, _) = subcmds.size_hint();
-        self.subcommands.reserve(lower);
-
         for subcmd in subcmds {
             self = self.subcommand(subcmd);
         }
@@ -2219,7 +2220,7 @@ impl Command {
     #[must_use]
     pub fn short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            assert!(name != '-', "short alias name cannot be `-`");
+            debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((name, false));
         } else {
             self.short_flag_aliases.clear();
@@ -2310,7 +2311,7 @@ impl Command {
     #[must_use]
     pub fn short_flag_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
         for s in names {
-            assert!(s != '-', "short alias name cannot be `-`");
+            debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((s, false));
         }
         self
@@ -2402,7 +2403,7 @@ impl Command {
     #[must_use]
     pub fn visible_short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            assert!(name != '-', "short alias name cannot be `-`");
+            debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((name, true));
         } else {
             self.short_flag_aliases.clear();
@@ -2491,7 +2492,7 @@ impl Command {
     #[must_use]
     pub fn visible_short_flag_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
         for s in names {
-            assert!(s != '-', "short alias name cannot be `-`");
+            debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((s, true));
         }
         self
@@ -4041,7 +4042,7 @@ impl Command {
                 .map(|arg| arg.get_id().clone())
                 .collect();
 
-            assert!(args_missing_help.is_empty(),
+            debug_assert!(args_missing_help.is_empty(),
                     "Command::help_expected is enabled for the Command {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
@@ -4216,7 +4217,7 @@ impl Command {
     }
 
     fn _copy_subtree_for_help(&self) -> Command {
-        let mut cmd = Command::new(self.get_name().to_string())
+        let mut cmd = Command::new(self.name.clone())
             .hide(self.is_hide_set())
             .global_setting(AppSettings::DisableHelpFlag)
             .global_setting(AppSettings::DisableVersionFlag)
@@ -4299,7 +4300,7 @@ impl Command {
 
     #[inline]
     pub(crate) fn contains_short(&self, s: char) -> bool {
-        assert!(
+        debug_assert!(
             self.is_set(AppSettings::Built),
             "If Command::_build hasn't been called, manually search through Arg shorts"
         );

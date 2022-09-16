@@ -131,11 +131,11 @@ fn app_help_heading_flattened() {
         .unwrap();
     assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
-    let should_be_in_default_section = cmd
+    let should_be_in_section_b = cmd
         .get_arguments()
         .find(|a| a.get_id() == "should_be_in_default_section")
         .unwrap();
-    assert_eq!(should_be_in_default_section.get_help_heading(), None);
+    assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
     let sub_a_two = cmd.find_subcommand("sub-a-two").unwrap();
 
