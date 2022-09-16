@@ -16,7 +16,7 @@
 //! * **env**: Turns on the usage of environment variables during parsing.
 //! * **unicode**: Turns on support for unicode characters (including emoji) in arguments and help messages.
 //! * **wrap_help**: Turns on the help text wrapping feature, based on the terminal size.
-//! * **perf**: Optimized for runtime performance.
+//! * **string**: Allow runtime generated strings
 //!
 //! #### Experimental features
 //!

@@ -170,7 +170,7 @@ pub fn generate_to<G, S, T>(
 ) -> Result<PathBuf, Error>
 where
     G: Generator,
-    S: Into<clap::builder::Str>,
+    S: Into<String>,
     T: Into<OsString>,
 {
     cmd.set_bin_name(bin_name);
@@ -223,7 +223,7 @@ where
 pub fn generate<G, S>(gen: G, cmd: &mut clap::Command, bin_name: S, buf: &mut dyn Write)
 where
     G: Generator,
-    S: Into<clap::builder::Str>,
+    S: Into<String>,
 {
     cmd.set_bin_name(bin_name);
     _generate::<G, S>(gen, cmd, buf)
@@ -232,7 +232,7 @@ where
 fn _generate<G, S>(gen: G, cmd: &mut clap::Command, buf: &mut dyn Write)
 where
     G: Generator,
-    S: Into<clap::builder::Str>,
+    S: Into<String>,
 {
     cmd.build();
 

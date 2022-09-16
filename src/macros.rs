@@ -46,11 +46,14 @@ macro_rules! crate_version {
 #[macro_export]
 macro_rules! crate_authors {
     ($sep:expr) => {{
-        let authors = env!("CARGO_PKG_AUTHORS");
+        static authors: &str = env!("CARGO_PKG_AUTHORS");
         if authors.contains(':') {
-            $crate::builder::Str::from(authors.replace(':', $sep))
+            static CACHED: clap::__macro_refs::once_cell::sync::Lazy<String> =
+                clap::__macro_refs::once_cell::sync::Lazy::new(|| authors.replace(':', $sep));
+            let s: &'static str = &*CACHED;
+            s
         } else {
-            $crate::builder::Str::from(authors)
+            authors
         }
     }};
     () => {

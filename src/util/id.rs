@@ -45,12 +45,14 @@ impl From<&'_ Str> for Id {
     }
 }
 
+#[cfg(feature = "string")]
 impl From<std::string::String> for Id {
     fn from(name: std::string::String) -> Self {
         Self(name.into())
     }
 }
 
+#[cfg(feature = "string")]
 impl From<&'_ std::string::String> for Id {
     fn from(name: &'_ std::string::String) -> Self {
         Self(name.into())

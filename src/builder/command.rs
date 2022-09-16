@@ -70,8 +70,8 @@ pub struct Command {
     name: Str,
     long_flag: Option<Str>,
     short_flag: Option<char>,
-    display_name: Option<Str>,
-    bin_name: Option<Str>,
+    display_name: Option<String>,
+    bin_name: Option<String>,
     author: Option<Str>,
     version: Option<Str>,
     long_version: Option<Str>,
@@ -695,7 +695,7 @@ impl Command {
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_str() {
                         if self.bin_name.is_none() {
-                            self.bin_name = Some(Str::from(s.to_owned()));
+                            self.bin_name = Some(s.to_owned());
                         }
                     }
                 }
@@ -1376,7 +1376,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn bin_name(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn bin_name(mut self, name: impl IntoResettable<String>) -> Self {
         self.bin_name = name.into_resettable().into_option();
         self
     }
@@ -1392,7 +1392,7 @@ impl Command {
     /// # ;
     /// ```
     #[must_use]
-    pub fn display_name(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn display_name(mut self, name: impl IntoResettable<String>) -> Self {
         self.display_name = name.into_resettable().into_option();
         self
     }
@@ -3156,7 +3156,7 @@ impl Command {
     }
 
     /// Set binary name. Uses `&mut self` instead of `self`.
-    pub fn set_bin_name(&mut self, name: impl Into<Str>) {
+    pub fn set_bin_name(&mut self, name: impl Into<String>) {
         self.bin_name = Some(name.into());
     }
 
@@ -3167,6 +3167,7 @@ impl Command {
     }
 
     #[inline]
+    #[cfg(debug_assertions)]
     pub(crate) fn get_name_str(&self) -> &Str {
         &self.name
     }
@@ -3888,7 +3889,7 @@ impl Command {
             "Command::_build_subcommand Setting bin_name of {} to {:?}",
             sc.name, bin_name
         );
-        sc.bin_name = Some(Str::from(bin_name));
+        sc.bin_name = Some(bin_name);
 
         if sc.display_name.is_none() {
             let self_display_name = if is_multicall_set {
@@ -3910,7 +3911,7 @@ impl Command {
                 "Command::_build_subcommand Setting display_name of {} to {:?}",
                 sc.name, display_name
             );
-            sc.display_name = Some(Str::from(display_name));
+            sc.display_name = Some(display_name);
         }
 
         // Ensure all args are built and ready to parse
@@ -3989,7 +3990,7 @@ impl Command {
                         "Command::_build_bin_names:iter: Setting bin_name of {} to {:?}",
                         sc.name, bin_name
                     );
-                    sc.bin_name = Some(Str::from(bin_name));
+                    sc.bin_name = Some(bin_name);
                 } else {
                     debug!(
                         "Command::_build_bin_names::iter: Using existing bin_name of {} ({:?})",
@@ -4017,7 +4018,7 @@ impl Command {
                         "Command::_build_bin_names:iter: Setting display_name of {} to {:?}",
                         sc.name, display_name
                     );
-                    sc.display_name = Some(Str::from(display_name));
+                    sc.display_name = Some(display_name);
                 } else {
                     debug!(
                         "Command::_build_bin_names::iter: Using existing display_name of {} ({:?})",

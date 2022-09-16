@@ -18,6 +18,8 @@ fn ui_tests() {
         "suggestions",
         #[cfg(feature = "unicode")]
         "unicode",
+        #[cfg(feature = "string")]
+        "string",
         #[cfg(feature = "wrap_help")]
         "wrap_help",
         #[cfg(feature = "unstable-replace")]
