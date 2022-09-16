@@ -229,6 +229,7 @@ Easier to catch changes:
   - `#[clap(value_parser)]` and `#[clap(action)]` are now redundant
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` to give more meaningful errors when subcommands are missing and to reduce redundancy (#3280)
 - *(derive)* Remove `arg_enum` attribute in favor of `value_enum` to match the new name (we didn't have support in v3 to mark it deprecated) (#4127)
+- *(derive)* `next_help_heading` can now leak out of a `#[clap(flatten)]`, like all other command settings
 - *(parser)* Assert when the CLI looksup an unknown args when external subcommand support is enabled to help catch bugs (#3703)
 - *(assert)* Sometimes `Arg::default_missing_value` didn't require `num_args(0..=N)`, now it does (#4023)
 - *(assert)* Leading dashes in `Arg::long` are no longer allowed (#3691)
