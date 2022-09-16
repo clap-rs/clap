@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Unify dependencies on `terminal_size` to the 0.2 release
+
 ## [3.2.21] - 2022-09-12
 
 ### Features
