@@ -239,6 +239,7 @@ Easier to catch changes:
 - *(assert)* Ensure `overrides_with` IDs are valid
 - *(assert)* Ensure no self-`overrides_with` now that Actions replace it
 - *(assert)* Ensure subcommand names are not duplicated
+- *(assert)* Assert on `mut_arg` receiving an invalid arg ID or `mut_subcommand` receiving an invalid command name
 
 ### Compatibility
 

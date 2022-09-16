@@ -205,6 +205,10 @@ impl Command {
     ///
     /// This can be useful for modifying the auto-generated help or version arguments.
     ///
+    /// # Panics
+    ///
+    /// If the argument is undefined
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -227,15 +231,16 @@ impl Command {
     /// assert!(res.is_ok());
     /// ```
     #[must_use]
-    pub fn mut_arg<F>(mut self, arg_id: impl Into<Id>, f: F) -> Self
+    #[cfg_attr(debug_assertions, track_caller)]
+    pub fn mut_arg<F>(mut self, arg_id: impl AsRef<str>, f: F) -> Self
     where
         F: FnOnce(Arg) -> Arg,
     {
-        let id = arg_id.into();
+        let id = arg_id.as_ref();
         let a = self
             .args
-            .remove_by_name(id.as_str())
-            .unwrap_or_else(|| Arg::new(id));
+            .remove_by_name(id)
+            .unwrap_or_else(|| panic!("Argument `{}` is undefined", id));
 
         self.args.push(f(a));
         self
@@ -245,6 +250,10 @@ impl Command {
     ///
     /// This can be useful for modifying auto-generated arguments of nested subcommands with
     /// [`Command::mut_arg`].
+    ///
+    /// # Panics
+    ///
+    /// If the subcommand is undefined
     ///
     /// # Examples
     ///
@@ -275,7 +284,7 @@ impl Command {
         let subcmd = if let Some(idx) = pos {
             self.subcommands.remove(idx)
         } else {
-            Self::new(Str::from(name.to_owned()))
+            panic!("Command `{}` is undefined", name)
         };
 
         self.subcommands.push(f(subcmd));
