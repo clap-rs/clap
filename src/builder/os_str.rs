@@ -7,12 +7,14 @@ pub struct OsStr {
 }
 
 impl OsStr {
+    #[cfg(feature = "string")]
     pub(crate) fn from_string(name: std::ffi::OsString) -> Self {
         Self {
             name: Inner::from_string(name),
         }
     }
 
+    #[cfg(feature = "string")]
     pub(crate) fn from_ref(name: &std::ffi::OsStr) -> Self {
         Self {
             name: Inner::from_ref(name),
@@ -42,7 +44,7 @@ impl From<&'_ OsStr> for OsStr {
     }
 }
 
-#[cfg(feature = "perf")]
+#[cfg(feature = "string")]
 impl From<Str> for OsStr {
     fn from(id: Str) -> Self {
         match id.into_inner() {
@@ -52,10 +54,10 @@ impl From<Str> for OsStr {
     }
 }
 
-#[cfg(not(feature = "perf"))]
+#[cfg(not(feature = "string"))]
 impl From<Str> for OsStr {
     fn from(id: Str) -> Self {
-        Self::from_ref(std::ffi::OsStr::new(id.as_str()))
+        Self::from_static_ref(std::ffi::OsStr::new(id.into_inner().0))
     }
 }
 
@@ -69,31 +71,34 @@ impl From<&'_ Str> for OsStr {
     }
 }
 
-#[cfg(not(feature = "perf"))]
 impl From<&'_ Str> for OsStr {
     fn from(id: &'_ Str) -> Self {
-        Self::from_ref(std::ffi::OsStr::new(id.as_str()))
+        id.clone().into()
     }
 }
 
+#[cfg(feature = "string")]
 impl From<std::ffi::OsString> for OsStr {
     fn from(name: std::ffi::OsString) -> Self {
         Self::from_string(name)
     }
 }
 
+#[cfg(feature = "string")]
 impl From<&'_ std::ffi::OsString> for OsStr {
     fn from(name: &'_ std::ffi::OsString) -> Self {
         Self::from_ref(name.as_os_str())
     }
 }
 
+#[cfg(feature = "string")]
 impl From<std::string::String> for OsStr {
     fn from(name: std::string::String) -> Self {
         Self::from_string(name.into())
     }
 }
 
+#[cfg(feature = "string")]
 impl From<&'_ std::string::String> for OsStr {
     fn from(name: &'_ std::string::String) -> Self {
         Self::from_ref(name.as_str().as_ref())
@@ -238,7 +243,7 @@ impl PartialEq<OsStr> for std::ffi::OsString {
     }
 }
 
-#[cfg(feature = "perf")]
+#[cfg(feature = "string")]
 pub(crate) mod inner {
     #[derive(Clone)]
     pub(crate) enum Inner {
@@ -272,26 +277,18 @@ pub(crate) mod inner {
     }
 }
 
-#[cfg(not(feature = "perf"))]
+#[cfg(not(feature = "string"))]
 pub(crate) mod inner {
     #[derive(Clone)]
-    pub(crate) struct Inner(Box<std::ffi::OsStr>);
+    pub(crate) struct Inner(&'static std::ffi::OsStr);
 
     impl Inner {
-        pub(crate) fn from_string(name: std::ffi::OsString) -> Self {
-            Self(name.into_boxed_os_str())
-        }
-
-        pub(crate) fn from_ref(name: &std::ffi::OsStr) -> Self {
-            Self(Box::from(name))
-        }
-
         pub(crate) fn from_static_ref(name: &'static std::ffi::OsStr) -> Self {
-            Self::from_ref(name)
+            Self(name)
         }
 
         pub(crate) fn as_os_str(&self) -> &std::ffi::OsStr {
-            &self.0
+            self.0
         }
 
         pub(crate) fn into_os_string(self) -> std::ffi::OsString {

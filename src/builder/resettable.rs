@@ -162,6 +162,12 @@ impl<I: Into<ValueParser>> IntoResettable<ValueParser> for I {
     }
 }
 
+impl<I: Into<String>> IntoResettable<String> for I {
+    fn into_resettable(self) -> Resettable<String> {
+        Resettable::Value(self.into())
+    }
+}
+
 impl<I: Into<StyledStr>> IntoResettable<StyledStr> for I {
     fn into_resettable(self) -> Resettable<StyledStr> {
         Resettable::Value(self.into())

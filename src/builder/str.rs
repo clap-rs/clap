@@ -5,12 +5,14 @@ pub struct Str {
 }
 
 impl Str {
+    #[cfg(feature = "string")]
     pub(crate) fn from_string(name: std::string::String) -> Self {
         Self {
             name: Inner::from_string(name),
         }
     }
 
+    #[cfg(feature = "string")]
     pub(crate) fn from_ref(name: &str) -> Self {
         Self {
             name: Inner::from_ref(name),
@@ -23,7 +25,6 @@ impl Str {
         }
     }
 
-    #[cfg(feature = "perf")]
     pub(crate) fn into_inner(self) -> Inner {
         self.name
     }
@@ -40,12 +41,14 @@ impl From<&'_ Str> for Str {
     }
 }
 
+#[cfg(feature = "string")]
 impl From<std::string::String> for Str {
     fn from(name: std::string::String) -> Self {
         Self::from_string(name)
     }
 }
 
+#[cfg(feature = "string")]
 impl From<&'_ std::string::String> for Str {
     fn from(name: &'_ std::string::String) -> Self {
         Self::from_ref(name.as_str())
@@ -211,7 +214,7 @@ impl PartialEq<Str> for std::string::String {
     }
 }
 
-#[cfg(feature = "perf")]
+#[cfg(feature = "string")]
 pub(crate) mod inner {
     #[derive(Clone)]
     pub(crate) enum Inner {
@@ -245,26 +248,18 @@ pub(crate) mod inner {
     }
 }
 
-#[cfg(not(feature = "perf"))]
+#[cfg(not(feature = "string"))]
 pub(crate) mod inner {
     #[derive(Clone)]
-    pub(crate) struct Inner(Box<str>);
+    pub(crate) struct Inner(pub(crate) &'static str);
 
     impl Inner {
-        pub(crate) fn from_string(name: std::string::String) -> Self {
-            Self(name.into_boxed_str())
-        }
-
-        pub(crate) fn from_ref(name: &str) -> Self {
-            Self(Box::from(name))
-        }
-
         pub(crate) fn from_static_ref(name: &'static str) -> Self {
-            Self::from_ref(name)
+            Self(name)
         }
 
         pub(crate) fn as_str(&self) -> &str {
-            &self.0
+            self.0
         }
 
         pub(crate) fn into_string(self) -> String {
