@@ -9,7 +9,6 @@ use clap_lex::RawOsStr;
 use clap_lex::RawOsString;
 
 // Internal
-use crate::builder::Str;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -418,7 +417,7 @@ impl<'cmd> Parser<'cmd> {
             {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_value() {
-                    Ok(s) => Str::from(s.to_owned()),
+                    Ok(s) => Box::from(s),
                     Err(_) => {
                         let _ = self.resolve_pending(matcher);
                         return Err(ClapError::invalid_utf8(
@@ -702,7 +701,7 @@ impl<'cmd> Parser<'cmd> {
                 }
             }
             matcher.subcommand(SubCommand {
-                name: sc.get_name_str().clone(),
+                name: Box::from(sc.get_name()),
                 matches: sc_matcher.into_inner(),
             });
         }

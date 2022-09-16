@@ -6,6 +6,7 @@ use std::iter::{Cloned, Flatten, Map};
 use std::slice::Iter;
 
 // Internal
+#[cfg(debug_assertions)]
 use crate::builder::Str;
 use crate::parser::AnyValue;
 use crate::parser::AnyValueId;
@@ -839,7 +840,7 @@ impl ArgMatches {
     /// }
     /// ```
     /// [subcommand]: crate::Command::subcommand
-    pub fn remove_subcommand(&mut self) -> Option<(Str, ArgMatches)> {
+    pub fn remove_subcommand(&mut self) -> Option<(Box<str>, ArgMatches)> {
         self.subcommand.take().map(|sc| (sc.name, sc.matches))
     }
 
@@ -1138,7 +1139,7 @@ impl ArgMatches {
         }
 
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name {
+            if sc.name.as_ref() == name {
                 return Some(sc);
             }
         }
@@ -1149,7 +1150,7 @@ impl ArgMatches {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
-    pub(crate) name: Str,
+    pub(crate) name: Box<str>,
     pub(crate) matches: ArgMatches,
 }
 

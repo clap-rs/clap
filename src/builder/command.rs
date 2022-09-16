@@ -3167,6 +3167,7 @@ impl Command {
     }
 
     #[inline]
+    #[cfg(debug_assertions)]
     pub(crate) fn get_name_str(&self) -> &Str {
         &self.name
     }
