@@ -129,7 +129,7 @@ pub mod _tutorial;
 
 #[doc(hidden)]
 pub mod __macro_refs {
-    #[cfg(feature = "cargo")]
+    #[cfg(any(feature = "derive", feature = "cargo"))]
     #[doc(hidden)]
     pub use once_cell;
 }

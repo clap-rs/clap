@@ -69,7 +69,7 @@ suggestions = ["dep:strsim"]
 
 # Optional
 deprecated = ["clap_derive?/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
-derive = ["clap_derive"]
+derive = ["clap_derive", "dep:once_cell"]
 cargo = ["dep:once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["dep:terminal_size"]
 env = [] # Use environment variables during arg parsing
