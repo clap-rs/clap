@@ -2,19 +2,19 @@
 $ 03_05_default_values --help
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
-Usage: 03_05_default_values[EXE] [NAME]
+Usage: 03_05_default_values[EXE] [PORT]
 
 Arguments:
-  [NAME]  [default: alice]
+  [PORT]  [default: 2020]
 
 Options:
   -h, --help     Print help information
   -V, --version  Print version information
 
 $ 03_05_default_values
-name: "alice"
+port: 2020
 
-$ 03_05_default_values bob
-name: "bob"
+$ 03_05_default_values 22
+port: 22
 
 ```
