@@ -10,11 +10,12 @@ on:
       - '**/Cargo.lock'
   schedule:
   - cron: '3 3 3 * *'
-permissions: {} # none
+permissions: read
 jobs:
   security_audit:
     permissions:
-      contents: read
+      issues: write # to create issues (actions-rs/audit-check)
+      checks: write # to create check (actions-rs/audit-check)
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
