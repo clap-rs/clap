@@ -3253,6 +3253,33 @@ impl Command {
             .map(|a| a.0.as_str())
     }
 
+    /// Iterate through the *hidden* aliases for this subcommand.
+    #[inline]
+    pub fn get_hidden_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.aliases
+            .iter()
+            .filter(|(_, vis)| !*vis)
+            .map(|a| a.0.as_str())
+    }
+
+    /// Iterate through the *hidden* short aliases for this subcommand.
+    #[inline]
+    pub fn get_hidden_short_flag_aliases(&self) -> impl Iterator<Item = char> + '_ {
+        self.short_flag_aliases
+            .iter()
+            .filter(|(_, vis)| !*vis)
+            .map(|a| a.0)
+    }
+
+    /// Iterate through the *hidden* long aliases for this subcommand.
+    #[inline]
+    pub fn get_hidden_long_flag_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.long_flag_aliases
+            .iter()
+            .filter(|(_, vis)| !*vis)
+            .map(|a| a.0.as_str())
+    }
+
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
     pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> + '_ {
