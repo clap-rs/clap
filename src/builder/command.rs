@@ -19,7 +19,7 @@ use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
-use crate::output::{fmt::Colorizer, Help, Usage};
+use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
@@ -723,7 +723,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, false).write_help();
+        write_help(&mut styled, self, &usage, false);
 
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
@@ -750,7 +750,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, true).write_help();
+        write_help(&mut styled, self, &usage, true);
 
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
@@ -777,7 +777,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, false).write_help();
+        write_help(&mut styled, self, &usage, false);
         write!(w, "{}", styled)?;
         w.flush()
     }
@@ -803,7 +803,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, true).write_help();
+        write_help(&mut styled, self, &usage, true);
         write!(w, "{}", styled)?;
         w.flush()
     }
@@ -4488,7 +4488,7 @@ impl Command {
         let usage = Usage::new(self);
 
         let mut styled = StyledStr::new();
-        Help::new(&mut styled, self, &usage, use_long).write_help();
+        write_help(&mut styled, self, &usage, use_long);
 
         styled
     }
