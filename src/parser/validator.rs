@@ -401,11 +401,32 @@ impl<'cmd> Validator<'cmd> {
 
         let usg = Usage::new(self.cmd).required(&self.required);
 
-        let req_args = usg
-            .get_required_usage_from(&raw_req_args, Some(matcher), true)
-            .into_iter()
-            .map(|s| s.to_string())
-            .collect::<Vec<_>>();
+        let req_args = {
+            #[cfg(feature = "usage")]
+            {
+                usg.get_required_usage_from(&raw_req_args, Some(matcher), true)
+                    .into_iter()
+                    .map(|s| s.to_string())
+                    .collect::<Vec<_>>()
+            }
+
+            #[cfg(not(feature = "usage"))]
+            {
+                raw_req_args
+                    .iter()
+                    .map(|id| {
+                        if let Some(arg) = self.cmd.find(id) {
+                            arg.to_string()
+                        } else if let Some(_group) = self.cmd.find_group(id) {
+                            self.cmd.format_group(id).to_string()
+                        } else {
+                            debug_assert!(false, "id={:?} is unknown", id);
+                            "".to_owned()
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            }
+        };
 
         debug!(
             "Validator::missing_required_error: req_args={:#?}",

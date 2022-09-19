@@ -312,9 +312,7 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::get_args: ret_val={:?}", ret_val);
         ret_val
     }
-}
 
-impl<'cmd> Usage<'cmd> {
     pub(crate) fn get_required_usage_from(
         &self,
         incls: &[Id],
