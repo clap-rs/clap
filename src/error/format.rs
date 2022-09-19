@@ -14,17 +14,29 @@ pub trait ErrorFormatter: Sized {
     fn format_error(error: &crate::Error<Self>) -> StyledStr;
 }
 
-/// No error information reported
+/// Report [`ErrorKind`]
+///
+/// No context is included
 #[non_exhaustive]
-pub struct NullFormatter;
+pub struct KindFormatter;
 
-impl ErrorFormatter for NullFormatter {
-    fn format_error(_error: &crate::Error<Self>) -> StyledStr {
-        StyledStr::new()
+impl ErrorFormatter for KindFormatter {
+    fn format_error(error: &crate::Error<Self>) -> StyledStr {
+        let mut styled = StyledStr::new();
+        start_error(&mut styled);
+        if let Some(msg) = error.kind().as_str() {
+            styled.none(msg.to_owned());
+        } else if let Some(source) = error.inner.source.as_ref() {
+            styled.none(source.to_string());
+        } else {
+            styled.none("Unknown cause");
+        }
+        styled.none("\n");
+        styled
     }
 }
 
-/// Dump the error information reported
+/// Dump the error context reported
 #[non_exhaustive]
 pub struct RawFormatter;
 
@@ -59,7 +71,7 @@ impl ErrorFormatter for RawFormatter {
     }
 }
 
-/// Default, rich error format
+/// Richly formatted error context
 #[non_exhaustive]
 pub struct RichFormatter;
 

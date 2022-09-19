@@ -26,7 +26,7 @@ mod kind;
 pub use context::ContextKind;
 pub use context::ContextValue;
 pub use format::ErrorFormatter;
-pub use format::NullFormatter;
+pub use format::KindFormatter;
 pub use format::RawFormatter;
 pub use format::RichFormatter;
 pub use kind::ErrorKind;
@@ -91,12 +91,12 @@ impl<F: ErrorFormatter> Error<F> {
     /// ```rust
     /// # use clap::Command;
     /// # use clap::Arg;
-    /// # use clap::error::NullFormatter;
+    /// # use clap::error::KindFormatter;
     /// let cmd = Command::new("foo")
     ///     .arg(Arg::new("input").required(true));
     /// let matches = cmd
     ///     .try_get_matches_from(["foo", "input.txt"])
-    ///     .map_err(|e| e.apply::<NullFormatter>())
+    ///     .map_err(|e| e.apply::<KindFormatter>())
     ///     .unwrap_or_else(|e| e.exit());
     /// ```
     pub fn apply<EF: ErrorFormatter>(self) -> Error<EF> {
