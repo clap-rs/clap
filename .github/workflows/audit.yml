@@ -10,7 +10,8 @@ on:
       - '**/Cargo.lock'
   schedule:
   - cron: '3 3 3 * *'
-permissions: read
+permissions:
+  contents: read
 jobs:
   security_audit:
     permissions:
