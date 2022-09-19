@@ -219,6 +219,24 @@ impl From<&'_ &'static str> for StyledStr {
     }
 }
 
+impl PartialOrd for StyledStr {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for StyledStr {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.iter().map(cmp_key).cmp(other.iter().map(cmp_key))
+    }
+}
+
+fn cmp_key(c: (Option<Style>, &str)) -> (Option<usize>, &str) {
+    let style = c.0.map(|s| s.as_usize());
+    let content = c.1;
+    (style, content)
+}
+
 /// Color-unaware printing. Never uses coloring.
 impl std::fmt::Display for StyledStr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -239,4 +257,18 @@ pub(crate) enum Style {
     Warning,
     Error,
     Hint,
+}
+
+impl Style {
+    fn as_usize(&self) -> usize {
+        match self {
+            Self::Header => 0,
+            Self::Literal => 1,
+            Self::Placeholder => 2,
+            Self::Good => 3,
+            Self::Warning => 4,
+            Self::Error => 5,
+            Self::Hint => 6,
+        }
+    }
 }
