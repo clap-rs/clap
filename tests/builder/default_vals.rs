@@ -1,9 +1,13 @@
 use std::ffi::OsStr;
 use std::ffi::OsString;
 
-use super::utils;
 use clap::builder::ArgPredicate;
-use clap::{arg, error::ErrorKind, value_parser, Arg, ArgAction, Command};
+#[cfg(feature = "error-context")]
+use clap::error::ErrorKind;
+use clap::{arg, value_parser, Arg, ArgAction, Command};
+
+#[cfg(feature = "error-context")]
+use super::utils;
 
 #[test]
 fn opts() {
@@ -30,6 +34,7 @@ fn default_has_index() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn opt_without_value_fail() {
     let r = Command::new("df")
         .arg(
@@ -694,6 +699,7 @@ fn multiple_defaults_override() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn default_vals_donnot_show_in_smart_usage() {
     let cmd = Command::new("bug")
         .arg(
@@ -773,6 +779,7 @@ fn required_args_with_default_values() {
 
 #[cfg(debug_assertions)]
 #[test]
+#[cfg(feature = "error-context")]
 #[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: \"value\" isn't a valid value for '[arg]'"]
 fn default_values_are_possible_values() {
     use clap::{Arg, Command};
@@ -788,6 +795,7 @@ fn default_values_are_possible_values() {
 
 #[cfg(debug_assertions)]
 #[test]
+#[cfg(feature = "error-context")]
 #[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '[arg]"]
 fn invalid_default_values() {
     use clap::{Arg, Command};
@@ -817,6 +825,7 @@ fn valid_delimited_default_values() {
 
 #[cfg(debug_assertions)]
 #[test]
+#[cfg(feature = "error-context")]
 #[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value \"one\" for '[arg]"]
 fn invalid_delimited_default_values() {
     use clap::{Arg, Command};

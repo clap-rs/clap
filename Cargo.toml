@@ -57,6 +57,7 @@ pre-release-replacements = [
 default = [
   "std",
   "color",
+  "error-context",
   "suggestions",
 ]
 debug = ["clap_derive/debug", "dep:backtrace"] # Enables debug messages
@@ -65,7 +66,8 @@ unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "uns
 # Used in default
 std = [] # support for no_std in a backwards-compatible way
 color = ["dep:atty", "dep:termcolor"]
-suggestions = ["dep:strsim"]
+error-context = []
+suggestions = ["dep:strsim", "error-context"]
 
 # Optional
 deprecated = ["clap_derive?/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)

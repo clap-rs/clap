@@ -1,6 +1,7 @@
 #![cfg(not(tarpaulin))]
 
 #[test]
+#[cfg(feature = "error-context")]
 fn example_tests() {
     let t = trycmd::TestCases::new();
     let features = [

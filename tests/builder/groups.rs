@@ -1,30 +1,6 @@
-use super::utils;
-
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command, Id};
 
-static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
-  <base|--delete>
-
-Usage: clap-test <base|--delete>
-
-For more information try '--help'
-";
-
-static REQ_GROUP_CONFLICT_USAGE: &str = "\
-error: The argument '--delete' cannot be used with '[base]'
-
-Usage: clap-test <base|--delete>
-
-For more information try '--help'
-";
-
-static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str = "\
-error: The argument '--delete' cannot be used with '--all'
-
-Usage: clap-test <--all|--delete>
-
-For more information try '--help'
-";
+use super::utils;
 
 #[test]
 fn required_group_missing_arg() {
@@ -150,7 +126,16 @@ fn empty_group() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn req_group_usage_string() {
+    static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
+  <base|--delete>
+
+Usage: clap-test <base|--delete>
+
+For more information try '--help'
+";
+
     let cmd = Command::new("req_group")
         .arg(arg!([base] "Base commit"))
         .arg(arg!(
@@ -166,7 +151,16 @@ fn req_group_usage_string() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn req_group_with_conflict_usage_string() {
+    static REQ_GROUP_CONFLICT_USAGE: &str = "\
+error: The argument '--delete' cannot be used with '[base]'
+
+Usage: clap-test <base|--delete>
+
+For more information try '--help'
+";
+
     let cmd = Command::new("req_group")
         .arg(arg!([base] "Base commit").conflicts_with("delete"))
         .arg(arg!(
@@ -187,7 +181,16 @@ fn req_group_with_conflict_usage_string() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn req_group_with_conflict_usage_string_only_options() {
+    static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str = "\
+error: The argument '--delete' cannot be used with '--all'
+
+Usage: clap-test <--all|--delete>
+
+For more information try '--help'
+";
+
     let cmd = Command::new("req_group")
         .arg(arg!(-a --all "All").conflicts_with("delete"))
         .arg(arg!(

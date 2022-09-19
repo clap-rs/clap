@@ -136,6 +136,7 @@ struct HexOpt {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn test_parse_hex_function_path() {
     assert_eq!(
         HexOpt { number: 5 },

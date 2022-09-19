@@ -1,66 +1,6 @@
-use super::utils;
-
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
-static VISIBLE_ALIAS_HELP: &str = "\
-Usage: clap-test [COMMAND]
-
-Commands:
-  test  Some help [aliases: dongle, done]
-  help  Print this message or the help of the given subcommand(s)
-
-Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
-";
-
-static INVISIBLE_ALIAS_HELP: &str = "\
-Usage: clap-test [COMMAND]
-
-Commands:
-  test  Some help
-  help  Print this message or the help of the given subcommand(s)
-
-Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
-";
-
-#[cfg(feature = "suggestions")]
-static DYM_SUBCMD: &str = "\
-error: The subcommand 'subcm' wasn't recognized
-
-  Did you mean 'subcmd'?
-
-If you believe you received this message in error, try re-running with 'dym -- subcm'
-
-Usage: dym [COMMAND]
-
-For more information try '--help'
-";
-
-#[cfg(feature = "suggestions")]
-static DYM_SUBCMD_AMBIGUOUS: &str = "\
-error: The subcommand 'te' wasn't recognized
-
-  Did you mean 'test' or 'temp'?
-
-If you believe you received this message in error, try re-running with 'dym -- te'
-
-Usage: dym [COMMAND]
-
-For more information try '--help'
-";
-
-static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
-error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
-
-  If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
-
-Usage: cmd [COMMAND]
-
-For more information try '--help'
-";
+use super::utils;
 
 #[test]
 fn subcommand() {
@@ -154,14 +94,42 @@ fn multiple_aliases() {
 
 #[test]
 #[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output() {
+    #[cfg(feature = "suggestions")]
+    static DYM_SUBCMD: &str = "\
+error: The subcommand 'subcm' wasn't recognized
+
+  Did you mean 'subcmd'?
+
+If you believe you received this message in error, try re-running with 'dym -- subcm'
+
+Usage: dym [COMMAND]
+
+For more information try '--help'
+";
+
     let cmd = Command::new("dym").subcommand(Command::new("subcmd"));
     utils::assert_output(cmd, "dym subcm", DYM_SUBCMD, true);
 }
 
 #[test]
 #[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_ambiguous() {
+    #[cfg(feature = "suggestions")]
+    static DYM_SUBCMD_AMBIGUOUS: &str = "\
+error: The subcommand 'te' wasn't recognized
+
+  Did you mean 'test' or 'temp'?
+
+If you believe you received this message in error, try re-running with 'dym -- te'
+
+Usage: dym [COMMAND]
+
+For more information try '--help'
+";
+
     let cmd = Command::new("dym")
         .subcommand(Command::new("test"))
         .subcommand(Command::new("temp"));
@@ -170,6 +138,7 @@ fn subcmd_did_you_mean_output_ambiguous() {
 
 #[test]
 #[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
 error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
@@ -191,6 +160,7 @@ For more information try '--help'
 
 #[test]
 #[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &str = "\
 error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
@@ -219,6 +189,18 @@ fn alias_help() {
 
 #[test]
 fn visible_aliases_help_output() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Commands:
+  test  Some help [aliases: dongle, done]
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help information
+  -V, --version  Print version information
+";
+
     let cmd = Command::new("clap-test").version("2.6").subcommand(
         Command::new("test")
             .about("Some help")
@@ -231,6 +213,18 @@ fn visible_aliases_help_output() {
 
 #[test]
 fn invisible_aliases_help_output() {
+    static INVISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Commands:
+  test  Some help
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help information
+  -V, --version  Print version information
+";
+
     let cmd = Command::new("clap-test")
         .version("2.6")
         .subcommand(Command::new("test").about("Some help").alias("invisible"));
@@ -361,7 +355,18 @@ fn subcommand_placeholder_test() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn subcommand_used_after_double_dash() {
+    static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
+error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
+
+  If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
+
+Usage: cmd [COMMAND]
+
+For more information try '--help'
+";
+
     let cmd = Command::new("cmd").subcommand(Command::new("subcmd"));
 
     utils::assert_output(cmd, "cmd -- subcmd", SUBCMD_AFTER_DOUBLE_DASH, true);
@@ -421,6 +426,7 @@ fn issue_2494_subcommand_is_present() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn subcommand_not_recognized() {
     let cmd = Command::new("fake")
         .subcommand(Command::new("sub"))
@@ -494,6 +500,7 @@ fn hostname_like_multicall() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn bad_multicall_command_error() {
     let cmd = Command::new("repl")
         .version("1.0.0")

@@ -1,6 +1,7 @@
-use super::utils;
-
 use clap::{error::ErrorKind, Arg, ArgAction, Command};
+
+#[cfg(feature = "error-context")]
+use super::utils;
 
 #[test]
 fn empty_values() {
@@ -102,6 +103,7 @@ fn no_empty_values_without_equals() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn no_empty_values_without_equals_but_requires_equals() {
     let cmd = Command::new("config").arg(
         Arg::new("config")

@@ -1,32 +1,7 @@
-use super::utils;
-
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgMatches, Command};
 
-#[cfg(feature = "suggestions")]
-static DYM: &str = "\
-error: Found argument '--optio' which wasn't expected, or isn't valid in this context
-
-  Did you mean '--option'?
-
-  If you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
-
-Usage: clap-test --option <opt>... [positional] [positional2] [positional3]...
-
-For more information try '--help'
-";
-
-#[cfg(feature = "suggestions")]
-static DYM_ISSUE_1073: &str = "\
-error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
-
-  Did you mean '--files-without-match'?
-
-  If you tried to supply `--files-without-matches` as a value rather than a flag, use `-- --files-without-matches`
-
-Usage: ripgrep-616 --files-without-match
-
-For more information try '--help'
-";
+#[cfg(feature = "error-context")]
+use super::utils;
 
 #[test]
 fn require_equals_fail() {
@@ -44,6 +19,7 @@ fn require_equals_fail() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn require_equals_fail_message() {
     static NO_EQUALS: &str =
         "error: Equal sign is needed when assigning values to '--config=<cfg>'.
@@ -468,7 +444,20 @@ fn leading_hyphen_with_only_pos_follows() {
 
 #[test]
 #[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn did_you_mean() {
+    static DYM: &str = "\
+error: Found argument '--optio' which wasn't expected, or isn't valid in this context
+
+  Did you mean '--option'?
+
+  If you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
+
+Usage: clap-test --option <opt>... [positional] [positional2] [positional3]...
+
+For more information try '--help'
+";
+
     utils::assert_output(utils::complex_app(), "clap-test --optio=foo", DYM, true);
 }
 
@@ -555,7 +544,20 @@ fn issue_1105_empty_value_short_explicit_no_space() {
 
 #[test]
 #[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn issue_1073_suboptimal_flag_suggestion() {
+    static DYM_ISSUE_1073: &str = "\
+error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
+
+  Did you mean '--files-without-match'?
+
+  If you tried to supply `--files-without-matches` as a value rather than a flag, use `-- --files-without-matches`
+
+Usage: ripgrep-616 --files-without-match
+
+For more information try '--help'
+";
+
     let cmd = Command::new("ripgrep-616")
         .arg(
             Arg::new("files-with-matches")

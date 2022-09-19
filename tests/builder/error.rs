@@ -97,6 +97,7 @@ Options:
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn raw_prints_help() {
     let cmd = Command::new("test");
     let res = cmd
@@ -130,6 +131,7 @@ error: Found an argument which wasn't expected or isn't valid in this context
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn rich_formats_validation_error() {
     let cmd = Command::new("test");
     let res = cmd.try_get_matches_from(["test", "unused"]);
@@ -147,6 +149,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn raw_formats_validation_error() {
     let cmd = Command::new("test");
     let res = cmd
