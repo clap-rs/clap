@@ -818,11 +818,11 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             let mut styled = StyledStr::new();
             styled.literal(subcommand.get_name());
             if let Some(short) = subcommand.get_short_flag() {
-                styled.none(" ");
+                styled.none(", ");
                 styled.literal(format!("-{}", short));
             }
             if let Some(long) = subcommand.get_long_flag() {
-                styled.none(" ");
+                styled.none(", ");
                 styled.literal(format!("--{}", long));
             }
             longest = longest.max(styled.display_width());
