@@ -4,13 +4,25 @@ use crate::output::textwrap;
 /// Terminal-styling container
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
 pub struct StyledStr {
+    #[cfg(feature = "color")]
     pieces: Vec<(Option<Style>, String)>,
+    #[cfg(not(feature = "color"))]
+    pieces: String,
 }
 
 impl StyledStr {
     /// Create an empty buffer
+    #[cfg(feature = "color")]
     pub const fn new() -> Self {
         Self { pieces: Vec::new() }
+    }
+
+    /// Create an empty buffer
+    #[cfg(not(feature = "color"))]
+    pub const fn new() -> Self {
+        Self {
+            pieces: String::new(),
+        }
     }
 
     pub(crate) fn header(&mut self, msg: impl Into<String>) {
@@ -57,37 +69,43 @@ impl StyledStr {
     }
 
     pub(crate) fn trim_start(&mut self) {
-        if let Some((_, item)) = self.pieces.first_mut() {
+        if let Some((_, item)) = self.iter_mut().next() {
             *item = item.trim_start().to_owned();
         }
     }
 
+    #[cfg(feature = "color")]
     pub(crate) fn trim_end(&mut self) {
         if let Some((_, item)) = self.pieces.last_mut() {
             *item = item.trim_end().to_owned();
         }
     }
 
+    #[cfg(not(feature = "color"))]
+    pub(crate) fn trim_end(&mut self) {
+        self.pieces = self.pieces.trim_end().to_owned();
+    }
+
     pub(crate) fn replace_newline(&mut self) {
-        for (_, content) in &mut self.pieces {
+        for (_, content) in self.iter_mut() {
             *content = content.replace("{n}", "\n");
         }
     }
 
     pub(crate) fn indent(&mut self, initial: &str, trailing: &str) {
-        if let Some((_, first)) = self.pieces.first_mut() {
+        if let Some((_, first)) = self.iter_mut().next() {
             first.insert_str(0, initial);
         }
         let mut line_sep = "\n".to_owned();
         line_sep.push_str(trailing);
-        for (_, content) in &mut self.pieces {
+        for (_, content) in self.iter_mut() {
             *content = content.replace('\n', &line_sep);
         }
     }
 
     pub(crate) fn wrap(&mut self, hard_width: usize) {
         let mut wrapper = textwrap::wrap_algorithms::LineWrapper::new(hard_width);
-        for (_, content) in &mut self.pieces {
+        for (_, content) in self.iter_mut() {
             let mut total = Vec::new();
             for (i, line) in content.split_inclusive('\n').enumerate() {
                 if 0 < i {
@@ -101,21 +119,26 @@ impl StyledStr {
             let total = total.join("");
             *content = total;
         }
-        if let Some((_, last)) = self.pieces.last_mut() {
-            *last = last.trim_end().to_owned();
-        }
+
+        self.trim_end();
     }
 
+    #[cfg(feature = "color")]
     fn stylize_(&mut self, style: Option<Style>, msg: String) {
         if !msg.is_empty() {
             self.pieces.push((style, msg));
         }
     }
 
+    #[cfg(not(feature = "color"))]
+    fn stylize_(&mut self, _style: Option<Style>, msg: String) {
+        self.pieces.push_str(&msg);
+    }
+
     #[inline(never)]
     pub(crate) fn display_width(&self) -> usize {
         let mut width = 0;
-        for (_, c) in &self.pieces {
+        for (_, c) in self.iter() {
             width += display_width(c);
         }
         width
@@ -125,12 +148,34 @@ impl StyledStr {
         self.pieces.is_empty()
     }
 
+    #[cfg(feature = "color")]
     pub(crate) fn iter(&self) -> impl Iterator<Item = (Option<Style>, &str)> {
         self.pieces.iter().map(|(s, c)| (*s, c.as_str()))
     }
 
+    #[cfg(not(feature = "color"))]
+    pub(crate) fn iter(&self) -> impl Iterator<Item = (Option<Style>, &str)> {
+        [(None, self.pieces.as_str())].into_iter()
+    }
+
+    #[cfg(feature = "color")]
+    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = (Option<Style>, &mut String)> {
+        self.pieces.iter_mut().map(|(s, c)| (*s, c))
+    }
+
+    #[cfg(not(feature = "color"))]
+    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = (Option<Style>, &mut String)> {
+        [(None, &mut self.pieces)].into_iter()
+    }
+
+    #[cfg(feature = "color")]
     pub(crate) fn into_iter(self) -> impl Iterator<Item = (Option<Style>, String)> {
         self.pieces.into_iter()
+    }
+
+    #[cfg(not(feature = "color"))]
+    pub(crate) fn into_iter(self) -> impl Iterator<Item = (Option<Style>, String)> {
+        [(None, self.pieces)].into_iter()
     }
 
     pub(crate) fn extend(
@@ -241,7 +286,7 @@ fn cmp_key(c: (Option<Style>, &str)) -> (Option<usize>, &str) {
 /// Color-unaware printing. Never uses coloring.
 impl std::fmt::Display for StyledStr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        for (_, content) in &self.pieces {
+        for (_, content) in self.iter() {
             std::fmt::Display::fmt(content, f)?;
         }
 
