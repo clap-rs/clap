@@ -98,9 +98,9 @@ Additionally, to avoid `ArgMatches` from borrowing (and for some features we
 decided to forgo), clap took the `&str` argument IDs and hashed them.  This
 prevented us from providing a usable API for iterating over existing arguments.
 
-Now clap has switched to a String newtype that gives us the flexibility to
-decide whether we want to focus on performance with `Cow<'static, str>` or
-compile times with `Box<str>`.
+Now clap has switched to a string newtype that gives us the flexibility to
+decide whether to use `&'static str`, `Cow<'static, str>` for fast dynamic behavior, or
+`Box<str>` for dynamic behavior with small binary size.
 
 As an extension of that work, you can now call `ArgMatches::ids` to iterate
 over the arguments and groups that were found when parsing.  The newtype `Id`
@@ -182,7 +182,7 @@ Subtle changes (i.e. compiler won't catch):
   - `ArgAction::Append`, requiring `ArgMatches::get_many` instead of `ArgMatches::values_of`
 - By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::IncOccurrence` to reduce confusing magic through consistency (#2687, #4032, see also #3977)
 - `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own (#4056)
-- Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`
+- Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`, assuming `'static`.  `string` feature flag will enable support for `String`s (#1041, #2150, #4223)
 - `arg!(--flag <value>)` is now optional, instead of required.  Add `.required(true)` at the end to restore the original behavior (#4206)
 - *(parser)* Always fill in `""` argument for external subcommands to make it easier to distinguish them from built-in commands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, to be consistent with `Command::allow_hyphen_values` (#4187)
@@ -199,6 +199,7 @@ Subtle changes (i.e. compiler won't catch):
 - *(derive)* Leave `Arg::id` as `verbatim` casing, requiring updating of string references to other args like in `conflicts_with` or `requires` (#3282)
 - *(derive)* Doc comments for `ValueEnum` variants will now show up in `--help` (#3312)
 - *(derive)* When deriving `Args`, and `ArgGroup` is created using the type's name, reserving it for future use (#2621, #4209)
+- *(derive)* `next_help_heading` can now leak out of a `#[clap(flatten)]`, like all other command settings (#4222)
 
 Easier to catch changes:
 
@@ -229,7 +230,6 @@ Easier to catch changes:
   - `#[clap(value_parser)]` and `#[clap(action)]` are now redundant
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` to give more meaningful errors when subcommands are missing and to reduce redundancy (#3280)
 - *(derive)* Remove `arg_enum` attribute in favor of `value_enum` to match the new name (we didn't have support in v3 to mark it deprecated) (#4127)
-- *(derive)* `next_help_heading` can now leak out of a `#[clap(flatten)]`, like all other command settings
 - *(parser)* Assert when the CLI looksup an unknown args when external subcommand support is enabled to help catch bugs (#3703)
 - *(assert)* Sometimes `Arg::default_missing_value` didn't require `num_args(0..=N)`, now it does (#4023)
 - *(assert)* Leading dashes in `Arg::long` are no longer allowed (#3691)
@@ -266,6 +266,7 @@ Behavior Changes
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence (#2688, #4023)
 - Allow non-bool `value_parser`s for `ArgAction::SetTrue` / `ArgAction::SetFalse` (#4092)
 - Allow resetting most builder methods
+- Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes with the `string` feature flag (#2150, #4223)
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
@@ -277,7 +278,6 @@ Behavior Changes
 - `Arg::default_missing_value` now applies per occurrence rather than if a value is missing across all occurrences (#3998)
 - `arg!(--long [value])` to accept `0..=1` per occurrence rather than across all occurrences, making it safe to use with `ArgAction::Append` (#4001)
 - Allow `OsStr`s for `Arg::{required_if_eq,required_if_eq_any,required_if_eq_all}` (#4084)
-- Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes
 - *(help)* With `wrap_help` feature, if the terminal size cannot be determined, `LINES` and `COLUMNS` variables are used (#4186)
 - *(help)* Use `Command::display_name` in the help title rather than `Command::bin_name`
 - *(help)* Show when a flag is `ArgAction::Count` by adding an `...` (#4003)
@@ -293,6 +293,8 @@ Behavior Changes
 - *(help)* Shorten help by eliding name/version/author (#4132, #4160)
 - *(help)* When short help is long enough to activate `next_line_help`, don't add blank lines (#4132, #4190)
 - *(help)* Make help output more dense (reducing horizontal whitespace) (#4132, #4192)
+- *(help)* Separate subcommand flags with "," like option flags (#4232, #4235)
+- *(help)* Quote the suggested help flag (#4220)
 - *(version)* Use `Command::display_name` rather than `Command::bin_name` (#3966)
 - *(parser)* Always fill in `""` argument for external subcommands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, like `Command::allow_hyphen_values` (#4187)
