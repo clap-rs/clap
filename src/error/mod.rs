@@ -31,6 +31,8 @@ pub use format::RawFormatter;
 pub use format::RichFormatter;
 pub use kind::ErrorKind;
 
+pub use RichFormatter as DefaultFormatter;
+
 /// Short hand for [`Result`] type
 ///
 /// [`Result`]: std::result::Result
@@ -41,7 +43,7 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 /// See [`Command::error`] to create an error.
 ///
 /// [`Command::error`]: crate::Command::error
-pub struct Error<F: ErrorFormatter = RichFormatter> {
+pub struct Error<F: ErrorFormatter = DefaultFormatter> {
     inner: Box<ErrorInner>,
     phantom: std::marker::PhantomData<F>,
 }
