@@ -40,9 +40,9 @@ package manager utility
 Usage: pacman[EXE] <COMMAND>
 
 Commands:
-  query -Q --query  Query the package database.
-  sync -S --sync    Synchronize packages.
-  help              Print this message or the help of the given subcommand(s)
+  query, -Q, --query  Query the package database.
+  sync, -S, --sync    Synchronize packages.
+  help                Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help     Print help information

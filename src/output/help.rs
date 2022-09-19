@@ -1,7 +1,6 @@
 // Std
 use std::borrow::Cow;
 use std::cmp;
-use std::fmt::Write as _;
 use std::usize;
 
 // Internal
@@ -816,16 +815,18 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
             .get_subcommands()
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
-            let mut sc_str = String::new();
-            sc_str.push_str(subcommand.get_name());
+            let mut styled = StyledStr::new();
+            styled.literal(subcommand.get_name());
             if let Some(short) = subcommand.get_short_flag() {
-                write!(sc_str, " -{}", short).unwrap();
+                styled.none(", ");
+                styled.literal(format!("-{}", short));
             }
             if let Some(long) = subcommand.get_long_flag() {
-                write!(sc_str, " --{}", long).unwrap();
+                styled.none(", ");
+                styled.literal(format!("--{}", long));
             }
-            longest = longest.max(display_width(&sc_str));
-            ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
+            longest = longest.max(styled.display_width());
+            ord_v.push((subcommand.get_display_order(), styled, subcommand));
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 
@@ -834,7 +835,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
 
         let mut first = true;
-        for (_, sc_str, sc) in &ord_v {
+        for (_, sc_str, sc) in ord_v {
             if first {
                 first = false;
             } else {
@@ -861,7 +862,7 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
 
     fn write_subcommand(
         &mut self,
-        sc_str: &str,
+        sc_str: StyledStr,
         cmd: &Command,
         next_line_help: bool,
         longest: usize,
@@ -921,11 +922,12 @@ impl<'cmd, 'writer> Help<'cmd, 'writer> {
     }
 
     /// Writes subcommand to the wrapped stream.
-    fn subcmd(&mut self, sc_str: &str, next_line_help: bool, longest: usize) {
+    fn subcmd(&mut self, sc_str: StyledStr, next_line_help: bool, longest: usize) {
+        let width = sc_str.display_width();
+
         self.none(TAB);
-        self.literal(sc_str);
+        self.writer.extend(sc_str.into_iter());
         if !next_line_help {
-            let width = display_width(sc_str);
             self.spaces(width.max(longest + TAB_WIDTH) - width);
         }
     }
