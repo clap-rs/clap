@@ -4074,10 +4074,6 @@ impl Arg {
         }
     }
 
-    pub(crate) fn longest_filter(&self) -> bool {
-        self.is_takes_value_set() || self.long.is_some() || self.short.is_none()
-    }
-
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> String {
         debug!("Arg::name_no_brackets:{}", self.get_id());

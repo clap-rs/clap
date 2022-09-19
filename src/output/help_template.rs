@@ -278,7 +278,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.none("\n");
             }
             let mut output = output.clone();
-            output.replace_newline();
+            replace_newline_var(&mut output);
             output.wrap(self.term_w);
             self.writer.extend(output.into_iter());
             if after_new_line {
@@ -298,7 +298,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         };
         if let Some(output) = before_help {
             let mut output = output.clone();
-            output.replace_newline();
+            replace_newline_var(&mut output);
             output.wrap(self.term_w);
             self.writer.extend(output.into_iter());
             self.none("\n\n");
@@ -317,7 +317,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         if let Some(output) = after_help {
             self.none("\n\n");
             let mut output = output.clone();
-            output.replace_newline();
+            replace_newline_var(&mut output);
             output.wrap(self.term_w);
             self.writer.extend(output.into_iter());
         }
@@ -332,12 +332,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         debug!("HelpTemplate::write_all_args");
         let pos = self
             .cmd
-            .get_positionals_with_no_heading()
+            .get_positionals()
+            .filter(|a| a.get_help_heading().is_none())
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
         let non_pos = self
             .cmd
-            .get_non_positionals_with_no_heading()
+            .get_non_positionals()
+            .filter(|a| a.get_help_heading().is_none())
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
         let subcmds = self.cmd.has_visible_subcommands();
@@ -423,7 +425,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             // args alignment
             should_show_arg(self.use_long, *arg)
         }) {
-            if arg.longest_filter() {
+            if longest_filter(arg) {
                 longest = longest.max(display_width(&arg.to_string()));
                 debug!(
                     "HelpTemplate::write_args: arg={:?} longest={}",
@@ -567,7 +569,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         let trailing_indent = self.get_spaces(trailing_indent);
 
         let mut help = about.clone();
-        help.replace_newline();
+        replace_newline_var(&mut help);
         if !spec_vals.is_empty() {
             if !help.is_empty() {
                 let sep = if self.use_long && arg.is_some() {
@@ -655,7 +657,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         };
 
                         let mut help = help.clone();
-                        help.replace_newline();
+                        replace_newline_var(&mut help);
                         help.wrap(avail_chars);
                         help.indent("", &trailing_indent);
                         self.writer.extend(help.into_iter());
@@ -1000,6 +1002,16 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
 
 fn should_show_subcommand(subcommand: &Command) -> bool {
     !subcommand.is_hide_set()
+}
+
+fn replace_newline_var(styled: &mut StyledStr) {
+    for (_, content) in styled.iter_mut() {
+        *content = content.replace("{n}", "\n");
+    }
+}
+
+fn longest_filter(arg: &Arg) -> bool {
+    arg.is_takes_value_set() || arg.long.is_some() || arg.short.is_none()
 }
 
 #[cfg(test)]

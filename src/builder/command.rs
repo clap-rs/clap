@@ -4283,18 +4283,6 @@ impl Command {
         self.get_arguments().filter(|a| !a.is_positional())
     }
 
-    /// Iterate through the *positionals* that don't have custom heading.
-    pub(crate) fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg> {
-        self.get_positionals()
-            .filter(|a| a.get_help_heading().is_none())
-    }
-
-    /// Iterate through the *flags* & *options* that don't have custom heading.
-    pub(crate) fn get_non_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg> {
-        self.get_non_positionals()
-            .filter(|a| a.get_help_heading().is_none())
-    }
-
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg> {
         self.args.args().find(|a| a.id == *arg_id)
     }

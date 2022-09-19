@@ -86,12 +86,6 @@ impl StyledStr {
         self.pieces = self.pieces.trim_end().to_owned();
     }
 
-    pub(crate) fn replace_newline(&mut self) {
-        for (_, content) in self.iter_mut() {
-            *content = content.replace("{n}", "\n");
-        }
-    }
-
     pub(crate) fn indent(&mut self, initial: &str, trailing: &str) {
         if let Some((_, first)) = self.iter_mut().next() {
             first.insert_str(0, initial);
