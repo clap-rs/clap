@@ -1,6 +1,8 @@
-use super::utils;
+#![cfg(feature = "help")]
 
 use clap::{arg, builder::PossibleValue, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
+
+use super::utils;
 
 fn setup() -> Command {
     Command::new("test")
@@ -52,6 +54,7 @@ fn help_subcommand() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn help_multi_subcommand_error() {
     let cmd = Command::new("ctest").subcommand(
         Command::new("subcmd").subcommand(

@@ -1,5 +1,11 @@
 //! Error reporting
 
+#![cfg_attr(not(feature = "error-context"), allow(dead_code))]
+#![cfg_attr(not(feature = "error-context"), allow(unused_imports))]
+#![cfg_attr(not(feature = "error-context"), allow(unused_variables))]
+#![cfg_attr(not(feature = "error-context"), allow(unused_mut))]
+#![cfg_attr(not(feature = "error-context"), allow(clippy::let_and_return))]
+
 // Std
 use std::{
     borrow::Cow,
@@ -19,17 +25,28 @@ use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE};
 use crate::Command;
 
+#[cfg(feature = "error-context")]
 mod context;
 mod format;
 mod kind;
 
-pub use context::ContextKind;
-pub use context::ContextValue;
 pub use format::ErrorFormatter;
-pub use format::NullFormatter;
-pub use format::RawFormatter;
-pub use format::RichFormatter;
+pub use format::KindFormatter;
 pub use kind::ErrorKind;
+
+#[cfg(feature = "error-context")]
+pub use context::ContextKind;
+#[cfg(feature = "error-context")]
+pub use context::ContextValue;
+#[cfg(feature = "error-context")]
+pub use format::RawFormatter;
+#[cfg(feature = "error-context")]
+pub use format::RichFormatter;
+
+#[cfg(not(feature = "error-context"))]
+pub use KindFormatter as DefaultFormatter;
+#[cfg(feature = "error-context")]
+pub use RichFormatter as DefaultFormatter;
 
 /// Short hand for [`Result`] type
 ///
@@ -41,7 +58,7 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 /// See [`Command::error`] to create an error.
 ///
 /// [`Command::error`]: crate::Command::error
-pub struct Error<F: ErrorFormatter = RichFormatter> {
+pub struct Error<F: ErrorFormatter = DefaultFormatter> {
     inner: Box<ErrorInner>,
     phantom: std::marker::PhantomData<F>,
 }
@@ -49,6 +66,7 @@ pub struct Error<F: ErrorFormatter = RichFormatter> {
 #[derive(Debug)]
 struct ErrorInner {
     kind: ErrorKind,
+    #[cfg(feature = "error-context")]
     context: FlatMap<ContextKind, ContextValue>,
     message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
@@ -89,12 +107,12 @@ impl<F: ErrorFormatter> Error<F> {
     /// ```rust
     /// # use clap::Command;
     /// # use clap::Arg;
-    /// # use clap::error::NullFormatter;
+    /// # use clap::error::KindFormatter;
     /// let cmd = Command::new("foo")
     ///     .arg(Arg::new("input").required(true));
     /// let matches = cmd
     ///     .try_get_matches_from(["foo", "input.txt"])
-    ///     .map_err(|e| e.apply::<NullFormatter>())
+    ///     .map_err(|e| e.apply::<KindFormatter>())
     ///     .unwrap_or_else(|e| e.exit());
     /// ```
     pub fn apply<EF: ErrorFormatter>(self) -> Error<EF> {
@@ -110,12 +128,14 @@ impl<F: ErrorFormatter> Error<F> {
     }
 
     /// Additional information to further qualify the error
+    #[cfg(feature = "error-context")]
     pub fn context(&self) -> impl Iterator<Item = (ContextKind, &ContextValue)> {
         self.inner.context.iter().map(|(k, v)| (*k, v))
     }
 
     /// Lookup a piece of context
     #[inline(never)]
+    #[cfg(feature = "error-context")]
     pub fn get(&self, kind: ContextKind) -> Option<&ContextValue> {
         self.inner.context.get(&kind)
     }
@@ -181,6 +201,7 @@ impl<F: ErrorFormatter> Error<F> {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
+                #[cfg(feature = "error-context")]
                 context: FlatMap::new(),
                 message: None,
                 source: None,
@@ -231,6 +252,7 @@ impl<F: ErrorFormatter> Error<F> {
 
     /// Does not verify if `ContextKind` is already present
     #[inline(never)]
+    #[cfg(feature = "error-context")]
     pub(crate) fn insert_context_unchecked(
         mut self,
         kind: ContextKind,
@@ -242,6 +264,7 @@ impl<F: ErrorFormatter> Error<F> {
 
     /// Does not verify if `ContextKind` is already present
     #[inline(never)]
+    #[cfg(feature = "error-context")]
     pub(crate) fn extend_context_unchecked<const N: usize>(
         mut self,
         context: [(ContextKind, ContextValue); N],
@@ -270,33 +293,48 @@ impl<F: ErrorFormatter> Error<F> {
         cmd: &Command,
         arg: String,
         mut others: Vec<String>,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
-        let others = match others.len() {
-            0 => ContextValue::None,
-            1 => ContextValue::String(others.pop().unwrap()),
-            _ => ContextValue::Strings(others),
-        };
-        Self::new(ErrorKind::ArgumentConflict)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::ArgumentConflict).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            let others = match others.len() {
+                0 => ContextValue::None,
+                1 => ContextValue::String(others.pop().unwrap()),
+                _ => ContextValue::Strings(others),
+            };
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::PriorArg, others),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn empty_value(cmd: &Command, good_vals: &[String], arg: String) -> Self {
         Self::invalid_value(cmd, "".to_owned(), good_vals, arg)
     }
 
-    pub(crate) fn no_equals(cmd: &Command, arg: String, usage: StyledStr) -> Self {
-        Self::new(ErrorKind::NoEquals)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+    pub(crate) fn no_equals(cmd: &Command, arg: String, usage: Option<StyledStr>) -> Self {
+        let mut err = Self::new(ErrorKind::NoEquals).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err
+                .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn invalid_value(
@@ -306,9 +344,11 @@ impl<F: ErrorFormatter> Error<F> {
         arg: String,
     ) -> Self {
         let suggestion = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
-        let mut err = Self::new(ErrorKind::InvalidValue)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::InvalidValue).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::InvalidValue, ContextValue::String(bad_val)),
                 (
@@ -316,12 +356,14 @@ impl<F: ErrorFormatter> Error<F> {
                     ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
                 ),
             ]);
-        if let Some(suggestion) = suggestion {
-            err = err.insert_context_unchecked(
-                ContextKind::SuggestedValue,
-                ContextValue::String(suggestion),
-            );
+            if let Some(suggestion) = suggestion {
+                err = err.insert_context_unchecked(
+                    ContextKind::SuggestedValue,
+                    ContextValue::String(suggestion),
+                );
+            }
         }
+
         err
     }
 
@@ -330,12 +372,14 @@ impl<F: ErrorFormatter> Error<F> {
         subcmd: String,
         did_you_mean: String,
         name: String,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
         let suggestion = format!("{} -- {}", name, subcmd);
-        Self::new(ErrorKind::InvalidSubcommand)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
                 (
                     ContextKind::SuggestedSubcommand,
@@ -345,60 +389,117 @@ impl<F: ErrorFormatter> Error<F> {
                     ContextKind::SuggestedCommand,
                     ContextValue::String(suggestion),
                 ),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
-    pub(crate) fn unrecognized_subcommand(cmd: &Command, subcmd: String, usage: StyledStr) -> Self {
-        Self::new(ErrorKind::InvalidSubcommand)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+    pub(crate) fn unrecognized_subcommand(
+        cmd: &Command,
+        subcmd: String,
+        usage: Option<StyledStr>,
+    ) -> Self {
+        let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([(
+                ContextKind::InvalidSubcommand,
+                ContextValue::String(subcmd),
+            )]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn missing_required_argument(
         cmd: &Command,
         required: Vec<String>,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
-        Self::new(ErrorKind::MissingRequiredArgument)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::Strings(required)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+        let mut err = Self::new(ErrorKind::MissingRequiredArgument).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([(
+                ContextKind::InvalidArg,
+                ContextValue::Strings(required),
+            )]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
-    pub(crate) fn missing_subcommand(cmd: &Command, name: String, usage: StyledStr) -> Self {
-        Self::new(ErrorKind::MissingSubcommand)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidSubcommand, ContextValue::String(name)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+    pub(crate) fn missing_subcommand(
+        cmd: &Command,
+        name: String,
+        usage: Option<StyledStr>,
+    ) -> Self {
+        let mut err = Self::new(ErrorKind::MissingSubcommand).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([(
+                ContextKind::InvalidSubcommand,
+                ContextValue::String(name),
+            )]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
-    pub(crate) fn invalid_utf8(cmd: &Command, usage: StyledStr) -> Self {
-        Self::new(ErrorKind::InvalidUtf8)
-            .with_cmd(cmd)
-            .extend_context_unchecked([(ContextKind::Usage, ContextValue::StyledStr(usage))])
+    pub(crate) fn invalid_utf8(cmd: &Command, usage: Option<StyledStr>) -> Self {
+        let mut err = Self::new(ErrorKind::InvalidUtf8).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn too_many_values(
         cmd: &Command,
         val: String,
         arg: String,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
-        Self::new(ErrorKind::TooManyValues)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::TooManyValues).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::InvalidValue, ContextValue::String(val)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn too_few_values(
@@ -406,11 +507,13 @@ impl<F: ErrorFormatter> Error<F> {
         arg: String,
         min_vals: usize,
         curr_vals: usize,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
-        Self::new(ErrorKind::TooFewValues)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::TooFewValues).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (
                     ContextKind::MinValues,
@@ -420,8 +523,14 @@ impl<F: ErrorFormatter> Error<F> {
                     ContextKind::ActualNumValues,
                     ContextValue::Number(curr_vals as isize),
                 ),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn value_validation(
@@ -429,12 +538,17 @@ impl<F: ErrorFormatter> Error<F> {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        Self::new(ErrorKind::ValueValidation)
-            .set_source(err)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::ValueValidation).set_source(err);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::InvalidValue, ContextValue::String(val)),
-            ])
+            ]);
+        }
+
+        err
     }
 
     pub(crate) fn wrong_number_of_values(
@@ -442,11 +556,13 @@ impl<F: ErrorFormatter> Error<F> {
         arg: String,
         num_vals: usize,
         curr_vals: usize,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
-        Self::new(ErrorKind::WrongNumberOfValues)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+        let mut err = Self::new(ErrorKind::WrongNumberOfValues).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (
                     ContextKind::ExpectedNumValues,
@@ -456,45 +572,69 @@ impl<F: ErrorFormatter> Error<F> {
                     ContextKind::ActualNumValues,
                     ContextValue::Number(curr_vals as isize),
                 ),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     pub(crate) fn unknown_argument(
         cmd: &Command,
         arg: String,
         did_you_mean: Option<(String, Option<String>)>,
-        usage: StyledStr,
+        usage: Option<StyledStr>,
     ) -> Self {
-        let mut err = Self::new(ErrorKind::UnknownArgument)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ]);
-        if let Some((flag, sub)) = did_you_mean {
-            err = err.insert_context_unchecked(
-                ContextKind::SuggestedArg,
-                ContextValue::String(format!("--{}", flag)),
-            );
-            if let Some(sub) = sub {
+        let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err
+                .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+            if let Some((flag, sub)) = did_you_mean {
                 err = err.insert_context_unchecked(
-                    ContextKind::SuggestedSubcommand,
-                    ContextValue::String(sub),
+                    ContextKind::SuggestedArg,
+                    ContextValue::String(format!("--{}", flag)),
                 );
+                if let Some(sub) = sub {
+                    err = err.insert_context_unchecked(
+                        ContextKind::SuggestedSubcommand,
+                        ContextValue::String(sub),
+                    );
+                }
             }
         }
+
         err
     }
 
-    pub(crate) fn unnecessary_double_dash(cmd: &Command, arg: String, usage: StyledStr) -> Self {
-        Self::new(ErrorKind::UnknownArgument)
-            .with_cmd(cmd)
-            .extend_context_unchecked([
+    pub(crate) fn unnecessary_double_dash(
+        cmd: &Command,
+        arg: String,
+        usage: Option<StyledStr>,
+    ) -> Self {
+        let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::TrailingArg, ContextValue::Bool(true)),
-                (ContextKind::Usage, ContextValue::StyledStr(usage)),
-            ])
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
     }
 
     fn formatted(&self) -> Cow<'_, StyledStr> {
@@ -552,13 +692,13 @@ pub(crate) enum Message {
 }
 
 impl Message {
-    fn format(&mut self, cmd: &Command, usage: StyledStr) {
+    fn format(&mut self, cmd: &Command, usage: Option<StyledStr>) {
         match self {
             Message::Raw(s) => {
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
 
-                let styled = format::format_error_message(&message, Some(cmd), Some(usage));
+                let styled = format::format_error_message(&message, Some(cmd), usage);
 
                 *self = Self::Formatted(styled);
             }

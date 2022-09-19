@@ -1,9 +1,13 @@
 #![allow(missing_copy_implementations)]
 #![allow(missing_debug_implementations)]
+#![cfg_attr(not(feature = "error-context"), allow(dead_code))]
+#![cfg_attr(not(feature = "error-context"), allow(unused_imports))]
 
 use crate::builder::Command;
 use crate::builder::StyledStr;
+#[cfg(feature = "error-context")]
 use crate::error::ContextKind;
+#[cfg(feature = "error-context")]
 use crate::error::ContextValue;
 use crate::error::ErrorKind;
 use crate::output::TAB;
@@ -14,20 +18,37 @@ pub trait ErrorFormatter: Sized {
     fn format_error(error: &crate::Error<Self>) -> StyledStr;
 }
 
-/// No error information reported
+/// Report [`ErrorKind`]
+///
+/// No context is included.
+///
+/// **NOTE:** Consider removing the [`error-context`][crate::_features] default feature if using this to remove all
+/// overhead for [`RichFormatter`].
 #[non_exhaustive]
-pub struct NullFormatter;
+pub struct KindFormatter;
 
-impl ErrorFormatter for NullFormatter {
-    fn format_error(_error: &crate::Error<Self>) -> StyledStr {
-        StyledStr::new()
+impl ErrorFormatter for KindFormatter {
+    fn format_error(error: &crate::Error<Self>) -> StyledStr {
+        let mut styled = StyledStr::new();
+        start_error(&mut styled);
+        if let Some(msg) = error.kind().as_str() {
+            styled.none(msg.to_owned());
+        } else if let Some(source) = error.inner.source.as_ref() {
+            styled.none(source.to_string());
+        } else {
+            styled.none("Unknown cause");
+        }
+        styled.none("\n");
+        styled
     }
 }
 
-/// Dump the error information reported
+/// Dump the error context reported
 #[non_exhaustive]
+#[cfg(feature = "error-context")]
 pub struct RawFormatter;
 
+#[cfg(feature = "error-context")]
 impl ErrorFormatter for RawFormatter {
     fn format_error(error: &crate::Error<Self>) -> StyledStr {
         let mut styled = StyledStr::new();
@@ -59,10 +80,12 @@ impl ErrorFormatter for RawFormatter {
     }
 }
 
-/// Default, rich error format
+/// Richly formatted error context
 #[non_exhaustive]
+#[cfg(feature = "error-context")]
 pub struct RichFormatter;
 
+#[cfg(feature = "error-context")]
 impl ErrorFormatter for RichFormatter {
     fn format_error(error: &crate::Error<Self>) -> StyledStr {
         let mut styled = StyledStr::new();
@@ -95,6 +118,7 @@ fn start_error(styled: &mut StyledStr) {
 }
 
 #[must_use]
+#[cfg(feature = "error-context")]
 fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
     match error.kind() {
         ErrorKind::ArgumentConflict => {

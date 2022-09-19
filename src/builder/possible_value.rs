@@ -1,5 +1,3 @@
-use std::{borrow::Cow, iter};
-
 use crate::builder::IntoResettable;
 use crate::builder::Str;
 use crate::builder::StyledStr;
@@ -157,6 +155,7 @@ impl PossibleValue {
     /// Get the help specified for this argument, if any and the argument
     /// value is not hidden
     #[inline]
+    #[cfg(feature = "help")]
     pub(crate) fn get_visible_help(&self) -> Option<&StyledStr> {
         if !self.hide {
             self.get_help()
@@ -178,7 +177,8 @@ impl PossibleValue {
 
     /// Get the name if argument value is not hidden, `None` otherwise,
     /// but wrapped in quotes if it contains whitespace
-    pub(crate) fn get_visible_quoted_name(&self) -> Option<Cow<'_, str>> {
+    #[cfg(feature = "help")]
+    pub(crate) fn get_visible_quoted_name(&self) -> Option<std::borrow::Cow<'_, str>> {
         if !self.hide {
             Some(if self.name.contains(char::is_whitespace) {
                 format!("{:?}", self.name).into()
@@ -194,7 +194,7 @@ impl PossibleValue {
     ///
     /// Namely the name and all aliases.
     pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> + '_ {
-        iter::once(self.get_name()).chain(self.aliases.iter().map(|s| s.as_str()))
+        std::iter::once(self.get_name()).chain(self.aliases.iter().map(|s| s.as_str()))
     }
 
     /// Tests if the value is valid for this argument value

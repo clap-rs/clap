@@ -1107,7 +1107,8 @@ impl Arg {
     /// # ;
     /// ```
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("config")
@@ -1168,7 +1169,8 @@ impl Arg {
     ///     .value_names(["fast", "slow"]);
     /// ```
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("io")
@@ -1991,7 +1993,8 @@ impl Arg {
     /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2040,7 +2043,8 @@ impl Arg {
     /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2096,7 +2100,8 @@ impl Arg {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("a") // Typically args are grouped alphabetically by name.
@@ -2162,7 +2167,8 @@ impl Arg {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -2212,7 +2218,8 @@ impl Arg {
     ///
     /// Setting `Hidden` will hide the argument when displaying help text
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2385,7 +2392,8 @@ impl Arg {
     ///
     /// Setting `hide_short_help(true)` will hide the argument when displaying short help text
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2411,7 +2419,8 @@ impl Arg {
     ///
     /// However, when --help is called
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2456,7 +2465,8 @@ impl Arg {
     ///
     /// Setting `hide_long_help(true)` will hide the argument when displaying long help text
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2482,7 +2492,8 @@ impl Arg {
     ///
     /// However, when -h is called
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -4074,10 +4085,6 @@ impl Arg {
         }
     }
 
-    pub(crate) fn longest_filter(&self) -> bool {
-        self.is_takes_value_set() || self.long.is_some() || self.short.is_none()
-    }
-
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> String {
         debug!("Arg::name_no_brackets:{}", self.get_id());
@@ -4200,6 +4207,7 @@ impl Arg {
         self.is_multiple_values_set() || matches!(*self.get_action(), ArgAction::Append)
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
     }

@@ -11,7 +11,7 @@ publish = false
 release = false
 
 [dev-dependencies]
-clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std"] }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std", "help"] }
 criterion = "0.3.2"
 lazy_static = "1"
 

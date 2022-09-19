@@ -1,15 +1,7 @@
-use super::utils;
 use clap::{arg, Arg, ArgAction, Command};
 
-const USE_FLAG_AS_ARGUMENT: &str = "\
-error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
-
-  If you tried to supply `--another-flag` as a value rather than a flag, use `-- --another-flag`
-
-Usage: mycat [OPTIONS] [filename]
-
-For more information try '--help'
-";
+#[cfg(feature = "error-context")]
+use super::utils;
 
 #[test]
 fn flag_using_short() {
@@ -143,7 +135,18 @@ fn multiple_flags_in_single() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn issue_1284_argument_in_flag_style() {
+    const USE_FLAG_AS_ARGUMENT: &str = "\
+error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
+
+  If you tried to supply `--another-flag` as a value rather than a flag, use `-- --another-flag`
+
+Usage: mycat [OPTIONS] [filename]
+
+For more information try '--help'
+";
+
     let cmd = Command::new("mycat")
         .arg(Arg::new("filename"))
         .arg(Arg::new("a-flag").long("a-flag").action(ArgAction::SetTrue));
@@ -176,6 +179,7 @@ fn issue_1284_argument_in_flag_style() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn issue_2308_multiple_dashes() {
     static MULTIPLE_DASHES: &str = "\
 error: Found argument '-----' which wasn't expected, or isn't valid in this context

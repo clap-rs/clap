@@ -1,6 +1,7 @@
 /// Semantics for a piece of error information
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
+#[cfg(feature = "error-context")]
 pub enum ContextKind {
     /// The cause of the error
     InvalidSubcommand,
@@ -66,6 +67,7 @@ impl std::fmt::Display for ContextKind {
 /// A piece of error information
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
+#[cfg(feature = "error-context")]
 pub enum ContextValue {
     /// [`ContextKind`] is self-sufficient, no additional information needed
     None,

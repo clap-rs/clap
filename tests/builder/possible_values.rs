@@ -1,42 +1,7 @@
-use super::utils;
-
 use clap::{builder::PossibleValue, error::ErrorKind, Arg, ArgAction, Command};
 
-#[cfg(feature = "suggestions")]
-static PV_ERROR: &str = "\
-error: \"slo\" isn't a valid value for '-O <option>'
-  [possible values: slow, fast, \"ludicrous speed\"]
-
-  Did you mean \"slow\"?
-
-For more information try '--help'
-";
-
-#[cfg(not(feature = "suggestions"))]
-static PV_ERROR: &str = "\
-error: \"slo\" isn't a valid value for '-O <option>'
-  [possible values: slow, fast, \"ludicrous speed\"]
-
-For more information try '--help'
-";
-
-#[cfg(feature = "suggestions")]
-static PV_ERROR_ESCAPED: &str = "\
-error: \"ludicrous\" isn't a valid value for '-O <option>'
-  [possible values: slow, fast, \"ludicrous speed\"]
-
-  Did you mean \"ludicrous speed\"?
-
-For more information try '--help'
-";
-
-#[cfg(not(feature = "suggestions"))]
-static PV_ERROR_ESCAPED: &str = "\
-error: \"ludicrous\" isn't a valid value for '-O <option>'
-  [possible values: slow, fast, \"ludicrous speed\"]
-
-For more information try '--help'
-";
+#[cfg(feature = "error-context")]
+use super::utils;
 
 #[test]
 fn possible_values_of_positional() {
@@ -209,7 +174,26 @@ fn possible_values_of_option_multiple_fail() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn possible_values_output() {
+    #[cfg(feature = "suggestions")]
+    static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+  Did you mean \"slow\"?
+
+For more information try '--help'
+";
+
+    #[cfg(not(feature = "suggestions"))]
+    static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+For more information try '--help'
+";
+
     utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
@@ -224,7 +208,26 @@ fn possible_values_output() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn possible_values_alias_output() {
+    #[cfg(feature = "suggestions")]
+    static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+  Did you mean \"slow\"?
+
+For more information try '--help'
+";
+
+    #[cfg(not(feature = "suggestions"))]
+    static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+For more information try '--help'
+";
+
     utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
@@ -243,7 +246,26 @@ fn possible_values_alias_output() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn possible_values_hidden_output() {
+    #[cfg(feature = "suggestions")]
+    static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+  Did you mean \"slow\"?
+
+For more information try '--help'
+";
+
+    #[cfg(not(feature = "suggestions"))]
+    static PV_ERROR: &str = "\
+error: \"slo\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+For more information try '--help'
+";
+
     utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
@@ -263,7 +285,26 @@ fn possible_values_hidden_output() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn escaped_possible_values_output() {
+    #[cfg(feature = "suggestions")]
+    static PV_ERROR_ESCAPED: &str = "\
+error: \"ludicrous\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+  Did you mean \"ludicrous speed\"?
+
+For more information try '--help'
+";
+
+    #[cfg(not(feature = "suggestions"))]
+    static PV_ERROR_ESCAPED: &str = "\
+error: \"ludicrous\" isn't a valid value for '-O <option>'
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+For more information try '--help'
+";
+
     utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
@@ -278,7 +319,15 @@ fn escaped_possible_values_output() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn missing_possible_value_error() {
+    static MISSING_PV_ERROR: &str = "\
+error: The argument '-O <option>' requires a value but none was supplied
+  [possible values: slow, fast, \"ludicrous speed\"]
+
+For more information try '--help'
+";
+
     utils::assert_output(
         Command::new("test").arg(
             Arg::new("option")
@@ -296,13 +345,6 @@ fn missing_possible_value_error() {
         true,
     );
 }
-
-static MISSING_PV_ERROR: &str = "\
-error: The argument '-O <option>' requires a value but none was supplied
-  [possible values: slow, fast, \"ludicrous speed\"]
-
-For more information try '--help'
-";
 
 #[test]
 fn alias() {

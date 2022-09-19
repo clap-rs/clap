@@ -268,6 +268,7 @@ Behavior Changes
 - Allow resetting most builder methods
 - Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes with the `string` feature flag (#2150, #4223)
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
+- *(error)* New default `error-context` feature flag that can be turned off for smaller binaries
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
 

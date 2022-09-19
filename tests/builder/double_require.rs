@@ -10,24 +10,6 @@ Options:
   -h, --help  Print help information
 ";
 
-static ONLY_B_ERROR: &str = "\
-error: The following required arguments were not provided:
-  -c
-
-Usage: prog -b -c
-
-For more information try '--help'
-";
-
-static ONLY_C_ERROR: &str = "\
-error: The following required arguments were not provided:
-  -b
-
-Usage: prog -c -b
-
-For more information try '--help'
-";
-
 fn cmd() -> Command {
     Command::new("prog")
         .arg(
@@ -74,12 +56,31 @@ fn help_text() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn no_duplicate_error() {
+    static ONLY_B_ERROR: &str = "\
+error: The following required arguments were not provided:
+  -c
+
+Usage: prog -b -c
+
+For more information try '--help'
+";
+
     let res = cmd().try_get_matches_from(vec!["", "-b"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
     assert_eq!(err.to_string(), ONLY_B_ERROR);
+
+    static ONLY_C_ERROR: &str = "\
+error: The following required arguments were not provided:
+  -b
+
+Usage: prog -c -b
+
+For more information try '--help'
+";
 
     let res = cmd().try_get_matches_from(vec!["", "-c"]);
     assert!(res.is_err());

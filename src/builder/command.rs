@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "usage"), allow(unused_mut))]
+
 // Std
 use std::env;
 use std::ffi::OsString;
@@ -19,7 +21,7 @@ use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
-use crate::output::{fmt::Colorizer, Help, Usage};
+use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
 use crate::util::FlatMap;
@@ -90,6 +92,7 @@ pub struct Command {
     disp_ord: Option<usize>,
     term_w: Option<usize>,
     max_w: Option<usize>,
+    #[cfg(feature = "help")]
     template: Option<StyledStr>,
     settings: AppFlags,
     g_settings: AppFlags,
@@ -723,7 +726,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, false).write_help();
+        write_help(&mut styled, self, &usage, false);
 
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
@@ -750,7 +753,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, true).write_help();
+        write_help(&mut styled, self, &usage, true);
 
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
@@ -777,7 +780,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, false).write_help();
+        write_help(&mut styled, self, &usage, false);
         write!(w, "{}", styled)?;
         w.flush()
     }
@@ -803,7 +806,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        Help::new(&mut styled, self, &usage, true).write_help();
+        write_help(&mut styled, self, &usage, true);
         write!(w, "{}", styled)?;
         w.flush()
     }
@@ -867,10 +870,10 @@ impl Command {
     /// println!("{}", cmd.render_usage());
     /// ```
     pub fn render_usage(&mut self) -> String {
-        self.render_usage_().to_string()
+        self.render_usage_().unwrap_or_default().to_string()
     }
 
-    pub(crate) fn render_usage_(&mut self) -> StyledStr {
+    pub(crate) fn render_usage_(&mut self) -> Option<StyledStr> {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         self._build_self(false);
@@ -1727,6 +1730,7 @@ impl Command {
     /// [`Command::before_help`]: Command::before_help()
     /// [`Command::before_long_help`]: Command::before_long_help()
     #[must_use]
+    #[cfg(feature = "help")]
     pub fn help_template(mut self, s: impl IntoResettable<StyledStr>) -> Self {
         self.template = s.into_resettable().into_option();
         self
@@ -2536,7 +2540,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, };
     /// let m = Command::new("cust-ord")
     ///     .subcommand(Command::new("alpha") // typically subcommands are grouped
@@ -3139,6 +3144,7 @@ impl Command {
 /// # Reflection
 impl Command {
     #[inline]
+    #[cfg(feature = "usage")]
     pub(crate) fn get_usage_name(&self) -> Option<&str> {
         self.usage_name.as_deref()
     }
@@ -3661,14 +3667,17 @@ impl Command {
         self.help_str.as_ref()
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_help_template(&self) -> Option<&StyledStr> {
         self.template.as_ref()
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_term_width(&self) -> Option<usize> {
         self.term_w
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_max_term_width(&self) -> Option<usize> {
         self.max_w
     }
@@ -3752,6 +3761,11 @@ impl Command {
                 self.settings.insert(AppSettings::SubcommandRequired.into());
                 self.settings.insert(AppSettings::DisableHelpFlag.into());
                 self.settings.insert(AppSettings::DisableVersionFlag.into());
+            }
+            if !cfg!(feature = "help") && self.get_override_help().is_none() {
+                self.settings.insert(AppSettings::DisableHelpFlag.into());
+                self.settings
+                    .insert(AppSettings::DisableHelpSubcommand.into());
             }
             if self.is_set(AppSettings::ArgsNegateSubcommands) {
                 self.settings
@@ -3840,6 +3854,7 @@ impl Command {
         use std::fmt::Write;
 
         let mut mid_string = String::from(" ");
+        #[cfg(feature = "usage")]
         if !self.is_subcommand_negates_reqs_set() && !self.is_args_conflicts_with_subcommands_set()
         {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
@@ -3925,6 +3940,7 @@ impl Command {
 
         if !self.is_set(AppSettings::BinNameBuilt) {
             let mut mid_string = String::from(" ");
+            #[cfg(feature = "usage")]
             if !self.is_subcommand_negates_reqs_set()
                 && !self.is_args_conflicts_with_subcommands_set()
             {
@@ -4279,20 +4295,9 @@ impl<'a, T> Captures<'a> for T {}
 // Internal Query Methods
 impl Command {
     /// Iterate through the *flags* & *options* arguments.
+    #[cfg(any(feature = "usage", feature = "help"))]
     pub(crate) fn get_non_positionals(&self) -> impl Iterator<Item = &Arg> {
         self.get_arguments().filter(|a| !a.is_positional())
-    }
-
-    /// Iterate through the *positionals* that don't have custom heading.
-    pub(crate) fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg> {
-        self.get_positionals()
-            .filter(|a| a.get_help_heading().is_none())
-    }
-
-    /// Iterate through the *flags* & *options* that don't have custom heading.
-    pub(crate) fn get_non_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg> {
-        self.get_non_positionals()
-            .filter(|a| a.get_help_heading().is_none())
     }
 
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg> {
@@ -4319,6 +4324,7 @@ impl Command {
         self.get_positionals().next().is_some()
     }
 
+    #[cfg(any(feature = "usage", feature = "help"))]
     pub(crate) fn has_visible_subcommands(&self) -> bool {
         self.subcommands
             .iter()
@@ -4473,6 +4479,7 @@ impl Command {
             .map(|sc| sc.get_name())
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
     }
@@ -4488,7 +4495,7 @@ impl Command {
         let usage = Usage::new(self);
 
         let mut styled = StyledStr::new();
-        Help::new(&mut styled, self, &usage, use_long).write_help();
+        write_help(&mut styled, self, &usage, use_long);
 
         styled
     }
@@ -4565,6 +4572,7 @@ impl Default for Command {
             disp_ord: Default::default(),
             term_w: Default::default(),
             max_w: Default::default(),
+            #[cfg(feature = "help")]
             template: Default::default(),
             settings: Default::default(),
             g_settings: Default::default(),

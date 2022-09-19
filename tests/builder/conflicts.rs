@@ -1,6 +1,7 @@
-use super::utils;
-
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
+
+#[cfg(feature = "error-context")]
+use super::utils;
 
 #[test]
 fn flag_conflict() {
@@ -271,6 +272,7 @@ fn get_arg_conflicts_with_group() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn conflict_output() {
     static CONFLICT_ERR: &str = "\
 error: The argument '--flag...' cannot be used with '-F'
@@ -289,6 +291,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn conflict_output_rev() {
     static CONFLICT_ERR_REV: &str = "\
 error: The argument '-F' cannot be used with '--flag...'
@@ -307,6 +310,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn conflict_output_with_required() {
     static CONFLICT_ERR: &str = "\
 error: The argument '--flag...' cannot be used with '-F'
@@ -325,6 +329,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn conflict_output_rev_with_required() {
     static CONFLICT_ERR_REV: &str = "\
 error: The argument '-F' cannot be used with '--flag...'
@@ -343,6 +348,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn conflict_output_three_conflicting() {
     static CONFLICT_ERR_THREE: &str = "\
 error: The argument '--one' cannot be used with:
@@ -382,6 +388,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn two_conflicting_arguments() {
     let a = Command::new("two_conflicting_arguments")
         .arg(
@@ -409,6 +416,7 @@ fn two_conflicting_arguments() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn three_conflicting_arguments() {
     let a = Command::new("three_conflicting_arguments")
         .arg(

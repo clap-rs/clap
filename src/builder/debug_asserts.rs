@@ -337,6 +337,7 @@ pub(crate) fn assert_app(cmd: &Command) {
 
     _verify_positionals(cmd);
 
+    #[cfg(feature = "help")]
     if let Some(help_template) = cmd.get_help_template() {
         assert!(
             !help_template.to_string().contains("{flags}"),

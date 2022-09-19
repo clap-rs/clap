@@ -79,11 +79,11 @@ fn value_validation_has_newline() {
 }
 
 #[test]
-fn null_prints_help() {
+fn kind_prints_help() {
     let cmd = Command::new("test");
     let res = cmd
         .try_get_matches_from(["test", "--help"])
-        .map_err(|e| e.apply::<clap::error::NullFormatter>());
+        .map_err(|e| e.apply::<clap::error::KindFormatter>());
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::DisplayHelp;
@@ -97,6 +97,7 @@ Options:
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn raw_prints_help() {
     let cmd = Command::new("test");
     let res = cmd
@@ -115,19 +116,22 @@ Options:
 }
 
 #[test]
-fn null_ignores_validation_error() {
+fn kind_formats_validation_error() {
     let cmd = Command::new("test");
     let res = cmd
         .try_get_matches_from(["test", "unused"])
-        .map_err(|e| e.apply::<clap::error::NullFormatter>());
+        .map_err(|e| e.apply::<clap::error::KindFormatter>());
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "";
+    static MESSAGE: &str = "\
+error: Found an argument which wasn't expected or isn't valid in this context
+";
     assert_error(err, expected_kind, MESSAGE, true);
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn rich_formats_validation_error() {
     let cmd = Command::new("test");
     let res = cmd.try_get_matches_from(["test", "unused"]);
@@ -145,6 +149,7 @@ For more information try '--help'
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn raw_formats_validation_error() {
     let cmd = Command::new("test");
     let res = cmd

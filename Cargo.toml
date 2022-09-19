@@ -57,6 +57,9 @@ pre-release-replacements = [
 default = [
   "std",
   "color",
+  "help",
+  "usage",
+  "error-context",
   "suggestions",
 ]
 debug = ["clap_derive/debug", "dep:backtrace"] # Enables debug messages
@@ -65,7 +68,10 @@ unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "uns
 # Used in default
 std = [] # support for no_std in a backwards-compatible way
 color = ["dep:atty", "dep:termcolor"]
-suggestions = ["dep:strsim"]
+help = []
+usage = []
+error-context = []
+suggestions = ["dep:strsim", "error-context"]
 
 # Optional
 deprecated = ["clap_derive?/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
@@ -151,6 +157,7 @@ path = "examples/multicall-hostname.rs"
 [[example]]
 name = "repl"
 path = "examples/repl.rs"
+required-features = ["help"]
 
 [[example]]
 name = "01_quick"

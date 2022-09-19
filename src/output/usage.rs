@@ -1,3 +1,8 @@
+#![cfg_attr(not(feature = "usage"), allow(unused_imports))]
+#![cfg_attr(not(feature = "usage"), allow(unused_variables))]
+#![cfg_attr(not(feature = "usage"), allow(clippy::manual_map))]
+#![cfg_attr(not(feature = "usage"), allow(dead_code))]
+
 // Internal
 use crate::builder::StyledStr;
 use crate::builder::{ArgPredicate, Command};
@@ -28,27 +33,42 @@ impl<'cmd> Usage<'cmd> {
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
-    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> StyledStr {
+    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_with_title");
+        let usage = self.create_usage_no_title(used)?;
+
         let mut styled = StyledStr::new();
         styled.header("Usage:");
         styled.none(" ");
-        styled.extend(self.create_usage_no_title(used).into_iter());
-        styled
+        styled.extend(usage.into_iter());
+        Some(styled)
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
-    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> StyledStr {
+    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            u.clone()
-        } else if used.is_empty() {
-            self.create_help_usage(true)
+            Some(u.clone())
         } else {
-            self.create_smart_usage(used)
+            #[cfg(feature = "usage")]
+            {
+                if used.is_empty() {
+                    Some(self.create_help_usage(true))
+                } else {
+                    Some(self.create_smart_usage(used))
+                }
+            }
+
+            #[cfg(not(feature = "usage"))]
+            {
+                None
+            }
         }
     }
+}
 
+#[cfg(feature = "usage")]
+impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
     fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
@@ -175,7 +195,7 @@ impl<'cmd> Usage<'cmd> {
     }
 
     pub(crate) fn get_args(&self, incls: &[Id], force_optional: bool) -> Vec<StyledStr> {
-        debug!("Usage::get_required_usage_from: incls={:?}", incls,);
+        debug!("Usage::get_args: incls={:?}", incls,);
 
         let required_owned;
         let required = if let Some(required) = self.required {
@@ -204,10 +224,7 @@ impl<'cmd> Usage<'cmd> {
             // by unroll_requirements_for_arg.
             unrolled_reqs.push(a.clone());
         }
-        debug!(
-            "Usage::get_required_usage_from: unrolled_reqs={:?}",
-            unrolled_reqs
-        );
+        debug!("Usage::get_args: unrolled_reqs={:?}", unrolled_reqs);
 
         let mut required_groups_members = FlatSet::new();
         let mut required_groups = FlatSet::new();
@@ -292,7 +309,7 @@ impl<'cmd> Usage<'cmd> {
             ret_val.push(pos);
         }
 
-        debug!("Usage::get_required_usage_from: ret_val={:?}", ret_val);
+        debug!("Usage::get_args: ret_val={:?}", ret_val);
         ret_val
     }
 

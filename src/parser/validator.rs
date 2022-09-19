@@ -183,7 +183,11 @@ impl<'cmd> Validator<'cmd> {
         ))
     }
 
-    fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> StyledStr {
+    fn build_conflict_err_usage(
+        &self,
+        matcher: &ArgMatcher,
+        conflicting_keys: &[Id],
+    ) -> Option<StyledStr> {
         let used_filtered: Vec<Id> = matcher
             .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
@@ -383,9 +387,13 @@ impl<'cmd> Validator<'cmd> {
             && !a.r_unless.iter().any(exists)
     }
 
-    // `incl`: an arg to include in the error even if not used
-    fn missing_required_error(&self, matcher: &ArgMatcher, incl: Vec<Id>) -> ClapResult<()> {
-        debug!("Validator::missing_required_error; incl={:?}", incl);
+    // `req_args`: an arg to include in the error even if not used
+    fn missing_required_error(
+        &self,
+        matcher: &ArgMatcher,
+        raw_req_args: Vec<Id>,
+    ) -> ClapResult<()> {
+        debug!("Validator::missing_required_error; incl={:?}", raw_req_args);
         debug!(
             "Validator::missing_required_error: reqs={:?}",
             self.required
@@ -393,11 +401,32 @@ impl<'cmd> Validator<'cmd> {
 
         let usg = Usage::new(self.cmd).required(&self.required);
 
-        let req_args = usg
-            .get_required_usage_from(&incl, Some(matcher), true)
-            .into_iter()
-            .map(|s| s.to_string())
-            .collect::<Vec<_>>();
+        let req_args = {
+            #[cfg(feature = "usage")]
+            {
+                usg.get_required_usage_from(&raw_req_args, Some(matcher), true)
+                    .into_iter()
+                    .map(|s| s.to_string())
+                    .collect::<Vec<_>>()
+            }
+
+            #[cfg(not(feature = "usage"))]
+            {
+                raw_req_args
+                    .iter()
+                    .map(|id| {
+                        if let Some(arg) = self.cmd.find(id) {
+                            arg.to_string()
+                        } else if let Some(_group) = self.cmd.find_group(id) {
+                            self.cmd.format_group(id).to_string()
+                        } else {
+                            debug_assert!(false, "id={:?} is unknown", id);
+                            "".to_owned()
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            }
+        };
 
         debug!(
             "Validator::missing_required_error: req_args={:#?}",
@@ -412,7 +441,7 @@ impl<'cmd> Validator<'cmd> {
                 self.cmd.find(n).map_or(true, |a| !a.is_hide_set())
             })
             .cloned()
-            .chain(incl)
+            .chain(raw_req_args)
             .collect();
 
         Err(Error::missing_required_argument(
