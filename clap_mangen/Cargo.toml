@@ -45,7 +45,7 @@ clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, feat
 
 [dev-dependencies]
 snapbox = { version = "0.3", features = ["diff"] }
-clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std"] }
+clap = { path = "../", version = "4.0.0-alpha.0", default-features = false, features = ["std", "help"] }
 
 [features]
 default = []

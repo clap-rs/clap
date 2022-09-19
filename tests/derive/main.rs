@@ -1,3 +1,4 @@
+#![cfg(feature = "help")]
 #![cfg(feature = "derive")]
 
 mod app_name;

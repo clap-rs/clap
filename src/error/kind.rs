@@ -250,7 +250,8 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--help"]);

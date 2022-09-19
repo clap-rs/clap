@@ -57,6 +57,7 @@ pre-release-replacements = [
 default = [
   "std",
   "color",
+  "help",
   "error-context",
   "suggestions",
 ]
@@ -66,6 +67,7 @@ unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "uns
 # Used in default
 std = [] # support for no_std in a backwards-compatible way
 color = ["dep:atty", "dep:termcolor"]
+help = []
 error-context = []
 suggestions = ["dep:strsim", "error-context"]
 
@@ -153,6 +155,7 @@ path = "examples/multicall-hostname.rs"
 [[example]]
 name = "repl"
 path = "examples/repl.rs"
+required-features = ["help"]
 
 [[example]]
 name = "01_quick"

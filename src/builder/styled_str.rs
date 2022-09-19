@@ -1,6 +1,3 @@
-use crate::output::display_width;
-use crate::output::textwrap;
-
 /// Terminal-styling container
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
 pub struct StyledStr {
@@ -86,6 +83,7 @@ impl StyledStr {
         self.pieces = self.pieces.trim_end().to_owned();
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn indent(&mut self, initial: &str, trailing: &str) {
         if let Some((_, first)) = self.iter_mut().next() {
             first.insert_str(0, initial);
@@ -97,8 +95,9 @@ impl StyledStr {
         }
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn wrap(&mut self, hard_width: usize) {
-        let mut wrapper = textwrap::wrap_algorithms::LineWrapper::new(hard_width);
+        let mut wrapper = crate::output::textwrap::wrap_algorithms::LineWrapper::new(hard_width);
         for (_, content) in self.iter_mut() {
             let mut total = Vec::new();
             for (i, line) in content.split_inclusive('\n').enumerate() {
@@ -106,8 +105,8 @@ impl StyledStr {
                     // start of a section does not imply newline
                     wrapper.reset();
                 }
-                let line =
-                    textwrap::word_separators::find_words_ascii_space(line).collect::<Vec<_>>();
+                let line = crate::output::textwrap::word_separators::find_words_ascii_space(line)
+                    .collect::<Vec<_>>();
                 total.extend(wrapper.wrap(line));
             }
             let total = total.join("");
@@ -130,14 +129,16 @@ impl StyledStr {
     }
 
     #[inline(never)]
+    #[cfg(feature = "help")]
     pub(crate) fn display_width(&self) -> usize {
         let mut width = 0;
         for (_, c) in self.iter() {
-            width += display_width(c);
+            width += crate::output::display_width(c);
         }
         width
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn is_empty(&self) -> bool {
         self.pieces.is_empty()
     }

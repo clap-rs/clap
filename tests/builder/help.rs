@@ -1,3 +1,5 @@
+#![cfg(feature = "help")]
+
 use clap::{arg, builder::PossibleValue, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 
 use super::utils;

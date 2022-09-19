@@ -1,5 +1,6 @@
 #![allow(clippy::bool_assert_comparison)]
 #![allow(clippy::redundant_clone)]
+#![cfg(feature = "help")]
 
 mod action;
 mod app_settings;

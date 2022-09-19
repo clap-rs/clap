@@ -277,6 +277,7 @@ mod arg {
     }
 
     #[test]
+    #[cfg(feature = "help")]
     fn optional_value() {
         let mut cmd = clap::Command::new("test").arg(clap::arg!(port: -p [NUM]));
 

@@ -2,7 +2,8 @@
 ///
 /// # Examples
 ///
-/// ```rust
+#[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+#[cfg_attr(feature = "help", doc = " ```")]
 /// # use clap::Command;
 /// # use clap::Arg;
 /// let cmd = Command::new("mycmd")
@@ -211,7 +212,8 @@ pub enum ArgAction {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")

@@ -90,6 +90,7 @@ pub struct Command {
     disp_ord: Option<usize>,
     term_w: Option<usize>,
     max_w: Option<usize>,
+    #[cfg(feature = "help")]
     template: Option<StyledStr>,
     settings: AppFlags,
     g_settings: AppFlags,
@@ -1727,6 +1728,7 @@ impl Command {
     /// [`Command::before_help`]: Command::before_help()
     /// [`Command::before_long_help`]: Command::before_long_help()
     #[must_use]
+    #[cfg(feature = "help")]
     pub fn help_template(mut self, s: impl IntoResettable<StyledStr>) -> Self {
         self.template = s.into_resettable().into_option();
         self
@@ -2536,7 +2538,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```rust
+    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
+    #[cfg_attr(feature = "help", doc = " ```")]
     /// # use clap::{Command, };
     /// let m = Command::new("cust-ord")
     ///     .subcommand(Command::new("alpha") // typically subcommands are grouped
@@ -3661,14 +3664,17 @@ impl Command {
         self.help_str.as_ref()
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_help_template(&self) -> Option<&StyledStr> {
         self.template.as_ref()
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_term_width(&self) -> Option<usize> {
         self.term_w
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_max_term_width(&self) -> Option<usize> {
         self.max_w
     }
@@ -3752,6 +3758,11 @@ impl Command {
                 self.settings.insert(AppSettings::SubcommandRequired.into());
                 self.settings.insert(AppSettings::DisableHelpFlag.into());
                 self.settings.insert(AppSettings::DisableVersionFlag.into());
+            }
+            if !cfg!(feature = "help") && self.get_override_help().is_none() {
+                self.settings.insert(AppSettings::DisableHelpFlag.into());
+                self.settings
+                    .insert(AppSettings::DisableHelpSubcommand.into());
             }
             if self.is_set(AppSettings::ArgsNegateSubcommands) {
                 self.settings
@@ -4461,6 +4472,7 @@ impl Command {
             .map(|sc| sc.get_name())
     }
 
+    #[cfg(feature = "help")]
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
     }
@@ -4553,6 +4565,7 @@ impl Default for Command {
             disp_ord: Default::default(),
             term_w: Default::default(),
             max_w: Default::default(),
+            #[cfg(feature = "help")]
             template: Default::default(),
             settings: Default::default(),
             g_settings: Default::default(),
