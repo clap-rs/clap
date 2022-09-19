@@ -183,7 +183,11 @@ impl<'cmd> Validator<'cmd> {
         ))
     }
 
-    fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> StyledStr {
+    fn build_conflict_err_usage(
+        &self,
+        matcher: &ArgMatcher,
+        conflicting_keys: &[Id],
+    ) -> Option<StyledStr> {
         let used_filtered: Vec<Id> = matcher
             .arg_ids()
             .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))

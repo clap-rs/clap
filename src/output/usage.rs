@@ -28,24 +28,26 @@ impl<'cmd> Usage<'cmd> {
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
-    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> StyledStr {
+    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_with_title");
+        let usage = self.create_usage_no_title(used)?;
+
         let mut styled = StyledStr::new();
         styled.header("Usage:");
         styled.none(" ");
-        styled.extend(self.create_usage_no_title(used).into_iter());
-        styled
+        styled.extend(usage.into_iter());
+        Some(styled)
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
-    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> StyledStr {
+    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            u.clone()
+            Some(u.clone())
         } else if used.is_empty() {
-            self.create_help_usage(true)
+            Some(self.create_help_usage(true))
         } else {
-            self.create_smart_usage(used)
+            Some(self.create_smart_usage(used))
         }
     }
 

@@ -165,8 +165,12 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.header("Usage:");
                     }
                     "usage" => {
-                        self.writer
-                            .extend(self.usage.create_usage_no_title(&[]).into_iter());
+                        self.writer.extend(
+                            self.usage
+                                .create_usage_no_title(&[])
+                                .unwrap_or_default()
+                                .into_iter(),
+                        );
                     }
                     "all-args" => {
                         self.write_all_args();

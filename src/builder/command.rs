@@ -868,10 +868,10 @@ impl Command {
     /// println!("{}", cmd.render_usage());
     /// ```
     pub fn render_usage(&mut self) -> String {
-        self.render_usage_().to_string()
+        self.render_usage_().unwrap_or_default().to_string()
     }
 
-    pub(crate) fn render_usage_(&mut self) -> StyledStr {
+    pub(crate) fn render_usage_(&mut self) -> Option<StyledStr> {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         self._build_self(false);
