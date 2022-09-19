@@ -3,6 +3,7 @@
 #[test]
 #[cfg(feature = "help")]
 #[cfg(feature = "error-context")]
+#[cfg(feature = "usage")]
 fn ui_tests() {
     let t = trycmd::TestCases::new();
     let features = [

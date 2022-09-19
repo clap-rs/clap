@@ -7,6 +7,7 @@
 //! * **std**: _Not Currently Used._ Placeholder for supporting `no_std` environments in a backwards compatible manner.
 //! * **color**: Turns on colored error messages.
 //! * **help**: Auto-generate help output
+//! * **usage**: Auto-generate usage
 //! * **error-context**: Include contextual information for errors (which arg failed, etc)
 //! * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos.
 //!

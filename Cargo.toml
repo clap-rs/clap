@@ -58,6 +58,7 @@ default = [
   "std",
   "color",
   "help",
+  "usage",
   "error-context",
   "suggestions",
 ]
@@ -68,6 +69,7 @@ unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "uns
 std = [] # support for no_std in a backwards-compatible way
 color = ["dep:atty", "dep:termcolor"]
 help = []
+usage = []
 error-context = []
 suggestions = ["dep:strsim", "error-context"]
 

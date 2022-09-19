@@ -1,5 +1,6 @@
-#![cfg(feature = "help")]
 #![cfg(feature = "derive")]
+#![cfg(feature = "help")]
+#![cfg(feature = "usage")]
 
 mod app_name;
 mod arguments;

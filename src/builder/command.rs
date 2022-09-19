@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "usage"), allow(unused_mut))]
+
 // Std
 use std::env;
 use std::ffi::OsString;
@@ -3142,6 +3144,7 @@ impl Command {
 /// # Reflection
 impl Command {
     #[inline]
+    #[cfg(feature = "usage")]
     pub(crate) fn get_usage_name(&self) -> Option<&str> {
         self.usage_name.as_deref()
     }
@@ -3851,6 +3854,7 @@ impl Command {
         use std::fmt::Write;
 
         let mut mid_string = String::from(" ");
+        #[cfg(feature = "usage")]
         if !self.is_subcommand_negates_reqs_set() && !self.is_args_conflicts_with_subcommands_set()
         {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
@@ -3936,6 +3940,7 @@ impl Command {
 
         if !self.is_set(AppSettings::BinNameBuilt) {
             let mut mid_string = String::from(" ");
+            #[cfg(feature = "usage")]
             if !self.is_subcommand_negates_reqs_set()
                 && !self.is_args_conflicts_with_subcommands_set()
             {
@@ -4290,6 +4295,7 @@ impl<'a, T> Captures<'a> for T {}
 // Internal Query Methods
 impl Command {
     /// Iterate through the *flags* & *options* arguments.
+    #[cfg(any(feature = "usage", feature = "help"))]
     pub(crate) fn get_non_positionals(&self) -> impl Iterator<Item = &Arg> {
         self.get_arguments().filter(|a| !a.is_positional())
     }
@@ -4318,6 +4324,7 @@ impl Command {
         self.get_positionals().next().is_some()
     }
 
+    #[cfg(any(feature = "usage", feature = "help"))]
     pub(crate) fn has_visible_subcommands(&self) -> bool {
         self.subcommands
             .iter()
