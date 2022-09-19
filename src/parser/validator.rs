@@ -387,9 +387,13 @@ impl<'cmd> Validator<'cmd> {
             && !a.r_unless.iter().any(exists)
     }
 
-    // `incl`: an arg to include in the error even if not used
-    fn missing_required_error(&self, matcher: &ArgMatcher, incl: Vec<Id>) -> ClapResult<()> {
-        debug!("Validator::missing_required_error; incl={:?}", incl);
+    // `req_args`: an arg to include in the error even if not used
+    fn missing_required_error(
+        &self,
+        matcher: &ArgMatcher,
+        raw_req_args: Vec<Id>,
+    ) -> ClapResult<()> {
+        debug!("Validator::missing_required_error; incl={:?}", raw_req_args);
         debug!(
             "Validator::missing_required_error: reqs={:?}",
             self.required
@@ -398,7 +402,7 @@ impl<'cmd> Validator<'cmd> {
         let usg = Usage::new(self.cmd).required(&self.required);
 
         let req_args = usg
-            .get_required_usage_from(&incl, Some(matcher), true)
+            .get_required_usage_from(&raw_req_args, Some(matcher), true)
             .into_iter()
             .map(|s| s.to_string())
             .collect::<Vec<_>>();
@@ -416,7 +420,7 @@ impl<'cmd> Validator<'cmd> {
                 self.cmd.find(n).map_or(true, |a| !a.is_hide_set())
             })
             .cloned()
-            .chain(incl)
+            .chain(raw_req_args)
             .collect();
 
         Err(Error::missing_required_argument(
