@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.3.0] - 2022-09-20
+
 ### Breaking Changes
 
 - `RawArgs::insert` now takes owned values
@@ -38,7 +40,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Drop `memchr` dependency
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.4...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v0.3.0...HEAD
+[0.3.0]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.4...clap_lex-v0.3.0
 [0.2.4]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.3...clap_lex-v0.2.4
 [0.2.3]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.2...clap_lex-v0.2.3
 [0.2.2]: https://github.com/clap-rs/clap/compare/clap_lex-v0.2.1...clap_lex-v0.2.2
