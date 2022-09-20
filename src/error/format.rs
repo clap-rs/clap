@@ -43,43 +43,6 @@ impl ErrorFormatter for KindFormatter {
     }
 }
 
-/// Dump the error context reported
-#[non_exhaustive]
-#[cfg(feature = "error-context")]
-pub struct RawFormatter;
-
-#[cfg(feature = "error-context")]
-impl ErrorFormatter for RawFormatter {
-    fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
-        let mut styled = StyledStr::new();
-        start_error(&mut styled);
-        if let Some(msg) = error.kind().as_str() {
-            styled.none(msg.to_owned());
-        } else if let Some(source) = error.inner.source.as_ref() {
-            styled.none(source.to_string());
-        } else {
-            styled.none("Unknown cause");
-        }
-        styled.none("\n");
-
-        if error.context().next().is_some() {
-            styled.none("\n");
-        }
-        for (kind, value) in error.context() {
-            if let Some(kind) = kind.as_str() {
-                styled.none(kind);
-                styled.none(": ");
-                styled.none(value.to_string());
-            } else {
-                styled.none(value.to_string());
-            }
-            styled.none("\n");
-        }
-
-        styled
-    }
-}
-
 /// Richly formatted error context
 #[non_exhaustive]
 #[cfg(feature = "error-context")]

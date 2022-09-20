@@ -39,8 +39,6 @@ pub use context::ContextKind;
 #[cfg(feature = "error-context")]
 pub use context::ContextValue;
 #[cfg(feature = "error-context")]
-pub use format::RawFormatter;
-#[cfg(feature = "error-context")]
 pub use format::RichFormatter;
 
 #[cfg(not(feature = "error-context"))]

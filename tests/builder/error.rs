@@ -97,25 +97,6 @@ Options:
 }
 
 #[test]
-#[cfg(feature = "error-context")]
-fn raw_prints_help() {
-    let cmd = Command::new("test");
-    let res = cmd
-        .try_get_matches_from(["test", "--help"])
-        .map_err(|e| e.apply::<clap::error::RawFormatter>());
-    assert!(res.is_err());
-    let err = res.unwrap_err();
-    let expected_kind = ErrorKind::DisplayHelp;
-    static MESSAGE: &str = "\
-Usage: test
-
-Options:
-  -h, --help  Print help information
-";
-    assert_error(err, expected_kind, MESSAGE, false);
-}
-
-#[test]
 fn kind_formats_validation_error() {
     let cmd = Command::new("test");
     let res = cmd
@@ -144,25 +125,6 @@ error: Found argument 'unused' which wasn't expected, or isn't valid in this con
 Usage: test
 
 For more information try '--help'
-";
-    assert_error(err, expected_kind, MESSAGE, true);
-}
-
-#[test]
-#[cfg(feature = "error-context")]
-fn raw_formats_validation_error() {
-    let cmd = Command::new("test");
-    let res = cmd
-        .try_get_matches_from(["test", "unused"])
-        .map_err(|e| e.apply::<clap::error::RawFormatter>());
-    assert!(res.is_err());
-    let err = res.unwrap_err();
-    let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
-error: Found an argument which wasn't expected or isn't valid in this context
-
-Invalid Argument: unused
-Usage: test
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
