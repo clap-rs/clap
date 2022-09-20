@@ -126,7 +126,7 @@ Steps:
 3. Run `cargo check --features clap/deprecated` and resolve all deprecation warnings
 4. Upgrade to v4
 5. Resolve compiler errors
-6. Resolve behavior changes, look over the "subtle changes" under BREAKING CHANGES
+6. Resolve behavior changes (see "subtle changes" under BREAKING CHANGES)
 7. *At your leisure:* resolve new deprecation notices
 
 Example test (derive):
