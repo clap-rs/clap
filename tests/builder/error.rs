@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::ErrorKind, value_parser, Arg, Command, Error};
+use clap::{arg, error::Error, error::ErrorKind, value_parser, Arg, Command};
 
 #[track_caller]
 fn assert_error<F: clap::error::ErrorFormatter>(

@@ -15,7 +15,7 @@ use crate::output::TAB;
 /// Defines how to format an error for displaying to the user
 pub trait ErrorFormatter: Sized {
     /// Stylize the error for the terminal
-    fn format_error(error: &crate::Error<Self>) -> StyledStr;
+    fn format_error(error: &crate::error::Error<Self>) -> StyledStr;
 }
 
 /// Report [`ErrorKind`]
@@ -28,7 +28,7 @@ pub trait ErrorFormatter: Sized {
 pub struct KindFormatter;
 
 impl ErrorFormatter for KindFormatter {
-    fn format_error(error: &crate::Error<Self>) -> StyledStr {
+    fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
         let mut styled = StyledStr::new();
         start_error(&mut styled);
         if let Some(msg) = error.kind().as_str() {
@@ -50,7 +50,7 @@ pub struct RawFormatter;
 
 #[cfg(feature = "error-context")]
 impl ErrorFormatter for RawFormatter {
-    fn format_error(error: &crate::Error<Self>) -> StyledStr {
+    fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
         let mut styled = StyledStr::new();
         start_error(&mut styled);
         if let Some(msg) = error.kind().as_str() {
@@ -87,7 +87,7 @@ pub struct RichFormatter;
 
 #[cfg(feature = "error-context")]
 impl ErrorFormatter for RichFormatter {
-    fn format_error(error: &crate::Error<Self>) -> StyledStr {
+    fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
         let mut styled = StyledStr::new();
         start_error(&mut styled);
 
@@ -119,7 +119,7 @@ fn start_error(styled: &mut StyledStr) {
 
 #[must_use]
 #[cfg(feature = "error-context")]
-fn write_dynamic_context(error: &crate::Error, styled: &mut StyledStr) -> bool {
+fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) -> bool {
     match error.kind() {
         ErrorKind::ArgumentConflict => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
