@@ -1,6 +1,6 @@
 [package]
 name = "clap_mangen"
-version = "0.1.10"
+version = "0.2.0-rc.1"
 description = "A manpage generator for clap"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_mangen"
 categories = ["command-line-interface"]
