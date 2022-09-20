@@ -101,7 +101,6 @@ pub use crate::builder::ArgAction;
 pub use crate::builder::Command;
 pub use crate::builder::ValueHint;
 pub use crate::builder::{Arg, ArgGroup};
-pub use crate::error::Error;
 pub use crate::parser::ArgMatches;
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
@@ -109,6 +108,13 @@ pub use crate::util::color::ColorChoice;
 #[allow(unused_imports)]
 pub(crate) use crate::util::color::ColorChoice;
 pub use crate::util::Id;
+
+/// Command Line Argument Parser Error
+///
+/// See [`Command::error`] to create an error.
+///
+/// [`Command::error`]: crate::Command::error
+pub type Error = crate::error::Error<crate::error::DefaultFormatter>;
 
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 
