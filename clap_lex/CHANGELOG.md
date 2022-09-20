@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking Changes
+
+- `RawArgs::insert` now takes owned values
+
+### Compatibility
+
+- MSRV changed from 1.56.1 to 1.60.0
+
 ## [0.2.4] - 2022-06-28
 
 ## [0.2.3] - 2022-06-21
