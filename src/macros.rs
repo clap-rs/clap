@@ -490,6 +490,9 @@ macro_rules! arg_impl {
 /// A long flag is a `--` followed by either a bare-word or a string, like `--foo` or
 /// `--"foo"`.
 ///
+/// **NOTE:** Dashes in the long name (e.g. `--foo-bar`) is not supported and quoting is required
+/// (e.g. `--"foo-bar"`).
+///
 /// See [`Arg::long`][crate::Arg::long].
 ///
 /// ### Values (Value Notation)
