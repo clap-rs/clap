@@ -186,7 +186,6 @@
 //! - `value_parser [= <expr>]`: [`Arg::value_parser`][crate::Arg::value_parser]
 //!   - When not present: will auto-select an implementation based on the field type using
 //!     [`value_parser!`][crate::value_parser!]
-//!   - To register a custom type's [`ValueParser`][crate::builder::ValueParser], implement [`ValueParserFactory`][crate::builder::ValueParserFactory]
 //! - `action [= <expr>]`: [`Arg::action`][crate::Arg::action]
 //!   - When not present: will auto-select an action based on the field type
 //! - `help = <expr>`: [`Arg::help`][crate::Arg::help]
@@ -254,19 +253,22 @@
 //!
 //! `clap` assumes some intent based on the type used:
 //!
-//! | Type                | Effect                               | Implies                                                                  |
-//! |---------------------|--------------------------------------|--------------------------------------------------------------------------|
-//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)                                             |
-//! | `Option<T>`         | optional argument                    | `.action(ArgAction::Set).required(false)`                                |
-//! | `Option<Option<T>>` | optional value for optional argument | `.action(ArgAction::Set).required(false).min_values(0).max_values(1)`    |
-//! | `T`                 | required argument                    | `.action(ArgAction::Set).required(!has_default)`                         |
-//! | `Vec<T>`            | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).multiple_occurrences(true)`  |
-//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).multiple_occurrences(true)`  |
+//! | Type                | Effect                               | Implies                                                     |
+//! |---------------------|--------------------------------------|-------------------------------------------------------------|
+//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)                                |
+//! | `Option<T>`         | optional argument                    | `.action(ArgAction::Set).required(false)`                   |
+//! | `Option<Option<T>>` | optional value for optional argument | `.action(ArgAction::Set).required(false).num_args(0..=1)`   |
+//! | `T`                 | required argument                    | `.action(ArgAction::Set).required(!has_default)`            |
+//! | `Vec<T>`            | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).num_args(1..)`  |
+//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).num_args(1..)`  |
+//!
+//! In addition, [`.value_parser(value_parser!(T))`][crate::value_parser!] is called for each
+//! field.
 //!
 //! Notes:
 //! - For custom type behavior, you can override the implied attributes/settings and/or set additional ones
 //! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
-//!   - This gives the user some flexibility in designing their argument, like with `min_values(0)`
+//!   - This gives the user some flexibility in designing their argument, like with `num_args(0..)`
 //!
 //! ## Doc Comments
 //!

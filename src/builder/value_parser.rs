@@ -73,9 +73,8 @@ enum ValueParserInner {
 impl ValueParser {
     /// Custom parser for argument values
     ///
-    /// To create a custom parser, see [`TypedValueParser`]
-    ///
-    /// Pre-existing implementations include:
+    /// Pre-existing [`TypedValueParser`] implementations include:
+    /// - `Fn(&str) -> Result<T, E>`
     /// - [`EnumValueParser`] and  [`PossibleValuesParser`] for static enumerated values
     /// - [`BoolishValueParser`] and [`FalseyValueParser`] for alternative `bool` implementations
     /// - [`RangedI64ValueParser`] and [`RangedU64ValueParser`]
@@ -989,7 +988,8 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 /// Verify the value is from an enumerated set of [`PossibleValue`][crate::builder::PossibleValue].
 ///
 /// See also:
-/// - [`EnumValueParser`]
+/// - [`EnumValueParser`] for directly supporting `enum`s
+/// - [`TypedValueParser::map`] for adapting values to a more specialized type
 ///
 /// # Example
 ///
@@ -2083,7 +2083,12 @@ pub mod via_prelude {
 
 /// Select a [`ValueParser`] implementation from the intended type
 ///
-/// To register a custom type with this macro, implement [`ValueParserFactory`].
+/// Supported types
+/// - [`ValueParserFactory` types][ValueParserFactory], including
+///   - [Native types][ValueParser]: `bool`, `String`, `OsString`, `PathBuf`
+///   - [Ranged numeric types][RangedI64ValueParser]: `u8`, `i8`, `u16`, `i16, `u32`, `i32`, `u64`, `i64`
+/// - [`ValueEnum` types][crate::ValueEnum]
+/// - [`FromStr` types][std::str::FromStr], including usize, isize
 ///
 /// # Example
 ///
@@ -2104,7 +2109,7 @@ pub mod via_prelude {
 /// assert_eq!(port, Path::new("file.txt"));
 /// ```
 ///
-/// Supported types:
+/// Example mappings:
 /// ```rust
 /// // Built-in types
 /// let parser = clap::value_parser!(String);

@@ -867,20 +867,21 @@ impl Arg {
         self
     }
 
-    /// Specify the type of the argument.
+    /// Specify the typed behavior of the argument.
     ///
     /// This allows parsing and validating a value before storing it into
-    /// [`ArgMatches`][crate::ArgMatches].
+    /// [`ArgMatches`][crate::ArgMatches] as the given type.
+    ///
+    /// Possible value parsers include:
+    /// - [`value_parser!(T)`][crate::value_parser!] for auto-selecting a value parser for a given type
+    ///   - Or [range expressions like `0..=1`][std::ops::RangeBounds] as a shorthand for [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser]
+    /// - `Fn(&str) -> Result<T, E>`
+    /// - `[&str]` and [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
+    /// - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
+    /// - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
+    /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
     ///
     /// The default value is [`ValueParser::string`][crate::builder::ValueParser::string].
-    ///
-    /// See also
-    /// - [`value_parser!`][crate::value_parser!] for auto-selecting a value parser for a given type
-    ///   - [`BoolishValueParser`][crate::builder::BoolishValueParser], and [`FalseyValueParser`][crate::builder::FalseyValueParser] for alternative `bool` implementations
-    ///   - [`NonEmptyStringValueParser`][crate::builder::NonEmptyStringValueParser] for basic validation for strings
-    /// - [`RangedI64ValueParser`][crate::builder::RangedI64ValueParser] and [`RangedU64ValueParser`][crate::builder::RangedU64ValueParser] for numeric ranges
-    /// - [`EnumValueParser`][crate::builder::EnumValueParser] and  [`PossibleValuesParser`][crate::builder::PossibleValuesParser] for static enumerated values
-    /// - or any other [`TypedValueParser`][crate::builder::TypedValueParser] implementation
     ///
     /// ```rust
     /// # use clap::ArgAction;

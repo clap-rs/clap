@@ -143,6 +143,8 @@
 //!
 //! ## Validation
 //!
+//! By default, arguments are assumed to be `String`s and only UTF-8 validation is performed.
+//!
 //! ### Enumerated values
 //!
 //! If you have arguments of specific values you want to test for, you can use the
@@ -182,6 +184,8 @@
 #![doc = include_str!("../examples/tutorial_builder/04_02_validate.rs")]
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/04_02_validate.md")]
+//!
+//! See [`Arg::value_parser`][crate::Arg::value_parser] for more details.
 //!
 //! ### Argument Relations
 //!

@@ -154,9 +154,12 @@
 //!
 //! ## Validation
 //!
+//! An appropriate default parser/validator will be selected for the field's type.  See
+//! [`value_parser!][crate::value_parser!] for more details.
+//!
 //! ### Enumerated values
 //!
-//! If you have arguments of specific values you want to test for, you can derive
+//! For example, if you have arguments of specific values you want to test for, you can derive
 //! [`ValueEnum`][crate::ValueEnum].
 //!
 //! This allows you specify the valid values for that argument. If the user does not use one of
@@ -183,6 +186,8 @@
 #![doc = include_str!("../../examples/tutorial_derive/04_02_validate.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/04_02_validate.md")]
+//!
+//! See [`Arg::value_parser`][crate::Arg::value_parser] for more details.
 //!
 //! ### Argument Relations
 //!
