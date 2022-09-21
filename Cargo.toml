@@ -351,11 +351,6 @@ required-features = ["derive"]
 test = true
 
 [[example]]
-name = "custom-bool"
-path = "examples/derive_ref/custom-bool.rs"
-required-features = ["derive"]
-
-[[example]]
 name = "interop_augment_args"
 path = "examples/derive_ref/augment_args.rs"
 required-features = ["derive"]

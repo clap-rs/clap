@@ -265,7 +265,6 @@
 //!
 //! Notes:
 //! - For custom type behavior, you can override the implied attributes/settings and/or set additional ones
-//!   - For example, see [custom-bool](./custom-bool.md)
 //! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
 //!   - This gives the user some flexibility in designing their argument, like with `min_values(0)`
 //!
