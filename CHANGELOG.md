@@ -184,6 +184,7 @@ Subtle changes (i.e. compiler won't catch):
 - `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own (#4056)
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`, assuming `'static`.  `string` feature flag will enable support for `String`s (#1041, #2150, #4223)
 - `arg!(--flag <value>)` is now optional, instead of required.  Add `.required(true)` at the end to restore the original behavior (#4206)
+- Added default feature flags, `help`, `usage` and `error-context` (#4236)
 - *(parser)* Always fill in `""` argument for external subcommands to make it easier to distinguish them from built-in commands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, to be consistent with `Command::allow_hyphen_values` (#4187)
 - *(parser)* `Arg::value_terminator` must be its own argument on the CLI rather than being in a delimited list (#4025)
@@ -212,7 +213,7 @@ Easier to catch changes:
 - Replace `Arg::min_values` (across all occurrences) with `Arg::num_args(N..)` (per occurrence) to reduce confusion over different value count APIs (#4023)
 - Replace `Arg::max_values` (across all occurrences) with `Arg::num_args(1..=M)` (per occurrence) to reduce confusion over different value count APIs  (#4023)
 - Replace `Arg::multiple_values(true)` with `Arg::num_args(1..)` and `Arg::multiple_values(false)` with `Arg::num_args(0)` to reduce confusion over different value count APIs  (#4023)
-- Replace `Arg::takes_value(true)` with `Arg::num_args(1)` and `Arg::takes_value(false)` with `Arg::num_args(0)` to reduce confusion over different value count APIs 
+- Replace `Arg::takes_value(true)` with `Arg::num_args(1)` and `Arg::takes_value(false)` with `Arg::num_args(0)` to reduce confusion over different value count APIs
 - Remove `Arg::require_value_delimiter`, either users could use `Arg::value_delimiter` or implement a custom parser with `TypedValueParser` as it was mostly to make `multiple_values(true)` act like `multiple_values(false)` and isn't needed anymore (#4026)
 - `Arg::new("help")` and `Arg::new("version")` no longer implicitly disable the
   built-in flags and be copied to all subcommands, instead disable
@@ -267,8 +268,8 @@ Behavior Changes
 - Allow non-bool `value_parser`s for `ArgAction::SetTrue` / `ArgAction::SetFalse` (#4092)
 - Allow resetting most builder methods
 - Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes with the `string` feature flag (#2150, #4223)
+- New default `error-context`, `help` and `usage` feature flags that can be turned off for smaller binaries (#4236)
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
-- *(error)* New default `error-context` feature flag that can be turned off for smaller binaries
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
 
