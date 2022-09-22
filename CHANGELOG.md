@@ -257,6 +257,7 @@ Deprecated
 - `Command::trailing_var_arg` in favor of `Arg::trailing_var_arg` to make it clearer which arg it is meant to apply to (#4187)
 - `Command::allow_hyphen_values` in favor of `Arg::allow_hyphen_values` to make it clearer which arg it is meant to apply to (#4187)
 - `Command::allow_negative_numbers` in favor of `Arg::allow_negative_numbers` to make it clearer which arg it is meant to apply to (#4187)
+- *(help)* Deprecated `Command::write_help` and `Command::write_long_help` in favor of `Command::render_help` and `Command::render_long_help`
 - *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value` to open the door for [more features](https://github.com/clap-rs/clap/issues/1807) and [clarify relationship to the builder](https://github.com/clap-rs/clap/discussions/4090) (#1807, #4180)
 - *(derive)* `#[clap(value_parser)]` and `#[clap(action)]` defaulted attributes (its the default) (#3976)
 
@@ -273,6 +274,7 @@ Behavior Changes
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
+- *(help)* `Command::render_help` and `Command::render_long_help`
 
 ### Fixes
 

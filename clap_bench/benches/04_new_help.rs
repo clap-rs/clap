@@ -1,13 +1,10 @@
 use clap::Command;
 use clap::{arg, Arg, ArgAction};
 use criterion::{criterion_group, criterion_main, Criterion};
-use std::io::Cursor;
 
 fn build_help(cmd: &mut Command) -> String {
-    let mut buf = Cursor::new(Vec::with_capacity(50));
-    cmd.write_help(&mut buf).unwrap();
-    let content = buf.into_inner();
-    String::from_utf8(content).unwrap()
+    let help = cmd.render_help();
+    help.to_string()
 }
 
 fn app_example1() -> Command {

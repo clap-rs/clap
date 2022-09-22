@@ -6,7 +6,6 @@
 use clap::{value_parser, Arg, ArgAction, Command};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
-use std::io::Cursor;
 
 use lazy_static::lazy_static;
 
@@ -281,10 +280,8 @@ fn app_long() -> Command {
 
 /// Build the help text of an application.
 fn build_help(cmd: &mut Command) -> String {
-    let mut buf = Cursor::new(Vec::with_capacity(50));
-    cmd.write_help(&mut buf).unwrap();
-    let content = buf.into_inner();
-    String::from_utf8(content).unwrap()
+    let help = cmd.render_help();
+    help.to_string()
 }
 
 /// Build a clap application parameterized by usage strings.
