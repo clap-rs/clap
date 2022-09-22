@@ -869,8 +869,8 @@ impl Command {
     /// let mut cmd = Command::new("myprog");
     /// println!("{}", cmd.render_usage());
     /// ```
-    pub fn render_usage(&mut self) -> String {
-        self.render_usage_().unwrap_or_default().to_string()
+    pub fn render_usage(&mut self) -> StyledStr {
+        self.render_usage_().unwrap_or_default()
     }
 
     pub(crate) fn render_usage_(&mut self) -> Option<StyledStr> {

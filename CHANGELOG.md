@@ -227,6 +227,7 @@ Easier to catch changes:
 - `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue` to remove an unnecessary special case (#3676, #3968)
 - `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` to remove an unnecessary special case (#3676)
 - Changed the default type of `allow_external_subcommands` from `String` to `OsString` as that is less likely to cause bugs in user applications (#3990)
+- `Command::render_usage` now returns a `StyledStr`
 - *(derive)* Changed the default for arguments from `parse` to `value_parser`, removing `parse` support (#3827, #3981)
   - `#[clap(value_parser)]` and `#[clap(action)]` are now redundant
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` to give more meaningful errors when subcommands are missing and to reduce redundancy (#3280)

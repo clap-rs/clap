@@ -211,13 +211,13 @@ fn positional_hyphen_does_not_panic() {
 #[test]
 fn single_positional_usage_string() {
     let mut cmd = Command::new("test").arg(arg!([FILE] "some file"));
-    crate::utils::assert_eq(cmd.render_usage(), "Usage: test [FILE]");
+    crate::utils::assert_eq(cmd.render_usage().to_string(), "Usage: test [FILE]");
 }
 
 #[test]
 fn single_positional_multiple_usage_string() {
     let mut cmd = Command::new("test").arg(arg!([FILE]... "some file"));
-    crate::utils::assert_eq(cmd.render_usage(), "Usage: test [FILE]...");
+    crate::utils::assert_eq(cmd.render_usage().to_string(), "Usage: test [FILE]...");
 }
 
 #[test]
@@ -226,7 +226,7 @@ fn multiple_positional_usage_string() {
         .arg(arg!([FILE] "some file"))
         .arg(arg!([FILES]... "some file"));
     crate::utils::assert_eq(
-        cmd.render_usage(),
+        cmd.render_usage().to_string(),
         "\
 Usage: test [FILE] [FILES]...",
     );
@@ -237,13 +237,16 @@ fn multiple_positional_one_required_usage_string() {
     let mut cmd = Command::new("test")
         .arg(arg!(<FILE> "some file"))
         .arg(arg!([FILES]... "some file"));
-    crate::utils::assert_eq(cmd.render_usage(), "Usage: test <FILE> [FILES]...");
+    crate::utils::assert_eq(
+        cmd.render_usage().to_string(),
+        "Usage: test <FILE> [FILES]...",
+    );
 }
 
 #[test]
 fn single_positional_required_usage_string() {
     let mut cmd = Command::new("test").arg(arg!(<FILE> "some file"));
-    crate::utils::assert_eq(cmd.render_usage(), "Usage: test <FILE>");
+    crate::utils::assert_eq(cmd.render_usage().to_string(), "Usage: test <FILE>");
 }
 
 // This tests a programmer error and will only succeed with debug_assertions
