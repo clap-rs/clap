@@ -163,6 +163,12 @@
 //! - `rename_all_env = <string_literal>`: Override default field name case conversion for env variables for  [`Arg::env`][crate::Arg::env]
 //!   - When not present: `"SCREAMING_SNAKE_CASE"`
 //!   - Available values: `"camelCase"`, `"kebab-case"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"snake_case"`, `"lower"`, `"UPPER"`, `"verbatim"`
+//! - `prefix = <string literal>`: Adds a prefix to the name of all args in the struct. This is useful when `flatten`ing into another struct.
+//!   - Long flags are prefixed like: `--prefix.arg-name`
+//!   - Env variables are prefixed like: `PREFIX.ARG_NAME`
+//!   - Short flags cannot be used in a struct with a prefix.
+//!   - Styles specified with `rename_all` and `rename_all_env` apply to the prefix as well.
+//!   - Does not apply to args explicitly given a name with `#[arg(long = "...")]`.
 //!
 //! And for [`Subcommand`][crate::Subcommand] variants:
 //! - `skip`: Ignore this variant

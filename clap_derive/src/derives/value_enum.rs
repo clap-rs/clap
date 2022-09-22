@@ -31,7 +31,7 @@ pub fn derive_value_enum(input: &DeriveInput) -> TokenStream {
                 .iter()
                 .map(|variant| {
                     let item =
-                        Item::from_value_enum_variant(variant, item.casing(), item.env_casing());
+                        Item::from_value_enum_variant(variant, item.casing(), item.env_casing(), item.prefix());
                     (variant, item)
                 })
                 .collect::<Vec<_>>();

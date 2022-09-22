@@ -89,6 +89,7 @@ impl Parse for ClapAttr {
         let magic = match name_str.as_str() {
             "rename_all" => Some(MagicAttrName::RenameAll),
             "rename_all_env" => Some(MagicAttrName::RenameAllEnv),
+            "prefix" => Some(MagicAttrName::Prefix),
             "skip" => Some(MagicAttrName::Skip),
             "next_display_order" => Some(MagicAttrName::NextDisplayOrder),
             "next_help_heading" => Some(MagicAttrName::NextHelpHeading),
@@ -167,6 +168,7 @@ pub enum MagicAttrName {
     Version,
     RenameAllEnv,
     RenameAll,
+    Prefix,
     Skip,
     DefaultValueT,
     DefaultValuesT,

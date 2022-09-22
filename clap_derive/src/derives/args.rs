@@ -41,7 +41,7 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
                 .named
                 .iter()
                 .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing(), item.prefix());
                     (field, item)
                 })
                 .collect::<Vec<_>>();
@@ -57,7 +57,7 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
             let fields = fields
                 .iter()
                 .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing(), item.prefix());
                     (field, item)
                 })
                 .collect::<Vec<_>>();

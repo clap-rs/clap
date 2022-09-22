@@ -36,7 +36,7 @@ pub fn derive_subcommand(input: &DeriveInput) -> TokenStream {
                 .iter()
                 .map(|variant| {
                     let item =
-                        Item::from_subcommand_variant(variant, item.casing(), item.env_casing());
+                        Item::from_subcommand_variant(variant, item.casing(), item.env_casing(), item.prefix());
                     (variant, item)
                 })
                 .collect::<Vec<_>>();
@@ -268,7 +268,7 @@ fn gen_augment(
                                 .named
                                 .iter()
                                 .map(|field| {
-                                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                                    let item = Item::from_args_field(field, item.casing(), item.env_casing(), item.prefix());
                                     (field, item)
                                 })
                                 .collect::<Vec<_>>();
@@ -476,7 +476,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
                     .named
                     .iter()
                     .map(|field| {
-                        let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                        let item = Item::from_args_field(field, item.casing(), item.env_casing(), item.prefix());
                         (field, item)
                     })
                     .collect::<Vec<_>>();
@@ -586,7 +586,7 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
                     .named
                     .iter()
                     .map(|field| {
-                        let item = Item::from_args_field(field, item.casing(), item.env_casing());
+                        let item = Item::from_args_field(field, item.casing(), item.env_casing(), item.prefix());
                         (field, item)
                     })
                     .collect::<Vec<_>>();
