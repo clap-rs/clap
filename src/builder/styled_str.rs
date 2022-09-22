@@ -22,6 +22,12 @@ impl StyledStr {
         }
     }
 
+    /// Display using [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code) styling
+    #[cfg(feature = "color")]
+    pub fn ansi(&self) -> impl std::fmt::Display + '_ {
+        AnsiDisplay { styled: self }
+    }
+
     pub(crate) fn header(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Header), msg.into());
     }
@@ -284,6 +290,26 @@ impl std::fmt::Display for StyledStr {
         for (_, content) in self.iter() {
             std::fmt::Display::fmt(content, f)?;
         }
+
+        Ok(())
+    }
+}
+
+#[cfg(feature = "color")]
+struct AnsiDisplay<'s> {
+    styled: &'s StyledStr,
+}
+
+#[cfg(feature = "color")]
+impl std::fmt::Display for AnsiDisplay<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let mut buffer = termcolor::Buffer::ansi();
+        self.styled
+            .write_colored(&mut buffer)
+            .map_err(|_| std::fmt::Error)?;
+        let buffer = buffer.into_inner();
+        let buffer = String::from_utf8(buffer).map_err(|_| std::fmt::Error)?;
+        std::fmt::Display::fmt(&buffer, f)?;
 
         Ok(())
     }

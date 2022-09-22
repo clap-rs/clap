@@ -227,6 +227,7 @@ Easier to catch changes:
 - `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue` to remove an unnecessary special case (#3676, #3968)
 - `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` to remove an unnecessary special case (#3676)
 - Changed the default type of `allow_external_subcommands` from `String` to `OsString` as that is less likely to cause bugs in user applications (#3990)
+- `Command::render_usage` now returns a `StyledStr`
 - *(derive)* Changed the default for arguments from `parse` to `value_parser`, removing `parse` support (#3827, #3981)
   - `#[clap(value_parser)]` and `#[clap(action)]` are now redundant
 - *(derive)* `subcommand_required(true).arg_required_else_help(true)` is set instead of `SubcommandRequiredElseHelp` to give more meaningful errors when subcommands are missing and to reduce redundancy (#3280)
@@ -256,6 +257,7 @@ Deprecated
 - `Command::trailing_var_arg` in favor of `Arg::trailing_var_arg` to make it clearer which arg it is meant to apply to (#4187)
 - `Command::allow_hyphen_values` in favor of `Arg::allow_hyphen_values` to make it clearer which arg it is meant to apply to (#4187)
 - `Command::allow_negative_numbers` in favor of `Arg::allow_negative_numbers` to make it clearer which arg it is meant to apply to (#4187)
+- *(help)* Deprecated `Command::write_help` and `Command::write_long_help` in favor of `Command::render_help` and `Command::render_long_help`
 - *(derive)* `structopt` and `clap` attributes in favor of the more specific `command`, `arg`, and `value` to open the door for [more features](https://github.com/clap-rs/clap/issues/1807) and [clarify relationship to the builder](https://github.com/clap-rs/clap/discussions/4090) (#1807, #4180)
 - *(derive)* `#[clap(value_parser)]` and `#[clap(action)]` defaulted attributes (its the default) (#3976)
 
@@ -270,8 +272,11 @@ Behavior Changes
 - Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes with the `string` feature flag (#2150, #4223)
 - New default `error-context`, `help` and `usage` feature flags that can be turned off for smaller binaries (#4236)
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
+- *(error)* `Command::render` which can render to plain text or ANSI escape codes
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
+- *(help)* `Command::render_help` and `Command::render_long_help` which can render to plain text or ANSI escape codes
+- *(help)* `Command::render_usage` now returns a `StyledStr` which can render to plain text or ANSI escape codes
 
 ### Fixes
 

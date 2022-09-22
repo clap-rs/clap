@@ -759,9 +759,9 @@ impl Command {
         c.print()
     }
 
-    /// Writes the short help message (`-h`) to a [`io::Write`] object.
+    /// Render the short help message (`-h`) to a [`StyledStr`]
     ///
-    /// See also [`Command::write_long_help`].
+    /// See also [`Command::render_long_help`].
     ///
     /// # Examples
     ///
@@ -770,11 +770,52 @@ impl Command {
     /// use std::io;
     /// let mut cmd = Command::new("myprog");
     /// let mut out = io::stdout();
-    /// cmd.write_help(&mut out).expect("failed to write to stdout");
+    /// let help = cmd.render_help();
+    /// println!("{}", help);
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
+    pub fn render_help(&mut self) -> StyledStr {
+        self._build_self(false);
+
+        let mut styled = StyledStr::new();
+        let usage = Usage::new(self);
+        write_help(&mut styled, self, &usage, false);
+        styled
+    }
+
+    /// Render the long help message (`--help`) to a [`StyledStr`].
+    ///
+    /// See also [`Command::render_help`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Command;
+    /// use std::io;
+    /// let mut cmd = Command::new("myprog");
+    /// let mut out = io::stdout();
+    /// let help = cmd.render_long_help();
+    /// println!("{}", help);
+    /// ```
+    /// [`io::Write`]: std::io::Write
+    /// [`-h` (short)]: Arg::help()
+    /// [`--help` (long)]: Arg::long_help()
+    pub fn render_long_help(&mut self) -> StyledStr {
+        self._build_self(false);
+
+        let mut styled = StyledStr::new();
+        let usage = Usage::new(self);
+        write_help(&mut styled, self, &usage, true);
+        styled
+    }
+
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Command::render_help`")
+    )]
     pub fn write_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build_self(false);
 
@@ -785,22 +826,11 @@ impl Command {
         w.flush()
     }
 
-    /// Writes the long help message (`--help`) to a [`io::Write`] object.
-    ///
-    /// See also [`Command::write_help`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::Command;
-    /// use std::io;
-    /// let mut cmd = Command::new("myprog");
-    /// let mut out = io::stdout();
-    /// cmd.write_long_help(&mut out).expect("failed to write to stdout");
-    /// ```
-    /// [`io::Write`]: std::io::Write
-    /// [`-h` (short)]: Arg::help()
-    /// [`--help` (long)]: Arg::long_help()
+    #[doc(hidden)]
+    #[cfg_attr(
+        feature = "deprecated",
+        deprecated(since = "4.0.0", note = "Replaced with `Command::render_long_help`")
+    )]
     pub fn write_long_help<W: io::Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build_self(false);
 
@@ -869,8 +899,8 @@ impl Command {
     /// let mut cmd = Command::new("myprog");
     /// println!("{}", cmd.render_usage());
     /// ```
-    pub fn render_usage(&mut self) -> String {
-        self.render_usage_().unwrap_or_default().to_string()
+    pub fn render_usage(&mut self) -> StyledStr {
+        self.render_usage_().unwrap_or_default()
     }
 
     pub(crate) fn render_usage_(&mut self) -> Option<StyledStr> {

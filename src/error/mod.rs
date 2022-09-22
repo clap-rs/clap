@@ -195,6 +195,27 @@ impl<F: ErrorFormatter> Error<F> {
         c.print()
     }
 
+    /// Render the error message to a [`StyledStr`].
+    ///
+    /// # Example
+    /// ```no_run
+    /// use clap::Command;
+    ///
+    /// match Command::new("Command").try_get_matches() {
+    ///     Ok(matches) => {
+    ///         // do_something
+    ///     },
+    ///     Err(err) => {
+    ///         let err = err.render();
+    ///         println!("{}", err);
+    ///         // do_something
+    ///     },
+    /// };
+    /// ```
+    pub fn render(&self) -> StyledStr {
+        self.formatted().into_owned()
+    }
+
     fn new(kind: ErrorKind) -> Self {
         Self {
             inner: Box::new(ErrorInner {
