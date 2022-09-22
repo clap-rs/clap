@@ -272,10 +272,11 @@ Behavior Changes
 - Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes with the `string` feature flag (#2150, #4223)
 - New default `error-context`, `help` and `usage` feature flags that can be turned off for smaller binaries (#4236)
 - *(error)* `Error::apply` for changing the formatter for dropping binary size (#4111)
-- *(error)* `Command::render`
+- *(error)* `Command::render` which can render to plain text or ANSI escape codes
 - *(help)* Show `PossibleValue::help` in long help (`--help`) (#3312)
 - *(help)* New `{tab}` variable for `Command::help_template` (#4161)
-- *(help)* `Command::render_help` and `Command::render_long_help`
+- *(help)* `Command::render_help` and `Command::render_long_help` which can render to plain text or ANSI escape codes
+- *(help)* `Command::render_usage` now returns a `StyledStr` which can render to plain text or ANSI escape codes
 
 ### Fixes
 
