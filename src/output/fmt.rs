@@ -82,10 +82,9 @@ impl std::fmt::Display for Colorizer {
 
 #[cfg(feature = "color")]
 fn is_a_tty(stream: Stream) -> bool {
-    let stream = match stream {
-        Stream::Stdout => atty::Stream::Stdout,
-        Stream::Stderr => atty::Stream::Stderr,
-    };
-
-    atty::is(stream)
+    use is_terminal::IsTerminal;
+    match stream {
+        Stream::Stdout => std::io::stdout().is_terminal(),
+        Stream::Stderr => std::io::stderr().is_terminal(),
+    }
 }
