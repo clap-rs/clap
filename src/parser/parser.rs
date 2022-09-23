@@ -1179,7 +1179,14 @@ impl<'cmd> Parser<'cmd> {
                     self.cur_idx.set(self.cur_idx.get() + 1);
                     debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
                 }
-                matcher.remove(&arg.id);
+                if matcher.remove(&arg.id) && !self.cmd.is_args_override_self() {
+                    return Err(ClapError::argument_conflict(
+                        self.cmd,
+                        arg.to_string(),
+                        vec![arg.to_string()],
+                        Usage::new(self.cmd).create_usage_with_title(&[]),
+                    ));
+                }
                 self.start_custom_arg(matcher, arg, source);
                 self.push_arg_values(arg, raw_vals, matcher)?;
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
@@ -1213,7 +1220,14 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                matcher.remove(&arg.id);
+                if matcher.remove(&arg.id) && !self.cmd.is_args_override_self() {
+                    return Err(ClapError::argument_conflict(
+                        self.cmd,
+                        arg.to_string(),
+                        vec![arg.to_string()],
+                        Usage::new(self.cmd).create_usage_with_title(&[]),
+                    ));
+                }
                 self.start_custom_arg(matcher, arg, source);
                 self.push_arg_values(arg, raw_vals, matcher)?;
                 Ok(ParseResult::ValuesDone)
@@ -1225,7 +1239,14 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                matcher.remove(&arg.id);
+                if matcher.remove(&arg.id) && self.cmd.is_args_override_self() {
+                    return Err(ClapError::argument_conflict(
+                        self.cmd,
+                        arg.to_string(),
+                        vec![arg.to_string()],
+                        Usage::new(self.cmd).create_usage_with_title(&[]),
+                    ));
+                }
                 self.start_custom_arg(matcher, arg, source);
                 self.push_arg_values(arg, raw_vals, matcher)?;
                 Ok(ParseResult::ValuesDone)

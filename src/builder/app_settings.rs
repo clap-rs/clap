@@ -31,6 +31,7 @@ pub(crate) enum AppSettings {
     IgnoreErrors,
     AllowHyphenValues,
     AllowNegativeNumbers,
+    AllArgsOverrideSelf,
     AllowMissingPositional,
     TrailingVarArg,
     DontDelimitTrailingValues,
@@ -93,6 +94,7 @@ bitflags! {
         const VALID_ARG_FOUND                = 1 << 35;
         const INFER_SUBCOMMANDS              = 1 << 36;
         const CONTAINS_LAST                  = 1 << 37;
+        const ARGS_OVERRIDE_SELF             = 1 << 38;
         const HELP_REQUIRED                  = 1 << 39;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 40;
         const DISABLE_HELP_FLAG              = 1 << 41;
@@ -163,6 +165,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::BIN_NAME_BUILT,
     InferSubcommands
         => Flags::INFER_SUBCOMMANDS,
+    AllArgsOverrideSelf
+        => Flags::ARGS_OVERRIDE_SELF,
     InferLongArgs
         => Flags::INFER_LONG_ARGS
 }

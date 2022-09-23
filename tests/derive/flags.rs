@@ -21,6 +21,7 @@ use clap::Parser;
 #[test]
 fn bool_type_is_flag() {
     #[derive(Parser, PartialEq, Eq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, long)]
         alice: bool,

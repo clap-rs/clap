@@ -657,7 +657,7 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     ///             )
     ///     );
     ///
-    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
     ///     matches.get_one::<usize>("flag").copied(),

@@ -223,6 +223,7 @@ fn grouped_interleaved_positional_occurrences() {
 #[test]
 fn issue_2171() {
     let schema = Command::new("ripgrep#1701 reproducer")
+        .args_override_self(true)
         .arg(
             Arg::new("pretty")
                 .short('p')

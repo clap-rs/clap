@@ -101,8 +101,8 @@ impl ArgMatcher {
         self.matches.args.get_mut(arg)
     }
 
-    pub(crate) fn remove(&mut self, arg: &Id) {
-        self.matches.args.remove(arg);
+    pub(crate) fn remove(&mut self, arg: &Id) -> bool {
+        self.matches.args.remove(arg).is_some()
     }
 
     pub(crate) fn contains(&self, arg: &Id) -> bool {

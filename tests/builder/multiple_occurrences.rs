@@ -3,6 +3,7 @@ use clap::{arg, Arg, ArgAction, Command};
 #[test]
 fn multiple_occurrences_of_flags_long() {
     let m = Command::new("mo_flags_long")
+        .args_override_self(true)
         .arg(arg!(--multflag "allowed multiple flag").action(ArgAction::SetTrue))
         .arg(arg!(--flag "disallowed multiple flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "--multflag", "--flag", "--multflag"])
@@ -16,6 +17,7 @@ fn multiple_occurrences_of_flags_long() {
 #[test]
 fn multiple_occurrences_of_flags_short() {
     let m = Command::new("mo_flags_short")
+        .args_override_self(true)
         .arg(arg!(-m --multflag "allowed multiple flag").action(ArgAction::SetTrue))
         .arg(arg!(-f --flag "disallowed multiple flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["", "-m", "-f", "-m"])

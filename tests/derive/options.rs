@@ -21,6 +21,7 @@ use clap::{Parser, Subcommand};
 #[test]
 fn required_option() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, long)]
         arg: i32,
@@ -47,6 +48,7 @@ fn required_option() {
 #[test]
 fn option_with_default() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, default_value = "42")]
         arg: i32,
@@ -65,6 +67,7 @@ fn option_with_default() {
 #[test]
 fn option_with_raw_default() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, default_value = "42")]
         arg: i32,
@@ -94,6 +97,7 @@ fn option_from_str() {
     }
 
     #[derive(Debug, Parser, PartialEq)]
+    #[command(args_override_self = true)]
     struct Opt {
         a: Option<A>,
     }
@@ -119,6 +123,7 @@ fn vec_from_str() {
     }
 
     #[derive(Debug, Parser, PartialEq)]
+    #[command(args_override_self = true)]
     struct Opt {
         a: Vec<A>,
     }
@@ -147,6 +152,7 @@ fn option_vec_from_str() {
     }
 
     #[derive(Debug, Parser, PartialEq)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short)]
         a: Option<Vec<A>>,
@@ -162,6 +168,7 @@ fn option_vec_from_str() {
 #[test]
 fn option_type_is_optional() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short)]
         arg: Option<i32>,
@@ -181,6 +188,7 @@ fn option_type_is_optional() {
 fn required_with_option_type() {
     #[derive(Debug, PartialEq, Eq, Parser)]
     #[command(subcommand_negates_reqs = true)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(required = true)]
         req_str: Option<String>,
@@ -223,6 +231,7 @@ fn ignore_qualified_option_type() {
     }
 
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(value_parser = parser)]
         arg: ::std::option::Option<String>,
@@ -239,6 +248,7 @@ fn ignore_qualified_option_type() {
 #[test]
 fn option_option_type_is_optional_value() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short)]
         #[allow(clippy::option_option)]
@@ -266,6 +276,7 @@ fn option_option_type_is_optional_value() {
 #[test]
 fn option_option_type_help() {
     #[derive(Parser, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(long, value_name = "val")]
         arg: Option<Option<i32>>,
@@ -278,6 +289,7 @@ fn option_option_type_help() {
 #[test]
 fn two_option_option_types() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short)]
         arg: Option<Option<i32>>,
@@ -332,6 +344,7 @@ fn two_option_option_types() {
 #[test]
 fn vec_type_is_multiple_occurrences() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, long)]
         arg: Vec<i32>,
@@ -350,6 +363,7 @@ fn vec_type_is_multiple_occurrences() {
 #[test]
 fn vec_type_with_required() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, long, required = true)]
         arg: Vec<i32>,
@@ -368,6 +382,7 @@ fn vec_type_with_required() {
 #[test]
 fn vec_type_with_multiple_values_only() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, long, num_args(1..))]
         arg: Vec<i32>,
@@ -390,6 +405,7 @@ fn ignore_qualified_vec_type() {
     }
 
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(value_parser = parser)]
         arg: ::std::vec::Vec<String>,
@@ -406,6 +422,7 @@ fn ignore_qualified_vec_type() {
 #[test]
 fn option_vec_type() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short)]
         arg: Option<Vec<i32>>,
@@ -428,6 +445,7 @@ fn option_vec_type() {
 #[test]
 fn option_vec_type_structopt_behavior() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short, long, num_args(0..))]
         arg: Option<Vec<i32>>,
@@ -455,6 +473,7 @@ fn option_vec_type_structopt_behavior() {
 #[test]
 fn two_option_vec_types() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(short)]
         arg: Option<Vec<i32>>,
@@ -496,6 +515,7 @@ fn two_option_vec_types() {
 #[test]
 fn explicit_value_parser() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(long, value_parser = clap::value_parser!(i32))]
         arg: i32,
@@ -509,6 +529,7 @@ fn explicit_value_parser() {
 #[test]
 fn implicit_value_parser() {
     #[derive(Parser, PartialEq, Debug)]
+    #[command(args_override_self = true)]
     struct Opt {
         #[arg(long)]
         arg: i32,

@@ -401,7 +401,7 @@ fn option_max_more() {
 
 #[test]
 fn optional_value() {
-    let mut cmd = Command::new("test").arg(
+    let mut cmd = Command::new("test").args_override_self(true).arg(
         Arg::new("port")
             .short('p')
             .value_name("NUM")

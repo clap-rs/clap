@@ -1,6 +1,7 @@
 #![allow(clippy::bool_assert_comparison)]
 
 use clap::builder::ArgPredicate;
+use clap::error::ErrorKind;
 use clap::Arg;
 use clap::ArgAction;
 use clap::Command;
@@ -22,8 +23,15 @@ fn set() {
     assert_eq!(matches.contains_id("mammal"), true);
     assert_eq!(matches.index_of("mammal"), Some(2));
 
+    let result = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "dog", "--mammal", "cat"]);
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+
     let matches = cmd
         .clone()
+        .args_override_self(true)
         .try_get_matches_from(["test", "--mammal", "dog", "--mammal", "cat"])
         .unwrap();
     assert_eq!(matches.get_one::<String>("mammal").unwrap(), "cat");
@@ -88,8 +96,15 @@ fn set_true() {
     assert_eq!(matches.contains_id("mammal"), true);
     assert_eq!(matches.index_of("mammal"), Some(1));
 
+    let result = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "--mammal"]);
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+
     let matches = cmd
         .clone()
+        .args_override_self(true)
         .try_get_matches_from(["test", "--mammal", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), true);

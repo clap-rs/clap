@@ -19,6 +19,7 @@ fn flag_using_short() {
 #[test]
 fn lots_o_flags_sep() {
     let r = Command::new("opts")
+        .args_override_self(true)
         .arg(arg!(o: -o ... "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec![
             "", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
@@ -53,6 +54,7 @@ fn lots_o_flags_sep() {
 #[test]
 fn lots_o_flags_combined() {
     let r = Command::new("opts")
+        .args_override_self(true)
         .arg(arg!(o: -o ... "some flag").action(ArgAction::SetTrue))
         .try_get_matches_from(vec![
             "",
