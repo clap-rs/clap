@@ -220,7 +220,7 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
     for sub in cmd.get_subcommands().filter(|s| !s.is_hide_set()) {
         roff.control("TP", []);
 
-        let name = format!("{}-{}({})", cmd.get_name(), sub.get_name(), section);
+        let name = format!("{}-{}({})", cmd.get_display_name().unwrap_or_else(|| cmd.get_name()), sub.get_name(), section);
         roff.text([roman(&name)]);
 
         if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
