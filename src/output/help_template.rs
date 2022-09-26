@@ -1020,10 +1020,11 @@ fn longest_filter(arg: &Arg) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     #[test]
+    #[cfg(feature = "wrap_help")]
     fn wrap_help_last_word() {
+        use super::*;
+
         let help = String::from("foo bar baz");
         assert_eq!(wrap(&help, 5), "foo\nbar\nbaz");
     }
@@ -1031,6 +1032,8 @@ mod test {
     #[test]
     #[cfg(feature = "unicode")]
     fn display_width_handles_non_ascii() {
+        use super::*;
+
         // Popular Danish tongue-twister, the name of a fruit dessert.
         let text = "rødgrød med fløde";
         assert_eq!(display_width(text), 17);
@@ -1042,6 +1045,8 @@ mod test {
     #[test]
     #[cfg(feature = "unicode")]
     fn display_width_handles_emojis() {
+        use super::*;
+
         let text = "😂";
         // There is a single `char`...
         assert_eq!(text.chars().count(), 1);

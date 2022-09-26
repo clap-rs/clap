@@ -125,7 +125,9 @@ Steps:
 2. *If using Builder API*: Explicitly set the `arg.action(ArgAction::...)` on each argument (`StoreValue` for options and `IncOccurrences` for flags)
 3. Run `cargo check --features clap/deprecated` and resolve all deprecation warnings
 4. Upgrade to v4
-5. *If `default-features = false`*, run `cargo add clap -F help,usage,error-context`
+5. Update feature flags
+  - *If `default-features = false`*, run `cargo add clap -F help,usage,error-context`
+  -  Run `cargo add clap -F wrap_help` unless you want to hard code line wraps
 6. Resolve compiler errors
 7. Resolve behavior changes (see "subtle changes" under BREAKING CHANGES)
 8. *At your leisure:* resolve new deprecation notices
@@ -189,6 +191,7 @@ Subtle changes (i.e. compiler won't catch):
 - *(parser)* Always fill in `""` argument for external subcommands to make it easier to distinguish them from built-in commands (#3263)
 - *(parser)* Short flags now have higher precedence than hyphen values with `Arg::allow_hyphen_values`, to be consistent with `Command::allow_hyphen_values` (#4187)
 - *(parser)* `Arg::value_terminator` must be its own argument on the CLI rather than being in a delimited list (#4025)
+- *(help)* Line wrapping of help is now behind the existing `wrap_help` feature flag, either enable it or hard code your wraps (#4258)
 - *(help)* Make `DeriveDisplayOrder` the default and removed the setting.  To sort help, set `next_display_order(None)` (#2808)
 - *(help)* Subcommand display order respects `Command::next_display_order` instead of `DeriveDisplayOrder` and using its own initial display order value (#2808)
 - *(help)* Subcommands are now listed before arguments.  To get the old behavior, see `Command::help_template` (#4132)

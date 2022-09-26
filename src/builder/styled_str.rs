@@ -101,7 +101,10 @@ impl StyledStr {
         }
     }
 
-    #[cfg(feature = "help")]
+    #[cfg(all(not(feature = "wrap_help"), feature = "help"))]
+    pub(crate) fn wrap(&mut self, _hard_width: usize) {}
+
+    #[cfg(feature = "wrap_help")]
     pub(crate) fn wrap(&mut self, hard_width: usize) {
         let mut wrapper = crate::output::textwrap::wrap_algorithms::LineWrapper::new(hard_width);
         for (_, content) in self.iter_mut() {
