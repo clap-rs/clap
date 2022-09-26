@@ -2040,7 +2040,7 @@ pub mod via_prelude {
         type Parser;
         fn value_parser(&self) -> Self::Parser;
     }
-    impl<P: ValueParserFactory> _ValueParserViaFactory for &&&_AutoValueParser<P> {
+    impl<P: ValueParserFactory> _ValueParserViaFactory for &&&&_AutoValueParser<P> {
         type Parser = P::Parser;
         fn value_parser(&self) -> Self::Parser {
             P::value_parser()
@@ -2054,12 +2054,32 @@ pub mod via_prelude {
         fn value_parser(&self) -> Self::Output;
     }
     impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> _ValueParserViaValueEnum
-        for &&_AutoValueParser<E>
+        for &&&_AutoValueParser<E>
     {
         type Output = EnumValueParser<E>;
 
         fn value_parser(&self) -> Self::Output {
             EnumValueParser::<E>::new()
+        }
+    }
+
+    #[doc(hidden)]
+    pub trait _ValueParserViaFromOsString: private::_ValueParserViaFromOsStringSealed {
+        fn value_parser(&self) -> _AnonymousValueParser;
+    }
+    impl<FromOsString> _ValueParserViaFromOsString for &&_AutoValueParser<FromOsString>
+    where
+        FromOsString: From<std::ffi::OsString> + std::any::Any + Clone + Send + Sync + 'static,
+    {
+        fn value_parser(&self) -> _AnonymousValueParser {
+            _AnonymousValueParser(
+                OsStringValueParser::new()
+                    .map(|s| {
+                        let output = FromOsString::from(s);
+                        output
+                    })
+                    .into(),
+            )
         }
     }
 
@@ -2109,7 +2129,7 @@ pub mod via_prelude {
 ///   - [Native types][ValueParser]: `bool`, `String`, `OsString`, `PathBuf`
 ///   - [Ranged numeric types][RangedI64ValueParser]: `u8`, `i8`, `u16`, `i16, `u32`, `i32`, `u64`, `i64`
 /// - [`ValueEnum` types][crate::ValueEnum]
-/// - [`From<&OsStr>` types][std::convert::From]
+/// - [`From<&OsString>` types][std::convert::From] and [`From<&OsStr>` types][std::convert::From]
 /// - [`FromStr` types][std::str::FromStr], including usize, isize
 ///
 /// # Example
@@ -2185,13 +2205,19 @@ mod private {
     use super::*;
 
     pub trait _ValueParserViaSelfSealed {}
-    impl<P: Into<ValueParser>> _ValueParserViaSelfSealed for &&&&_AutoValueParser<P> {}
+    impl<P: Into<ValueParser>> _ValueParserViaSelfSealed for &&&&&_AutoValueParser<P> {}
 
     pub trait _ValueParserViaFactorySealed {}
-    impl<P: ValueParserFactory> _ValueParserViaFactorySealed for &&&_AutoValueParser<P> {}
+    impl<P: ValueParserFactory> _ValueParserViaFactorySealed for &&&&_AutoValueParser<P> {}
 
     pub trait _ValueParserViaValueEnumSealed {}
-    impl<E: crate::ValueEnum> _ValueParserViaValueEnumSealed for &&_AutoValueParser<E> {}
+    impl<E: crate::ValueEnum> _ValueParserViaValueEnumSealed for &&&_AutoValueParser<E> {}
+
+    pub trait _ValueParserViaFromOsStringSealed {}
+    impl<FromOsString> _ValueParserViaFromOsStringSealed for &&_AutoValueParser<FromOsString> where
+        FromOsString: From<std::ffi::OsString> + std::any::Any + Send + Sync + 'static
+    {
+    }
 
     pub trait _ValueParserViaFromOsStrSealed {}
     impl<FromOsStr> _ValueParserViaFromOsStrSealed for &_AutoValueParser<FromOsStr> where
