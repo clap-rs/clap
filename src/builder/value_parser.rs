@@ -2074,10 +2074,7 @@ pub mod via_prelude {
         fn value_parser(&self) -> _AnonymousValueParser {
             _AnonymousValueParser(
                 OsStringValueParser::new()
-                    .map(|s| {
-                        let output = FromOsString::from(s);
-                        output
-                    })
+                    .map(|s| FromOsString::from(s))
                     .into(),
             )
         }
@@ -2095,10 +2092,7 @@ pub mod via_prelude {
         fn value_parser(&self) -> _AnonymousValueParser {
             _AnonymousValueParser(
                 OsStringValueParser::new()
-                    .map(|s| {
-                        let output = FromOsStr::from(&s);
-                        output
-                    })
+                    .map(|s| FromOsStr::from(&s))
                     .into(),
             )
         }
@@ -2113,14 +2107,7 @@ pub mod via_prelude {
         FromString: From<String> + std::any::Any + Clone + Send + Sync + 'static,
     {
         fn value_parser(&self) -> _AnonymousValueParser {
-            _AnonymousValueParser(
-                StringValueParser::new()
-                    .map(|s| {
-                        let output = FromString::from(s);
-                        output
-                    })
-                    .into(),
-            )
+            _AnonymousValueParser(StringValueParser::new().map(|s| FromString::from(s)).into())
         }
     }
 
@@ -2133,14 +2120,7 @@ pub mod via_prelude {
         FromStr: for<'s> From<&'s str> + std::any::Any + Clone + Send + Sync + 'static,
     {
         fn value_parser(&self) -> _AnonymousValueParser {
-            _AnonymousValueParser(
-                StringValueParser::new()
-                    .map(|s| {
-                        let output = FromStr::from(&s);
-                        output
-                    })
-                    .into(),
-            )
+            _AnonymousValueParser(StringValueParser::new().map(|s| FromStr::from(&s)).into())
         }
     }
 

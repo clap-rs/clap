@@ -131,7 +131,7 @@ impl AsRef<[u8]> for Str {
 impl AsRef<std::ffi::OsStr> for Str {
     #[inline]
     fn as_ref(&self) -> &std::ffi::OsStr {
-        (&**self).as_ref()
+        (**self).as_ref()
     }
 }
 
