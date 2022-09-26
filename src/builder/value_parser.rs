@@ -1930,25 +1930,25 @@ pub trait ValueParserFactory {
 impl ValueParserFactory for String {
     type Parser = ValueParser;
     fn value_parser() -> Self::Parser {
-        ValueParser::string()
+        ValueParser::string() // Default `clap_derive` to optimized implementation
     }
 }
 impl ValueParserFactory for std::ffi::OsString {
     type Parser = ValueParser;
     fn value_parser() -> Self::Parser {
-        ValueParser::os_string()
+        ValueParser::os_string() // Default `clap_derive` to optimized implementation
     }
 }
 impl ValueParserFactory for std::path::PathBuf {
     type Parser = ValueParser;
     fn value_parser() -> Self::Parser {
-        ValueParser::path_buf()
+        ValueParser::path_buf() // Default `clap_derive` to optimized implementation
     }
 }
 impl ValueParserFactory for bool {
     type Parser = ValueParser;
     fn value_parser() -> Self::Parser {
-        ValueParser::bool()
+        ValueParser::bool() // Default `clap_derive` to optimized implementation
     }
 }
 impl ValueParserFactory for u8 {
@@ -2204,6 +2204,7 @@ macro_rules! value_parser {
 mod private {
     use super::*;
 
+    // Prefer these so `clap_derive` defaults to optimized implementations
     pub trait _ValueParserViaSelfSealed {}
     impl<P: Into<ValueParser>> _ValueParserViaSelfSealed for &&&&&_AutoValueParser<P> {}
 
