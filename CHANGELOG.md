@@ -268,6 +268,7 @@ Behavior Changes
 
 - `Arg::num_args` now accepts ranges, allowing setting both the minimum and maximum number of values per occurrence (#2688, #4023)
 - Allow non-bool `value_parser`s for `ArgAction::SetTrue` / `ArgAction::SetFalse` (#4092)
+- Add `From<&OsStr>`, `From<OsString>`, `From<&str>`, and `From<String>` to `value_parser!` (#4257)
 - Allow resetting most builder methods
 - Can now pass runtime generated data to `Command`, `Arg`, `ArgGroup`, `PossibleValue`, etc without managing lifetimes with the `string` feature flag (#2150, #4223)
 - New default `error-context`, `help` and `usage` feature flags that can be turned off for smaller binaries (#4236)
