@@ -822,7 +822,7 @@ impl Command {
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
         write_help(&mut styled, self, &usage, false);
-        write!(w, "{}", styled)?;
+        ok!(write!(w, "{}", styled));
         w.flush()
     }
 
@@ -837,7 +837,7 @@ impl Command {
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
         write_help(&mut styled, self, &usage, true);
-        write!(w, "{}", styled)?;
+        ok!(write!(w, "{}", styled));
         w.flush()
     }
 
@@ -3896,7 +3896,7 @@ impl Command {
         }
         let is_multicall_set = self.is_multicall_set();
 
-        let sc = self.subcommands.iter_mut().find(|s| s.name == name)?;
+        let sc = some!(self.subcommands.iter_mut().find(|s| s.name == name));
 
         // Display subcommand name, short and long in usage
         let mut sc_names = String::new();

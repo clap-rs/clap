@@ -22,7 +22,7 @@ impl AnyValue {
     pub(crate) fn downcast_into<T: std::any::Any + Clone + Send + Sync>(self) -> Result<T, Self> {
         let id = self.id;
         let value =
-            std::sync::Arc::downcast::<T>(self.inner).map_err(|inner| Self { inner, id })?;
+            ok!(std::sync::Arc::downcast::<T>(self.inner).map_err(|inner| Self { inner, id }));
         let value = std::sync::Arc::try_unwrap(value).unwrap_or_else(|arc| (*arc).clone());
         Ok(value)
     }

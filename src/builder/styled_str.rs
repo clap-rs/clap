@@ -223,9 +223,9 @@ impl StyledStr {
                 None => {}
             }
 
-            buffer.set_color(&color)?;
-            buffer.write_all(content.as_bytes())?;
-            buffer.reset()?;
+            ok!(buffer.set_color(&color));
+            ok!(buffer.write_all(content.as_bytes()));
+            ok!(buffer.reset());
         }
 
         Ok(())
@@ -291,7 +291,7 @@ fn cmp_key(c: (Option<Style>, &str)) -> (Option<usize>, &str) {
 impl std::fmt::Display for StyledStr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         for (_, content) in self.iter() {
-            std::fmt::Display::fmt(content, f)?;
+            ok!(std::fmt::Display::fmt(content, f));
         }
 
         Ok(())
@@ -307,12 +307,13 @@ struct AnsiDisplay<'s> {
 impl std::fmt::Display for AnsiDisplay<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut buffer = termcolor::Buffer::ansi();
-        self.styled
+        ok!(self
+            .styled
             .write_colored(&mut buffer)
-            .map_err(|_| std::fmt::Error)?;
+            .map_err(|_| std::fmt::Error));
         let buffer = buffer.into_inner();
-        let buffer = String::from_utf8(buffer).map_err(|_| std::fmt::Error)?;
-        std::fmt::Display::fmt(&buffer, f)?;
+        let buffer = ok!(String::from_utf8(buffer).map_err(|_| std::fmt::Error));
+        ok!(std::fmt::Display::fmt(&buffer, f));
 
         Ok(())
     }

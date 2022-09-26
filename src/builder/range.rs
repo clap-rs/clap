@@ -172,10 +172,10 @@ impl From<std::ops::RangeToInclusive<usize>> for ValueRange {
 
 impl std::fmt::Display for ValueRange {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        self.start_inclusive.fmt(f)?;
+        ok!(self.start_inclusive.fmt(f));
         if !self.is_fixed() {
-            "..=".fmt(f)?;
-            self.end_inclusive.fmt(f)?;
+            ok!("..=".fmt(f));
+            ok!(self.end_inclusive.fmt(f));
         }
         Ok(())
     }

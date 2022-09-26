@@ -661,3 +661,15 @@ macro_rules! debug {
 macro_rules! debug {
     ($($arg:tt)*) => {};
 }
+
+macro_rules! ok {
+    ($expr:expr) => {
+        $expr?
+    };
+}
+
+macro_rules! some {
+    ($expr:expr) => {
+        $expr?
+    };
+}

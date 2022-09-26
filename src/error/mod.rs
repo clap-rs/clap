@@ -694,11 +694,11 @@ impl<F: ErrorFormatter> error::Error for Error<F> {
 impl<F: ErrorFormatter> Display for Error<F> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         // Assuming `self.message` already has a trailing newline, from `try_help` or similar
-        write!(f, "{}", self.formatted())?;
+        ok!(write!(f, "{}", self.formatted()));
         if let Some(backtrace) = self.inner.backtrace.as_ref() {
-            writeln!(f)?;
-            writeln!(f, "Backtrace:")?;
-            writeln!(f, "{}", backtrace)?;
+            ok!(writeln!(f));
+            ok!(writeln!(f, "Backtrace:"));
+            ok!(writeln!(f, "{}", backtrace));
         }
         Ok(())
     }

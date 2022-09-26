@@ -35,7 +35,7 @@ impl<'cmd> Usage<'cmd> {
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
     pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_with_title");
-        let usage = self.create_usage_no_title(used)?;
+        let usage = some!(self.create_usage_no_title(used));
 
         let mut styled = StyledStr::new();
         styled.header("Usage:");
