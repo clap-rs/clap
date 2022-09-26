@@ -531,6 +531,7 @@ Options:
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn issue_626_unicode_cutoff() {
     static ISSUE_626_CUTOFF: &str = "\
 Usage: ctest [OPTIONS]
@@ -679,6 +680,7 @@ Options:
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn issue_626_panic() {
     static ISSUE_626_PANIC: &str = "\
 Usage: ctest [OPTIONS]
@@ -713,6 +715,7 @@ Options:
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn issue_626_variable_panic() {
     for i in 10..320 {
         let _ = Command::new("ctest")
@@ -731,6 +734,7 @@ fn issue_626_variable_panic() {
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn final_word_wrapping() {
     static FINAL_WORD_WRAPPING: &str = "\
 Usage: ctest
@@ -748,7 +752,10 @@ Options:
     utils::assert_output(cmd, "ctest --help", FINAL_WORD_WRAPPING, false);
 }
 
-static WRAPPING_NEWLINE_CHARS: &str = "\
+#[test]
+#[cfg(feature = "wrap_help")]
+fn wrapping_newline_chars() {
+    static WRAPPING_NEWLINE_CHARS: &str = "\
 Usage: ctest [mode]
 
 Arguments:
@@ -763,8 +770,6 @@ Options:
   -V, --version  Print version information
 ";
 
-#[test]
-fn wrapping_newline_chars() {
     let cmd = Command::new("ctest")
         .version("0.1")
         .term_width(60)
@@ -777,7 +782,23 @@ fn wrapping_newline_chars() {
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn wrapping_newline_variables() {
+    static WRAPPING_NEWLINE_CHARS: &str = "\
+Usage: ctest [mode]
+
+Arguments:
+  [mode]  x, max, maximum   20 characters, contains symbols.
+          l, long           Copy-friendly, 14 characters,
+          contains symbols.
+          m, med, medium    Copy-friendly, 8 characters,
+          contains symbols.
+
+Options:
+  -h, --help     Print help information
+  -V, --version  Print version information
+";
+
     let cmd = Command::new("ctest")
         .version("0.1")
         .term_width(60)
@@ -790,6 +811,7 @@ fn wrapping_newline_variables() {
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn dont_wrap_urls() {
     let cmd = Command::new("Example")
         .term_width(30)
@@ -849,6 +871,7 @@ fn old_newline_variables() {
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn issue_688_hide_pos_vals() {
     static ISSUE_688: &str = "\
 Usage: ctest [OPTIONS]
@@ -1147,6 +1170,7 @@ Options:
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn issue_777_wrap_all_things() {
     static ISSUE_777: &str = "A cmd with a crazy very long long
 long name hahaha 1.0
@@ -1423,6 +1447,7 @@ fn hide_default_val() {
 }
 
 #[test]
+#[cfg(feature = "wrap_help")]
 fn escaped_whitespace_values() {
     static ESCAPED_DEFAULT_VAL: &str = "\
 Usage: default [OPTIONS]

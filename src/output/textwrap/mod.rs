@@ -5,9 +5,12 @@
 //! - `LineWrapper` is able to incrementally wrap which will help with `StyledStr
 
 pub(crate) mod core;
+#[cfg(feature = "wrap_help")]
 pub(crate) mod word_separators;
+#[cfg(feature = "wrap_help")]
 pub(crate) mod wrap_algorithms;
 
+#[cfg(feature = "wrap_help")]
 pub(crate) fn wrap(content: &str, hard_width: usize) -> String {
     let mut wrapper = wrap_algorithms::LineWrapper::new(hard_width);
     let mut total = Vec::new();
@@ -19,7 +22,13 @@ pub(crate) fn wrap(content: &str, hard_width: usize) -> String {
     total.join("")
 }
 
+#[cfg(not(feature = "wrap_help"))]
+pub(crate) fn wrap(content: &str, _hard_width: usize) -> String {
+    content.to_owned()
+}
+
 #[cfg(test)]
+#[cfg(feature = "wrap_help")]
 mod test {
     /// Compatibility shim to keep textwrap's tests
     fn wrap(content: &str, hard_width: usize) -> Vec<String> {

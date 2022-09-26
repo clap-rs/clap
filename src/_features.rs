@@ -19,7 +19,7 @@
 //! * **env**: Turns on the usage of environment variables during parsing.
 //! * **unicode**: Turns on support for unicode characters (including emoji) in arguments and help messages.
 //! * **wrap_help**: Turns on the help text wrapping feature, based on the terminal size.
-//! * **string**: Allow runtime generated strings
+//! * **string**: Allow runtime generated strings (e.g. with [`Str`][crate::builder::Str]).
 //!
 //! #### Experimental features
 //!

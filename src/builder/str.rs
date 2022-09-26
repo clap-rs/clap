@@ -1,4 +1,7 @@
 /// A UTF-8-encoded fixed string
+///
+/// **NOTE:** To support dynamic values (i.e. `String`), enable the [`string`
+/// feature][crate::_features]
 #[derive(Default, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct Str {
     name: Inner,
