@@ -171,6 +171,29 @@ In particular, `num_args` (the replacement for `takes_value`) will default appro
 from the `ArgAction` and generally only needs to be set explicitly for the
 other `num_args` use cases.
 
+#### Migrating Derive
+- Rename `clap` to `command` or `arg`:
+Before
+```rust
+#[derive(Parser)]
+#[clap(about, version)]
+pub struct Args {
+    /// Path to config file.
+    #[clap(short, long)]
+    pub config: Option<String>,
+}
+```
+After:
+```rust
+#[derive(Parser)]
+#[command(about, version)]
+pub struct Args {
+    /// Path to config file.
+    #[arg(short, long)]
+    pub config: Option<String>,
+}
+```
+
 ### Breaking Changes
 
 Subtle changes (i.e. compiler won't catch):
