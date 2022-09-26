@@ -2105,18 +2105,17 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaFromStr: private::_ValueParserViaFromStrSealed {
+    pub trait _ValueParserViaParse: private::_ValueParserViaParseSealed {
         fn value_parser(&self) -> _AnonymousValueParser;
     }
-    impl<FromStr> _ValueParserViaFromStr for _AutoValueParser<FromStr>
+    impl<Parse> _ValueParserViaParse for _AutoValueParser<Parse>
     where
-        FromStr: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
-        <FromStr as std::str::FromStr>::Err:
-            Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+        Parse: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
+        <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
     {
         fn value_parser(&self) -> _AnonymousValueParser {
-            let func: fn(&str) -> Result<FromStr, <FromStr as std::str::FromStr>::Err> =
-                FromStr::from_str;
+            let func: fn(&str) -> Result<Parse, <Parse as std::str::FromStr>::Err> =
+                Parse::from_str;
             _AnonymousValueParser(ValueParser::new(func))
         }
     }
@@ -2226,12 +2225,11 @@ mod private {
     {
     }
 
-    pub trait _ValueParserViaFromStrSealed {}
-    impl<FromStr> _ValueParserViaFromStrSealed for _AutoValueParser<FromStr>
+    pub trait _ValueParserViaParseSealed {}
+    impl<Parse> _ValueParserViaParseSealed for _AutoValueParser<Parse>
     where
-        FromStr: std::str::FromStr + std::any::Any + Send + Sync + 'static,
-        <FromStr as std::str::FromStr>::Err:
-            Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+        Parse: std::str::FromStr + std::any::Any + Send + Sync + 'static,
+        <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
     {
     }
 }
