@@ -172,8 +172,9 @@ from the `ArgAction` and generally only needs to be set explicitly for the
 other `num_args` use cases.
 
 #### Migrating Derive
-- Rename `clap` to `command` or `arg`:
-Before
+- Rename `clap` to `command` or `arg`
+
+Before:
 ```rust
 #[derive(Parser)]
 #[clap(about, version)]
