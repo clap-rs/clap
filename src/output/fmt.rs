@@ -48,7 +48,7 @@ impl Colorizer {
         };
 
         let mut buffer = writer.buffer();
-        self.content.write_colored(&mut buffer)?;
+        ok!(self.content.write_colored(&mut buffer));
         writer.print(&buffer)
     }
 

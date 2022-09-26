@@ -987,7 +987,9 @@ pub(crate) fn dimensions() -> (Option<usize>, Option<usize>) {
 
 #[cfg(feature = "wrap_help")]
 fn parse_env(var: &str) -> Option<usize> {
-    std::env::var_os(var)?.to_str()?.parse::<usize>().ok()
+    some!(some!(std::env::var_os(var)).to_str())
+        .parse::<usize>()
+        .ok()
 }
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {

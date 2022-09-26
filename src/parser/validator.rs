@@ -76,9 +76,9 @@ impl<'cmd> Validator<'cmd> {
             ));
         }
 
-        self.validate_conflicts(matcher, &mut conflicts)?;
+        ok!(self.validate_conflicts(matcher, &mut conflicts));
         if !(self.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
-            self.validate_required(matcher, &mut conflicts)?;
+            ok!(self.validate_required(matcher, &mut conflicts));
         }
 
         Ok(())
@@ -91,7 +91,7 @@ impl<'cmd> Validator<'cmd> {
     ) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
 
-        self.validate_exclusive(matcher)?;
+        ok!(self.validate_exclusive(matcher));
 
         for arg_id in matcher
             .arg_ids()
@@ -100,7 +100,7 @@ impl<'cmd> Validator<'cmd> {
         {
             debug!("Validator::validate_conflicts::iter: id={:?}", arg_id);
             let conflicts = conflicts.gather_conflicts(self.cmd, matcher, arg_id);
-            self.build_conflict_err(arg_id, &conflicts, matcher)?;
+            ok!(self.build_conflict_err(arg_id, &conflicts, matcher));
         }
 
         Ok(())
@@ -361,7 +361,7 @@ impl<'cmd> Validator<'cmd> {
         }
 
         if !missing_required.is_empty() {
-            self.missing_required_error(matcher, missing_required)?;
+            ok!(self.missing_required_error(matcher, missing_required));
         }
 
         Ok(())

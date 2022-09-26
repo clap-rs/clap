@@ -661,3 +661,25 @@ macro_rules! debug {
 macro_rules! debug {
     ($($arg:tt)*) => {};
 }
+
+macro_rules! ok {
+    ($expr:expr) => {
+        match $expr {
+            Ok(val) => val,
+            Err(err) => {
+                return Err(err);
+            }
+        }
+    };
+}
+
+macro_rules! some {
+    ($expr:expr) => {
+        match $expr {
+            Some(val) => val,
+            None => {
+                return None;
+            }
+        }
+    };
+}

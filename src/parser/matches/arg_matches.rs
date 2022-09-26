@@ -454,7 +454,7 @@ impl ArgMatches {
     #[cfg(feature = "unstable-grouped")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn grouped_values_of(&self, id: &str) -> Option<GroupedValues> {
-        let arg = self.get_arg(id)?;
+        let arg = some!(self.get_arg(id));
         let v = GroupedValues {
             iter: arg.vals().map(|g| g.iter().map(unwrap_string).collect()),
             len: arg.vals().len(),
@@ -636,8 +636,8 @@ impl ArgMatches {
     /// [delimiter]: crate::Arg::value_delimiter()
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn index_of(&self, id: &str) -> Option<usize> {
-        let arg = self.get_arg(id)?;
-        let i = arg.get_index(0)?;
+        let arg = some!(self.get_arg(id));
+        let i = some!(arg.get_index(0));
         Some(i)
     }
 
@@ -718,7 +718,7 @@ impl ArgMatches {
     /// [delimiter]: Arg::value_delimiter()
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn indices_of(&self, id: &str) -> Option<Indices<'_>> {
-        let arg = self.get_arg(id)?;
+        let arg = some!(self.get_arg(id));
         let i = Indices {
             iter: arg.indices(),
             len: arg.num_vals(),
@@ -941,7 +941,7 @@ impl ArgMatches {
         &self,
         id: &str,
     ) -> Result<Option<&T>, MatchesError> {
-        let arg = self.try_get_arg_t::<T>(id)?;
+        let arg = ok!(self.try_get_arg_t::<T>(id));
         let value = match arg.and_then(|a| a.first()) {
             Some(value) => value,
             None => {
@@ -959,7 +959,7 @@ impl ArgMatches {
         &self,
         id: &str,
     ) -> Result<Option<ValuesRef<T>>, MatchesError> {
-        let arg = match self.try_get_arg_t::<T>(id)? {
+        let arg = match ok!(self.try_get_arg_t::<T>(id)) {
             Some(arg) => arg,
             None => return Ok(None),
         };
@@ -975,7 +975,7 @@ impl ArgMatches {
 
     /// Non-panicking version of [`ArgMatches::get_raw`]
     pub fn try_get_raw(&self, id: &str) -> Result<Option<RawValues<'_>>, MatchesError> {
-        let arg = match self.try_get_arg(id)? {
+        let arg = match ok!(self.try_get_arg(id)) {
             Some(arg) => arg,
             None => return Ok(None),
         };
@@ -993,7 +993,7 @@ impl ArgMatches {
         &mut self,
         id: &str,
     ) -> Result<Option<T>, MatchesError> {
-        match self.try_remove_arg_t::<T>(id)? {
+        match ok!(self.try_remove_arg_t::<T>(id)) {
             Some(values) => Ok(values
                 .into_vals_flatten()
                 // enforced by `try_get_arg_t`
@@ -1008,7 +1008,7 @@ impl ArgMatches {
         &mut self,
         id: &str,
     ) -> Result<Option<Values<T>>, MatchesError> {
-        let arg = match self.try_remove_arg_t::<T>(id)? {
+        let arg = match ok!(self.try_remove_arg_t::<T>(id)) {
             Some(arg) => arg,
             None => return Ok(None),
         };
@@ -1024,7 +1024,7 @@ impl ArgMatches {
 
     /// Non-panicking version of [`ArgMatches::contains_id`]
     pub fn try_contains_id(&self, id: &str) -> Result<bool, MatchesError> {
-        self.verify_arg(id)?;
+        ok!(self.verify_arg(id));
 
         let presence = self.args.contains_key(id);
         Ok(presence)
@@ -1035,7 +1035,7 @@ impl ArgMatches {
 impl ArgMatches {
     #[inline]
     fn try_get_arg(&self, arg: &str) -> Result<Option<&MatchedArg>, MatchesError> {
-        self.verify_arg(arg)?;
+        ok!(self.verify_arg(arg));
         Ok(self.args.get(arg))
     }
 
@@ -1044,13 +1044,13 @@ impl ArgMatches {
         &self,
         arg: &str,
     ) -> Result<Option<&MatchedArg>, MatchesError> {
-        let arg = match self.try_get_arg(arg)? {
+        let arg = match ok!(self.try_get_arg(arg)) {
             Some(arg) => arg,
             None => {
                 return Ok(None);
             }
         };
-        self.verify_arg_t::<T>(arg)?;
+        ok!(self.verify_arg_t::<T>(arg));
         Ok(Some(arg))
     }
 
@@ -1059,7 +1059,7 @@ impl ArgMatches {
         &mut self,
         arg: &str,
     ) -> Result<Option<MatchedArg>, MatchesError> {
-        self.verify_arg(arg)?;
+        ok!(self.verify_arg(arg));
         let (id, matched) = match self.args.remove_entry(arg) {
             Some((id, matched)) => (id, matched),
             None => {
