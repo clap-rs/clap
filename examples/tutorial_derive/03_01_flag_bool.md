@@ -16,6 +16,11 @@ $ 03_01_flag_bool_derive --verbose
 verbose: true
 
 $ 03_01_flag_bool_derive --verbose --verbose
-verbose: true
+? failed
+error: The argument '--verbose' cannot be used with '--verbose'
+
+Usage: 03_01_flag_bool_derive[EXE] [OPTIONS]
+
+For more information try '--help'
 
 ```

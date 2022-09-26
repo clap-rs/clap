@@ -183,6 +183,9 @@ Subtle changes (i.e. compiler won't catch):
   - `ArgAction::Count`, requiring `ArgMatches::get_count` instead of `ArgMatches::occurrences_of`
   - `ArgAction::Set`, requiring `ArgMatches::get_one` instead of `ArgMatches::value_of`
   - `ArgAction::Append`, requiring `ArgMatches::get_many` instead of `ArgMatches::values_of`
+- `ArgAction::Set`, `ArgAction::SetTrue`, and `Arg::Action::SetFalse` now
+  conflict by default to be like `ArgAction::StoreValue` and
+  `ArgAction::IncOccurrences`, requiring `cmd.args_override_self(true)` to override instead (#4261)
 - By default, an `Arg`s default action is `ArgAction::Set`, rather than `ArgAction::IncOccurrence` to reduce confusing magic through consistency (#2687, #4032, see also #3977)
 - `mut_arg` can no longer be used to customize help and version arguments, instead disable them (`Command::disable_help_flag`, `Command::disable_version_flag`) and provide your own (#4056)
 - Removed lifetimes from `Command`, `Arg`, `ArgGroup`, and `PossibleValue`, assuming `'static`.  `string` feature flag will enable support for `String`s (#1041, #2150, #4223)

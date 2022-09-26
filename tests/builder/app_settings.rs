@@ -987,64 +987,10 @@ fn built_in_subcommand_escaped() {
 }
 
 #[test]
-fn aaos_flags() {
-    // flags
-    let cmd = Command::new("posix").arg(arg!(--flag  "some flag").action(ArgAction::SetTrue));
-
-    let res = cmd.clone().try_get_matches_from(vec!["", "--flag"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("flag"));
-    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
-
-    let res = cmd.try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("flag"));
-    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
-}
-
-#[test]
-fn aaos_flags_mult() {
-    // flags with multiple
-    let cmd = Command::new("posix").arg(arg!(--flag  "some flag").action(ArgAction::Count));
-
-    let res = cmd.clone().try_get_matches_from(vec!["", "--flag"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("flag"));
-    assert_eq!(*m.get_one::<u8>("flag").expect("defaulted by clap"), 1);
-
-    let res = cmd.try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("flag"));
-    assert_eq!(*m.get_one::<u8>("flag").expect("defaulted by clap"), 4);
-}
-
-#[test]
-fn aaos_opts() {
-    // opts
-    let res = Command::new("posix")
-        .arg(
-            arg!(--opt <val> "some option")
-                .required(true)
-                .action(ArgAction::Set),
-        )
-        .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
-    assert!(res.is_ok(), "{}", res.unwrap_err());
-    let m = res.unwrap();
-    assert!(m.contains_id("opt"));
-    assert_eq!(
-        m.get_one::<String>("opt").map(|v| v.as_str()),
-        Some("other")
-    );
-}
-
-#[test]
 fn aaos_opts_w_other_overrides() {
     // opts with other overrides
     let res = Command::new("posix")
+        .args_override_self(true)
         .arg(arg!(--opt <val> "some option").action(ArgAction::Set))
         .arg(
             arg!(--other <val> "some other option")
@@ -1066,6 +1012,7 @@ fn aaos_opts_w_other_overrides() {
 fn aaos_opts_w_other_overrides_rev() {
     // opts with other overrides, rev
     let res = Command::new("posix")
+        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(true)
@@ -1092,6 +1039,7 @@ fn aaos_opts_w_other_overrides_rev() {
 fn aaos_opts_w_other_overrides_2() {
     // opts with other overrides
     let res = Command::new("posix")
+        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .overrides_with("other")
@@ -1113,6 +1061,7 @@ fn aaos_opts_w_other_overrides_2() {
 fn aaos_opts_w_other_overrides_rev_2() {
     // opts with other overrides, rev
     let res = Command::new("posix")
+        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(true)
@@ -1259,6 +1208,7 @@ fn aaos_pos_mult() {
 #[test]
 fn aaos_option_use_delim_false() {
     let m = Command::new("posix")
+        .args_override_self(true)
         .arg(
             arg!(--opt <val> "some option")
                 .required(true)

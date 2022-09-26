@@ -978,6 +978,23 @@ impl Command {
         }
     }
 
+    /// Specifies that all arguments override themselves.
+    ///
+    /// This is the equivalent to saying the `foo` arg using [`Arg::overrides_with("foo")`] for all
+    /// defined arguments.
+    ///
+    /// **NOTE:** This choice is propagated to all child subcommands.
+    ///
+    /// [`Arg::overrides_with("foo")`]: crate::Arg::overrides_with()
+    #[inline]
+    pub fn args_override_self(self, yes: bool) -> Self {
+        if yes {
+            self.global_setting(AppSettings::AllArgsOverrideSelf)
+        } else {
+            self.unset_global_setting(AppSettings::AllArgsOverrideSelf)
+        }
+    }
+
     /// Disables the automatic delimiting of values after `--` or when [`Command::trailing_var_arg`]
     /// was used.
     ///
@@ -3669,6 +3686,11 @@ impl Command {
     /// Report whether [`Command::args_conflicts_with_subcommands`] is set
     pub fn is_args_conflicts_with_subcommands_set(&self) -> bool {
         self.is_set(AppSettings::ArgsNegateSubcommands)
+    }
+
+    #[doc(hidden)]
+    pub fn is_args_override_self(&self) -> bool {
+        self.is_set(AppSettings::AllArgsOverrideSelf)
     }
 
     /// Report whether [`Command::subcommand_precedence_over_arg`] is set

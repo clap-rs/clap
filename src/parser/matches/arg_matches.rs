@@ -162,7 +162,7 @@ impl ArgMatches {
     ///             .action(clap::ArgAction::SetTrue)
     ///     );
     ///
-    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
     ///     matches.get_flag("flag"),

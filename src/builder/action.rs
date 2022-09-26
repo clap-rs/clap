@@ -27,6 +27,10 @@
 pub enum ArgAction {
     /// When encountered, store the associated value(s) in [`ArgMatches`][crate::ArgMatches]
     ///
+    /// **NOTE:** If the argument has previously been seen, it will result in a
+    /// [`ArgumentConflict`][crate::error::ErrorKind::ArgumentConflict] unless
+    /// [`Command::args_override_self(true)`][crate::Command::args_override_self] is set.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -76,6 +80,10 @@ pub enum ArgAction {
     /// No value is allowed. To optionally accept a value, see
     /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
+    /// **NOTE:** If the argument has previously been seen, it will result in a
+    /// [`ArgumentConflict`][crate::error::ErrorKind::ArgumentConflict] unless
+    /// [`Command::args_override_self(true)`][crate::Command::args_override_self] is set.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -88,7 +96,7 @@ pub enum ArgAction {
     ///             .action(clap::ArgAction::SetTrue)
     ///     );
     ///
-    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
     ///     matches.get_one::<bool>("flag").copied(),
@@ -123,7 +131,7 @@ pub enum ArgAction {
     ///             )
     ///     );
     ///
-    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag", "--flag"]).unwrap();
+    /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
     ///     matches.get_one::<usize>("flag").copied(),
@@ -144,6 +152,10 @@ pub enum ArgAction {
     ///
     /// No value is allowed. To optionally accept a value, see
     /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
+    ///
+    /// **NOTE:** If the argument has previously been seen, it will result in a
+    /// [`ArgumentConflict`][crate::error::ErrorKind::ArgumentConflict] unless
+    /// [`Command::args_override_self(true)`][crate::Command::args_override_self] is set.
     ///
     /// # Examples
     ///

@@ -3,6 +3,7 @@ use clap::{Arg, ArgAction, Command};
 #[test]
 fn indices_mult_opts() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(
             Arg::new("exclude")
                 .short('e')
@@ -32,6 +33,7 @@ fn indices_mult_opts() {
 #[test]
 fn index_mult_opts() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(
             Arg::new("exclude")
                 .short('e')
@@ -55,6 +57,7 @@ fn index_mult_opts() {
 #[test]
 fn index_flag() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(Arg::new("exclude").short('e').action(ArgAction::SetTrue))
         .arg(Arg::new("include").short('i').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["ind", "-e", "-i"])
@@ -67,6 +70,7 @@ fn index_flag() {
 #[test]
 fn index_flags() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(Arg::new("exclude").short('e').action(ArgAction::SetTrue))
         .arg(Arg::new("include").short('i').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["ind", "-e", "-i", "-e", "-e", "-i"])
@@ -79,6 +83,7 @@ fn index_flags() {
 #[test]
 fn indices_mult_flags() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(Arg::new("exclude").short('e').action(ArgAction::SetTrue))
         .arg(Arg::new("include").short('i').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["ind", "-e", "-i", "-e", "-e", "-i"])
@@ -91,6 +96,7 @@ fn indices_mult_flags() {
 #[test]
 fn indices_mult_flags_combined() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(Arg::new("exclude").short('e').action(ArgAction::SetTrue))
         .arg(Arg::new("include").short('i').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["ind", "-eieei"])
@@ -103,6 +109,7 @@ fn indices_mult_flags_combined() {
 #[test]
 fn indices_mult_flags_opt_combined() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(Arg::new("exclude").short('e').action(ArgAction::SetTrue))
         .arg(Arg::new("include").short('i').action(ArgAction::SetTrue))
         .arg(Arg::new("option").short('o').action(ArgAction::Set))
@@ -117,6 +124,7 @@ fn indices_mult_flags_opt_combined() {
 #[test]
 fn indices_mult_flags_opt_combined_eq() {
     let m = Command::new("ind")
+        .args_override_self(true)
         .arg(Arg::new("exclude").short('e').action(ArgAction::SetTrue))
         .arg(Arg::new("include").short('i').action(ArgAction::SetTrue))
         .arg(Arg::new("option").short('o').action(ArgAction::Set))
@@ -131,6 +139,7 @@ fn indices_mult_flags_opt_combined_eq() {
 #[test]
 fn indices_mult_opt_value_delim_eq() {
     let m = Command::new("myapp")
+        .args_override_self(true)
         .arg(
             Arg::new("option")
                 .short('o')
@@ -149,6 +158,7 @@ fn indices_mult_opt_value_delim_eq() {
 #[test]
 fn indices_mult_opt_value_no_delim_eq() {
     let m = Command::new("myapp")
+        .args_override_self(true)
         .arg(
             Arg::new("option")
                 .short('o')
@@ -163,6 +173,7 @@ fn indices_mult_opt_value_no_delim_eq() {
 #[test]
 fn indices_mult_opt_mult_flag() {
     let m = Command::new("myapp")
+        .args_override_self(true)
         .arg(Arg::new("option").short('o').action(ArgAction::Append))
         .arg(Arg::new("flag").short('f').action(ArgAction::SetTrue))
         .try_get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"])
