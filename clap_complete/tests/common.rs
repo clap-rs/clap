@@ -151,6 +151,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name).subcommand(
         clap::Command::new("some_cmd")
             .about("top level subcommand")
+            .visible_alias("some_cmd_alias")
             .subcommand(
                 clap::Command::new("sub_cmd").about("sub-subcommand").arg(
                     clap::Arg::new("config")
