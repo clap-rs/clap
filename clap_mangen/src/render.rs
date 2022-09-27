@@ -108,7 +108,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
 
         let mut body = vec![];
         let mut arg_help_written = false;
-        if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
+        if let Some(help) = option_help(opt) {
             arg_help_written = true;
             body.push(roman(help.to_string()));
         }
@@ -170,7 +170,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
 
         let mut body = vec![];
         let mut arg_help_written = false;
-        if let Some(help) = pos.get_long_help().or_else(|| pos.get_help()) {
+        if let Some(help) = option_help(pos) {
             body.push(roman(&help.to_string()));
             arg_help_written = true;
         }
@@ -272,6 +272,20 @@ fn long_option(opt: &str) -> Inline {
     bold(&format!("--{}", opt))
 }
 
+fn option_help(opt: &clap::Arg) -> Option<&clap::builder::StyledStr> {
+    if !opt.is_hide_long_help_set() {
+        let long_help = opt.get_long_help();
+        if long_help.is_some() {
+            return long_help;
+        }
+    }
+    if !opt.is_hide_short_help_set() {
+        return opt.get_help();
+    }
+
+    None
+}
+
 fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
     if opt.is_hide_env_set() {
         return None;
@@ -287,7 +301,9 @@ fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
 }
 
 fn option_default_values(opt: &clap::Arg) -> Option<String> {
-    if !opt.get_default_values().is_empty() {
+    if opt.is_hide_default_value_set() {
+        return None;
+    } else if !opt.get_default_values().is_empty() {
         let values = opt
             .get_default_values()
             .iter()
