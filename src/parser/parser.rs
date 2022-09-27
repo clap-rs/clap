@@ -183,7 +183,7 @@ impl<'cmd> Parser<'cmd> {
                                 self.cmd,
                                 rest,
                                 arg,
-                                Usage::new(self.cmd).create_usage_no_title(&used),
+                                Usage::new(self.cmd).create_usage_with_title(&used),
                             ));
                         }
                         ParseResult::MaybeHyphenValue => {
