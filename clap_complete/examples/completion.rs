@@ -17,7 +17,7 @@ use clap_complete::{generate, Generator, Shell};
 use std::io;
 
 fn build_cli() -> Command {
-    Command::new("value_hints")
+    Command::new("completion")
         .arg(
             Arg::new("generator")
                 .long("generate")

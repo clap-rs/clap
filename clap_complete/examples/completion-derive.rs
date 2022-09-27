@@ -19,7 +19,7 @@ use std::io;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug, PartialEq)]
-#[command(name = "value_hints_derive")]
+#[command(name = "completion-derive")]
 struct Opt {
     /// If provided, outputs the completion file for given shell
     #[arg(long = "generate", value_enum)]
