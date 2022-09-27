@@ -778,7 +778,7 @@ impl<'cmd> Parser<'cmd> {
                     "Parser::parse_long_arg({:?}): Got invalid literal `{:?}`",
                     long_arg, rest
                 );
-                let used: Vec<Id> = matcher
+                let mut used: Vec<Id> = matcher
                     .arg_ids()
                     .filter(|arg_id| {
                         matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
@@ -790,6 +790,7 @@ impl<'cmd> Parser<'cmd> {
                     })
                     .cloned()
                     .collect();
+                used.push(arg.get_id().clone());
 
                 Ok(ParseResult::UnneededAttachedValue {
                     rest: rest.to_str_lossy().into_owned(),

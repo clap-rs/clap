@@ -142,7 +142,7 @@ fn unexpected_value_error() {
     const USE_FLAG_AS_ARGUMENT: &str = "\
 error: The value 'foo' was provided to '--a-flag' but it wasn't expecting any more values
 
-Usage: mycat [OPTIONS] [filename]
+Usage: mycat --a-flag [filename]
 
 For more information try '--help'
 ";
