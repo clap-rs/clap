@@ -1662,7 +1662,7 @@ impl Command {
     /// correctly by the default help formatter:
     ///
     /// - Do not indent the first usage line.
-    /// - Indent all subsequent usage lines with four spaces.
+    /// - Indent all subsequent usage lines with seven spaces.
     /// - The last line must not end with a newline.
     ///
     /// # Examples
@@ -1680,8 +1680,8 @@ impl Command {
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .override_usage(
-    ///         "myapp -X [-a] [-b] <file>\n    \
-    ///          myapp -Y [-c] <file1> <file2>\n    \
+    ///         "myapp -X [-a] [-b] <file>\n       \
+    ///          myapp -Y [-c] <file1> <file2>\n       \
     ///          myapp -Z [-d|-e]"
     ///     )
     /// # ;
