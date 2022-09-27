@@ -156,9 +156,7 @@ fn subcommands_of(p: &Command) -> String {
             help = escape_help(&subcommand.get_about().unwrap_or_default().to_string())
         );
 
-        if !text.is_empty() {
-            ret.push(text);
-        }
+        ret.push(text);
     }
 
     // The subcommands
