@@ -177,14 +177,9 @@ impl<'cmd> Parser<'cmd> {
                                 .collect();
                             return Err(self.did_you_mean_error(&arg, matcher, &remaining_args));
                         }
-                        ParseResult::UnneededAttachedValue { rest, used, arg } => {
+                        ParseResult::UnneededAttachedValue { rest, used: _, arg } => {
                             let _ = self.resolve_pending(matcher);
-                            return Err(ClapError::too_many_values(
-                                self.cmd,
-                                rest,
-                                arg,
-                                Usage::new(self.cmd).create_usage_no_title(&used),
-                            ));
+                            return Err(ClapError::too_many_values(self.cmd, rest, arg, None));
                         }
                         ParseResult::MaybeHyphenValue => {
                             // Maybe a hyphen value, do nothing.
