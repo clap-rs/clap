@@ -138,6 +138,24 @@ fn multiple_flags_in_single() {
 
 #[test]
 #[cfg(feature = "error-context")]
+fn unexpected_value_error() {
+    const USE_FLAG_AS_ARGUMENT: &str = "\
+error: The value 'foo' was provided to '--a-flag' but it wasn't expecting any more values
+
+Usage: mycat --a-flag [filename]
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("mycat")
+        .arg(Arg::new("filename"))
+        .arg(Arg::new("a-flag").long("a-flag").action(ArgAction::SetTrue));
+
+    utils::assert_output(cmd, "mycat --a-flag=foo", USE_FLAG_AS_ARGUMENT, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
 fn issue_1284_argument_in_flag_style() {
     const USE_FLAG_AS_ARGUMENT: &str = "\
 error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
