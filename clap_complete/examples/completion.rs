@@ -79,7 +79,6 @@ fn build_cli() -> Command {
         )
         .arg(
             Arg::new("host")
-                .short('h')
                 .long("host")
                 .value_hint(ValueHint::Hostname),
         )

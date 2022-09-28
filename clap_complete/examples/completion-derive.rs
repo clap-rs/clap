@@ -46,7 +46,7 @@ struct Opt {
     command_with_args: Vec<String>,
     #[arg(short, long, value_hint = ValueHint::Username)]
     user: Option<String>,
-    #[arg(short, long, value_hint = ValueHint::Hostname)]
+    #[arg(long, value_hint = ValueHint::Hostname)]
     host: Option<String>,
     #[arg(long, value_hint = ValueHint::Url)]
     url: Option<String>,
