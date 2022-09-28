@@ -17,12 +17,7 @@ use clap_complete::{generate, Generator, Shell};
 use std::io;
 
 fn build_cli() -> Command {
-    Command::new("completion")
-        .arg(
-            Arg::new("generator")
-                .long("generate")
-                .value_parser(value_parser!(Shell)),
-        )
+    let value_hint_command = Command::new("value-hint")
         .arg(
             Arg::new("unknown")
                 .long("unknown")
@@ -87,7 +82,15 @@ fn build_cli() -> Command {
             Arg::new("email")
                 .long("email")
                 .value_hint(ValueHint::EmailAddress),
+        );
+
+    Command::new("completion")
+        .arg(
+            Arg::new("generator")
+                .long("generate")
+                .value_parser(value_parser!(Shell)),
         )
+        .subcommand(value_hint_command)
 }
 
 fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
