@@ -18,6 +18,7 @@ use std::io;
 
 fn build_cli() -> Command {
     let value_hint_command = Command::new("value-hint")
+        .visible_alias("hint")
         .arg(
             Arg::new("unknown")
                 .long("unknown")
