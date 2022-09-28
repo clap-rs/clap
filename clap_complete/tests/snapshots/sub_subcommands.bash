@@ -8,20 +8,20 @@ _my-app() {
 
     for i in ${COMP_WORDS[@]}
     do
-        case "${i}" in
-            "$1")
+        case "${cmd},${i}" in
+            ",$1")
                 cmd="my__app"
                 ;;
-            help)
+            *,help)
                 cmd+="__help"
                 ;;
-            some_cmd)
+            *,some_cmd)
                 cmd+="__some_cmd"
                 ;;
-            sub_cmd)
+            *,sub_cmd)
                 cmd+="__sub_cmd"
                 ;;
-            test)
+            *,test)
                 cmd+="__test"
                 ;;
             *)

@@ -8,23 +8,23 @@ _my-app() {
 
     for i in ${COMP_WORDS[@]}
     do
-        case "${i}" in
-            "$1")
+        case "${cmd},${i}" in
+            ",$1")
                 cmd="my__app"
                 ;;
-            help)
+            *,help)
                 cmd+="__help"
                 ;;
-            some-cmd-with-hyphens)
+            *,some-cmd-with-hyphens)
                 cmd+="__some__cmd__with__hyphens"
                 ;;
-            some-hidden-cmd)
+            *,some-hidden-cmd)
                 cmd+="__some__hidden__cmd"
                 ;;
-            some_cmd)
+            *,some_cmd)
                 cmd+="__some_cmd"
                 ;;
-            test)
+            *,test)
                 cmd+="__test"
                 ;;
             *)

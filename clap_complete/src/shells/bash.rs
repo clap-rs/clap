@@ -31,8 +31,8 @@ impl Generator for Bash {
 
     for i in ${{COMP_WORDS[@]}}
     do
-        case \"${{i}}\" in
-            \"$1\")
+        case \"${{cmd}},${{i}}\" in
+            \",$1\")
                 cmd=\"{cmd}\"
                 ;;{subcmds}
             *)
@@ -86,7 +86,7 @@ fn all_subcommands(cmd: &Command) -> String {
 
     subcmds.extend(scs.iter().map(|sc| {
         format!(
-            "{name})
+            "*,{name})
                 cmd+=\"__{fn_name}\"
                 ;;",
             name = sc,

@@ -8,29 +8,29 @@ _my-app() {
 
     for i in ${COMP_WORDS[@]}
     do
-        case "${i}" in
-            "$1")
+        case "${cmd},${i}" in
+            ",$1")
                 cmd="my__app"
                 ;;
-            cmd-backslash)
+            *,cmd-backslash)
                 cmd+="__cmd__backslash"
                 ;;
-            cmd-backticks)
+            *,cmd-backticks)
                 cmd+="__cmd__backticks"
                 ;;
-            cmd-brackets)
+            *,cmd-brackets)
                 cmd+="__cmd__brackets"
                 ;;
-            cmd-double-quotes)
+            *,cmd-double-quotes)
                 cmd+="__cmd__double__quotes"
                 ;;
-            cmd-expansions)
+            *,cmd-expansions)
                 cmd+="__cmd__expansions"
                 ;;
-            cmd-single-quotes)
+            *,cmd-single-quotes)
                 cmd+="__cmd__single__quotes"
                 ;;
-            help)
+            *,help)
                 cmd+="__help"
                 ;;
             *)
