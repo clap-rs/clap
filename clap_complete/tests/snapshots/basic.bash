@@ -12,11 +12,17 @@ _my-app() {
             ",$1")
                 cmd="my__app"
                 ;;
-            *,help)
-                cmd+="__help"
+            my__app,help)
+                cmd="my__app__help"
                 ;;
-            *,test)
-                cmd+="__test"
+            my__app,test)
+                cmd="my__app__test"
+                ;;
+            my__app__help,help)
+                cmd="my__app__help__help"
+                ;;
+            my__app__help,test)
+                cmd="my__app__help__test"
                 ;;
             *)
                 ;;

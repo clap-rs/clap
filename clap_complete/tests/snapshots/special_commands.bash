@@ -12,20 +12,35 @@ _my-app() {
             ",$1")
                 cmd="my__app"
                 ;;
-            *,help)
-                cmd+="__help"
+            my__app,help)
+                cmd="my__app__help"
                 ;;
-            *,some-cmd-with-hyphens)
-                cmd+="__some__cmd__with__hyphens"
+            my__app,some-cmd-with-hyphens)
+                cmd="my__app__some__cmd__with__hyphens"
                 ;;
-            *,some-hidden-cmd)
-                cmd+="__some__hidden__cmd"
+            my__app,some-hidden-cmd)
+                cmd="my__app__some__hidden__cmd"
                 ;;
-            *,some_cmd)
-                cmd+="__some_cmd"
+            my__app,some_cmd)
+                cmd="my__app__some_cmd"
                 ;;
-            *,test)
-                cmd+="__test"
+            my__app,test)
+                cmd="my__app__test"
+                ;;
+            my__app__help,help)
+                cmd="my__app__help__help"
+                ;;
+            my__app__help,some-cmd-with-hyphens)
+                cmd="my__app__help__some__cmd__with__hyphens"
+                ;;
+            my__app__help,some-hidden-cmd)
+                cmd="my__app__help__some__hidden__cmd"
+                ;;
+            my__app__help,some_cmd)
+                cmd="my__app__help__some_cmd"
+                ;;
+            my__app__help,test)
+                cmd="my__app__help__test"
                 ;;
             *)
                 ;;

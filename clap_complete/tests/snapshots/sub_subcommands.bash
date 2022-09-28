@@ -12,17 +12,38 @@ _my-app() {
             ",$1")
                 cmd="my__app"
                 ;;
-            *,help)
-                cmd+="__help"
+            my__app,help)
+                cmd="my__app__help"
                 ;;
-            *,some_cmd)
-                cmd+="__some_cmd"
+            my__app,some_cmd)
+                cmd="my__app__some_cmd"
                 ;;
-            *,sub_cmd)
-                cmd+="__sub_cmd"
+            my__app,test)
+                cmd="my__app__test"
                 ;;
-            *,test)
-                cmd+="__test"
+            my__app__help,help)
+                cmd="my__app__help__help"
+                ;;
+            my__app__help,some_cmd)
+                cmd="my__app__help__some_cmd"
+                ;;
+            my__app__help,test)
+                cmd="my__app__help__test"
+                ;;
+            my__app__help__some_cmd,sub_cmd)
+                cmd="my__app__help__some_cmd__sub_cmd"
+                ;;
+            my__app__some_cmd,help)
+                cmd="my__app__some_cmd__help"
+                ;;
+            my__app__some_cmd,sub_cmd)
+                cmd="my__app__some_cmd__sub_cmd"
+                ;;
+            my__app__some_cmd__help,help)
+                cmd="my__app__some_cmd__help__help"
+                ;;
+            my__app__some_cmd__help,sub_cmd)
+                cmd="my__app__some_cmd__help__sub_cmd"
                 ;;
             *)
                 ;;
