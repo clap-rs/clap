@@ -1,16 +1,36 @@
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 #[test]
-#[should_panic = "Argument 'flag' cannot override itself"]
 fn flag_overrides_itself() {
-    Command::new("posix")
+    let res = Command::new("posix")
         .arg(
             arg!(--flag  "some flag"
             )
             .action(ArgAction::SetTrue)
             .overrides_with("flag"),
         )
-        .build();
+        .try_get_matches_from(vec!["", "--flag", "--flag"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+}
+
+#[test]
+fn option_overrides_itself() {
+    let res = Command::new("posix")
+        .arg(
+            arg!(--opt <val> "some option")
+                .required(false)
+                .overrides_with("opt"),
+        )
+        .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(m.contains_id("opt"));
+    assert_eq!(
+        m.get_one::<String>("opt").map(|v| v.as_str()),
+        Some("other")
+    );
 }
 
 #[test]
