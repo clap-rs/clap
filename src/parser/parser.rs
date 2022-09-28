@@ -1240,7 +1240,7 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                if matcher.remove(&arg.id) && self.cmd.is_args_override_self() {
+                if matcher.remove(&arg.id) && !self.cmd.is_args_override_self() {
                     return Err(ClapError::argument_conflict(
                         self.cmd,
                         arg.to_string(),
