@@ -19,10 +19,10 @@ _my-app() {
 '*-C[some config file]' \
 '*--config[some config file]' \
 '*--conf[some config file]' \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '::file -- some input file:_files' \
 '::choice:(first second)' \
 ":: :_my-app_commands" \
@@ -36,11 +36,11 @@ _my-app() {
         case $line[3] in
             (test)
 _arguments "${_arguments_options[@]}" \
-'*--case=[the case to test]: : ' \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'--case=[the case to test]: : ' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (help)

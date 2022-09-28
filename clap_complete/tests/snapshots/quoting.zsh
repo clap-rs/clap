@@ -15,16 +15,16 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'*--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
-'*--double-quotes[Can be "always", "auto", or "never"]' \
-'*--backticks[For more information see `echo test`]' \
-'*--backslash[Avoid '\''\\n'\'']' \
-'*--brackets[List packages \[filter\]]' \
-'*--expansions[Execute the shell command with $SHELL]' \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
+'--double-quotes[Can be "always", "auto", or "never"]' \
+'--backticks[For more information see `echo test`]' \
+'--backslash[Avoid '\''\\n'\'']' \
+'--brackets[List packages \[filter\]]' \
+'--expansions[Execute the shell command with $SHELL]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 ":: :_my-app_commands" \
 "*::: :->my-app" \
 && ret=0
@@ -36,38 +36,38 @@ _my-app() {
         case $line[1] in
             (cmd-single-quotes)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
 (cmd-double-quotes)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
 (cmd-backticks)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
 (cmd-backslash)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
 (cmd-brackets)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
 (cmd-expansions)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
 (help)

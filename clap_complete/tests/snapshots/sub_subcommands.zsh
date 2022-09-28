@@ -19,10 +19,10 @@ _my-app() {
 '*-C[some config file]' \
 '*--config[some config file]' \
 '*--conf[some config file]' \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '::file -- some input file:_files' \
 '::choice:(first second)' \
 ":: :_my-app_commands" \
@@ -36,19 +36,19 @@ _my-app() {
         case $line[3] in
             (test)
 _arguments "${_arguments_options[@]}" \
-'*--case=[the case to test]: : ' \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'--case=[the case to test]: : ' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" \
-'*-h[Print help information]' \
-'*--help[Print help information]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 ":: :_my-app__some_cmd_commands" \
 "*::: :->some_cmd" \
 && ret=0
@@ -61,12 +61,12 @@ _arguments "${_arguments_options[@]}" \
         case $line[1] in
             (sub_cmd)
 _arguments "${_arguments_options[@]}" \
-'*--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
+'--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
 Second\ to\ trigger\ display\ of\ options\:""))' \
-'*-h[Print help information (use `--help` for more detail)]' \
-'*--help[Print help information (use `--help` for more detail)]' \
-'*-V[Print version information]' \
-'*--version[Print version information]' \
+'-h[Print help information (use `--help` for more detail)]' \
+'--help[Print help information (use `--help` for more detail)]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (help)

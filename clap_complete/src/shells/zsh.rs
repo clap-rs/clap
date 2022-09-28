@@ -449,7 +449,11 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
         let help = escape_help(&o.get_help().unwrap_or_default().to_string());
         let conflicts = arg_conflicts(p, o, p_global);
 
-        let multiple = "*";
+        let multiple = if let ArgAction::Count | ArgAction::Append = o.get_action() {
+            "*"
+        } else {
+            ""
+        };
 
         let vn = match o.get_value_names() {
             None => " ".to_string(),
@@ -545,7 +549,11 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
         let help = escape_help(&f.get_help().unwrap_or_default().to_string());
         let conflicts = arg_conflicts(p, &f, p_global);
 
-        let multiple = "*";
+        let multiple = if let ArgAction::Count | ArgAction::Append = f.get_action() {
+            "*"
+        } else {
+            ""
+        };
 
         if let Some(short) = f.get_short() {
             let s = format!(
@@ -620,14 +628,13 @@ fn write_positionals_of(p: &Command) -> String {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
         let num_args = arg.get_num_args().expect("built");
-        let cardinality =
-            if num_args != builder::ValueRange::EMPTY && num_args != builder::ValueRange::SINGLE {
-                "*:"
-            } else if !arg.is_required_set() {
-                ":"
-            } else {
-                ""
-            };
+        let cardinality = if num_args.max_values() > 1 {
+            "*:"
+        } else if !arg.is_required_set() {
+            ":"
+        } else {
+            ""
+        };
 
         let a = format!(
             "'{cardinality}:{name}{help}:{value_completion}' \\",
