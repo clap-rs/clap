@@ -1264,7 +1264,7 @@ fn assert_attr_kind(attr: &ClapAttr, possible_kind: &[AttrKind]) {
     if !possible_kind.contains(attr.kind.get()) {
         let options = possible_kind
             .iter()
-            .map(|k| format!("`#[{}({})]", k.as_str(), attr.name))
+            .map(|k| format!("`#[{}({})]`", k.as_str(), attr.name))
             .collect::<Vec<_>>();
         abort!(
             attr.name,
