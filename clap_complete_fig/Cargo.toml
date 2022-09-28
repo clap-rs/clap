@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete_fig"
-version = "4.0.0-rc.1"
+version = "4.0.0"
 description = "A generator library used with clap for Fig completion scripts"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete_fig"
 categories = ["command-line-interface"]

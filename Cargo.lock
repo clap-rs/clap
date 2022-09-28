@@ -110,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.0.0-rc.3"
+version = "4.0.0"
 dependencies = [
  "atty",
  "backtrace",
@@ -137,16 +137,16 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.0.0-rc.3",
+ "clap 4.0.0",
  "criterion",
  "lazy_static",
 ]
 
 [[package]]
 name = "clap_complete"
-version = "4.0.0-rc.1"
+version = "4.0.0"
 dependencies = [
- "clap 4.0.0-rc.3",
+ "clap 4.0.0",
  "clap_lex",
  "is_executable",
  "os_str_bytes",
@@ -159,16 +159,16 @@ dependencies = [
 
 [[package]]
 name = "clap_complete_fig"
-version = "4.0.0-rc.1"
+version = "4.0.0"
 dependencies = [
- "clap 4.0.0-rc.3",
+ "clap 4.0.0",
  "clap_complete",
  "snapbox",
 ]
 
 [[package]]
 name = "clap_derive"
-version = "4.0.0-rc.1"
+version = "4.0.0"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -186,9 +186,9 @@ dependencies = [
 
 [[package]]
 name = "clap_mangen"
-version = "0.2.0-rc.1"
+version = "0.2.0"
 dependencies = [
- "clap 4.0.0-rc.3",
+ "clap 4.0.0",
  "roff",
  "snapbox",
 ]

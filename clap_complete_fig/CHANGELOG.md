@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.0.0] - 2022-09-28
+
 ## [3.2.4] - 2022-07-02
 
 ### Fixes
@@ -51,7 +53,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.2.4...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v4.0.0...HEAD
+[4.0.0]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.2.4...clap_complete_fig-v4.0.0
 [3.2.4]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.2.3...clap_complete_fig-v3.2.4
 [3.2.3]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.2.2...clap_complete_fig-v3.2.3
 [3.2.2]: https://github.com/clap-rs/clap/compare/clap_complete_fig-v3.2.1...clap_complete_fig-v3.2.2
