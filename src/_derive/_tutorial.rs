@@ -74,7 +74,7 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_03_positional.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction]` is [`Set`][crate::ArgAction::Set].  To
+//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple values, use [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_03_positional_mult.rs")]
@@ -97,7 +97,7 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction]` is [`Set`][crate::ArgAction::Set].  To
+//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple occurrences, use [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option_mult.rs")]
@@ -115,7 +115,7 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_bool.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction]` for a `bool` field is
+//! Note that the default [`ArgAction`][crate::ArgAction] for a `bool` field is
 //! [`SetTrue`][crate::ArgAction::SetTrue].  To accept multiple values, use
 //! [`Append`][crate::ArgAction::Append]:
 //!
@@ -155,7 +155,7 @@
 //! ## Validation
 //!
 //! An appropriate default parser/validator will be selected for the field's type.  See
-//! [`value_parser!][crate::value_parser!] for more details.
+//! [`value_parser!`][crate::value_parser!] for more details.
 //!
 //! ### Enumerated values
 //!
