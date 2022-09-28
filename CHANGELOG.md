@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parser)* `SetFalse` should conflict with itself like `SetTrue` and `Set`
+- *(parser)* Allow one-off overrides
+
 ## [4.0.1] - 2022-09-28
 
 ### Fixes
