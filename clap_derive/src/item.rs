@@ -1261,10 +1261,12 @@ impl ToTokens for Deprecation {
 }
 
 fn assert_attr_kind(attr: &ClapAttr, possible_kind: &[AttrKind]) {
-    if !possible_kind.contains(attr.kind.get()) {
+    if *attr.kind.get() == AttrKind::Clap || *attr.kind.get() == AttrKind::StructOpt {
+        // deprecated
+    } else if !possible_kind.contains(attr.kind.get()) {
         let options = possible_kind
             .iter()
-            .map(|k| format!("`#[{}({})]", k.as_str(), attr.name))
+            .map(|k| format!("`#[{}({})]`", k.as_str(), attr.name))
             .collect::<Vec<_>>();
         abort!(
             attr.name,
