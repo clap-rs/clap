@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Fix multiple-items regression introduced in v4
+
 ## [4.0.0] - 2022-09-28
 
 ## [3.2.3] - 2022-06-28
