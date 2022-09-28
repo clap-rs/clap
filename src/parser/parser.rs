@@ -1180,7 +1180,9 @@ impl<'cmd> Parser<'cmd> {
                     self.cur_idx.set(self.cur_idx.get() + 1);
                     debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
                 }
-                if matcher.remove(&arg.id) && !self.cmd.is_args_override_self() {
+                if matcher.remove(&arg.id)
+                    && !(self.cmd.is_args_override_self() || arg.overrides.contains(arg.get_id()))
+                {
                     return Err(ClapError::argument_conflict(
                         self.cmd,
                         arg.to_string(),
@@ -1221,7 +1223,9 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                if matcher.remove(&arg.id) && !self.cmd.is_args_override_self() {
+                if matcher.remove(&arg.id)
+                    && !(self.cmd.is_args_override_self() || arg.overrides.contains(arg.get_id()))
+                {
                     return Err(ClapError::argument_conflict(
                         self.cmd,
                         arg.to_string(),
@@ -1240,7 +1244,9 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                if matcher.remove(&arg.id) && self.cmd.is_args_override_self() {
+                if matcher.remove(&arg.id)
+                    && !(self.cmd.is_args_override_self() || arg.overrides.contains(arg.get_id()))
+                {
                     return Err(ClapError::argument_conflict(
                         self.cmd,
                         arg.to_string(),

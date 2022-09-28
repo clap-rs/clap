@@ -240,8 +240,15 @@ fn set_false() {
     assert_eq!(matches.contains_id("mammal"), true);
     assert_eq!(matches.index_of("mammal"), Some(1));
 
+    let result = cmd
+        .clone()
+        .try_get_matches_from(["test", "--mammal", "--mammal"]);
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+
     let matches = cmd
         .clone()
+        .args_override_self(true)
         .try_get_matches_from(["test", "--mammal", "--mammal"])
         .unwrap();
     assert_eq!(*matches.get_one::<bool>("mammal").unwrap(), false);
