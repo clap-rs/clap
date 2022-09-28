@@ -21,7 +21,7 @@ use std::path::PathBuf;
 #[derive(Parser, Debug, PartialEq)]
 #[command(name = "completion-derive")]
 struct Opt {
-    /// If provided, outputs the completion file for given shell
+    // If provided, outputs the completion file for given shell
     #[arg(long = "generate", value_enum)]
     generator: Option<Shell>,
     // Showcasing all possible ValueHints:
