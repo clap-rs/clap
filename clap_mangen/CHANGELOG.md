@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Respect hide attributes in more cases
+
 ## [0.2.0] - 2022-09-28
 
 ## [0.1.10] - 2022-06-28

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Ensure `#[clap(...)]` attribute still works
+
 ## [4.0.0] - 2022-09-28
 
 ### Highlights
