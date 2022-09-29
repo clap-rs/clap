@@ -31,8 +31,8 @@ impl Generator for Bash {
 
     for i in ${{COMP_WORDS[@]}}
     do
-        case \"${{i}}\" in
-            \"$1\")
+        case \"${{cmd}},${{i}}\" in
+            \",$1\")
                 cmd=\"{cmd}\"
                 ;;{subcmds}
             *)
@@ -75,26 +75,52 @@ complete -F _{name} -o bashdefault -o default {name}
 fn all_subcommands(cmd: &Command) -> String {
     debug!("all_subcommands");
 
-    let mut subcmds = vec![String::new()];
-    let mut scs = utils::all_subcommands(cmd)
-        .iter()
-        .map(|x| x.0.clone())
-        .collect::<Vec<_>>();
+    fn add_command(
+        parent_fn_name: &str,
+        cmd: &Command,
+        subcmds: &mut Vec<(String, String, String)>,
+    ) {
+        let fn_name = format!(
+            "{parent_fn_name}__{cmd_name}",
+            parent_fn_name = parent_fn_name,
+            cmd_name = cmd.get_name().to_string().replace('-', "__")
+        );
+        subcmds.push((
+            parent_fn_name.to_string(),
+            cmd.get_name().to_string(),
+            fn_name.clone(),
+        ));
+        for alias in cmd.get_visible_aliases() {
+            subcmds.push((
+                parent_fn_name.to_string(),
+                alias.to_string(),
+                fn_name.clone(),
+            ));
+        }
+        for subcmd in cmd.get_subcommands() {
+            add_command(&fn_name, subcmd, subcmds);
+        }
+    }
+    let mut subcmds = vec![];
+    let fn_name = cmd.get_name().replace('-', "__");
+    for subcmd in cmd.get_subcommands() {
+        add_command(&fn_name, subcmd, &mut subcmds);
+    }
+    subcmds.sort();
 
-    scs.sort();
-    scs.dedup();
-
-    subcmds.extend(scs.iter().map(|sc| {
-        format!(
-            "{name})
-                cmd+=\"__{fn_name}\"
+    let mut cases = vec![String::new()];
+    for (parent_fn_name, name, fn_name) in subcmds {
+        cases.push(format!(
+            "{parent_fn_name},{name})
+                cmd=\"{fn_name}\"
                 ;;",
-            name = sc,
-            fn_name = sc.replace('-', "__")
-        )
-    }));
+            parent_fn_name = parent_fn_name,
+            name = name,
+            fn_name = fn_name,
+        ));
+    }
 
-    subcmds.join("\n            ")
+    cases.join("\n            ")
 }
 
 fn subcommand_details(cmd: &Command) -> String {

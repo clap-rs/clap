@@ -39,10 +39,6 @@ pub fn subcommands(p: &Command) -> Vec<(String, String)> {
 
     let mut subcmds = vec![];
 
-    if !p.has_subcommands() {
-        return subcmds;
-    }
-
     for sc in p.get_subcommands() {
         let sc_bin_name = sc.get_bin_name().unwrap();
 

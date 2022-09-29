@@ -151,6 +151,7 @@ _my-app_commands() {
     local commands; commands=(
 'test:tests things' \
 'some_cmd:top level subcommand' \
+'some_cmd_alias:top level subcommand' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app commands' commands "$@"

@@ -12,18 +12,30 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{Command, CommandFactory, Parser, ValueHint};
+use clap::{Args, Command, CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug, PartialEq)]
-#[command(name = "value_hints_derive")]
+#[command(name = "completion-derive")]
 struct Opt {
-    /// If provided, outputs the completion file for given shell
+    // If provided, outputs the completion file for given shell
     #[arg(long = "generate", value_enum)]
     generator: Option<Shell>,
+    #[clap(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand, Debug, PartialEq)]
+enum Commands {
+    #[clap(visible_alias = "hint")]
+    ValueHint(ValueHintOpt),
+}
+
+#[derive(Args, Debug, PartialEq)]
+struct ValueHintOpt {
     // Showcasing all possible ValueHints:
     #[arg(long, value_hint = ValueHint::Unknown)]
     unknown: Option<String>,
