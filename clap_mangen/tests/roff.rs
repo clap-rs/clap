@@ -69,3 +69,17 @@ fn possible_values() {
     let cmd = common::possible_values_command(name);
     common::assert_matches_path("tests/snapshots/possible_values.bash.roff", cmd);
 }
+
+#[test]
+fn sub_subcommands_help() {
+    let name = "my-app";
+    let mut cmd = common::sub_subcommands_command(name);
+    cmd.build();
+    let cmd = cmd
+        .get_subcommands()
+        .find(|cmd| cmd.get_display_name() == Some("my-app-help"));
+    assert!(cmd.is_some(), "help subcommand not found in command");
+    if let Some(cmd) = cmd {
+        common::assert_matches_path("tests/snapshots/sub_subcommand_help.roff", cmd.clone());
+    }
+}

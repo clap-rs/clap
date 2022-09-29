@@ -1,0 +1,2912 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'clap_bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "clap_bench",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark '01_default'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=01_default",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "01_default",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark '02_simple'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=02_simple",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "02_simple",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark '03_complex'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=03_complex",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "03_complex",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark '04_new_help'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=04_new_help",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "04_new_help",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark '05_ripgrep'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=05_ripgrep",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "05_ripgrep",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark '06_rustup'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=06_rustup",
+                    "--package=clap_bench"
+                ],
+                "filter": {
+                    "name": "06_rustup",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'clap'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "clap",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'stdio-fixture'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=stdio-fixture",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "stdio-fixture",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'stdio-fixture'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=stdio-fixture",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "stdio-fixture",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'demo'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=demo",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "demo",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'demo'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=demo",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "demo",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'cargo-example'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=cargo-example",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "cargo-example",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'cargo-example'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=cargo-example",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "cargo-example",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'cargo-example-derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=cargo-example-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "cargo-example-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'cargo-example-derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=cargo-example-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "cargo-example-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'escaped-positional'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=escaped-positional",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "escaped-positional",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'escaped-positional'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=escaped-positional",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "escaped-positional",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'escaped-positional-derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=escaped-positional-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "escaped-positional-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'escaped-positional-derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=escaped-positional-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "escaped-positional-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'find'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=find",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "find",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'find'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=find",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "find",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'git-derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=git-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "git-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'git-derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=git-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "git-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'typed-derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=typed-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "typed-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'typed-derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=typed-derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "typed-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'busybox'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=busybox",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "busybox",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'busybox'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=busybox",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "busybox",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'hostname'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=hostname",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "hostname",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'hostname'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=hostname",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "hostname",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'repl'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=repl",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "repl",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'repl'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=repl",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "repl",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '01_quick'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=01_quick",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "01_quick",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '01_quick'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=01_quick",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "01_quick",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '02_apps'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=02_apps",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_apps",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '02_apps'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=02_apps",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_apps",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '02_crate'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=02_crate",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_crate",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '02_crate'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=02_crate",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_crate",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '02_app_settings'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=02_app_settings",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_app_settings",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '02_app_settings'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=02_app_settings",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_app_settings",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_01_flag_bool'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_01_flag_bool",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_bool",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_01_flag_bool'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_01_flag_bool",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_bool",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_01_flag_count'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_01_flag_count",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_count",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_01_flag_count'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_01_flag_count",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_count",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_02_option'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_02_option",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_02_option'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_02_option",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_02_option_mult'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_02_option_mult",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option_mult",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_02_option_mult'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_02_option_mult",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option_mult",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_03_positional'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_03_positional",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_03_positional'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_03_positional",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_03_positional_mult'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_03_positional_mult",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional_mult",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_03_positional_mult'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_03_positional_mult",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional_mult",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_04_subcommands'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_04_subcommands",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_04_subcommands",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_04_subcommands'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_04_subcommands",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_04_subcommands",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_05_default_values'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_05_default_values",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_05_default_values",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_05_default_values'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_05_default_values",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_05_default_values",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_01_possible'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_01_possible",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_01_possible",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_01_possible'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_01_possible",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_01_possible",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_01_enum'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_01_enum",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_01_enum",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_01_enum'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_01_enum",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_01_enum",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_02_parse'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_02_parse",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_parse",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_02_parse'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_02_parse",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_parse",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_02_validate'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_02_validate",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_validate",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_02_validate'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_02_validate",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_validate",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_03_relations'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_03_relations",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_03_relations",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_03_relations'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_03_relations",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_03_relations",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_04_custom'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_04_custom",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_04_custom",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_04_custom'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_04_custom",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_04_custom",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '05_01_assert'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=05_01_assert",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "05_01_assert",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '05_01_assert'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=05_01_assert",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "05_01_assert",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '01_quick_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=01_quick_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "01_quick_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '01_quick_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=01_quick_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "01_quick_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '02_apps_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=02_apps_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_apps_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '02_apps_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=02_apps_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_apps_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '02_crate_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=02_crate_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_crate_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '02_crate_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=02_crate_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_crate_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '02_app_settings_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=02_app_settings_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_app_settings_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '02_app_settings_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=02_app_settings_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "02_app_settings_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_01_flag_bool_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_01_flag_bool_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_bool_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_01_flag_bool_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_01_flag_bool_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_bool_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_01_flag_count_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_01_flag_count_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_count_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_01_flag_count_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_01_flag_count_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_01_flag_count_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_02_option_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_02_option_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_02_option_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_02_option_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_02_option_mult_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_02_option_mult_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option_mult_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_02_option_mult_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_02_option_mult_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_02_option_mult_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_03_positional_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_03_positional_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_03_positional_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_03_positional_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_03_positional_mult_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_03_positional_mult_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional_mult_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_03_positional_mult_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_03_positional_mult_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_03_positional_mult_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_04_subcommands_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_04_subcommands_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_04_subcommands_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_04_subcommands_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_04_subcommands_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_04_subcommands_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_04_subcommands_alt_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_04_subcommands_alt_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_04_subcommands_alt_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_04_subcommands_alt_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_04_subcommands_alt_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_04_subcommands_alt_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '03_05_default_values_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=03_05_default_values_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_05_default_values_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '03_05_default_values_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=03_05_default_values_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "03_05_default_values_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_01_enum_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_01_enum_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_01_enum_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_01_enum_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_01_enum_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_01_enum_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_02_parse_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_02_parse_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_parse_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_02_parse_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_02_parse_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_parse_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_02_validate_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_02_validate_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_validate_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_02_validate_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_02_validate_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_02_validate_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_03_relations_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_03_relations_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_03_relations_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_03_relations_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_03_relations_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_03_relations_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '04_04_custom_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=04_04_custom_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_04_custom_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '04_04_custom_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=04_04_custom_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "04_04_custom_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example '05_01_assert_derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=05_01_assert_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "05_01_assert_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example '05_01_assert_derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=05_01_assert_derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "05_01_assert_derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'interop_augment_args'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=interop_augment_args",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_augment_args",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'interop_augment_args'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=interop_augment_args",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_augment_args",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'interop_augment_subcommands'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=interop_augment_subcommands",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_augment_subcommands",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'interop_augment_subcommands'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=interop_augment_subcommands",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_augment_subcommands",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'interop_hand_subcommand'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=interop_hand_subcommand",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_hand_subcommand",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'interop_hand_subcommand'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=interop_hand_subcommand",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_hand_subcommand",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'interop_flatten_hand_args'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=interop_flatten_hand_args",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_flatten_hand_args",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'interop_flatten_hand_args'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=interop_flatten_hand_args",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "interop_flatten_hand_args",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'pacman'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=pacman",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "pacman",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'pacman'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=pacman",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "pacman",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'git'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=git",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "git",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'git'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=git",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "git",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "ui",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=derive",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "derive",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'derive_ui'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=derive_ui",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "derive_ui",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'examples'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=examples",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "examples",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'macros'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=macros",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "macros",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'builder'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=builder",
+                    "--package=clap"
+                ],
+                "filter": {
+                    "name": "builder",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'clap_lex'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=clap_lex"
+                ],
+                "filter": {
+                    "name": "clap_lex",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'shorts'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=shorts",
+                    "--package=clap_lex"
+                ],
+                "filter": {
+                    "name": "shorts",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'parsed'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=parsed",
+                    "--package=clap_lex"
+                ],
+                "filter": {
+                    "name": "parsed",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'lexer'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=lexer",
+                    "--package=clap_lex"
+                ],
+                "filter": {
+                    "name": "lexer",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'clap_complete'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "clap_complete",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'dynamic'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=dynamic",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "dynamic",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'dynamic'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=dynamic",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "dynamic",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'completion-derive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=completion-derive",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "completion-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'completion-derive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=completion-derive",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "completion-derive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'completion'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=completion",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "completion",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'completion'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=completion",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "completion",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'zsh'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=zsh",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "zsh",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'powershell'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=powershell",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "powershell",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'bash'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=bash",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "bash",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'elvish'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=elvish",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "elvish",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'fish'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=fish",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "fish",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'general'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=general",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "general",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'examples'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=examples",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "examples",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'dynamic'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=dynamic",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "dynamic",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'common'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=common",
+                    "--package=clap_complete"
+                ],
+                "filter": {
+                    "name": "common",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'clap_complete_fig'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=clap_complete_fig"
+                ],
+                "filter": {
+                    "name": "clap_complete_fig",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'fig_completion'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=fig_completion",
+                    "--package=clap_complete_fig"
+                ],
+                "filter": {
+                    "name": "fig_completion",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'fig_completion'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=fig_completion",
+                    "--package=clap_complete_fig"
+                ],
+                "filter": {
+                    "name": "fig_completion",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'fig'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=fig",
+                    "--package=clap_complete_fig"
+                ],
+                "filter": {
+                    "name": "fig",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'common'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=common",
+                    "--package=clap_complete_fig"
+                ],
+                "filter": {
+                    "name": "common",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'clap_mangen'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=clap_mangen"
+                ],
+                "filter": {
+                    "name": "clap_mangen",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'man'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=man",
+                    "--package=clap_mangen"
+                ],
+                "filter": {
+                    "name": "man",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'man'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=man",
+                    "--package=clap_mangen"
+                ],
+                "filter": {
+                    "name": "man",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'roff'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=roff",
+                    "--package=clap_mangen"
+                ],
+                "filter": {
+                    "name": "roff",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'common'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=common",
+                    "--package=clap_mangen"
+                ],
+                "filter": {
+                    "name": "common",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
