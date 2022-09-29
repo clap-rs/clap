@@ -451,7 +451,7 @@ error: Found argument '--optio' which wasn't expected, or isn't valid in this co
 
   Did you mean '--option'?
 
-  If you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
+  If you tried to supply '--optio' as a value rather than a flag, use '-- --optio'
 
 Usage: clap-test --option <opt>... [positional] [positional2] [positional3]...
 
@@ -551,7 +551,7 @@ error: Found argument '--files-without-matches' which wasn't expected, or isn't 
 
   Did you mean '--files-without-match'?
 
-  If you tried to supply `--files-without-matches` as a value rather than a flag, use `-- --files-without-matches`
+  If you tried to supply '--files-without-matches' as a value rather than a flag, use '-- --files-without-matches'
 
 Usage: ripgrep-616 --files-without-match
 

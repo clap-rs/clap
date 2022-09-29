@@ -357,20 +357,23 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                     if invalid_arg.starts_with('-') {
                         styled.none("\n\n");
                         styled.none(TAB);
-                        styled.none(format!(
-                                "If you tried to supply `{}` as a value rather than a flag, use `-- {}`",
-                                invalid_arg, invalid_arg
-                            ));
+                        styled.none("If you tried to supply '");
+                        styled.warning(invalid_arg);
+                        styled.none("' as a value rather than a flag, use '");
+                        styled.good("-- ");
+                        styled.good(invalid_arg);
+                        styled.none("'");
                     }
 
                     let trailing_arg = error.get(ContextKind::TrailingArg);
                     if trailing_arg == Some(&ContextValue::Bool(true)) {
                         styled.none("\n\n");
                         styled.none(TAB);
-                        styled.none(format!(
-                            "If you tried to supply `{}` as a subcommand, remove the '--' before it.",
-                            invalid_arg
-                        ));
+                        styled.none("If you tried to supply '");
+                        styled.warning(invalid_arg);
+                        styled.none("' as a subcommand, remove the '");
+                        styled.warning("--");
+                        styled.none("' before it.");
                     }
                 }
                 true
@@ -430,7 +433,7 @@ pub(crate) fn get_help_flag(cmd: &Command) -> Option<&'static str> {
 fn try_help(styled: &mut StyledStr, help: Option<&str>) {
     if let Some(help) = help {
         styled.none("\n\nFor more information try '");
-        styled.good(help.to_owned());
+        styled.literal(help.to_owned());
         styled.none("'\n");
     } else {
         styled.none("\n");

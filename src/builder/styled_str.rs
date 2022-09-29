@@ -40,6 +40,7 @@ impl StyledStr {
         self.stylize_(Some(Style::Placeholder), msg.into());
     }
 
+    #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
     pub(crate) fn good(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Good), msg.into());
     }
