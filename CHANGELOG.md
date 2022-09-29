@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Specialize the self-conflict error to look like clap v3
+
 ## [4.0.3] - 2022-09-29
 
 ### Fixes
