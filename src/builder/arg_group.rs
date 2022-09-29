@@ -467,6 +467,12 @@ impl ArgGroup {
     pub fn get_id(&self) -> &Id {
         &self.id
     }
+
+    /// Reports whether [`ArgGroup::required`] is set
+    #[inline]
+    pub fn is_required_set(&self) -> bool {
+        self.required
+    }
 }
 
 impl From<&'_ ArgGroup> for ArgGroup {
