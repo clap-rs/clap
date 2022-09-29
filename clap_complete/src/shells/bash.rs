@@ -90,6 +90,13 @@ fn all_subcommands(cmd: &Command) -> String {
             cmd.get_name().to_string(),
             fn_name.clone(),
         ));
+        for alias in cmd.get_visible_aliases() {
+            subcmds.push((
+                parent_fn_name.to_string(),
+                alias.to_string(),
+                fn_name.clone(),
+            ));
+        }
         for subcmd in cmd.get_subcommands() {
             add_command(&fn_name, subcmd, subcmds);
         }

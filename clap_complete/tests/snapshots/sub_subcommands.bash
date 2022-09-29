@@ -18,6 +18,9 @@ _my-app() {
             my__app,some_cmd)
                 cmd="my__app__some_cmd"
                 ;;
+            my__app,some_cmd_alias)
+                cmd="my__app__some_cmd"
+                ;;
             my__app,test)
                 cmd="my__app__test"
                 ;;
