@@ -53,3 +53,18 @@ pub fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> String {
 
     output
 }
+
+#[track_caller]
+pub fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expected: &str, stderr: bool) {
+    let res = P::try_parse_from(args.split(' ').collect::<Vec<_>>());
+    let err = res.unwrap_err();
+    let actual = err.render().to_string();
+    assert_eq!(
+        stderr,
+        err.use_stderr(),
+        "Should Use STDERR failed. Should be {} but is {}",
+        stderr,
+        err.use_stderr()
+    );
+    snapbox::assert_eq(expected, actual)
+}
