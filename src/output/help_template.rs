@@ -494,7 +494,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn long(&mut self, arg: &Arg) {
         debug!("HelpTemplate::long");
         if let Some(long) = arg.get_long() {
-            if arg.short.is_some() {
+            if arg.get_short().is_some() {
                 self.none(", ");
             }
             self.literal(format!("--{}", long));
@@ -516,7 +516,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             let self_len = display_width(&arg.to_string());
             // Since we're writing spaces from the tab point we first need to know if we
             // had a long and short, or just short
-            let padding = if arg.long.is_some() {
+            let padding = if arg.get_long().is_some() {
                 // Only account 4 after the val
                 TAB_WIDTH
             } else {
@@ -969,7 +969,7 @@ fn option_sort_key(arg: &Arg) -> (usize, String) {
         x.to_string()
     } else {
         let mut s = '{'.to_string();
-        s.push_str(arg.id.as_str());
+        s.push_str(arg.get_id().as_str());
         s
     };
     (arg.get_display_order(), key)
@@ -1017,7 +1017,7 @@ fn replace_newline_var(styled: &mut StyledStr) {
 }
 
 fn longest_filter(arg: &Arg) -> bool {
-    arg.is_takes_value_set() || arg.long.is_some() || arg.short.is_none()
+    arg.is_takes_value_set() || arg.get_long().is_some() || arg.get_short().is_none()
 }
 
 #[cfg(test)]

@@ -286,7 +286,7 @@ impl<'cmd> Parser<'cmd> {
                         let arg_values = matcher.pending_values_mut(id, None, trailing_values);
                         arg_values.push(arg_os.to_value_os().to_os_str().into_owned());
                         if matcher.needs_more_vals(arg) {
-                            ParseResult::Opt(arg.id.clone())
+                            ParseResult::Opt(arg.get_id().clone())
                         } else {
                             ParseResult::ValuesDone
                         }
@@ -308,10 +308,9 @@ impl<'cmd> Parser<'cmd> {
                 // The last positional argument, or second to last positional
                 // argument may be set to .multiple_values(true) or `.multiple_occurrences(true)`
                 let low_index_mults = is_second_to_last
-                    && self
-                        .cmd
-                        .get_positionals()
-                        .any(|a| a.is_multiple() && (positional_count != a.index.unwrap_or(0)))
+                    && self.cmd.get_positionals().any(|a| {
+                        a.is_multiple() && (positional_count != a.get_index().unwrap_or(0))
+                    })
                     && self
                         .cmd
                         .get_positionals()
@@ -336,7 +335,7 @@ impl<'cmd> Parser<'cmd> {
                         if let Some(arg) = self
                             .cmd
                             .get_positionals()
-                            .find(|a| a.index == Some(pos_counter))
+                            .find(|a| a.get_index() == Some(pos_counter))
                         {
                             // If next value looks like a new_arg or it's a
                             // subcommand, skip positional argument under current
@@ -387,7 +386,7 @@ impl<'cmd> Parser<'cmd> {
                     trailing_values = true;
                 }
 
-                if matcher.pending_arg_id() != Some(&arg.id) || !arg.is_multiple_values_set() {
+                if matcher.pending_arg_id() != Some(arg.get_id()) || !arg.is_multiple_values_set() {
                     ok!(self.resolve_pending(matcher));
                 }
                 if let Some(_parse_result) = self.check_terminator(arg, arg_os.to_value_os()) {
@@ -397,7 +396,7 @@ impl<'cmd> Parser<'cmd> {
                     );
                 } else {
                     let arg_values = matcher.pending_values_mut(
-                        &arg.id,
+                        arg.get_id(),
                         Some(Identifier::Index),
                         trailing_values,
                     );
@@ -409,7 +408,7 @@ impl<'cmd> Parser<'cmd> {
                     pos_counter += 1;
                     parse_state = ParseState::ValuesDone;
                 } else {
-                    parse_state = ParseState::Pos(arg.id.clone());
+                    parse_state = ParseState::Pos(arg.get_id().clone());
                 }
                 valid_arg_found = true;
             } else if let Some(external_parser) =
@@ -637,8 +636,8 @@ impl<'cmd> Parser<'cmd> {
             current_positional.get_id()
         );
 
-        if self.cmd[&current_positional.id].is_allow_hyphen_values_set()
-            || (self.cmd[&current_positional.id].is_allow_negative_numbers_set()
+        if self.cmd[current_positional.get_id()].is_allow_hyphen_values_set()
+            || (self.cmd[current_positional.get_id()].is_allow_negative_numbers_set()
                 && next.is_number())
         {
             // If allow hyphen, this isn't a new arg.
@@ -784,9 +783,9 @@ impl<'cmd> Parser<'cmd> {
                         matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
                     })
                     .filter(|&n| {
-                        self.cmd
-                            .find(n)
-                            .map_or(true, |a| !(a.is_hide_set() || required.contains(&a.id)))
+                        self.cmd.find(n).map_or(true, |a| {
+                            !(a.is_hide_set() || required.contains(a.get_id()))
+                        })
                     })
                     .cloned()
                     .collect();
@@ -1038,8 +1037,8 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::parse_opt_value: More arg vals required...");
             ok!(self.resolve_pending(matcher));
             let trailing_values = false;
-            matcher.pending_values_mut(&arg.id, Some(ident), trailing_values);
-            Ok(ParseResult::Opt(arg.id.clone()))
+            matcher.pending_values_mut(arg.get_id(), Some(ident), trailing_values);
+            Ok(ParseResult::Opt(arg.get_id().clone()))
         }
     }
 
@@ -1075,12 +1074,12 @@ impl<'cmd> Parser<'cmd> {
             let value_parser = arg.get_value_parser();
             let val = ok!(value_parser.parse_ref(self.cmd, Some(arg), &raw_val));
 
-            matcher.add_val_to(&arg.id, val, raw_val);
-            matcher.add_index_to(&arg.id, self.cur_idx.get());
+            matcher.add_val_to(arg.get_id(), val, raw_val);
+            matcher.add_index_to(arg.get_id(), self.cur_idx.get());
         }
 
         // Increment or create the group "args"
-        for group in self.cmd.groups_for_arg(&arg.id) {
+        for group in self.cmd.groups_for_arg(arg.get_id()) {
             matcher.add_val_to(
                 &group,
                 AnyValue::new(arg.get_id().clone()),
@@ -1180,7 +1179,7 @@ impl<'cmd> Parser<'cmd> {
                     self.cur_idx.set(self.cur_idx.get() + 1);
                     debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
                 }
-                if matcher.remove(&arg.id)
+                if matcher.remove(arg.get_id())
                     && !(self.cmd.is_args_override_self() || arg.overrides.contains(arg.get_id()))
                 {
                     return Err(ClapError::argument_conflict(
@@ -1223,7 +1222,7 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                if matcher.remove(&arg.id)
+                if matcher.remove(arg.get_id())
                     && !(self.cmd.is_args_override_self() || arg.overrides.contains(arg.get_id()))
                 {
                     return Err(ClapError::argument_conflict(
@@ -1244,7 +1243,7 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                if matcher.remove(&arg.id)
+                if matcher.remove(arg.get_id())
                     && !(self.cmd.is_args_override_self() || arg.overrides.contains(arg.get_id()))
                 {
                     return Err(ClapError::argument_conflict(
@@ -1269,7 +1268,7 @@ impl<'cmd> Parser<'cmd> {
                     raw_vals
                 };
 
-                matcher.remove(&arg.id);
+                matcher.remove(arg.get_id());
                 self.start_custom_arg(matcher, arg, source);
                 ok!(self.push_arg_values(arg, raw_vals, matcher));
                 Ok(ParseResult::ValuesDone)
@@ -1366,8 +1365,8 @@ impl<'cmd> Parser<'cmd> {
         let mut transitive = Vec::new();
         for arg_id in matcher.arg_ids() {
             if let Some(overrider) = self.cmd.find(arg_id) {
-                if overrider.overrides.contains(&arg.id) {
-                    transitive.push(&overrider.id);
+                if overrider.overrides.contains(arg.get_id()) {
+                    transitive.push(overrider.get_id());
                 }
             }
         }
@@ -1422,7 +1421,7 @@ impl<'cmd> Parser<'cmd> {
     fn add_default_value(&self, arg: &Arg, matcher: &mut ArgMatcher) -> ClapResult<()> {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
-            if !matcher.contains(&arg.id) {
+            if !matcher.contains(arg.get_id()) {
                 for (id, val, default) in arg.default_vals_ifs.iter() {
                     let add = if let Some(a) = matcher.get(id) {
                         match val {
@@ -1461,7 +1460,7 @@ impl<'cmd> Parser<'cmd> {
                 "Parser::add_default_value:iter:{}: has default vals",
                 arg.get_id()
             );
-            if matcher.contains(&arg.id) {
+            if matcher.contains(arg.get_id()) {
                 debug!("Parser::add_default_value:iter:{}: was used", arg.get_id());
             // do nothing
             } else {
@@ -1502,7 +1501,7 @@ impl<'cmd> Parser<'cmd> {
             self.remove_overrides(arg, matcher);
         }
         matcher.start_custom_arg(arg, source);
-        for group in self.cmd.groups_for_arg(&arg.id) {
+        for group in self.cmd.groups_for_arg(arg.get_id()) {
             matcher.start_custom_group(group, source);
         }
     }
@@ -1514,7 +1513,7 @@ impl<'cmd> Parser<'cmd> {
 
         matcher.start_occurrence_of_arg(arg);
         // Increment or create the group "args"
-        for group in self.cmd.groups_for_arg(&arg.id) {
+        for group in self.cmd.groups_for_arg(arg.get_id()) {
             matcher.start_occurrence_of_group(group);
         }
     }

@@ -50,7 +50,6 @@ use crate::INTERNAL_ERROR_MSG;
 /// // Using a usage string (setting a similar argument to the one above)
 /// let input = arg!(-i --input <FILE> "Provides an input file to the program");
 /// ```
-#[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
 pub struct Arg {
     pub(crate) id: Id,
@@ -3904,7 +3903,7 @@ impl Arg {
     /// assert_eq!(arg.is_positional(), false);
     /// ```
     pub fn is_positional(&self) -> bool {
-        self.long.is_none() && self.short.is_none()
+        self.get_long().is_none() && self.get_short().is_none()
     }
 
     /// Reports whether [`Arg::required`] is set
@@ -4236,7 +4235,7 @@ impl PartialOrd for Arg {
 
 impl Ord for Arg {
     fn cmp(&self, other: &Arg) -> Ordering {
-        self.id.cmp(&other.id)
+        self.get_id().cmp(other.get_id())
     }
 }
 
