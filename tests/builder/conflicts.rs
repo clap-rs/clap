@@ -311,6 +311,20 @@ For more information try '--help'
 
 #[test]
 #[cfg(feature = "error-context")]
+fn conflict_output_repeat() {
+    static ERR: &str = "\
+error: The argument '-F' was provided more than once, but cannot be used multiple times
+
+Usage: clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
+
+For more information try '--help'
+";
+
+    utils::assert_output(utils::complex_app(), "clap-test -F -F", ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
 fn conflict_output_with_required() {
     static CONFLICT_ERR: &str = "\
 error: The argument '--flag...' cannot be used with '-F'
