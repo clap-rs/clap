@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Reference to subcommand man pages now lists the correct name
+
 ## [0.2.1] - 2022-09-28
 
 ### Fixes
