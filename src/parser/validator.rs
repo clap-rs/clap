@@ -34,7 +34,7 @@ impl<'cmd> Validator<'cmd> {
             debug!("Validator::validate: needs_val_of={:?}", a);
 
             let o = &self.cmd[&a];
-            let should_err = if let Some(v) = matcher.args.get(&o.id) {
+            let should_err = if let Some(v) = matcher.args.get(o.get_id()) {
                 v.all_val_groups_empty() && o.get_min_vals() != 0
             } else {
                 true
@@ -220,11 +220,11 @@ impl<'cmd> Validator<'cmd> {
             debug!("Validator::gather_requires:iter:{:?}", name);
             if let Some(arg) = self.cmd.find(name) {
                 let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
-                    let required = matcher.check_explicit(&arg.id, val);
+                    let required = matcher.check_explicit(arg.get_id(), val);
                     required.then(|| req_arg.clone())
                 };
 
-                for req in self.cmd.unroll_arg_requires(is_relevant, &arg.id) {
+                for req in self.cmd.unroll_arg_requires(is_relevant, arg.get_id()) {
                     self.required.insert(req);
                 }
             } else if let Some(g) = self.cmd.find_group(name) {
@@ -374,7 +374,7 @@ impl<'cmd> Validator<'cmd> {
         conflicts: &mut Conflicts,
     ) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
-        let conflicts = conflicts.gather_conflicts(self.cmd, matcher, &a.id);
+        let conflicts = conflicts.gather_conflicts(self.cmd, matcher, a.get_id());
         !conflicts.is_empty()
     }
 

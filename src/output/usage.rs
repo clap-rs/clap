@@ -170,7 +170,7 @@ impl<'cmd> Usage<'cmd> {
                 debug!("Usage::needs_options_tag:iter Option is required");
                 continue;
             }
-            for grp_s in self.cmd.groups_for_arg(&f.id) {
+            for grp_s in self.cmd.groups_for_arg(f.get_id()) {
                 debug!("Usage::needs_options_tag:iter:iter: grp_s={:?}", grp_s);
                 if self.cmd.get_groups().any(|g| g.id == grp_s && g.required) {
                     debug!("Usage::needs_options_tag:iter:iter: Group is required");

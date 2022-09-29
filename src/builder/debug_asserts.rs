@@ -91,7 +91,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         // Name conflicts
-        if let Some((first, second)) = cmd.two_args_of(|x| x.id == arg.id) {
+        if let Some((first, second)) = cmd.two_args_of(|x| x.get_id() == arg.get_id()) {
             panic!(
             "Command {}: Argument names must be unique, but '{}' is in use by more than one argument or group{}",
             cmd.get_name(),
@@ -117,7 +117,7 @@ pub(crate) fn assert_app(cmd: &Command) {
 
         // Short conflicts
         if let Some(s) = arg.get_short() {
-            if let Some((first, second)) = cmd.two_args_of(|x| x.short == Some(s)) {
+            if let Some((first, second)) = cmd.two_args_of(|x| x.get_short() == Some(s)) {
                 panic!(
                     "Command {}: Short option names must be unique for each argument, \
                             but '-{}' is in use by both '{}' and '{}'{}",
@@ -133,7 +133,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         // Index conflicts
         if let Some(idx) = arg.index {
             if let Some((first, second)) =
-                cmd.two_args_of(|x| x.is_positional() && x.index == Some(idx))
+                cmd.two_args_of(|x| x.is_positional() && x.get_index() == Some(idx))
             {
                 panic!(
                     "Command {}: Argument '{}' has the same index as '{}' \
@@ -242,13 +242,13 @@ pub(crate) fn assert_app(cmd: &Command) {
 
         if arg.is_last_set() {
             assert!(
-                arg.long.is_none(),
+                arg.get_long().is_none(),
                 "Command {}: Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
                     cmd.get_name(),
                 arg.get_id()
             );
             assert!(
-                arg.short.is_none(),
+                arg.get_short().is_none(),
                 "Command {}: Flags or Options cannot have last(true) set. '{}' has both a short and last(true) set.",
                     cmd.get_name(),
                 arg.get_id()
@@ -358,10 +358,12 @@ pub(crate) fn assert_app(cmd: &Command) {
 }
 
 fn duplicate_tip(cmd: &Command, first: &Arg, second: &Arg) -> &'static str {
-    if !cmd.is_disable_help_flag_set() && (first.id == Id::HELP || second.id == Id::HELP) {
+    if !cmd.is_disable_help_flag_set()
+        && (first.get_id() == Id::HELP || second.get_id() == Id::HELP)
+    {
         " (call `cmd.disable_help_flag(true)` to remove the auto-generated `--help`)"
     } else if !cmd.is_disable_version_flag_set()
-        && (first.id == Id::VERSION || second.id == Id::VERSION)
+        && (first.get_id() == Id::VERSION || second.get_id() == Id::VERSION)
     {
         " (call `cmd.disable_version_flag(true)` to remove the auto-generated `--version`)"
     } else {
@@ -546,7 +548,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
     }
 
     // Next we verify that only the highest index has takes multiple arguments (if any)
-    let only_highest = |a: &Arg| a.is_multiple() && (a.index.unwrap_or(0) != highest_idx);
+    let only_highest = |a: &Arg| a.is_multiple() && (a.get_index().unwrap_or(0) != highest_idx);
     if cmd.get_positionals().any(only_highest) {
         // First we make sure if there is a positional that allows multiple values
         // the one before it (second to last) has one of these:
@@ -614,7 +616,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
                          index than a required positional argument by two or more: {:?} \
                          index {:?}",
                     p.get_id(),
-                    p.index
+                    p.get_index()
                 );
             } else if p.is_required_set() && !p.is_last_set() {
                 // Args that .last(true) don't count since they can be required and have
@@ -643,7 +645,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
                     "Found non-required positional argument with a lower \
                          index than a required positional argument: {:?} index {:?}",
                     p.get_id(),
-                    p.index
+                    p.get_index()
                 );
             } else if p.is_required_set() && !p.is_last_set() {
                 // Args that .last(true) don't count since they can be required and have
@@ -682,7 +684,7 @@ fn assert_arg(arg: &Arg) {
     // Self conflict
     // TODO: this check should be recursive
     assert!(
-        !arg.blacklist.iter().any(|x| *x == arg.id),
+        !arg.blacklist.iter().any(|x| x == arg.get_id()),
         "Argument '{}' cannot conflict with itself",
         arg.get_id(),
     );
@@ -731,9 +733,9 @@ fn assert_arg(arg: &Arg) {
             arg.is_takes_value_set(),
             "Argument '{}` is positional, it must take a value{}",
             arg.get_id(),
-            if arg.id == Id::HELP {
+            if arg.get_id() == Id::HELP {
                 " (`mut_arg` no longer works with implicit `--help`)"
-            } else if arg.id == Id::VERSION {
+            } else if arg.get_id() == Id::VERSION {
                 " (`mut_arg` no longer works with implicit `--version`)"
             } else {
                 ""

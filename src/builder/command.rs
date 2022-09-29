@@ -3502,7 +3502,7 @@ impl Command {
                             .iter()
                             .flat_map(|x| x.args.args()),
                     )
-                    .find(|arg| arg.id == *id)
+                    .find(|arg| arg.get_id() == id)
                     .expect(
                         "Command::get_arg_conflicts_with: \
                     The passed arg conflicts with an arg unknown to the cmd",
@@ -3527,7 +3527,11 @@ impl Command {
     fn get_subcommands_containing(&self, arg: &Arg) -> Vec<&Self> {
         let mut vec = std::vec::Vec::new();
         for idx in 0..self.subcommands.len() {
-            if self.subcommands[idx].args.args().any(|ar| ar.id == arg.id) {
+            if self.subcommands[idx]
+                .args
+                .args()
+                .any(|ar| ar.get_id() == arg.get_id())
+            {
                 vec.push(&self.subcommands[idx]);
                 vec.append(&mut self.subcommands[idx].get_subcommands_containing(arg));
             }
@@ -4107,7 +4111,7 @@ impl Command {
             let args_missing_help: Vec<Id> = self
                 .args
                 .args()
-                .filter(|arg| arg.help.is_none() && arg.long_help.is_none())
+                .filter(|arg| arg.get_help().is_none() && arg.get_long_help().is_none())
                 .map(|arg| arg.get_id().clone())
                 .collect();
 
@@ -4353,7 +4357,7 @@ impl Command {
     }
 
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg> {
-        self.args.args().find(|a| a.id == *arg_id)
+        self.args.args().find(|a| a.get_id() == arg_id)
     }
 
     #[inline]
@@ -4413,7 +4417,7 @@ impl Command {
 
     #[cfg(debug_assertions)]
     pub(crate) fn id_exists(&self, id: &Id) -> bool {
-        self.args.args().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
+        self.args.args().any(|x| x.get_id() == id) || self.groups.iter().any(|x| x.id == *id)
     }
 
     /// Iterate through the groups this arg is member of.
@@ -4443,7 +4447,7 @@ impl Command {
     pub(crate) fn required_graph(&self) -> ChildGraph<Id> {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in self.args.args().filter(|a| a.is_required_set()) {
-            reqs.insert(a.id.clone());
+            reqs.insert(a.get_id().clone());
         }
         for group in &self.groups {
             if group.required {
@@ -4506,7 +4510,7 @@ impl Command {
                 for r in arg.requires.iter().filter_map(&func) {
                     if let Some(req) = self.find(&r) {
                         if !req.requires.is_empty() {
-                            r_vec.push(&req.id)
+                            r_vec.push(req.get_id())
                         }
                     }
                     args.push(r);
@@ -4571,7 +4575,7 @@ impl Command {
         // specified by the user is sent through. If hide_short_help is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some()
+            v.get_long_help().is_some()
                 || v.is_hide_long_help_set()
                 || v.is_hide_short_help_set()
                 || v.get_possible_values()
