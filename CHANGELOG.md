@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Quote literals consistently
+- *(error)* Stylize escape (`--`) suggestions
+- *(error)* Format help flag as a literal
+
 ## [4.0.2] - 2022-09-28
 
 ### Fixes
