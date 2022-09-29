@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Fix `git diff git <TAB>` completions
+- *(bash)* Fix `git diff log <TAB>` completions
+- *(bash)* Fix command alias
+
 ## [4.0.1] - 2022-09-28
 
 ### Fixes
