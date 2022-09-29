@@ -1302,12 +1302,14 @@ impl Arg {
     /// To limit values to just numbers, see
     /// [`allow_negative_numbers`][Arg::allow_negative_numbers].
     ///
+    /// See also [`trailing_var_arg`][Arg::trailing_var_arg].
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
-    /// **NOTE:** If a positional argument has `allow_hyphen_values` and is followed by a known
-    /// flag, it will be treated as a flag (see [`trailing_var_arg`][Arg::trailing_var_arg] for
-    /// consuming known flags).  If an option has `allow_hyphen_values` and is followed by a known
-    /// flag, it will be treated as the value for the option.
+    /// **WARNING:** Prior arguments with `allow_hyphen_values(true)` get precedence over known
+    /// flags but known flags get precedence over the next possible positional argument with
+    /// `allow_hyphen_values(true)`.  When combined with [`Arg::num_args(..)`],
+    /// [`Arg::value_terminator`] is one way to ensure processing stops.
     ///
     /// **WARNING**: Take caution when using this setting combined with another argument using
     /// [`Arg::num_args`], as this becomes ambiguous `$ prog --arg -- -- val`. All
