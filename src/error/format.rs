@@ -90,26 +90,32 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
                 (invalid_arg, prior_arg)
             {
-                styled.none("The argument '");
-                styled.warning(invalid_arg);
-                styled.none("' cannot be used with");
+                if ContextValue::String(invalid_arg.clone()) == *prior_arg {
+                    styled.none("The argument '");
+                    styled.warning(invalid_arg);
+                    styled.none("' was provided more than once, but cannot be used multiple times");
+                } else {
+                    styled.none("The argument '");
+                    styled.warning(invalid_arg);
+                    styled.none("' cannot be used with");
 
-                match prior_arg {
-                    ContextValue::Strings(values) => {
-                        styled.none(":");
-                        for v in values {
-                            styled.none("\n");
-                            styled.none(TAB);
-                            styled.warning(&**v);
+                    match prior_arg {
+                        ContextValue::Strings(values) => {
+                            styled.none(":");
+                            for v in values {
+                                styled.none("\n");
+                                styled.none(TAB);
+                                styled.warning(&**v);
+                            }
                         }
-                    }
-                    ContextValue::String(value) => {
-                        styled.none(" '");
-                        styled.warning(value);
-                        styled.none("'");
-                    }
-                    _ => {
-                        styled.none(" one or more of the other specified arguments");
+                        ContextValue::String(value) => {
+                            styled.none(" '");
+                            styled.warning(value);
+                            styled.none("'");
+                        }
+                        _ => {
+                            styled.none(" one or more of the other specified arguments");
+                        }
                     }
                 }
                 true

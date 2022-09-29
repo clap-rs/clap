@@ -313,7 +313,7 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn conflict_output_repeat() {
     static ERR: &str = "\
-error: The argument '-F' cannot be used with '-F'
+error: The argument '-F' was provided more than once, but cannot be used multiple times
 
 Usage: clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
 
