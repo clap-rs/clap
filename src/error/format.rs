@@ -357,20 +357,23 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                     if invalid_arg.starts_with('-') {
                         styled.none("\n\n");
                         styled.none(TAB);
-                        styled.none(format!(
-                                "If you tried to supply `{}` as a value rather than a flag, use `-- {}`",
-                                invalid_arg, invalid_arg
-                            ));
+                        styled.none("If you tried to supply `");
+                        styled.warning(invalid_arg);
+                        styled.none("` as a value rather than a flag, use `");
+                        styled.good("-- ");
+                        styled.good(invalid_arg);
+                        styled.none("`");
                     }
 
                     let trailing_arg = error.get(ContextKind::TrailingArg);
                     if trailing_arg == Some(&ContextValue::Bool(true)) {
                         styled.none("\n\n");
                         styled.none(TAB);
-                        styled.none(format!(
-                            "If you tried to supply `{}` as a subcommand, remove the '--' before it.",
-                            invalid_arg
-                        ));
+                        styled.none("If you tried to supply `");
+                        styled.warning(invalid_arg);
+                        styled.none("` as a subcommand, remove the '");
+                        styled.warning("--");
+                        styled.none("' before it.");
                     }
                 }
                 true
