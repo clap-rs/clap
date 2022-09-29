@@ -30,7 +30,7 @@ struct Opt {
 
 #[derive(Subcommand, Debug, PartialEq)]
 enum Commands {
-    #[clap(visible_alias = "hint")]
+    #[command(visible_alias = "hint")]
     ValueHint(ValueHintOpt),
 }
 
