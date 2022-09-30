@@ -946,9 +946,6 @@ impl Command {
 
     /// Try not to fail on parse errors, like missing option values.
     ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
-    ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
     /// # Examples
@@ -1131,9 +1128,6 @@ impl Command {
     /// Specifies to use the version of the current command for all [`subcommands`].
     ///
     /// Defaults to `false`; subcommands have independent version strings from their parents.
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
@@ -1457,6 +1451,9 @@ impl Command {
     /// automatically set your application's author(s) to the same thing as your
     /// crate at compile time.
     ///
+    /// **NOTE:** A custom [`help_template`][Command::help_template] is needed for author to show
+    /// up.
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -1465,7 +1462,6 @@ impl Command {
     ///      .author("Me, me@mymain.com")
     /// # ;
     /// ```
-    /// [`crate_authors!`]: ./macro.crate_authors!.html
     #[must_use]
     pub fn author(mut self, author: impl IntoResettable<Str>) -> Self {
         self.author = author.into_resettable().into_option();
@@ -1620,7 +1616,6 @@ impl Command {
     ///     .version("v0.1.24")
     /// # ;
     /// ```
-    /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
     pub fn version(mut self, ver: impl IntoResettable<Str>) -> Self {
         self.version = ver.into_resettable().into_option();
@@ -1648,7 +1643,6 @@ impl Command {
     ///  binary: myprog")
     /// # ;
     /// ```
-    /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
     pub fn long_version(mut self, ver: impl IntoResettable<Str>) -> Self {
         self.long_version = ver.into_resettable().into_option();
@@ -1767,11 +1761,29 @@ impl Command {
     ///
     /// # Examples
     ///
+    /// For a very brief help:
+    ///
     /// ```no_run
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .version("1.0")
     ///     .help_template("{bin} ({version}) - {usage}")
+    /// # ;
+    /// ```
+    ///
+    /// For showing more application context:
+    ///
+    /// ```no_run
+    /// # use clap::Command;
+    /// Command::new("myprog")
+    ///     .version("1.0")
+    ///     .help_template("\
+    /// {before-help}{name} {version}
+    /// {author-with-newline}{about-with-newline}
+    /// {usage-heading} {usage}
+    ///
+    /// {all-args}{after-help}
+    /// ")
     /// # ;
     /// ```
     /// [`Command::about`]: Command::about()
@@ -2843,9 +2855,6 @@ impl Command {
     ///           --------- ----------
     ///             values   subcommand
     /// ```
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// # Examples
     ///

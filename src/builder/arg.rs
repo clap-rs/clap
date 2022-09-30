@@ -466,7 +466,6 @@ impl Arg {
     /// [`Arg::short`]: Arg::short()
     /// [`Arg::long`]: Arg::long()
     /// [`Arg::num_args(true)`]: Arg::num_args()
-    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     /// [`Command`]: crate::Command
     #[inline]
     #[must_use]
