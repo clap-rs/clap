@@ -324,7 +324,7 @@ fn requires_group_with_overlapping_group_in_error() {
 error: The following required arguments were not provided:
   <--in|--spec>
 
-Usage: prog <--in|--spec> <--in|--spec|--config>
+Usage: prog --config <--in|--spec>
 
 For more information try '--help'
 ";

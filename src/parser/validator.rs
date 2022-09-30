@@ -438,7 +438,7 @@ impl<'cmd> Validator<'cmd> {
             .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
-                self.cmd.find(n).map_or(true, |a| !a.is_hide_set())
+                self.cmd.find(n).map_or(false, |a| !a.is_hide_set())
             })
             .cloned()
             .chain(raw_req_args)
