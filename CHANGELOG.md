@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* Support `#[group(skip)] (#4279, #4301)
+
 ## [4.0.5] - 2022-09-30
 
 ## [4.0.4] - 2022-09-29
