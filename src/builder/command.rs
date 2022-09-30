@@ -1465,7 +1465,6 @@ impl Command {
     ///      .author("Me, me@mymain.com")
     /// # ;
     /// ```
-    /// [`crate_authors!`]: ./macro.crate_authors!.html
     #[must_use]
     pub fn author(mut self, author: impl IntoResettable<Str>) -> Self {
         self.author = author.into_resettable().into_option();
@@ -1620,7 +1619,6 @@ impl Command {
     ///     .version("v0.1.24")
     /// # ;
     /// ```
-    /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
     pub fn version(mut self, ver: impl IntoResettable<Str>) -> Self {
         self.version = ver.into_resettable().into_option();
@@ -1648,7 +1646,6 @@ impl Command {
     ///  binary: myprog")
     /// # ;
     /// ```
-    /// [`crate_version!`]: ./macro.crate_version!.html
     #[must_use]
     pub fn long_version(mut self, ver: impl IntoResettable<Str>) -> Self {
         self.long_version = ver.into_resettable().into_option();
