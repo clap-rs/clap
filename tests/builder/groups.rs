@@ -318,6 +318,27 @@ For more information try '--help'
     utils::assert_output(cmd, "prog --major --minor", ERR, true);
 }
 
+#[test]
+fn requires_group_with_overlapping_group_in_error() {
+    static ERR: &str = "\
+error: The following required arguments were not provided:
+  <--in|--spec>
+
+Usage: prog <--in|--spec> <--in|--spec|--config>
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("prog")
+        .group(ArgGroup::new("all").multiple(true))
+        .group(ArgGroup::new("input").required(true))
+        .arg(arg!(--in).group("input").group("all"))
+        .arg(arg!(--spec).group("input").group("all"))
+        .arg(arg!(--config).requires("input").group("all"));
+
+    utils::assert_output(cmd, "prog --config", ERR, true);
+}
+
 /* This is used to be fixed in a hack, we need to find a better way to fix it.
 #[test]
 fn issue_1794() {
