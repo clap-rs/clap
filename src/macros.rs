@@ -533,7 +533,7 @@ macro_rules! arg_impl {
 /// assert_eq!(*m.get_one::<u8>("debug").unwrap(), 0);
 /// assert_eq!(m.get_one::<String>("input"), None);
 /// ```
-/// [`Arg`]: ./struct.Arg.html
+/// [`Arg`]: crate::Arg
 #[macro_export]
 macro_rules! arg {
     ( $name:ident: $($tail:tt)+ ) => {
