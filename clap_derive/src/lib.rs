@@ -42,7 +42,7 @@ pub fn value_enum(input: TokenStream) -> TokenStream {
 /// receiving an instance of `clap::ArgMatches` from conducting parsing, and then
 /// implementing a conversion code to instantiate an instance of the user
 /// context struct.
-#[proc_macro_derive(Parser, attributes(clap, structopt, command, arg))]
+#[proc_macro_derive(Parser, attributes(clap, structopt, command, arg, group))]
 #[proc_macro_error]
 pub fn parser(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
