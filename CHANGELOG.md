@@ -263,6 +263,10 @@ Easier to catch changes:
   built-in flags and be copied to all subcommands, instead disable
   the built-in flags (`Command::disable_help_flag`,
   `Command::disable_version_flag`) and mark the custom flags as `global(true)`. (#4056)
+- `Arg::short('h')` no longer implicitly disables the short flag for help,
+  instead disable
+  the built-in flags (`Command::disable_help_flag`,
+  `Command::disable_version_flag`) provide your own `Arg::new("help").long("help").action(ArgAction::Help).global(true)`. (#4056)
 - `ArgAction::SetTrue` and `ArgAction::SetFalse` now prioritize `Arg::default_missing_value` over their standard behavior (#4000)
 - Changed `Arg::requires_ifs` and `Arg::default_value*_ifs*` to taking an `ArgPredicate`, removing ambiguity with `None` when accepting owned and borrowed types (#4084)
 - Removed `PartialEq` and `Eq` from `Command` so we could change external subcommands to use a `ValueParser` (#3990)
