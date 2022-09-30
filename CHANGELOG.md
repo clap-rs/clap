@@ -272,6 +272,7 @@ Easier to catch changes:
 - Removed `PartialEq` and `Eq` from `Command` so we could change external subcommands to use a `ValueParser` (#3990)
 - Various `Arg`, `Command`, and `ArgGroup` calls were switched from accepting `&[]` to `[]` via `IntoIterator` to be more flexible (#4072)
 - `Arg::short_aliases` and other builder functions that took `&[]` need the `&` dropped (#4081)
+- `ErrorKind` and `Result` moved into the `error` module
 - `ErrorKind::EmptyValue` replaced with `ErrorKind::InvalidValue` to remove an unnecessary special case (#3676, #3968)
 - `ErrorKind::UnrecognizedSubcommand` replaced with `ErrorKind::InvalidSubcommand` to remove an unnecessary special case (#3676)
 - Changed the default type of `allow_external_subcommands` from `String` to `OsString` as that is less likely to cause bugs in user applications (#3990)
