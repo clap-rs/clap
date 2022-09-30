@@ -318,8 +318,44 @@ pub fn gen_augment(
     let group_app_methods = if parent_item.skip_group() {
         quote!()
     } else {
+        let literal_group_members = fields
+            .iter()
+            .filter_map(|(_field, item)| {
+                let kind = item.kind();
+                if matches!(*kind, Kind::Arg(_)) {
+                    Some(item.id())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        let literal_group_members_len = literal_group_members.len();
+        let mut literal_group_members = quote! {{
+            let members: [clap::Id; #literal_group_members_len] = [#( clap::Id::from(#literal_group_members) ),* ];
+            members
+        }};
+        // HACK: Validation isn't ready yet for nested arg groups, so just don't populate the group in
+        // that situation
+        let possible_group_members_len = fields
+            .iter()
+            .filter(|(_field, item)| {
+                let kind = item.kind();
+                matches!(*kind, Kind::Flatten)
+            })
+            .count();
+        if 0 < possible_group_members_len {
+            literal_group_members = quote! {{
+                let members: [clap::Id; 0] = [];
+                members
+            }};
+        }
+
         quote!(
-            .group(clap::ArgGroup::new(#group_id).multiple(true))
+            .group(
+                clap::ArgGroup::new(#group_id)
+                    .multiple(true)
+                    .args(#literal_group_members)
+            )
         )
     };
     quote! {{
