@@ -300,11 +300,11 @@ fn group_acts_like_arg() {
 }
 
 #[test]
-fn overlapping_group_in_error() {
+fn conflict_with_overlapping_group_in_error() {
     static ERR: &str = "\
 error: The argument '--major' cannot be used with '--minor'
 
-Usage: prog <--major|--minor|--other> <--major|--minor>
+Usage: prog --major
 
 For more information try '--help'
 ";
