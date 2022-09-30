@@ -299,6 +299,25 @@ fn group_acts_like_arg() {
     assert_eq!(m.get_one::<clap::Id>("mode").unwrap(), "debug");
 }
 
+#[test]
+fn overlapping_group_in_error() {
+    static ERR: &str = "\
+error: The argument '--major' cannot be used with '--minor'
+
+Usage: prog <--major|--minor|--other> <--major|--minor>
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("prog")
+        .group(ArgGroup::new("all").multiple(true))
+        .arg(arg!(--major).group("vers").group("all"))
+        .arg(arg!(--minor).group("vers").group("all"))
+        .arg(arg!(--other).group("all"));
+
+    utils::assert_output(cmd, "prog --major --minor", ERR, true);
+}
+
 /* This is used to be fixed in a hack, we need to find a better way to fix it.
 #[test]
 fn issue_1794() {
