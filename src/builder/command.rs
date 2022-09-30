@@ -1062,6 +1062,8 @@ impl Command {
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
+    /// **NOTE:** This requires the [`wrap_help` feature][crate::_features]
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -1085,6 +1087,8 @@ impl Command {
     /// Using `0` will ignore terminal widths and use source formatting (default).
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
+    ///
+    /// **NOTE:** This requires the [`wrap_help` feature][crate::_features]
     ///
     /// # Examples
     ///
