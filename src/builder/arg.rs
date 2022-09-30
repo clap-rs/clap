@@ -120,9 +120,9 @@ impl Arg {
     /// Sets the short version of the argument without the preceding `-`.
     ///
     /// By default `V` and `h` are used by the auto-generated `version` and `help` arguments,
-    /// respectively. You may use the uppercase `V` or lowercase `h` for your own arguments, in
-    /// which case `clap` simply will not assign those to the auto-generated
-    /// `version` or `help` arguments.
+    /// respectively. You will need to disable the auto-generated flags
+    /// ([`disable_help_flag`][crate::Command::disable_help_flag],
+    /// [`disable_version_flag`][crate::Command::disable_version_flag]) and define your own.
     ///
     /// # Examples
     ///
@@ -140,6 +140,25 @@ impl Arg {
     ///     ]);
     ///
     /// assert_eq!(m.get_one::<String>("config").map(String::as_str), Some("file.toml"));
+    /// ```
+    ///
+    /// To use `-h` for your own flag and still have help:
+    /// ```rust
+    /// # use clap::{Command, Arg,  ArgAction};
+    /// let m = Command::new("prog")
+    ///     .disable_help_flag(true)
+    ///     .arg(Arg::new("host")
+    ///         .short('h')
+    ///         .long("host"))
+    ///     .arg(Arg::new("help")
+    ///         .long("help")
+    ///         .global(true)
+    ///         .action(ArgAction::Help))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-h", "wikipedia.org"
+    ///     ]);
+    ///
+    /// assert_eq!(m.get_one::<String>("host").map(String::as_str), Some("wikipedia.org"));
     /// ```
     #[inline]
     #[must_use]
