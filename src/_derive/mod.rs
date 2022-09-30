@@ -259,8 +259,8 @@
 //! | `Option<T>`         | optional argument                    | `.action(ArgAction::Set).required(false)`                   |
 //! | `Option<Option<T>>` | optional value for optional argument | `.action(ArgAction::Set).required(false).num_args(0..=1)`   |
 //! | `T`                 | required argument                    | `.action(ArgAction::Set).required(!has_default)`            |
-//! | `Vec<T>`            | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).num_args(1..)`  |
-//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false).num_args(1..)`  |
+//! | `Vec<T>`            | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false)`  |
+//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false)`  |
 //!
 //! In addition, [`.value_parser(value_parser!(T))`][crate::value_parser!] is called for each
 //! field.
