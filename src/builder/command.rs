@@ -1758,11 +1758,29 @@ impl Command {
     ///
     /// # Examples
     ///
+    /// For a very brief help:
+    ///
     /// ```no_run
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .version("1.0")
     ///     .help_template("{bin} ({version}) - {usage}")
+    /// # ;
+    /// ```
+    ///
+    /// For showing more application context:
+    ///
+    /// ```no_run
+    /// # use clap::Command;
+    /// Command::new("myprog")
+    ///     .version("1.0")
+    ///     .help_template("\
+    /// {before-help}{name} {version}
+    /// {author-with-newline}{about-with-newline}
+    /// {usage-heading} {usage}
+    ///
+    /// {all-args}{after-help}
+    /// ")
     /// # ;
     /// ```
     /// [`Command::about`]: Command::about()
