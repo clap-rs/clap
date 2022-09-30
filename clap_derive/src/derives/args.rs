@@ -315,11 +315,19 @@ pub fn gen_augment(
     let initial_app_methods = parent_item.initial_top_level_methods();
     let group_id = parent_item.ident().unraw().to_string();
     let final_app_methods = parent_item.final_top_level_methods();
+    let group_app_methods = if parent_item.skip_group() {
+        quote!()
+    } else {
+        quote!(
+            .group(clap::ArgGroup::new(#group_id).multiple(true))
+        )
+    };
     quote! {{
         #deprecations
         let #app_var = #app_var
             #initial_app_methods
-            .group(clap::ArgGroup::new(#group_id).multiple(true));
+            #group_app_methods
+            ;
         #( #args )*
         #app_var #final_app_methods
     }}

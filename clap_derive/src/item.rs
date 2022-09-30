@@ -50,6 +50,7 @@ pub struct Item {
     next_help_heading: Option<Method>,
     is_enum: bool,
     is_positional: bool,
+    skip_group: bool,
     kind: Sp<Kind>,
 }
 
@@ -272,6 +273,7 @@ impl Item {
             next_help_heading: None,
             is_enum: false,
             is_positional: true,
+            skip_group: false,
             kind,
         }
     }
@@ -334,6 +336,7 @@ impl Item {
                 continue;
             }
 
+            let actual_attr_kind = *attr.kind.get();
             let kind = match &attr.magic {
                 Some(MagicAttrName::FromGlobal) => {
                     if attr.value.is_some() {
@@ -377,7 +380,7 @@ impl Item {
                     let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
                     Some(kind)
                 }
-                Some(MagicAttrName::Skip) => {
+                Some(MagicAttrName::Skip) if actual_attr_kind != AttrKind::Group => {
                     let expr = attr.value.clone();
                     let kind = Sp::new(
                         Kind::Skip(expr, self.kind.attr_kind()),
@@ -407,6 +410,8 @@ impl Item {
                         attr.kind.span(),
                     ));
                 }
+
+                (AttrKind::Group, AttrKind::Command) => {}
 
                 _ if attr.kind != expected_attr_kind => {
                     abort!(
@@ -803,6 +808,10 @@ impl Item {
                     self.env_casing = CasingStyle::from_lit(lit);
                 }
 
+                Some(MagicAttrName::Skip) if actual_attr_kind == AttrKind::Group => {
+                    self.skip_group = true;
+                }
+
                 None
                 // Magic only for the default, otherwise just forward to the builder
                 | Some(MagicAttrName::Short)
@@ -1028,6 +1037,10 @@ impl Item {
         self.methods
             .iter()
             .any(|m| m.name != "help" && m.name != "long_help")
+    }
+
+    pub fn skip_group(&self) -> bool {
+        self.skip_group
     }
 }
 

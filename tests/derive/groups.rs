@@ -23,7 +23,6 @@ fn test_safely_nest_parser() {
 }
 
 #[test]
-#[should_panic = "'Compose' is already in use"]
 fn skip_group_avoids_duplicate_ids() {
     #[derive(Parser, Debug)]
     struct Opt {
@@ -34,6 +33,7 @@ fn skip_group_avoids_duplicate_ids() {
     }
 
     #[derive(clap::Args, Debug)]
+    #[group(skip)]
     pub struct Compose<L: clap::Args, R: clap::Args> {
         #[clap(flatten)]
         pub left: L,
@@ -42,6 +42,7 @@ fn skip_group_avoids_duplicate_ids() {
     }
 
     #[derive(clap::Args, Clone, Copy, Debug)]
+    #[group(skip)]
     pub struct Empty;
 
     use clap::CommandFactory;

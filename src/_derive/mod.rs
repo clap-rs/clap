@@ -4,6 +4,7 @@
 //! 2. [Attributes](#attributes)
 //!     1. [Terminology](#terminology)
 //!     2. [Command Attributes](#command-attributes)
+//!     2. [ArgGroup Attributes](#arggroup-attributes)
 //!     3. [Arg Attributes](#arg-attributes)
 //!     4. [ValueEnum Attributes](#valueenum-attributes)
 //!     5. [Possible Value Attributes](#possible-value-attributes)
@@ -28,6 +29,7 @@
 //! /// Doc comment
 //! #[derive(Parser)]
 //! #[command(CMD ATTRIBUTE)]
+//! #[group(GROUP ATTRIBUTE)]
 //! struct Cli {
 //!     /// Doc comment
 //!     #[arg(ARG ATTRIBUTE)]
@@ -46,6 +48,7 @@
 //! /// Doc comment
 //! #[derive(Args)]
 //! #[command(PARENT CMD ATTRIBUTE)]
+//! #[group(GROUP ATTRIBUTE)]
 //! struct Struct {
 //!     /// Doc comment
 //!     #[command(ARG ATTRIBUTE)]
@@ -172,6 +175,13 @@
 //!   [`Subcommand`][crate::Subcommand])
 //! - `external_subcommand`: [`Command::allow_external_subcommand(true)`][crate::Command::allow_external_subcommands]
 //!   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
+//!
+//! ### ArgGroup Attributes
+//!
+//! These correspond to the [`ArgGroup`][crate::ArgGroup] which is implicitly created for each
+//! `Args` derive.
+//!
+//! At the moment, only `#[group(skip)]` is supported
 //!
 //! ### Arg Attributes
 //!
