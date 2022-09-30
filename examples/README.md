@@ -4,7 +4,7 @@ We try to focus our documentation on the [four types of
 documentation](https://documentation.divio.com/).  Examples fit into this by
 providing:
 - [Cookbook / How-To Guides](https://docs.rs/clap/latest/clap/_cookbook/index.html)
-- Tutorials ([derive](https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html), [builder](https://docs.rs/clap/latest/clap/_tutorial/index.html)
+- Tutorials ([derive](https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html), [builder](https://docs.rs/clap/latest/clap/_tutorial/index.html))
 
 This directory contains the source for the above.
 
