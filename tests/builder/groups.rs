@@ -296,6 +296,47 @@ fn group_acts_like_arg() {
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
     assert!(m.contains_id("mode"));
+    assert_eq!(m.get_one::<clap::Id>("mode").unwrap(), "debug");
+}
+
+#[test]
+fn conflict_with_overlapping_group_in_error() {
+    static ERR: &str = "\
+error: The argument '--major' cannot be used with '--minor'
+
+Usage: prog --major
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("prog")
+        .group(ArgGroup::new("all").multiple(true))
+        .arg(arg!(--major).group("vers").group("all"))
+        .arg(arg!(--minor).group("vers").group("all"))
+        .arg(arg!(--other).group("all"));
+
+    utils::assert_output(cmd, "prog --major --minor", ERR, true);
+}
+
+#[test]
+fn requires_group_with_overlapping_group_in_error() {
+    static ERR: &str = "\
+error: The following required arguments were not provided:
+  <--in|--spec>
+
+Usage: prog --config <--in|--spec>
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("prog")
+        .group(ArgGroup::new("all").multiple(true))
+        .group(ArgGroup::new("input").required(true))
+        .arg(arg!(--in).group("input").group("all"))
+        .arg(arg!(--spec).group("input").group("all"))
+        .arg(arg!(--config).requires("input").group("all"));
+
+    utils::assert_output(cmd, "prog --config", ERR, true);
 }
 
 /* This is used to be fixed in a hack, we need to find a better way to fix it.
