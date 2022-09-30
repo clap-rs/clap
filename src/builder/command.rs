@@ -1451,6 +1451,9 @@ impl Command {
     /// automatically set your application's author(s) to the same thing as your
     /// crate at compile time.
     ///
+    /// **NOTE:** A custom [`help_template`][Command::help_template] is needed for author to show
+    /// up.
+    ///
     /// # Examples
     ///
     /// ```no_run
