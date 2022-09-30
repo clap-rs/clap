@@ -62,6 +62,7 @@ For more information try '--help'
 #[test]
 fn skip_group_avoids_duplicate_ids() {
     #[derive(Parser, Debug)]
+    #[group(skip)]
     struct Opt {
         #[command(flatten)]
         first: Compose<Empty, Empty>,
@@ -88,7 +89,7 @@ fn skip_group_avoids_duplicate_ids() {
     use clap::Args;
     assert_eq!(Empty::group_id(), None);
     assert_eq!(Compose::<Empty, Empty>::group_id(), None);
-    assert_eq!(Opt::group_id(), Some(clap::Id::from("Opt")));
+    assert_eq!(Opt::group_id(), None);
 }
 
 #[test]
