@@ -291,7 +291,7 @@ impl Item {
                         ),
                     });
                 }
-                AttrKind::Arg | AttrKind::Clap | AttrKind::StructOpt => {}
+                AttrKind::Group | AttrKind::Arg | AttrKind::Clap | AttrKind::StructOpt => {}
             }
             self.name = Name::Assigned(quote!(#arg));
         } else if name == "name" {
@@ -309,7 +309,11 @@ impl Item {
                         ),
                     });
                 }
-                AttrKind::Command | AttrKind::Value | AttrKind::Clap | AttrKind::StructOpt => {}
+                AttrKind::Group
+                | AttrKind::Command
+                | AttrKind::Value
+                | AttrKind::Clap
+                | AttrKind::StructOpt => {}
             }
             self.name = Name::Assigned(quote!(#arg));
         } else if name == "value_parser" {
