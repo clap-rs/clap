@@ -53,6 +53,10 @@ Usage: prog --add <CRATES|--path <PATH>|--git <GIT>>
 For more information try '--help'
 ";
     assert_output::<Opt>("prog --add", OUTPUT, true);
+
+    use clap::Args;
+    assert_eq!(Source::group_id(), Some(clap::Id::from("Source")));
+    assert_eq!(Opt::group_id(), Some(clap::Id::from("Opt")));
 }
 
 #[test]
@@ -80,4 +84,9 @@ fn skip_group_avoids_duplicate_ids() {
 
     use clap::CommandFactory;
     Opt::command().debug_assert();
+
+    use clap::Args;
+    assert_eq!(Empty::group_id(), None);
+    assert_eq!(Compose::<Empty, Empty>::group_id(), None);
+    assert_eq!(Opt::group_id(), Some(clap::Id::from("Opt")));
 }

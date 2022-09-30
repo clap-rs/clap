@@ -90,6 +90,13 @@ pub fn gen_for_struct(
     let augmentation = gen_augment(fields, &app_var, item, false);
     let augmentation_update = gen_augment(fields, &app_var, item, true);
 
+    let group_id = if item.skip_group() {
+        quote!(None)
+    } else {
+        let group_id = item.ident().unraw().to_string();
+        quote!(Some(clap::Id::from(#group_id)))
+    };
+
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
         #[allow(
@@ -140,6 +147,9 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::Args for #item_name #ty_generics #where_clause {
+            fn group_id() -> Option<clap::Id> {
+                #group_id
+            }
             fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
                 #augmentation
             }
@@ -313,11 +323,11 @@ pub fn gen_augment(
         quote!()
     };
     let initial_app_methods = parent_item.initial_top_level_methods();
-    let group_id = parent_item.ident().unraw().to_string();
     let final_app_methods = parent_item.final_top_level_methods();
     let group_app_methods = if parent_item.skip_group() {
         quote!()
     } else {
+        let group_id = parent_item.ident().unraw().to_string();
         let literal_group_members = fields
             .iter()
             .filter_map(|(_field, item)| {
