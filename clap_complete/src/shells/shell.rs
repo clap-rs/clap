@@ -1,4 +1,6 @@
+use std::env;
 use std::fmt::Display;
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use clap::builder::PossibleValue;
@@ -36,9 +38,21 @@ impl FromStr for Shell {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let e = env::var("SHELL").ok().and_then(|x| {
+            PathBuf::from(x)
+                .file_name()
+                .and_then(|x| x.to_str())
+                .map(|x| x.to_string())
+        });
         for variant in Self::value_variants() {
-            if variant.to_possible_value().unwrap().matches(s, false) {
+            let var = variant.to_possible_value().unwrap();
+            if var.matches(s, false) {
                 return Ok(*variant);
+            }
+            if let Some(v) = e.as_ref() {
+                if var.matches(v, false) {
+                    return Ok(*variant);
+                }
             }
         }
         Err(format!("Invalid variant: {}", s))
