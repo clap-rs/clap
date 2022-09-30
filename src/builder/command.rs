@@ -946,9 +946,6 @@ impl Command {
 
     /// Try not to fail on parse errors, like missing option values.
     ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
-    ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
     /// # Examples
@@ -1131,9 +1128,6 @@ impl Command {
     /// Specifies to use the version of the current command for all [`subcommands`].
     ///
     /// Defaults to `false`; subcommands have independent version strings from their parents.
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
@@ -2840,9 +2834,6 @@ impl Command {
     ///           --------- ----------
     ///             values   subcommand
     /// ```
-    ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
-    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// # Examples
     ///
