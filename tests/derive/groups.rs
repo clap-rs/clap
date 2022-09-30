@@ -90,3 +90,32 @@ fn skip_group_avoids_duplicate_ids() {
     assert_eq!(Compose::<Empty, Empty>::group_id(), None);
     assert_eq!(Opt::group_id(), Some(clap::Id::from("Opt")));
 }
+
+#[test]
+#[should_panic = "\
+Command clap: Argument group name must be unique
+
+\t'Compose' is already in use (note: `Args` implicitly creates `ArgGroup`s; disable with `#[group(skip)]`"]
+fn helpful_panic_on_duplicate_groups() {
+    #[derive(Parser, Debug)]
+    struct Opt {
+        #[command(flatten)]
+        first: Compose<Empty, Empty>,
+        #[command(flatten)]
+        second: Compose<Empty, Empty>,
+    }
+
+    #[derive(clap::Args, Debug)]
+    pub struct Compose<L: clap::Args, R: clap::Args> {
+        #[clap(flatten)]
+        pub left: L,
+        #[clap(flatten)]
+        pub right: R,
+    }
+
+    #[derive(clap::Args, Clone, Copy, Debug)]
+    pub struct Empty;
+
+    use clap::CommandFactory;
+    Opt::command().debug_assert();
+}
