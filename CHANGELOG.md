@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* Populate implicit ArgGroup (#3165)
+
+### Fixes
+
+- *(derive)* Support `#[group(skip)]` on `Parser` derive
+- *(derive)* Tell users about implicit arg groups when running into group name conflicts
+- *(error)* Don't report unrelated groups in conflict or requires errors
+
 ## [4.0.6] - 2022-09-30
 
 ### Features
