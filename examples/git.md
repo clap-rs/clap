@@ -125,7 +125,7 @@ Last argument:
 $ git diff --help
 Compare two commits
 
-Usage: git[EXE] diff [COMMIT] [COMMIT] [-- <PATH>]
+Usage: git[EXE] diff [OPTIONS] [COMMIT] [COMMIT] [-- <PATH>]
 
 Arguments:
   [COMMIT]  
@@ -133,18 +133,25 @@ Arguments:
   [PATH]    
 
 Options:
-  -h, --help  Print help information
+      --color[=<WHEN>]  [default: auto] [possible values: always, auto, never]
+  -h, --help            Print help information
 
 $ git diff
-Diffing stage..worktree 
+Diffing stage..worktree  (color=auto)
 
 $ git diff ./src
-Diffing stage..worktree ./src
+Diffing stage..worktree ./src (color=auto)
 
 $ git diff HEAD ./src
-Diffing HEAD..worktree ./src
+Diffing HEAD..worktree ./src (color=auto)
 
 $ git diff HEAD~~ -- HEAD
-Diffing HEAD~~..worktree HEAD
+Diffing HEAD~~..worktree HEAD (color=auto)
+
+$ git diff --color
+Diffing stage..worktree  (color=always)
+
+$ git diff --color=never
+Diffing stage..worktree  (color=never)
 
 ```
