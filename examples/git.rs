@@ -20,7 +20,15 @@ fn cli() -> Command {
                 .about("Compare two commits")
                 .arg(arg!(base: [COMMIT]))
                 .arg(arg!(head: [COMMIT]))
-                .arg(arg!(path: [PATH]).last(true)),
+                .arg(arg!(path: [PATH]).last(true))
+                .arg(
+                    arg!(--color <WHEN>)
+                        .value_parser(["always", "auto", "never"])
+                        .num_args(0..=1)
+                        .require_equals(true)
+                        .default_value("auto")
+                        .default_missing_value("always"),
+                ),
         )
         .subcommand(
             Command::new("push")
@@ -59,6 +67,11 @@ fn main() {
             );
         }
         Some(("diff", sub_matches)) => {
+            let color = sub_matches
+                .get_one::<String>("color")
+                .map(|s| s.as_str())
+                .expect("defaulted in clap");
+
             let mut base = sub_matches.get_one::<String>("base").map(|s| s.as_str());
             let mut head = sub_matches.get_one::<String>("head").map(|s| s.as_str());
             let mut path = sub_matches.get_one::<String>("path").map(|s| s.as_str());
@@ -73,7 +86,7 @@ fn main() {
             let base = base.unwrap_or("stage");
             let head = head.unwrap_or("worktree");
             let path = path.unwrap_or("");
-            println!("Diffing {}..{} {}", base, head, path);
+            println!("Diffing {}..{} {} (color={})", base, head, path, color);
         }
         Some(("push", sub_matches)) => {
             println!(

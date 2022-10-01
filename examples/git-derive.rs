@@ -2,7 +2,7 @@ use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 
 /// A fictional versioning CLI
 #[derive(Debug, Parser)] // requires `derive` feature
@@ -29,6 +29,16 @@ enum Commands {
         head: Option<OsString>,
         #[arg(last = true)]
         path: Option<OsString>,
+        #[arg(
+            long,
+            require_equals = true,
+            value_name = "WHEN",
+            num_args = 0..=1,
+            default_value_t = ColorWhen::Auto,
+            default_missing_value = "always",
+            value_enum
+        )]
+        color: ColorWhen,
     },
     /// pushes things
     #[command(arg_required_else_help = true)]
@@ -46,6 +56,22 @@ enum Commands {
     Stash(Stash),
     #[command(external_subcommand)]
     External(Vec<OsString>),
+}
+
+#[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
+enum ColorWhen {
+    Always,
+    Auto,
+    Never,
+}
+
+impl std::fmt::Display for ColorWhen {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.to_possible_value()
+            .expect("no values are skipped")
+            .get_name()
+            .fmt(f)
+    }
 }
 
 #[derive(Debug, Args)]
@@ -82,6 +108,7 @@ fn main() {
             mut base,
             mut head,
             mut path,
+            color,
         } => {
             if path.is_none() {
                 path = head;
@@ -100,7 +127,13 @@ fn main() {
                 .map(|s| s.to_str().unwrap())
                 .unwrap_or("worktree");
             let path = path.as_deref().unwrap_or_else(|| OsStr::new(""));
-            println!("Diffing {}..{} {}", base, head, path.to_string_lossy());
+            println!(
+                "Diffing {}..{} {} (color={})",
+                base,
+                head,
+                path.to_string_lossy(),
+                color
+            );
         }
         Commands::Push { remote } => {
             println!("Pushing to {}", remote);
