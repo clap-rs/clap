@@ -40,7 +40,7 @@ proc-macro = true
 bench = false
 
 [dependencies]
-syn = { version = "1.0.74", features = ["full"] }
+syn = { version = "1.0.101", features = ["full"] }
 quote = "1.0.9"
 proc-macro2 = "1.0.42"
 heck = "0.4.0"
