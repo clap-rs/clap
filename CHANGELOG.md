@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Remove a low-value assert preventing defaulting `Help` and `Version` actions
+
 ## [4.0.7] - 2022-09-30
 
 ### Features
