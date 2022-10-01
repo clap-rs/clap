@@ -245,6 +245,7 @@
 //! - `rename_all = <string_literal>`: Override default field / variant name case conversion for [`PossibleValue::new`][crate::builder::PossibleValue]
 //!   - When not present: `"kebab-case"`
 //!   - Available values: `"camelCase"`, `"kebab-case"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"snake_case"`, `"lower"`, `"UPPER"`, `"verbatim"`
+//! - `skip`: Ignore this variant
 //!
 //! ### Possible Value Attributes
 //!
