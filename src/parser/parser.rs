@@ -1274,7 +1274,6 @@ impl<'cmd> Parser<'cmd> {
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::Help => {
-                debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
                     Some(Identifier::Short) => false,
@@ -1285,7 +1284,6 @@ impl<'cmd> Parser<'cmd> {
                 Err(self.help_err(use_long))
             }
             ArgAction::Version => {
-                debug_assert_eq!(raw_vals, Vec::<OsString>::new());
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
                     Some(Identifier::Short) => false,
