@@ -31,9 +31,6 @@ targets = ["x86_64-unknown-linux-gnu"]
 shared-version = true
 dependent-version = "upgrade"
 tag-name = "v{{version}}"
-pre-release-replacements = [
-  {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=2, prerelease = true},
-]
 
 [lib]
 proc-macro = true
