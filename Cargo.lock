@@ -121,7 +121,7 @@ dependencies = [
  "once_cell",
  "rustversion",
  "shlex",
- "snapbox 0.4.0",
+ "snapbox",
  "static_assertions",
  "strsim",
  "termcolor",
@@ -152,7 +152,7 @@ dependencies = [
  "os_str_bytes",
  "pathdiff",
  "shlex",
- "snapbox 0.4.0",
+ "snapbox",
  "trycmd",
  "unicode-xid",
 ]
@@ -163,7 +163,7 @@ version = "4.0.0"
 dependencies = [
  "clap 4.0.8",
  "clap_complete",
- "snapbox 0.4.0",
+ "snapbox",
 ]
 
 [[package]]
@@ -190,7 +190,7 @@ version = "0.2.2"
 dependencies = [
  "clap 4.0.8",
  "roff",
- "snapbox 0.4.0",
+ "snapbox",
 ]
 
 [[package]]
@@ -814,9 +814,9 @@ checksum = "62ac7f900db32bf3fd12e0117dd3dc4da74bc52ebaac97f39668446d89694803"
 
 [[package]]
 name = "snapbox"
-version = "0.3.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44d199ccf8f606592df2d145db26f2aa45344e23c64b074cc5a4047f1d99b0f7"
+checksum = "f98a96656eecd1621c5830831b48eb6903a9f86aaeb61b9f358a9bd462414ddd"
 dependencies = [
  "concolor",
  "normalize-line-endings",
@@ -824,19 +824,6 @@ dependencies = [
  "similar",
  "snapbox-macros",
  "wait-timeout",
- "yansi",
-]
-
-[[package]]
-name = "snapbox"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f98a96656eecd1621c5830831b48eb6903a9f86aaeb61b9f358a9bd462414ddd"
-dependencies = [
- "concolor",
- "normalize-line-endings",
- "similar",
- "snapbox-macros",
  "yansi",
 ]
 
@@ -945,9 +932,9 @@ dependencies = [
 
 [[package]]
 name = "trycmd"
-version = "0.13.6"
+version = "0.13.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ac9fa73959e252e7c5a4e6260544b952f5bf3989e0b7ad229f4fd6f14671b02"
+checksum = "a5377b33cbe8bb69d97da63e2a2266065a642a47cc9bb3d783c28279d0029fea"
 dependencies = [
  "escargot",
  "glob",
@@ -956,7 +943,7 @@ dependencies = [
  "rayon",
  "serde",
  "shlex",
- "snapbox 0.3.3",
+ "snapbox",
  "toml_edit",
 ]
 
