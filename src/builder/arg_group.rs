@@ -199,8 +199,8 @@ impl ArgGroup {
     ///
     /// assert_eq!(group.get_args(), ["f", "c"]);
     /// ```
-    pub fn get_args(self) -> Vec<Id> {
-        self.args
+    pub fn get_args(&self) -> impl Iterator<Item = &Id> {
+        self.args.iter()
     }
 
     /// Allows more than one of the [`Arg`]s in this group to be used. (Default: `false`)
@@ -587,6 +587,10 @@ mod test {
         let args: Vec<Id> = vec!["a1".into(), "a4".into()];
         let grp = ArgGroup::new("program").args(&args);
 
-        assert_eq!(grp.get_args(), args);
+        let mut pos = 0;
+        for arg in grp.get_args() {
+            assert_eq!(*arg, args[pos]);
+            pos += 1;
+        }
     }
 }
