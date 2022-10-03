@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Process doc comments for `#[command(subcommand)]` like in clap v3
+
 ## [4.0.8] - 2022-10-01
 
 ### Fixes
