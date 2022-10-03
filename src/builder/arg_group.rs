@@ -240,6 +240,21 @@ impl ArgGroup {
         self
     }
 
+    /// Return true if the group allows more than one of the arguments
+    /// in this group to be used. (Default: `false`)
+    ///
+    /// ```rust
+    /// # use clap::{ArgGroup};
+    /// let mut group = ArgGroup::new("myprog")
+    ///     .args(["f", "c"])
+    ///     .multiple(true);
+    ///
+    /// assert!(group.is_multiple());
+    /// ```
+    pub fn is_multiple(&mut self) -> bool {
+        self.multiple
+    }
+
     /// Require an argument from the group to be present when parsing.
     ///
     /// This is unless conflicting with another argument.  A required group will be displayed in
@@ -537,5 +552,16 @@ mod test {
     fn arg_group_send_sync() {
         fn foo<T: Send + Sync>(_: T) {}
         foo(ArgGroup::new("test"))
+    }
+
+    #[test]
+    fn arg_group_expose_is_multiple_helper() {
+        let args: Vec<Id> = vec!["a1".into(), "a4".into()];
+
+        let mut grp_multiple = ArgGroup::new("test_multiple").args(&args).multiple(true);
+        assert!(grp_multiple.is_multiple());
+
+        let mut grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
+        assert!(!grp_not_multiple.is_multiple());
     }
 }
