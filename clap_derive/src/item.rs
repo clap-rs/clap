@@ -143,7 +143,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
-        if matches!(&*res.kind, Kind::Command(_)) {
+        if matches!(&*res.kind, Kind::Command(_) | Kind::Subcommand(_)) {
             res.push_doc_comment(&variant.attrs, "about", true);
         }
 
@@ -155,6 +155,9 @@ impl Item {
                         "methods are not allowed for flattened entry"
                     );
                 }
+
+                // ignore doc comments
+                res.doc_comment = vec![];
             }
 
             Kind::Subcommand(_)
@@ -228,6 +231,9 @@ impl Item {
                         "methods are not allowed for flattened entry"
                     );
                 }
+
+                // ignore doc comments
+                res.doc_comment = vec![];
             }
 
             Kind::Subcommand(_) => {

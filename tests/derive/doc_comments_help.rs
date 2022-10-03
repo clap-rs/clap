@@ -268,7 +268,7 @@ fn respect_subcommand_doc_comment() {
 Usage: cmd <COMMAND>
 
 Commands:
-  child  
+  child  For child
   help   Print this message or the help of the given subcommand(s)
 
 Options:
