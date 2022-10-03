@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Features
 
-- *(derive)* Support `#[group(skip)] (#4279, #4301)
+- *(derive)* Support `#[group(skip)]` (#4279, #4301)
 
 ## [4.0.5] - 2022-09-30
 
