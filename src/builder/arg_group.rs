@@ -587,10 +587,8 @@ mod test {
         let args: Vec<Id> = vec!["a1".into(), "a4".into()];
         let grp = ArgGroup::new("program").args(&args);
 
-        let mut pos = 0;
-        for arg in grp.get_args() {
+        for (pos, arg) in grp.get_args().enumerate() {
             assert_eq!(*arg, args[pos]);
-            pos += 1;
         }
     }
 }
