@@ -190,7 +190,7 @@ impl ArgGroup {
 
     /// Getters for all args. It will return a vector of `Id`
     ///
-    /// Example
+    /// # Example
     ///
     /// ```rust
     /// # use clap::{ArgGroup};
@@ -258,7 +258,7 @@ impl ArgGroup {
     /// Return true if the group allows more than one of the arguments
     /// in this group to be used. (Default: `false`)
     ///
-    /// Example
+    /// # Example
     ///
     /// ```rust
     /// # use clap::{ArgGroup};
