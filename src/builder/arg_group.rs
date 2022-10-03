@@ -188,6 +188,21 @@ impl ArgGroup {
         self
     }
 
+    /// Getters for all args. It will return a vector of `Id`
+    ///
+    /// Example
+    ///
+    /// ```rust
+    /// # use clap::{ArgGroup};
+    /// let group = ArgGroup::new("myprog")
+    ///     .args(["f", "c"]);
+    ///
+    /// assert_eq!(group.get_args(), ["f", "c"]);
+    /// ```
+    pub fn get_args(self) -> Vec<Id> {
+        self.args
+    }
+
     /// Allows more than one of the [`Arg`]s in this group to be used. (Default: `false`)
     ///
     /// # Examples
@@ -242,6 +257,8 @@ impl ArgGroup {
 
     /// Return true if the group allows more than one of the arguments
     /// in this group to be used. (Default: `false`)
+    ///
+    /// Example
     ///
     /// ```rust
     /// # use clap::{ArgGroup};
@@ -563,5 +580,13 @@ mod test {
 
         let mut grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
         assert!(!grp_not_multiple.is_multiple());
+    }
+
+    #[test]
+    fn arg_group_expose_get_args_helper() {
+        let args: Vec<Id> = vec!["a1".into(), "a4".into()];
+        let grp = ArgGroup::new("program").args(&args);
+
+        assert_eq!(grp.get_args(), args);
     }
 }
