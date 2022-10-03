@@ -62,7 +62,7 @@ default = [
   "error-context",
   "suggestions",
 ]
-debug = ["clap_derive/debug", "dep:backtrace"] # Enables debug messages
+debug = ["clap_derive?/debug", "dep:backtrace"] # Enables debug messages
 unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "unstable-replace", "unstable-grouped"] # for docs.rs
 
 # Used in default
@@ -75,7 +75,7 @@ suggestions = ["dep:strsim", "error-context"]
 
 # Optional
 deprecated = ["clap_derive?/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
-derive = ["clap_derive", "dep:once_cell"]
+derive = ["dep:clap_derive", "dep:once_cell"]
 cargo = ["dep:once_cell"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["help", "dep:terminal_size"]
 env = [] # Use environment variables during arg parsing
