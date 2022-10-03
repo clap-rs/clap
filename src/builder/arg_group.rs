@@ -188,6 +188,23 @@ impl ArgGroup {
         self
     }
 
+    /// Getters for all args. It will return a vector of `Id`
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use clap::{ArgGroup};
+    /// let args: Vec<&str> = vec!["a1".into(), "a4".into()];
+    /// let grp = ArgGroup::new("program").args(&args);
+    ///
+    /// for (pos, arg) in grp.get_args().enumerate() {
+    ///     assert_eq!(*arg, args[pos]);
+    /// }
+    /// ```
+    pub fn get_args(&self) -> impl Iterator<Item = &Id> {
+        self.args.iter()
+    }
+
     /// Allows more than one of the [`Arg`]s in this group to be used. (Default: `false`)
     ///
     /// # Examples
@@ -238,6 +255,23 @@ impl ArgGroup {
     pub fn multiple(mut self, yes: bool) -> Self {
         self.multiple = yes;
         self
+    }
+
+    /// Return true if the group allows more than one of the arguments
+    /// in this group to be used. (Default: `false`)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use clap::{ArgGroup};
+    /// let mut group = ArgGroup::new("myprog")
+    ///     .args(["f", "c"])
+    ///     .multiple(true);
+    ///
+    /// assert!(group.is_multiple());
+    /// ```
+    pub fn is_multiple(&mut self) -> bool {
+        self.multiple
     }
 
     /// Require an argument from the group to be present when parsing.
@@ -537,5 +571,26 @@ mod test {
     fn arg_group_send_sync() {
         fn foo<T: Send + Sync>(_: T) {}
         foo(ArgGroup::new("test"))
+    }
+
+    #[test]
+    fn arg_group_expose_is_multiple_helper() {
+        let args: Vec<Id> = vec!["a1".into(), "a4".into()];
+
+        let mut grp_multiple = ArgGroup::new("test_multiple").args(&args).multiple(true);
+        assert!(grp_multiple.is_multiple());
+
+        let mut grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
+        assert!(!grp_not_multiple.is_multiple());
+    }
+
+    #[test]
+    fn arg_group_expose_get_args_helper() {
+        let args: Vec<Id> = vec!["a1".into(), "a4".into()];
+        let grp = ArgGroup::new("program").args(&args);
+
+        for (pos, arg) in grp.get_args().enumerate() {
+            assert_eq!(*arg, args[pos]);
+        }
     }
 }
