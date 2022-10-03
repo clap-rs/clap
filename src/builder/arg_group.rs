@@ -194,10 +194,12 @@ impl ArgGroup {
     ///
     /// ```rust
     /// # use clap::{ArgGroup};
-    /// let group = ArgGroup::new("myprog")
-    ///     .args(["f", "c"]);
+    /// let args: Vec<&str> = vec!["a1".into(), "a4".into()];
+    /// let grp = ArgGroup::new("program").args(&args);
     ///
-    /// assert_eq!(group.get_args(), ["f", "c"]);
+    /// for (pos, arg) in grp.get_args().enumerate() {
+    ///     assert_eq!(*arg, args[pos]);
+    /// }
     /// ```
     pub fn get_args(&self) -> impl Iterator<Item = &Id> {
         self.args.iter()
