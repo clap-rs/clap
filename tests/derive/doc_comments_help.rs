@@ -212,7 +212,7 @@ fn multiline_separates_default() {
 }
 
 #[test]
-fn argenum_multiline_doc_comment() {
+fn value_enum_multiline_doc_comment() {
     #[derive(ValueEnum, Clone)]
     enum LoremIpsum {
         /// Multiline
