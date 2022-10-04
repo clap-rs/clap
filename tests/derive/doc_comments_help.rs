@@ -212,14 +212,26 @@ fn multiline_separates_default() {
 }
 
 #[test]
-fn argenum_multiline_doc_comment() {
-    #[derive(ValueEnum, Clone)]
+fn value_enum_multiline_doc_comment() {
+    #[derive(Parser, Debug)]
+    struct Command {
+        x: LoremIpsum,
+    }
+
+    #[derive(ValueEnum, Clone, PartialEq, Debug)]
     enum LoremIpsum {
-        /// Multiline
+        /// Doc comment summary
         ///
-        /// Doc comment
+        /// The doc comment body is ignored
         Bar,
     }
+
+    let help = utils::get_long_help::<Command>();
+
+    assert!(help.contains("Doc comment summary"));
+
+    // There is no long help text for possible values. The long help only contains the summary.
+    assert!(!help.contains("The doc comment body is ignored"));
 }
 
 #[test]
