@@ -395,7 +395,7 @@ Arguments:
           Argument help
 
           Possible values:
-          - foo: Foo help
+          - foo: Foo help (alias: foozle)
           - bar: Bar help
 
 Options:
@@ -414,6 +414,7 @@ Options:
     #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         /// Foo help
+        #[value(visible_alias("foozle"), alias("floofy"))]
         Foo,
         /// Bar help
         Bar,

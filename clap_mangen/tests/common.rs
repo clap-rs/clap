@@ -294,7 +294,10 @@ pub fn possible_values_command(name: &'static str) -> clap::Command {
                 .long("method")
                 .action(clap::ArgAction::Set)
                 .value_parser([
-                    PossibleValue::new("fast").help("use the Fast method"),
+                    PossibleValue::new("fast")
+                        .help("use the Fast method")
+                        .visible_alias("quick")
+                        .alias("zippy"),
                     PossibleValue::new("slow").help("use the slow method"),
                     PossibleValue::new("normal")
                         .help("use normal mode")

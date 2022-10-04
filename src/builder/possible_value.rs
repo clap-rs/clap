@@ -31,7 +31,7 @@ use crate::util::eq_ignore_case;
 pub struct PossibleValue {
     name: Str,
     help: Option<StyledStr>,
-    aliases: Vec<Str>, // (name, visible)
+    aliases: Vec<(Str, bool)>, // (name, visible)
     hide: bool,
 }
 
@@ -114,7 +114,7 @@ impl PossibleValue {
     #[must_use]
     pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            self.aliases.push(name);
+            self.aliases.push((name, false));
         } else {
             self.aliases.clear();
         }
@@ -133,7 +133,45 @@ impl PossibleValue {
     /// ```
     #[must_use]
     pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
-        self.aliases.extend(names.into_iter().map(|a| a.into()));
+        self.aliases
+            .extend(names.into_iter().map(|a| (a.into(), false)));
+        self
+    }
+
+    /// Sets a *visible* alias for this argument value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::builder::PossibleValue;
+    /// PossibleValue::new("slow")
+    ///     .visible_alias("not-fast")
+    /// # ;
+    /// ```
+    #[must_use]
+    pub fn visible_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.aliases.push((name, true));
+        } else {
+            self.aliases.clear();
+        }
+        self
+    }
+
+    /// Sets multiple *visible* aliases for this argument value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::builder::PossibleValue;
+    /// PossibleValue::new("slow")
+    ///     .visible_aliases(["not-fast", "snake-like"])
+    /// # ;
+    /// ```
+    #[must_use]
+    pub fn visible_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+        self.aliases
+            .extend(names.into_iter().map(|a| (a.into(), true)));
         self
     }
 }
@@ -180,21 +218,25 @@ impl PossibleValue {
     #[cfg(feature = "help")]
     pub(crate) fn get_visible_quoted_name(&self) -> Option<std::borrow::Cow<'_, str>> {
         if !self.hide {
-            Some(if self.name.contains(char::is_whitespace) {
-                format!("{:?}", self.name).into()
-            } else {
-                self.name.as_str().into()
-            })
+            Some(quote_if_whitespace(&self.name))
         } else {
             None
         }
+    }
+
+    /// Get the names of all visible aliases, but wrapped in quotes if they contain whitespace
+    pub fn get_quoted_visible_aliases(&self) -> Vec<std::borrow::Cow<'_, str>> {
+        self.aliases
+            .iter()
+            .filter_map(|(n, vis)| vis.then(|| quote_if_whitespace(n)))
+            .collect()
     }
 
     /// Returns all valid values of the argument value.
     ///
     /// Namely the name and all aliases.
     pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> + '_ {
-        std::iter::once(self.get_name()).chain(self.aliases.iter().map(|s| s.as_str()))
+        std::iter::once(self.get_name()).chain(self.aliases.iter().map(|(s, _)| s.as_str()))
     }
 
     /// Tests if the value is valid for this argument value
@@ -205,9 +247,10 @@ impl PossibleValue {
     ///
     /// ```rust
     /// # use clap::builder::PossibleValue;
-    /// let arg_value = PossibleValue::new("fast").alias("not-slow");
+    /// let arg_value = PossibleValue::new("fast").visible_alias("quick").alias("not-slow");
     ///
     /// assert!(arg_value.matches("fast", false));
+    /// assert!(arg_value.matches("quick", false));
     /// assert!(arg_value.matches("not-slow", false));
     ///
     /// assert!(arg_value.matches("FAST", true));
@@ -220,6 +263,15 @@ impl PossibleValue {
         } else {
             self.get_name_and_aliases().any(|name| name == value)
         }
+    }
+}
+
+/// Quote a string if it contains whitespace
+fn quote_if_whitespace(n: &Str) -> std::borrow::Cow<'_, str> {
+    if n.contains(char::is_whitespace) {
+        format!("{:?}", n).into()
+    } else {
+        n.as_str().into()
     }
 }
 

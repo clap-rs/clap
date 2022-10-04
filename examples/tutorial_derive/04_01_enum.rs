@@ -10,6 +10,7 @@ struct Cli {
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Mode {
+    #[value(visible_alias("quick"), alias("zippy"))]
     Fast,
     Slow,
 }

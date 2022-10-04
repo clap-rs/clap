@@ -339,9 +339,13 @@ fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> (Ve
     if with_help {
         for value in possibles {
             let val_name = value.get_name();
+            let mut visible_aliases = value.get_quoted_visible_aliases().join(", ");
+            if !visible_aliases.is_empty() {
+                visible_aliases = format!(" (alias: {visible_aliases})");
+            }
             match value.get_help() {
-                Some(help) => lines.push(format!("{}: {}", val_name, help)),
-                None => lines.push(val_name.to_string()),
+                Some(help) => lines.push(format!("{val_name}: {help}{visible_aliases}")),
+                None => lines.push(format!("{val_name}{visible_aliases}")),
             }
         }
     } else {

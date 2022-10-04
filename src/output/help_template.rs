@@ -599,6 +599,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
+            const COMMA_SPACE: usize = ", ".len();
             let possible_vals = arg.get_possible_values();
             if self.use_long
                 && !arg.is_hide_possible_values_set()
@@ -620,7 +621,19 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     .expect("Only called with possible value");
                 let help_longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_help().map(|h| h.display_width()))
+                    .map(|f| {
+                        let help_width =
+                            f.get_visible_help().map(|h| h.display_width()).unwrap_or(0);
+                        let aliases = f.get_quoted_visible_aliases();
+                        let alias_width: usize = aliases.iter().map(|a| display_width(a)).sum();
+                        let comma_width = aliases.len().saturating_sub(1) * COMMA_SPACE;
+                        let wrapper_width = if aliases.is_empty() {
+                            0
+                        } else {
+                            " (alias: )".len()
+                        };
+                        help_width + alias_width + comma_width + wrapper_width
+                    })
                     .max()
                     .expect("Only called with possible value with help");
                 // should new line
@@ -642,7 +655,19 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     self.spaces(spaces);
                     self.none("- ");
                     self.literal(pv.get_name());
-                    if let Some(help) = pv.get_help() {
+                    let mut opt_help = pv.get_help().cloned();
+                    let aliases = pv.get_quoted_visible_aliases().join(", ");
+                    if !aliases.is_empty() {
+                        let mut help = opt_help.unwrap_or_default();
+                        if !help.is_empty() {
+                            help.none(" ");
+                        }
+                        help.none("(alias: ");
+                        help.none(aliases);
+                        help.none(")");
+                        opt_help = Some(help);
+                    }
+                    if let Some(mut help) = opt_help {
                         debug!("HelpTemplate::help: Possible Value help");
 
                         if possible_value_new_line {
@@ -660,7 +685,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                             usize::MAX
                         };
 
-                        let mut help = help.clone();
                         replace_newline_var(&mut help);
                         help.wrap(avail_chars);
                         help.indent("", &trailing_indent);
@@ -783,7 +807,16 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
             let pvs = possible_vals
                 .iter()
-                .filter_map(PossibleValue::get_visible_quoted_name)
+                .filter_map(|pv| {
+                    pv.get_visible_quoted_name().map(|n| {
+                        let aliases = pv.get_quoted_visible_aliases().join(", ");
+                        if aliases.is_empty() {
+                            n
+                        } else {
+                            format!("{n} (alias: {aliases})").into()
+                        }
+                    })
+                })
                 .collect::<Vec<_>>()
                 .join(", ");
 
