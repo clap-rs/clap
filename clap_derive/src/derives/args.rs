@@ -522,9 +522,18 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                 }
             }
 
-            Kind::Flatten(_) => quote_spanned! { kind.span()=> {
-                    #access
-                    clap::FromArgMatches::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+            Kind::Flatten(_) => {
+                let updater = quote_spanned! { kind.span()=> {
+                        #access
+                        clap::FromArgMatches::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                    }
+                };
+
+                quote_spanned! { kind.span()=>
+                    {
+                        #access
+                        #updater
+                    }
                 }
             },
 
