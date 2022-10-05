@@ -447,7 +447,9 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                     Ty::Option => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
-                                if <#inner_type as clap::Args>::group_id().map(|group_id| #arg_matches.contains_id(group_id.as_str())).unwrap_or(false) {
+                                let group_id = <#inner_type as clap::Args>::group_id()
+                                    .expect("`#[arg(flatten)]`ed field type implements `Args::group_id`");
+                                if #arg_matches.contains_id(group_id.as_str()) {
                                     Some(
                                         <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
                                     )
