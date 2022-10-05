@@ -148,7 +148,7 @@ impl Item {
         }
 
         match &*res.kind {
-            Kind::Flatten => {
+            Kind::Flatten(_) => {
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -224,7 +224,7 @@ impl Item {
         }
 
         match &*res.kind {
-            Kind::Flatten => {
+            Kind::Flatten(_) => {
                 if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
@@ -383,7 +383,12 @@ impl Item {
                         let expr = attr.value_or_abort();
                         abort!(expr, "attribute `{}` does not accept a value", attr.name);
                     }
-                    let kind = Sp::new(Kind::Flatten, attr.name.clone().span());
+                    let ty = self
+                        .kind()
+                        .ty()
+                        .cloned()
+                        .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
+                    let kind = Sp::new(Kind::Flatten(ty), attr.name.clone().span());
                     Some(kind)
                 }
                 Some(MagicAttrName::Skip) if actual_attr_kind != AttrKind::Group => {
@@ -902,10 +907,10 @@ impl Item {
         match (self.kind.get(), kind.get()) {
             (Kind::Arg(_), Kind::FromGlobal(_))
             | (Kind::Arg(_), Kind::Subcommand(_))
-            | (Kind::Arg(_), Kind::Flatten)
+            | (Kind::Arg(_), Kind::Flatten(_))
             | (Kind::Arg(_), Kind::Skip(_, _))
             | (Kind::Command(_), Kind::Subcommand(_))
-            | (Kind::Command(_), Kind::Flatten)
+            | (Kind::Command(_), Kind::Flatten(_))
             | (Kind::Command(_), Kind::Skip(_, _))
             | (Kind::Command(_), Kind::ExternalSubcommand)
             | (Kind::Value, Kind::Skip(_, _)) => {
@@ -1142,7 +1147,7 @@ pub enum Kind {
     Value,
     FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
-    Flatten,
+    Flatten(Sp<Ty>),
     Skip(Option<AttrValue>, AttrKind),
     ExternalSubcommand,
 }
@@ -1155,7 +1160,7 @@ impl Kind {
             Self::Value => "value",
             Self::FromGlobal(_) => "from_global",
             Self::Subcommand(_) => "subcommand",
-            Self::Flatten => "flatten",
+            Self::Flatten(_) => "flatten",
             Self::Skip(_, _) => "skip",
             Self::ExternalSubcommand => "external_subcommand",
         }
@@ -1168,7 +1173,7 @@ impl Kind {
             Self::Value => AttrKind::Value,
             Self::FromGlobal(_) => AttrKind::Arg,
             Self::Subcommand(_) => AttrKind::Command,
-            Self::Flatten => AttrKind::Command,
+            Self::Flatten(_) => AttrKind::Command,
             Self::Skip(_, kind) => *kind,
             Self::ExternalSubcommand => AttrKind::Command,
         }
@@ -1176,10 +1181,12 @@ impl Kind {
 
     pub fn ty(&self) -> Option<&Sp<Ty>> {
         match self {
-            Self::Arg(ty) | Self::Command(ty) | Self::FromGlobal(ty) | Self::Subcommand(ty) => {
-                Some(ty)
-            }
-            Self::Value | Self::Flatten | Self::Skip(_, _) | Self::ExternalSubcommand => None,
+            Self::Arg(ty)
+            | Self::Command(ty)
+            | Self::Flatten(ty)
+            | Self::FromGlobal(ty)
+            | Self::Subcommand(ty) => Some(ty),
+            Self::Value | Self::Skip(_, _) | Self::ExternalSubcommand => None,
         }
     }
 }

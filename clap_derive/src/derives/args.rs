@@ -202,8 +202,12 @@ pub fn gen_augment(
                         #implicit_methods;
                 })
             }
-            Kind::Flatten => {
-                let ty = &field.ty;
+            Kind::Flatten(ty) => {
+                let inner_type = match (**ty, sub_type(&field.ty)) {
+                    (Ty::Option, Some(sub_type)) => sub_type,
+                    _ => &field.ty,
+                };
+
                 let next_help_heading = item.next_help_heading();
                 let next_display_order = item.next_display_order();
                 if override_required {
@@ -211,14 +215,14 @@ pub fn gen_augment(
                         let #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#ty as clap::Args>::augment_args_for_update(#app_var);
+                        let #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
                         let #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#ty as clap::Args>::augment_args(#app_var);
+                        let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
                     })
                 }
             }
@@ -350,7 +354,7 @@ pub fn gen_augment(
             .iter()
             .filter(|(_field, item)| {
                 let kind = item.kind();
-                matches!(*kind, Kind::Flatten)
+                matches!(*kind, Kind::Flatten(_))
             })
             .count();
         if 0 < possible_group_members_len {
@@ -410,7 +414,6 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
-                    Ty::Vec |
                     Ty::Other => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
@@ -418,6 +421,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
+                    Ty::Vec |
                     Ty::OptionOption |
                     Ty::OptionVec => {
                         abort!(
@@ -429,8 +433,42 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                 }
             }
 
-            Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: clap::FromArgMatches::from_arg_matches_mut(#arg_matches)?
+            Kind::Flatten(ty) => {
+                let inner_type = match (**ty, sub_type(&field.ty)) {
+                    (Ty::Option, Some(sub_type)) => sub_type,
+                    _ => &field.ty,
+                };
+                match **ty {
+                    Ty::Other => {
+                        quote_spanned! { kind.span()=>
+                            #field_name: <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                        }
+                    },
+                    Ty::Option => {
+                        quote_spanned! { kind.span()=>
+                            #field_name: {
+                                let group_id = <#inner_type as clap::Args>::group_id()
+                                    .expect("`#[arg(flatten)]`ed field type implements `Args::group_id`");
+                                if #arg_matches.contains_id(group_id.as_str()) {
+                                    Some(
+                                        <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                                    )
+                                } else {
+                                    None
+                                }
+                            }
+                        }
+                    },
+                    Ty::Vec |
+                    Ty::OptionOption |
+                    Ty::OptionVec => {
+                        abort!(
+                            ty.span(),
+                            "{} types are not supported for flatten",
+                            ty.as_str()
+                        );
+                    }
+                }
             },
 
             Kind::Skip(val, _) => match val {
@@ -506,9 +544,36 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                 }
             }
 
-            Kind::Flatten => quote_spanned! { kind.span()=> {
-                    #access
-                    clap::FromArgMatches::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+            Kind::Flatten(ty) => {
+                let inner_type = match (**ty, sub_type(&field.ty)) {
+                    (Ty::Option, Some(sub_type)) => sub_type,
+                    _ => &field.ty,
+                };
+
+                let updater = quote_spanned! { ty.span()=>
+                    <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                };
+
+                let updater = match **ty {
+                    Ty::Option => quote_spanned! { kind.span()=>
+                        if let Some(#field_name) = #field_name.as_mut() {
+                            #updater
+                        } else {
+                            *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
+                                #arg_matches
+                            )?);
+                        }
+                    },
+                    _ => quote_spanned! { kind.span()=>
+                        #updater
+                    },
+                };
+
+                quote_spanned! { kind.span()=>
+                    {
+                        #access
+                        #updater
+                    }
                 }
             },
 
