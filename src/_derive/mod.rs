@@ -258,6 +258,7 @@
 //!   - When not present: case-converted field name is used
 //! - `help = <expr>`: [`PossibleValue::help`][crate::builder::PossibleValue::help]
 //!   - When not present: [Doc comment summary](#doc-comments)
+//! - `skip`: Ignore this variant
 //!
 //! ## Arg Types
 //!
