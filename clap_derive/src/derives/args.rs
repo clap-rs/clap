@@ -410,7 +410,6 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
-                    Ty::Vec |
                     Ty::Other => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
@@ -418,6 +417,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
+                    Ty::Vec |
                     Ty::OptionOption |
                     Ty::OptionVec => {
                         abort!(
