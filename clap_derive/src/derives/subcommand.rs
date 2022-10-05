@@ -173,7 +173,7 @@ fn gen_augment(
                     Some(subcommand)
                 }
 
-                Kind::Flatten => match variant.fields {
+                Kind::Flatten(_) => match variant.fields {
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
                         let deprecations = if !override_required {
@@ -363,7 +363,7 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> TokenStream {
         })
         .partition(|(_, item)| {
             let kind = item.kind();
-            matches!(&*kind, Kind::Flatten)
+            matches!(&*kind, Kind::Flatten(_))
         });
 
     let subcommands = variants.iter().map(|(_variant, item)| {
@@ -464,7 +464,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
         })
         .partition(|(_, item)| {
             let kind = item.kind();
-            matches!(&*kind, Kind::Flatten)
+            matches!(&*kind, Kind::Flatten(_))
         });
 
     let subcommands = variants.iter().map(|(variant, item)| {
@@ -571,7 +571,7 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
         })
         .partition(|(_, item)| {
             let kind = item.kind();
-            matches!(&*kind, Kind::Flatten)
+            matches!(&*kind, Kind::Flatten(_))
         });
 
     let subcommands = variants.iter().map(|(variant, item)| {

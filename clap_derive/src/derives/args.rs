@@ -202,7 +202,7 @@ pub fn gen_augment(
                         #implicit_methods;
                 })
             }
-            Kind::Flatten => {
+            Kind::Flatten(_) => {
                 let ty = &field.ty;
                 let next_help_heading = item.next_help_heading();
                 let next_display_order = item.next_display_order();
@@ -350,7 +350,7 @@ pub fn gen_augment(
             .iter()
             .filter(|(_field, item)| {
                 let kind = item.kind();
-                matches!(*kind, Kind::Flatten)
+                matches!(*kind, Kind::Flatten(_))
             })
             .count();
         if 0 < possible_group_members_len {
@@ -429,8 +429,24 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                 }
             }
 
-            Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: clap::FromArgMatches::from_arg_matches_mut(#arg_matches)?
+            Kind::Flatten(ty) => {
+                match **ty {
+                    Ty::Other => {
+                        quote_spanned! { kind.span()=>
+                            #field_name: clap::FromArgMatches::from_arg_matches_mut(#arg_matches)?
+                        }
+                    },
+                    Ty::Vec |
+                    Ty::Option |
+                    Ty::OptionOption |
+                    Ty::OptionVec => {
+                        abort!(
+                            ty.span(),
+                            "{} types are not supported for flatten",
+                            ty.as_str()
+                        );
+                    }
+                }
             },
 
             Kind::Skip(val, _) => match val {
@@ -506,7 +522,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                 }
             }
 
-            Kind::Flatten => quote_spanned! { kind.span()=> {
+            Kind::Flatten(_) => quote_spanned! { kind.span()=> {
                     #access
                     clap::FromArgMatches::update_from_arg_matches_mut(#field_name, #arg_matches)?;
                 }
