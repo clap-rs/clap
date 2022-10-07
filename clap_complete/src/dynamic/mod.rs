@@ -9,7 +9,9 @@ use std::{
     path::{self, Path, PathBuf},
 };
 
-use clap::{builder::StyledStr, Arg, Args, Command, Parser, Subcommand, ValueEnum};
+use clap::{
+    builder::StyledStr, Arg, Args, Command, CommandFactory, Error, Parser, Subcommand, ValueEnum,
+};
 use clap_lex::{ArgCursor, RawArgs, RawOsStr, RawOsString};
 
 use bash::Bash;
@@ -59,6 +61,76 @@ impl CompleteCommand {
         }
     }
 }
+
+/// Trait completing an App
+///
+/// Allows to be used like this on an item deriving [`Parser`]
+///
+/// **NOTE:** This parses any invocation with the subcommand `complete` present making this
+/// conflict with any command expecting `complete` as a valid argument or subcommand.
+///
+/// ```
+/// use std::path::PathBuf;
+///
+/// use clap::Parser;
+/// use clap_complete::dynamic::Completeable;
+///
+/// #[derive(Parser)]
+/// struct Opts {
+///     file: Option<PathBuf>
+/// }
+///
+/// fn main() {
+///     Opts::complete_or_parse();
+/// }
+/// ```
+pub trait Completeable {
+    /// Either trigger dynamic completion or parse arguments as T
+    ///
+    /// This is a drop-in replacement for [`Parser::parse()`].
+    fn complete_or_parse() -> Self
+    where
+        Self: Parser,
+    {
+        Self::complete();
+        Self::parse()
+    }
+    /// Either trigger dynamic completion or parse try to parse arguments as T
+    ///
+    /// This is a drop-in replacement for [`Parser::try_parse()`].
+    fn try_complete_or_parse() -> Result<Self, Error>
+    where
+        Self: Parser,
+    {
+        Self::try_complete()?;
+        Self::try_parse()
+    }
+    /// Trigger dynamic completion if the `complete` subcommand is present do nothing if not
+    ///
+    /// Exits on failing completions
+    fn complete()
+    where
+        Self: CommandFactory,
+    {
+        if let Ok(c) = CompleteCommand::try_parse() {
+            c.complete(&mut Self::command());
+        }
+    }
+    /// Trigger dynamic completion if the `complete` subcommand is present do nothing if not
+    ///
+    /// Errors, if completions fail for any reason.
+    fn try_complete() -> Result<(), Error>
+    where
+        Self: CommandFactory,
+    {
+        if let Ok(c) = CompleteCommand::try_parse() {
+            c.try_complete(&mut Self::command())?;
+        }
+        Ok(())
+    }
+}
+
+impl<T: CommandFactory> Completeable for T {}
 
 #[derive(Subcommand, Clone, Debug)]
 #[command(hide = true)]
