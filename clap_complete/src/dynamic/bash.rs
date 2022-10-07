@@ -1,28 +1,16 @@
 //! Complete commands within bash
-
 use std::ffi::OsString;
 use std::io::Write;
 
 use unicode_xid::UnicodeXID;
 
-#[derive(clap::Subcommand)]
-#[command(hide = true)]
-#[allow(missing_docs)]
-#[derive(Clone, Debug)]
-pub enum CompleteCommand {
-    /// Register shell completions for this program
-    Complete(CompleteArgs),
-}
+use super::Completer;
 
 #[derive(clap::Args)]
-#[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
+#[command(group = clap::ArgGroup::new("complete").multiple(true))]
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
 pub struct CompleteArgs {
-    /// Path to write completion-registration to
-    #[arg(long, required = true)]
-    register: Option<std::path::PathBuf>,
-
     #[arg(
         long,
         required = true,
@@ -58,69 +46,57 @@ pub struct CompleteArgs {
     comp_words: Vec<OsString>,
 }
 
-impl CompleteCommand {
-    /// Process the completion request
-    pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
-        self.try_complete(cmd).unwrap_or_else(|e| e.exit());
-        std::process::exit(0)
+/// Dynamic completions for Bash
+pub struct Bash;
+
+impl Completer for Bash {
+    type CompleteArgs = CompleteArgs;
+
+    fn completion_script(cmd: &mut clap::Command) -> Vec<u8> {
+        let mut buf = Vec::new();
+        let name = cmd.get_name();
+        let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+        register(name, [bin], bin, &Behavior::default(), &mut buf)
+            .expect("writing in a buffer does not fail");
+        buf
     }
 
-    /// Process the completion request
-    pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
-        debug!("CompleteCommand::try_complete: {:?}", self);
-        let CompleteCommand::Complete(args) = self;
-        if let Some(out_path) = args.register.as_deref() {
-            let mut buf = Vec::new();
-            let name = cmd.get_name();
-            let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
-            register(name, [bin], bin, &Behavior::default(), &mut buf)?;
-            if out_path == std::path::Path::new("-") {
-                std::io::stdout().write_all(&buf)?;
-            } else if out_path.is_dir() {
-                let out_path = out_path.join(file_name(name));
-                std::fs::write(out_path, buf)?;
-            } else {
-                std::fs::write(out_path, buf)?;
+    fn try_complete(args: Self::CompleteArgs, cmd: &mut clap::Command) -> clap::error::Result<()> {
+        let index = args.index.unwrap_or_default();
+        let comp_type = args.comp_type.unwrap_or_default();
+        let space = match (args.space, args.no_space) {
+            (true, false) => Some(true),
+            (false, true) => Some(false),
+            (true, true) => {
+                unreachable!("`--space` and `--no-space` set, clap should prevent this")
             }
-        } else {
-            let index = args.index.unwrap_or_default();
-            let comp_type = args.comp_type.unwrap_or_default();
-            let space = match (args.space, args.no_space) {
-                (true, false) => Some(true),
-                (false, true) => Some(false),
-                (true, true) => {
-                    unreachable!("`--space` and `--no-space` set, clap should prevent this")
-                }
-                (false, false) => None,
-            }
-            .unwrap();
-            let current_dir = std::env::current_dir().ok();
-            let completions = complete(
-                cmd,
-                args.comp_words.clone(),
-                index,
-                comp_type,
-                space,
-                current_dir.as_deref(),
-            )?;
-
-            let mut buf = Vec::new();
-            for (i, completion) in completions.iter().enumerate() {
-                if i != 0 {
-                    write!(&mut buf, "{}", args.ifs.as_deref().unwrap_or("\n"))?;
-                }
-                write!(&mut buf, "{}", completion.to_string_lossy())?;
-            }
-            std::io::stdout().write_all(&buf)?;
+            (false, false) => None,
         }
+        .unwrap();
+        let current_dir = std::env::current_dir().ok();
+        let completions = complete(
+            cmd,
+            args.comp_words.clone(),
+            index,
+            comp_type,
+            space,
+            current_dir.as_deref(),
+        )?;
+
+        let mut buf = Vec::new();
+        for (i, completion) in completions.iter().enumerate() {
+            if i != 0 {
+                write!(&mut buf, "{}", args.ifs.as_deref().unwrap_or("\n"))?;
+            }
+            write!(&mut buf, "{}", completion.to_string_lossy())?;
+        }
+        std::io::stdout().write_all(&buf)?;
 
         Ok(())
     }
-}
-
-/// The recommended file name for the registration code
-pub fn file_name(name: &str) -> String {
-    format!("{}.bash", name)
+    fn file_name(name: &str) -> String {
+        format!("{}.bash", name)
+    }
 }
 
 /// Define the completion behavior
