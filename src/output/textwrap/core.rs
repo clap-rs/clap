@@ -63,6 +63,7 @@ pub(crate) fn display_width(text: &str) -> usize {
             control_sequence = true;
         } else if control_sequence && ch == control_terminate {
             control_sequence = false;
+            continue;
         }
 
         if !control_sequence {
