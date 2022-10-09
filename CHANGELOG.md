@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Fix wrapping calculations with ANSI escape codes
+
 ## [4.0.10] - 2022-10-05
 
 ### Features
