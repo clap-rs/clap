@@ -3521,6 +3521,8 @@ impl Arg {
     ///
     /// **NOTE** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
     ///
+    /// **NOTE:** All arguments implicitly conflict with themselves.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -3622,8 +3624,6 @@ impl Arg {
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
     /// **NOTE:** Overriding an argument implies they [conflict][Arg::conflicts_with`].
-    ///
-    /// **NOTE:** All arguments implicitly override themselves.
     ///
     /// # Examples
     ///
