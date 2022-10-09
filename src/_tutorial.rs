@@ -110,9 +110,7 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_01_flag_bool.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction]` for a `bool` field is
-//! [`SetTrue`][crate::ArgAction::SetTrue].  To accept multiple values, use
-//! [`Append`][crate::ArgAction::Append]:
+//! To accept multiple flags, use [`Count`][crate::ArgAction::Count]:
 //!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_01_flag_count.rs")]
