@@ -2148,8 +2148,8 @@ pub mod via_prelude {
 ///   - [Native types][ValueParser]: `bool`, `String`, `OsString`, `PathBuf`
 ///   - [Ranged numeric types][RangedI64ValueParser]: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`
 /// - [`ValueEnum` types][crate::ValueEnum]
-/// - [`From<&OsString>` types][std::convert::From] and [`From<&OsStr>` types][std::convert::From]
-/// - [`From<&String>` types][std::convert::From] and [`From<&str>` types][std::convert::From]
+/// - [`From<OsString>` types][std::convert::From] and [`From<&OsStr>` types][std::convert::From]
+/// - [`From<String>` types][std::convert::From] and [`From<&str>` types][std::convert::From]
 /// - [`FromStr` types][std::str::FromStr], including usize, isize
 ///
 /// # Example
