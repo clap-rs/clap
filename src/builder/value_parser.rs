@@ -599,6 +599,54 @@ where
 }
 
 /// Parse/validate argument values
+///
+/// As alternatives to implementing `TypedValueParser`,
+/// - Use `Fn(&str) -> Result<T, E>` which implements `TypedValueParser`
+/// - [`TypedValueParser::map`] to adapt an existing `TypedValueParser`
+///
+/// See `ValueParserFactory` for register `TypedValueParser::Value` with
+/// [`value_parser!`][crate::value_parser].
+///
+/// # Example
+///
+#[cfg_attr(not(feature = "error-context"), doc = " ```ignore")]
+#[cfg_attr(feature = "error-context", doc = " ```")]
+/// # use clap::error::ErrorKind;
+/// # use clap::error::ContextKind;
+/// # use clap::error::ContextValue;
+/// #[derive(Clone)]
+/// struct Custom(u32);
+///
+/// #[derive(Clone)]
+/// struct CustomValueParser;
+///
+/// impl clap::builder::TypedValueParser for CustomValueParser {
+///     type Value = Custom;
+///
+///     fn parse_ref(
+///         &self,
+///         cmd: &clap::Command,
+///         arg: Option<&clap::Arg>,
+///         value: &std::ffi::OsStr,
+///     ) -> Result<Self::Value, clap::Error> {
+///         let inner = clap::value_parser!(u32);
+///         let val = inner.parse_ref(cmd, arg, value)?;
+///
+///         const INVALID_VALUE: u32 = 10;
+///         if val == INVALID_VALUE {
+///             let mut err = clap::Error::new(ErrorKind::ValueValidation)
+///                 .with_cmd(cmd);
+///             if let Some(arg) = arg {
+///                 err.insert(ContextKind::InvalidArg, ContextValue::String(arg.to_string()));
+///             }
+///             err.insert(ContextKind::InvalidValue, ContextValue::String(INVALID_VALUE.to_string()));
+///             return Err(err);
+///         }
+///
+///         Ok(Custom(val))
+///     }
+/// }
+/// ```
 pub trait TypedValueParser: Clone + Send + Sync + 'static {
     /// Argument's value type
     type Value: Send + Sync + Clone;

@@ -98,6 +98,55 @@ impl<F: ErrorFormatter> Error<F> {
         self.with_cmd(cmd)
     }
 
+    /// Create an error with a pre-defined message
+    ///
+    /// See also
+    /// - [`Error::insert`]
+    /// - [`Error::with_cmd`]
+    ///
+    /// # Example
+    ///
+    #[cfg_attr(not(feature = "error-context"), doc = " ```ignore")]
+    #[cfg_attr(feature = "error-context", doc = " ```")]
+    /// # use clap::error::ErrorKind;
+    /// # use clap::error::ContextKind;
+    /// # use clap::error::ContextValue;
+    ///
+    /// let cmd = clap::Command::new("prog");
+    ///
+    /// let mut err = clap::Error::new(ErrorKind::ValueValidation)
+    ///     .with_cmd(&cmd);
+    /// err.insert(ContextKind::InvalidArg, ContextValue::String("--foo".to_owned()));
+    /// err.insert(ContextKind::InvalidValue, ContextValue::String("bar".to_owned()));
+    ///
+    /// err.print();
+    /// ```
+    pub fn new(kind: ErrorKind) -> Self {
+        Self {
+            inner: Box::new(ErrorInner {
+                kind,
+                #[cfg(feature = "error-context")]
+                context: FlatMap::new(),
+                message: None,
+                source: None,
+                help_flag: None,
+                color_when: ColorChoice::Never,
+                color_help_when: ColorChoice::Never,
+                backtrace: Backtrace::new(),
+            }),
+            phantom: Default::default(),
+        }
+    }
+
+    /// Apply [`Command`]'s formatting to the error
+    ///
+    /// Generally, this is used with [`Error::new`]
+    pub fn with_cmd(self, cmd: &Command) -> Self {
+        self.set_color(cmd.get_color())
+            .set_colored_help(cmd.color_help())
+            .set_help_flag(format::get_help_flag(cmd))
+    }
+
     /// Apply an alternative formatter to the error
     ///
     /// # Example
@@ -136,6 +185,13 @@ impl<F: ErrorFormatter> Error<F> {
     #[cfg(feature = "error-context")]
     pub fn get(&self, kind: ContextKind) -> Option<&ContextValue> {
         self.inner.context.get(&kind)
+    }
+
+    /// Insert a piece of context
+    #[inline(never)]
+    #[cfg(feature = "error-context")]
+    pub fn insert(&mut self, kind: ContextKind, value: ContextValue) -> Option<ContextValue> {
+        self.inner.context.insert(kind, value)
     }
 
     /// Should the message be written to `stdout` or not?
@@ -216,32 +272,9 @@ impl<F: ErrorFormatter> Error<F> {
         self.formatted().into_owned()
     }
 
-    fn new(kind: ErrorKind) -> Self {
-        Self {
-            inner: Box::new(ErrorInner {
-                kind,
-                #[cfg(feature = "error-context")]
-                context: FlatMap::new(),
-                message: None,
-                source: None,
-                help_flag: None,
-                color_when: ColorChoice::Never,
-                color_help_when: ColorChoice::Never,
-                backtrace: Backtrace::new(),
-            }),
-            phantom: Default::default(),
-        }
-    }
-
     #[inline(never)]
     fn for_app(kind: ErrorKind, cmd: &Command, styled: StyledStr) -> Self {
         Self::new(kind).set_message(styled).with_cmd(cmd)
-    }
-
-    pub(crate) fn with_cmd(self, cmd: &Command) -> Self {
-        self.set_color(cmd.get_color())
-            .set_colored_help(cmd.color_help())
-            .set_help_flag(format::get_help_flag(cmd))
     }
 
     pub(crate) fn set_message(mut self, message: impl Into<Message>) -> Self {
