@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `TypedValueParser::try_map` for when adapting an existing `TypedValueParser` can fail
+- *(error)* Create errors like clap with `Error::new`, `Error::with_cmd`, and `Error::insert`
+
 ## [4.0.11] - 2022-10-09
 
 ### Fixes
