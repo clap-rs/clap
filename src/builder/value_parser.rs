@@ -602,9 +602,9 @@ where
 ///
 /// As alternatives to implementing `TypedValueParser`,
 /// - Use `Fn(&str) -> Result<T, E>` which implements `TypedValueParser`
-/// - [`TypedValueParser::map`] to adapt an existing `TypedValueParser`
+/// - [`TypedValueParser::map`] or [`TypedValueParser::try_map`] to adapt an existing `TypedValueParser`
 ///
-/// See `ValueParserFactory` for register `TypedValueParser::Value` with
+/// See `ValueParserFactory` to register `TypedValueParser::Value` with
 /// [`value_parser!`][crate::value_parser].
 ///
 /// # Example
@@ -725,6 +725,56 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
         F: Fn(Self::Value) -> T + Clone,
     {
         MapValueParser::new(self, func)
+    }
+
+    /// Adapt a `TypedValueParser` from one value to another
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use std::ffi::OsString;
+    /// # use std::ffi::OsStr;
+    /// # use std::path::PathBuf;
+    /// # use std::path::Path;
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// # use clap::builder::TypedValueParser as _;
+    /// # use clap::builder::OsStringValueParser;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("flag")
+    ///             .long("flag")
+    ///             .value_parser(
+    ///                 OsStringValueParser::new()
+    ///                 .try_map(verify_ext)
+    ///             )
+    ///     );
+    ///
+    /// fn verify_ext(os: OsString) -> Result<PathBuf, &'static str> {
+    ///     let path = PathBuf::from(os);
+    ///     if path.extension() != Some(OsStr::new("rs")) {
+    ///         return Err("only Rust files are supported");
+    ///     }
+    ///     Ok(path)
+    /// }
+    ///
+    /// let error = cmd.clone().try_get_matches_from(["mycmd", "--flag", "foo.txt"]).unwrap_err();
+    /// error.print();
+    ///
+    /// let matches = cmd.try_get_matches_from(["mycmd", "--flag", "foo.rs"]).unwrap();
+    /// assert!(matches.contains_id("flag"));
+    /// assert_eq!(
+    ///     matches.get_one::<PathBuf>("flag").map(|s| s.as_path()),
+    ///     Some(Path::new("foo.rs"))
+    /// );
+    /// ```
+    fn try_map<T, E, F>(self, func: F) -> TryMapValueParser<Self, F>
+    where
+        F: Fn(Self::Value) -> Result<T, E> + Clone + Send + Sync + 'static,
+        T: Send + Sync + Clone,
+        E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+    {
+        TryMapValueParser::new(self, func)
     }
 }
 
@@ -1921,6 +1971,62 @@ where
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(self.parser.parse(cmd, arg, value));
         let value = (self.func)(value);
+        Ok(value)
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
+        self.parser.possible_values()
+    }
+}
+
+/// Adapt a `TypedValueParser` from one value to another
+///
+/// See [`TypedValueParser::try_map`]
+#[derive(Clone, Debug)]
+pub struct TryMapValueParser<P, F> {
+    parser: P,
+    func: F,
+}
+
+impl<P, F, T, E> TryMapValueParser<P, F>
+where
+    P: TypedValueParser,
+    P::Value: Send + Sync + Clone,
+    F: Fn(P::Value) -> Result<T, E> + Clone + Send + Sync + 'static,
+    T: Send + Sync + Clone,
+    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+{
+    fn new(parser: P, func: F) -> Self {
+        Self { parser, func }
+    }
+}
+
+impl<P, F, T, E> TypedValueParser for TryMapValueParser<P, F>
+where
+    P: TypedValueParser,
+    P::Value: Send + Sync + Clone,
+    F: Fn(P::Value) -> Result<T, E> + Clone + Send + Sync + 'static,
+    T: Send + Sync + Clone,
+    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+{
+    type Value = T;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let mid_value = ok!(self.parser.parse_ref(cmd, arg, value));
+        let value = ok!((self.func)(mid_value).map_err(|e| {
+            let arg = arg
+                .map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(arg, value.to_string_lossy().into_owned(), e.into())
+                .with_cmd(cmd)
+        }));
         Ok(value)
     }
 
