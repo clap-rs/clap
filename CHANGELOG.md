@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* Allow `()` for fields to mean "don't read" (#4371)
+
 ## [4.0.12] - 2022-10-10
 
 ### Features
