@@ -266,7 +266,8 @@
 //!
 //! | Type                | Effect                               | Implies                                                     |
 //! |---------------------|--------------------------------------|-------------------------------------------------------------|
-//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)                                |
+//! | `()`                | user-defined                         | `.action(ArgAction::Set).required(false)`                   |
+//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)`                               |
 //! | `Option<T>`         | optional argument                    | `.action(ArgAction::Set).required(false)`                   |
 //! | `Option<Option<T>>` | optional value for optional argument | `.action(ArgAction::Set).required(false).num_args(0..=1)`   |
 //! | `T`                 | required argument                    | `.action(ArgAction::Set).required(!has_default)`            |
