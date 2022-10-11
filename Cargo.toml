@@ -10,7 +10,7 @@ members = [
 
 [package]
 name = "clap"
-version = "4.0.12"
+version = "4.0.13"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
@@ -91,7 +91,7 @@ unstable-v5 = ["clap_derive?/unstable-v5", "deprecated"]
 bench = false
 
 [dependencies]
-clap_derive = { path = "./clap_derive", version = "=4.0.10", optional = true }
+clap_derive = { path = "./clap_derive", version = "=4.0.13", optional = true }
 clap_lex = { path = "./clap_lex", version = "0.3.0" }
 bitflags = "1.2"
 unicase = { version = "2.6", optional = true }
