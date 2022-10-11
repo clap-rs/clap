@@ -9,6 +9,7 @@ use syn::{
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Ty {
+    Unit,
     Vec,
     Option,
     OptionOption,
@@ -21,7 +22,9 @@ impl Ty {
         use self::Ty::*;
         let t = |kind| Sp::new(kind, ty.span());
 
-        if is_generic_ty(ty, "Vec") {
+        if is_unit_ty(ty) {
+            t(Unit)
+        } else if is_generic_ty(ty, "Vec") {
             t(Vec)
         } else if let Some(subty) = subty_if_name(ty, "Option") {
             if is_generic_ty(subty, "Option") {
@@ -38,6 +41,7 @@ impl Ty {
 
     pub fn as_str(&self) -> &'static str {
         match self {
+            Self::Unit => "()",
             Self::Vec => "Vec<T>",
             Self::Option => "Option<T>",
             Self::OptionOption => "Option<Option<T>>",
@@ -119,6 +123,14 @@ pub fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
 
 fn is_generic_ty(ty: &syn::Type, name: &str) -> bool {
     subty_if_name(ty, name).is_some()
+}
+
+fn is_unit_ty(ty: &syn::Type) -> bool {
+    if let syn::Type::Tuple(tuple) = ty {
+        tuple.elems.is_empty()
+    } else {
+        false
+    }
 }
 
 fn only_one<I, T>(mut iter: I) -> Option<T>

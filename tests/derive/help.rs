@@ -431,13 +431,15 @@ fn custom_help_flag() {
     #[derive(Debug, Clone, Parser)]
     #[command(disable_help_flag = true)]
     struct CliOptions {
-        #[arg(short = 'h', long = "verbose-help", action = ArgAction::Help)]
-        help: bool,
+        #[arg(short = 'h', long = "verbose-help", action = ArgAction::Help, value_parser = clap::value_parser!(bool))]
+        help: (),
     }
 
     let result = CliOptions::try_parse_from(["cmd", "--verbose-help"]);
     let err = result.unwrap_err();
     assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+
+    CliOptions::try_parse_from(["cmd"]).unwrap();
 }
 
 #[test]
@@ -445,11 +447,13 @@ fn custom_version_flag() {
     #[derive(Debug, Clone, Parser)]
     #[command(disable_version_flag = true, version = "2.0.0")]
     struct CliOptions {
-        #[arg(short = 'V', long = "verbose-version", action = ArgAction::Version)]
-        version: bool,
+        #[arg(short = 'V', long = "verbose-version", action = ArgAction::Version, value_parser = clap::value_parser!(bool))]
+        version: (),
     }
 
     let result = CliOptions::try_parse_from(["cmd", "--verbose-version"]);
     let err = result.unwrap_err();
     assert_eq!(err.kind(), clap::error::ErrorKind::DisplayVersion);
+
+    CliOptions::try_parse_from(["cmd"]).unwrap();
 }

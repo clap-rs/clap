@@ -232,6 +232,13 @@ pub fn gen_augment(
                 let value_name = item.value_name();
 
                 let implicit_methods = match **ty {
+                    Ty::Unit => {
+                        quote_spanned! { ty.span()=>
+                            .value_name(#value_name)
+                            #value_parser
+                            #action
+                        }
+                    }
                     Ty::Option => {
                         quote_spanned! { ty.span()=>
                             .value_name(#value_name)
@@ -421,6 +428,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
+                    Ty::Unit |
                     Ty::Vec |
                     Ty::OptionOption |
                     Ty::OptionVec => {
@@ -459,6 +467,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                             }
                         }
                     },
+                    Ty::Unit |
                     Ty::Vec |
                     Ty::OptionOption |
                     Ty::OptionVec => {
@@ -609,6 +618,12 @@ fn gen_parsers(
     let arg_matches = format_ident!("__clap_arg_matches");
 
     let field_value = match **ty {
+        Ty::Unit => {
+            quote_spanned! { ty.span()=>
+                ()
+            }
+        }
+
         Ty::Option => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
