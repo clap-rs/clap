@@ -1503,11 +1503,6 @@ impl<'cmd> Parser<'cmd> {
             matcher.start_custom_group(group, source);
         }
     }
-
-    /// Increase occurrence of specific argument and the grouped arg it's in.
-    fn start_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg) {
-        self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
-    }
 }
 
 // Error, Help, and Version Methods
@@ -1542,7 +1537,7 @@ impl<'cmd> Parser<'cmd> {
         // Add the arg to the matches to build a proper usage string
         if let Some((name, _)) = did_you_mean.as_ref() {
             if let Some(arg) = self.cmd.get_keymap().get(&name.as_ref()) {
-                self.start_occurrence_of_arg(matcher, arg);
+                self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
             }
         }
 
