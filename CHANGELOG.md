@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Only put `ArgGroup` in `ArgMatches` when explicitly specified, fixing derives handling of option-flattened fields (#4375)
+
 ## [4.0.13] - 2022-10-11
 
 ### Features
