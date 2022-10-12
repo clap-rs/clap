@@ -152,23 +152,6 @@ impl ArgMatcher {
         ma.new_val_group();
     }
 
-    pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
-        let id = arg.get_id().clone();
-        debug!("ArgMatcher::start_occurrence_of_arg: id={:?}", id);
-        let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
-        debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
-        ma.set_source(ValueSource::CommandLine);
-        ma.new_val_group();
-    }
-
-    pub(crate) fn start_occurrence_of_group(&mut self, id: Id) {
-        debug!("ArgMatcher::start_occurrence_of_group: id={:?}", id);
-        let ma = self.entry(id).or_insert(MatchedArg::new_group());
-        debug_assert_eq!(ma.type_id(), None);
-        ma.set_source(ValueSource::CommandLine);
-        ma.new_val_group();
-    }
-
     pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
         let id = Id::from_static_ref(Id::EXTERNAL);
         debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);

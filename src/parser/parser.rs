@@ -1078,15 +1078,6 @@ impl<'cmd> Parser<'cmd> {
             matcher.add_index_to(arg.get_id(), self.cur_idx.get());
         }
 
-        // Increment or create the group "args"
-        for group in self.cmd.groups_for_arg(arg.get_id()) {
-            matcher.add_val_to(
-                &group,
-                AnyValue::new(arg.get_id().clone()),
-                OsString::from(arg.get_id().as_str()),
-            );
-        }
-
         Ok(())
     }
 
@@ -1499,20 +1490,15 @@ impl<'cmd> Parser<'cmd> {
             self.remove_overrides(arg, matcher);
         }
         matcher.start_custom_arg(arg, source);
-        for group in self.cmd.groups_for_arg(arg.get_id()) {
-            matcher.start_custom_group(group, source);
-        }
-    }
-
-    /// Increase occurrence of specific argument and the grouped arg it's in.
-    fn start_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg) {
-        // With each new occurrence, remove overrides from prior occurrences
-        self.remove_overrides(arg, matcher);
-
-        matcher.start_occurrence_of_arg(arg);
-        // Increment or create the group "args"
-        for group in self.cmd.groups_for_arg(arg.get_id()) {
-            matcher.start_occurrence_of_group(group);
+        if source.is_explicit() {
+            for group in self.cmd.groups_for_arg(arg.get_id()) {
+                matcher.start_custom_group(group.clone(), source);
+                matcher.add_val_to(
+                    &group,
+                    AnyValue::new(arg.get_id().clone()),
+                    OsString::from(arg.get_id().as_str()),
+                );
+            }
         }
     }
 }
@@ -1549,7 +1535,7 @@ impl<'cmd> Parser<'cmd> {
         // Add the arg to the matches to build a proper usage string
         if let Some((name, _)) = did_you_mean.as_ref() {
             if let Some(arg) = self.cmd.get_keymap().get(&name.as_ref()) {
-                self.start_occurrence_of_arg(matcher, arg);
+                self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
             }
         }
 

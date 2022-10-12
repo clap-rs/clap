@@ -130,7 +130,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn check_explicit(&self, predicate: &ArgPredicate) -> bool {
-        if self.source == Some(ValueSource::DefaultValue) {
+        if self.source.map(|s| !s.is_explicit()).unwrap_or(false) {
             return false;
         }
 
