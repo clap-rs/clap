@@ -1490,13 +1490,15 @@ impl<'cmd> Parser<'cmd> {
             self.remove_overrides(arg, matcher);
         }
         matcher.start_custom_arg(arg, source);
-        for group in self.cmd.groups_for_arg(arg.get_id()) {
-            matcher.start_custom_group(group.clone(), source);
-            matcher.add_val_to(
-                &group,
-                AnyValue::new(arg.get_id().clone()),
-                OsString::from(arg.get_id().as_str()),
-            );
+        if source.is_explicit() {
+            for group in self.cmd.groups_for_arg(arg.get_id()) {
+                matcher.start_custom_group(group.clone(), source);
+                matcher.add_val_to(
+                    &group,
+                    AnyValue::new(arg.get_id().clone()),
+                    OsString::from(arg.get_id().as_str()),
+                );
+            }
         }
     }
 }
