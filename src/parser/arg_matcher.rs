@@ -152,14 +152,6 @@ impl ArgMatcher {
         ma.new_val_group();
     }
 
-    pub(crate) fn start_occurrence_of_arg(&mut self, arg: &Arg) {
-        self.start_custom_arg(arg, ValueSource::CommandLine);
-    }
-
-    pub(crate) fn start_occurrence_of_group(&mut self, id: Id) {
-        self.start_custom_group(id, ValueSource::CommandLine);
-    }
-
     pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
         let id = Id::from_static_ref(Id::EXTERNAL);
         debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);

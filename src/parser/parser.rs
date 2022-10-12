@@ -1509,10 +1509,10 @@ impl<'cmd> Parser<'cmd> {
         // With each new occurrence, remove overrides from prior occurrences
         self.remove_overrides(arg, matcher);
 
-        matcher.start_occurrence_of_arg(arg);
+        matcher.start_custom_arg(arg, ValueSource::CommandLine);
         // Increment or create the group "args"
         for group in self.cmd.groups_for_arg(arg.get_id()) {
-            matcher.start_occurrence_of_group(group);
+            matcher.start_custom_group(group, ValueSource::CommandLine);
         }
     }
 }
