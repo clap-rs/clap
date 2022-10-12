@@ -2749,12 +2749,12 @@ impl Arg {
     pub fn default_value_if(
         mut self,
         arg_id: impl Into<Id>,
-        val: impl Into<ArgPredicate>,
+        predicate: impl Into<ArgPredicate>,
         default: impl IntoResettable<OsStr>,
     ) -> Self {
         self.default_vals_ifs.push((
             arg_id.into(),
-            val.into(),
+            predicate.into(),
             default.into_resettable().into_option(),
         ));
         self
@@ -2769,15 +2769,15 @@ impl Arg {
     pub fn default_value_if_os(
         self,
         arg_id: impl Into<Id>,
-        val: impl Into<ArgPredicate>,
+        predicate: impl Into<ArgPredicate>,
         default: impl IntoResettable<OsStr>,
     ) -> Self {
-        self.default_value_if(arg_id, val, default)
+        self.default_value_if(arg_id, predicate, default)
     }
 
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
     ///
-    /// The method takes a slice of tuples in the `(arg, Option<val>, default)` format.
+    /// The method takes a slice of tuples in the `(arg, predicate, default)` format.
     ///
     /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
     /// if multiple conditions are true, the first one found will be applied and the ultimate value.
@@ -2867,8 +2867,8 @@ impl Arg {
             ),
         >,
     ) -> Self {
-        for (arg, val, default) in ifs {
-            self = self.default_value_if(arg, val, default);
+        for (arg, predicate, default) in ifs {
+            self = self.default_value_if(arg, predicate, default);
         }
         self
     }
