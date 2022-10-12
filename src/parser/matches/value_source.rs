@@ -9,3 +9,9 @@ pub enum ValueSource {
     /// Value was passed in on the command-line
     CommandLine,
 }
+
+impl ValueSource {
+    pub(crate) fn is_explicit(self) -> bool {
+        self != Self::DefaultValue
+    }
+}
