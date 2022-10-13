@@ -181,7 +181,7 @@ fn possible_values_output() {
 error: 'slo' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-  Did you mean 'slow'?
+  note: value 'slow' exists
 
 For more information try '--help'
 ";
@@ -215,7 +215,7 @@ fn possible_values_alias_output() {
 error: 'slo' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-  Did you mean 'slow'?
+  note: value 'slow' exists
 
 For more information try '--help'
 ";
@@ -253,7 +253,7 @@ fn possible_values_hidden_output() {
 error: 'slo' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-  Did you mean 'slow'?
+  note: value 'slow' exists
 
 For more information try '--help'
 ";
@@ -292,7 +292,7 @@ fn escaped_possible_values_output() {
 error: 'ludicrous' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-  Did you mean 'ludicrous speed'?
+  note: value 'ludicrous speed' exists
 
 For more information try '--help'
 ";

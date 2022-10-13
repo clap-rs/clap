@@ -160,7 +160,7 @@ fn issue_1284_argument_in_flag_style() {
     const USE_FLAG_AS_ARGUMENT: &str = "\
 error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '--another-flag' as a value rather than a flag, use '-- --another-flag'
+  note: to pass '--another-flag' as a value, use '-- --another-flag'
 
 Usage: mycat [OPTIONS] [filename]
 
@@ -204,7 +204,7 @@ fn issue_2308_multiple_dashes() {
     static MULTIPLE_DASHES: &str = "\
 error: Found argument '-----' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '-----' as a value rather than a flag, use '-- -----'
+  note: to pass '-----' as a value, use '-- -----'
 
 Usage: test <arg>
 

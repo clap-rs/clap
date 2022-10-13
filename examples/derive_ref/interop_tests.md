@@ -142,7 +142,7 @@ $ interop_hand_subcommand add --unknown
 ? failed
 error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '--unknown' as a value rather than a flag, use '-- --unknown'
+  note: to pass '--unknown' as a value, use '-- --unknown'
 
 Usage: interop_hand_subcommand[EXE] add [NAME]...
 
