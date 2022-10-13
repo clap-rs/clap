@@ -171,13 +171,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                     }
                 }
 
-                let suggestion = error.get(ContextKind::SuggestedValue);
-                if let Some(ContextValue::String(suggestion)) = suggestion {
+                if let Some(valid) = error.get(ContextKind::SuggestedValue) {
                     styled.none("\n\n");
-                    styled.none(TAB);
-                    styled.none("Did you mean '");
-                    styled.good(suggestion);
-                    styled.none("'?");
+                    did_you_mean(styled, valid);
                 }
                 true
             } else {
@@ -191,26 +187,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 styled.warning(invalid_sub);
                 styled.none("' wasn't recognized");
 
-                let valid_sub = error.get(ContextKind::SuggestedSubcommand);
-                if let Some(ContextValue::String(valid_sub)) = valid_sub {
+                if let Some(valid) = error.get(ContextKind::SuggestedSubcommand) {
                     styled.none("\n\n");
-                    styled.none(TAB);
-                    styled.none("Did you mean '");
-                    styled.good(valid_sub);
-                    styled.none("'?");
-                } else if let Some(ContextValue::Strings(valid_sub)) = valid_sub {
-                    styled.none("\n\n");
-                    styled.none(TAB);
-                    styled.none("Did you mean ");
-                    for (i, valid_sub) in valid_sub.iter().enumerate() {
-                        if i != 0 {
-                            styled.none(", ");
-                        }
-                        styled.none("'");
-                        styled.good(valid_sub);
-                        styled.none("'");
-                    }
-                    styled.none("?");
+                    did_you_mean(styled, valid);
                 }
 
                 let suggestion = error.get(ContextKind::SuggestedCommand);
@@ -361,12 +340,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                         styled.good(valid_sub);
                         styled.none("'?");
                     }
-                    (None, Some(ContextValue::String(valid_arg))) => {
+                    (None, Some(valid)) => {
                         styled.none("\n\n");
-                        styled.none(TAB);
-                        styled.none("Did you mean '");
-                        styled.good(valid_arg);
-                        styled.none("'?");
+                        did_you_mean(styled, valid);
                     }
                     (_, _) => {}
                 }
@@ -457,6 +433,28 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
         styled.none("'\n");
     } else {
         styled.none("\n");
+    }
+}
+
+#[cfg(feature = "error-context")]
+fn did_you_mean(styled: &mut StyledStr, valid: &ContextValue) {
+    if let ContextValue::String(valid) = valid {
+        styled.none(TAB);
+        styled.none("Did you mean '");
+        styled.good(valid);
+        styled.none("'?");
+    } else if let ContextValue::Strings(valid) = valid {
+        styled.none(TAB);
+        styled.none("Did you mean ");
+        for (i, valid) in valid.iter().enumerate() {
+            if i != 0 {
+                styled.none(", ");
+            }
+            styled.none("'");
+            styled.good(valid);
+            styled.none("'");
+        }
+        styled.none("?");
     }
 }
 
