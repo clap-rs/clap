@@ -195,8 +195,21 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 if let Some(ContextValue::String(valid_sub)) = valid_sub {
                     styled.none("\n\n");
                     styled.none(TAB);
-                    styled.none("Did you mean ");
+                    styled.none("Did you mean '");
                     styled.good(valid_sub);
+                    styled.none("'?");
+                } else if let Some(ContextValue::Strings(valid_sub)) = valid_sub {
+                    styled.none("\n\n");
+                    styled.none(TAB);
+                    styled.none("Did you mean ");
+                    for (i, valid_sub) in valid_sub.iter().enumerate() {
+                        if i != 0 {
+                            styled.none(", ");
+                        }
+                        styled.none("'");
+                        styled.good(valid_sub);
+                        styled.none("'");
+                    }
                     styled.none("?");
                 }
 
