@@ -145,8 +145,6 @@ error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this
 
   Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
-  If you tried to supply '--subcmarg' as a value rather than a flag, use '-- --subcmarg'
-
 Usage: dym [COMMAND]
 
 For more information try '--help'
@@ -164,8 +162,6 @@ For more information try '--help'
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &str = "\
 error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
-
-  If you tried to supply '--subcmarg' as a value rather than a flag, use '-- --subcmarg'
 
 Usage: dym [COMMAND]
 

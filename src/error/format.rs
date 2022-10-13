@@ -360,7 +360,8 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
 
                 let invalid_arg = error.get(ContextKind::InvalidArg);
                 if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    if invalid_arg.starts_with('-') {
+                    let suggested_trailing_arg = error.get(ContextKind::SuggestedTrailingArg);
+                    if suggested_trailing_arg == Some(&ContextValue::Bool(true)) {
                         styled.none("\n\n");
                         styled.none(TAB);
                         styled.none("If you tried to supply '");
