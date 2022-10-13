@@ -149,7 +149,7 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                 styled.none("Equal sign is needed when assigning values to '");
                 styled.warning(invalid_arg);
-                styled.none("'.");
+                styled.none("'");
                 true
             } else {
                 false

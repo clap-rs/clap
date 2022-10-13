@@ -21,8 +21,7 @@ fn require_equals_fail() {
 #[test]
 #[cfg(feature = "error-context")]
 fn require_equals_fail_message() {
-    static NO_EQUALS: &str =
-        "error: Equal sign is needed when assigning values to '--config=<cfg>'.
+    static NO_EQUALS: &str = "error: Equal sign is needed when assigning values to '--config=<cfg>'
 
 Usage: prog [OPTIONS]
 
