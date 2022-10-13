@@ -162,8 +162,6 @@ fn trailing_already_in_use() {
     static MESSAGE: &str = "\
 error: Found argument '--foo' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
-
 Usage: rg [PATTERN]
 
 For more information try '--help'
@@ -182,8 +180,6 @@ fn cant_use_trailing() {
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
 error: Found argument '--foo' which wasn't expected, or isn't valid in this context
-
-  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
 
 Usage: test
 

@@ -638,6 +638,7 @@ impl<F: ErrorFormatter> Error<F> {
         cmd: &Command,
         arg: String,
         did_you_mean: Option<(String, Option<String>)>,
+        suggested_trailing_arg: bool,
         usage: Option<StyledStr>,
     ) -> Self {
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
@@ -661,6 +662,12 @@ impl<F: ErrorFormatter> Error<F> {
                         ContextValue::String(sub),
                     );
                 }
+            }
+            if suggested_trailing_arg {
+                err = err.insert_context_unchecked(
+                    ContextKind::SuggestedTrailingArg,
+                    ContextValue::Bool(true),
+                );
             }
         }
 

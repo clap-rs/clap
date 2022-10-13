@@ -29,6 +29,8 @@ pub enum ContextKind {
     SuggestedValue,
     /// Trailing argument
     TrailingArg,
+    /// Potential fix for the user
+    SuggestedTrailingArg,
     /// A usage string
     Usage,
     /// An opaque message to the user
@@ -51,6 +53,7 @@ impl ContextKind {
             Self::SuggestedSubcommand => Some("Suggested Subcommand"),
             Self::SuggestedArg => Some("Suggested Argument"),
             Self::SuggestedValue => Some("Suggested Value"),
+            Self::SuggestedTrailingArg => Some("Suggested Trailing Argument"),
             Self::TrailingArg => Some("Trailing Argument"),
             Self::Usage => None,
             Self::Custom => None,
