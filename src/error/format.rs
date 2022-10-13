@@ -88,21 +88,6 @@ impl ErrorFormatter for RichFormatter {
             (_, _) => {}
         }
 
-        let invalid_arg = error.get(ContextKind::InvalidArg);
-        if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-            let suggested_trailing_arg = error.get(ContextKind::SuggestedTrailingArg);
-            if suggested_trailing_arg == Some(&ContextValue::Bool(true)) {
-                styled.none("\n\n");
-                styled.none(TAB);
-                styled.none("If you tried to supply '");
-                styled.warning(invalid_arg);
-                styled.none("' as a value rather than a flag, use '");
-                styled.good("-- ");
-                styled.good(invalid_arg);
-                styled.none("'");
-            }
-        }
-
         let suggestions = error.get(ContextKind::Suggested);
         if let Some(ContextValue::StyledStrs(suggestions)) = suggestions {
             for suggestion in suggestions {

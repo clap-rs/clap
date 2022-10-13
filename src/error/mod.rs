@@ -652,6 +652,18 @@ impl<F: ErrorFormatter> Error<F> {
 
         #[cfg(feature = "error-context")]
         {
+            let mut suggestions = vec![];
+            if suggested_trailing_arg {
+                let mut styled_suggestion = StyledStr::new();
+                styled_suggestion.none("If you tried to supply '");
+                styled_suggestion.warning(&arg);
+                styled_suggestion.none("' as a value rather than a flag, use '");
+                styled_suggestion.good("-- ");
+                styled_suggestion.good(&arg);
+                styled_suggestion.none("'");
+                suggestions.push(styled_suggestion);
+            }
+
             err = err
                 .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))]);
             if let Some(usage) = usage {
@@ -670,10 +682,10 @@ impl<F: ErrorFormatter> Error<F> {
                     );
                 }
             }
-            if suggested_trailing_arg {
+            if !suggestions.is_empty() {
                 err = err.insert_context_unchecked(
-                    ContextKind::SuggestedTrailingArg,
-                    ContextValue::Bool(true),
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(suggestions),
                 );
             }
         }
