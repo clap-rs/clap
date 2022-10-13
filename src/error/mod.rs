@@ -690,9 +690,19 @@ impl<F: ErrorFormatter> Error<F> {
 
         #[cfg(feature = "error-context")]
         {
+            let mut styled_suggestion = StyledStr::new();
+            styled_suggestion.none("If you tried to supply '");
+            styled_suggestion.warning(&arg);
+            styled_suggestion.none("' as a subcommand, remove the '");
+            styled_suggestion.warning("--");
+            styled_suggestion.none("' before it.");
+
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (ContextKind::TrailingArg, ContextValue::Bool(true)),
+                (
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(vec![styled_suggestion]),
+                ),
             ]);
             if let Some(usage) = usage {
                 err = err

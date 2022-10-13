@@ -101,17 +101,6 @@ impl ErrorFormatter for RichFormatter {
                 styled.good(invalid_arg);
                 styled.none("'");
             }
-
-            let trailing_arg = error.get(ContextKind::TrailingArg);
-            if trailing_arg == Some(&ContextValue::Bool(true)) {
-                styled.none("\n\n");
-                styled.none(TAB);
-                styled.none("If you tried to supply '");
-                styled.warning(invalid_arg);
-                styled.none("' as a subcommand, remove the '");
-                styled.warning("--");
-                styled.none("' before it.");
-            }
         }
 
         let suggestions = error.get(ContextKind::Suggested);
