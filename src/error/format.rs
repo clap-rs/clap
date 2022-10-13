@@ -64,6 +64,65 @@ impl ErrorFormatter for RichFormatter {
             }
         }
 
+        if let Some(valid) = error.get(ContextKind::SuggestedValue) {
+            styled.none("\n\n");
+            did_you_mean(&mut styled, valid);
+        }
+
+        let valid_sub = error.get(ContextKind::SuggestedSubcommand);
+        let valid_arg = error.get(ContextKind::SuggestedArg);
+        match (valid_sub, valid_arg) {
+            (Some(ContextValue::String(valid_sub)), Some(ContextValue::String(valid_arg))) => {
+                styled.none("\n\n");
+                styled.none(TAB);
+                styled.none("Did you mean to put '");
+                styled.good(valid_arg);
+                styled.none("' after the subcommand '");
+                styled.good(valid_sub);
+                styled.none("'?");
+            }
+            (Some(valid), None) | (None, Some(valid)) => {
+                styled.none("\n\n");
+                did_you_mean(&mut styled, valid);
+            }
+            (_, _) => {}
+        }
+
+        let invalid_arg = error.get(ContextKind::InvalidArg);
+        if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+            let suggested_trailing_arg = error.get(ContextKind::SuggestedTrailingArg);
+            if suggested_trailing_arg == Some(&ContextValue::Bool(true)) {
+                styled.none("\n\n");
+                styled.none(TAB);
+                styled.none("If you tried to supply '");
+                styled.warning(invalid_arg);
+                styled.none("' as a value rather than a flag, use '");
+                styled.good("-- ");
+                styled.good(invalid_arg);
+                styled.none("'");
+            }
+
+            let trailing_arg = error.get(ContextKind::TrailingArg);
+            if trailing_arg == Some(&ContextValue::Bool(true)) {
+                styled.none("\n\n");
+                styled.none(TAB);
+                styled.none("If you tried to supply '");
+                styled.warning(invalid_arg);
+                styled.none("' as a subcommand, remove the '");
+                styled.warning("--");
+                styled.none("' before it.");
+            }
+        }
+
+        let suggestion = error.get(ContextKind::SuggestedCommand);
+        if let Some(ContextValue::String(suggestion)) = suggestion {
+            styled.none("\n\n");
+            styled.none(TAB);
+            styled.none("If you believe you received this message in error, try re-running with '");
+            styled.good(suggestion);
+            styled.none("'");
+        }
+
         let usage = error.get(ContextKind::Usage);
         if let Some(ContextValue::StyledStr(usage)) = usage {
             put_usage(&mut styled, usage.clone());
@@ -170,11 +229,6 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                         styled.none("]");
                     }
                 }
-
-                if let Some(valid) = error.get(ContextKind::SuggestedValue) {
-                    styled.none("\n\n");
-                    did_you_mean(styled, valid);
-                }
                 true
             } else {
                 false
@@ -186,22 +240,6 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 styled.none("The subcommand '");
                 styled.warning(invalid_sub);
                 styled.none("' wasn't recognized");
-
-                if let Some(valid) = error.get(ContextKind::SuggestedSubcommand) {
-                    styled.none("\n\n");
-                    did_you_mean(styled, valid);
-                }
-
-                let suggestion = error.get(ContextKind::SuggestedCommand);
-                if let Some(ContextValue::String(suggestion)) = suggestion {
-                    styled.none("\n\n");
-                    styled.none(TAB);
-                    styled.none(
-                        "If you believe you received this message in error, try re-running with '",
-                    );
-                    styled.good(suggestion);
-                    styled.none("'");
-                }
                 true
             } else {
                 false
@@ -326,54 +364,6 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 styled.none("Found argument '");
                 styled.warning(invalid_arg.to_string());
                 styled.none("' which wasn't expected, or isn't valid in this context");
-
-                let valid_sub = error.get(ContextKind::SuggestedSubcommand);
-                let valid_arg = error.get(ContextKind::SuggestedArg);
-                match (valid_sub, valid_arg) {
-                    (
-                        Some(ContextValue::String(valid_sub)),
-                        Some(ContextValue::String(valid_arg)),
-                    ) => {
-                        styled.none("\n\n");
-                        styled.none(TAB);
-                        styled.none("Did you mean to put '");
-                        styled.good(valid_arg);
-                        styled.none("' after the subcommand '");
-                        styled.good(valid_sub);
-                        styled.none("'?");
-                    }
-                    (None, Some(valid)) => {
-                        styled.none("\n\n");
-                        did_you_mean(styled, valid);
-                    }
-                    (_, _) => {}
-                }
-
-                let invalid_arg = error.get(ContextKind::InvalidArg);
-                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                    let suggested_trailing_arg = error.get(ContextKind::SuggestedTrailingArg);
-                    if suggested_trailing_arg == Some(&ContextValue::Bool(true)) {
-                        styled.none("\n\n");
-                        styled.none(TAB);
-                        styled.none("If you tried to supply '");
-                        styled.warning(invalid_arg);
-                        styled.none("' as a value rather than a flag, use '");
-                        styled.good("-- ");
-                        styled.good(invalid_arg);
-                        styled.none("'");
-                    }
-
-                    let trailing_arg = error.get(ContextKind::TrailingArg);
-                    if trailing_arg == Some(&ContextValue::Bool(true)) {
-                        styled.none("\n\n");
-                        styled.none(TAB);
-                        styled.none("If you tried to supply '");
-                        styled.warning(invalid_arg);
-                        styled.none("' as a subcommand, remove the '");
-                        styled.warning("--");
-                        styled.none("' before it.");
-                    }
-                }
                 true
             } else {
                 false
