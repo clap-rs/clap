@@ -64,30 +64,18 @@ impl ErrorFormatter for RichFormatter {
             }
         }
 
+        if let Some(valid) = error.get(ContextKind::SuggestedSubcommand) {
+            styled.none("\n\n");
+            did_you_mean(&mut styled, valid);
+        }
+        if let Some(valid) = error.get(ContextKind::SuggestedArg) {
+            styled.none("\n\n");
+            did_you_mean(&mut styled, valid);
+        }
         if let Some(valid) = error.get(ContextKind::SuggestedValue) {
             styled.none("\n\n");
             did_you_mean(&mut styled, valid);
         }
-
-        let valid_sub = error.get(ContextKind::SuggestedSubcommand);
-        let valid_arg = error.get(ContextKind::SuggestedArg);
-        match (valid_sub, valid_arg) {
-            (Some(ContextValue::String(valid_sub)), Some(ContextValue::String(valid_arg))) => {
-                styled.none("\n\n");
-                styled.none(TAB);
-                styled.none("Did you mean to put '");
-                styled.good(valid_arg);
-                styled.none("' after the subcommand '");
-                styled.good(valid_sub);
-                styled.none("'?");
-            }
-            (Some(valid), None) | (None, Some(valid)) => {
-                styled.none("\n\n");
-                did_you_mean(&mut styled, valid);
-            }
-            (_, _) => {}
-        }
-
         let suggestions = error.get(ContextKind::Suggested);
         if let Some(ContextValue::StyledStrs(suggestions)) = suggestions {
             for suggestion in suggestions {

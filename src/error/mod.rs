@@ -672,14 +672,14 @@ impl<F: ErrorFormatter> Error<F> {
             }
             match did_you_mean {
                 Some((flag, Some(sub))) => {
-                    err = err.insert_context_unchecked(
-                        ContextKind::SuggestedSubcommand,
-                        ContextValue::String(sub),
-                    );
-                    err = err.insert_context_unchecked(
-                        ContextKind::SuggestedArg,
-                        ContextValue::String(format!("--{}", flag)),
-                    );
+                    let mut styled_suggestion = StyledStr::new();
+                    styled_suggestion.none("Did you mean to put '");
+                    styled_suggestion.good("--");
+                    styled_suggestion.good(flag);
+                    styled_suggestion.none("' after the subcommand '");
+                    styled_suggestion.good(sub);
+                    styled_suggestion.none("'?");
+                    suggestions.push(styled_suggestion);
                 }
                 Some((flag, None)) => {
                     err = err.insert_context_unchecked(
