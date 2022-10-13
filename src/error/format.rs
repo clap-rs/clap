@@ -123,6 +123,15 @@ impl ErrorFormatter for RichFormatter {
             styled.none("'");
         }
 
+        let suggestions = error.get(ContextKind::Suggested);
+        if let Some(ContextValue::StyledStrs(suggestions)) = suggestions {
+            for suggestion in suggestions {
+                styled.none("\n\n");
+                styled.none(TAB);
+                styled.extend(suggestion.iter());
+            }
+        }
+
         let usage = error.get(ContextKind::Usage);
         if let Some(ContextValue::StyledStr(usage)) = usage {
             put_usage(&mut styled, usage.clone());
