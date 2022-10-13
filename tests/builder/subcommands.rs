@@ -121,7 +121,7 @@ fn subcmd_did_you_mean_output_ambiguous() {
     static DYM_SUBCMD_AMBIGUOUS: &str = "\
 error: The subcommand 'te' wasn't recognized
 
-  Did you mean 'test' or 'temp'?
+  Did you mean 'test', 'temp'?
 
 If you believe you received this message in error, try re-running with 'dym -- te'
 

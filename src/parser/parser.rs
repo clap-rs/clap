@@ -510,14 +510,10 @@ impl<'cmd> Parser<'cmd> {
         );
         // If the argument looks like a subcommand.
         if !candidates.is_empty() {
-            let candidates: Vec<_> = candidates
-                .iter()
-                .map(|candidate| format!("'{}'", candidate))
-                .collect();
             return ClapError::invalid_subcommand(
                 self.cmd,
                 arg_os.display().to_string(),
-                candidates.join(" or "),
+                candidates,
                 self.cmd
                     .get_bin_name()
                     .unwrap_or_else(|| self.cmd.get_name())

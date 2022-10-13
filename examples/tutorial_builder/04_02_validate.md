@@ -16,13 +16,13 @@ PORT = 22
 
 $ 04_02_validate foobar
 ? failed
-error: Invalid value "foobar" for '<PORT>': `foobar` isn't a port number
+error: Invalid value 'foobar' for '<PORT>': `foobar` isn't a port number
 
 For more information try '--help'
 
 $ 04_02_validate 0
 ? failed
-error: Invalid value "0" for '<PORT>': Port not in range 1-65535
+error: Invalid value '0' for '<PORT>': Port not in range 1-65535
 
 For more information try '--help'
 

@@ -422,7 +422,7 @@ impl<F: ErrorFormatter> Error<F> {
     pub(crate) fn invalid_subcommand(
         cmd: &Command,
         subcmd: String,
-        did_you_mean: String,
+        did_you_mean: Vec<String>,
         name: String,
         usage: Option<StyledStr>,
     ) -> Self {
@@ -435,7 +435,7 @@ impl<F: ErrorFormatter> Error<F> {
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
                 (
                     ContextKind::SuggestedSubcommand,
-                    ContextValue::String(did_you_mean),
+                    ContextValue::Strings(did_you_mean),
                 ),
                 (
                     ContextKind::SuggestedCommand,

@@ -19,7 +19,7 @@ Tortoise
 
 $ 04_01_possible medium
 ? failed
-error: "medium" isn't a valid value for '<MODE>'
+error: 'medium' isn't a valid value for '<MODE>'
   [possible values: fast, slow]
 
 For more information try '--help'
