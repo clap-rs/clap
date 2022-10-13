@@ -426,11 +426,18 @@ impl<F: ErrorFormatter> Error<F> {
         name: String,
         usage: Option<StyledStr>,
     ) -> Self {
-        let suggestion = format!("{} -- {}", name, subcmd);
         let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
         {
+            let mut styled_suggestion = StyledStr::new();
+            styled_suggestion
+                .none("If you believe you received this message in error, try re-running with '");
+            styled_suggestion.good(name);
+            styled_suggestion.good(" -- ");
+            styled_suggestion.good(&subcmd);
+            styled_suggestion.none("'");
+
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
                 (
@@ -438,8 +445,8 @@ impl<F: ErrorFormatter> Error<F> {
                     ContextValue::Strings(did_you_mean),
                 ),
                 (
-                    ContextKind::SuggestedCommand,
-                    ContextValue::String(suggestion),
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(vec![styled_suggestion]),
                 ),
             ]);
             if let Some(usage) = usage {
@@ -645,28 +652,47 @@ impl<F: ErrorFormatter> Error<F> {
 
         #[cfg(feature = "error-context")]
         {
+            let mut suggestions = vec![];
+            if suggested_trailing_arg {
+                let mut styled_suggestion = StyledStr::new();
+                styled_suggestion.none("If you tried to supply '");
+                styled_suggestion.warning(&arg);
+                styled_suggestion.none("' as a value rather than a flag, use '");
+                styled_suggestion.good("-- ");
+                styled_suggestion.good(&arg);
+                styled_suggestion.none("'");
+                suggestions.push(styled_suggestion);
+            }
+
             err = err
                 .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))]);
             if let Some(usage) = usage {
                 err = err
                     .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
             }
-            if let Some((flag, sub)) = did_you_mean {
-                err = err.insert_context_unchecked(
-                    ContextKind::SuggestedArg,
-                    ContextValue::String(format!("--{}", flag)),
-                );
-                if let Some(sub) = sub {
+            match did_you_mean {
+                Some((flag, Some(sub))) => {
+                    let mut styled_suggestion = StyledStr::new();
+                    styled_suggestion.none("Did you mean to put '");
+                    styled_suggestion.good("--");
+                    styled_suggestion.good(flag);
+                    styled_suggestion.none("' after the subcommand '");
+                    styled_suggestion.good(sub);
+                    styled_suggestion.none("'?");
+                    suggestions.push(styled_suggestion);
+                }
+                Some((flag, None)) => {
                     err = err.insert_context_unchecked(
-                        ContextKind::SuggestedSubcommand,
-                        ContextValue::String(sub),
+                        ContextKind::SuggestedArg,
+                        ContextValue::String(format!("--{}", flag)),
                     );
                 }
+                None => {}
             }
-            if suggested_trailing_arg {
+            if !suggestions.is_empty() {
                 err = err.insert_context_unchecked(
-                    ContextKind::SuggestedTrailingArg,
-                    ContextValue::Bool(true),
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(suggestions),
                 );
             }
         }
@@ -683,9 +709,19 @@ impl<F: ErrorFormatter> Error<F> {
 
         #[cfg(feature = "error-context")]
         {
+            let mut styled_suggestion = StyledStr::new();
+            styled_suggestion.none("If you tried to supply '");
+            styled_suggestion.warning(&arg);
+            styled_suggestion.none("' as a subcommand, remove the '");
+            styled_suggestion.warning("--");
+            styled_suggestion.none("' before it.");
+
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
-                (ContextKind::TrailingArg, ContextValue::Bool(true)),
+                (
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(vec![styled_suggestion]),
+                ),
             ]);
             if let Some(usage) = usage {
                 err = err
