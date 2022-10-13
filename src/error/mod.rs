@@ -670,17 +670,24 @@ impl<F: ErrorFormatter> Error<F> {
                 err = err
                     .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
             }
-            if let Some((flag, sub)) = did_you_mean {
-                err = err.insert_context_unchecked(
-                    ContextKind::SuggestedArg,
-                    ContextValue::String(format!("--{}", flag)),
-                );
-                if let Some(sub) = sub {
+            match did_you_mean {
+                Some((flag, Some(sub))) => {
                     err = err.insert_context_unchecked(
                         ContextKind::SuggestedSubcommand,
                         ContextValue::String(sub),
                     );
+                    err = err.insert_context_unchecked(
+                        ContextKind::SuggestedArg,
+                        ContextValue::String(format!("--{}", flag)),
+                    );
                 }
+                Some((flag, None)) => {
+                    err = err.insert_context_unchecked(
+                        ContextKind::SuggestedArg,
+                        ContextValue::String(format!("--{}", flag)),
+                    );
+                }
+                None => {}
             }
             if !suggestions.is_empty() {
                 err = err.insert_context_unchecked(
