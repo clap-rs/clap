@@ -102,7 +102,7 @@ error: The subcommand 'subcm' wasn't recognized
 
   Did you mean 'subcmd'?
 
-If you believe you received this message in error, try re-running with 'dym -- subcm'
+  If you believe you received this message in error, try re-running with 'dym -- subcm'
 
 Usage: dym [COMMAND]
 
@@ -123,7 +123,7 @@ error: The subcommand 'te' wasn't recognized
 
   Did you mean 'test', 'temp'?
 
-If you believe you received this message in error, try re-running with 'dym -- te'
+  If you believe you received this message in error, try re-running with 'dym -- te'
 
 Usage: dym [COMMAND]
 
@@ -524,7 +524,7 @@ error: The subcommand 'baz' wasn't recognized
 
   Did you mean 'bar'?
 
-If you believe you received this message in error, try re-running with ' -- baz'
+  If you believe you received this message in error, try re-running with ' -- baz'
 
 Usage: <COMMAND>
 

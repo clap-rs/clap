@@ -194,9 +194,11 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
 
                 let suggestion = error.get(ContextKind::SuggestedCommand);
                 if let Some(ContextValue::String(suggestion)) = suggestion {
+                    styled.none("\n\n");
+                    styled.none(TAB);
                     styled.none(
-            "\n\nIf you believe you received this message in error, try re-running with '",
-        );
+                        "If you believe you received this message in error, try re-running with '",
+                    );
                     styled.good(suggestion);
                     styled.none("'");
                 }
