@@ -128,3 +128,66 @@ For more information try '--help'
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
+
+#[test]
+#[cfg(feature = "error-context")]
+fn suggest_trailing() {
+    let cmd = Command::new("rg").arg(arg!([PATTERN]));
+
+    let res = cmd.try_get_matches_from(["rg", "--foo"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+
+  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
+
+Usage: rg [PATTERN]
+
+For more information try '--help'
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn trailing_already_in_use() {
+    let cmd = Command::new("rg").arg(arg!([PATTERN]));
+
+    let res = cmd.try_get_matches_from(["rg", "--", "--foo", "--foo"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+
+  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
+
+Usage: rg [PATTERN]
+
+For more information try '--help'
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn cant_use_trailing() {
+    let cmd = Command::new("test");
+
+    let res = cmd.try_get_matches_from(["test", "--foo"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+
+  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
+
+Usage: test
+
+For more information try '--help'
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
