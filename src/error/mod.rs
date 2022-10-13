@@ -426,11 +426,18 @@ impl<F: ErrorFormatter> Error<F> {
         name: String,
         usage: Option<StyledStr>,
     ) -> Self {
-        let suggestion = format!("{} -- {}", name, subcmd);
         let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
         {
+            let mut styled_suggestion = StyledStr::new();
+            styled_suggestion
+                .none("If you believe you received this message in error, try re-running with '");
+            styled_suggestion.good(name);
+            styled_suggestion.good(" -- ");
+            styled_suggestion.good(&subcmd);
+            styled_suggestion.none("'");
+
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
                 (
@@ -438,8 +445,8 @@ impl<F: ErrorFormatter> Error<F> {
                     ContextValue::Strings(did_you_mean),
                 ),
                 (
-                    ContextKind::SuggestedCommand,
-                    ContextValue::String(suggestion),
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(vec![styled_suggestion]),
                 ),
             ]);
             if let Some(usage) = usage {
