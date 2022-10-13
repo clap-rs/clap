@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Don't suggest `--` when it doesn't help
+- *(error)* Be more consistent in quoting, punctuation, and indentation in errors
+
 ## [4.0.14] - 2022-10-12
 
 ### Fixes
