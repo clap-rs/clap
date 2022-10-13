@@ -147,8 +147,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                     styled.warning(invalid_arg);
                     styled.none("' requires a value but none was supplied");
                 } else {
-                    styled.none(quote(invalid_value));
-                    styled.none(" isn't a valid value for '");
+                    styled.none("'");
+                    styled.none(invalid_value);
+                    styled.none("' isn't a valid value for '");
                     styled.warning(invalid_arg);
                     styled.none("'");
                 }
@@ -174,9 +175,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 if let Some(ContextValue::String(suggestion)) = suggestion {
                     styled.none("\n\n");
                     styled.none(TAB);
-                    styled.none("Did you mean ");
-                    styled.good(quote(suggestion));
-                    styled.none("?");
+                    styled.none("Did you mean '");
+                    styled.good(suggestion);
+                    styled.none("'?");
                 }
                 true
             } else {
@@ -287,9 +288,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 Some(ContextValue::String(invalid_value)),
             ) = (invalid_arg, invalid_value)
             {
-                styled.none("Invalid value ");
-                styled.warning(quote(invalid_value));
-                styled.none(" for '");
+                styled.none("Invalid value '");
+                styled.warning(invalid_value);
+                styled.none("' for '");
                 styled.warning(invalid_arg);
                 if let Some(source) = error.inner.source.as_deref() {
                     styled.none("': ");
@@ -341,8 +342,7 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                     ) => {
                         styled.none("\n\n");
                         styled.none(TAB);
-                        styled.none("Did you mean ");
-                        styled.none("to put '");
+                        styled.none("Did you mean to put '");
                         styled.good(valid_arg);
                         styled.none("' after the subcommand '");
                         styled.good(valid_sub);
@@ -447,15 +447,10 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
     }
 }
 
-fn quote(s: impl AsRef<str>) -> String {
-    let s = s.as_ref();
-    format!("{:?}", s)
-}
-
 fn escape(s: impl AsRef<str>) -> String {
     let s = s.as_ref();
     if s.contains(char::is_whitespace) {
-        quote(s)
+        format!("{:?}", s)
     } else {
         s.to_owned()
     }

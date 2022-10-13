@@ -261,7 +261,7 @@ fn delimited_missing_value() {
 #[cfg(debug_assertions)]
 #[test]
 #[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: \"value\" isn't a valid value for '[arg]'"]
+#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: 'value' isn't a valid value for '[arg]'"]
 fn default_missing_values_are_possible_values() {
     use clap::{Arg, Command};
 
@@ -277,7 +277,7 @@ fn default_missing_values_are_possible_values() {
 #[cfg(debug_assertions)]
 #[test]
 #[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: Invalid value \"value\" for '[arg]"]
+#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: Invalid value 'value' for '[arg]"]
 fn default_missing_values_are_valid() {
     use clap::{Arg, Command};
 
