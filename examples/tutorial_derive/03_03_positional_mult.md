@@ -17,4 +17,7 @@ name: []
 $ 03_03_positional_mult_derive bob
 name: ["bob"]
 
+$ 03_03_positional_mult_derive bob john
+name: ["bob", "john"]
+
 ```
