@@ -12,9 +12,12 @@ Options:
   -V, --version  Print version information
 
 $ 03_03_positional_mult
-name: None
+names: []
 
 $ 03_03_positional_mult bob
-name: Some("bob")
+names: ["bob"]
+
+$ 03_03_positional_mult bob john
+names: ["bob", "john"]
 
 ```

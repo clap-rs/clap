@@ -5,5 +5,11 @@ fn main() {
         .arg(Arg::new("name").action(ArgAction::Append))
         .get_matches();
 
-    println!("name: {:?}", matches.get_one::<String>("name"));
+    let args = matches
+        .get_many::<String>("name")
+        .unwrap_or_default()
+        .map(|v| v.as_str())
+        .collect::<Vec<_>>();
+
+    println!("names: {:?}", &args);
 }
