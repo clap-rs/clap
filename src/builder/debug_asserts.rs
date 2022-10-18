@@ -271,8 +271,8 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
 
             assert!(
-                arg.is_trailing_var_arg_set(),
-                "Command {}: Positional argument '{}' has hint CommandWithArguments, so Command must have TrailingVarArg set.",
+                arg.is_trailing_var_arg_set() || arg.is_last_set(),
+                "Command {}: Positional argument '{}' has hint CommandWithArguments, so Command must have `trailing_var_arg(true)` or `last(true)` set.",
                     cmd.get_name(),
                 arg.get_id()
             );
