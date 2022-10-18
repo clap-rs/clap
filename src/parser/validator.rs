@@ -112,6 +112,9 @@ impl<'cmd> Validator<'cmd> {
             .arg_ids()
             .filter(|arg_id| {
                 matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
+                    // Avoid including our own groups by checking none of them.  If a group is present, the
+                    // args for the group will be.
+                    && self.cmd.find(arg_id).is_some()
             })
             .count();
         if args_count <= 1 {

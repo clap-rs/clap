@@ -38,10 +38,13 @@ fn flag_conflict_with_all() {
 
 #[test]
 fn exclusive_flag() {
-    let result = Command::new("flag_conflict")
+    let cmd = Command::new("flag_conflict")
         .arg(arg!(-f --flag "some flag").exclusive(true))
-        .arg(arg!(-o --other "some flag"))
-        .try_get_matches_from(vec!["myprog", "-o", "-f"]);
+        .arg(arg!(-o --other "some flag"));
+    let result = cmd.clone().try_get_matches_from(vec!["myprog", "-f"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+
+    let result = cmd.clone().try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
@@ -68,6 +71,20 @@ fn not_exclusive_with_defaults() {
                 .default_value("val1"),
         )
         .try_get_matches_from(vec!["myprog", "-f=val2"]);
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+}
+
+#[test]
+fn not_exclusive_with_group() {
+    let cmd = Command::new("test")
+        .group(clap::ArgGroup::new("test").arg("foo"))
+        .arg(
+            clap::Arg::new("foo")
+                .long("foo")
+                .exclusive(true)
+                .action(clap::ArgAction::SetTrue),
+        );
+    let result = cmd.try_get_matches_from(vec!["test", "--foo"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
 }
 
