@@ -346,7 +346,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///
 /// When deriving [`Parser`], a field whose type implements `ValueEnum` can have the attribute
 /// `#[arg(value_enum)]` which will
-/// - Call [EnumValueParser`][crate::builder::EnumValueParser]`
+/// - Call [`EnumValueParser`][crate::builder::EnumValueParser]
 /// - Allowing using the `#[arg(default_value_t)]` attribute without implementing `Display`.
 ///
 /// See the [derive reference](crate::_derive) for attributes and best practices.
