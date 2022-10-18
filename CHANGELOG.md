@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- `Arg::exclusive(true)` should not be exclusive with the argument's own `ArgGroup`
+
 ## [4.0.15] - 2022-10-13
 
 ### Fixes
