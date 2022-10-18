@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Allow using `Arg::last(true)` with `Arg::value_hint(ValueHint::CommandWithArguments)`
+
 ## [4.0.16] - 2022-10-18
 
 ### Fixes
