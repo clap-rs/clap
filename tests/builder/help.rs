@@ -265,7 +265,7 @@ tests clap library
 Usage: clap-test
 
 Options:
-  -h, --help     Print help information (use '--help' for more detail)
+  -h, --help     Print help ('--help' for more)
   -V, --version  Print version information
 
 some text that comes after the help
@@ -1689,7 +1689,7 @@ does stuff
 Usage: test [OPTIONS] --song <song> --song-volume <volume>
 
 Options:
-  -h, --help     Print help information (use '--help' for more detail)
+  -h, --help     Print help ('--help' for more)
   -V, --version  Print version information
 
 OVERRIDE SPECIAL:
@@ -1768,7 +1768,7 @@ About foo
 Usage: ctest foo
 
 Options:
-  -h, --help     Print help information (use '--help' for more detail)
+  -h, --help     Print help ('--help' for more)
   -V, --version  Print version information
 ";
 
@@ -1793,7 +1793,7 @@ Arguments:
 
 Options:
   -f          
-  -h, --help  Print help information (use '--help' for more detail)
+  -h, --help  Print help ('--help' for more)
 ";
 
     let cmd = Command::new("demo")

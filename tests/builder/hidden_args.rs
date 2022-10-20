@@ -36,7 +36,7 @@ Usage: test [OPTIONS]
 
 Options:
   -v, --visible  This text should be visible
-  -h, --help     Print help information (use '--help' for more detail)
+  -h, --help     Print help ('--help' for more)
   -V, --version  Print version information
 ";
 
@@ -154,7 +154,7 @@ Usage: test [OPTIONS]
 Options:
   -c, --config   Some help text describing the --config arg
   -v, --visible  This text should be visible
-  -h, --help     Print help information (use '--help' for more detail)
+  -h, --help     Print help ('--help' for more)
   -V, --version  Print version information
 ";
 
