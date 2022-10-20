@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Allow `#[command(skip)]` to also work with enum variants with a value
+
 ## [4.0.17] - 2022-10-18
 
 ### Fixes
