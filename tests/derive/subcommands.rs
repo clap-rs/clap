@@ -532,7 +532,23 @@ fn skip_subcommand() {
         #[allow(dead_code)]
         #[command(skip)]
         Skip,
+
+        #[allow(dead_code)]
+        #[command(skip)]
+        Other(Other),
     }
+
+    #[allow(dead_code)]
+    #[derive(Debug, PartialEq, Eq)]
+    enum Other {
+        One,
+        Twp,
+    }
+
+    assert!(Subcommands::has_subcommand("add"));
+    assert!(Subcommands::has_subcommand("remove"));
+    assert!(!Subcommands::has_subcommand("skip"));
+    assert!(!Subcommands::has_subcommand("other"));
 
     assert_eq!(
         Opt::try_parse_from(&["test", "add"]).unwrap(),
@@ -549,6 +565,12 @@ fn skip_subcommand() {
     );
 
     let res = Opt::try_parse_from(&["test", "skip"]);
+    assert_eq!(
+        res.unwrap_err().kind(),
+        clap::error::ErrorKind::InvalidSubcommand,
+    );
+
+    let res = Opt::try_parse_from(&["test", "other"]);
     assert_eq!(
         res.unwrap_err().kind(),
         clap::error::ErrorKind::InvalidSubcommand,

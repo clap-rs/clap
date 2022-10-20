@@ -354,11 +354,15 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> TokenStream {
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|(variant, item)| {
-            if let Kind::ExternalSubcommand = &*item.kind() {
-                ext_subcmd = true;
-                None
-            } else {
-                Some((variant, item))
+            let kind = item.kind();
+            match &*kind {
+                Kind::Skip(_, _) | Kind::Arg(_) | Kind::FromGlobal(_) | Kind::Value => None,
+
+                Kind::ExternalSubcommand => {
+                    ext_subcmd = true;
+                    None
+                }
+                Kind::Flatten(_) | Kind::Subcommand(_) | Kind::Command(_) => Some((variant, item)),
             }
         })
         .partition(|(_, item)| {
@@ -414,52 +418,56 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|(variant, item)| {
-            if let Kind::ExternalSubcommand = &*item.kind() {
-                if ext_subcmd.is_some() {
-                    abort!(
-                        item.kind().span(),
-                        "Only one variant can be marked with `external_subcommand`, \
+            let kind = item.kind();
+            match &*kind {
+                Kind::Skip(_, _) | Kind::Arg(_) | Kind::FromGlobal(_) | Kind::Value => None,
+
+                Kind::ExternalSubcommand => {
+                    if ext_subcmd.is_some() {
+                        abort!(
+                            item.kind().span(),
+                            "Only one variant can be marked with `external_subcommand`, \
                          this is the second"
-                    );
-                }
-
-                let ty = match variant.fields {
-                    Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
-
-                    _ => abort!(
-                        variant,
-                        "The enum variant marked with `external_subcommand` must be \
-                         a single-typed tuple, and the type must be either `Vec<String>` \
-                         or `Vec<OsString>`."
-                    ),
-                };
-
-                let (span, str_ty) = match subty_if_name(ty, "Vec") {
-                    Some(subty) => {
-                        if is_simple_ty(subty, "String") {
-                            (subty.span(), quote!(::std::string::String))
-                        } else if is_simple_ty(subty, "OsString") {
-                            (subty.span(), quote!(::std::ffi::OsString))
-                        } else {
-                            abort!(
-                                ty.span(),
-                                "The type must be either `Vec<String>` or `Vec<OsString>` \
-                                 to be used with `external_subcommand`."
-                            );
-                        }
+                        );
                     }
 
-                    None => abort!(
-                        ty.span(),
-                        "The type must be either `Vec<String>` or `Vec<OsString>` \
-                         to be used with `external_subcommand`."
-                    ),
-                };
+                    let ty = match variant.fields {
+                        Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
 
-                ext_subcmd = Some((span, &variant.ident, str_ty));
-                None
-            } else {
-                Some((variant, item))
+                        _ => abort!(
+                            variant,
+                            "The enum variant marked with `external_subcommand` must be \
+                         a single-typed tuple, and the type must be either `Vec<String>` \
+                         or `Vec<OsString>`."
+                        ),
+                    };
+
+                    let (span, str_ty) = match subty_if_name(ty, "Vec") {
+                        Some(subty) => {
+                            if is_simple_ty(subty, "String") {
+                                (subty.span(), quote!(::std::string::String))
+                            } else if is_simple_ty(subty, "OsString") {
+                                (subty.span(), quote!(::std::ffi::OsString))
+                            } else {
+                                abort!(
+                                    ty.span(),
+                                    "The type must be either `Vec<String>` or `Vec<OsString>` \
+                                 to be used with `external_subcommand`."
+                                );
+                            }
+                        }
+
+                        None => abort!(
+                            ty.span(),
+                            "The type must be either `Vec<String>` or `Vec<OsString>` \
+                         to be used with `external_subcommand`."
+                        ),
+                    };
+
+                    ext_subcmd = Some((span, &variant.ident, str_ty));
+                    None
+                }
+                Kind::Flatten(_) | Kind::Subcommand(_) | Kind::Command(_) => Some((variant, item)),
             }
         })
         .partition(|(_, item)| {
@@ -563,10 +571,15 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> TokenStream {
     let (flatten, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|(variant, item)| {
-            match &*item.kind() {
+            let kind = item.kind();
+            match &*kind {
                 // Fallback to `from_arg_matches_mut`
-                Kind::ExternalSubcommand => None,
-                _ => Some((variant, item)),
+                Kind::Skip(_, _)
+                | Kind::Arg(_)
+                | Kind::FromGlobal(_)
+                | Kind::Value
+                | Kind::ExternalSubcommand => None,
+                Kind::Flatten(_) | Kind::Subcommand(_) | Kind::Command(_) => Some((variant, item)),
             }
         })
         .partition(|(_, item)| {
