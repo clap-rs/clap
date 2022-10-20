@@ -53,8 +53,8 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
         }
         'my-app;some_cmd;sub_cmd' {
             [CompletionResult]::new('--config', 'config', [CompletionResultType]::ParameterName, 'the other case to test')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information (use `--help` for more detail)')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information (use `--help` for more detail)')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information (use ''--help'' for more detail)')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information (use ''--help'' for more detail)')
             [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
             [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             break

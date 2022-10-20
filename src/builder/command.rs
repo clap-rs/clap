@@ -4241,8 +4241,8 @@ impl Command {
                 .action(ArgAction::Help);
             if self.long_help_exists {
                 arg = arg
-                    .help("Print help information (use `--help` for more detail)")
-                    .long_help("Print help information (use `-h` for a summary)");
+                    .help("Print help information (use '--help' for more detail)")
+                    .long_help("Print help information (use '-h' for a summary)");
             } else {
                 arg = arg.help("Print help information");
             }
