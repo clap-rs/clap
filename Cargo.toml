@@ -1,0 +1,26 @@
+[package]
+name = "clap_complete_nushell"
+authors = [ "nibon7 <nibon7@163.com>" ]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "A generator library used with clap for Nushell completion scripts"
+repository = "https://github.com/nibon7/clap_complete_nushell"
+readme = "./README.md"
+categories = ["command-line-interface"]
+keywords = [
+  "clap",
+  "cli",
+  "completion",
+  "nushell"
+]
+exclude = [ "tests/*" ]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.0", default-features = false }
+clap_complete = "4.0"
+
+[dev-dependencies]
+snapbox = { version = "0.4", features = ["diff"] }
