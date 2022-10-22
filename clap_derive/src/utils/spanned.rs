@@ -2,7 +2,10 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::ToTokens;
 use syn::LitStr;
 
-use std::ops::{Deref, DerefMut};
+use std::{
+    fmt,
+    ops::{Deref, DerefMut},
+};
 
 /// An entity with a span attached.
 #[derive(Debug, Copy, Clone)]
@@ -48,6 +51,16 @@ impl From<Ident> for Sp<String> {
     }
 }
 
+impl TryFrom<Sp<String>> for Ident {
+    type Error = syn::Error;
+
+    fn try_from(value: Sp<String>) -> Result<Self, Self::Error> {
+        let mut ident = syn::parse_str::<Ident>(value.get())?;
+        ident.set_span(value.span());
+        Ok(ident)
+    }
+}
+
 impl From<LitStr> for Sp<String> {
     fn from(lit: LitStr) -> Self {
         Sp {
@@ -85,5 +98,11 @@ impl<T: ToTokens> ToTokens for Sp<T> {
         });
 
         stream.extend(tt);
+    }
+}
+
+impl<T: fmt::Display> fmt::Display for Sp<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.val, f)
     }
 }

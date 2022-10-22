@@ -16,12 +16,11 @@ use std::env;
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{self, Span, TokenStream};
-use proc_macro_error::abort;
+use proc_macro_error::{abort, ResultExt};
 use quote::{quote, quote_spanned, ToTokens};
-use syn::DeriveInput;
 use syn::{
-    self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, MetaNameValue, Type,
-    Variant,
+    self, ext::IdentExt, spanned::Spanned, Attribute, DeriveInput, Expr, ExprPath, Field, Ident,
+    LitStr, MetaNameValue, Path, Type, Variant,
 };
 
 use crate::attr::*;
@@ -52,6 +51,7 @@ pub struct Item {
     is_positional: bool,
     skip_group: bool,
     kind: Sp<Kind>,
+    clap_path: Path,
 }
 
 impl Item {
@@ -65,6 +65,7 @@ impl Item {
 
         let mut res = Self::new(name, ident, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.set_clap_path(&parsed_attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         res.push_doc_comment(attrs, "about", true);
@@ -82,6 +83,7 @@ impl Item {
 
         let mut res = Self::new(name, ident, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.set_clap_path(&parsed_attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         res.push_doc_comment(attrs, "about", true);
@@ -99,6 +101,7 @@ impl Item {
 
         let mut res = Self::new(name, ident, None, argument_casing, env_casing, kind);
         let parsed_attrs = ClapAttr::parse_all(attrs);
+        res.set_clap_path(&parsed_attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         // Ignoring `push_doc_comment` as there is no top-level clap builder to add documentation
@@ -141,6 +144,7 @@ impl Item {
             kind,
         );
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.set_clap_path(&parsed_attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         if matches!(&*res.kind, Kind::Command(_) | Kind::Subcommand(_)) {
@@ -189,6 +193,7 @@ impl Item {
             kind,
         );
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs);
+        res.set_clap_path(&parsed_attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         if matches!(&*res.kind, Kind::Value) {
@@ -217,6 +222,7 @@ impl Item {
             kind,
         );
         let parsed_attrs = ClapAttr::parse_all(&field.attrs);
+        res.set_clap_path(&parsed_attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         if matches!(&*res.kind, Kind::Arg(_)) {
@@ -281,6 +287,34 @@ impl Item {
             is_positional: true,
             skip_group: false,
             kind,
+            clap_path: syn::parse_str("::clap").expect("::clap should always parse as a path"),
+        }
+    }
+
+    /// Update the path to `clap` if the `crate` attribute is set.
+    pub fn set_clap_path(&mut self, attrs: &[ClapAttr]) {
+        const HELP_TEXT: &str = "`crate` attribute syntax: `#[clap(crate = ::path::to::clap)] or \
+                                 #[clap(crate = \"::path::to::clap\")]";
+        for attr in attrs {
+            if attr.name != "crate" {
+                continue;
+            }
+            let value = attr.value_or_abort();
+            match value {
+                AttrValue::Expr(Expr::Path(ExprPath { attrs, qself, path })) => {
+                    if !attrs.is_empty() || qself.is_some() {
+                        abort!(value, HELP_TEXT);
+                    }
+                    self.clap_path = path.to_owned();
+                }
+                AttrValue::LitStr(s) => {
+                    let path = s.parse::<Path>().unwrap_or_else(|e| {
+                        abort!(value, "`crate` value is not a path: {} ({})", e, HELP_TEXT)
+                    });
+                    self.clap_path = path.to_owned();
+                }
+                _ => abort!(value, HELP_TEXT),
+            }
         }
     }
 
@@ -438,7 +472,7 @@ impl Item {
 
             if let Some(AttrValue::Call(tokens)) = &attr.value {
                 // Force raw mode with method call syntax
-                self.push_method(*attr.kind.get(), attr.name.clone(), quote!(#(#tokens),*));
+                self.push_method(*attr.kind.get(), attr.name_or_abort(), quote!(#(#tokens),*));
                 continue;
             }
 
@@ -448,7 +482,7 @@ impl Item {
 
                     self.push_method(
                         *attr.kind.get(),
-                        attr.name.clone(),
+                        attr.name_or_abort(),
                         self.name.clone().translate_char(*self.casing),
                     );
                 }
@@ -456,7 +490,7 @@ impl Item {
                 Some(MagicAttrName::Long) if attr.value.is_none() => {
                     assert_attr_kind(attr, &[AttrKind::Arg]);
 
-                    self.push_method(*attr.kind.get(), attr.name.clone(), self.name.clone().translate(*self.casing));
+                    self.push_method(*attr.kind.get(), attr.name_or_abort(), self.name.clone().translate(*self.casing));
                 }
 
                 Some(MagicAttrName::ValueParser) if attr.value.is_none() => {
@@ -468,7 +502,7 @@ impl Item {
                         version: "4.0.0",
                         description: "`#[arg(value_parser)]` is now the default and is no longer needed`".to_owned(),
                     });
-                    self.value_parser = Some(ValueParser::Implicit(attr.name.clone()));
+                    self.value_parser = Some(ValueParser::Implicit(attr.name_or_abort()));
                 }
 
                 Some(MagicAttrName::Action) if attr.value.is_none() => {
@@ -480,7 +514,7 @@ impl Item {
                         version: "4.0.0",
                         description: "`#[arg(action)]` is now the default and is no longer needed`".to_owned(),
                     });
-                    self.action = Some(Action::Implicit(attr.name.clone()));
+                    self.action = Some(Action::Implicit(attr.name_or_abort()));
                 }
 
                 Some(MagicAttrName::Env) if attr.value.is_none() => {
@@ -488,7 +522,7 @@ impl Item {
 
                     self.push_method(
                         *attr.kind.get(),
-                        attr.name.clone(),
+                        attr.name_or_abort(),
                         self.name.clone().translate(*self.env_casing),
                     );
                 }
@@ -554,17 +588,19 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
+                        let clap_path = &self.clap_path;
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<String> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: #clap_path::__macro_refs::once_cell::sync::Lazy<String> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
-                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
+                                #clap_path::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             });
                             let s: &'static str = &*DEFAULT_VALUE;
                             s
                         })
                     } else {
+                        let clap_path = &self.clap_path;
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<String> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: #clap_path::__macro_refs::once_cell::sync::Lazy<String> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 ::std::string::ToString::to_string(&val)
                             });
@@ -610,6 +646,7 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
+                        let clap_path = self.clap_path();
                         quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
@@ -619,21 +656,22 @@ impl Item {
                                     iterable
                                         .into_iter()
                                         .map(|val| {
-                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name().to_owned()
+                                            #clap_path::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name().to_owned()
                                         })
                                 }
 
-                                static DEFAULT_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_STRINGS: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_STRINGS.iter().map(::std::string::String::as_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
                             }
                         })
                     } else {
+                        let clap_path = self.clap_path();
                         quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
@@ -643,11 +681,11 @@ impl Item {
                                     iterable.into_iter().map(|val| val.borrow().to_string())
                                 }
 
-                                static DEFAULT_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_STRINGS: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_STRINGS.iter().map(::std::string::String::as_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
@@ -686,17 +724,19 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
+                        let clap_path = self.clap_path();
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: #clap_path::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
-                                clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
+                                #clap_path::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             });
                             let s: &'static ::std::ffi::OsStr = &*DEFAULT_VALUE;
                             s
                         })
                     } else {
+                        let clap_path = self.clap_path();
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: #clap_path::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 ::std::ffi::OsString::from(val)
                             });
@@ -742,6 +782,7 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
+                        let clap_path = self.clap_path();
                         quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=::std::ffi::OsString>
@@ -751,21 +792,22 @@ impl Item {
                                     iterable
                                         .into_iter()
                                         .map(|val| {
-                                            clap::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name().to_owned().into()
+                                            #clap_path::ValueEnum::to_possible_value(val.borrow()).unwrap().get_name().to_owned().into()
                                         })
                                 }
 
-                                static DEFAULT_OS_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_OS_STRINGS: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_OS_STRINGS.iter().map(::std::ffi::OsString::as_os_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
                             }
                         })
                     } else {
+                        let clap_path = self.clap_path();
                         quote_spanned!(attr.name.clone().span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=::std::ffi::OsString>
@@ -775,11 +817,11 @@ impl Item {
                                     iterable.into_iter().map(|val| val.borrow().into())
                                 }
 
-                                static DEFAULT_OS_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_OS_STRINGS: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: #clap_path::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = #clap_path::__macro_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_OS_STRINGS.iter().map(::std::ffi::OsString::as_os_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
@@ -797,14 +839,14 @@ impl Item {
                     assert_attr_kind(attr, &[AttrKind::Command]);
 
                     let expr = attr.value_or_abort();
-                    self.next_display_order = Some(Method::new(attr.name.clone(), quote!(#expr)));
+                    self.next_display_order = Some(Method::new(attr.name_or_abort(), quote!(#expr)));
                 }
 
                 Some(MagicAttrName::NextHelpHeading) => {
                     assert_attr_kind(attr, &[AttrKind::Command]);
 
                     let expr = attr.value_or_abort();
-                    self.next_help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
+                    self.next_help_heading = Some(Method::new(attr.name_or_abort(), quote!(#expr)));
                 }
 
                 Some(MagicAttrName::RenameAll) => {
@@ -833,13 +875,13 @@ impl Item {
                 | Some(MagicAttrName::Version)
                  => {
                     let expr = attr.value_or_abort();
-                    self.push_method(*attr.kind.get(), attr.name.clone(), expr);
+                    self.push_method(*attr.kind.get(), attr.name_or_abort(), expr);
                 }
 
                 // Magic only for the default, otherwise just forward to the builder
                 Some(MagicAttrName::ValueParser) | Some(MagicAttrName::Action) => {
                     let expr = attr.value_or_abort();
-                    self.push_method(*attr.kind.get(), attr.name.clone(), expr);
+                    self.push_method(*attr.kind.get(), attr.name_or_abort(), expr);
                 }
 
                 // Directives that never receive a value
@@ -855,6 +897,10 @@ impl Item {
                 | Some(MagicAttrName::ExternalSubcommand)
                 | Some(MagicAttrName::Flatten)
                 | Some(MagicAttrName::Skip) => {
+                }
+
+                // We've already handled this in an earlier pass
+                Some(MagicAttrName::Crate) => {
                 }
             }
         }
@@ -986,44 +1032,39 @@ impl Item {
         self.name.clone().translate(CasingStyle::ScreamingSnake)
     }
 
-    pub fn value_parser(&self, field_type: &Type) -> Method {
+    pub fn value_parser(&self, field_type: &Type, clap_path: &Path) -> Method {
         self.value_parser
             .clone()
             .map(|p| {
                 let inner_type = inner_type(field_type);
-                p.resolve(inner_type)
+                p.resolve(inner_type, clap_path)
             })
             .unwrap_or_else(|| {
                 let inner_type = inner_type(field_type);
-                if let Some(action) = self.action.as_ref() {
-                    let span = action.span();
-                    default_value_parser(inner_type, span)
+                let span = if let Some(action) = self.action.as_ref() {
+                    action.span()
                 } else {
-                    let span = self
-                        .action
-                        .as_ref()
-                        .map(|a| a.span())
-                        .unwrap_or_else(|| self.kind.span());
-                    default_value_parser(inner_type, span)
-                }
+                    self.kind.span()
+                };
+                default_value_parser(inner_type, span, clap_path)
             })
     }
 
-    pub fn action(&self, field_type: &Type) -> Method {
+    pub fn action(&self, field_type: &Type, clap_path: &Path) -> Method {
         self.action
             .clone()
-            .map(|p| p.resolve(field_type))
+            .map(|p| p.resolve(field_type, clap_path))
             .unwrap_or_else(|| {
                 if let Some(value_parser) = self.value_parser.as_ref() {
                     let span = value_parser.span();
-                    default_action(field_type, span)
+                    default_action(field_type, span, clap_path)
                 } else {
                     let span = self
                         .value_parser
                         .as_ref()
                         .map(|a| a.span())
                         .unwrap_or_else(|| self.kind.span());
-                    default_action(field_type, span)
+                    default_action(field_type, span, clap_path)
                 }
             })
     }
@@ -1053,6 +1094,10 @@ impl Item {
     pub fn skip_group(&self) -> bool {
         self.skip_group
     }
+
+    pub fn clap_path(&self) -> &Path {
+        &self.clap_path
+    }
 }
 
 #[derive(Clone)]
@@ -1062,10 +1107,10 @@ enum ValueParser {
 }
 
 impl ValueParser {
-    fn resolve(self, _inner_type: &Type) -> Method {
+    fn resolve(self, _inner_type: &Type, clap_path: &Path) -> Method {
         match self {
             Self::Explicit(method) => method,
-            Self::Implicit(ident) => default_value_parser(_inner_type, ident.span()),
+            Self::Implicit(ident) => default_value_parser(_inner_type, ident.span(), clap_path),
         }
     }
 
@@ -1077,13 +1122,15 @@ impl ValueParser {
     }
 }
 
-fn default_value_parser(inner_type: &Type, span: Span) -> Method {
+fn default_value_parser(inner_type: &Type, span: Span, clap_path: &Path) -> Method {
     let func = Ident::new("value_parser", span);
     Method::new(
         func,
-        quote_spanned! { span=>
-            clap::value_parser!(#inner_type)
-        },
+        quote_spanned! { span=> {
+            use #clap_path::builder::via_prelude::*;
+            let auto = #clap_path::builder::_AutoValueParser::<#inner_type>::new();
+            (&&&&&&auto).value_parser()
+        }},
     )
 }
 
@@ -1094,10 +1141,10 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn resolve(self, _field_type: &Type) -> Method {
+    pub fn resolve(self, _field_type: &Type, clap_path: &Path) -> Method {
         match self {
             Self::Explicit(method) => method,
-            Self::Implicit(ident) => default_action(_field_type, ident.span()),
+            Self::Implicit(ident) => default_action(_field_type, ident.span(), clap_path),
         }
     }
 
@@ -1109,27 +1156,27 @@ impl Action {
     }
 }
 
-fn default_action(field_type: &Type, span: Span) -> Method {
+fn default_action(field_type: &Type, span: Span, clap_path: &Path) -> Method {
     let ty = Ty::from_syn_ty(field_type);
     let args = match *ty {
         Ty::Vec | Ty::OptionVec => {
             quote_spanned! { span=>
-                clap::ArgAction::Append
+                #clap_path::ArgAction::Append
             }
         }
         Ty::Option | Ty::OptionOption => {
             quote_spanned! { span=>
-                clap::ArgAction::Set
+                #clap_path::ArgAction::Set
             }
         }
         _ => {
             if is_simple_ty(field_type, "bool") {
                 quote_spanned! { span=>
-                    clap::ArgAction::SetTrue
+                    #clap_path::ArgAction::SetTrue
                 }
             } else {
                 quote_spanned! { span=>
-                    clap::ArgAction::Set
+                    #clap_path::ArgAction::Set
                 }
             }
         }
@@ -1202,7 +1249,7 @@ impl Method {
         Method { name, args }
     }
 
-    fn from_env(ident: Ident, env_var: &str) -> Option<Self> {
+    fn from_env(ident: Sp<String>, env_var: &str) -> Option<Self> {
         let mut lit = match env::var(env_var) {
             Ok(val) => {
                 if val.is_empty() {
@@ -1224,7 +1271,10 @@ impl Method {
             lit = LitStr::new(&edited, lit.span());
         }
 
-        Some(Method::new(ident, quote!(#lit)))
+        Some(Method::new(
+            ident.try_into().unwrap_or_abort(),
+            quote!(#lit),
+        ))
     }
 
     pub(crate) fn args(&self) -> &TokenStream {

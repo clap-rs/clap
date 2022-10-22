@@ -22,6 +22,7 @@ pub fn gen_for_struct(item: &Item, item_name: &Ident, generics: &Generics) -> To
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let name = item.cased_name();
+    let clap_path = item.clap_path();
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     let tokens = quote! {
@@ -38,15 +39,15 @@ pub fn gen_for_struct(item: &Item, item_name: &Ident, generics: &Generics) -> To
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::CommandFactory for #item_name #ty_generics #where_clause {
-            fn command<'b>() -> clap::Command {
-                let #app_var = clap::Command::new(#name);
-                <Self as clap::Args>::augment_args(#app_var)
+        impl #impl_generics #clap_path::CommandFactory for #item_name #ty_generics #where_clause {
+            fn command<'b>() -> #clap_path::Command {
+                let #app_var = #clap_path::Command::new(#name);
+                <Self as #clap_path::Args>::augment_args(#app_var)
             }
 
-            fn command_for_update<'b>() -> clap::Command {
-                let #app_var = clap::Command::new(#name);
-                <Self as clap::Args>::augment_args_for_update(#app_var)
+            fn command_for_update<'b>() -> #clap_path::Command {
+                let #app_var = #clap_path::Command::new(#name);
+                <Self as #clap_path::Args>::augment_args_for_update(#app_var)
             }
         }
     };
@@ -58,6 +59,7 @@ pub fn gen_for_enum(item: &Item, item_name: &Ident, generics: &Generics) -> Toke
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let name = item.cased_name();
+    let clap_path = item.clap_path();
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     quote! {
@@ -74,17 +76,17 @@ pub fn gen_for_enum(item: &Item, item_name: &Ident, generics: &Generics) -> Toke
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::CommandFactory for #item_name #ty_generics #where_clause {
-            fn command<'b>() -> clap::Command {
-                let #app_var = clap::Command::new(#name)
+        impl #impl_generics #clap_path::CommandFactory for #item_name #ty_generics #where_clause {
+            fn command<'b>() -> #clap_path::Command {
+                let #app_var = #clap_path::Command::new(#name)
                     .subcommand_required(true)
                     .arg_required_else_help(true);
-                <Self as clap::Subcommand>::augment_subcommands(#app_var)
+                <Self as #clap_path::Subcommand>::augment_subcommands(#app_var)
             }
 
-            fn command_for_update<'b>() -> clap::Command {
-                let #app_var = clap::Command::new(#name);
-                <Self as clap::Subcommand>::augment_subcommands_for_update(#app_var)
+            fn command_for_update<'b>() -> #clap_path::Command {
+                let #app_var = #clap_path::Command::new(#name);
+                <Self as #clap_path::Subcommand>::augment_subcommands_for_update(#app_var)
             }
         }
     }

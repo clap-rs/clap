@@ -18,7 +18,7 @@ use quote::{format_ident, quote, quote_spanned};
 use syn::ext::IdentExt;
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
-    Fields, Generics,
+    Fields, Generics, Path,
 };
 
 use crate::dummies;
@@ -81,20 +81,21 @@ pub fn gen_for_struct(
     }
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+    let clap_path = item.clap_path();
 
-    let constructor = gen_constructor(fields);
-    let updater = gen_updater(fields, true);
+    let constructor = gen_constructor(fields, clap_path);
+    let updater = gen_updater(fields, true, clap_path);
     let raw_deprecated = raw_deprecated();
 
     let app_var = Ident::new("__clap_app", Span::call_site());
-    let augmentation = gen_augment(fields, &app_var, item, false);
-    let augmentation_update = gen_augment(fields, &app_var, item, true);
+    let augmentation = gen_augment(fields, &app_var, item, false, clap_path);
+    let augmentation_update = gen_augment(fields, &app_var, item, true, clap_path);
 
     let group_id = if item.skip_group() {
         quote!(None)
     } else {
         let group_id = item.ident().unraw().to_string();
-        quote!(Some(clap::Id::from(#group_id)))
+        quote!(Some(#clap_path::Id::from(#group_id)))
     };
 
     quote! {
@@ -111,22 +112,22 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::FromArgMatches for #item_name #ty_generics #where_clause {
-            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+        impl #impl_generics #clap_path::FromArgMatches for #item_name #ty_generics #where_clause {
+            fn from_arg_matches(__clap_arg_matches: &#clap_path::ArgMatches) -> ::std::result::Result<Self, #clap_path::Error> {
                 Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
             }
 
-            fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+            fn from_arg_matches_mut(__clap_arg_matches: &mut #clap_path::ArgMatches) -> ::std::result::Result<Self, #clap_path::Error> {
                 #raw_deprecated
                 let v = #item_name #constructor;
                 ::std::result::Result::Ok(v)
             }
 
-            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+            fn update_from_arg_matches(&mut self, __clap_arg_matches: &#clap_path::ArgMatches) -> ::std::result::Result<(), #clap_path::Error> {
                 self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
             }
 
-            fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+            fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut #clap_path::ArgMatches) -> ::std::result::Result<(), #clap_path::Error> {
                 #raw_deprecated
                 #updater
                 ::std::result::Result::Ok(())
@@ -146,14 +147,14 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl #impl_generics clap::Args for #item_name #ty_generics #where_clause {
-            fn group_id() -> Option<clap::Id> {
+        impl #impl_generics #clap_path::Args for #item_name #ty_generics #where_clause {
+            fn group_id() -> Option<#clap_path::Id> {
                 #group_id
             }
-            fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
+            fn augment_args<'b>(#app_var: #clap_path::Command) -> #clap_path::Command {
                 #augmentation
             }
-            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
+            fn augment_args_for_update<'b>(#app_var: #clap_path::Command) -> #clap_path::Command {
                 #augmentation_update
             }
         }
@@ -167,6 +168,7 @@ pub fn gen_augment(
     app_var: &Ident,
     parent_item: &Item,
     override_required: bool,
+    clap_path: &Path,
 ) -> TokenStream {
     let mut subcommand_specified = false;
     let args = fields.iter().filter_map(|(field, item)| {
@@ -197,7 +199,7 @@ pub fn gen_augment(
                 };
 
                 Some(quote! {
-                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
+                    let #app_var = <#subcmd_type as #clap_path::Subcommand>::augment_subcommands( #app_var );
                     let #app_var = #app_var
                         #implicit_methods;
                 })
@@ -215,20 +217,20 @@ pub fn gen_augment(
                         let #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
+                        let #app_var = <#inner_type as #clap_path::Args>::augment_args_for_update(#app_var);
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
                         let #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
+                        let #app_var = <#inner_type as #clap_path::Args>::augment_args(#app_var);
                     })
                 }
             }
             Kind::Arg(ty) => {
-                let value_parser = item.value_parser(&field.ty);
-                let action = item.action(&field.ty);
+                let value_parser = item.value_parser(&field.ty, clap_path);
+                let action = item.action(&field.ty, clap_path);
                 let value_name = item.value_name();
 
                 let implicit_methods = match **ty {
@@ -316,7 +318,7 @@ pub fn gen_augment(
                         #deprecations
 
                         #[allow(deprecated)]
-                        let arg = clap::Arg::new(#id)
+                        let arg = #clap_path::Arg::new(#id)
                             #implicit_methods;
 
                         let arg = arg
@@ -352,7 +354,7 @@ pub fn gen_augment(
             .collect::<Vec<_>>();
         let literal_group_members_len = literal_group_members.len();
         let mut literal_group_members = quote! {{
-            let members: [clap::Id; #literal_group_members_len] = [#( clap::Id::from(#literal_group_members) ),* ];
+            let members: [#clap_path::Id; #literal_group_members_len] = [#( #clap_path::Id::from(#literal_group_members) ),* ];
             members
         }};
         // HACK: Validation isn't ready yet for nested arg groups, so just don't populate the group in
@@ -366,14 +368,14 @@ pub fn gen_augment(
             .count();
         if 0 < possible_group_members_len {
             literal_group_members = quote! {{
-                let members: [clap::Id; 0] = [];
+                let members: [#clap_path::Id; 0] = [];
                 members
             }};
         }
 
         quote!(
             .group(
-                clap::ArgGroup::new(#group_id)
+                #clap_path::ArgGroup::new(#group_id)
                     .multiple(true)
                     .args(#literal_group_members)
             )
@@ -390,7 +392,7 @@ pub fn gen_augment(
     }}
 }
 
-pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
+pub fn gen_constructor(fields: &[(&Field, Item)], clap_path: &Path) -> TokenStream {
     let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
@@ -413,8 +415,8 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                     Ty::Option => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
-                                if #arg_matches.subcommand_name().map(<#subcmd_type as clap::Subcommand>::has_subcommand).unwrap_or(false) {
-                                    Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?)
+                                if #arg_matches.subcommand_name().map(<#subcmd_type as #clap_path::Subcommand>::has_subcommand).unwrap_or(false) {
+                                    Some(<#subcmd_type as #clap_path::FromArgMatches>::from_arg_matches_mut(#arg_matches)?)
                                 } else {
                                     None
                                 }
@@ -424,7 +426,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                     Ty::Other => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
-                                <#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                                <#subcmd_type as #clap_path::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
                             }
                         }
                     },
@@ -449,17 +451,17 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                 match **ty {
                     Ty::Other => {
                         quote_spanned! { kind.span()=>
-                            #field_name: <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                            #field_name: <#inner_type as #clap_path::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
                         }
                     },
                     Ty::Option => {
                         quote_spanned! { kind.span()=>
                             #field_name: {
-                                let group_id = <#inner_type as clap::Args>::group_id()
+                                let group_id = <#inner_type as #clap_path::Args>::group_id()
                                     .expect("`#[arg(flatten)]`ed field type implements `Args::group_id`");
                                 if #arg_matches.contains_id(group_id.as_str()) {
                                     Some(
-                                        <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                                        <#inner_type as #clap_path::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
                                     )
                                 } else {
                                     None
@@ -486,7 +488,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
             },
 
             Kind::Arg(ty) | Kind::FromGlobal(ty) => {
-                gen_parsers(item, ty, field_name, field, None)
+                gen_parsers(item, ty, field_name, field, None, clap_path)
             }
         }
     });
@@ -496,7 +498,7 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
     }}
 }
 
-pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
+pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool, clap_path: &Path) -> TokenStream {
     let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
@@ -527,7 +529,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                 };
 
                 let updater = quote_spanned! { ty.span()=>
-                    <#subcmd_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                    <#subcmd_type as #clap_path::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
                 };
 
                 let updater = match **ty {
@@ -535,7 +537,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                         if let Some(#field_name) = #field_name.as_mut() {
                             #updater
                         } else {
-                            *#field_name = Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(
+                            *#field_name = Some(<#subcmd_type as #clap_path::FromArgMatches>::from_arg_matches_mut(
                                 #arg_matches
                             )?);
                         }
@@ -560,7 +562,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                 };
 
                 let updater = quote_spanned! { ty.span()=>
-                    <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                    <#inner_type as #clap_path::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
                 };
 
                 let updater = match **ty {
@@ -568,7 +570,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                         if let Some(#field_name) = #field_name.as_mut() {
                             #updater
                         } else {
-                            *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
+                            *#field_name = Some(<#inner_type as #clap_path::FromArgMatches>::from_arg_matches_mut(
                                 #arg_matches
                             )?);
                         }
@@ -588,7 +590,7 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
 
             Kind::Skip(_, _) => quote!(),
 
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(item, ty, field_name, field, Some(&access)),
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(item, ty, field_name, field, Some(&access), clap_path),
         }
     });
 
@@ -603,6 +605,7 @@ fn gen_parsers(
     field_name: &Ident,
     field: &Field,
     update: Option<&TokenStream>,
+    clap_path: &Path,
 ) -> TokenStream {
     let span = ty.span();
     let convert_type = inner_type(&field.ty);
@@ -610,7 +613,7 @@ fn gen_parsers(
     let get_one = quote_spanned!(span=> remove_one::<#convert_type>);
     let get_many = quote_spanned!(span=> remove_many::<#convert_type>);
     let deref = quote!(|s| s);
-    let parse = quote_spanned!(span=> |s| ::std::result::Result::Ok::<_, clap::Error>(s));
+    let parse = quote_spanned!(span=> |s| ::std::result::Result::Ok::<_, #clap_path::Error>(s));
 
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
@@ -648,7 +651,7 @@ fn gen_parsers(
         Ty::OptionVec => quote_spanned! { ty.span()=>
             if #arg_matches.contains_id(#id) {
                 Some(#arg_matches.#get_many(#id)
-                    .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
+                    .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, #clap_path::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, #clap_path::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new))
             } else {
@@ -659,7 +662,7 @@ fn gen_parsers(
         Ty::Vec => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_many(#id)
-                    .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
+                    .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, #clap_path::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, #clap_path::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new)
             }
@@ -669,7 +672,7 @@ fn gen_parsers(
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
                     .map(#deref)
-                    .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
+                    .ok_or_else(|| #clap_path::Error::raw(#clap_path::error::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
                     .and_then(#parse)?
             }
         }

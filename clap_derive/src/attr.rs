@@ -18,7 +18,8 @@ use crate::utils::Sp;
 #[derive(Clone)]
 pub struct ClapAttr {
     pub kind: Sp<AttrKind>,
-    pub name: Ident,
+    // not using `Ident` allows us to have attributes called `crate`.
+    pub name: Sp<String>,
     pub magic: Option<MagicAttrName>,
     pub value: Option<AttrValue>,
 }
@@ -57,10 +58,18 @@ impl ClapAttr {
             .collect()
     }
 
+    pub fn name_or_abort(&self) -> Ident {
+        self.name.clone().try_into().unwrap_or_abort()
+    }
+
     pub fn value_or_abort(&self) -> &AttrValue {
-        self.value
-            .as_ref()
-            .unwrap_or_else(|| abort!(self.name, "attribute `{}` requires a value", self.name))
+        self.value.as_ref().unwrap_or_else(|| {
+            abort!(
+                self.name.span(),
+                "attribute `{}` requires a value",
+                self.name
+            )
+        })
     }
 
     pub fn lit_str_or_abort(&self) -> &LitStr {
@@ -70,7 +79,7 @@ impl ClapAttr {
             AttrValue::Expr(_) | AttrValue::Call(_) => {
                 abort!(
                     self.name,
-                    "attribute `{}` can only accept string litersl",
+                    "attribute `{}` can only accept a single string literal",
                     self.name
                 )
             }
@@ -80,7 +89,14 @@ impl ClapAttr {
 
 impl Parse for ClapAttr {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let name: Ident = input.parse()?;
+        // To allow keywords here (for now only `crate`), we can't just parse as an Ident.
+        let lh = input.lookahead1();
+        let name: Sp<String> = if lh.peek(Token![crate]) {
+            let crate_tok = input.parse::<Token![crate]>()?;
+            Sp::new(String::from("crate"), crate_tok.span())
+        } else {
+            input.parse::<Ident>()?.into()
+        };
         let name_str = name.to_string();
 
         let magic = match name_str.as_str() {
@@ -107,6 +123,7 @@ impl Parse for ClapAttr {
             "about" => Some(MagicAttrName::About),
             "author" => Some(MagicAttrName::Author),
             "version" => Some(MagicAttrName::Version),
+            "crate" => Some(MagicAttrName::Crate),
             _ => None,
         };
 
@@ -171,6 +188,7 @@ pub enum MagicAttrName {
     DefaultValuesOsT,
     NextDisplayOrder,
     NextHelpHeading,
+    Crate,
 }
 
 #[derive(Clone)]

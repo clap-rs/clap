@@ -12,7 +12,7 @@ use proc_macro2::TokenStream;
 use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
 use quote::quote_spanned;
-use syn::{spanned::Spanned, Data, DeriveInput, Fields, Ident, Variant};
+use syn::{spanned::Spanned, Data, DeriveInput, Fields, Ident, Path, Variant};
 
 use crate::dummies;
 use crate::item::{Item, Kind, Name};
@@ -49,9 +49,10 @@ pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)
         }
     }
 
-    let lits = lits(variants);
+    let clap_path = item.clap_path();
+    let lits = lits(variants, clap_path);
     let value_variants = gen_value_variants(&lits);
-    let to_possible_value = gen_to_possible_value(item, &lits);
+    let to_possible_value = gen_to_possible_value(item, &lits, clap_path);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
@@ -67,14 +68,14 @@ pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::ValueEnum for #item_name {
+        impl #clap_path::ValueEnum for #item_name {
             #value_variants
             #to_possible_value
         }
     }
 }
 
-fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
+fn lits(variants: &[(&Variant, Item)], clap_path: &Path) -> Vec<(TokenStream, Ident)> {
     variants
         .iter()
         .filter_map(|(variant, item)| {
@@ -90,7 +91,7 @@ fn lits(variants: &[(&Variant, Item)]) -> Vec<(TokenStream, Ident)> {
                 Some((
                     quote_spanned! { variant.span()=> {
                         #deprecations
-                        clap::builder::PossibleValue::new(#name)
+                        #clap_path::builder::PossibleValue::new(#name)
                         #fields
                     }},
                     variant.ident.clone(),
@@ -110,13 +111,17 @@ fn gen_value_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
     }
 }
 
-fn gen_to_possible_value(item: &Item, lits: &[(TokenStream, Ident)]) -> TokenStream {
+fn gen_to_possible_value(
+    item: &Item,
+    lits: &[(TokenStream, Ident)],
+    clap_path: &Path,
+) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     let deprecations = item.deprecations();
 
     quote! {
-        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::builder::PossibleValue> {
+        fn to_possible_value<'a>(&self) -> ::std::option::Option<#clap_path::builder::PossibleValue> {
             #deprecations
             match self {
                 #(Self::#variant => Some(#lit),)*

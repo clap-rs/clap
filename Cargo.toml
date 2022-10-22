@@ -160,6 +160,11 @@ path = "examples/repl.rs"
 required-features = ["help"]
 
 [[example]]
+name = "custom-clap-path-derive"
+path = "examples/custom-clap-path-derive.rs"
+required-features = ["derive"]
+
+[[example]]
 name = "01_quick"
 path = "examples/tutorial_builder/01_quick.rs"
 required-features = ["cargo"]

@@ -15,11 +15,9 @@
 use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use syn::Ident;
-use syn::Variant;
 use syn::{
     self, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput, Field, Fields,
-    Generics,
+    Generics, Ident, Variant,
 };
 
 use crate::derives::{args, into_app, subcommand};
@@ -96,11 +94,12 @@ fn gen_for_struct(
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let clap_path = item.clap_path();
     let into_app = into_app::gen_for_struct(item, item_name, generics);
     let args = args::gen_for_struct(item, item_name, generics, fields);
 
     quote! {
-        impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
+        impl #impl_generics #clap_path::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app
         #args
@@ -115,11 +114,12 @@ fn gen_for_enum(
 ) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let clap_path = item.clap_path();
     let into_app = into_app::gen_for_enum(item, item_name, generics);
     let subcommand = subcommand::gen_for_enum(item, item_name, generics, variants);
 
     quote! {
-        impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
+        impl #impl_generics #clap_path::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app
         #subcommand
