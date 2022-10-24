@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Upgrade to `textwrap` 0.16
+
 ## [3.2.22] - 2022-09-16
 
 ### Fixes
