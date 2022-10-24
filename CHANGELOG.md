@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.2.23] - 2022-10-24
+
 ### Fixes
 
 - Upgrade to `textwrap` 0.16
@@ -3562,7 +3564,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.22...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.2.23...HEAD
+[3.2.23]: https://github.com/clap-rs/clap/compare/v3.2.22...v3.2.23
 [3.2.22]: https://github.com/clap-rs/clap/compare/v3.2.21...v3.2.22
 [3.2.21]: https://github.com/clap-rs/clap/compare/v3.2.20...v3.2.21
 [3.2.20]: https://github.com/clap-rs/clap/compare/v3.2.19...v3.2.20
