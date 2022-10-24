@@ -90,7 +90,7 @@ bench = false
 clap_derive = { path = "./clap_derive", version = "=3.2.18", optional = true }
 clap_lex = { path = "./clap_lex", version = "0.2.2" }
 bitflags = "1.2"
-textwrap = { version = "0.15.1", default-features = false, features = [] }
+textwrap = { version = "0.16", default-features = false, features = [] }
 unicase = { version = "2.6", optional = true }
 indexmap = "1.0"
 strsim = { version = "0.10",  optional = true }
