@@ -1,3 +1,4 @@
+use clap::ArgAction;
 use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
@@ -39,22 +40,24 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
                 line.push(roman("|"));
                 line.push(bold(&format!("--{}", long)));
                 line.push(roman(rhs));
-                line.push(roman(" "));
             }
             (Some(short), None) => {
                 line.push(roman(lhs));
                 line.push(bold(&format!("-{} ", short)));
                 line.push(roman(rhs));
-                line.push(roman(" "));
             }
             (None, Some(long)) => {
                 line.push(roman(lhs));
                 line.push(bold(&format!("--{}", long)));
                 line.push(roman(rhs));
-                line.push(roman(" "));
             }
-            (None, None) => (),
+            (None, None) => continue,
         };
+
+        if matches!(opt.get_action(), ArgAction::Count) {
+            line.push(roman("..."))
+        }
+        line.push(roman(" "));
     }
 
     for arg in cmd.get_positionals() {
@@ -306,7 +309,7 @@ fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
 }
 
 fn option_default_values(opt: &clap::Arg) -> Option<String> {
-    if opt.is_hide_default_value_set() {
+    if opt.is_hide_default_value_set() || !opt.get_action().takes_values() {
         return None;
     } else if !opt.get_default_values().is_empty() {
         let values = opt
