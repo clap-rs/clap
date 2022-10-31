@@ -66,13 +66,17 @@ fn main() {
 ```nu
 module completions {
 
+  def "myapp choice" [] {
+    [ "first" "second" ]
+  }
+
   # Tests completions
   export extern myapp [
     file?: string	# some input file
     --config(-c)	# some config file
     --conf	# some config file
     -C	# some config file
-    choice?: string
+    choice?: string@"myapp choice"
     --version(-V)	# Print version information
   ]
 
@@ -87,9 +91,13 @@ module completions {
     --version(-V)	# Print version information
   ]
 
+  def "myapp some_cmd sub_cmd config" [] {
+    [ "Lest quotes aren't escaped." ]
+  }
+
   # sub-subcommand
   export extern "myapp some_cmd sub_cmd" [
-    --config: string	# the other case to test
+    --config: string@"myapp some_cmd sub_cmd config"	# the other case to test
     --version(-V)	# Print version information
   ]
 

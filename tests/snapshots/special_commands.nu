@@ -20,18 +20,18 @@ module completions {
     --version(-V)	# Print version information
   ]
 
-  # top level subcommand
+  # tests other things
   export extern "my-app some_cmd" [
+    --config: string	# the other case to test
+    path?: string
     --version(-V)	# Print version information
   ]
 
-  def "my-app some_cmd sub_cmd config" [] {
-    [ "Lest quotes, aren't escaped." "Second to trigger display of options" ]
-  }
+  export extern "my-app some-cmd-with-hyphens" [
+    --version(-V)	# Print version information
+  ]
 
-  # sub-subcommand
-  export extern "my-app some_cmd sub_cmd" [
-    --config: string@"my-app some_cmd sub_cmd config"	# the other case to test
+  export extern "my-app some-hidden-cmd" [
     --version(-V)	# Print version information
   ]
 

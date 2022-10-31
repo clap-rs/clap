@@ -1,12 +1,16 @@
 module completions {
 
+  def "my-app choice" [] {
+    [ "first" "second" ]
+  }
+
   # Tests completions
   export extern my-app [
     file?: string	# some input file
     --config(-c)	# some config file
     --conf	# some config file
     -C	# some config file
-    choice?: string
+    choice?: string@"my-app choice"
     --version(-V)	# Print version information
   ]
 
