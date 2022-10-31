@@ -1,31 +1,33 @@
 //! Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`](https://github.com/clap-rs/clap) based CLIs
 
-use clap::{builder::PossibleValue, Arg, Command};
+use clap::{
+    builder::{PossibleValue, StyledStr},
+    Arg, Command,
+};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file
 pub struct Nushell;
 
-enum Argument {
+enum Argument<'a> {
     Short(Vec<char>),
-    Long(Vec<String>),
-    ShortAndLong(Vec<char>, Vec<String>),
+    Long(Vec<&'a str>),
+    ShortAndLong(Vec<char>, Vec<&'a str>),
     Positional(bool),
 }
 
-struct ArgumentLine {
-    id: String,
-    name: String,
-    arg: Argument,
+struct ArgumentLine<'a, 'b> {
+    id: &'a str,
+    name: &'b str,
+    arg: Argument<'a>,
     takes_values: bool,
     possible_values: Vec<PossibleValue>,
-    help: Option<String>,
+    help: Option<&'a StyledStr>,
 }
 
-impl ArgumentLine {
-    fn new(arg: &Arg, bin_name: &str) -> Self {
-        let id = arg.get_id().to_string();
-        let name = bin_name.to_string();
+impl<'a, 'b> ArgumentLine<'a, 'b> {
+    fn new(arg: &'a Arg, name: &'b str) -> Self {
+        let id = arg.get_id().as_str();
 
         let takes_values = arg
             .get_num_args()
@@ -34,7 +36,7 @@ impl ArgumentLine {
 
         let possible_values = arg.get_possible_values();
 
-        let help = arg.get_help().map(|s| s.to_string());
+        let help = arg.get_help();
 
         if arg.is_positional() {
             let required = arg.is_required_set();
@@ -58,10 +60,7 @@ impl ArgumentLine {
                 Some(longs) => Self {
                     id,
                     name,
-                    arg: Argument::ShortAndLong(
-                        shorts,
-                        longs.iter().map(|s| s.to_string()).collect(),
-                    ),
+                    arg: Argument::ShortAndLong(shorts, longs),
                     takes_values,
                     possible_values,
                     help,
@@ -79,7 +78,7 @@ impl ArgumentLine {
                 Some(longs) => Self {
                     id,
                     name,
-                    arg: Argument::Long(longs.iter().map(|s| s.to_string()).collect()),
+                    arg: Argument::Long(longs),
                     takes_values,
                     possible_values,
                     help,
@@ -123,7 +122,7 @@ impl ArgumentLine {
     }
 }
 
-impl ToString for ArgumentLine {
+impl ToString for ArgumentLine<'_, '_> {
     fn to_string(&self) -> String {
         let mut s = String::new();
 
