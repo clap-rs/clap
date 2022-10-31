@@ -70,6 +70,8 @@ module completions {
   export extern myapp [
     file?: string	# some input file
     --config(-c)	# some config file
+    --conf	# some config file
+    -C	# some config file
     choice?: string
     --version(-V)	# Print version information
   ]

@@ -25,6 +25,18 @@ fn feature_sample() {
 }
 
 #[test]
+fn aliases() {
+    let name = "my-app";
+    let cmd = common::aliases_command(name);
+    common::assert_matches_path(
+        "tests/snapshots/aliases.nu",
+        clap_complete_nushell::Nushell,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn sub_subcommands() {
     let name = "my-app";
     let cmd = common::sub_subcommands_command(name);

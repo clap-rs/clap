@@ -7,9 +7,9 @@ use clap_complete::Generator;
 pub struct Nushell;
 
 enum Argument {
-    Short(char),
-    Long(String),
-    ShortAndLong(char, String),
+    Short(Vec<char>),
+    Long(Vec<String>),
+    ShortAndLong(Vec<char>, Vec<String>),
     Positional(String, bool),
 }
 
@@ -17,6 +17,20 @@ struct ArgumentLine {
     arg: Argument,
     takes_values: bool,
     help: Option<String>,
+}
+
+impl ArgumentLine {
+    fn append_type_and_help(&self, s: &mut String) {
+        if self.takes_values {
+            s.push_str(": string");
+        }
+
+        if let Some(help) = &self.help {
+            s.push_str(format!("\t# {}", help).as_str());
+        }
+
+        s.push('\n');
+    }
 }
 
 impl From<&Arg> for ArgumentLine {
@@ -40,25 +54,28 @@ impl From<&Arg> for ArgumentLine {
             };
         }
 
-        let short = arg.get_short();
-        let long = arg.get_long();
+        let shorts = arg.get_short_and_visible_aliases();
+        let longs = arg.get_long_and_visible_aliases();
 
-        match short {
-            Some(short) => match long {
-                Some(long) => Self {
-                    arg: Argument::ShortAndLong(short, long.into()),
+        match shorts {
+            Some(shorts) => match longs {
+                Some(longs) => Self {
+                    arg: Argument::ShortAndLong(
+                        shorts,
+                        longs.iter().map(|s| s.to_string()).collect(),
+                    ),
                     takes_values,
                     help,
                 },
                 None => Self {
-                    arg: Argument::Short(short),
+                    arg: Argument::Short(shorts),
                     takes_values,
                     help,
                 },
             },
-            None => match long {
+            None => match longs {
                 Some(long) => Self {
-                    arg: Argument::Long(long.into()),
+                    arg: Argument::Long(long.iter().map(|s| s.to_string()).collect()),
                     takes_values,
                     help,
                 },
@@ -73,10 +90,40 @@ impl ToString for ArgumentLine {
         let mut s = String::new();
 
         match &self.arg {
-            Argument::Short(short) => s.push_str(format!("    -{}", short).as_str()),
-            Argument::Long(long) => s.push_str(format!("    --{}", long).as_str()),
-            Argument::ShortAndLong(short, long) => {
-                s.push_str(format!("    --{}(-{})", long, short).as_str())
+            Argument::Short(shorts) => {
+                for short in shorts {
+                    s.push_str(format!("    -{}", short).as_str());
+                    self.append_type_and_help(&mut s);
+                }
+            }
+            Argument::Long(longs) => {
+                for long in longs {
+                    s.push_str(format!("    --{}", long).as_str());
+                    self.append_type_and_help(&mut s);
+                }
+            }
+            Argument::ShortAndLong(shorts, longs) => {
+                s.push_str(
+                    format!(
+                        "    --{}(-{})",
+                        longs.first().expect("At least one long option expected"),
+                        shorts.first().expect("At lease one short option expected")
+                    )
+                    .as_str(),
+                );
+                self.append_type_and_help(&mut s);
+
+                // long alias
+                for long in longs.iter().skip(1) {
+                    s.push_str(format!("    --{}", long).as_str());
+                    self.append_type_and_help(&mut s);
+                }
+
+                // short alias
+                for short in shorts.iter().skip(1) {
+                    s.push_str(format!("    -{}", short).as_str());
+                    self.append_type_and_help(&mut s);
+                }
             }
             Argument::Positional(positional, required) => {
                 s.push_str(format!("    {}", positional).as_str());
@@ -84,18 +131,10 @@ impl ToString for ArgumentLine {
                 if !*required {
                     s.push('?');
                 }
+
+                self.append_type_and_help(&mut s);
             }
         }
-
-        if self.takes_values {
-            s.push_str(": string");
-        }
-
-        if let Some(help) = &self.help {
-            s.push_str(format!("\t# {}", help).as_str());
-        }
-
-        s.push('\n');
 
         s
     }

@@ -51,6 +51,31 @@ pub fn feature_sample_command(name: &'static str) -> Command {
         )
 }
 
+pub fn aliases_command(name: &'static str) -> Command {
+    Command::new(name)
+        .version("3.0")
+        .about("testing nushell completions")
+        .arg(
+            Arg::new("flag")
+                .short('f')
+                .visible_short_alias('F')
+                .long("flag")
+                .action(ArgAction::SetTrue)
+                .visible_alias("flg")
+                .help("cmd flag"),
+        )
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .visible_short_alias('O')
+                .long("option")
+                .visible_alias("opt")
+                .help("cmd option")
+                .action(ArgAction::Set),
+        )
+        .arg(Arg::new("positional"))
+}
+
 pub fn sub_subcommands_command(name: &'static str) -> Command {
     feature_sample_command(name).subcommand(
         Command::new("some_cmd")
