@@ -1,10 +1,105 @@
 //! Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`](https://github.com/clap-rs/clap) based CLIs
 
-use clap::Command;
+use clap::{Arg, Command};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file
 pub struct Nushell;
+
+enum Argument {
+    Short(char),
+    Long(String),
+    ShortAndLong(char, String),
+    Positional(String, bool),
+}
+
+struct ArgumentLine {
+    arg: Argument,
+    takes_values: bool,
+    help: Option<String>,
+}
+
+impl From<&Arg> for ArgumentLine {
+    fn from(arg: &Arg) -> Self {
+        let takes_values = arg
+            .get_num_args()
+            .map(|v| v.takes_values())
+            .unwrap_or(false);
+
+        let help = arg.get_help().map(|s| s.to_string());
+
+        if arg.is_positional() {
+            let id = arg.get_id().to_string();
+            let required = arg.is_required_set();
+            let arg = Argument::Positional(id, required);
+
+            return Self {
+                arg,
+                takes_values,
+                help,
+            };
+        }
+
+        let short = arg.get_short();
+        let long = arg.get_long();
+
+        match short {
+            Some(short) => match long {
+                Some(long) => Self {
+                    arg: Argument::ShortAndLong(short, long.into()),
+                    takes_values,
+                    help,
+                },
+                None => Self {
+                    arg: Argument::Short(short),
+                    takes_values,
+                    help,
+                },
+            },
+            None => match long {
+                Some(long) => Self {
+                    arg: Argument::Long(long.into()),
+                    takes_values,
+                    help,
+                },
+                None => unreachable!("No short or long option found"),
+            },
+        }
+    }
+}
+
+impl ToString for ArgumentLine {
+    fn to_string(&self) -> String {
+        let mut s = String::new();
+
+        match &self.arg {
+            Argument::Short(short) => s.push_str(format!("    -{}", short).as_str()),
+            Argument::Long(long) => s.push_str(format!("    --{}", long).as_str()),
+            Argument::ShortAndLong(short, long) => {
+                s.push_str(format!("    --{}(-{})", long, short).as_str())
+            }
+            Argument::Positional(positional, required) => {
+                s.push_str(format!("    {}", positional).as_str());
+
+                if !*required {
+                    s.push('?');
+                }
+            }
+        }
+
+        if self.takes_values {
+            s.push_str(": string");
+        }
+
+        if let Some(help) = &self.help {
+            s.push_str(format!("\t# {}", help).as_str());
+        }
+
+        s.push('\n');
+
+        s
+    }
+}
 
 impl Generator for Nushell {
     fn file_name(&self, name: &str) -> String {
@@ -37,51 +132,18 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
 
     let bin_name = cmd.get_bin_name().expect("Failed to get bin name");
 
-    if is_subcommand {
-        completions.push_str(format!("  export extern \"{}\" [\n", bin_name).as_str());
+    let name = if is_subcommand {
+        format!(r#""{}""#, bin_name)
     } else {
-        completions.push_str(format!("  export extern {} [\n", bin_name).as_str());
-    }
+        bin_name.into()
+    };
 
-    let mut s = String::new();
-    for arg in cmd.get_arguments() {
-        if arg.is_positional() {
-            s.push_str(format!("    {}", arg.get_id()).as_str());
-            if !arg.is_required_set() {
-                s.push('?');
-            }
-        }
+    completions.push_str(format!("  export extern {} [\n", name).as_str());
 
-        let long = arg.get_long();
-        if let Some(opt) = long {
-            s.push_str(format!("    --{}", opt).as_str());
-        }
-
-        let short = arg.get_short();
-        if let Some(opt) = short {
-            if long.is_some() {
-                s.push_str(format!("(-{})", opt).as_str());
-            } else {
-                s.push_str(format!("    -{}", opt).as_str());
-            }
-        }
-
-        if let Some(v) = arg.get_num_args() {
-            if v.takes_values() {
-                // TODO: add more types?
-                // TODO: add possible values?
-                s.push_str(": string");
-            }
-        }
-
-        if let Some(msg) = arg.get_help() {
-            if arg.is_positional() || long.is_some() || short.is_some() {
-                s.push_str(format!("\t# {}", msg).as_str());
-            }
-        }
-
-        s.push('\n');
-    }
+    let s: String = cmd
+        .get_arguments()
+        .map(|arg| ArgumentLine::from(arg).to_string())
+        .collect();
 
     completions.push_str(&s);
     completions.push_str("  ]\n\n");
