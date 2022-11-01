@@ -114,7 +114,7 @@ impl<'a, 'b> ArgumentLine<'a, 'b> {
             }
         }
 
-        if let Some(help) = &self.help {
+        if let Some(help) = self.help {
             s.push_str(format!("\t# {}", help).as_str());
         }
 
