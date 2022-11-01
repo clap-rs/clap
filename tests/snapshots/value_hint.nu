@@ -1,11 +1,11 @@
 module completions {
 
-  def "my-app choice" [] {
+  def "nu-complete my-app choice" [] {
     [ "bash" "fish" "zsh" ]
   }
 
   export extern my-app [
-    --choice: string@"my-app choice"
+    --choice: string@"nu-complete my-app choice"
     --unknown: string
     --other: string
     --path(-p): string

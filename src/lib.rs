@@ -93,7 +93,7 @@ impl<'a, 'b> ArgumentLine<'a, 'b> {
             return None;
         }
 
-        let mut s = format!(r#"  def "{} {}" [] {{"#, self.name, self.id);
+        let mut s = format!(r#"  def "nu-complete {} {}" [] {{"#, self.name, self.id);
         s.push_str("\n    [");
 
         for value in &self.possible_values {
@@ -110,7 +110,7 @@ impl<'a, 'b> ArgumentLine<'a, 'b> {
             s.push_str(": string");
 
             if !self.possible_values.is_empty() {
-                s.push_str(format!(r#"@"{} {}""#, self.name, self.id).as_str())
+                s.push_str(format!(r#"@"nu-complete {} {}""#, self.name, self.id).as_str())
             }
         }
 

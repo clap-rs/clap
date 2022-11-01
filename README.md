@@ -66,7 +66,7 @@ fn main() {
 ```nu
 module completions {
 
-  def "myapp choice" [] {
+  def "nu-complete myapp choice" [] {
     [ "first" "second" ]
   }
 
@@ -76,7 +76,7 @@ module completions {
     --config(-c)	# some config file
     --conf	# some config file
     -C	# some config file
-    choice?: string@"myapp choice"
+    choice?: string@"nu-complete myapp choice"
     --version(-V)	# Print version information
   ]
 
@@ -91,13 +91,13 @@ module completions {
     --version(-V)	# Print version information
   ]
 
-  def "myapp some_cmd sub_cmd config" [] {
+  def "nu-complete myapp some_cmd sub_cmd config" [] {
     [ "Lest quotes aren't escaped." ]
   }
 
   # sub-subcommand
   export extern "myapp some_cmd sub_cmd" [
-    --config: string@"myapp some_cmd sub_cmd config"	# the other case to test
+    --config: string@"nu-complete myapp some_cmd sub_cmd config"	# the other case to test
     --version(-V)	# Print version information
   ]
 

@@ -1,6 +1,6 @@
 module completions {
 
-  def "my-app choice" [] {
+  def "nu-complete my-app choice" [] {
     [ "first" "second" ]
   }
 
@@ -10,7 +10,7 @@ module completions {
     --config(-c)	# some config file
     --conf	# some config file
     -C	# some config file
-    choice?: string@"my-app choice"
+    choice?: string@"nu-complete my-app choice"
     --version(-V)	# Print version information
   ]
 
@@ -25,13 +25,13 @@ module completions {
     --version(-V)	# Print version information
   ]
 
-  def "my-app some_cmd sub_cmd config" [] {
+  def "nu-complete my-app some_cmd sub_cmd config" [] {
     [ "Lest quotes, aren't escaped." "Second to trigger display of options" ]
   }
 
   # sub-subcommand
   export extern "my-app some_cmd sub_cmd" [
-    --config: string@"my-app some_cmd sub_cmd config"	# the other case to test
+    --config: string@"nu-complete my-app some_cmd sub_cmd config"	# the other case to test
     --version(-V)	# Print version information
   ]
 

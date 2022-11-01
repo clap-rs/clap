@@ -1,6 +1,6 @@
 module completions {
 
-  def "my-app choice" [] {
+  def "nu-complete my-app choice" [] {
     [ "first" "second" ]
   }
 
@@ -10,7 +10,7 @@ module completions {
     --config(-c)	# some config file
     --conf	# some config file
     -C	# some config file
-    choice?: string@"my-app choice"
+    choice?: string@"nu-complete my-app choice"
     --version(-V)	# Print version information
   ]
 
