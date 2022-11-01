@@ -1,4 +1,19 @@
 //! Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`](https://github.com/clap-rs/clap) based CLIs
+//!
+//! ## Example
+//!
+//! ```
+//! use clap::Command;
+//! use clap_complete::generate;
+//! use clap_complete_nushell::Nushell;
+//! use std::io;
+//!
+//! let mut cmd = Command::new("myapp")
+//!     .subcommand(Command::new("test").subcommand(Command::new("config")))
+//!     .subcommand(Command::new("hello"));
+//!
+//! generate(Nushell, &mut cmd, "myapp", &mut io::stdout());
+//! ```
 
 use clap::{
     builder::{PossibleValue, StyledStr},
