@@ -2,6 +2,12 @@
 
 Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`](https://github.com/clap-rs/clap) based CLIs
 
+[![Crates.io](https://img.shields.io/crates/v/clap_complete_nushell)](https://crates.io/crates/clap_complete_nushell)
+[![Crates.io](https://img.shields.io/crates/d/clap_complete_nushell)](https://crates.io/crates/clap_complete_nushell)
+[![License](https://img.shields.io/github/license/nibon7/clap_complete_nushell)](LICENSE)
+[![docs.rs](https://img.shields.io/docsrs/clap_complete_nushell)](https://docs.rs/clap_complete_nushell)
+[![Build Status](https://img.shields.io/github/workflow/status/nibon7/clap_complete_nushell/CI/master)](https://github.com/nibon7/clap_complete_nushell/actions/workflows/ci.yaml?query=branch%3Amaster)
+
 ## Examples
 
 ### myapp.rs
