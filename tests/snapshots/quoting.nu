@@ -1,13 +1,13 @@
 module completions {
 
   export extern my-app [
-    --single-quotes	# Can be 'always', 'auto', or 'never'
-    --double-quotes	# Can be "always", "auto", or "never"
-    --backticks	# For more information see `echo test`
-    --backslash	# Avoid '\n'
-    --brackets	# List packages [filter]
-    --expansions	# Execute the shell command with $SHELL
-    --version(-V)	# Print version information
+    --single-quotes           # Can be 'always', 'auto', or 'never'
+    --double-quotes           # Can be "always", "auto", or "never"
+    --backticks               # For more information see `echo test`
+    --backslash               # Avoid '\n'
+    --brackets                # List packages [filter]
+    --expansions              # Execute the shell command with $SHELL
+    --version(-V)             # Print version information
   ]
 
   # Can be 'always', 'auto', or 'never'

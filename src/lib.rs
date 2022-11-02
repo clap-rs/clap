@@ -74,7 +74,12 @@ impl<'a, 'b> Argument<'a, 'b> {
         }
 
         if let Some(help) = self.arg.get_help() {
-            s.push_str(format!("\t# {}", help).as_str());
+            let max: usize = 30;
+            let mut width = 0;
+            if let Some(line) = s.lines().last() {
+                width = max.saturating_sub(line.len());
+            }
+            s.push_str(format!("{:>width$}# {}", ' ', help,).as_str());
         }
 
         s.push('\n');
