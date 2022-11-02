@@ -15,10 +15,7 @@
 //! generate(Nushell, &mut cmd, "myapp", &mut io::stdout());
 //! ```
 
-use clap::{
-    builder::{PossibleValue, StyledStr},
-    Arg, ArgAction, Command, Id,
-};
+use clap::{Arg, ArgAction, Command};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file
@@ -58,34 +55,6 @@ impl<'a, 'b> Argument<'a, 'b> {
         Self { arg, name }
     }
 
-    fn get_help(&self) -> Option<&StyledStr> {
-        self.arg.get_help()
-    }
-
-    fn get_id(&self) -> &Id {
-        self.arg.get_id()
-    }
-
-    fn get_possible_values(&self) -> Vec<PossibleValue> {
-        self.arg.get_possible_values()
-    }
-
-    fn get_short_and_visiable_aliases(&self) -> Option<Vec<char>> {
-        self.arg.get_short_and_visible_aliases()
-    }
-
-    fn get_long_and_visiable_aliases(&self) -> Option<Vec<&str>> {
-        self.arg.get_long_and_visible_aliases()
-    }
-
-    fn is_positional(&self) -> bool {
-        self.arg.is_positional()
-    }
-
-    fn is_required_set(&self) -> bool {
-        self.arg.is_required_set()
-    }
-
     fn takes_values(&self) -> bool {
         self.arg
             .get_num_args()
@@ -97,12 +66,14 @@ impl<'a, 'b> Argument<'a, 'b> {
         if self.takes_values() {
             s.push_str(": string");
 
-            if !self.get_possible_values().is_empty() {
-                s.push_str(format!(r#"@"nu-complete {} {}""#, self.name, self.get_id()).as_str())
+            if !self.arg.get_possible_values().is_empty() {
+                s.push_str(
+                    format!(r#"@"nu-complete {} {}""#, self.name, self.arg.get_id()).as_str(),
+                )
             }
         }
 
-        if let Some(help) = self.get_help() {
+        if let Some(help) = self.arg.get_help() {
             s.push_str(format!("\t# {}", help).as_str());
         }
 
@@ -110,7 +81,7 @@ impl<'a, 'b> Argument<'a, 'b> {
     }
 
     fn get_values_completion(&self) -> Option<String> {
-        let possible_values = self.get_possible_values();
+        let possible_values = self.arg.get_possible_values();
         if possible_values.is_empty() {
             return None;
         }
@@ -118,7 +89,7 @@ impl<'a, 'b> Argument<'a, 'b> {
         let mut s = format!(
             r#"  def "nu-complete {} {}" [] {{"#,
             self.name,
-            self.get_id()
+            self.arg.get_id()
         );
         s.push_str("\n    [");
 
@@ -141,14 +112,14 @@ impl ToString for Argument<'_, '_> {
     fn to_string(&self) -> String {
         let mut s = String::new();
 
-        if self.is_positional() {
+        if self.arg.is_positional() {
             // rest arguments
             if matches!(self.arg.get_action(), ArgAction::Append) {
-                s.push_str(format!("    ...{}", self.get_id()).as_str());
+                s.push_str(format!("    ...{}", self.arg.get_id()).as_str());
             } else {
-                s.push_str(format!("    {}", self.get_id()).as_str());
+                s.push_str(format!("    {}", self.arg.get_id()).as_str());
 
-                if !self.is_required_set() {
+                if !self.arg.is_required_set() {
                     s.push('?');
                 }
             }
@@ -158,8 +129,8 @@ impl ToString for Argument<'_, '_> {
             return s;
         }
 
-        let shorts = self.get_short_and_visiable_aliases();
-        let longs = self.get_long_and_visiable_aliases();
+        let shorts = self.arg.get_short_and_visible_aliases();
+        let longs = self.arg.get_long_and_visible_aliases();
 
         match shorts {
             Some(shorts) => match longs {
@@ -212,30 +183,28 @@ impl ToString for Argument<'_, '_> {
 }
 
 fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: bool) {
-    let bin_name = cmd.get_bin_name().expect("Failed to get bin name");
+    let name = cmd.get_bin_name().expect("Failed to get bin name");
 
-    for v in cmd
+    for value in cmd
         .get_arguments()
-        .filter_map(|arg| Argument::new(arg, bin_name).get_values_completion())
+        .filter_map(|arg| Argument::new(arg, name).get_values_completion())
     {
-        completions.push_str(&v);
+        completions.push_str(&value);
     }
 
     if let Some(about) = cmd.get_about() {
         completions.push_str(format!("  # {}\n", about).as_str());
     }
 
-    let name = if is_subcommand {
-        format!(r#""{}""#, bin_name)
+    if is_subcommand {
+        completions.push_str(format!("  export extern \"{}\" [\n", name).as_str());
     } else {
-        bin_name.into()
-    };
-
-    completions.push_str(format!("  export extern {} [\n", name).as_str());
+        completions.push_str(format!("  export extern {} [\n", name).as_str());
+    }
 
     let s: String = cmd
         .get_arguments()
-        .map(|arg| Argument::new(arg, bin_name).to_string())
+        .map(|arg| Argument::new(arg, name).to_string())
         .collect();
 
     completions.push_str(&s);
