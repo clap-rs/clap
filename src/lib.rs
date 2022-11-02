@@ -123,7 +123,12 @@ impl<'a, 'b> Argument<'a, 'b> {
         s.push_str("\n    [");
 
         for value in &possible_values {
-            s.push_str(format!(r#" "{}""#, value.get_name()).as_str());
+            let name = value.get_name();
+            if name.contains(|c: char| c.is_whitespace()) {
+                s.push_str(format!(r#" "\"{}\"""#, name).as_str());
+            } else {
+                s.push_str(format!(r#" "{}""#, name).as_str());
+            }
         }
 
         s.push_str(" ]\n  }\n\n");

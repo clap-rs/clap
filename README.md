@@ -13,7 +13,7 @@ Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`]
 ### myapp.rs
 
 ```rust
-use clap::{Arg, ArgAction, Command};
+use clap::{builder::PossibleValue, Arg, ArgAction, Command, ValueHint};
 use clap_complete::generate;
 use clap_complete_nushell::Nushell;
 use std::io;
@@ -25,7 +25,7 @@ fn main() {
         .about("Tests completions")
         .arg(
             Arg::new("file")
-                .value_hint(clap::ValueHint::FilePath)
+                .value_hint(ValueHint::FilePath)
                 .help("some input file"),
         )
         .arg(
@@ -54,9 +54,7 @@ fn main() {
                         Arg::new("config")
                             .long("config")
                             .action(ArgAction::Set)
-                            .value_parser([clap::builder::PossibleValue::new(
-                                "Lest quotes aren't escaped.",
-                            )])
+                            .value_parser([PossibleValue::new("Lest quotes aren't escaped.")])
                             .help("the other case to test"),
                     ),
                 ),
@@ -65,7 +63,6 @@ fn main() {
     generate(Nushell, &mut cmd, "myapp", &mut io::stdout());
 }
 ```
-
 
 ### myapp.nu
 
@@ -98,7 +95,7 @@ module completions {
   ]
 
   def "nu-complete myapp some_cmd sub_cmd config" [] {
-    [ "Lest quotes aren't escaped." ]
+    [ "\"Lest quotes aren't escaped.\"" ]
   }
 
   # sub-subcommand

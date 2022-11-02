@@ -26,7 +26,7 @@ module completions {
   ]
 
   def "nu-complete my-app some_cmd sub_cmd config" [] {
-    [ "Lest quotes, aren't escaped." "Second to trigger display of options" ]
+    [ "\"Lest quotes, aren't escaped.\"" "\"Second to trigger display of options\"" ]
   }
 
   # sub-subcommand
