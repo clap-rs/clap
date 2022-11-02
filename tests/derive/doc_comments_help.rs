@@ -14,7 +14,7 @@
 
 use crate::utils;
 
-use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
+use clap::{builder::StyledStr, CommandFactory, Parser, Subcommand, ValueEnum};
 
 #[test]
 fn doc_comments() {
@@ -124,6 +124,78 @@ fn top_long_doc_comment_both_help_long_help() {
     assert!(!short_help.contains("Or something else"));
     assert!(long_help.contains("DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES"));
     assert!(long_help.contains("Or something else"));
+}
+
+#[test]
+fn md_doc_comment() {
+    /// A remarkable tool
+    ///
+    /// This tool is remarkable becasue its help is generated from **markdown**!
+    ///
+    /// It has some _italic_ text.
+    ///
+    /// This is a [link](https://example.com). (But not in the help output.)
+    ///
+    /// This paragraph has `inline code`.
+    ///
+    /// This is also a paragraph, but unlike the other paragraphs, this one is
+    /// spread across multiple lines. Or at least it is in the markdown.
+    ///
+    // * It contains lists
+    // * `inline code`
+    //
+    // ```plain
+    // It also contains
+    //    fenced
+    //        code blocks.
+    // ```
+    //
+    // # Examples
+    //
+    // It has examples
+    //
+    //     And indented
+    //       code   blocks.
+    //
+    #[derive(Parser, Debug)]
+    //#[command(verbatim_doc_comment)]
+    struct Remarkable {
+        /// Markdown _is_ __also__ handled here.
+        #[arg(long)]
+        foo: bool,
+    }
+
+    let short_snippet = "A remarkable tool";
+    let _long_snippet = "generated from markdown!";
+    let man_snippet = "It has examples";
+
+    let long_colored_snippet = {
+        let mut s = StyledStr::new();
+        // this must contain a complete markdown paragraph
+        // TODO: trim start and end codes to be able to check for smaller snippets
+        s.none("This tool is remarkable becasue its help is generated from ");
+        s.literal("markdown");
+        s.none("!");
+        let ansi = s.ansi();
+        ansi.to_string()
+    };
+
+    let short_help = Remarkable::command().render_help().ansi().to_string();
+
+    //let short_help = utils::get_help::<Remarkable>();
+    assert!(short_help.contains(short_snippet));
+    assert!(!short_help.contains(&long_colored_snippet));
+    assert!(!short_help.contains(man_snippet));
+
+    let long_help = Remarkable::command().render_long_help().ansi().to_string();
+
+    eprintln!("\n%%% LONG_HELP %%%:=====\n{}\n=====\n", long_help);
+    assert!(long_help.contains("A remarkable tool"));
+    assert!(long_help.contains(short_snippet));
+    // TODO: filter style from output and check text content
+    //assert!(long_help.contains(long_snippet));
+    assert!(long_help.contains(&long_colored_snippet));
+    assert!(!long_help.contains(man_snippet));
 }
 
 #[test]

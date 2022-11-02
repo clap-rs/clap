@@ -25,7 +25,7 @@ use syn::{
 };
 
 use crate::attr::*;
-use crate::utils::{inner_type, is_simple_ty, process_doc_comment, Sp, Ty};
+use crate::utils::{inner_type, is_simple_ty, process_doc_comment, process_md_doc_comment, Sp, Ty};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -896,7 +896,14 @@ impl Item {
             })
             .collect();
 
-        let (short, long) = process_doc_comment(comment_parts, name, !self.verbatim_doc_comment);
+        let (short, long) = if self.verbatim_doc_comment {
+            process_doc_comment(comment_parts, name, !self.verbatim_doc_comment)
+        } else if !self.verbatim_doc_comment {
+            // TODO: ^ change to markdown marker or make default?
+            process_md_doc_comment(comment_parts, name)
+        } else {
+            process_md_doc_comment(comment_parts, name)
+        };
         self.doc_comment.extend(short);
         if supports_long_help {
             self.doc_comment.extend(long);
@@ -1191,7 +1198,7 @@ impl Kind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Method {
     name: Ident,
     args: TokenStream,
