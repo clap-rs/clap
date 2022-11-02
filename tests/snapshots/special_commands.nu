@@ -23,7 +23,7 @@ module completions {
   # tests other things
   export extern "my-app some_cmd" [
     --config: string	# the other case to test
-    path?: string
+    ...path: string
     --version(-V)	# Print version information
   ]
 

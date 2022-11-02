@@ -17,7 +17,7 @@
 
 use clap::{
     builder::{PossibleValue, StyledStr},
-    Arg, Command, Id,
+    Arg, ArgAction, Command, Id,
 };
 use clap_complete::Generator;
 
@@ -137,10 +137,15 @@ impl ToString for Argument<'_, '_> {
         let mut s = String::new();
 
         if self.is_positional() {
-            s.push_str(format!("    {}", self.get_id()).as_str());
+            // rest arguments
+            if matches!(self.arg.get_action(), ArgAction::Append) {
+                s.push_str(format!("    ...{}", self.get_id()).as_str());
+            } else {
+                s.push_str(format!("    {}", self.get_id()).as_str());
 
-            if !self.is_required_set() {
-                s.push('?');
+                if !self.is_required_set() {
+                    s.push('?');
+                }
             }
 
             self.append_type_and_help(&mut s);
