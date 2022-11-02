@@ -37,6 +37,18 @@ fn special_commands() {
 }
 
 #[test]
+fn quoting() {
+    let name = "my-app";
+    let cmd = common::quoting_command(name);
+    common::assert_matches_path(
+        "tests/snapshots/quoting.nu",
+        clap_complete_nushell::Nushell,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn aliases() {
     let name = "my-app";
     let cmd = common::aliases_command(name);

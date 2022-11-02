@@ -51,23 +51,72 @@ pub fn feature_sample_command(name: &'static str) -> Command {
         )
 }
 
-pub fn special_commands_command(name: &'static str) -> clap::Command {
+pub fn special_commands_command(name: &'static str) -> Command {
     feature_sample_command(name)
         .subcommand(
-            clap::Command::new("some_cmd")
+            Command::new("some_cmd")
                 .about("tests other things")
                 .arg(
-                    clap::Arg::new("config")
+                    Arg::new("config")
                         .long("config")
                         .hide(true)
-                        .action(clap::ArgAction::Set)
+                        .action(ArgAction::Set)
                         .require_equals(true)
                         .help("the other case to test"),
                 )
-                .arg(clap::Arg::new("path").num_args(1..)),
+                .arg(Arg::new("path").num_args(1..)),
         )
-        .subcommand(clap::Command::new("some-cmd-with-hyphens").alias("hyphen"))
-        .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
+        .subcommand(Command::new("some-cmd-with-hyphens").alias("hyphen"))
+        .subcommand(Command::new("some-hidden-cmd").hide(true))
+}
+
+pub fn quoting_command(name: &'static str) -> Command {
+    Command::new(name)
+        .version("3.0")
+        .arg(
+            Arg::new("single-quotes")
+                .long("single-quotes")
+                .action(ArgAction::SetTrue)
+                .help("Can be 'always', 'auto', or 'never'"),
+        )
+        .arg(
+            Arg::new("double-quotes")
+                .long("double-quotes")
+                .action(ArgAction::SetTrue)
+                .help("Can be \"always\", \"auto\", or \"never\""),
+        )
+        .arg(
+            Arg::new("backticks")
+                .long("backticks")
+                .action(ArgAction::SetTrue)
+                .help("For more information see `echo test`"),
+        )
+        .arg(
+            Arg::new("backslash")
+                .long("backslash")
+                .action(ArgAction::SetTrue)
+                .help("Avoid '\\n'"),
+        )
+        .arg(
+            Arg::new("brackets")
+                .long("brackets")
+                .action(ArgAction::SetTrue)
+                .help("List packages [filter]"),
+        )
+        .arg(
+            Arg::new("expansions")
+                .long("expansions")
+                .action(ArgAction::SetTrue)
+                .help("Execute the shell command with $SHELL"),
+        )
+        .subcommands([
+            Command::new("cmd-single-quotes").about("Can be 'always', 'auto', or 'never'"),
+            Command::new("cmd-double-quotes").about("Can be \"always\", \"auto\", or \"never\""),
+            Command::new("cmd-backticks").about("For more information see `echo test`"),
+            Command::new("cmd-backslash").about("Avoid '\\n'"),
+            Command::new("cmd-brackets").about("List packages [filter]"),
+            Command::new("cmd-expansions").about("Execute the shell command with $SHELL"),
+        ])
 }
 
 pub fn aliases_command(name: &'static str) -> Command {
@@ -116,87 +165,79 @@ pub fn sub_subcommands_command(name: &'static str) -> Command {
     )
 }
 
-pub fn value_hint_command(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
+pub fn value_hint_command(name: &'static str) -> Command {
+    Command::new(name)
         .arg(
-            clap::Arg::new("choice")
+            Arg::new("choice")
                 .long("choice")
-                .action(clap::ArgAction::Set)
+                .action(ArgAction::Set)
                 .value_parser(["bash", "fish", "zsh"]),
         )
         .arg(
-            clap::Arg::new("unknown")
+            Arg::new("unknown")
                 .long("unknown")
-                .value_hint(clap::ValueHint::Unknown),
+                .value_hint(ValueHint::Unknown),
         )
+        .arg(Arg::new("other").long("other").value_hint(ValueHint::Other))
         .arg(
-            clap::Arg::new("other")
-                .long("other")
-                .value_hint(clap::ValueHint::Other),
-        )
-        .arg(
-            clap::Arg::new("path")
+            Arg::new("path")
                 .long("path")
                 .short('p')
-                .value_hint(clap::ValueHint::AnyPath),
+                .value_hint(ValueHint::AnyPath),
         )
         .arg(
-            clap::Arg::new("file")
+            Arg::new("file")
                 .long("file")
                 .short('f')
-                .value_hint(clap::ValueHint::FilePath),
+                .value_hint(ValueHint::FilePath),
         )
         .arg(
-            clap::Arg::new("dir")
+            Arg::new("dir")
                 .long("dir")
                 .short('d')
-                .value_hint(clap::ValueHint::DirPath),
+                .value_hint(ValueHint::DirPath),
         )
         .arg(
-            clap::Arg::new("exe")
+            Arg::new("exe")
                 .long("exe")
                 .short('e')
-                .value_hint(clap::ValueHint::ExecutablePath),
+                .value_hint(ValueHint::ExecutablePath),
         )
         .arg(
-            clap::Arg::new("cmd_name")
+            Arg::new("cmd_name")
                 .long("cmd-name")
-                .value_hint(clap::ValueHint::CommandName),
+                .value_hint(ValueHint::CommandName),
         )
         .arg(
-            clap::Arg::new("cmd")
+            Arg::new("cmd")
                 .long("cmd")
                 .short('c')
-                .value_hint(clap::ValueHint::CommandString),
+                .value_hint(ValueHint::CommandString),
         )
         .arg(
-            clap::Arg::new("command_with_args")
-                .action(clap::ArgAction::Set)
+            Arg::new("command_with_args")
+                .action(ArgAction::Set)
                 .num_args(1..)
                 .trailing_var_arg(true)
-                .value_hint(clap::ValueHint::CommandWithArguments),
+                .value_hint(ValueHint::CommandWithArguments),
         )
         .arg(
-            clap::Arg::new("user")
+            Arg::new("user")
                 .short('u')
                 .long("user")
-                .value_hint(clap::ValueHint::Username),
+                .value_hint(ValueHint::Username),
         )
         .arg(
-            clap::Arg::new("host")
+            Arg::new("host")
                 .short('H')
                 .long("host")
-                .value_hint(clap::ValueHint::Hostname),
+                .value_hint(ValueHint::Hostname),
         )
+        .arg(Arg::new("url").long("url").value_hint(ValueHint::Url))
         .arg(
-            clap::Arg::new("url")
-                .long("url")
-                .value_hint(clap::ValueHint::Url),
-        )
-        .arg(
-            clap::Arg::new("email")
+            Arg::new("email")
                 .long("email")
-                .value_hint(clap::ValueHint::EmailAddress),
+                .value_hint(ValueHint::EmailAddress),
         )
 }
 
