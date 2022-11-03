@@ -1,3 +1,6 @@
+use crate::builder::PossibleValue;
+use crate::derive::ValueEnum;
+
 /// Represents the color preferences for program output
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum ColorChoice {
@@ -58,5 +61,21 @@ pub enum ColorChoice {
 impl Default for ColorChoice {
     fn default() -> Self {
         Self::Auto
+    }
+}
+
+impl ValueEnum for ColorChoice {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::Auto, Self::Always, Self::Never]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Self::Auto => {
+                PossibleValue::new("auto").help("Use colored output if writing to a terminal/TTY")
+            }
+            Self::Always => PossibleValue::new("always").help("Always use colored output"),
+            Self::Never => PossibleValue::new("never").help("Never use colored output"),
+        })
     }
 }
