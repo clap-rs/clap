@@ -15,7 +15,7 @@
 //! generate(Nushell, &mut cmd, "myapp", &mut io::stdout());
 //! ```
 
-use clap::{Arg, ArgAction, Command};
+use clap::{builder::PossibleValue, Arg, ArgAction, Command};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file
@@ -48,11 +48,18 @@ impl Generator for Nushell {
 struct Argument<'a, 'b> {
     arg: &'a Arg,
     name: &'b str,
+    possible_values: Vec<PossibleValue>,
 }
 
 impl<'a, 'b> Argument<'a, 'b> {
     fn new(arg: &'a Arg, name: &'b str) -> Self {
-        Self { arg, name }
+        let possible_values = arg.get_possible_values();
+
+        Self {
+            arg,
+            name,
+            possible_values,
+        }
     }
 
     fn takes_values(&self) -> bool {
@@ -66,7 +73,7 @@ impl<'a, 'b> Argument<'a, 'b> {
         if self.takes_values() {
             s.push_str(": string");
 
-            if !self.arg.get_possible_values().is_empty() {
+            if !self.possible_values.is_empty() {
                 s.push_str(
                     format!(r#"@"nu-complete {} {}""#, self.name, self.arg.get_id()).as_str(),
                 )
@@ -86,8 +93,7 @@ impl<'a, 'b> Argument<'a, 'b> {
     }
 
     fn get_values_completion(&self) -> Option<String> {
-        let possible_values = self.arg.get_possible_values();
-        if possible_values.is_empty() {
+        if self.possible_values.is_empty() {
             return None;
         }
 
@@ -98,7 +104,7 @@ impl<'a, 'b> Argument<'a, 'b> {
         );
         s.push_str("\n    [");
 
-        for value in &possible_values {
+        for value in &self.possible_values {
             let name = value.get_name();
             if name.contains(|c: char| c.is_whitespace()) {
                 s.push_str(format!(r#" "\"{}\"""#, name).as_str());
