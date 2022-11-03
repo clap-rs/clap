@@ -207,12 +207,13 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
         completions.push_str(format!("  export extern {} [\n", name).as_str());
     }
 
-    let s: String = cmd
+    for s in cmd
         .get_arguments()
         .map(|arg| Argument::new(arg, name).to_string())
-        .collect();
+    {
+        completions.push_str(&s);
+    }
 
-    completions.push_str(&s);
     completions.push_str("  ]\n\n");
 
     if is_subcommand {
