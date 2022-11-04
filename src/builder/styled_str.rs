@@ -28,38 +28,56 @@ impl StyledStr {
         AnsiDisplay { styled: self }
     }
 
-    pub(crate) fn header(&mut self, msg: impl Into<String>) {
+    /// Display string as header.
+    pub fn header(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Header), msg.into());
     }
 
-    pub(crate) fn literal(&mut self, msg: impl Into<String>) {
+    /// Display string as literal.
+    pub fn literal(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Literal), msg.into());
     }
 
-    pub(crate) fn placeholder(&mut self, msg: impl Into<String>) {
+    /// Display string as placeholder.
+    pub fn placeholder(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Placeholder), msg.into());
     }
 
     #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
-    pub(crate) fn good(&mut self, msg: impl Into<String>) {
+    /// Display string as good.
+    pub fn good(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Good), msg.into());
     }
 
     #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
-    pub(crate) fn warning(&mut self, msg: impl Into<String>) {
+    /// Display string as warning.
+    pub fn warning(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Warning), msg.into());
     }
 
-    pub(crate) fn error(&mut self, msg: impl Into<String>) {
+    /// Display string as error.
+    pub fn error(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Error), msg.into());
     }
 
     #[allow(dead_code)]
-    pub(crate) fn hint(&mut self, msg: impl Into<String>) {
+    /// Display string as hint.
+    pub fn hint(&mut self, msg: impl Into<String>) {
         self.stylize_(Some(Style::Hint), msg.into());
     }
 
-    pub(crate) fn none(&mut self, msg: impl Into<String>) {
+    /// Display string as code.
+    pub fn code(&mut self, msg: impl Into<String>) {
+        self.stylize_(Some(Style::Code), msg.into());
+    }
+
+    /// Display string as italic.
+    pub fn italic(&mut self, msg: impl Into<String>) {
+        self.stylize_(Some(Style::Italic), msg.into());
+    }
+
+    /// Display string without any defined style.
+    pub fn none(&mut self, msg: impl Into<String>) {
         self.stylize_(None, msg.into());
     }
 
@@ -221,6 +239,12 @@ impl StyledStr {
                 Some(Style::Hint) => {
                     color.set_dimmed(true);
                 }
+                Some(Style::Code) => {
+                    color.set_bold(true);
+                }
+                Some(Style::Italic) => {
+                    color.set_italic(true);
+                }
                 None => {}
             }
 
@@ -329,6 +353,8 @@ pub(crate) enum Style {
     Warning,
     Error,
     Hint,
+    Code,
+    Italic,
 }
 
 impl Style {
@@ -341,6 +367,8 @@ impl Style {
             Self::Warning => 4,
             Self::Error => 5,
             Self::Hint => 6,
+            Self::Code => 7,
+            Self::Italic => 8,
         }
     }
 }

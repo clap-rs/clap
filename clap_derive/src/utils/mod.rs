@@ -3,7 +3,7 @@ mod spanned;
 mod ty;
 
 pub use self::{
-    doc_comments::process_doc_comment,
+    doc_comments::{process_doc_comment, process_md_doc_comment},
     spanned::Sp,
     ty::{inner_type, is_simple_ty, sub_type, subty_if_name, Ty},
 };

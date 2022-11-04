@@ -42,6 +42,7 @@ quote = "1.0.9"
 proc-macro2 = "1.0.42"
 heck = "0.4.0"
 proc-macro-error = "1"
+pulldown-cmark = "0.9"
 
 [features]
 default = []
