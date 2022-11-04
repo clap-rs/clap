@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `ColorChoice` now implements `ValueEnum`
+
 ## [4.0.18] - 2022-10-20
 
 ### Fixes
