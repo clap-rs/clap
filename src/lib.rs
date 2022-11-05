@@ -45,162 +45,133 @@ impl Generator for Nushell {
     }
 }
 
-struct Argument<'a, 'b> {
-    arg: &'a Arg,
-    name: &'b str,
-    possible_values: Vec<PossibleValue>,
-}
+fn append_value_completion_and_help(
+    arg: &Arg,
+    name: &str,
+    possible_values: &Vec<PossibleValue>,
+    s: &mut String,
+) {
+    let takes_values = arg
+        .get_num_args()
+        .map(|r| r.takes_values())
+        .unwrap_or(false);
 
-impl<'a, 'b> Argument<'a, 'b> {
-    fn new(arg: &'a Arg, name: &'b str) -> Self {
-        let possible_values = arg.get_possible_values();
+    if takes_values {
+        s.push_str(": string");
 
-        Self {
-            arg,
-            name,
-            possible_values,
+        if !possible_values.is_empty() {
+            s.push_str(format!(r#"@"nu-complete {} {}""#, name, arg.get_id()).as_str())
         }
     }
 
-    fn takes_values(&self) -> bool {
-        self.arg
-            .get_num_args()
-            .map(|r| r.takes_values())
-            .unwrap_or(false)
+    if let Some(help) = arg.get_help() {
+        let indent: usize = 30;
+        let mut width = 0;
+        if let Some(line) = s.lines().last() {
+            width = indent.saturating_sub(line.len());
+        }
+        s.push_str(format!("{:>width$}# {}", ' ', help).as_str());
     }
 
-    fn append_type_and_help(&self, s: &mut String) {
-        if self.takes_values() {
-            s.push_str(": string");
+    s.push('\n');
+}
 
-            if !self.possible_values.is_empty() {
+fn append_value_completion_defs(arg: &Arg, name: &str, s: &mut String) {
+    let possible_values = arg.get_possible_values();
+    if possible_values.is_empty() {
+        return;
+    }
+
+    s.push_str(format!(r#"  def "nu-complete {} {}" [] {{"#, name, arg.get_id()).as_str());
+    s.push_str("\n    [");
+
+    for value in possible_values {
+        let vname = value.get_name();
+        if vname.contains(|c: char| c.is_whitespace()) {
+            s.push_str(format!(r#" "\"{}\"""#, vname).as_str());
+        } else {
+            s.push_str(format!(r#" "{}""#, vname).as_str());
+        }
+    }
+
+    s.push_str(" ]\n  }\n\n");
+}
+
+fn append_argument(arg: &Arg, name: &str, s: &mut String) {
+    let possible_values = arg.get_possible_values();
+
+    if arg.is_positional() {
+        // rest arguments
+        if matches!(arg.get_action(), ArgAction::Append) {
+            s.push_str(format!("    ...{}", arg.get_id()).as_str());
+        } else {
+            s.push_str(format!("    {}", arg.get_id()).as_str());
+
+            if !arg.is_required_set() {
+                s.push('?');
+            }
+        }
+
+        append_value_completion_and_help(arg, name, &possible_values, s);
+
+        return;
+    }
+
+    let shorts = arg.get_short_and_visible_aliases();
+    let longs = arg.get_long_and_visible_aliases();
+
+    match shorts {
+        Some(shorts) => match longs {
+            Some(longs) => {
+                // short options and long options
                 s.push_str(
-                    format!(r#"@"nu-complete {} {}""#, self.name, self.arg.get_id()).as_str(),
-                )
-            }
-        }
+                    format!(
+                        "    --{}(-{})",
+                        longs.first().expect("At least one long option expected"),
+                        shorts.first().expect("At lease one short option expected")
+                    )
+                    .as_str(),
+                );
+                append_value_completion_and_help(arg, name, &possible_values, s);
 
-        if let Some(help) = self.arg.get_help() {
-            let max: usize = 30;
-            let mut width = 0;
-            if let Some(line) = s.lines().last() {
-                width = max.saturating_sub(line.len());
-            }
-            s.push_str(format!("{:>width$}# {}", ' ', help,).as_str());
-        }
+                // long alias
+                for long in longs.iter().skip(1) {
+                    s.push_str(format!("    --{}", long).as_str());
+                    append_value_completion_and_help(arg, name, &possible_values, s);
+                }
 
-        s.push('\n');
-    }
-
-    fn get_values_completion(&self) -> Option<String> {
-        if self.possible_values.is_empty() {
-            return None;
-        }
-
-        let mut s = format!(
-            r#"  def "nu-complete {} {}" [] {{"#,
-            self.name,
-            self.arg.get_id()
-        );
-        s.push_str("\n    [");
-
-        for value in &self.possible_values {
-            let name = value.get_name();
-            if name.contains(|c: char| c.is_whitespace()) {
-                s.push_str(format!(r#" "\"{}\"""#, name).as_str());
-            } else {
-                s.push_str(format!(r#" "{}""#, name).as_str());
-            }
-        }
-
-        s.push_str(" ]\n  }\n\n");
-
-        Some(s)
-    }
-}
-
-impl ToString for Argument<'_, '_> {
-    fn to_string(&self) -> String {
-        let mut s = String::new();
-
-        if self.arg.is_positional() {
-            // rest arguments
-            if matches!(self.arg.get_action(), ArgAction::Append) {
-                s.push_str(format!("    ...{}", self.arg.get_id()).as_str());
-            } else {
-                s.push_str(format!("    {}", self.arg.get_id()).as_str());
-
-                if !self.arg.is_required_set() {
-                    s.push('?');
+                // short alias
+                for short in shorts.iter().skip(1) {
+                    s.push_str(format!("    -{}", short).as_str());
+                    append_value_completion_and_help(arg, name, &possible_values, s);
                 }
             }
-
-            self.append_type_and_help(&mut s);
-
-            return s;
-        }
-
-        let shorts = self.arg.get_short_and_visible_aliases();
-        let longs = self.arg.get_long_and_visible_aliases();
-
-        match shorts {
-            Some(shorts) => match longs {
-                Some(longs) => {
-                    // short options and long options
-                    s.push_str(
-                        format!(
-                            "    --{}(-{})",
-                            longs.first().expect("At least one long option expected"),
-                            shorts.first().expect("At lease one short option expected")
-                        )
-                        .as_str(),
-                    );
-                    self.append_type_and_help(&mut s);
-
-                    // long alias
-                    for long in longs.iter().skip(1) {
-                        s.push_str(format!("    --{}", long).as_str());
-                        self.append_type_and_help(&mut s);
-                    }
-
-                    // short alias
-                    for short in shorts.iter().skip(1) {
-                        s.push_str(format!("    -{}", short).as_str());
-                        self.append_type_and_help(&mut s);
-                    }
+            None => {
+                // short options only
+                for short in shorts {
+                    s.push_str(format!("    -{}", short).as_str());
+                    append_value_completion_and_help(arg, name, &possible_values, s);
                 }
-                None => {
-                    // short options only
-                    for short in shorts {
-                        s.push_str(format!("    -{}", short).as_str());
-                        self.append_type_and_help(&mut s);
-                    }
+            }
+        },
+        None => match longs {
+            Some(longs) => {
+                // long options only
+                for long in longs {
+                    s.push_str(format!("    --{}", long).as_str());
+                    append_value_completion_and_help(arg, name, &possible_values, s);
                 }
-            },
-            None => match longs {
-                Some(longs) => {
-                    // long options only
-                    for long in longs {
-                        s.push_str(format!("    --{}", long).as_str());
-                        self.append_type_and_help(&mut s);
-                    }
-                }
-                None => unreachable!("No short or long optioin found"),
-            },
-        }
-
-        s
+            }
+            None => unreachable!("No short or long options found"),
+        },
     }
 }
 
 fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: bool) {
     let name = cmd.get_bin_name().expect("Failed to get bin name");
 
-    for value in cmd
-        .get_arguments()
-        .filter_map(|arg| Argument::new(arg, name).get_values_completion())
-    {
-        completions.push_str(&value);
+    for arg in cmd.get_arguments() {
+        append_value_completion_defs(arg, name, completions);
     }
 
     if let Some(about) = cmd.get_about() {
@@ -213,11 +184,8 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
         completions.push_str(format!("  export extern {} [\n", name).as_str());
     }
 
-    for s in cmd
-        .get_arguments()
-        .map(|arg| Argument::new(arg, name).to_string())
-    {
-        completions.push_str(&s);
+    for arg in cmd.get_arguments() {
+        append_argument(arg, name, completions);
     }
 
     completions.push_str("  ]\n\n");
