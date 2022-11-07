@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* `long_about` and `long_help` attributes, without a value, force using doc comment (before it wouldn't be set if there wasn't anything different than the short help)
+
 ## [4.0.20] - 2022-11-07
 
 ### Fixes
