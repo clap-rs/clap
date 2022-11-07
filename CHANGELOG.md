@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Don't overflow into next-line-help early due to stale (pre-v4) padding calculations
+
 ## [4.0.21] - 2022-11-07
 
 ### Features
