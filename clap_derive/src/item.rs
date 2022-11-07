@@ -17,7 +17,7 @@ use std::env;
 use heck::{ToKebabCase, ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
-use quote::{quote, quote_spanned, ToTokens};
+use quote::{format_ident, quote, quote_spanned, ToTokens};
 use syn::DeriveInput;
 use syn::{
     self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, MetaNameValue, Type,
@@ -896,10 +896,27 @@ impl Item {
             })
             .collect();
 
-        let (short, long) = process_doc_comment(comment_parts, name, !self.verbatim_doc_comment);
-        self.doc_comment.extend(short);
-        if supports_long_help {
-            self.doc_comment.extend(long);
+        if let Some((short_help, long_help)) =
+            process_doc_comment(&comment_parts, !self.verbatim_doc_comment)
+        {
+            let short_name = format_ident!("{}", name);
+            let short = Method::new(
+                short_name,
+                short_help
+                    .map(|h| quote!(#h))
+                    .unwrap_or_else(|| quote!(None)),
+            );
+            self.doc_comment.push(short);
+            if supports_long_help {
+                let long_name = format_ident!("long_{}", name);
+                let long = Method::new(
+                    long_name,
+                    long_help
+                        .map(|h| quote!(#h))
+                        .unwrap_or_else(|| quote!(None)),
+                );
+                self.doc_comment.push(long);
+            }
         }
     }
 

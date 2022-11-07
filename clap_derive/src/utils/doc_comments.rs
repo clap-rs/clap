@@ -3,16 +3,12 @@
 //! #[derive(Parser)] works in terms of "paragraphs". Paragraph is a sequence of
 //! non-empty adjacent lines, delimited by sequences of blank (whitespace only) lines.
 
-use crate::item::Method;
-
-use quote::{format_ident, quote};
 use std::iter;
 
 pub fn process_doc_comment(
-    lines: Vec<String>,
-    name: &str,
+    lines: &[String],
     preprocess: bool,
-) -> (Option<Method>, Option<Method>) {
+) -> Option<(Option<String>, Option<String>)> {
     // multiline comments (`/** ... */`) may have LFs (`\n`) in them,
     // we need to split so we could handle the lines correctly
     //
@@ -28,16 +24,13 @@ pub fn process_doc_comment(
     }
 
     if lines.is_empty() {
-        return (None, None);
+        return None;
     }
 
     // remove one leading space no matter what
     for line in lines.iter_mut() {
         *line = line.strip_prefix(' ').unwrap_or(line);
     }
-
-    let short_name = format_ident!("{}", name);
-    let long_name = format_ident!("long_{}", name);
 
     if let Some(first_blank) = lines.iter().position(|s| is_blank(s)) {
         let (short, long) = if preprocess {
@@ -51,10 +44,7 @@ pub fn process_doc_comment(
             (short, long)
         };
 
-        (
-            Some(Method::new(short_name, quote!(#short))),
-            Some(Method::new(long_name, quote!(#long))),
-        )
+        Some((Some(short), Some(long)))
     } else {
         let short = if preprocess {
             let s = merge_lines(&lines);
@@ -63,10 +53,7 @@ pub fn process_doc_comment(
             lines.join("\n")
         };
 
-        (
-            Some(Method::new(short_name, quote!(#short))),
-            Some(Method::new(long_name, quote!(None))),
-        )
+        Some((Some(short), None))
     }
 }
 
