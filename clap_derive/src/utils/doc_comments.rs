@@ -33,9 +33,7 @@ pub fn process_doc_comment(
 
     // remove one leading space no matter what
     for line in lines.iter_mut() {
-        if line.starts_with(' ') {
-            *line = &line[1..];
-        }
+        *line = line.strip_prefix(' ').unwrap_or(line);
     }
 
     let short_name = format_ident!("{}", name);
