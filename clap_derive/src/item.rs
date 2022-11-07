@@ -155,9 +155,6 @@ impl Item {
                         "methods are not allowed for flattened entry"
                     );
                 }
-
-                // ignore doc comments
-                res.doc_comment = vec![];
             }
 
             Kind::Subcommand(_)
@@ -231,9 +228,6 @@ impl Item {
                         "methods are not allowed for flattened entry"
                     );
                 }
-
-                // ignore doc comments
-                res.doc_comment = vec![];
             }
 
             Kind::Subcommand(_) => {
