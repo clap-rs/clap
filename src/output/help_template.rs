@@ -939,7 +939,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         self.none(TAB);
         self.writer.extend(sc_str.into_iter());
         if !next_line_help {
-            self.spaces(width.max(longest + TAB_WIDTH) - width);
+            self.spaces(longest + TAB_WIDTH - width);
         }
     }
 }
