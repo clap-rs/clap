@@ -13,16 +13,16 @@ def generate_preamble [user: string, repo: string] {
   let crates = "https://crates.io"
   let docs = "https://docs.rs"
   let github = "https://github.com"
+  let branch = "main"
 
-  $"# ($repo)
-
-Generates [Nushell]\((generate_url $github nushell/nushell)\) completions for [`clap`]\((generate_url $github clap-rs/clap)\) based CLIs
-
+  $"# ($repo)\n
+Generates [Nushell]\((generate_url $github nushell/nushell)\) completions for [`clap`]\((generate_url $github clap-rs/clap)\) based CLIs\n
 [![Crates.io]\((generate_url $baseurl crates/v $repo)\)]\((generate_url $crates crates $repo)\)
 [![Crates.io]\((generate_url $baseurl crates/d $repo)\)]\((generate_url $crates crates $repo)\)
 [![License]\((generate_url $baseurl github/license $user)/(generate_url $repo)\)]\(LICENSE\)
 [![docs.rs]\((generate_url $baseurl docsrs $repo)\)]\((generate_url $docs $repo)\)
-[![Build Status]\((generate_url $baseurl github/workflow/status $user $repo CI/master)\)]\((generate_url $github $user $repo actions/workflows/ci.yaml?query=branch%3Amaster)\)\n"
+[![Build Status]\((generate_url $baseurl github/workflow/status $user $repo CI $branch)\)]\((generate_url $github $user $repo actions/workflows/ci.yaml?query=branch%3A($branch))\)
+[![GitHub last commit]\((generate_url $baseurl github/last-commit $user $repo)\)]\((generate_url $github $user $repo commits/($branch))\)\n"
 }
 
 def code_to_md [title: string, lang: string, code: string] {
