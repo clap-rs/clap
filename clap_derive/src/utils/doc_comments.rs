@@ -27,15 +27,15 @@ pub fn process_doc_comment(
         lines.pop();
     }
 
+    if lines.is_empty() {
+        return (None, None);
+    }
+
     // remove one leading space no matter what
     for line in lines.iter_mut() {
         if line.starts_with(' ') {
             *line = &line[1..];
         }
-    }
-
-    if lines.is_empty() {
-        return (None, None);
     }
 
     let short_name = format_ident!("{}", name);
