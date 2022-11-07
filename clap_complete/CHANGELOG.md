@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.0.5] - 2022-11-07
+
 ### Features
 
 - Added `Shell::from_env`
@@ -91,7 +93,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.0.4...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.0.5...HEAD
+[4.0.5]: https://github.com/clap-rs/clap/compare/clap_complete-v4.0.4...clap_complete-v4.0.5
 [4.0.4]: https://github.com/clap-rs/clap/compare/clap_complete-v4.0.3...clap_complete-v4.0.4
 [4.0.3]: https://github.com/clap-rs/clap/compare/clap_complete-v4.0.2...clap_complete-v4.0.3
 [4.0.2]: https://github.com/clap-rs/clap/compare/clap_complete-v4.0.1...clap_complete-v4.0.2
