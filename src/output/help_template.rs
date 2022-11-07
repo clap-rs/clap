@@ -689,7 +689,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             // force_next_line
             let h = arg.get_help().unwrap_or_default();
             let h_w = h.display_width() + display_width(spec_vals);
-            let taken = longest + 12;
+            let taken = if arg.is_positional() {
+                longest + TAB_WIDTH * 2
+            } else {
+                longest + TAB_WIDTH * 2 + 4 // See `fn short` for the 4
+            };
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
                 && h_w > (self.term_w - taken)
@@ -925,7 +929,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             // force_next_line
             let h = cmd.get_about().unwrap_or_default();
             let h_w = h.display_width() + display_width(spec_vals);
-            let taken = longest + 12;
+            let taken = longest + TAB_WIDTH * 2;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
                 && h_w > (self.term_w - taken)
@@ -939,7 +943,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         self.none(TAB);
         self.writer.extend(sc_str.into_iter());
         if !next_line_help {
-            self.spaces(width.max(longest + TAB_WIDTH) - width);
+            self.spaces(longest + TAB_WIDTH - width);
         }
     }
 }

@@ -355,17 +355,14 @@ fn wrapped_help() {
 Usage: test [OPTIONS]
 
 Options:
-  -a, --all
-          Also do versioning for private crates (will not be
-          published)
-      --exact
-          Specify inter dependency version numbers exactly with `=`
-      --no-git-commit
-          Do not commit version changes
-      --no-git-push
-          Do not push generated commit and tags to git remote
-  -h, --help
-          Print help information
+  -a, --all            Also do versioning for private crates (will
+                       not be published)
+      --exact          Specify inter dependency version numbers
+                       exactly with `=`
+      --no-git-commit  Do not commit version changes
+      --no-git-push    Do not push generated commit and tags to git
+                       remote
+  -h, --help           Print help information
 ";
     let cmd = Command::new("test")
         .term_width(67)
