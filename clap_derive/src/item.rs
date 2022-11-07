@@ -19,13 +19,10 @@ use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{format_ident, quote, quote_spanned, ToTokens};
 use syn::DeriveInput;
-use syn::{
-    self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, MetaNameValue, Type,
-    Variant,
-};
+use syn::{self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, Type, Variant};
 
 use crate::attr::*;
-use crate::utils::{inner_type, is_simple_ty, process_doc_comment, Sp, Ty};
+use crate::utils::{extract_doc_comment, format_doc_comment, inner_type, is_simple_ty, Sp, Ty};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -873,26 +870,10 @@ impl Item {
     }
 
     fn push_doc_comment(&mut self, attrs: &[Attribute], short_name: &str, long_name: Option<&str>) {
-        use syn::Lit::*;
-        use syn::Meta::*;
+        let lines = extract_doc_comment(attrs);
 
-        let comment_parts: Vec<_> = attrs
-            .iter()
-            .filter(|attr| attr.path.is_ident("doc"))
-            .filter_map(|attr| {
-                if let Ok(NameValue(MetaNameValue { lit: Str(s), .. })) = attr.parse_meta() {
-                    Some(s.value())
-                } else {
-                    // non #[doc = "..."] attributes are not our concern
-                    // we leave them for rustc to handle
-                    None
-                }
-            })
-            .collect();
-
-        if let Some((short_help, long_help)) =
-            process_doc_comment(&comment_parts, !self.verbatim_doc_comment)
-        {
+        if !lines.is_empty() {
+            let (short_help, long_help) = format_doc_comment(&lines, !self.verbatim_doc_comment);
             let short_name = format_ident!("{}", short_name);
             let short = Method::new(
                 short_name,
