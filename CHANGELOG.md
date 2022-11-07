@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)*  Allow defaulted value parser for '()' fields
+
 ## [4.0.19] - 2022-11-04
 
 ### Features
