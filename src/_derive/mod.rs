@@ -154,8 +154,9 @@
 //!     - **TIP:** When a doc comment is also present, you most likely want to add
 //!       `#[arg(long_about = None)]` to clear the doc comment so only [`about`][crate::Command::about]
 //!       gets shown with both `-h` and `--help`.
-//! - `long_about = <expr>`: [`Command::long_about`][crate::Command::long_about]
+//! - `long_about[ = <expr>]`: [`Command::long_about`][crate::Command::long_about]
 //!   - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
+//!   - When present without a value: [Doc comment](#doc-comments)
 //! - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to [`about`][crate::Command::about] / [`long_about`][crate::Command::long_about]
 //! - `next_display_order`: [`Command::next_display_order`][crate::Command::next_display_order]
 //! - `next_help_heading`: [`Command::next_help_heading`][crate::Command::next_help_heading]
@@ -200,8 +201,9 @@
 //!   - When not present: will auto-select an action based on the field type
 //! - `help = <expr>`: [`Arg::help`][crate::Arg::help]
 //!   - When not present: [Doc comment summary](#doc-comments)
-//! - `long_help = <expr>`: [`Arg::long_help`][crate::Arg::long_help]
+//! - `long_help[ = <expr>]`: [`Arg::long_help`][crate::Arg::long_help]
 //!   - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
+//!   - When present without a value: [Doc comment](#doc-comments)
 //! - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to [`help`][crate::Arg::help] / [`long_help`][crate::Arg::long_help]
 //! - `short [= <char>]`: [`Arg::short`][crate::Arg::short]
 //!   - When not present: no short set

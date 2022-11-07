@@ -296,10 +296,10 @@ fn force_long_help() {
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz.
-        #[arg(short, long)]
+        #[arg(short, long, long_help)]
         foo: bool,
     }
 
     let help = utils::get_long_help::<LoremIpsum>();
-    assert!(help.contains("Fooify a bar and a baz"));
+    assert!(help.contains("Fooify a bar and a baz."));
 }

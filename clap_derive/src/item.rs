@@ -43,6 +43,7 @@ pub struct Item {
     value_parser: Option<ValueParser>,
     action: Option<Action>,
     verbatim_doc_comment: bool,
+    force_long_help: bool,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
     is_enum: bool,
@@ -266,6 +267,7 @@ impl Item {
             value_parser: None,
             action: None,
             verbatim_doc_comment: false,
+            force_long_help: false,
             next_display_order: None,
             next_help_heading: None,
             is_enum: false,
@@ -502,6 +504,18 @@ impl Item {
                     {
                         self.methods.push(method);
                     }
+                }
+
+                Some(MagicAttrName::LongAbout) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Command]);
+
+                    self.force_long_help = true;
+                }
+
+                Some(MagicAttrName::LongHelp) if attr.value.is_none() => {
+                    assert_attr_kind(attr, &[AttrKind::Arg]);
+
+                    self.force_long_help = true;
                 }
 
                 Some(MagicAttrName::Author) if attr.value.is_none() => {
@@ -820,6 +834,8 @@ impl Item {
                 | Some(MagicAttrName::Long)
                 | Some(MagicAttrName::Env)
                 | Some(MagicAttrName::About)
+                | Some(MagicAttrName::LongAbout)
+                | Some(MagicAttrName::LongHelp)
                 | Some(MagicAttrName::Author)
                 | Some(MagicAttrName::Version)
                  => {
@@ -873,7 +889,8 @@ impl Item {
         let lines = extract_doc_comment(attrs);
 
         if !lines.is_empty() {
-            let (short_help, long_help) = format_doc_comment(&lines, !self.verbatim_doc_comment);
+            let (short_help, long_help) =
+                format_doc_comment(&lines, !self.verbatim_doc_comment, self.force_long_help);
             let short_name = format_ident!("{}", short_name);
             let short = Method::new(
                 short_name,

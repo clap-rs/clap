@@ -47,7 +47,11 @@ pub fn extract_doc_comment(attrs: &[syn::Attribute]) -> Vec<String> {
     lines
 }
 
-pub fn format_doc_comment(lines: &[String], preprocess: bool) -> (Option<String>, Option<String>) {
+pub fn format_doc_comment(
+    lines: &[String],
+    preprocess: bool,
+    force_long: bool,
+) -> (Option<String>, Option<String>) {
     if let Some(first_blank) = lines.iter().position(|s| is_blank(s)) {
         let (short, long) = if preprocess {
             let paragraphs = split_paragraphs(lines);
@@ -62,14 +66,18 @@ pub fn format_doc_comment(lines: &[String], preprocess: bool) -> (Option<String>
 
         (Some(short), Some(long))
     } else {
-        let short = if preprocess {
-            let s = merge_lines(lines);
-            remove_period(s)
+        let (short, long) = if preprocess {
+            let short = merge_lines(lines);
+            let long = force_long.then(|| short.clone());
+            let short = remove_period(short);
+            (short, long)
         } else {
-            lines.join("\n")
+            let short = lines.join("\n");
+            let long = force_long.then(|| short.clone());
+            (short, long)
         };
 
-        (Some(short), None)
+        (Some(short), long)
     }
 }
 
