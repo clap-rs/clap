@@ -233,9 +233,9 @@ pub fn gen_augment(
 
                 let implicit_methods = match **ty {
                     Ty::Unit => {
+                        // Leaving out `value_parser` as it will always fail
                         quote_spanned! { ty.span()=>
                             .value_name(#value_name)
-                            #value_parser
                             #action
                         }
                     }

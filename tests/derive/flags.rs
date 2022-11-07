@@ -281,3 +281,54 @@ fn override_implicit_from_flag_positional() {
         Opt::try_parse_from(&["test", "true"]).unwrap()
     );
 }
+
+#[test]
+fn unit_for_negation() {
+    #[derive(Parser, PartialEq, Eq, Debug)]
+    struct Opt {
+        #[arg(long)]
+        arg: bool,
+        #[arg(long, action = ArgAction::SetTrue, overrides_with = "arg")]
+        no_arg: (),
+    }
+
+    assert_eq!(
+        Opt {
+            arg: false,
+            no_arg: ()
+        },
+        Opt::try_parse_from(&["test"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: true,
+            no_arg: ()
+        },
+        Opt::try_parse_from(&["test", "--arg"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: false,
+            no_arg: ()
+        },
+        Opt::try_parse_from(&["test", "--no-arg"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: true,
+            no_arg: ()
+        },
+        Opt::try_parse_from(&["test", "--no-arg", "--arg"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: false,
+            no_arg: ()
+        },
+        Opt::try_parse_from(&["test", "--arg", "--no-arg"]).unwrap()
+    );
+}
