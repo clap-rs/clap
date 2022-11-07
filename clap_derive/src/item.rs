@@ -67,7 +67,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
-        res.push_doc_comment(attrs, "about", true);
+        res.push_doc_comment(attrs, "about", Some("long_about"));
 
         res
     }
@@ -84,7 +84,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(attrs);
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
-        res.push_doc_comment(attrs, "about", true);
+        res.push_doc_comment(attrs, "about", Some("long_about"));
 
         res
     }
@@ -144,7 +144,7 @@ impl Item {
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         if matches!(&*res.kind, Kind::Command(_) | Kind::Subcommand(_)) {
-            res.push_doc_comment(&variant.attrs, "about", true);
+            res.push_doc_comment(&variant.attrs, "about", Some("long_about"));
         }
 
         match &*res.kind {
@@ -189,7 +189,7 @@ impl Item {
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         if matches!(&*res.kind, Kind::Value) {
-            res.push_doc_comment(&variant.attrs, "help", false);
+            res.push_doc_comment(&variant.attrs, "help", None);
         }
 
         res
@@ -217,7 +217,7 @@ impl Item {
         res.infer_kind(&parsed_attrs);
         res.push_attrs(&parsed_attrs);
         if matches!(&*res.kind, Kind::Arg(_)) {
-            res.push_doc_comment(&field.attrs, "help", true);
+            res.push_doc_comment(&field.attrs, "help", Some("long_help"));
         }
 
         match &*res.kind {
@@ -872,7 +872,7 @@ impl Item {
         }
     }
 
-    fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str, supports_long_help: bool) {
+    fn push_doc_comment(&mut self, attrs: &[Attribute], short_name: &str, long_name: Option<&str>) {
         use syn::Lit::*;
         use syn::Meta::*;
 
@@ -893,7 +893,7 @@ impl Item {
         if let Some((short_help, long_help)) =
             process_doc_comment(&comment_parts, !self.verbatim_doc_comment)
         {
-            let short_name = format_ident!("{}", name);
+            let short_name = format_ident!("{}", short_name);
             let short = Method::new(
                 short_name,
                 short_help
@@ -901,8 +901,8 @@ impl Item {
                     .unwrap_or_else(|| quote!(None)),
             );
             self.doc_comment.push(short);
-            if supports_long_help {
-                let long_name = format_ident!("long_{}", name);
+            if let Some(long_name) = long_name {
+                let long_name = format_ident!("{}", long_name);
                 let long = Method::new(
                     long_name,
                     long_help
