@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `Shell::from_env`
+
 ## [4.0.4] - 2022-11-07
 
 ## [4.0.3] - 2022-10-18
