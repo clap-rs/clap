@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.0.21] - 2022-11-07
+
 ### Features
 
 - *(derive)* `long_about` and `long_help` attributes, without a value, force using doc comment (before it wouldn't be set if there wasn't anything different than the short help)
@@ -3983,7 +3985,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.20...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.21...HEAD
+[4.0.21]: https://github.com/clap-rs/clap/compare/v4.0.20...v4.0.21
 [4.0.20]: https://github.com/clap-rs/clap/compare/v4.0.19...v4.0.20
 [4.0.19]: https://github.com/clap-rs/clap/compare/v4.0.18...v4.0.19
 [4.0.18]: https://github.com/clap-rs/clap/compare/v4.0.17...v4.0.18
