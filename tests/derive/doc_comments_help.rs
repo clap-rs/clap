@@ -288,3 +288,18 @@ Options:
 ";
     utils::assert_output::<Cmd>("cmd --help", OUTPUT, false);
 }
+
+#[test]
+fn force_long_help() {
+    /// Lorem ipsum
+    #[derive(Parser, PartialEq, Debug)]
+    struct LoremIpsum {
+        /// Fooify a bar
+        /// and a baz.
+        #[arg(short, long, long_help)]
+        foo: bool,
+    }
+
+    let help = utils::get_long_help::<LoremIpsum>();
+    assert!(help.contains("Fooify a bar and a baz."));
+}
