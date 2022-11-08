@@ -4287,7 +4287,7 @@ impl Command {
                         .action(ArgAction::Append)
                         .num_args(..)
                         .value_name("COMMAND")
-                        .help("The subcommand whose help message to display"),
+                        .help("Print help for the subcommand(s)"),
                 )
             };
             self._propagate_subcommand(&mut help_subcmd);
