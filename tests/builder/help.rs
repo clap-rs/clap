@@ -1989,7 +1989,7 @@ Print this message or the help of the given subcommand(s)
 Usage: myapp help [COMMAND]...
 
 Arguments:
-  [COMMAND]...  The subcommand whose help message to display
+  [COMMAND]...  Print help for the subcommand(s)
 ";
 
     let cmd = Command::new("myapp")
@@ -2006,7 +2006,7 @@ Print this message or the help of the given subcommand(s)
 Usage: myapp subcmd help [COMMAND]...
 
 Arguments:
-  [COMMAND]...  The subcommand whose help message to display
+  [COMMAND]...  Print help for the subcommand(s)
 ";
 
     let cmd = Command::new("myapp")
@@ -2054,7 +2054,7 @@ Print this message or the help of the given subcommand(s)
 Usage: myapp help [COMMAND]...
 
 Arguments:
-  [COMMAND]...  The subcommand whose help message to display
+  [COMMAND]...  Print help for the subcommand(s)
 ";
 
     let cmd = Command::new("myapp")
@@ -2561,7 +2561,7 @@ Print this message or the help of the given subcommand(s)
 Usage: example help [COMMAND]...
 
 Arguments:
-  [COMMAND]...  The subcommand whose help message to display
+  [COMMAND]...  Print help for the subcommand(s)
 ",
         false,
     );
@@ -2603,7 +2603,7 @@ Print this message or the help of the given subcommand(s)
 Usage: example help [COMMAND]...
 
 Arguments:
-  [COMMAND]...  The subcommand whose help message to display
+  [COMMAND]...  Print help for the subcommand(s)
 ",
         false,
     );
