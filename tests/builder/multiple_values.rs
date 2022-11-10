@@ -1570,3 +1570,10 @@ fn issue_2229() {
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
+
+#[test]
+#[should_panic = "Argument 'pos` is positional, it must take a value"]
+fn disallow_positionals_without_values() {
+    let cmd = Command::new("test").arg(Arg::new("pos").num_args(0));
+    cmd.debug_assert();
+}
