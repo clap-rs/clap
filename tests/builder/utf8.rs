@@ -101,6 +101,28 @@ fn invalid_utf8_strict_option_long_equals() {
 }
 
 #[test]
+fn invalid_utf8_strict_invalid_short() {
+    let m = Command::new("bad_utf8").try_get_matches_from(vec![
+        OsString::from(""),
+        OsString::from("-a"),
+        OsString::from_vec(vec![0xe9]),
+    ]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn invalid_utf8_strict_invalid_long() {
+    let m = Command::new("bad_utf8").try_get_matches_from(vec![
+        OsString::from(""),
+        OsString::from("--arg"),
+        OsString::from_vec(vec![0xe9]),
+    ]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
+}
+
+#[test]
 fn invalid_utf8_positional() {
     let r = Command::new("bad_utf8")
         .arg(Arg::new("arg").value_parser(value_parser!(OsString)))

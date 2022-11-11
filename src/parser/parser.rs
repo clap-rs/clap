@@ -20,7 +20,7 @@ use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::Id;
 use crate::ArgAction;
-use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
+use crate::INTERNAL_ERROR_MSG;
 
 pub(crate) struct Parser<'cmd> {
     cmd: &'cmd mut Command,
@@ -171,10 +171,8 @@ impl<'cmd> Parser<'cmd> {
                         }
                         ParseResult::NoMatchingArg { arg } => {
                             let _ = self.resolve_pending(matcher);
-                            let remaining_args: Vec<_> = raw_args
-                                .remaining(&mut args_cursor)
-                                .map(|x| x.to_str().expect(INVALID_UTF8))
-                                .collect();
+                            let remaining_args: Vec<_> =
+                                raw_args.remaining(&mut args_cursor).collect();
                             return Err(self.did_you_mean_error(
                                 &arg,
                                 matcher,
@@ -1523,7 +1521,7 @@ impl<'cmd> Parser<'cmd> {
         &mut self,
         arg: &str,
         matcher: &mut ArgMatcher,
-        remaining_args: &[&str],
+        remaining_args: &[&OsStr],
         trailing_values: bool,
     ) -> ClapError {
         debug!("Parser::did_you_mean_error: arg={}", arg);
