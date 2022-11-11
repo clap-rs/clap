@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't panic on reporting invalid-long errors when followed by invalid UTF8
+- *(help)* Clarified argument to `help` subcommand
+
 ## [4.0.22] - 2022-11-07
 
 ### Fixes
