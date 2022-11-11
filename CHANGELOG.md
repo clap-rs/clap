@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.0.23] - 2022-11-11
+
 ### Fixes
 
 - Don't panic on reporting invalid-long errors when followed by invalid UTF8
@@ -3996,7 +3998,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.22...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.23...HEAD
+[4.0.23]: https://github.com/clap-rs/clap/compare/v4.0.22...v4.0.23
 [4.0.22]: https://github.com/clap-rs/clap/compare/v4.0.21...v4.0.22
 [4.0.21]: https://github.com/clap-rs/clap/compare/v4.0.20...v4.0.21
 [4.0.20]: https://github.com/clap-rs/clap/compare/v4.0.19...v4.0.20
