@@ -112,7 +112,6 @@ fn invalid_utf8_strict_invalid_short() {
 }
 
 #[test]
-#[should_panic]
 fn invalid_utf8_strict_invalid_long() {
     let m = Command::new("bad_utf8").try_get_matches_from(vec![
         OsString::from(""),

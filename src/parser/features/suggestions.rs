@@ -35,7 +35,7 @@ where
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 pub(crate) fn did_you_mean_flag<'a, 'help, I, T>(
     arg: &str,
-    remaining_args: &[&str],
+    remaining_args: &[&std::ffi::OsStr],
     longs: I,
     subcommands: impl IntoIterator<Item = &'a mut Command>,
 ) -> Option<(String, Option<String>)>
