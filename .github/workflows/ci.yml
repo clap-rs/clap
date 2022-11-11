@@ -1,0 +1,66 @@
+name: CI
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '00 04 * * *'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lints:
+    name: Lints
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install latest stable
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        components: rustfmt, clippy
+        override: true
+
+    - name: Rustfmt
+      uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --all -- --check
+
+    - name: Check
+      uses: actions-rs/cargo@v1
+      with:
+        command: check
+        args: --workspace --all-targets --examples --tests
+
+    - name: Clippy
+      uses: actions-rs/cargo@v1
+      with:
+        command: clippy
+        args: --workspace --all-targets --examples --tests -- -D warnings
+
+    - name: Test
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --workspace --all-targets --all-features
+
+  check_scripts:
+    name: Check nushell scripts
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: hustcer/setup-nu@v3
+      with:
+        check-latest: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - run: |
+        echo "Nushell version: $(nu -c '(version).version')"
+        for i in tests/snapshots/*.nu; do nu -c "print -n $'(ansi green)Checking $i ...'; ansi reset; source $i"; done
+      shell: bash
