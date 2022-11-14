@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Avoid panic when printing an argument that isn't built
+
 ## [4.0.23] - 2022-11-11
 
 ### Fixes
