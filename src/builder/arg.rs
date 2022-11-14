@@ -4183,7 +4183,7 @@ impl Arg {
     fn render_arg_val(&self, required: bool) -> String {
         let mut rendered = String::new();
 
-        let num_vals = self.get_num_args().expect(INTERNAL_ERROR_MSG);
+        let num_vals = self.get_num_args().unwrap_or_else(|| 1.into());
 
         let mut val_names = if self.val_names.is_empty() {
             vec![self.id.as_internal_str().to_owned()]
