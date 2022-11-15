@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(error)* Report available subcommands when required subcommand is missing
+
 ## [4.0.24] - 2022-11-14
 
 ### Fixes
