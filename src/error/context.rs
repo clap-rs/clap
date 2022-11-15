@@ -9,6 +9,8 @@ pub enum ContextKind {
     InvalidArg,
     /// Existing arguments
     PriorArg,
+    /// Accepted subcommands
+    ValidSubcommand,
     /// Accepted values
     ValidValue,
     /// Rejected values
@@ -44,6 +46,7 @@ impl ContextKind {
             Self::InvalidSubcommand => Some("Invalid Subcommand"),
             Self::InvalidArg => Some("Invalid Argument"),
             Self::PriorArg => Some("Prior Argument"),
+            Self::ValidSubcommand => Some("Value Subcommand"),
             Self::ValidValue => Some("Value Value"),
             Self::InvalidValue => Some("Invalid Value"),
             Self::ActualNumValues => Some("Actual Number of Values"),

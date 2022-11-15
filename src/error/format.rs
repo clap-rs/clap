@@ -227,6 +227,24 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 styled.none("'");
                 styled.warning(invalid_sub);
                 styled.none("' requires a subcommand but one was not provided");
+
+                let possible_values = error.get(ContextKind::ValidSubcommand);
+                if let Some(ContextValue::Strings(possible_values)) = possible_values {
+                    if !possible_values.is_empty() {
+                        styled.none("\n");
+                        styled.none(TAB);
+                        styled.none("[subcommands: ");
+                        if let Some((last, elements)) = possible_values.split_last() {
+                            for v in elements {
+                                styled.good(escape(v));
+                                styled.none(", ");
+                            }
+                            styled.good(escape(last));
+                        }
+                        styled.none("]");
+                    }
+                }
+
                 true
             } else {
                 false

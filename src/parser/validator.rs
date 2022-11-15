@@ -70,6 +70,10 @@ impl<'cmd> Validator<'cmd> {
             return Err(Error::missing_subcommand(
                 self.cmd,
                 bn.to_string(),
+                self.cmd
+                    .all_subcommand_names()
+                    .map(|s| s.to_owned())
+                    .collect::<Vec<_>>(),
                 Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),

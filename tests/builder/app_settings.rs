@@ -63,6 +63,7 @@ fn sub_command_required() {
 fn sub_command_required_error() {
     static ERROR: &str = "\
 error: 'sc_required' requires a subcommand but one was not provided
+  [subcommands: sub1, help]
 
 Usage: sc_required <COMMAND>
 
