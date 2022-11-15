@@ -504,17 +504,21 @@ impl<F: ErrorFormatter> Error<F> {
 
     pub(crate) fn missing_subcommand(
         cmd: &Command,
-        name: String,
+        parent: String,
+        available: Vec<String>,
         usage: Option<StyledStr>,
     ) -> Self {
         let mut err = Self::new(ErrorKind::MissingSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
         {
-            err = err.extend_context_unchecked([(
-                ContextKind::InvalidSubcommand,
-                ContextValue::String(name),
-            )]);
+            err = err.extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::String(parent)),
+                (
+                    ContextKind::ValidSubcommand,
+                    ContextValue::Strings(available),
+                ),
+            ]);
             if let Some(usage) = usage {
                 err = err
                     .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
