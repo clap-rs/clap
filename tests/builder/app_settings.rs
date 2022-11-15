@@ -59,6 +59,23 @@ fn sub_command_required() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
+fn sub_command_required_error() {
+    static ERROR: &str = "\
+error: 'sc_required' requires a subcommand but one was not provided
+
+Usage: sc_required <COMMAND>
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("sc_required")
+        .subcommand_required(true)
+        .subcommand(Command::new("sub1"));
+    utils::assert_output(cmd, "sc_required", ERROR, true);
+}
+
+#[test]
 fn arg_required_else_help() {
     let result = Command::new("arg_required")
         .arg_required_else_help(true)
