@@ -101,7 +101,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 let (current_width, _h) = dimensions();
                 let current_width = current_width.unwrap_or(100);
                 let max_width = match cmd.get_max_term_width() {
-                    None | Some(0) => usize::MAX,
+                    None | Some(0) => 100,
                     Some(mw) => mw,
                 };
                 cmp::min(current_width, max_width)
