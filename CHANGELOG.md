@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Fix typos in `ContextKind::as_str`
+
 ## [4.0.25] - 2022-11-15
 
 ### Features
