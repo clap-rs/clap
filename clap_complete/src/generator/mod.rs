@@ -193,7 +193,7 @@ where
 ///
 /// # Examples
 ///
-/// Assuming a separate `cli.rs` like the [example above](generate_to()),
+/// Assuming a separate `cli.rs` like the [`generate_to` example](generate_to()),
 /// we can let users generate a completion script using a command:
 ///
 /// ```ignore
