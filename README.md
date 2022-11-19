@@ -6,7 +6,7 @@ Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`]
 [![Crates.io](https://img.shields.io/crates/d/clap_complete_nushell)](https://crates.io/crates/clap_complete_nushell)
 [![License](https://img.shields.io/github/license/nibon7/clap_complete_nushell)](LICENSE)
 [![docs.rs](https://img.shields.io/docsrs/clap_complete_nushell)](https://docs.rs/clap_complete_nushell)
-[![Build Status](https://img.shields.io/github/workflow/status/nibon7/clap_complete_nushell/CI/main)](https://github.com/nibon7/clap_complete_nushell/actions/workflows/ci.yaml?query=branch%3Amain)
+[![Build Status](https://img.shields.io/github/workflow/status/nibon7/clap_complete_nushell/CI/main)](https://github.com/nibon7/clap_complete_nushell/actions/workflows/ci.yml?query=branch%3Amain)
 [![GitHub last commit](https://img.shields.io/github/last-commit/nibon7/clap_complete_nushell)](https://github.com/nibon7/clap_complete_nushell/commits/main)
 
 ## Examples

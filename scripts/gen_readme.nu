@@ -21,8 +21,8 @@ Generates [Nushell]\((generate_url $github nushell/nushell)\) completions for [`
 [![Crates.io]\((generate_url $baseurl crates/d $repo)\)]\((generate_url $crates crates $repo)\)
 [![License]\((generate_url $baseurl github/license $user)/(generate_url $repo)\)]\(LICENSE\)
 [![docs.rs]\((generate_url $baseurl docsrs $repo)\)]\((generate_url $docs $repo)\)
-[![Build Status]\((generate_url $baseurl github/workflow/status $user $repo CI $branch)\)]\((generate_url $github $user $repo actions/workflows/ci.yaml?query=branch%3A($branch))\)
-[![GitHub last commit]\((generate_url $baseurl github/last-commit $user $repo)\)]\((generate_url $github $user $repo commits/($branch))\)\n"
+[![Build Status]\((generate_url $baseurl github/workflow/status $user $repo CI $branch)\)]\((generate_url $github $user $repo actions/workflows/ci.yml?query=branch%3A($branch))\)
+[![GitHub last commit]\((generate_url $baseurl github/last-commit $user $repo)\)]\((generate_url $github $user $repo commits/($branch))\)\n\n"
 }
 
 def code_to_md [title: string, lang: string, code: string] {
@@ -39,8 +39,8 @@ def generate_md [file: path] {
   let rust_example = (code_to_md myapp.rs rust $rust_code)
   let nu_example = (code_to_md myapp.nu nu $nu_code)
 
-  |generate_preamble $user $repo
-  |[$in]
+  generate_preamble $user $repo
+  |lines
   |append "## Examples\n"
   |append $rust_example
   |append $nu_example
