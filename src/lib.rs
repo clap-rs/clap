@@ -66,10 +66,11 @@ fn append_value_completion_and_help(
 
     if let Some(help) = arg.get_help() {
         let indent: usize = 30;
-        let mut width = 0;
-        if let Some(line) = s.lines().last() {
-            width = indent.saturating_sub(line.len());
-        }
+        let width = match s.lines().last() {
+            Some(line) => indent.saturating_sub(line.len()),
+            None => 0,
+        };
+
         s.push_str(format!("{:>width$}# {}", ' ', help).as_str());
     }
 
