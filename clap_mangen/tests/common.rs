@@ -312,3 +312,17 @@ pub fn possible_values_command(name: &'static str) -> clap::Command {
                 ]),
         )
 }
+
+/// Checks to make sure boolean valued "Flag options" do not generate
+/// suggestions for a parameter. i.e:
+///     --boolean_flag=BOOLEAN_FLAG
+///
+/// This is both confusing and suggest erroneous behavior as clap will fail if you
+/// pass a value to a boolean flag
+pub fn flag_without_value(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("is_bool")
+            .long("is_bool")
+            .action(clap::ArgAction::SetTrue),
+    )
+}

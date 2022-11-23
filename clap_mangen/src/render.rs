@@ -99,9 +99,11 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             (None, None) => vec![],
         };
 
-        if let Some(value) = &opt.get_value_names() {
-            header.push(roman("="));
-            header.push(italic(&value.join(" ")));
+        if opt.get_action().takes_values() {
+            if let Some(value) = &opt.get_value_names() {
+                header.push(roman("="));
+                header.push(italic(&value.join(" ")));
+            }
         }
 
         if let Some(defs) = option_default_values(opt) {

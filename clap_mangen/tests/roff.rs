@@ -71,6 +71,13 @@ fn possible_values() {
 }
 
 #[test]
+fn flag_without_value() {
+    let name = "my-app";
+    let cmd = common::flag_without_value(name);
+    common::assert_matches_path("tests/snapshots/flag_without_value.bash.roff", cmd);
+}
+
+#[test]
 fn sub_subcommands_help() {
     let name = "my-app";
     let mut cmd = common::sub_subcommands_command(name);
