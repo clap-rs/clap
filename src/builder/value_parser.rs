@@ -1066,8 +1066,9 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 /// Verify the value is from an enumerated set of [`PossibleValue`][crate::builder::PossibleValue].
 ///
 /// See also:
-/// - [`EnumValueParser`] for directly supporting `enum`s
-/// - [`TypedValueParser::map`] for adapting values to a more specialized type
+/// - [`EnumValueParser`] for directly supporting [`ValueEnum`][crate::ValueEnum] types
+/// - [`TypedValueParser::map`] for adapting values to a more specialized type, like an external
+///   enums that can't implement [`ValueEnum`][crate::ValueEnum]
 ///
 /// # Example
 ///

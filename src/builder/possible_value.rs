@@ -7,8 +7,11 @@ use crate::util::eq_ignore_case;
 ///
 /// This is used for specifying [possible values] of [Args].
 ///
-/// **NOTE:** This struct is likely not needed for most usecases as it is only required to
-/// [hide] single values from help messages and shell completions or to attach [help] to possible values.
+/// See also [`PossibleValuesParser`][crate::builder::PossibleValuesParser]
+///
+/// **NOTE:** Most likely you can use strings, rather than `PossibleValue` as it is only required
+/// to [hide] single values from help messages and shell completions or to attach [help] to
+/// possible values.
 ///
 /// # Examples
 ///
@@ -23,6 +26,7 @@ use crate::util::eq_ignore_case;
 ///         PossibleValue::new("secret speed").hide(true)
 ///     ]);
 /// ```
+///
 /// [Args]: crate::Arg
 /// [possible values]: crate::builder::ValueParser::possible_values
 /// [hide]: PossibleValue::hide()
