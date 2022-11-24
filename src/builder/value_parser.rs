@@ -957,30 +957,10 @@ impl Default for PathBufValueParser {
 ///
 /// ```rust
 /// # use std::ffi::OsStr;
+/// # use clap::ColorChoice;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
-///
-/// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-/// enum ColorChoice {
-///     Always,
-///     Auto,
-///     Never,
-/// }
-///
-/// impl clap::ValueEnum for ColorChoice {
-///     fn value_variants<'a>() -> &'a [Self] {
-///         &[Self::Always, Self::Auto, Self::Never]
-///     }
-///
-///     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue> {
-///         match self {
-///             Self::Always => Some(clap::builder::PossibleValue::new("always")),
-///             Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
-///             Self::Never => Some(clap::builder::PossibleValue::new("never")),
-///         }
-///     }
-/// }
 ///
 /// // Usage
 /// let mut cmd = clap::Command::new("raw")
@@ -2327,6 +2307,7 @@ pub mod via_prelude {
 ///
 /// Example mappings:
 /// ```rust
+/// # use clap::ColorChoice;
 /// // Built-in types
 /// let parser = clap::value_parser!(String);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::string");
@@ -2344,25 +2325,6 @@ pub mod via_prelude {
 /// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(usize))");
 ///
 /// // ValueEnum types
-/// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-/// enum ColorChoice {
-///     Always,
-///     Auto,
-///     Never,
-/// }
-/// impl clap::ValueEnum for ColorChoice {
-///     // ...
-/// #     fn value_variants<'a>() -> &'a [Self] {
-/// #         &[Self::Always, Self::Auto, Self::Never]
-/// #     }
-/// #     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue> {
-/// #         match self {
-/// #             Self::Always => Some(clap::builder::PossibleValue::new("always")),
-/// #             Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
-/// #             Self::Never => Some(clap::builder::PossibleValue::new("never")),
-/// #         }
-/// #     }
-/// }
 /// let parser = clap::value_parser!(ColorChoice);
 /// assert_eq!(format!("{:?}", parser), "EnumValueParser(PhantomData)");
 /// ```
