@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 5.0.0 - ReleaseDate
+## 5.0.0 - 2022-11-24
 
 ### Breaking Changes
 
@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+## [4.0.27] - 2022-11-24
 
 ### Features
 
@@ -4031,7 +4033,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.26...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.27...HEAD
+[4.0.27]: https://github.com/clap-rs/clap/compare/v4.0.26...v4.0.27
 [4.0.26]: https://github.com/clap-rs/clap/compare/v4.0.25...v4.0.26
 [4.0.25]: https://github.com/clap-rs/clap/compare/v4.0.24...v4.0.25
 [4.0.24]: https://github.com/clap-rs/clap/compare/v4.0.23...v4.0.24
