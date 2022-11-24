@@ -646,7 +646,7 @@ fn write_positionals_of(p: &Command) -> String {
                 .replace(']', "\\]")
                 .replace('\'', "'\\''")
                 .replace(':', "\\:"),
-            value_completion = value_completion(arg).unwrap_or_else(|| "".to_string())
+            value_completion = value_completion(arg).unwrap_or_default()
         );
 
         debug!("write_positionals_of:iter: Wrote...{}", a);

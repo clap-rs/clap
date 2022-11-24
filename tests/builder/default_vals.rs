@@ -752,10 +752,10 @@ fn required_groups_with_default_values() {
         .arg(Arg::new("arg").default_value("value"))
         .group(ArgGroup::new("group").args(["arg"]).required(true));
 
-    let result = cmd.clone().try_get_matches_from(&["test"]);
+    let result = cmd.clone().try_get_matches_from(["test"]);
     assert!(result.is_err());
 
-    let result = cmd.clone().try_get_matches_from(&["test", "value"]);
+    let result = cmd.clone().try_get_matches_from(["test", "value"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
     assert!(m.contains_id("arg"));
@@ -768,10 +768,10 @@ fn required_args_with_default_values() {
 
     let cmd = Command::new("test").arg(Arg::new("arg").required(true).default_value("value"));
 
-    let result = cmd.clone().try_get_matches_from(&["test"]);
+    let result = cmd.clone().try_get_matches_from(["test"]);
     assert!(result.is_err());
 
-    let result = cmd.clone().try_get_matches_from(&["test", "value"]);
+    let result = cmd.clone().try_get_matches_from(["test", "value"]);
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
     assert!(m.contains_id("arg"));

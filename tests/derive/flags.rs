@@ -27,24 +27,21 @@ fn bool_type_is_flag() {
         alice: bool,
     }
 
+    assert_eq!(Opt { alice: false }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(
-        Opt { alice: false },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt { alice: true },
+        Opt::try_parse_from(["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt { alice: true },
-        Opt::try_parse_from(&["test", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "-a"]).unwrap()
     );
     assert_eq!(
         Opt { alice: true },
-        Opt::try_parse_from(&["test", "-a", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "--alice"]).unwrap()
     );
-    assert_eq!(
-        Opt { alice: true },
-        Opt::try_parse_from(&["test", "--alice"]).unwrap()
-    );
-    assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
-    assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
+    assert!(Opt::try_parse_from(["test", "-i"]).is_err());
+    assert!(Opt::try_parse_from(["test", "-a", "foo"]).is_err());
 }
 
 #[test]
@@ -65,19 +62,19 @@ fn non_bool_type_flag() {
         bob: usize,
     }
 
-    let opt = Opt::try_parse_from(&["test"]).unwrap();
+    let opt = Opt::try_parse_from(["test"]).unwrap();
     assert_eq!(opt.alice, 5);
     assert_eq!(opt.bob, 5);
 
-    let opt = Opt::try_parse_from(&["test", "-a"]).unwrap();
+    let opt = Opt::try_parse_from(["test", "-a"]).unwrap();
     assert_eq!(opt.alice, 10);
     assert_eq!(opt.bob, 5);
 
-    let opt = Opt::try_parse_from(&["test", "-b"]).unwrap();
+    let opt = Opt::try_parse_from(["test", "-b"]).unwrap();
     assert_eq!(opt.alice, 5);
     assert_eq!(opt.bob, 10);
 
-    let opt = Opt::try_parse_from(&["test", "-b", "-a"]).unwrap();
+    let opt = Opt::try_parse_from(["test", "-b", "-a"]).unwrap();
     assert_eq!(opt.alice, 10);
     assert_eq!(opt.bob, 10);
 }
@@ -139,26 +136,26 @@ fn count() {
 
     assert_eq!(
         Opt { alice: 0, bob: 0 },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
     assert_eq!(
         Opt { alice: 1, bob: 0 },
-        Opt::try_parse_from(&["test", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt { alice: 2, bob: 0 },
-        Opt::try_parse_from(&["test", "-a", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "-a"]).unwrap()
     );
     assert_eq!(
         Opt { alice: 2, bob: 2 },
-        Opt::try_parse_from(&["test", "-a", "--alice", "-bb"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "--alice", "-bb"]).unwrap()
     );
     assert_eq!(
         Opt { alice: 3, bob: 1 },
-        Opt::try_parse_from(&["test", "-aaa", "--bob"]).unwrap()
+        Opt::try_parse_from(["test", "-aaa", "--bob"]).unwrap()
     );
-    assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
-    assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
+    assert!(Opt::try_parse_from(["test", "-i"]).is_err());
+    assert!(Opt::try_parse_from(["test", "-a", "foo"]).is_err());
 }
 
 #[test]
@@ -176,42 +173,42 @@ fn mixed_type_flags() {
             alice: false,
             bob: 0
         },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 0
         },
-        Opt::try_parse_from(&["test", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 0
         },
-        Opt::try_parse_from(&["test", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: false,
             bob: 1
         },
-        Opt::try_parse_from(&["test", "-b"]).unwrap()
+        Opt::try_parse_from(["test", "-b"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 1
         },
-        Opt::try_parse_from(&["test", "--alice", "--bob"]).unwrap()
+        Opt::try_parse_from(["test", "--alice", "--bob"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 4
         },
-        Opt::try_parse_from(&["test", "-bb", "-a", "-bb"]).unwrap()
+        Opt::try_parse_from(["test", "-bb", "-a", "-bb"]).unwrap()
     );
 }
 
@@ -240,7 +237,7 @@ fn ignore_qualified_bool_type() {
         Opt {
             arg: inner::bool("success".into())
         },
-        Opt::try_parse_from(&["test", "success"]).unwrap()
+        Opt::try_parse_from(["test", "success"]).unwrap()
     );
 }
 
@@ -254,12 +251,12 @@ fn override_implicit_action() {
 
     assert_eq!(
         Opt { arg: false },
-        Opt::try_parse_from(&["test", "--arg", "false"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "false"]).unwrap()
     );
 
     assert_eq!(
         Opt { arg: true },
-        Opt::try_parse_from(&["test", "--arg", "true"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "true"]).unwrap()
     );
 }
 
@@ -273,12 +270,12 @@ fn override_implicit_from_flag_positional() {
 
     assert_eq!(
         Opt { arg: false },
-        Opt::try_parse_from(&["test", "false"]).unwrap()
+        Opt::try_parse_from(["test", "false"]).unwrap()
     );
 
     assert_eq!(
         Opt { arg: true },
-        Opt::try_parse_from(&["test", "true"]).unwrap()
+        Opt::try_parse_from(["test", "true"]).unwrap()
     );
 }
 
@@ -297,7 +294,7 @@ fn unit_for_negation() {
             arg: false,
             no_arg: ()
         },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
 
     assert_eq!(
@@ -305,7 +302,7 @@ fn unit_for_negation() {
             arg: true,
             no_arg: ()
         },
-        Opt::try_parse_from(&["test", "--arg"]).unwrap()
+        Opt::try_parse_from(["test", "--arg"]).unwrap()
     );
 
     assert_eq!(
@@ -313,7 +310,7 @@ fn unit_for_negation() {
             arg: false,
             no_arg: ()
         },
-        Opt::try_parse_from(&["test", "--no-arg"]).unwrap()
+        Opt::try_parse_from(["test", "--no-arg"]).unwrap()
     );
 
     assert_eq!(
@@ -321,7 +318,7 @@ fn unit_for_negation() {
             arg: true,
             no_arg: ()
         },
-        Opt::try_parse_from(&["test", "--no-arg", "--arg"]).unwrap()
+        Opt::try_parse_from(["test", "--no-arg", "--arg"]).unwrap()
     );
 
     assert_eq!(
@@ -329,6 +326,6 @@ fn unit_for_negation() {
             arg: false,
             no_arg: ()
         },
-        Opt::try_parse_from(&["test", "--arg", "--no-arg"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "--no-arg"]).unwrap()
     );
 }

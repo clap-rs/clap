@@ -21,11 +21,11 @@ fn issue_151_groups_within_subcommands() {
         a: Opt,
     }
 
-    assert!(Cli::try_parse_from(&["test"]).is_err());
-    assert!(Cli::try_parse_from(&["test", "--foo=v1"]).is_ok());
-    assert!(Cli::try_parse_from(&["test", "--bar=v2"]).is_ok());
-    assert!(Cli::try_parse_from(&["test", "--zebra=v3"]).is_err());
-    assert!(Cli::try_parse_from(&["test", "--foo=v1", "--bar=v2"]).is_ok());
+    assert!(Cli::try_parse_from(["test"]).is_err());
+    assert!(Cli::try_parse_from(["test", "--foo=v1"]).is_ok());
+    assert!(Cli::try_parse_from(["test", "--bar=v2"]).is_ok());
+    assert!(Cli::try_parse_from(["test", "--zebra=v3"]).is_err());
+    assert!(Cli::try_parse_from(["test", "--foo=v1", "--bar=v2"]).is_ok());
 }
 
 #[test]
@@ -46,10 +46,10 @@ fn issue_289() {
         TestCommand,
     }
 
-    assert!(Args::try_parse_from(&["test", "some-command", "test-command"]).is_ok());
-    assert!(Args::try_parse_from(&["test", "some", "test-command"]).is_ok());
-    assert!(Args::try_parse_from(&["test", "some-command", "test"]).is_ok());
-    assert!(Args::try_parse_from(&["test", "some", "test"]).is_ok());
+    assert!(Args::try_parse_from(["test", "some-command", "test-command"]).is_ok());
+    assert!(Args::try_parse_from(["test", "some", "test-command"]).is_ok());
+    assert!(Args::try_parse_from(["test", "some-command", "test"]).is_ok());
+    assert!(Args::try_parse_from(["test", "some", "test"]).is_ok());
 }
 
 #[test]

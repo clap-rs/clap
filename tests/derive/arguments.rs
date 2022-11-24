@@ -24,10 +24,10 @@ fn required_argument() {
     }
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "42"]).unwrap()
+        Opt::try_parse_from(["test", "42"]).unwrap()
     );
-    assert!(Opt::try_parse_from(&["test"]).is_err());
-    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
+    assert!(Opt::try_parse_from(["test"]).is_err());
+    assert!(Opt::try_parse_from(["test", "42", "24"]).is_err());
 }
 
 #[test]
@@ -39,10 +39,10 @@ fn argument_with_default() {
     }
     assert_eq!(
         Opt { arg: 24 },
-        Opt::try_parse_from(&["test", "24"]).unwrap()
+        Opt::try_parse_from(["test", "24"]).unwrap()
     );
-    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
+    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(["test"]).unwrap());
+    assert!(Opt::try_parse_from(["test", "42", "24"]).is_err());
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn auto_value_name() {
     // Ensure the implicit `num_vals` is just 1
     assert_eq!(
         Opt { my_special_arg: 10 },
-        Opt::try_parse_from(&["test", "10"]).unwrap()
+        Opt::try_parse_from(["test", "10"]).unwrap()
     );
 }
 
@@ -77,7 +77,7 @@ fn explicit_value_name() {
     // Ensure the implicit `num_vals` is just 1
     assert_eq!(
         Opt { my_special_arg: 10 },
-        Opt::try_parse_from(&["test", "10"]).unwrap()
+        Opt::try_parse_from(["test", "10"]).unwrap()
     );
 }
 
@@ -89,10 +89,10 @@ fn option_type_is_optional() {
     }
     assert_eq!(
         Opt { arg: Some(42) },
-        Opt::try_parse_from(&["test", "42"]).unwrap()
+        Opt::try_parse_from(["test", "42"]).unwrap()
     );
-    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(["test"]).unwrap());
+    assert!(Opt::try_parse_from(["test", "42", "24"]).is_err());
 }
 
 #[test]
@@ -103,15 +103,15 @@ fn vec_type_is_multiple_values() {
     }
     assert_eq!(
         Opt { arg: vec![24] },
-        Opt::try_parse_from(&["test", "24"]).unwrap()
+        Opt::try_parse_from(["test", "24"]).unwrap()
     );
-    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(
         Opt { arg: vec![24, 42] },
-        Opt::try_parse_from(&["test", "24", "42"]).unwrap()
+        Opt::try_parse_from(["test", "24", "42"]).unwrap()
     );
     assert_eq!(
         clap::error::ErrorKind::ValueValidation,
-        Opt::try_parse_from(&["test", "NOPE"]).err().unwrap().kind()
+        Opt::try_parse_from(["test", "NOPE"]).err().unwrap().kind()
     );
 }

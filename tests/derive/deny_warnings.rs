@@ -31,7 +31,7 @@ fn warning_never_struct() {
         Opt {
             s: "foo".to_string()
         },
-        Opt::try_parse_from(&["test", "foo"]).unwrap()
+        Opt::try_parse_from(["test", "foo"]).unwrap()
     );
 }
 
@@ -48,6 +48,6 @@ fn warning_never_enum() {
         Opt::Foo {
             s: "foo".to_string()
         },
-        Opt::try_parse_from(&["test", "foo", "foo"]).unwrap()
+        Opt::try_parse_from(["test", "foo", "foo"]).unwrap()
     );
 }

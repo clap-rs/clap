@@ -50,7 +50,7 @@ fn test_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::try_parse_from(&["test", "-l", "1"]).unwrap()
+        Opt::try_parse_from(["test", "-l", "1"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -59,7 +59,7 @@ fn test_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::try_parse_from(&["test", "--level", "1"]).unwrap()
+        Opt::try_parse_from(["test", "--level", "1"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -68,7 +68,7 @@ fn test_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::try_parse_from(&["test", "--set-level", "1"]).unwrap()
+        Opt::try_parse_from(["test", "--set-level", "1"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -77,7 +77,7 @@ fn test_slice() {
             files: Vec::new(),
             values: vec![],
         },
-        Opt::try_parse_from(&["test", "--lvl", "1"]).unwrap()
+        Opt::try_parse_from(["test", "--lvl", "1"]).unwrap()
     );
 }
 
@@ -90,7 +90,7 @@ fn test_multi_args() {
             files: vec!["file".to_string()],
             values: vec![],
         },
-        Opt::try_parse_from(&["test", "-l", "1", "file"]).unwrap()
+        Opt::try_parse_from(["test", "-l", "1", "file"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -99,13 +99,13 @@ fn test_multi_args() {
             files: vec!["FILE".to_string()],
             values: vec![1],
         },
-        Opt::try_parse_from(&["test", "-l", "1", "--values", "1", "--", "FILE"]).unwrap()
+        Opt::try_parse_from(["test", "-l", "1", "--values", "1", "--", "FILE"]).unwrap()
     );
 }
 
 #[test]
 fn test_multi_args_fail() {
-    let result = Opt::try_parse_from(&["test", "-l", "1", "--", "FILE"]);
+    let result = Opt::try_parse_from(["test", "-l", "1", "--", "FILE"]);
     assert!(result.is_err());
 }
 
@@ -118,9 +118,9 @@ fn test_bool() {
             files: vec![],
             values: vec![],
         },
-        Opt::try_parse_from(&["test", "-l", "1", "--x=1"]).unwrap()
+        Opt::try_parse_from(["test", "-l", "1", "--x=1"]).unwrap()
     );
-    let result = Opt::try_parse_from(&["test", "-l", "1", "--x", "1"]);
+    let result = Opt::try_parse_from(["test", "-l", "1", "--x", "1"]);
     assert!(result.is_err());
     assert_eq!(result.unwrap_err().kind(), ErrorKind::NoEquals);
 }
@@ -140,16 +140,16 @@ struct HexOpt {
 fn test_parse_hex_function_path() {
     assert_eq!(
         HexOpt { number: 5 },
-        HexOpt::try_parse_from(&["test", "-n", "5"]).unwrap()
+        HexOpt::try_parse_from(["test", "-n", "5"]).unwrap()
     );
     assert_eq!(
         HexOpt {
             number: 0x00ab_cdef
         },
-        HexOpt::try_parse_from(&["test", "-n", "abcdef"]).unwrap()
+        HexOpt::try_parse_from(["test", "-n", "abcdef"]).unwrap()
     );
 
-    let err = HexOpt::try_parse_from(&["test", "-n", "gg"]).unwrap_err();
+    let err = HexOpt::try_parse_from(["test", "-n", "gg"]).unwrap_err();
     assert!(
         err.to_string().contains("invalid digit found in string"),
         "{}",

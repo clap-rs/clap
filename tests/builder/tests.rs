@@ -252,7 +252,7 @@ fn create_app() {
 #[test]
 fn add_multiple_arg() {
     let _ = Command::new("test")
-        .args(&[Arg::new("test").short('s'), Arg::new("test2").short('l')])
+        .args([Arg::new("test").short('s'), Arg::new("test2").short('l')])
         .try_get_matches_from(vec![""])
         .unwrap();
 }

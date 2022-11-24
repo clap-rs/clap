@@ -20,7 +20,7 @@ fn test_safely_nest_parser() {
         Opt {
             foo: Foo { foo: true }
         },
-        Opt::try_parse_from(&["test", "--foo"]).unwrap()
+        Opt::try_parse_from(["test", "--foo"]).unwrap()
     );
 }
 

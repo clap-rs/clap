@@ -28,21 +28,21 @@ fn required_option() {
     }
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "-a42"]).unwrap()
+        Opt::try_parse_from(["test", "-a42"]).unwrap()
     );
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "42"]).unwrap()
     );
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "42"]).unwrap()
     );
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "--arg", "24", "--arg", "42"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "24", "--arg", "42"]).unwrap()
     );
-    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert!(Opt::try_parse_from(["test"]).is_err());
 }
 
 #[test]
@@ -55,13 +55,13 @@ fn option_with_default() {
     }
     assert_eq!(
         Opt { arg: 24 },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+        Opt::try_parse_from(["test", "-a24"]).unwrap()
     );
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "-a", "42"]).unwrap()
     );
-    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(["test"]).unwrap());
 }
 
 #[test]
@@ -74,13 +74,13 @@ fn option_with_raw_default() {
     }
     assert_eq!(
         Opt { arg: 24 },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+        Opt::try_parse_from(["test", "-a24"]).unwrap()
     );
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "-a", "42"]).unwrap()
     );
-    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(["test"]).unwrap());
 }
 
 #[test]
@@ -102,10 +102,10 @@ fn option_from_str() {
         a: Option<A>,
     }
 
-    assert_eq!(Opt { a: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { a: None }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(
         Opt { a: Some(A) },
-        Opt::try_parse_from(&["test", "foo"]).unwrap()
+        Opt::try_parse_from(["test", "foo"]).unwrap()
     );
 }
 
@@ -130,11 +130,11 @@ fn vec_from_str() {
 
     assert_eq!(
         Opt { a: Vec::new() },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
     assert_eq!(
         Opt { a: vec![A] },
-        Opt::try_parse_from(&["test", "foo"]).unwrap()
+        Opt::try_parse_from(["test", "foo"]).unwrap()
     );
 }
 
@@ -158,10 +158,10 @@ fn option_vec_from_str() {
         a: Option<Vec<A>>,
     }
 
-    assert_eq!(Opt { a: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { a: None }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(
         Opt { a: Some(vec![A]) },
-        Opt::try_parse_from(&["test", "-a", "foo"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "foo"]).unwrap()
     );
 }
 
@@ -175,13 +175,13 @@ fn option_type_is_optional() {
     }
     assert_eq!(
         Opt { arg: Some(42) },
-        Opt::try_parse_from(&["test", "-a42"]).unwrap()
+        Opt::try_parse_from(["test", "-a42"]).unwrap()
     );
     assert_eq!(
         Opt { arg: Some(42) },
-        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "-a", "42"]).unwrap()
     );
-    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(["test"]).unwrap());
 }
 
 #[test]
@@ -210,7 +210,7 @@ fn required_with_option_type() {
             req_str: Some(("arg").into()),
             cmd: None,
         },
-        Opt::try_parse_from(&["test", "arg"]).unwrap()
+        Opt::try_parse_from(["test", "arg"]).unwrap()
     );
 
     assert_eq!(
@@ -218,10 +218,10 @@ fn required_with_option_type() {
             req_str: None,
             cmd: Some(SubCommands::ExSub { verbose: 1 }),
         },
-        Opt::try_parse_from(&["test", "ex-sub", "-v"]).unwrap()
+        Opt::try_parse_from(["test", "ex-sub", "-v"]).unwrap()
     );
 
-    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert!(Opt::try_parse_from(["test"]).is_err());
 }
 
 #[test]
@@ -241,7 +241,7 @@ fn ignore_qualified_option_type() {
         Opt {
             arg: Some("success".into())
         },
-        Opt::try_parse_from(&["test", "success"]).unwrap()
+        Opt::try_parse_from(["test", "success"]).unwrap()
     );
 }
 
@@ -258,19 +258,19 @@ fn option_option_type_is_optional_value() {
         Opt {
             arg: Some(Some(42))
         },
-        Opt::try_parse_from(&["test", "-a42"]).unwrap()
+        Opt::try_parse_from(["test", "-a42"]).unwrap()
     );
     assert_eq!(
         Opt { arg: Some(None) },
-        Opt::try_parse_from(&["test", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(Some(42))
         },
-        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "-a", "42"]).unwrap()
     );
-    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(["test"]).unwrap());
 }
 
 #[test]
@@ -302,42 +302,42 @@ fn two_option_option_types() {
             arg: Some(Some(42)),
             field: Some(Some("f".into()))
         },
-        Opt::try_parse_from(&["test", "-a42", "--field", "f"]).unwrap()
+        Opt::try_parse_from(["test", "-a42", "--field", "f"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(Some(42)),
             field: Some(None)
         },
-        Opt::try_parse_from(&["test", "-a42", "--field"]).unwrap()
+        Opt::try_parse_from(["test", "-a42", "--field"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(None),
             field: Some(None)
         },
-        Opt::try_parse_from(&["test", "-a", "--field"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "--field"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(None),
             field: Some(Some("f".into()))
         },
-        Opt::try_parse_from(&["test", "-a", "--field", "f"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "--field", "f"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: None,
             field: Some(None)
         },
-        Opt::try_parse_from(&["test", "--field"]).unwrap()
+        Opt::try_parse_from(["test", "--field"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: None,
             field: None
         },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
 }
 
@@ -351,12 +351,12 @@ fn vec_type_is_multiple_occurrences() {
     }
     assert_eq!(
         Opt { arg: vec![24] },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+        Opt::try_parse_from(["test", "-a24"]).unwrap()
     );
-    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(
         Opt { arg: vec![24, 42] },
-        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "-a", "42"]).unwrap()
     );
 }
 
@@ -370,12 +370,12 @@ fn vec_type_with_required() {
     }
     assert_eq!(
         Opt { arg: vec![24] },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+        Opt::try_parse_from(["test", "-a24"]).unwrap()
     );
-    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert!(Opt::try_parse_from(["test"]).is_err());
     assert_eq!(
         Opt { arg: vec![24, 42] },
-        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "-a", "42"]).unwrap()
     );
 }
 
@@ -389,12 +389,12 @@ fn vec_type_with_multiple_values_only() {
     }
     assert_eq!(
         Opt { arg: vec![24] },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+        Opt::try_parse_from(["test", "-a24"]).unwrap()
     );
-    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(
         Opt { arg: vec![24, 42] },
-        Opt::try_parse_from(&["test", "-a", "24", "42"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "24", "42"]).unwrap()
     );
 }
 
@@ -415,7 +415,7 @@ fn ignore_qualified_vec_type() {
         Opt {
             arg: vec!["success".into()]
         },
-        Opt::try_parse_from(&["test", "success"]).unwrap()
+        Opt::try_parse_from(["test", "success"]).unwrap()
     );
 }
 
@@ -429,17 +429,17 @@ fn option_vec_type() {
     }
     assert_eq!(
         Opt { arg: Some(vec![1]) },
-        Opt::try_parse_from(&["test", "-a", "1"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1"]).unwrap()
     );
 
     assert_eq!(
         Opt {
             arg: Some(vec![1, 2])
         },
-        Opt::try_parse_from(&["test", "-a", "1", "-a", "2"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1", "-a", "2"]).unwrap()
     );
 
-    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(["test"]).unwrap());
 }
 
 #[test]
@@ -452,22 +452,22 @@ fn option_vec_type_structopt_behavior() {
     }
     assert_eq!(
         Opt { arg: Some(vec![1]) },
-        Opt::try_parse_from(&["test", "-a", "1"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1"]).unwrap()
     );
 
     assert_eq!(
         Opt {
             arg: Some(vec![1, 2])
         },
-        Opt::try_parse_from(&["test", "-a", "1", "2"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1", "2"]).unwrap()
     );
 
     assert_eq!(
         Opt { arg: Some(vec![]) },
-        Opt::try_parse_from(&["test", "-a"]).unwrap()
+        Opt::try_parse_from(["test", "-a"]).unwrap()
     );
 
-    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(["test"]).unwrap());
 }
 
 #[test]
@@ -487,7 +487,7 @@ fn two_option_vec_types() {
             arg: Some(vec![1]),
             b: None,
         },
-        Opt::try_parse_from(&["test", "-a", "1"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1"]).unwrap()
     );
 
     assert_eq!(
@@ -495,7 +495,7 @@ fn two_option_vec_types() {
             arg: Some(vec![1]),
             b: Some(vec![1])
         },
-        Opt::try_parse_from(&["test", "-a", "1", "-b", "1"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1", "-b", "1"]).unwrap()
     );
 
     assert_eq!(
@@ -503,12 +503,12 @@ fn two_option_vec_types() {
             arg: Some(vec![1, 2]),
             b: Some(vec![1, 2])
         },
-        Opt::try_parse_from(&["test", "-a", "1", "-a", "2", "-b", "1", "-b", "2"]).unwrap()
+        Opt::try_parse_from(["test", "-a", "1", "-a", "2", "-b", "1", "-b", "2"]).unwrap()
     );
 
     assert_eq!(
         Opt { arg: None, b: None },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
 }
 
@@ -522,7 +522,7 @@ fn explicit_value_parser() {
     }
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "42"]).unwrap()
     );
 }
 
@@ -536,6 +536,6 @@ fn implicit_value_parser() {
     }
     assert_eq!(
         Opt { arg: 42 },
-        Opt::try_parse_from(&["test", "--arg", "42"]).unwrap()
+        Opt::try_parse_from(["test", "--arg", "42"]).unwrap()
     );
 }

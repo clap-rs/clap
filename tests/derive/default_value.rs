@@ -11,8 +11,8 @@ fn default_value() {
         #[arg(default_value = "3")]
         arg: i32,
     }
-    assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
-    assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(&["test", "1"]).unwrap());
+    assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(["test"]).unwrap());
+    assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
     let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 3]"));
@@ -25,8 +25,8 @@ fn default_value_t() {
         #[arg(default_value_t = 3)]
         arg: i32,
     }
-    assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
-    assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(&["test", "1"]).unwrap());
+    assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(["test"]).unwrap());
+    assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
     let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 3]"));
@@ -39,8 +39,8 @@ fn auto_default_value_t() {
         #[arg(default_value_t)]
         arg: i32,
     }
-    assert_eq!(Opt { arg: 0 }, Opt::try_parse_from(&["test"]).unwrap());
-    assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(&["test", "1"]).unwrap());
+    assert_eq!(Opt { arg: 0 }, Opt::try_parse_from(["test"]).unwrap());
+    assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
     let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 0]"));
@@ -53,7 +53,7 @@ fn default_values_t() {
         #[arg(default_values_t = vec![1, 2, 3])]
         arg1: Vec<i32>,
 
-        #[arg(long, default_values_t = &[4, 5, 6])]
+        #[arg(long, default_values_t = [4, 5, 6])]
         arg2: Vec<i32>,
 
         #[arg(long, default_values_t = [7, 8, 9])]
@@ -77,7 +77,7 @@ fn default_values_t() {
             arg5: vec!["hello".to_string(), "world".to_string()],
             arg6: vec!["foo".to_string(), "bar".to_string()],
         },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -88,7 +88,7 @@ fn default_values_t() {
             arg5: vec!["hello".to_string(), "world".to_string()],
             arg6: vec!["foo".to_string(), "bar".to_string()],
         },
-        Opt::try_parse_from(&["test", "1"]).unwrap()
+        Opt::try_parse_from(["test", "1"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -99,7 +99,7 @@ fn default_values_t() {
             arg5: vec!["baz".to_string()],
             arg6: vec!["foo".to_string(), "bar".to_string()],
         },
-        Opt::try_parse_from(&["test", "--arg4", "42", "--arg4", "15", "--arg5", "baz"]).unwrap()
+        Opt::try_parse_from(["test", "--arg4", "42", "--arg4", "15", "--arg5", "baz"]).unwrap()
     );
 
     let help = utils::get_long_help::<Opt>();
@@ -117,13 +117,13 @@ fn default_value_os_t() {
         Opt {
             arg: PathBuf::from("abc.def")
         },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: PathBuf::from("ghi")
         },
-        Opt::try_parse_from(&["test", "ghi"]).unwrap()
+        Opt::try_parse_from(["test", "ghi"]).unwrap()
     );
 
     let help = utils::get_long_help::<Opt>();
@@ -141,7 +141,7 @@ fn default_values_os_t() {
 
         #[arg(
             long,
-            default_values_os_t = &[PathBuf::from("bar.baz")]
+            default_values_os_t = [PathBuf::from("bar.baz")]
         )]
         arg2: Vec<PathBuf>,
     }
@@ -150,14 +150,14 @@ fn default_values_os_t() {
             arg1: vec![PathBuf::from("abc.def"), PathBuf::from("123.foo")],
             arg2: vec![PathBuf::from("bar.baz")]
         },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg1: vec![PathBuf::from("ghi")],
             arg2: vec![PathBuf::from("baz.bar"), PathBuf::from("foo.bar")]
         },
-        Opt::try_parse_from(&["test", "ghi", "--arg2", "baz.bar", "--arg2", "foo.bar"]).unwrap()
+        Opt::try_parse_from(["test", "ghi", "--arg2", "baz.bar", "--arg2", "foo.bar"]).unwrap()
     );
 
     let help = utils::get_long_help::<Opt>();

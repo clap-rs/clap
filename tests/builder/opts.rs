@@ -127,7 +127,7 @@ fn stdin_char() {
 #[test]
 fn opts_using_short() {
     let r = Command::new("opts")
-        .args(&[
+        .args([
             arg!(f: -f [flag] "some flag"),
             arg!(c: -c [color] "some other flag"),
         ])
@@ -189,7 +189,7 @@ fn lots_o_vals() {
 #[test]
 fn opts_using_long_space() {
     let r = Command::new("opts")
-        .args(&[
+        .args([
             arg!(--flag [flag] "some flag"),
             arg!(--color [color] "some other flag"),
         ])
@@ -211,7 +211,7 @@ fn opts_using_long_space() {
 #[test]
 fn opts_using_long_equals() {
     let r = Command::new("opts")
-        .args(&[
+        .args([
             arg!(--flag [flag] "some flag"),
             arg!(--color [color] "some other flag"),
         ])
@@ -233,7 +233,7 @@ fn opts_using_long_equals() {
 #[test]
 fn opts_using_mixed() {
     let r = Command::new("opts")
-        .args(&[
+        .args([
             arg!(-f --flag [flag] "some flag"),
             arg!(-c --color [color] "some other flag"),
         ])
@@ -255,7 +255,7 @@ fn opts_using_mixed() {
 #[test]
 fn opts_using_mixed2() {
     let r = Command::new("opts")
-        .args(&[
+        .args([
             arg!(-f --flag [flag] "some flag"),
             arg!(-c --color [color] "some other flag"),
         ])
@@ -334,7 +334,7 @@ fn require_delims() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["1", "2"]
+        ["1", "2"]
     );
     assert!(m.contains_id("file"));
     assert_eq!(
@@ -361,7 +361,7 @@ fn leading_hyphen_pass() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-2", "3"]
+        ["-2", "3"]
     );
 }
 
@@ -394,7 +394,7 @@ fn leading_hyphen_with_flag_after() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-2", "-f"]
+        ["-2", "-f"]
     );
     assert!(!*m.get_one::<bool>("f").expect("defaulted by clap"));
 }
@@ -413,7 +413,7 @@ fn leading_hyphen_with_flag_before() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-2"]
+        ["-2"]
     );
     assert!(*m.get_one::<bool>("f").expect("defaulted by clap"));
 }
@@ -436,7 +436,7 @@ fn leading_hyphen_with_only_pos_follows() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-2"]
+        ["-2"]
     );
     assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), Some("val"));
 }
@@ -576,7 +576,7 @@ For more information try '--help'
 fn short_non_ascii_no_space() {
     let matches = Command::new("cmd")
         .arg(arg!(opt: -'磨' <opt>).required(true))
-        .try_get_matches_from(&["test", "-磨VALUE"])
+        .try_get_matches_from(["test", "-磨VALUE"])
         .unwrap();
 
     assert_eq!(
@@ -592,7 +592,7 @@ fn short_non_ascii_no_space() {
 fn short_eq_val_starts_with_eq() {
     let matches = Command::new("cmd")
         .arg(arg!(opt: -f <opt>).required(true))
-        .try_get_matches_from(&["test", "-f==value"])
+        .try_get_matches_from(["test", "-f==value"])
         .unwrap();
 
     assert_eq!(
@@ -608,7 +608,7 @@ fn short_eq_val_starts_with_eq() {
 fn long_eq_val_starts_with_eq() {
     let matches = Command::new("cmd")
         .arg(arg!(opt: --foo <opt>).required(true))
-        .try_get_matches_from(&["test", "--foo==value"])
+        .try_get_matches_from(["test", "--foo==value"])
         .unwrap();
 
     assert_eq!(
@@ -625,7 +625,7 @@ fn issue_2022_get_flags_misuse() {
     let cmd = Command::new("test")
         .next_help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
-    let matches = cmd.try_get_matches_from(&[""]).unwrap();
+    let matches = cmd.try_get_matches_from([""]).unwrap();
     assert!(matches.get_one::<String>("a").map(|v| v.as_str()).is_some())
 }
 
@@ -634,7 +634,7 @@ fn issue_2279() {
     let before_help_heading = Command::new("cmd")
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .next_help_heading(Some("This causes default_value to be ignored"))
-        .try_get_matches_from(&[""])
+        .try_get_matches_from([""])
         .unwrap();
 
     assert_eq!(
@@ -647,7 +647,7 @@ fn issue_2279() {
     let after_help_heading = Command::new("cmd")
         .next_help_heading(Some("This causes default_value to be ignored"))
         .arg(Arg::new("foo").short('f').default_value("bar"))
-        .try_get_matches_from(&[""])
+        .try_get_matches_from([""])
         .unwrap();
 
     assert_eq!(
@@ -672,7 +672,7 @@ fn infer_long_arg() {
 
     let matches = cmd
         .clone()
-        .try_get_matches_from(&["test", "--racec=hello"])
+        .try_get_matches_from(["test", "--racec=hello"])
         .unwrap();
     assert!(!*matches
         .get_one::<bool>("racetrack")
@@ -684,7 +684,7 @@ fn infer_long_arg() {
 
     let matches = cmd
         .clone()
-        .try_get_matches_from(&["test", "--racet"])
+        .try_get_matches_from(["test", "--racet"])
         .unwrap();
     assert!(*matches
         .get_one::<bool>("racetrack")
@@ -696,7 +696,7 @@ fn infer_long_arg() {
 
     let matches = cmd
         .clone()
-        .try_get_matches_from(&["test", "--auto"])
+        .try_get_matches_from(["test", "--auto"])
         .unwrap();
     assert!(*matches
         .get_one::<bool>("racetrack")
@@ -710,9 +710,9 @@ fn infer_long_arg() {
         .infer_long_args(true)
         .arg(Arg::new("arg").long("arg").action(ArgAction::SetTrue));
 
-    let matches = cmd.clone().try_get_matches_from(&["test", "--"]).unwrap();
+    let matches = cmd.clone().try_get_matches_from(["test", "--"]).unwrap();
     assert!(!*matches.get_one::<bool>("arg").expect("defaulted by clap"));
 
-    let matches = cmd.clone().try_get_matches_from(&["test", "--a"]).unwrap();
+    let matches = cmd.clone().try_get_matches_from(["test", "--a"]).unwrap();
     assert!(*matches.get_one::<bool>("arg").expect("defaulted by clap"));
 }

@@ -17,7 +17,7 @@ fn generic_struct_flatten() {
         Outer {
             inner: Inner { answer: 42 }
         },
-        Outer::parse_from(&["--answer", "42"])
+        Outer::parse_from(["--answer", "42"])
     )
 }
 
@@ -41,7 +41,7 @@ fn generic_struct_flatten_w_where_clause() {
         Outer {
             inner: Inner { answer: 42 }
         },
-        Outer::parse_from(&["--answer", "42"])
+        Outer::parse_from(["--answer", "42"])
     )
 }
 
@@ -60,7 +60,7 @@ fn generic_enum() {
 
     assert_eq!(
         GenericEnum::Start(Inner { answer: 42 }),
-        GenericEnum::parse_from(&["test", "start", "42"])
+        GenericEnum::parse_from(["test", "start", "42"])
     )
 }
 
@@ -82,7 +82,7 @@ fn generic_enum_w_where_clause() {
 
     assert_eq!(
         GenericEnum::Start(Inner { answer: 42 }),
-        GenericEnum::parse_from(&["test", "start", "42"])
+        GenericEnum::parse_from(["test", "start", "42"])
     )
 }
 
@@ -101,7 +101,7 @@ fn generic_w_fromstr_trait_bound() {
 
     assert_eq!(
         Opt::<isize> { answer: 42 },
-        Opt::<isize>::parse_from(&["--answer", "42"])
+        Opt::<isize>::parse_from(["--answer", "42"])
     )
 }
 
@@ -121,7 +121,7 @@ fn generic_wo_trait_bound() {
             answer: 42,
             took: None
         },
-        Opt::<Duration>::parse_from(&["--answer", "42"])
+        Opt::<Duration>::parse_from(["--answer", "42"])
     )
 }
 
@@ -140,6 +140,6 @@ fn generic_where_clause_w_trailing_comma() {
 
     assert_eq!(
         Opt::<isize> { answer: 42 },
-        Opt::<isize>::parse_from(&["--answer", "42"])
+        Opt::<isize>::parse_from(["--answer", "42"])
     )
 }

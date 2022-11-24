@@ -2515,7 +2515,7 @@ fn override_help_subcommand() {
         .subcommand(Command::new("help").arg(Arg::new("arg").action(ArgAction::Set)))
         .subcommand(Command::new("not_help").arg(Arg::new("arg").action(ArgAction::Set)))
         .disable_help_subcommand(true);
-    let matches = cmd.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
+    let matches = cmd.try_get_matches_from(["bar", "help", "foo"]).unwrap();
     assert_eq!(
         matches
             .subcommand_matches("help")
@@ -2532,7 +2532,7 @@ fn override_help_flag_using_long() {
         .subcommand(Command::new("help").long_flag("help"))
         .disable_help_flag(true)
         .disable_help_subcommand(true);
-    let matches = cmd.try_get_matches_from(&["foo", "--help"]).unwrap();
+    let matches = cmd.try_get_matches_from(["foo", "--help"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
 
@@ -2542,7 +2542,7 @@ fn override_help_flag_using_short() {
         .disable_help_flag(true)
         .disable_help_subcommand(true)
         .subcommand(Command::new("help").short_flag('h'));
-    let matches = cmd.try_get_matches_from(&["foo", "-h"]).unwrap();
+    let matches = cmd.try_get_matches_from(["foo", "-h"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
 

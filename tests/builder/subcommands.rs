@@ -234,7 +234,7 @@ fn replace() {
         .subcommand(
             Command::new("module").subcommand(Command::new("install").about("Install module")),
         )
-        .replace("install", &["module", "install"])
+        .replace("install", ["module", "install"])
         .try_get_matches_from(vec!["prog", "install"])
         .unwrap();
 
@@ -403,19 +403,19 @@ fn issue_2494_subcommand_is_present() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["opt", "--global", "global"])
+        .try_get_matches_from(["opt", "--global", "global"])
         .unwrap();
     assert_eq!(m.subcommand_name().unwrap(), "global");
     assert!(*m.get_one::<bool>("global").expect("defaulted by clap"));
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["opt", "--global"])
+        .try_get_matches_from(["opt", "--global"])
         .unwrap();
     assert!(m.subcommand_name().is_none());
     assert!(*m.get_one::<bool>("global").expect("defaulted by clap"));
 
-    let m = cmd.try_get_matches_from(&["opt", "global"]).unwrap();
+    let m = cmd.try_get_matches_from(["opt", "global"]).unwrap();
     assert_eq!(m.subcommand_name().unwrap(), "global");
     assert!(!*m.get_one::<bool>("global").expect("defaulted by clap"));
 }
@@ -452,15 +452,15 @@ fn busybox_like_multicall() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["busybox", "true"])
+        .try_get_matches_from(["busybox", "true"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("busybox"));
     assert_eq!(m.subcommand().unwrap().1.subcommand_name(), Some("true"));
 
-    let m = cmd.clone().try_get_matches_from(&["true"]).unwrap();
+    let m = cmd.clone().try_get_matches_from(["true"]).unwrap();
     assert_eq!(m.subcommand_name(), Some("true"));
 
-    let m = cmd.clone().try_get_matches_from(&["a.out"]);
+    let m = cmd.clone().try_get_matches_from(["a.out"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 }
@@ -472,24 +472,21 @@ fn hostname_like_multicall() {
         .subcommand(Command::new("hostname"))
         .subcommand(Command::new("dnsdomainname"));
 
-    let m = cmd.clone().try_get_matches_from(&["hostname"]).unwrap();
+    let m = cmd.clone().try_get_matches_from(["hostname"]).unwrap();
     assert_eq!(m.subcommand_name(), Some("hostname"));
 
-    let m = cmd
-        .clone()
-        .try_get_matches_from(&["dnsdomainname"])
-        .unwrap();
+    let m = cmd.clone().try_get_matches_from(["dnsdomainname"]).unwrap();
     assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
 
-    let m = cmd.clone().try_get_matches_from(&["a.out"]);
+    let m = cmd.clone().try_get_matches_from(["a.out"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 
-    let m = cmd.try_get_matches_from_mut(&["hostname", "hostname"]);
+    let m = cmd.try_get_matches_from_mut(["hostname", "hostname"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 
-    let m = cmd.try_get_matches_from(&["hostname", "dnsdomainname"]);
+    let m = cmd.try_get_matches_from(["hostname", "dnsdomainname"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
@@ -504,7 +501,7 @@ fn bad_multicall_command_error() {
         .subcommand(Command::new("foo"))
         .subcommand(Command::new("bar"));
 
-    let err = cmd.clone().try_get_matches_from(&["world"]).unwrap_err();
+    let err = cmd.clone().try_get_matches_from(["world"]).unwrap_err();
     assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
     static HELLO_EXPECTED: &str = "\
 error: The subcommand 'world' wasn't recognized
@@ -517,7 +514,7 @@ For more information try 'help'
 
     #[cfg(feature = "suggestions")]
     {
-        let err = cmd.clone().try_get_matches_from(&["baz"]).unwrap_err();
+        let err = cmd.clone().try_get_matches_from(["baz"]).unwrap_err();
         assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
         static BAZ_EXPECTED: &str = "\
 error: The subcommand 'baz' wasn't recognized
@@ -537,13 +534,13 @@ For more information try 'help'
 
     let err = cmd
         .clone()
-        .try_get_matches_from(&["foo", "--help"])
+        .try_get_matches_from(["foo", "--help"])
         .unwrap_err();
     assert_eq!(err.kind(), ErrorKind::DisplayHelp);
 
     let err = cmd
         .clone()
-        .try_get_matches_from(&["foo", "--version"])
+        .try_get_matches_from(["foo", "--version"])
         .unwrap_err();
     assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }

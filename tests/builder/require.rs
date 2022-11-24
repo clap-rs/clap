@@ -1126,7 +1126,7 @@ For more information try '--help'
 
 #[test]
 fn issue_1158_conflicting_requirements_rev() {
-    let res = issue_1158_app().try_get_matches_from(&["", "--config", "some.conf"]);
+    let res = issue_1158_app().try_get_matches_from(["", "--config", "some.conf"]);
 
     assert!(res.is_ok(), "{}", res.unwrap_err());
 }
@@ -1153,7 +1153,7 @@ fn issue_1643_args_mutually_require_each_other() {
                 .requires("relation_id"),
         );
 
-    cmd.try_get_matches_from(&["test", "-u", "hello", "-r", "farewell"])
+    cmd.try_get_matches_from(["test", "-u", "hello", "-r", "farewell"])
         .unwrap();
 }
 
@@ -1167,7 +1167,7 @@ fn short_flag_require_equals_with_minvals_zero() {
                 .require_equals(true),
         )
         .arg(Arg::new("unique").short('u').action(ArgAction::SetTrue))
-        .try_get_matches_from(&["foo", "-cu"])
+        .try_get_matches_from(["foo", "-cu"])
         .unwrap();
     assert!(m.contains_id("check"));
     assert!(*m.get_one::<bool>("unique").expect("defaulted by clap"));
@@ -1190,7 +1190,7 @@ fn issue_2624() {
                 .long("unique")
                 .action(ArgAction::SetTrue),
         )
-        .try_get_matches_from(&["foo", "-cu"])
+        .try_get_matches_from(["foo", "-cu"])
         .unwrap();
     assert!(matches.contains_id("check"));
     assert!(*matches

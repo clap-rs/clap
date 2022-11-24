@@ -12,7 +12,7 @@ fn grouped_value_works() {
                 .num_args(1..)
                 .action(ArgAction::Append),
         )
-        .try_get_matches_from(&[
+        .try_get_matches_from([
             "cli",
             "--option",
             "fr_FR:mon option 1",
@@ -44,7 +44,7 @@ fn issue_1026() {
                 .num_args(1..)
                 .action(ArgAction::Append),
         )
-        .try_get_matches_from(&[
+        .try_get_matches_from([
             "backup", "-s", "server", "-u", "user", "--target", "target1", "file1", "file2",
             "file3", "--target", "target2", "file4", "file5", "file6", "file7", "--target",
             "target3", "file8",
@@ -237,7 +237,7 @@ fn issue_2171() {
                 .action(ArgAction::SetTrue),
         );
 
-    let test_args = &[
+    let test_args = [
         vec!["reproducer", "-pz", "-p"],
         vec!["reproducer", "-pzp"],
         vec!["reproducer", "-zpp"],

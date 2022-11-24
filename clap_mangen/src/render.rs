@@ -300,7 +300,7 @@ fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
     } else if let Some(env) = opt.get_env() {
         return Some(vec![
             roman("May also be specified with the "),
-            bold(env.to_string_lossy().to_owned()),
+            bold(env.to_string_lossy().into_owned()),
             roman(" environment variable. "),
         ]);
     }

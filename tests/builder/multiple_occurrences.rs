@@ -34,14 +34,14 @@ fn multiple_occurrences_of_positional() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["test"])
+        .try_get_matches_from(["test"])
         .expect("zero occurrences work");
     assert!(!m.contains_id("multi"));
     assert!(m.get_many::<String>("multi").is_none());
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["test", "one"])
+        .try_get_matches_from(["test", "one"])
         .expect("single occurrence work");
     assert!(m.contains_id("multi"));
     assert_eq!(
@@ -54,7 +54,7 @@ fn multiple_occurrences_of_positional() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["test", "one", "two", "three", "four"])
+        .try_get_matches_from(["test", "one", "two", "three", "four"])
         .expect("many occurrences work");
     assert!(m.contains_id("multi"));
     assert_eq!(

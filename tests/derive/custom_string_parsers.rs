@@ -49,7 +49,7 @@ fn test_path_opt_simple() {
             option_path_1: None,
             option_path_2: Some(PathBuf::from("j.zip")),
         },
-        PathOpt::try_parse_from(&[
+        PathOpt::try_parse_from([
             "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q",
             "j.zip",
         ])
@@ -72,16 +72,16 @@ struct HexOpt {
 fn test_parse_hex() {
     assert_eq!(
         HexOpt { number: 5 },
-        HexOpt::try_parse_from(&["test", "-n", "5"]).unwrap()
+        HexOpt::try_parse_from(["test", "-n", "5"]).unwrap()
     );
     assert_eq!(
         HexOpt {
             number: 0x00ab_cdef
         },
-        HexOpt::try_parse_from(&["test", "-n", "abcdef"]).unwrap()
+        HexOpt::try_parse_from(["test", "-n", "abcdef"]).unwrap()
     );
 
-    let err = HexOpt::try_parse_from(&["test", "-n", "gg"]).unwrap_err();
+    let err = HexOpt::try_parse_from(["test", "-n", "gg"]).unwrap_err();
     assert!(
         err.to_string().contains("invalid digit found in string"),
         "{}",
@@ -111,7 +111,7 @@ struct NoOpOpt {
 fn test_every_custom_parser() {
     assert_eq!(
         NoOpOpt { b: "B" },
-        NoOpOpt::try_parse_from(&["test", "-b=?"]).unwrap()
+        NoOpOpt::try_parse_from(["test", "-b=?"]).unwrap()
     );
 }
 
@@ -119,7 +119,7 @@ fn test_every_custom_parser() {
 fn update_every_custom_parser() {
     let mut opt = NoOpOpt { b: "0" };
 
-    opt.try_update_from(&["test", "-b=?"]).unwrap();
+    opt.try_update_from(["test", "-b=?"]).unwrap();
 
     assert_eq!(NoOpOpt { b: "B" }, opt);
 }
@@ -140,6 +140,6 @@ fn test_parser_with_default_value() {
             integer: 9000,
             path: PathBuf::from("src/lib.rs"),
         },
-        DefaultedOpt::try_parse_from(&["test", "-i", "9000", "-p", "src/lib.rs",]).unwrap()
+        DefaultedOpt::try_parse_from(["test", "-i", "9000", "-p", "src/lib.rs",]).unwrap()
     );
 }

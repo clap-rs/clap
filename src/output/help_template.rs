@@ -427,7 +427,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
-            should_show_arg(self.use_long, *arg)
+            should_show_arg(self.use_long, arg)
         }) {
             if longest_filter(arg) {
                 longest = longest.max(display_width(&arg.to_string()));
@@ -674,7 +674,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// Will use next line help on writing args.
     fn will_args_wrap(&self, args: &[&Arg], longest: usize) -> bool {
         args.iter()
-            .filter(|arg| should_show_arg(self.use_long, *arg))
+            .filter(|arg| should_show_arg(self.use_long, arg))
             .any(|arg| {
                 let spec_vals = &self.spec_vals(arg);
                 self.arg_next_line_help(arg, spec_vals, longest)

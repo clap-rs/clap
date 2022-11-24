@@ -22,12 +22,9 @@ fn indices_mult_opts() {
 
     assert_eq!(
         m.indices_of("exclude").unwrap().collect::<Vec<_>>(),
-        &[2, 3, 8]
+        [2, 3, 8]
     );
-    assert_eq!(
-        m.indices_of("include").unwrap().collect::<Vec<_>>(),
-        &[5, 6]
-    );
+    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), [5, 6]);
 }
 
 #[test]
@@ -89,8 +86,8 @@ fn indices_mult_flags() {
         .try_get_matches_from(vec!["ind", "-e", "-i", "-e", "-e", "-i"])
         .unwrap();
 
-    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), &[4]);
-    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), &[5]);
+    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), [4]);
+    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), [5]);
 }
 
 #[test]
@@ -102,8 +99,8 @@ fn indices_mult_flags_combined() {
         .try_get_matches_from(vec!["ind", "-eieei"])
         .unwrap();
 
-    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), &[4]);
-    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), &[5]);
+    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), [4]);
+    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), [5]);
 }
 
 #[test]
@@ -116,9 +113,9 @@ fn indices_mult_flags_opt_combined() {
         .try_get_matches_from(vec!["ind", "-eieeio", "val"])
         .unwrap();
 
-    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), &[4]);
-    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), &[5]);
-    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[7]);
+    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), [4]);
+    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), [5]);
+    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), [7]);
 }
 
 #[test]
@@ -131,9 +128,9 @@ fn indices_mult_flags_opt_combined_eq() {
         .try_get_matches_from(vec!["ind", "-eieeio=val"])
         .unwrap();
 
-    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), &[4]);
-    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), &[5]);
-    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[7]);
+    assert_eq!(m.indices_of("exclude").unwrap().collect::<Vec<_>>(), [4]);
+    assert_eq!(m.indices_of("include").unwrap().collect::<Vec<_>>(), [5]);
+    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), [7]);
 }
 
 #[test]
@@ -151,7 +148,7 @@ fn indices_mult_opt_value_delim_eq() {
         .unwrap();
     assert_eq!(
         m.indices_of("option").unwrap().collect::<Vec<_>>(),
-        &[2, 3, 4]
+        [2, 3, 4]
     );
 }
 
@@ -167,7 +164,7 @@ fn indices_mult_opt_value_no_delim_eq() {
         )
         .try_get_matches_from(vec!["myapp", "-o=val1,val2,val3"])
         .unwrap();
-    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2]);
+    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), [2]);
 }
 
 #[test]
@@ -179,6 +176,6 @@ fn indices_mult_opt_mult_flag() {
         .try_get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"])
         .unwrap();
 
-    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
-    assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[6]);
+    assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), [2, 5]);
+    assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), [6]);
 }
