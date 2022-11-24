@@ -508,6 +508,41 @@ where
     }
 }
 
+/// Create a [`ValueParser`] with [`PossibleValuesParser`]
+///
+/// See [`PossibleValuesParser`] for more flexibility in creating the
+/// [`PossibleValue`][crate::builder::PossibleValue]s.
+///
+/// # Examples
+///
+/// ```rust
+/// let possible = vec!["always", "auto", "never"];
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("color")
+///             .long("color")
+///             .value_parser(possible)
+///             .default_value("auto")
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(
+///     ["cmd", "--color", "never"]
+/// ).unwrap();
+///
+/// let color: &String = m.get_one("color")
+///     .expect("default");
+/// assert_eq!(color, "never");
+/// ```
+impl<P> From<Vec<P>> for ValueParser
+where
+    P: Into<super::PossibleValue>,
+{
+    fn from(values: Vec<P>) -> Self {
+        let inner = PossibleValuesParser::from(values);
+        Self::from(inner)
+    }
+}
+
 impl std::fmt::Debug for ValueParser {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         match &self.0 {
