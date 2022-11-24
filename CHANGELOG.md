@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Have `Arg::value_parser` accept `Vec<impl Into<PossibleValue>>`
+- Implement `Display` and `FromStr` for `ColorChoice`
+
+### Fixes
+
+- Remove soundness issue by switching from `atty` to `is-terminal`
+
 ## [4.0.26] - 2022-11-16
 
 ### Fixes
