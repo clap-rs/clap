@@ -24,6 +24,6 @@ fn raw_bool_literal() {
             a: "one".into(),
             b: "--help".into()
         },
-        Opt::try_parse_from(&["test", "one", "--", "--help"]).unwrap()
+        Opt::try_parse_from(["test", "one", "--", "--help"]).unwrap()
     );
 }

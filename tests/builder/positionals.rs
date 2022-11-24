@@ -3,7 +3,7 @@ use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 #[test]
 fn only_pos_follow() {
     let r = Command::new("onlypos")
-        .args(&[arg!(f: -f [flag] "some opt"), arg!([arg] "some arg")])
+        .args([arg!(f: -f [flag] "some opt"), arg!([arg] "some arg")])
         .try_get_matches_from(vec!["", "--", "-f"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -40,7 +40,7 @@ fn issue_946() {
 #[test]
 fn positional() {
     let r = Command::new("positional")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional").index(1),
         ])
@@ -57,7 +57,7 @@ fn positional() {
     );
 
     let m = Command::new("positional")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional").index(1),
         ])
@@ -116,7 +116,7 @@ fn lots_o_vals() {
 #[test]
 fn positional_multiple() {
     let r = Command::new("positional_multiple")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional")
                 .index(1)
@@ -133,14 +133,14 @@ fn positional_multiple() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["test1", "test2", "test3"]
+        ["test1", "test2", "test3"]
     );
 }
 
 #[test]
 fn positional_multiple_3() {
     let r = Command::new("positional_multiple")
-        .args(&[
+        .args([
             arg!(-f  --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional")
                 .index(1)
@@ -157,14 +157,14 @@ fn positional_multiple_3() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["test1", "test2", "test3"]
+        ["test1", "test2", "test3"]
     );
 }
 
 #[test]
 fn positional_multiple_2() {
     let result = Command::new("positional_multiple")
-        .args(&[arg!(-f --flag "some flag"), Arg::new("positional").index(1)])
+        .args([arg!(-f --flag "some flag"), Arg::new("positional").index(1)])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -174,7 +174,7 @@ fn positional_multiple_2() {
 #[test]
 fn positional_possible_values() {
     let r = Command::new("positional_possible_values")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             Arg::new("positional").index(1).value_parser(["test123"]),
         ])
@@ -188,7 +188,7 @@ fn positional_possible_values() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["test123"]
+        ["test123"]
     );
 }
 
@@ -285,7 +285,7 @@ fn last_positional() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["arg"]
+        ["arg"]
     );
 }
 

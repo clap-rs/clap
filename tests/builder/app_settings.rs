@@ -315,7 +315,7 @@ Options:
         .about("tests stuff")
         .version("1.3")
         .hide_possible_values(true)
-        .args(&[
+        .args([
             arg!(-o --opt <opt> "some option").value_parser(["one", "two"]),
             arg!([arg1] "some pos arg").value_parser(["three", "four"]),
         ]);
@@ -327,7 +327,7 @@ Options:
 fn stop_delim_values_only_pos_follows() {
     let r = Command::new("onlypos")
         .dont_delimit_trailing_values(true)
-        .args(&[arg!(f: -f <flag> "some opt"), arg!([arg] ... "some arg")])
+        .args([arg!(f: -f <flag> "some opt"), arg!([arg] ... "some arg")])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -338,7 +338,7 @@ fn stop_delim_values_only_pos_follows() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-f", "-g,x"]
+        ["-f", "-g,x"]
     );
 }
 
@@ -355,14 +355,14 @@ fn dont_delim_values_trailingvararg() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["test", "--foo", "-Wl,-bar"]
+        ["test", "--foo", "-Wl,-bar"]
     );
 }
 
 #[test]
 fn delim_values_only_pos_follows() {
     let r = Command::new("onlypos")
-        .args(&[arg!(f: -f [flag] "some opt"), arg!([arg] ... "some arg")])
+        .args([arg!(f: -f [flag] "some opt"), arg!([arg] ... "some arg")])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
@@ -373,7 +373,7 @@ fn delim_values_only_pos_follows() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-f", "-g,x"]
+        ["-f", "-g,x"]
     );
 }
 
@@ -389,14 +389,14 @@ fn delim_values_trailingvararg() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["test", "--foo", "-Wl,-bar"]
+        ["test", "--foo", "-Wl,-bar"]
     );
 }
 
 #[test]
 fn delim_values_only_pos_follows_with_delim() {
     let r = Command::new("onlypos")
-        .args(&[
+        .args([
             arg!(f: -f [flag] "some opt"),
             arg!([arg] ... "some arg").value_delimiter(','),
         ])
@@ -410,7 +410,7 @@ fn delim_values_only_pos_follows_with_delim() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["-f", "-g", "x"]
+        ["-f", "-g", "x"]
     );
 }
 
@@ -430,7 +430,7 @@ fn delim_values_trailingvararg_with_delim() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["test", "--foo", "-Wl", "-bar"]
+        ["test", "--foo", "-Wl", "-bar"]
     );
 }
 
@@ -623,7 +623,7 @@ fn disable_help_subcommand() {
 
 #[test]
 fn dont_collapse_args() {
-    let cmd = Command::new("clap-test").version("v1.4.8").args(&[
+    let cmd = Command::new("clap-test").version("v1.4.8").args([
         Arg::new("arg1").help("some"),
         Arg::new("arg2").help("some"),
         Arg::new("arg3").help("some"),
@@ -1170,7 +1170,7 @@ fn aaos_opts_mult_req_delims() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["some", "other", "one", "two"]
+        ["some", "other", "one", "two"]
     );
 }
 
@@ -1201,7 +1201,7 @@ fn aaos_opts_mult() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["first", "overrides", "some", "other", "val"]
+        ["first", "overrides", "some", "other", "val"]
     );
 }
 
@@ -1219,7 +1219,7 @@ fn aaos_pos_mult() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["some", "other", "value"]
+        ["some", "other", "value"]
     );
 }
 
@@ -1240,7 +1240,7 @@ fn aaos_option_use_delim_false() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["one,two"]
+        ["one,two"]
     );
 }
 

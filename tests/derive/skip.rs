@@ -18,9 +18,9 @@ fn skip_1() {
         s: u32,
     }
 
-    assert!(Opt::try_parse_from(&["test", "-x", "10", "20"]).is_err());
+    assert!(Opt::try_parse_from(["test", "-x", "10", "20"]).is_err());
 
-    let mut opt = Opt::try_parse_from(&["test", "-x", "10"]).unwrap();
+    let mut opt = Opt::try_parse_from(["test", "-x", "10"]).unwrap();
     assert_eq!(
         opt,
         Opt {
@@ -30,7 +30,7 @@ fn skip_1() {
     );
     opt.s = 42;
 
-    opt.update_from(&["test", "-x", "22"]);
+    opt.update_from(["test", "-x", "22"]);
 
     assert_eq!(opt, Opt { x: 22, s: 42 });
 }
@@ -54,7 +54,7 @@ fn skip_2() {
     }
 
     assert_eq!(
-        Opt::try_parse_from(&["test", "-x", "10", "20", "30"]).unwrap(),
+        Opt::try_parse_from(["test", "-x", "10", "20", "30"]).unwrap(),
         Opt {
             x: 10,
             ss: String::from(""),
@@ -92,7 +92,7 @@ fn skip_enum() {
     }
 
     assert_eq!(
-        Opt::try_parse_from(&["test", "-n", "10"]).unwrap(),
+        Opt::try_parse_from(["test", "-n", "10"]).unwrap(),
         Opt {
             number: 10,
             k: Kind::B,
@@ -122,7 +122,7 @@ fn skip_help_doc_comments() {
     }
 
     assert_eq!(
-        Opt::try_parse_from(&["test", "-n", "10"]).unwrap(),
+        Opt::try_parse_from(["test", "-n", "10"]).unwrap(),
         Opt {
             n: 10,
             a: 0,
@@ -147,7 +147,7 @@ fn skip_val() {
     }
 
     assert_eq!(
-        Opt::try_parse_from(&["test", "-n", "10"]).unwrap(),
+        Opt::try_parse_from(["test", "-n", "10"]).unwrap(),
         Opt {
             number: 10,
             k: "key".to_string(),

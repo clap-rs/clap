@@ -37,7 +37,7 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
                 )
                 .subcommand(Command::new("sub1a")),
         )
-        .try_get_matches_from(&["foo", "sub1", "--arg1", "v1", "sub1a"])
+        .try_get_matches_from(["foo", "sub1", "--arg1", "v1", "sub1a"])
         .unwrap();
     assert_eq!(
         "v1",
@@ -62,7 +62,7 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
                 .arg(arg!(--"sub-str" <str>).global(true))
                 .subcommand(Command::new("test")),
         )
-        .try_get_matches_from(&[
+        .try_get_matches_from([
             "cmd",
             "test",
             "test",
@@ -86,7 +86,7 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
 #[test]
 fn global_arg_available_in_subcommand() {
     let m = Command::new("opt")
-        .args(&[
+        .args([
             Arg::new("global")
                 .global(true)
                 .long("global")
@@ -97,7 +97,7 @@ fn global_arg_available_in_subcommand() {
                 .action(ArgAction::SetTrue),
         ])
         .subcommand(Command::new("ping"))
-        .try_get_matches_from(&["opt", "ping", "--global"])
+        .try_get_matches_from(["opt", "ping", "--global"])
         .unwrap();
 
     assert!(*m.get_one::<bool>("global").expect("defaulted by clap"));

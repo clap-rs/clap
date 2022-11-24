@@ -23,7 +23,7 @@ fn basic() {
     }
     assert_eq!(
         Opt { arg: 24 },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+        Opt::try_parse_from(["test", "-a24"]).unwrap()
     );
 }
 
@@ -35,9 +35,9 @@ fn update_basic() {
         single_value: i32,
     }
 
-    let mut opt = Opt::try_parse_from(&["test", "-a0"]).unwrap();
+    let mut opt = Opt::try_parse_from(["test", "-a0"]).unwrap();
 
-    opt.update_from(&["test", "-a42"]);
+    opt.update_from(["test", "-a42"]);
 
     assert_eq!(Opt { single_value: 42 }, opt);
 }
@@ -47,5 +47,5 @@ fn unit_struct() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt;
 
-    assert_eq!(Opt {}, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(Opt {}, Opt::try_parse_from(["test"]).unwrap());
 }

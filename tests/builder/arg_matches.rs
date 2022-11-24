@@ -51,7 +51,7 @@ fn ids_ignore_overridden() {
 fn arg_matches_if_present_wrong_arg() {
     let m = Command::new("test")
         .arg(Arg::new("flag").short('f').action(ArgAction::SetTrue))
-        .try_get_matches_from(&["test", "-f"])
+        .try_get_matches_from(["test", "-f"])
         .unwrap();
 
     assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
@@ -64,7 +64,7 @@ fn arg_matches_if_present_wrong_arg() {
 fn arg_matches_value_of_wrong_arg() {
     let m = Command::new("test")
         .arg(Arg::new("opt").short('o').action(ArgAction::Set))
-        .try_get_matches_from(&["test", "-o", "val"])
+        .try_get_matches_from(["test", "-o", "val"])
         .unwrap();
 
     assert_eq!(m.get_one::<String>("opt").map(|v| v.as_str()), Some("val"));
@@ -77,7 +77,7 @@ fn arg_matches_value_of_wrong_arg() {
 fn arg_matches_subcommand_matches_wrong_sub() {
     let m = Command::new("test")
         .subcommand(Command::new("speed"))
-        .try_get_matches_from(&["test", "speed"])
+        .try_get_matches_from(["test", "speed"])
         .unwrap();
 
     assert!(m.subcommand_matches("speed").is_some());

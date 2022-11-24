@@ -176,7 +176,7 @@ fn default_missing_value_flag_value() {
             .default_missing_value("true"),
     );
 
-    let m = cmd.clone().try_get_matches_from(&["test"]).unwrap();
+    let m = cmd.clone().try_get_matches_from(["test"]).unwrap();
     assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()),
@@ -189,7 +189,7 @@ fn default_missing_value_flag_value() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["test", "--flag"])
+        .try_get_matches_from(["test", "--flag"])
         .unwrap();
     assert!(m.contains_id("flag"));
     assert_eq!(
@@ -203,7 +203,7 @@ fn default_missing_value_flag_value() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["test", "--flag=true"])
+        .try_get_matches_from(["test", "--flag=true"])
         .unwrap();
     assert!(m.contains_id("flag"));
     assert_eq!(
@@ -215,7 +215,7 @@ fn default_missing_value_flag_value() {
         clap::parser::ValueSource::CommandLine
     );
 
-    let m = cmd.try_get_matches_from(&["test", "--flag=false"]).unwrap();
+    let m = cmd.try_get_matches_from(["test", "--flag=false"]).unwrap();
     assert!(m.contains_id("flag"));
     assert_eq!(
         m.get_one::<String>("flag").map(|v| v.as_str()),

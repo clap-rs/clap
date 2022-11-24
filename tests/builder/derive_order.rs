@@ -21,7 +21,7 @@ Options:
     let cmd = Command::new("test")
         .version("1.2")
         .next_display_order(None)
-        .args(&[
+        .args([
             Arg::new("flag_b")
                 .long("flag_b")
                 .help("first flag")
@@ -57,7 +57,7 @@ Options:
   -V, --version              Print version information
 ";
 
-    let cmd = Command::new("test").version("1.2").args(&[
+    let cmd = Command::new("test").version("1.2").args([
         Arg::new("flag_b")
             .long("flag_b")
             .help("first flag")
@@ -185,7 +185,7 @@ Options:
 ";
 
     let cmd = Command::new("test").subcommand(
-        Command::new("sub").version("1.2").args(&[
+        Command::new("sub").version("1.2").args([
             Arg::new("flag_b")
                 .long("flag_b")
                 .help("first flag")
@@ -223,7 +223,7 @@ Options:
 ";
 
     let cmd = Command::new("test").subcommand(
-        Command::new("sub").version("1.2").args(&[
+        Command::new("sub").version("1.2").args([
             Arg::new("flag_b")
                 .long("flag_b")
                 .help("first flag")

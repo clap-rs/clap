@@ -99,15 +99,15 @@ fn get_aliases() {
     assert!(a.get_short_and_visible_aliases().is_none());
     assert_eq!(
         a.get_long_and_visible_aliases().unwrap(),
-        &["aliases", "alias4", "alias5", "alias6"]
+        ["aliases", "alias4", "alias5", "alias6"]
     );
     assert_eq!(
         a.get_visible_aliases().unwrap(),
-        &["alias4", "alias5", "alias6"]
+        ["alias4", "alias5", "alias6"]
     );
     assert_eq!(
         a.get_all_aliases().unwrap(),
-        &["alias1", "alias2", "alias3", "alias4", "alias5", "alias6"]
+        ["alias1", "alias2", "alias3", "alias4", "alias5", "alias6"]
     );
     assert_eq!(a.get_visible_short_aliases().unwrap(), vec!['d', 'e', 'f']);
     assert_eq!(

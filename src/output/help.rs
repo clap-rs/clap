@@ -18,7 +18,7 @@ pub(crate) fn write_help(writer: &mut StyledStr, cmd: &Command, usage: &Usage<'_
             use super::HelpTemplate;
             if let Some(tmpl) = cmd.get_help_template() {
                 for (style, content) in tmpl.iter() {
-                    if style == None {
+                    if style.is_none() {
                         HelpTemplate::new(writer, cmd, usage, use_long)
                             .write_templated_help(content);
                     } else {

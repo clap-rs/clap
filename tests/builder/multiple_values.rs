@@ -853,14 +853,14 @@ fn req_delimiter_long() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val1"]
+        ["val1"]
     );
     assert_eq!(
         m.get_many::<String>("args")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val2", "val3"]
+        ["val2", "val3"]
     );
 }
 
@@ -890,14 +890,14 @@ fn req_delimiter_long_with_equal() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val1"]
+        ["val1"]
     );
     assert_eq!(
         m.get_many::<String>("args")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val2", "val3"]
+        ["val2", "val3"]
     );
 }
 
@@ -927,14 +927,14 @@ fn req_delimiter_short_with_space() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val1"]
+        ["val1"]
     );
     assert_eq!(
         m.get_many::<String>("args")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val2", "val3"]
+        ["val2", "val3"]
     );
 }
 
@@ -964,14 +964,14 @@ fn req_delimiter_short_with_no_space() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val1"]
+        ["val1"]
     );
     assert_eq!(
         m.get_many::<String>("args")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val2", "val3"]
+        ["val2", "val3"]
     );
 }
 
@@ -1001,14 +1001,14 @@ fn req_delimiter_short_with_equal() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val1"]
+        ["val1"]
     );
     assert_eq!(
         m.get_many::<String>("args")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val2", "val3"]
+        ["val2", "val3"]
     );
 }
 
@@ -1062,7 +1062,7 @@ fn req_delimiter_complex() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &[
+        [
             "val2", "val4", "val6", "val8", "val10", "val12", "val13", "val15", "val16", "val18",
             "val19", "val21", "val22", "val24", "val25",
         ]
@@ -1072,7 +1072,7 @@ fn req_delimiter_complex() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &[
+        [
             "val1", "val3", "val5", "val7", "val9", "val11", "val14", "val17", "val20", "val23",
             "val26",
         ]

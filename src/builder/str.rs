@@ -66,7 +66,7 @@ impl From<&'static str> for Str {
 
 impl From<&'_ &'static str> for Str {
     fn from(name: &'_ &'static str) -> Self {
-        Self::from_static_ref(*name)
+        Self::from_static_ref(name)
     }
 }
 

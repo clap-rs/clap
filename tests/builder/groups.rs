@@ -233,7 +233,7 @@ fn required_group_multiple_args() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["flag", "color"]
+        ["flag", "color"]
     );
 }
 
@@ -356,14 +356,14 @@ fn issue_1794() {
                 .required(true),
         );
 
-    let m = cmd.clone().try_get_matches_from(&["cmd", "pos1", "pos2"]).unwrap();
+    let m = cmd.clone().try_get_matches_from(["cmd", "pos1", "pos2"]).unwrap();
     assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), Some("pos1"));
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("pos2"));
     assert!(!*m.get_one::<bool>("option1").expect("defaulted by clap"));
 
     let m = cmd
         .clone()
-        .try_get_matches_from(&["cmd", "--option1", "positional"]).unwrap();
+        .try_get_matches_from(["cmd", "--option1", "positional"]).unwrap();
     assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), None);
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("positional"));
     assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));

@@ -675,7 +675,7 @@ impl Command {
                     );
 
                     debug!("Command::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
-                    raw_args.insert(&cursor, &[&command]);
+                    raw_args.insert(&cursor, [&command]);
                     debug!("Command::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
                     self.name = "".into();
                     self.bin_name = None;

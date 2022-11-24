@@ -27,15 +27,15 @@ fn boxed_flatten_subcommand() {
                 arg: Box::new(Ext { arg: 1 })
             })
         },
-        Opt::try_parse_from(&["test", "flame", "1"]).unwrap()
+        Opt::try_parse_from(["test", "flame", "1"]).unwrap()
     );
 }
 
 #[test]
 fn update_boxed_flatten_subcommand() {
-    let mut opt = Opt::try_parse_from(&["test", "flame", "1"]).unwrap();
+    let mut opt = Opt::try_parse_from(["test", "flame", "1"]).unwrap();
 
-    opt.update_from(&["test", "flame", "42"]);
+    opt.update_from(["test", "flame", "42"]);
 
     assert_eq!(
         Opt {

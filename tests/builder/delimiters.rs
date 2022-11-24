@@ -122,6 +122,6 @@ fn opt_eq_mult_def_delim() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["val1", "val2", "val3"]
+        ["val1", "val2", "val3"]
     );
 }

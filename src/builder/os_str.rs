@@ -116,7 +116,7 @@ impl From<&'static std::ffi::OsStr> for OsStr {
 
 impl From<&'_ &'static std::ffi::OsStr> for OsStr {
     fn from(name: &'_ &'static std::ffi::OsStr) -> Self {
-        Self::from_static_ref(*name)
+        Self::from_static_ref(name)
     }
 }
 

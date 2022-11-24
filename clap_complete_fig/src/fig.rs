@@ -32,7 +32,7 @@ impl Generator for Fig {
         )
         .unwrap();
 
-        gen_fig_inner(command, &[], 2, cmd, &mut buffer);
+        gen_fig_inner(&[], 2, cmd, &mut buffer);
 
         write!(&mut buffer, "}};\n\nexport default completion;\n").unwrap();
 
@@ -51,13 +51,7 @@ fn escape_string(string: &str) -> String {
         .replace('\r', "")
 }
 
-fn gen_fig_inner(
-    root_command: &str,
-    parent_commands: &[&str],
-    indent: usize,
-    cmd: &Command,
-    buffer: &mut String,
-) {
+fn gen_fig_inner(parent_commands: &[&str], indent: usize, cmd: &Command, buffer: &mut String) {
     if cmd.has_subcommands() {
         write!(buffer, "{:indent$}subcommands: [\n", "", indent = indent).unwrap();
         // generate subcommands
@@ -113,13 +107,7 @@ fn gen_fig_inner(
 
             let mut parent_commands: Vec<_> = parent_commands.into();
             parent_commands.push(subcommand.get_name());
-            gen_fig_inner(
-                root_command,
-                &parent_commands,
-                indent + 4,
-                subcommand,
-                buffer,
-            );
+            gen_fig_inner(&parent_commands, indent + 4, subcommand, buffer);
 
             write!(buffer, "{:indent$}}},\n", "", indent = indent + 2).unwrap();
         }

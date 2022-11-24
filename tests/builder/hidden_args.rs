@@ -20,7 +20,7 @@ fn hide_args() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.4")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").hide(true),
             arg!(-F --flag2 "some other flag"),
             arg!(--option <opt> "some option"),
@@ -47,7 +47,7 @@ fn hide_short_args() {
         .about("hides short args")
         .author("Steve P.")
         .version("2.31.2")
-        .args(&[
+        .args([
             Arg::new("cfg")
                 .short('c')
                 .long("config")
@@ -90,7 +90,7 @@ Options:
         .about("hides short args")
         .author("Steve P.")
         .version("2.31.2")
-        .args(&[
+        .args([
             Arg::new("cfg")
                 .short('c')
                 .long("config")
@@ -129,7 +129,7 @@ fn hide_long_args() {
         .about("hides long args")
         .author("Steve P.")
         .version("2.31.2")
-        .args(&[
+        .args([
             Arg::new("cfg")
                 .short('c')
                 .long("config")
@@ -164,7 +164,7 @@ fn hide_long_args_short_help() {
         .about("hides long args")
         .author("Steve P.")
         .version("2.31.2")
-        .args(&[
+        .args([
             Arg::new("cfg")
                 .short('c')
                 .long("config")
@@ -194,7 +194,7 @@ Options:
 
 #[test]
 fn hide_pos_args() {
-    let cmd = Command::new("test").version("1.4").args(&[
+    let cmd = Command::new("test").version("1.4").args([
         Arg::new("pos").help("some pos").hide(true),
         Arg::new("another").help("another pos"),
     ]);
@@ -254,7 +254,7 @@ fn hide_pos_args_only() {
         .disable_version_flag(true)
         .arg(arg!(-h - -help).action(ArgAction::Help).hide(true))
         .arg(arg!(-v - -version).hide(true))
-        .args(&[Arg::new("pos").help("some pos").hide(true)]);
+        .args([Arg::new("pos").help("some pos").hide(true)]);
 
     utils::assert_output(cmd, "test --help", HIDDEN_POS_ARGS_ONLY, false);
 }

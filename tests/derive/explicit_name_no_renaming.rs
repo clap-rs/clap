@@ -12,14 +12,14 @@ fn explicit_short_long_no_rename() {
 
     assert_eq!(
         Opt { foo: "long".into() },
-        Opt::try_parse_from(&["test", "--.foo", "long"]).unwrap()
+        Opt::try_parse_from(["test", "--.foo", "long"]).unwrap()
     );
 
     assert_eq!(
         Opt {
             foo: "short".into(),
         },
-        Opt::try_parse_from(&["test", "-.", "short"]).unwrap()
+        Opt::try_parse_from(["test", "-.", "short"]).unwrap()
     );
 }
 

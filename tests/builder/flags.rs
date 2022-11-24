@@ -6,7 +6,7 @@ use super::utils;
 #[test]
 fn flag_using_short() {
     let m = Command::new("flag")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             arg!(-c --color "some other flag").action(ArgAction::SetTrue),
         ])
@@ -73,7 +73,7 @@ fn lots_o_flags_combined() {
 #[test]
 fn flag_using_long() {
     let m = Command::new("flag")
-        .args(&[
+        .args([
             arg!(--flag "some flag").action(ArgAction::SetTrue),
             arg!(--color "some other flag").action(ArgAction::SetTrue),
         ])
@@ -101,7 +101,7 @@ fn flag_using_long_with_literals() {
 #[test]
 fn flag_using_mixed() {
     let m = Command::new("flag")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             arg!(-c --color "some other flag").action(ArgAction::SetTrue),
         ])
@@ -111,7 +111,7 @@ fn flag_using_mixed() {
     assert!(*m.get_one::<bool>("color").expect("defaulted by clap"));
 
     let m = Command::new("flag")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             arg!(-c --color "some other flag").action(ArgAction::SetTrue),
         ])
@@ -124,7 +124,7 @@ fn flag_using_mixed() {
 #[test]
 fn multiple_flags_in_single() {
     let m = Command::new("multe_flags")
-        .args(&[
+        .args([
             arg!(-f --flag "some flag").action(ArgAction::SetTrue),
             arg!(-c --color "some other flag").action(ArgAction::SetTrue),
             arg!(-d --debug "another other flag").action(ArgAction::SetTrue),

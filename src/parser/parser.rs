@@ -1573,7 +1573,7 @@ impl<'cmd> Parser<'cmd> {
             suggested_trailing_arg,
             Usage::new(self.cmd)
                 .required(&required)
-                .create_usage_with_title(&*used),
+                .create_usage_with_title(&used),
         )
     }
 

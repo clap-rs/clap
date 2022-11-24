@@ -326,14 +326,14 @@ fn incremental_override() {
                 .action(ArgAction::SetTrue),
         );
     let m = cmd
-        .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])
+        .try_get_matches_from_mut(["test", "--name=ahmed", "--no-name", "--name=ali"])
         .unwrap();
     assert_eq!(
         m.get_many::<String>("name")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["ali"]
+        ["ali"]
     );
     assert!(!*m.get_one::<bool>("no-name").expect("defaulted by clap"));
 }

@@ -211,7 +211,7 @@ fn derive_generated_error_has_full_context() {
         },
     }
 
-    let result = Opts::try_parse_from(&["test", "sub"]);
+    let result = Opts::try_parse_from(["test", "sub"]);
     assert!(
         result.is_err(),
         "`SubcommandsNegateReqs` with non-optional `req_str` should fail: {:?}",

@@ -452,7 +452,7 @@ fn ignore_case_multiple() {
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        &["TeSt123", "teST123", "tESt321"]
+        ["TeSt123", "teST123", "tESt321"]
     );
 }
 

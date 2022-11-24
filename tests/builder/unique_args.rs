@@ -5,7 +5,7 @@ fn unique_arg_names() {
     use clap::{Arg, Command};
 
     let _ = Command::new("some")
-        .args(&[Arg::new("arg1").short('a'), Arg::new("arg1").short('b')])
+        .args([Arg::new("arg1").short('a'), Arg::new("arg1").short('b')])
         .try_get_matches();
 }
 
@@ -16,7 +16,7 @@ fn unique_arg_shorts() {
     use clap::{Arg, Command};
 
     let _ = Command::new("some")
-        .args(&[Arg::new("arg1").short('a'), Arg::new("arg2").short('a')])
+        .args([Arg::new("arg1").short('a'), Arg::new("arg2").short('a')])
         .try_get_matches();
 }
 
@@ -27,6 +27,6 @@ fn unique_arg_longs() {
     use clap::{Arg, Command};
 
     let _ = Command::new("some")
-        .args(&[Arg::new("arg1").long("long"), Arg::new("arg2").long("long")])
+        .args([Arg::new("arg1").long("long"), Arg::new("arg2").long("long")])
         .try_get_matches();
 }

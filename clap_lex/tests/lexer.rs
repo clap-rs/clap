@@ -5,7 +5,7 @@ fn insert() {
 
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("a")));
-    raw.insert(&cursor, &["1", "2", "3"]);
+    raw.insert(&cursor, ["1", "2", "3"]);
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("1")));
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("2")));
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("3")));
