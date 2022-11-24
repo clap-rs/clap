@@ -508,6 +508,41 @@ where
     }
 }
 
+/// Create a [`ValueParser`] with [`PossibleValuesParser`]
+///
+/// See [`PossibleValuesParser`] for more flexibility in creating the
+/// [`PossibleValue`][crate::builder::PossibleValue]s.
+///
+/// # Examples
+///
+/// ```rust
+/// let possible = vec!["always", "auto", "never"];
+/// let mut cmd = clap::Command::new("raw")
+///     .arg(
+///         clap::Arg::new("color")
+///             .long("color")
+///             .value_parser(possible)
+///             .default_value("auto")
+///     );
+///
+/// let m = cmd.try_get_matches_from_mut(
+///     ["cmd", "--color", "never"]
+/// ).unwrap();
+///
+/// let color: &String = m.get_one("color")
+///     .expect("default");
+/// assert_eq!(color, "never");
+/// ```
+impl<P> From<Vec<P>> for ValueParser
+where
+    P: Into<super::PossibleValue>,
+{
+    fn from(values: Vec<P>) -> Self {
+        let inner = PossibleValuesParser::from(values);
+        Self::from(inner)
+    }
+}
+
 impl std::fmt::Debug for ValueParser {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         match &self.0 {
@@ -957,30 +992,10 @@ impl Default for PathBufValueParser {
 ///
 /// ```rust
 /// # use std::ffi::OsStr;
+/// # use clap::ColorChoice;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
-///
-/// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-/// enum ColorChoice {
-///     Always,
-///     Auto,
-///     Never,
-/// }
-///
-/// impl clap::ValueEnum for ColorChoice {
-///     fn value_variants<'a>() -> &'a [Self] {
-///         &[Self::Always, Self::Auto, Self::Never]
-///     }
-///
-///     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue> {
-///         match self {
-///             Self::Always => Some(clap::builder::PossibleValue::new("always")),
-///             Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
-///             Self::Never => Some(clap::builder::PossibleValue::new("never")),
-///         }
-///     }
-/// }
 ///
 /// // Usage
 /// let mut cmd = clap::Command::new("raw")
@@ -1086,8 +1101,9 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 /// Verify the value is from an enumerated set of [`PossibleValue`][crate::builder::PossibleValue].
 ///
 /// See also:
-/// - [`EnumValueParser`] for directly supporting `enum`s
-/// - [`TypedValueParser::map`] for adapting values to a more specialized type
+/// - [`EnumValueParser`] for directly supporting [`ValueEnum`][crate::ValueEnum] types
+/// - [`TypedValueParser::map`] for adapting values to a more specialized type, like an external
+///   enums that can't implement [`ValueEnum`][crate::ValueEnum]
 ///
 /// # Example
 ///
@@ -2327,6 +2343,7 @@ pub mod via_prelude {
 ///
 /// Example mappings:
 /// ```rust
+/// # use clap::ColorChoice;
 /// // Built-in types
 /// let parser = clap::value_parser!(String);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::string");
@@ -2344,25 +2361,6 @@ pub mod via_prelude {
 /// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(usize))");
 ///
 /// // ValueEnum types
-/// #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-/// enum ColorChoice {
-///     Always,
-///     Auto,
-///     Never,
-/// }
-/// impl clap::ValueEnum for ColorChoice {
-///     // ...
-/// #     fn value_variants<'a>() -> &'a [Self] {
-/// #         &[Self::Always, Self::Auto, Self::Never]
-/// #     }
-/// #     fn to_possible_value<'a>(&self) -> Option<clap::builder::PossibleValue> {
-/// #         match self {
-/// #             Self::Always => Some(clap::builder::PossibleValue::new("always")),
-/// #             Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
-/// #             Self::Never => Some(clap::builder::PossibleValue::new("never")),
-/// #         }
-/// #     }
-/// }
 /// let parser = clap::value_parser!(ColorChoice);
 /// assert_eq!(format!("{:?}", parser), "EnumValueParser(PhantomData)");
 /// ```
