@@ -102,11 +102,7 @@ pub use crate::builder::Command;
 pub use crate::builder::ValueHint;
 pub use crate::builder::{Arg, ArgGroup};
 pub use crate::parser::ArgMatches;
-#[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
-#[cfg(not(feature = "color"))]
-#[allow(unused_imports)]
-pub(crate) use crate::util::color::ColorChoice;
 pub use crate::util::Id;
 
 /// Command Line Argument Parser Error
