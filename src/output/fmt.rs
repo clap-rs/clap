@@ -81,6 +81,13 @@ impl std::fmt::Display for Colorizer {
 }
 
 #[cfg(feature = "color")]
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+fn is_a_tty(stream: Stream) -> bool {
+    false
+}
+
+#[cfg(feature = "color")]
+#[cfg(all(not(target_arch = "wasm32"), not(target_os = "unknown")))]
 fn is_a_tty(stream: Stream) -> bool {
     use is_terminal::IsTerminal;
     match stream {
