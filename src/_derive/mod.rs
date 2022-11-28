@@ -177,6 +177,18 @@
 //! - `external_subcommand`: [`Command::allow_external_subcommand(true)`][crate::Command::allow_external_subcommands]
 //!   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 //!
+//! And for [`Args`][crate::Args] fields:
+//! - `flatten`: Delegates to the field for more arguments (must implement [`Args`][crate::Args])
+//!   - Only [`next_help_heading`][crate::Command::next_help_heading] can be used with `flatten`.  See
+//!     [clap-rs/clap#3269](https://github.com/clap-rs/clap/issues/3269) for why
+//!     arg attributes are not generally supported.
+//!   - **Tip:** Though we do apply a flattened [`Args`][crate::Args]'s Parent Command Attributes, this
+//!     makes reuse harder. Generally prefer putting the cmd attributes on the
+//!     [`Parser`][crate::Parser] or on the flattened field.
+//! - `subcommand`: Delegates definition of subcommands to the field (must implement
+//!   [`Subcommand`][crate::Subcommand])
+//!   - When `Option<T>`, the subcommand becomes optional
+//!
 //! ### ArgGroup Attributes
 //!
 //! These correspond to the [`ArgGroup`][crate::ArgGroup] which is implicitly created for each
@@ -214,16 +226,6 @@
 //! - `env [= <str>]`: [`Arg::env`][crate::Arg::env] (needs [`env` feature][crate::_features] enabled)
 //!   - When not present: no env set
 //!   - Without `<str>`: defaults to the case-converted field name
-//! - `flatten`: Delegates to the field for more arguments (must implement [`Args`][crate::Args])
-//!   - Only [`next_help_heading`][crate::Command::next_help_heading] can be used with `flatten`.  See
-//!     [clap-rs/clap#3269](https://github.com/clap-rs/clap/issues/3269) for why
-//!     arg attributes are not generally supported.
-//!   - **Tip:** Though we do apply a flattened [`Args`][crate::Args]'s Parent Command Attributes, this
-//!     makes reuse harder. Generally prefer putting the cmd attributes on the
-//!     [`Parser`][crate::Parser] or on the flattened field.
-//! - `subcommand`: Delegates definition of subcommands to the field (must implement
-//!   [`Subcommand`][crate::Subcommand])
-//!   - When `Option<T>`, the subcommand becomes optional
 //! - `from_global`: Read a [`Arg::global`][crate::Arg::global] argument (raw attribute), regardless of what subcommand you are in
 //! - `value_enum`: Parse the value using the [`ValueEnum`][crate::ValueEnum]
 //! - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
