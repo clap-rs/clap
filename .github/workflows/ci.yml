@@ -109,6 +109,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Check
         run: make check-${{ matrix.features }}
+        env:
+          TOOLCHAIN_TARGET: ${{ matrix.target }}
   ui:
     name: UI Tests
     runs-on: ubuntu-latest
