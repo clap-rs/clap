@@ -37,7 +37,7 @@ include = [
 [package.metadata.docs.rs]
 features = ["unstable-doc"]
 rustdoc-args = ["--cfg", "docsrs"]
-cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]
 
 [package.metadata.playground]
 features = ["unstable-doc"]
