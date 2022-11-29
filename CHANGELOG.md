@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Fix wasm support which was broken in 4.0.27
+
 ## [4.0.27] - 2022-11-24
 
 ### Features
