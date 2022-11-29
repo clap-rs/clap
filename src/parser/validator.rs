@@ -381,8 +381,8 @@ impl<'cmd> Validator<'cmd> {
         conflicts: &mut Conflicts,
     ) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
-        let conflicts = conflicts.gather_conflicts(self.cmd, matcher, a.get_id());
-        !conflicts.is_empty()
+        let overrides = conflicts.gather_overrides(self.cmd, matcher, a.get_id());
+        !overrides.is_empty()
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
@@ -525,6 +525,52 @@ impl Conflicts {
             };
             debug!(
                 "Conflicts::gather_direct_conflicts id={:?}, conflicts={:?}",
+                arg_id, conf
+            );
+            conf
+        })
+    }
+
+    fn gather_overrides(&mut self, cmd: &Command, matcher: &ArgMatcher, arg_id: &Id) -> Vec<Id> {
+        debug!("Conflicts::gather_overrides: arg={:?}", arg_id);
+        let mut overrides = Vec::new();
+        for other_arg_id in matcher
+            .arg_ids()
+            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
+        {
+            if arg_id == other_arg_id {
+                continue;
+            }
+
+            if self
+                .gather_direct_overrides(cmd, arg_id)
+                .contains(other_arg_id)
+            {
+                overrides.push(other_arg_id.clone());
+            }
+            if self
+                .gather_direct_overrides(cmd, other_arg_id)
+                .contains(arg_id)
+            {
+                overrides.push(other_arg_id.clone());
+            }
+        }
+        debug!("Conflicts::gather_overrides: overrides={:?}", overrides);
+        overrides
+    }
+
+    fn gather_direct_overrides(&mut self, cmd: &Command, arg_id: &Id) -> &[Id] {
+        self.potential.entry(arg_id.clone()).or_insert_with(|| {
+            let conf = if let Some(arg) = cmd.find(arg_id) {
+                arg.overrides.clone()
+            } else if let Some(group) = cmd.find_group(arg_id) {
+                group.conflicts.clone()
+            } else {
+                debug_assert!(false, "id={:?} is unknown", arg_id);
+                Vec::new()
+            };
+            debug!(
+                "Conflicts::gather_direct_overrides id={:?}, overrides={:?}",
                 arg_id, conf
             );
             conf
