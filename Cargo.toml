@@ -96,7 +96,7 @@ clap_lex = { path = "./clap_lex", version = "0.3.0" }
 bitflags = "1.2"
 unicase = { version = "2.6", optional = true }
 strsim = { version = "0.10",  optional = true }
-is-terminal = { version = "0.4",  optional = true }
+is-terminal = { version = "0.4.1",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.2.1", optional = true }
 backtrace = { version = "0.3", optional = true }
