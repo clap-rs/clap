@@ -18,6 +18,10 @@ fn opts() {
     let m = r.unwrap();
     assert!(m.contains_id("o"));
     assert_eq!(
+        m.value_source("o").unwrap(),
+        clap::parser::ValueSource::DefaultValue
+    );
+    assert_eq!(
         m.get_one::<String>("o").map(|v| v.as_str()).unwrap(),
         "default"
     );
@@ -60,6 +64,10 @@ fn opt_user_override() {
     let m = r.unwrap();
     assert!(m.contains_id("opt"));
     assert_eq!(
+        m.value_source("opt").unwrap(),
+        clap::parser::ValueSource::CommandLine
+    );
+    assert_eq!(
         m.get_one::<String>("opt").map(|v| v.as_str()).unwrap(),
         "value"
     );
@@ -74,6 +82,10 @@ fn positionals() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::DefaultValue
+    );
+    assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "default"
     );
@@ -87,6 +99,10 @@ fn positional_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
+    assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::CommandLine
+    );
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "value"
