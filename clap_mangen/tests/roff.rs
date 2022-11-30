@@ -1,4 +1,7 @@
 mod common;
+mod derive;
+
+use clap::CommandFactory;
 
 #[test]
 fn basic() {
@@ -72,9 +75,14 @@ fn possible_values() {
 
 #[test]
 fn flag_without_value() {
-    let name = "my-app";
-    let cmd = common::flag_without_value(name);
+    let cmd = derive::FlagWithoutValue::command();
     common::assert_matches_path("tests/snapshots/flag_without_value.bash.roff", cmd);
+}
+
+#[test]
+fn derive_basic_command() {
+    let cmd = derive::BasicCommand::command();
+    common::assert_matches_path("tests/snapshots/basic.bash.roff", cmd);
 }
 
 #[test]
