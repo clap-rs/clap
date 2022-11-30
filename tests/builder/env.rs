@@ -21,6 +21,10 @@ fn env() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::EnvVariable
+    );
+    assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
     );
@@ -100,6 +104,7 @@ fn no_env() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.contains_id("arg"));
+    assert_eq!(m.value_source("arg"), None);
     assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), None);
 }
 
@@ -116,6 +121,7 @@ fn no_env_no_takes_value() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.contains_id("arg"));
+    assert_eq!(m.value_source("arg"), None);
     assert_eq!(m.get_one::<String>("arg").map(|v| v.as_str()), None);
 }
 
@@ -135,6 +141,10 @@ fn with_default() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
+    assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::EnvVariable
+    );
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
@@ -156,6 +166,10 @@ fn opt_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
+    assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::CommandLine
+    );
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "opt"
@@ -186,6 +200,10 @@ fn positionals() {
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
     assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::EnvVariable
+    );
+    assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "env"
     );
@@ -206,6 +224,10 @@ fn positionals_user_override() {
     assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.contains_id("arg"));
+    assert_eq!(
+        m.value_source("arg").unwrap(),
+        clap::parser::ValueSource::CommandLine
+    );
     assert_eq!(
         m.get_one::<String>("arg").map(|v| v.as_str()).unwrap(),
         "opt"
