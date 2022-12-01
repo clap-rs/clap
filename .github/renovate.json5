@@ -5,30 +5,38 @@
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
     // - Take advantage of latest dev-dependencies
-    // - Help keep versions down by always using latest breaking change
     // - Rollup safe upgrades to reduce CI runner load
+    // - Help keep number of versions down by always using latest breaking change
     // - Have lockfile and manifest in-sync
     {
       "matchManagers": ["cargo"],
+      "matchDepTypes": ["build-dependencies", "dependencies"],
+      "matchCurrentVersion": ">=0.1.0",
+      "matchUpdateTypes": ["patch"],
+      "enabled": false,
+    },
+    {
+      "matchManagers": ["cargo"],
+      "matchDepTypes": ["build-dependencies", "dependencies"],
+      "matchCurrentVersion": ">=1.0.0",
+      "matchUpdateTypes": ["minor"],
+      "enabled": false,
+    },
+    {
+      "matchManagers": ["cargo"],
       "matchDepTypes": ["dev-dependencies"],
+      "matchCurrentVersion": ">=0.1.0",
       "matchUpdateTypes": ["patch"],
       "automerge": true,
       "groupName": "dev",
     },
     {
       "matchManagers": ["cargo"],
-      "matchUpdateTypes": ["major"],
-    },
-    {
-      "matchManagers": ["cargo"],
+      "matchDepTypes": ["dev-dependencies"],
+      "matchCurrentVersion": ">=1.0.0",
       "matchUpdateTypes": ["minor"],
-      "enabled": false,
-    },
-    {
-      "matchManagers": ["cargo"],
-      "matchDepTypes": ["build-dependencies", "dependencies"],
-      "matchUpdateTypes": ["patch"],
-      "enabled": false,
+      "automerge": true,
+      "groupName": "dev",
     },
   ],
 }
