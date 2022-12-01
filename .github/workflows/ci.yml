@@ -59,7 +59,7 @@ jobs:
         toolchain: ${{ matrix.rust }}
         profile: minimal
         override: true
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
@@ -106,7 +106,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
           override: true
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - name: Check
         run: make check-${{ matrix.features }}
   ui:
@@ -125,7 +125,7 @@ jobs:
         toolchain: 1.60.0  # MSRV
         profile: minimal
         override: true
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
   docs:
@@ -140,7 +140,7 @@ jobs:
         toolchain: 1.60.0  # MSRV
         profile: minimal
         override: true
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
     - name: Check documentation
       env:
         RUSTDOCFLAGS: -D warnings
@@ -160,7 +160,7 @@ jobs:
         profile: minimal
         override: true
         components: rustfmt
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
     - name: Check formatting
       run: cargo fmt --all -- --check
   clippy:
@@ -176,7 +176,7 @@ jobs:
         profile: minimal
         override: true
         components: clippy
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
     - name: Lint (ultra-minimal)
       run: make clippy-minimal ARGS='--manifest-path Cargo.toml'
     - name: Lint (minimal)
