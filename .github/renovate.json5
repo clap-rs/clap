@@ -1,4 +1,7 @@
 {
+  "schedule": [
+    "before 3am on the first day of the month"
+  ],
   "semanticCommits": "enabled",
   "configMigration": true,
   "packageRules": [
@@ -28,7 +31,7 @@
       "matchCurrentVersion": ">=0.1.0",
       "matchUpdateTypes": ["patch"],
       "automerge": true,
-      "groupName": "dev",
+      "groupName": "compatible (dev)",
     },
     {
       "matchManagers": ["cargo"],
@@ -36,7 +39,7 @@
       "matchCurrentVersion": ">=1.0.0",
       "matchUpdateTypes": ["minor"],
       "automerge": true,
-      "groupName": "dev",
+      "groupName": "compatible (dev)",
     },
   ],
 }
