@@ -80,12 +80,22 @@ impl MatchedArg {
         self.vals.iter()
     }
 
+    #[cfg(feature = "unstable-grouped")]
+    pub(crate) fn into_vals(self) -> Vec<Vec<AnyValue>> {
+        self.vals
+    }
+
     pub(crate) fn vals_flatten(&self) -> Flatten<Iter<Vec<AnyValue>>> {
         self.vals.iter().flatten()
     }
 
     pub(crate) fn into_vals_flatten(self) -> Flatten<std::vec::IntoIter<Vec<AnyValue>>> {
         self.vals.into_iter().flatten()
+    }
+
+    #[cfg(feature = "unstable-grouped")]
+    pub(crate) fn raw_vals(&self) -> Iter<Vec<OsString>> {
+        self.raw_vals.iter()
     }
 
     pub(crate) fn raw_vals_flatten(&self) -> Flatten<Iter<Vec<OsString>>> {
