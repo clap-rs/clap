@@ -1121,7 +1121,7 @@ impl Action {
 fn default_action(field_type: &Type, span: Span) -> Method {
     let ty = Ty::from_syn_ty(field_type);
     let args = match *ty {
-        Ty::Vec | Ty::OptionVec => {
+        Ty::Vec | Ty::OptionVec | Ty::VecVec | Ty::OptionVecVec => {
             quote_spanned! { span=>
                 clap::ArgAction::Append
             }

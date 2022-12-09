@@ -288,6 +288,14 @@ pub fn gen_augment(
                         }
                     }
 
+                    Ty::VecVec | Ty::OptionVecVec => {
+                        quote_spanned! { ty.span() =>
+                            .value_name(#value_name)
+                            #value_parser
+                            #action
+                        }
+                    }
+
                     Ty::Other => {
                         let required = item.find_default_method().is_none() && !override_required;
                         // `ArgAction::takes_values` is assuming `ArgAction::default_value` will be
@@ -431,7 +439,9 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                     Ty::Unit |
                     Ty::Vec |
                     Ty::OptionOption |
-                    Ty::OptionVec => {
+                    Ty::OptionVec |
+                    Ty::VecVec |
+                    Ty::OptionVecVec => {
                         abort!(
                             ty.span(),
                             "{} types are not supported for subcommand",
@@ -470,7 +480,9 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
                     Ty::Unit |
                     Ty::Vec |
                     Ty::OptionOption |
-                    Ty::OptionVec => {
+                    Ty::OptionVec |
+                    Ty::VecVec |
+                    Ty::OptionVecVec => {
                         abort!(
                             ty.span(),
                             "{} types are not supported for flatten",
@@ -609,6 +621,7 @@ fn gen_parsers(
     let id = item.id();
     let get_one = quote_spanned!(span=> remove_one::<#convert_type>);
     let get_many = quote_spanned!(span=> remove_many::<#convert_type>);
+    let get_occurrences = quote_spanned!(span=> remove_occurrences::<#convert_type>);
     let deref = quote!(|s| s);
     let parse = quote_spanned!(span=> |s| ::std::result::Result::Ok::<_, clap::Error>(s));
 
@@ -664,6 +677,17 @@ fn gen_parsers(
                     .unwrap_or_else(Vec::new)
             }
         }
+
+        Ty::VecVec => quote_spanned! { ty.span()=>
+            #arg_matches.#get_occurrences(#id)
+                .map(|g| g.map(::std::iter::Iterator::collect).collect::<Vec<Vec<_>>>())
+                .unwrap_or_else(Vec::new)
+        },
+
+        Ty::OptionVecVec => quote_spanned! { ty.span()=>
+            #arg_matches.#get_occurrences(#id)
+                .map(|g| g.map(::std::iter::Iterator::collect).collect::<Vec<Vec<_>>>())
+        },
 
         Ty::Other => {
             quote_spanned! { ty.span()=>

@@ -11,9 +11,11 @@ use syn::{
 pub enum Ty {
     Unit,
     Vec,
+    VecVec,
     Option,
     OptionOption,
     OptionVec,
+    OptionVecVec,
     Other,
 }
 
@@ -24,13 +26,21 @@ impl Ty {
 
         if is_unit_ty(ty) {
             t(Unit)
-        } else if is_generic_ty(ty, "Vec") {
-            t(Vec)
+        } else if let Some(subty) = subty_if_name(ty, "Vec") {
+            if is_generic_ty(subty, "Vec") {
+                t(VecVec)
+            } else {
+                t(Vec)
+            }
         } else if let Some(subty) = subty_if_name(ty, "Option") {
             if is_generic_ty(subty, "Option") {
                 t(OptionOption)
-            } else if is_generic_ty(subty, "Vec") {
-                t(OptionVec)
+            } else if let Some(subty) = subty_if_name(subty, "Vec") {
+                if is_generic_ty(subty, "Vec") {
+                    t(OptionVecVec)
+                } else {
+                    t(OptionVec)
+                }
             } else {
                 t(Option)
             }
@@ -46,6 +56,8 @@ impl Ty {
             Self::Option => "Option<T>",
             Self::OptionOption => "Option<Option<T>>",
             Self::OptionVec => "Option<Vec<T>>",
+            Self::VecVec => "Vec<Vec<T>>",
+            Self::OptionVecVec => "Option<Vec<Vec<T>>>",
             Self::Other => "...other...",
         }
     }
@@ -55,9 +67,13 @@ pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {
     let ty = Ty::from_syn_ty(field_ty);
     match *ty {
         Ty::Vec | Ty::Option => sub_type(field_ty).unwrap_or(field_ty),
-        Ty::OptionOption | Ty::OptionVec => {
+        Ty::OptionOption | Ty::OptionVec | Ty::VecVec => {
             sub_type(field_ty).and_then(sub_type).unwrap_or(field_ty)
         }
+        Ty::OptionVecVec => sub_type(field_ty)
+            .and_then(sub_type)
+            .and_then(sub_type)
+            .unwrap_or(field_ty),
         _ => field_ty,
     }
 }
