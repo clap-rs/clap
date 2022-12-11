@@ -248,6 +248,8 @@ pub enum ArgAction {
     ///
     /// Depending on the flag, [`Command::long_version`][super::Command::long_version] may be shown
     ///
+    /// When using `#[derive(clap::Parser)]` you need to add `#[command(version)]` to enable automatic `--version`
+    ///
     /// # Examples
     ///
     /// ```rust
