@@ -418,17 +418,17 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args(&mut self, args: &[&Arg], _category: &str, sort_key: ArgSortKey) {
         debug!("HelpTemplate::write_args {}", _category);
-        // The shortest an arg can legally be is 2 (i.e. '-x')
-        let mut longest = 2;
-        let mut ord_v = Vec::new();
 
-        // Determine the longest
-        for &arg in args.iter().filter(|arg| {
-            // If it's NextLineHelp we don't care to compute how long it is because it may be
-            // NextLineHelp on purpose simply *because* it's so long and would throw off all other
-            // args alignment
-            self.should_show_arg(arg)
-        }) {
+        let mut args = Vec::from_iter(
+            args.iter()
+                .filter(|arg| self.should_show_arg(arg))
+                .map(|arg| ((sort_key)(arg), arg)),
+        );
+        args.sort_by(|a, b| a.0.cmp(&b.0));
+
+        // Determine the longest.
+        let mut longest = 2; // The shortest an arg can legally be is 2 (like '-x')
+        for (_, &arg) in args.iter() {
             if longest_filter(arg) {
                 longest = longest.max(display_width(&arg.to_string()));
                 debug!(
@@ -437,18 +437,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     longest
                 );
             }
-
-            let key = (sort_key)(arg);
-            ord_v.push((key, arg));
         }
-        ord_v.sort_by(|a, b| a.0.cmp(&b.0));
 
         let next_line_help = args
             .iter()
-            .filter(|arg| self.should_show_arg(arg))
-            .any(|arg| self.arg_next_line_help(arg, longest));
+            .any(|(_, arg)| self.arg_next_line_help(arg, longest));
 
-        for (i, (_, arg)) in ord_v.iter().enumerate() {
+        for (i, (_, arg)) in args.iter().enumerate() {
             if i != 0 {
                 self.none("\n");
                 if next_line_help && self.use_long {
