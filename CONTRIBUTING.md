@@ -71,48 +71,28 @@ As we work towards [a more flexible architecture](https://github.com/clap-rs/cla
 
 Note: We have not yet determined the End-of-Life schedule for previous major versions.  We will give at least a 2 month warning before changing the support status.
 
-### Testing Code
+### Verifying Changes
 
-To test with all features both enabled and disabled, you can run this command:
-
+A common (sub)set of commands for verifying your change:
 ```sh
-$ cargo test --features "wrap_help yaml regex unstable-replace"
+$ make test-full
+$ make clippy-full
+$ make doc
 ```
+*(If `make` is not available on your system, you can look up what these expand to in the [Makefile](./Makefile))*
 
-Sometimes it's helpful to only run a subset of the tests, which can be done via:
+Check out the [Makefile](./Makefile) for more commands run by CI.
 
-```sh
-$ cargo test --test <test_name>
-```
+### Debugging Clap
 
-### Linting Code
+A helpful technique is to see the `clap` debug output while developing features. In order to see the debug output while running the full test suite or individual tests, run:
 
-During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/rust-lang/rust-clippy).
-
-In order to check the code for lints and to format it run:
-
-```sh
-$ cargo clippy --features "wrap_help yaml regex unstable-replace" -- -D warnings
-$ cargo fmt -- --check
-```
-
-### Debugging Code
-
-Another helpful technique is to see the `clap` debug output while developing features. In order to see the debug output while running the full test suite or individual tests, run:
-
-```sh
+```console
 $ cargo test --features debug
 
 # Or for individual tests
 $ cargo test --test <test_name> --features debug
 ```
-
-### Tests and Documentation
-
-1. Create tests for your changes
-2. **Ensure the tests are passing.** Run the tests as specified above.
-3. **Ensure linting is passing** Run the lints as specified above.
-4. Ensure your changes contain documentation if adding new APIs or features.
 
 ### Preparing the PR
 
@@ -121,6 +101,7 @@ $ cargo test --test <test_name> --features debug
 3. Create a pull request against `master`! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
 
 PR expectations:
+- Changes are tested and, if needed, documented
 - PRs remain small and focused
  - If needed, we can put changes behind feature flags as they evolve
 - Commits are atomic (i.e. do a single thing)
