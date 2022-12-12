@@ -39,12 +39,12 @@ impl<'cmd, 'writer> AutoHelp<'cmd, 'writer> {
             .template
             .cmd
             .get_positionals()
-            .any(|arg| should_show_arg(self.template.use_long, arg));
+            .any(|arg| self.template.should_show_arg(arg));
         let non_pos = self
             .template
             .cmd
             .get_non_positionals()
-            .any(|arg| should_show_arg(self.template.use_long, arg));
+            .any(|arg| self.template.should_show_arg(arg));
         let subcmds = self.template.cmd.has_visible_subcommands();
 
         let template = if non_pos || pos || subcmds {
@@ -338,13 +338,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             .cmd
             .get_positionals()
             .filter(|a| a.get_help_heading().is_none())
-            .filter(|arg| should_show_arg(self.use_long, arg))
+            .filter(|arg| self.should_show_arg(arg))
             .collect::<Vec<_>>();
         let non_pos = self
             .cmd
             .get_non_positionals()
             .filter(|a| a.get_help_heading().is_none())
-            .filter(|arg| should_show_arg(self.use_long, arg))
+            .filter(|arg| self.should_show_arg(arg))
             .collect::<Vec<_>>();
         let subcmds = self.cmd.has_visible_subcommands();
 
@@ -401,7 +401,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         }
                         false
                     })
-                    .filter(|arg| should_show_arg(self.use_long, arg))
+                    .filter(|arg| self.should_show_arg(arg))
                     .collect::<Vec<_>>();
 
                 if !args.is_empty() {
@@ -427,7 +427,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
-            should_show_arg(self.use_long, arg)
+            self.should_show_arg(arg)
         }) {
             if longest_filter(arg) {
                 longest = longest.max(display_width(&arg.to_string()));
@@ -674,7 +674,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// Will use next line help on writing args.
     fn will_args_wrap(&self, args: &[&Arg], longest: usize) -> bool {
         args.iter()
-            .filter(|arg| should_show_arg(self.use_long, arg))
+            .filter(|arg| self.should_show_arg(arg))
             .any(|arg| {
                 let spec_vals = &self.spec_vals(arg);
                 self.arg_next_line_help(arg, spec_vals, longest)
@@ -815,6 +815,20 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
     fn spaces(&mut self, n: usize) {
         self.none(self.get_spaces(n));
+    }
+
+    fn should_show_arg(&self, arg: &Arg) -> bool {
+        debug!(
+            "should_show_arg: use_long={:?}, arg={}",
+            self.use_long,
+            arg.get_id()
+        );
+        if arg.is_hide_set() {
+            return false;
+        }
+        (!arg.is_hide_long_help_set() && self.use_long)
+            || (!arg.is_hide_short_help_set() && !self.use_long)
+            || arg.is_next_line_help_set()
     }
 }
 
@@ -994,20 +1008,6 @@ fn parse_env(var: &str) -> Option<usize> {
     some!(some!(std::env::var_os(var)).to_str())
         .parse::<usize>()
         .ok()
-}
-
-fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
-    debug!(
-        "should_show_arg: use_long={:?}, arg={}",
-        use_long,
-        arg.get_id()
-    );
-    if arg.is_hide_set() {
-        return false;
-    }
-    (!arg.is_hide_long_help_set() && use_long)
-        || (!arg.is_hide_short_help_set() && !use_long)
-        || arg.is_next_line_help_set()
 }
 
 fn should_show_subcommand(subcommand: &Command) -> bool {
