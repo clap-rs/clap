@@ -675,20 +675,17 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn will_args_wrap(&self, args: &[&Arg], longest: usize) -> bool {
         args.iter()
             .filter(|arg| self.should_show_arg(arg))
-            .any(|arg| {
-                let spec_vals = &self.spec_vals(arg);
-                self.arg_next_line_help(arg, spec_vals, longest)
-            })
+            .any(|arg| self.arg_next_line_help(arg, longest))
     }
 
-    fn arg_next_line_help(&self, arg: &Arg, spec_vals: &str, longest: usize) -> bool {
+    fn arg_next_line_help(&self, arg: &Arg, longest: usize) -> bool {
         if self.next_line_help || arg.is_next_line_help_set() || self.use_long {
             // setting_next_line
             true
         } else {
             // force_next_line
             let h = arg.get_help().unwrap_or_default();
-            let h_w = h.display_width() + display_width(spec_vals);
+            let h_w = h.display_width() + display_width(&self.spec_vals(arg));
             let taken = if arg.is_positional() {
                 longest + TAB_WIDTH * 2
             } else {
