@@ -443,7 +443,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
         ord_v.sort_by(|a, b| a.0.cmp(&b.0));
 
-        let next_line_help = self.will_args_wrap(args, longest);
+        let next_line_help = args
+            .iter()
+            .filter(|arg| self.should_show_arg(arg))
+            .any(|arg| self.arg_next_line_help(arg, longest));
 
         for (i, (_, arg)) in ord_v.iter().enumerate() {
             if i != 0 {
@@ -669,13 +672,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 }
             }
         }
-    }
-
-    /// Will use next line help on writing args.
-    fn will_args_wrap(&self, args: &[&Arg], longest: usize) -> bool {
-        args.iter()
-            .filter(|arg| self.should_show_arg(arg))
-            .any(|arg| self.arg_next_line_help(arg, longest))
     }
 
     fn arg_next_line_help(&self, arg: &Arg, longest: usize) -> bool {
