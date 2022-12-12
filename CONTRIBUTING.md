@@ -76,7 +76,7 @@ Note: We have not yet determined the End-of-Life schedule for previous major ver
 To test with all features both enabled and disabled, you can run this command:
 
 ```sh
-$ cargo test --features "wrap_help yaml regex unstable-replace"
+$ cargo test --features "wrap_help unstable-replace"
 ```
 
 Sometimes it's helpful to only run a subset of the tests, which can be done via:
@@ -92,7 +92,7 @@ During the CI process `clap` runs against many different lints using [`clippy`](
 In order to check the code for lints and to format it run:
 
 ```sh
-$ cargo clippy --features "wrap_help yaml regex unstable-replace" -- -D warnings
+$ cargo clippy --features "wrap_help unstable-replace" -- -D warnings
 $ cargo fmt -- --check
 ```
 
