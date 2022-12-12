@@ -137,6 +137,7 @@ fn get_app() -> Command {
         .arg(arg!(
             d: -d ...           "Turn debugging information on"
         ))
+        .arg(arg!(--old "(deprecated) Secret old option").hide(true))
         .subcommand(
             Command::new("test")
                 .about("does testing things")
