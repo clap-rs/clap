@@ -507,9 +507,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             next_line_help,
             longest
         );
-        if self.use_long || next_line_help {
-            // long help prints messages on the next line so it doesn't need to align text
-            debug!("HelpTemplate::align_to_about: printing long help so skip alignment");
+        if next_line_help {
+            // When printing on the next line, don't need to align text
+            debug!("HelpTemplate::align_to_about: next_line_help => skip alignment");
         } else if !arg.is_positional() {
             let self_len = display_width(&arg.to_string());
             // Since we're writing spaces from the tab point we first need to know if we
