@@ -75,7 +75,7 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_03_positional.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction]` is [`Set`][crate::ArgAction::Set].  To
+//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple values, use [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_03_positional_mult.rs")]
@@ -94,7 +94,7 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_02_option.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction]` is [`Set`][crate::ArgAction::Set].  To
+//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple occurrences, use [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_02_option_mult.rs")]
