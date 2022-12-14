@@ -285,6 +285,8 @@
 //! - For custom type behavior, you can override the implied attributes/settings and/or set additional ones
 //! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
 //!   - This gives the user some flexibility in designing their argument, like with `num_args(0..)`
+//! - To use `Vec<T>` with `short` or `long` options you need to specify `value_delimiter`, for
+//! example `value_delimiter = ','`
 //!
 //! ## Doc Comments
 //!
