@@ -1,4 +1,7 @@
 /// Terminal-styling container
+///
+/// For now, this is the same as a [`Str`][crate::builder::Str].  This exists to reserve space in
+/// the API for exposing terminal styling.
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
 pub struct StyledStr {
     #[cfg(feature = "color")]
