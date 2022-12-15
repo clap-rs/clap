@@ -10,6 +10,24 @@ use crate::builder::ValueParser;
 use crate::builder::ValueRange;
 
 /// Clearable builder value
+///
+/// This allows a builder function to both accept any value that can [`Into::into`] `T` (like
+/// `&str` into `OsStr`) as well as `None` to reset it to the default.  This is needed to
+/// workaround a limitation where you can't have a function argument that is `impl Into<Option<T>>`
+/// where `T` is `impl Into<S>` accept `None` as its type is ambiguous.
+///
+/// # Example
+///
+/// ```rust
+/// # use clap::Command;
+/// # use clap::Arg;
+/// fn common() -> Command {
+///     Command::new("cli")
+///         .arg(Arg::new("input").short('i').long("input"))
+/// }
+/// let mut command = common();
+/// command.mut_arg("input", |arg| arg.short(None));
+/// ```
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Resettable<T> {
     /// Overwrite builder value
