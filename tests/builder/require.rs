@@ -42,6 +42,18 @@ fn option_required() {
 }
 
 #[test]
+fn option_required_and_conflicts_with_other_option() {
+    let result = Command::new("cli")
+        .arg(arg!(brick: -b "do something harmful"))
+        .arg(arg!(fix: -f "do something good").conflicts_with("brick"))
+        .arg(arg!(dry_run: -d "don't do it Louis").requires("fix"))
+        .try_get_matches_from(vec!["", "-b", "-d"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
 fn option_required_2() {
     let m = Command::new("option_required")
         .arg(arg!(f: -f <flag> "some flag").requires("c"))
