@@ -4179,7 +4179,7 @@ impl Arg {
         styled
     }
 
-    /// Write the values such as <name1> <name2>
+    /// Write the values such as `<name1> <name2>`
     fn render_arg_val(&self, required: bool) -> String {
         let mut rendered = String::new();
 
