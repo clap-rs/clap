@@ -2351,18 +2351,15 @@ pub mod via_prelude {
 /// assert_eq!(format!("{:?}", parser), "ValueParser::os_string");
 /// let parser = clap::value_parser!(std::path::PathBuf);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::path_buf");
-/// let parser = clap::value_parser!(u16).range(3000..);
-/// assert_eq!(format!("{:?}", parser), "RangedI64ValueParser { bounds: (Included(3000), Included(65535)), target: PhantomData }");
-/// let parser = clap::value_parser!(u64).range(3000..);
-/// assert_eq!(format!("{:?}", parser), "RangedU64ValueParser { bounds: (Included(3000), Unbounded), target: PhantomData }");
+/// clap::value_parser!(u16).range(3000..);
+/// clap::value_parser!(u64).range(3000..);
 ///
 /// // FromStr types
 /// let parser = clap::value_parser!(usize);
 /// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(usize))");
 ///
 /// // ValueEnum types
-/// let parser = clap::value_parser!(ColorChoice);
-/// assert_eq!(format!("{:?}", parser), "EnumValueParser(PhantomData)");
+/// clap::value_parser!(ColorChoice);
 /// ```
 #[macro_export]
 macro_rules! value_parser {
