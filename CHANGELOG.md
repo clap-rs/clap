@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Improve error for `args_conflicts_with_subcommand`
+
 ## [4.0.29] - 2022-11-29
 
 ## [4.0.28] - 2022-11-29
