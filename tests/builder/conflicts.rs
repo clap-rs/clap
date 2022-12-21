@@ -702,6 +702,32 @@ fn args_negate_subcommands_two_levels() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
+fn subcommand_conflict_error_message() {
+    static CONFLICT_ERR: &str = "\
+error: The subcommand 'sub1' wasn't recognized
+
+  Did you mean 'sub1'?
+
+  If you believe you received this message in error, try re-running with 'test -- sub1'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information try '--help'
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(-p --place <"place id"> "Place ID to open"))
+        .subcommand(
+            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
+        );
+
+    utils::assert_output(cmd, "test --place id sub1", CONFLICT_ERR, true);
+}
+
+#[test]
 fn subcommand_conflict_negates_required() {
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
