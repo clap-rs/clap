@@ -1053,7 +1053,7 @@ Options:
         )
         .help_template(
             "\
-{bin} {version}
+{name} {version}
 
 Usage: {usage}
 

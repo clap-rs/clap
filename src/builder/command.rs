@@ -1744,7 +1744,6 @@ impl Command {
     /// Valid tags are:
     ///
     ///   * `{name}`                - Display name for the (sub-)command.
-    ///   * `{bin}`                 - Binary name.
     ///   * `{version}`             - Version number.
     ///   * `{author}`              - Author information.
     ///   * `{author-with-newline}` - Author followed by `\n`.
@@ -1772,7 +1771,7 @@ impl Command {
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .version("1.0")
-    ///     .help_template("{bin} ({version}) - {usage}")
+    ///     .help_template("{name} ({version}) - {usage}")
     /// # ;
     /// ```
     ///

@@ -2,7 +2,7 @@ use super::utils;
 
 use clap::{arg, Command};
 
-static EXAMPLE1_TMPL_S: &str = "{bin} {version}
+static EXAMPLE1_TMPL_S: &str = "{name} {version}
 {author}
 {about}
 
@@ -10,7 +10,7 @@ Usage: {usage}
 
 {all-args}";
 
-static EXAMPLE1_TMPS_F: &str = "{bin} {version}
+static EXAMPLE1_TMPS_F: &str = "{name} {version}
 {author}
 {about}
 
@@ -109,7 +109,7 @@ fn template_author_version() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .help_template("{author}\n{version}\n{about}\n{bin}");
+        .help_template("{author}\n{version}\n{about}\n{name}");
     utils::assert_output(
         cmd,
         "MyApp --help",
