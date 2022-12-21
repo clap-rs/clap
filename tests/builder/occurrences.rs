@@ -1,6 +1,13 @@
 #![cfg(feature = "unstable-grouped")]
 
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, ArgMatches, Command};
+
+fn occurrences_as_vec_vec<'a>(m: &'a ArgMatches, name: &str) -> Vec<Vec<&'a String>> {
+    m.get_occurrences(name)
+        .unwrap()
+        .map(Iterator::collect)
+        .collect()
+}
 
 #[test]
 fn grouped_value_works() {
@@ -22,7 +29,7 @@ fn grouped_value_works() {
             "en_US:my option 2",
         ])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "option");
     assert_eq!(
         grouped_vals,
         vec![
@@ -50,7 +57,7 @@ fn issue_1026() {
             "target3", "file8",
         ])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("target").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "target");
     assert_eq!(
         grouped_vals,
         vec![
@@ -80,7 +87,7 @@ fn grouped_value_long_flag_delimiter() {
             "alice,bob",
         ])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "option");
     assert_eq!(
         grouped_vals,
         vec![
@@ -104,7 +111,7 @@ fn grouped_value_short_flag_delimiter() {
         )
         .try_get_matches_from(vec!["myapp", "-o=foo", "-o=val1,val2,val3", "-o=bar"])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "option");
     assert_eq!(
         grouped_vals,
         vec![vec!["foo"], vec!["val1", "val2", "val3"], vec!["bar"]]
@@ -124,7 +131,7 @@ fn grouped_value_positional_arg() {
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
         ])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "pos");
     assert_eq!(
         grouped_vals,
         vec![vec!["val1", "val2", "val3", "val4", "val5", "val6"]]
@@ -145,7 +152,7 @@ fn grouped_value_multiple_positional_arg() {
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
         ])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("pos2").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "pos2");
     assert_eq!(
         grouped_vals,
         vec![vec!["val2", "val3", "val4", "val5", "val6"]]
@@ -167,7 +174,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
             "myprog", "val1", "--", "val2", "val3", "val4", "val5", "val6",
         ])
         .unwrap();
-    let grouped_vals: Vec<_> = m.grouped_values_of("pos2").unwrap().collect();
+    let grouped_vals = occurrences_as_vec_vec(&m, "pos2");
     assert_eq!(
         grouped_vals,
         vec![vec!["val2", "val3", "val4", "val5", "val6"]]
@@ -190,10 +197,10 @@ fn grouped_interleaved_positional_values() {
         .try_get_matches_from(["foo", "1", "2", "-f", "a", "3", "-f", "b", "4"])
         .unwrap();
 
-    let pos: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
+    let pos = occurrences_as_vec_vec(&m, "pos");
     assert_eq!(pos, vec![vec!["1", "2"], vec!["3"], vec!["4"]]);
 
-    let flag: Vec<_> = m.grouped_values_of("flag").unwrap().collect();
+    let flag = occurrences_as_vec_vec(&m, "flag");
     assert_eq!(flag, vec![vec!["a"], vec!["b"]]);
 }
 
@@ -213,10 +220,10 @@ fn grouped_interleaved_positional_occurrences() {
         .try_get_matches_from(["foo", "1", "2", "-f", "a", "3", "-f", "b", "4"])
         .unwrap();
 
-    let pos: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
+    let pos = occurrences_as_vec_vec(&m, "pos");
     assert_eq!(pos, vec![vec!["1", "2"], vec!["3"], vec!["4"]]);
 
-    let flag: Vec<_> = m.grouped_values_of("flag").unwrap().collect();
+    let flag = occurrences_as_vec_vec(&m, "flag");
     assert_eq!(flag, vec![vec!["a"], vec!["b"]]);
 }
 

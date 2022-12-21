@@ -216,6 +216,44 @@ impl ArgMatches {
         MatchesError::unwrap(id, self.try_get_many(id))
     }
 
+    /// Iterate over the values passed to each occurrence of an option.
+    ///
+    /// Each item is itself an iterator containing the arguments passed to a single occurrence
+    /// of the option.
+    ///
+    /// If the option doesn't support multiple occurrences, or there was only a single occurrence,
+    /// the iterator will only contain a single item.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Panics
+    ///
+    /// If the argument definition and access mismatch. To handle this case programmatically, see
+    /// [`ArgMatches::try_get_occurrences`].
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use clap::{Command,Arg, ArgAction, value_parser};
+    /// let m = Command::new("myprog")
+    ///     .arg(Arg::new("x")
+    ///         .short('x')
+    ///         .num_args(2)
+    ///         .action(ArgAction::Append)
+    ///         .value_parser(value_parser!(String)))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-x", "a", "b", "-x", "c", "d"]);
+    /// let vals: Vec<Vec<&String>> = m.get_occurrences("x").unwrap().map(Iterator::collect).collect();
+    /// assert_eq!(vals, [["a", "b"], ["c", "d"]]);
+    /// ```
+    #[cfg_attr(debug_assertions, track_caller)]
+    #[cfg(feature = "unstable-grouped")]
+    pub fn get_occurrences<T: Any + Clone + Send + Sync + 'static>(
+        &self,
+        id: &str,
+    ) -> Option<OccurrencesRef<T>> {
+        MatchesError::unwrap(id, self.try_get_occurrences(id))
+    }
+
     /// Iterate over the original argument values.
     ///
     /// An `OsStr` on Unix-like systems is any series of bytes, regardless of whether or not they
@@ -260,6 +298,60 @@ impl ArgMatches {
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_raw(&self, id: &str) -> Option<RawValues<'_>> {
         MatchesError::unwrap(id, self.try_get_raw(id))
+    }
+
+    /// Iterate over the original values for each occurrence of an option.
+    ///
+    /// Similar to [`ArgMatches::get_occurrences`] but returns raw values.
+    ///
+    /// An `OsStr` on Unix-like systems is any series of bytes, regardless of whether or not they
+    /// contain valid UTF-8. Since [`String`]s in Rust are guaranteed to be valid UTF-8, a valid
+    /// filename on a Unix system as an argument value may contain invalid UTF-8.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Panic
+    ///
+    /// If the argument definition and access mismatch.  To handle this case programmatically, see
+    /// [`ArgMatches::try_get_raw_occurrences`].
+    ///
+    /// # Examples
+    ///
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
+    /// # use clap::{Command, arg, value_parser, ArgAction, Arg};
+    /// # use std::ffi::{OsStr,OsString};
+    /// # use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    /// use std::path::PathBuf;
+    ///
+    /// let m = Command::new("myprog")
+    ///     .arg(Arg::new("x")
+    ///         .short('x')
+    ///         .num_args(2)
+    ///         .action(ArgAction::Append)
+    ///         .value_parser(value_parser!(PathBuf)))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                             OsString::from("-x"),
+    ///                             OsString::from("a"), OsString::from("b"),
+    ///                             OsString::from("-x"),
+    ///                             OsString::from("c"),
+    ///                             // "{0xe9}!"
+    ///                             OsString::from_vec(vec![0xe9, b'!'])]);
+    /// let mut itr = m.get_raw_occurrences("x")
+    ///     .expect("`-x`is required")
+    ///     .map(Iterator::collect::<Vec<_>>);
+    /// assert_eq!(itr.next(), Some(vec![OsStr::new("a"), OsStr::new("b")]));
+    /// assert_eq!(itr.next(), Some(vec![OsStr::new("c"), OsStr::from_bytes(&[0xe9, b'!'])]));
+    /// assert_eq!(itr.next(), None);
+    /// ```
+    /// [`Iterator`]: std::iter::Iterator
+    /// [`OsStr`]: std::ffi::OsStr
+    /// [values]: OsValues
+    /// [`String`]: std::string::String
+    #[cfg(feature = "unstable-grouped")]
+    #[cfg_attr(debug_assertions, track_caller)]
+    pub fn get_raw_occurrences(&self, id: &str) -> Option<RawOccurrences<'_>> {
+        MatchesError::unwrap(id, self.try_get_raw_occurrences(id))
     }
 
     /// Returns the value of a specific option or positional argument.
@@ -336,6 +428,45 @@ impl ArgMatches {
         id: &str,
     ) -> Option<Values<T>> {
         MatchesError::unwrap(id, self.try_remove_many(id))
+    }
+
+    /// Return values for each occurrence of an option.
+    ///
+    /// Each item is itself an iterator containing the arguments passed to a single occurrence of
+    /// the option.
+    ///
+    /// If the option doesn't support multiple occurrences, or there was only a single occurrence,
+    /// the iterator will only contain a single item.
+    ///
+    /// Returns `None` if the option wasn't present.
+    ///
+    /// # Panic
+    ///
+    /// If the argument definition and access mismatch.  To handle this case programmatically, see
+    /// [`ArgMatches::try_remove_occurrences`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{Command, Arg, value_parser, ArgAction};
+    /// let mut m = Command::new("myprog")
+    ///     .arg(Arg::new("x")
+    ///         .short('x')
+    ///         .num_args(2)
+    ///         .action(ArgAction::Append)
+    ///         .value_parser(value_parser!(String)))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-x", "a", "b", "-x", "c", "d"]);
+    /// let vals: Vec<Vec<String>> = m.remove_occurrences("x").unwrap().map(Iterator::collect).collect();
+    /// assert_eq!(vals, [["a", "b"], ["c", "d"]]);
+    /// ```
+    #[cfg(feature = "unstable-grouped")]
+    #[cfg_attr(debug_assertions, track_caller)]
+    pub fn remove_occurrences<T: Any + Clone + Send + Sync + 'static>(
+        &mut self,
+        id: &str,
+    ) -> Option<Occurrences<T>> {
+        MatchesError::unwrap(id, self.try_remove_occurrences(id))
     }
 
     /// Check if values are present for the argument or group id
@@ -453,6 +584,11 @@ impl ArgMatches {
     /// [`Iterator`]: std::iter::Iterator
     #[cfg(feature = "unstable-grouped")]
     #[cfg_attr(debug_assertions, track_caller)]
+    #[deprecated(
+        since = "4.1.0",
+        note = "Use get_occurrences or remove_occurrences instead"
+    )]
+    #[allow(deprecated)]
     pub fn grouped_values_of(&self, id: &str) -> Option<GroupedValues> {
         let arg = some!(self.get_arg(id));
         let v = GroupedValues {
@@ -967,10 +1103,28 @@ impl ArgMatches {
         let values = arg.vals_flatten();
         let values = ValuesRef {
             // enforced by `try_get_arg_t`
-            iter: values.map(|v| v.downcast_ref::<T>().expect(INTERNAL_ERROR_MSG)),
+            iter: values.map(unwrap_downcast_ref),
             len,
         };
         Ok(Some(values))
+    }
+
+    /// Non-panicking version of [`ArgMatches::get_occurrences`]
+    #[cfg(feature = "unstable-grouped")]
+    pub fn try_get_occurrences<T: Any + Clone + Send + Sync + 'static>(
+        &self,
+        id: &str,
+    ) -> Result<Option<OccurrencesRef<T>>, MatchesError> {
+        let arg = match ok!(self.try_get_arg_t::<T>(id)) {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let values = arg.vals();
+        Ok(Some(OccurrencesRef {
+            iter: values.map(|g| OccurrenceValuesRef {
+                iter: g.iter().map(unwrap_downcast_ref),
+            }),
+        }))
     }
 
     /// Non-panicking version of [`ArgMatches::get_raw`]
@@ -988,6 +1142,25 @@ impl ArgMatches {
         Ok(Some(values))
     }
 
+    /// Non-panicking version of [`ArgMatches::get_raw_occurrences`]
+    #[cfg(feature = "unstable-grouped")]
+    pub fn try_get_raw_occurrences(
+        &self,
+        id: &str,
+    ) -> Result<Option<RawOccurrences<'_>>, MatchesError> {
+        let arg = match ok!(self.try_get_arg(id)) {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let values = arg.raw_vals();
+        let occurrences = RawOccurrences {
+            iter: values.map(|g| RawOccurrenceValues {
+                iter: g.iter().map(OsString::as_os_str),
+            }),
+        };
+        Ok(Some(occurrences))
+    }
+
     /// Non-panicking version of [`ArgMatches::remove_one`]
     pub fn try_remove_one<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
@@ -997,7 +1170,7 @@ impl ArgMatches {
             Some(values) => Ok(values
                 .into_vals_flatten()
                 // enforced by `try_get_arg_t`
-                .map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG))
+                .map(unwrap_downcast_into)
                 .next()),
             None => Ok(None),
         }
@@ -1016,10 +1189,29 @@ impl ArgMatches {
         let values = arg.into_vals_flatten();
         let values = Values {
             // enforced by `try_get_arg_t`
-            iter: values.map(|v| v.downcast_into::<T>().expect(INTERNAL_ERROR_MSG)),
+            iter: values.map(unwrap_downcast_into),
             len,
         };
         Ok(Some(values))
+    }
+
+    /// Non-panicking version of [`ArgMatches::remove_occurrences`]
+    #[cfg(feature = "unstable-grouped")]
+    pub fn try_remove_occurrences<T: Any + Clone + Send + Sync + 'static>(
+        &mut self,
+        id: &str,
+    ) -> Result<Option<Occurrences<T>>, MatchesError> {
+        let arg = match ok!(self.try_remove_arg_t::<T>(id)) {
+            Some(arg) => arg,
+            None => return Ok(None),
+        };
+        let values = arg.into_vals();
+        let occurrences = Occurrences {
+            iter: values.into_iter().map(|g| OccurrenceValues {
+                iter: g.into_iter().map(unwrap_downcast_into),
+            }),
+        };
+        Ok(Some(occurrences))
     }
 
     /// Non-panicking version of [`ArgMatches::contains_id`]
@@ -1377,14 +1569,15 @@ impl Default for RawValues<'_> {
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
 // license: MIT - Copyright (c) 2015 The Rust Project Developers
 
-#[derive(Clone)]
-#[allow(missing_debug_implementations)]
+#[derive(Clone, Debug)]
+#[deprecated(since = "4.1.0", note = "Use Occurrences instead")]
 pub struct GroupedValues<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Iter<'a, Vec<AnyValue>>, fn(&Vec<AnyValue>) -> Vec<&str>>,
     len: usize,
 }
 
+#[allow(deprecated)]
 impl<'a> Iterator for GroupedValues<'a> {
     type Item = Vec<&'a str>;
 
@@ -1396,15 +1589,18 @@ impl<'a> Iterator for GroupedValues<'a> {
     }
 }
 
+#[allow(deprecated)]
 impl<'a> DoubleEndedIterator for GroupedValues<'a> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back()
     }
 }
 
+#[allow(deprecated)]
 impl<'a> ExactSizeIterator for GroupedValues<'a> {}
 
 /// Creates an empty iterator. Used for `unwrap_or_default()`.
+#[allow(deprecated)]
 impl<'a> Default for GroupedValues<'a> {
     fn default() -> Self {
         static EMPTY: [Vec<AnyValue>; 0] = [];
@@ -1414,6 +1610,206 @@ impl<'a> Default for GroupedValues<'a> {
         }
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct Occurrences<T> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<std::vec::IntoIter<Vec<AnyValue>>, fn(Vec<AnyValue>) -> OccurrenceValues<T>>,
+}
+
+impl<T> Iterator for Occurrences<T> {
+    type Item = OccurrenceValues<T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<T> DoubleEndedIterator for Occurrences<T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<T> ExactSizeIterator for Occurrences<T> {}
+
+impl<T> Default for Occurrences<T> {
+    fn default() -> Self {
+        let empty: Vec<Vec<AnyValue>> = Default::default();
+        Occurrences {
+            iter: empty.into_iter().map(|_| unreachable!()),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct OccurrenceValues<T> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<std::vec::IntoIter<AnyValue>, fn(AnyValue) -> T>,
+}
+
+impl<T> Iterator for OccurrenceValues<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<T> DoubleEndedIterator for OccurrenceValues<T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<T> ExactSizeIterator for OccurrenceValues<T> {}
+
+#[derive(Clone, Debug)]
+pub struct OccurrencesRef<'a, T> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Iter<'a, Vec<AnyValue>>, fn(&Vec<AnyValue>) -> OccurrenceValuesRef<'_, T>>,
+}
+
+impl<'a, T> Iterator for OccurrencesRef<'a, T>
+where
+    Self: 'a,
+{
+    type Item = OccurrenceValuesRef<'a, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for OccurrencesRef<'a, T>
+where
+    Self: 'a,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a, T> ExactSizeIterator for OccurrencesRef<'a, T> where Self: 'a {}
+impl<'a, T> Default for OccurrencesRef<'a, T> {
+    fn default() -> Self {
+        static EMPTY: [Vec<AnyValue>; 0] = [];
+        OccurrencesRef {
+            iter: EMPTY[..].iter().map(|_| unreachable!()),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct OccurrenceValuesRef<'a, T> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Iter<'a, AnyValue>, fn(&AnyValue) -> &T>,
+}
+
+impl<'a, T> Iterator for OccurrenceValuesRef<'a, T>
+where
+    Self: 'a,
+{
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for OccurrenceValuesRef<'a, T>
+where
+    Self: 'a,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a, T> ExactSizeIterator for OccurrenceValuesRef<'a, T> where Self: 'a {}
+
+#[derive(Clone, Debug)]
+pub struct RawOccurrences<'a> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Iter<'a, Vec<OsString>>, fn(&Vec<OsString>) -> RawOccurrenceValues<'_>>,
+}
+
+impl<'a> Iterator for RawOccurrences<'a> {
+    type Item = RawOccurrenceValues<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a> DoubleEndedIterator for RawOccurrences<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for RawOccurrences<'a> {}
+
+impl<'a> Default for RawOccurrences<'a> {
+    fn default() -> Self {
+        static EMPTY: [Vec<OsString>; 0] = [];
+        RawOccurrences {
+            iter: EMPTY[..].iter().map(|_| unreachable!()),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct RawOccurrenceValues<'a> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<Iter<'a, OsString>, fn(&OsString) -> &OsStr>,
+}
+
+impl<'a> Iterator for RawOccurrenceValues<'a>
+where
+    Self: 'a,
+{
+    type Item = &'a OsStr;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a> DoubleEndedIterator for RawOccurrenceValues<'a>
+where
+    Self: 'a,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for RawOccurrenceValues<'a> {}
 
 /// Iterate over indices for where an argument appeared when parsing, via [`ArgMatches::indices_of`]
 ///
@@ -1482,6 +1878,16 @@ fn unwrap_string(value: &AnyValue) -> &str {
             panic!("Must use `_os` lookups with `Arg::allow_invalid_utf8`",)
         }
     }
+}
+
+#[track_caller]
+fn unwrap_downcast_ref<T: Any + Clone + Send + Sync + 'static>(value: &AnyValue) -> &T {
+    value.downcast_ref().expect(INTERNAL_ERROR_MSG)
+}
+
+#[track_caller]
+fn unwrap_downcast_into<T: Any + Clone + Send + Sync + 'static>(value: AnyValue) -> T {
+    value.downcast_into().expect(INTERNAL_ERROR_MSG)
 }
 
 #[cfg(test)]
