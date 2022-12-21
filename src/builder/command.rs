@@ -1744,6 +1744,7 @@ impl Command {
     /// Valid tags are:
     ///
     ///   * `{name}`                - Display name for the (sub-)command.
+    ///   * `{bin}`                 - Binary name.(deprecated)
     ///   * `{version}`             - Version number.
     ///   * `{author}`              - Author information.
     ///   * `{author-with-newline}` - Author followed by `\n`.
