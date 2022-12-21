@@ -705,11 +705,7 @@ fn args_negate_subcommands_two_levels() {
 #[cfg(feature = "error-context")]
 fn subcommand_conflict_error_message() {
     static CONFLICT_ERR: &str = "\
-error: The subcommand 'sub1' wasn't recognized
-
-  Did you mean 'sub1'?
-
-  If you believe you received this message in error, try re-running with 'test -- sub1'
+error: Found argument 'sub1' which wasn't expected, or isn't valid in this context
 
 Usage: test [OPTIONS]
        test <COMMAND>
