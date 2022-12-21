@@ -655,52 +655,6 @@ Options:
 }
 
 #[test]
-fn args_negate_subcommands_one_level() {
-    let res = Command::new("disablehelp")
-        .args_conflicts_with_subcommands(true)
-        .subcommand_negates_reqs(true)
-        .arg(arg!(<arg1> "some arg"))
-        .arg(arg!(<arg2> "some arg"))
-        .subcommand(
-            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
-        )
-        .try_get_matches_from(vec!["", "pickles", "sub1"]);
-    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
-    let m = res.unwrap();
-    assert_eq!(
-        m.get_one::<String>("arg2").map(|v| v.as_str()),
-        Some("sub1")
-    );
-}
-
-#[test]
-fn args_negate_subcommands_two_levels() {
-    let res = Command::new("disablehelp")
-        .args_conflicts_with_subcommands(true)
-        .subcommand_negates_reqs(true)
-        .arg(arg!(<arg1> "some arg"))
-        .arg(arg!(<arg2> "some arg"))
-        .subcommand(
-            Command::new("sub1")
-                .args_conflicts_with_subcommands(true)
-                .subcommand_negates_reqs(true)
-                .arg(arg!(<arg> "some"))
-                .arg(arg!(<arg2> "some"))
-                .subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
-        )
-        .try_get_matches_from(vec!["", "sub1", "arg", "sub2"]);
-    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
-    let m = res.unwrap();
-    assert_eq!(
-        m.subcommand_matches("sub1")
-            .unwrap()
-            .get_one::<String>("arg2")
-            .map(|v| v.as_str()),
-        Some("sub2")
-    );
-}
-
-#[test]
 fn propagate_vals_down() {
     let m = Command::new("myprog")
         .arg(arg!([cmd] "command to run").global(true))
