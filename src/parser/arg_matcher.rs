@@ -113,6 +113,10 @@ impl ArgMatcher {
         self.matches.args.keys()
     }
 
+    pub(crate) fn args(&self) -> crate::util::flat_map::Iter<'_, Id, MatchedArg> {
+        self.matches.args.iter()
+    }
+
     pub(crate) fn entry(&mut self, arg: Id) -> crate::util::Entry<Id, MatchedArg> {
         self.matches.args.entry(arg)
     }
