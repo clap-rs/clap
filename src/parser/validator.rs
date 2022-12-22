@@ -371,8 +371,17 @@ impl<'cmd> Validator<'cmd> {
 
     fn is_missing_required_ok(&self, a: &Arg, conflicts: &Conflicts) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
-        let conflicts = conflicts.gather_conflicts(self.cmd, a.get_id());
-        !conflicts.is_empty()
+        if !conflicts.gather_conflicts(self.cmd, a.get_id()).is_empty() {
+            debug!("Validator::is_missing_required_ok: true (self)");
+            return true;
+        }
+        for group_id in self.cmd.groups_for_arg(a.get_id()) {
+            if !conflicts.gather_conflicts(self.cmd, &group_id).is_empty() {
+                debug!("Validator::is_missing_required_ok: true ({})", group_id);
+                return true;
+            }
+        }
+        false
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they

@@ -259,7 +259,9 @@ fn arg_conflicts_with_group_with_required_memeber() {
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
-    assert!(result.is_err());
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
 }
 
 #[test]
