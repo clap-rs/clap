@@ -1042,6 +1042,7 @@ Options:
   -V, --version  Print version information
 ";
 
+    #[cfg(not(feature = "unstable-v5"))]
     let cmd = Command::new("ripgrep")
         .version("0.5")
         .override_usage(
@@ -1054,6 +1055,26 @@ Options:
         .help_template(
             "\
 {bin} {version}
+
+Usage: {usage}
+
+Options:
+{options}",
+        );
+
+    #[cfg(feature = "unstable-v5")]
+    let cmd = Command::new("ripgrep")
+        .version("0.5")
+        .override_usage(
+            "\
+       rg [OPTIONS] <pattern> [<path> ...]
+       rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
+       rg [OPTIONS] --files [<path> ...]
+       rg [OPTIONS] --type-list",
+        )
+        .help_template(
+            "\
+{name} {version}
 
 Usage: {usage}
 

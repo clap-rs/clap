@@ -137,6 +137,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     "name" => {
                         self.write_display_name();
                     }
+                    #[cfg(not(feature = "unstable-v5"))]
                     "bin" => {
                         self.write_bin_name();
                     }

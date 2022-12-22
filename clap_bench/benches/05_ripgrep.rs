@@ -256,7 +256,7 @@ const USAGE: &str = "
     rg [OPTIONS] --type-list";
 
 const TEMPLATE: &str = "\
-{bin} {version}
+{name} {version}
 {author}
 {about}
 

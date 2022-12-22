@@ -2,6 +2,7 @@ use super::utils;
 
 use clap::{arg, Command};
 
+#[cfg(not(feature = "unstable-v5"))]
 static EXAMPLE1_TMPL_S: &str = "{bin} {version}
 {author}
 {about}
@@ -10,7 +11,31 @@ Usage: {usage}
 
 {all-args}";
 
+#[cfg(feature = "unstable-v5")]
+static EXAMPLE1_TMPL_S: &str = "{name} {version}
+{author}
+{about}
+
+Usage: {usage}
+
+{all-args}";
+
+#[cfg(not(feature = "unstable-v5"))]
 static EXAMPLE1_TMPS_F: &str = "{bin} {version}
+{author}
+{about}
+
+Usage: {usage}
+
+Options:
+{options}
+Arguments:
+{positionals}
+Commands:
+{subcommands}";
+
+#[cfg(feature = "unstable-v5")]
+static EXAMPLE1_TMPS_F: &str = "{name} {version}
 {author}
 {about}
 
@@ -105,11 +130,20 @@ fn template_unknowntag() {
 
 #[test]
 fn template_author_version() {
+    #[cfg(not(feature = "unstable-v5"))]
     let cmd = Command::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("{author}\n{version}\n{about}\n{bin}");
+
+    #[cfg(feature = "unstable-v5")]
+    let cmd = Command::new("MyApp")
+        .version("1.0")
+        .author("Kevin K. <kbknapp@gmail.com>")
+        .about("Does awesome things")
+        .help_template("{author}\n{version}\n{about}\n{name}");
+
     utils::assert_output(
         cmd,
         "MyApp --help",
