@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parser)* When overriding `required(true)`, consider args that conflict with its group
+
 ## [4.0.31] - 2022-12-22
 
 ### Performance
