@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Speed up parsing when a lot of different flags are present (100 unique flags)
+
 ## [4.0.30] - 2022-12-21
 
 ### Fixes
