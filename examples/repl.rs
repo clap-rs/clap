@@ -29,7 +29,7 @@ fn main() -> Result<(), String> {
 fn respond(line: &str) -> Result<bool, String> {
     let args = shlex::split(line).ok_or("error: Invalid quoting")?;
     let matches = cli()
-        .try_get_matches_from(&args)
+        .try_get_matches_from(args)
         .map_err(|e| e.to_string())?;
     match matches.subcommand() {
         Some(("ping", _matches)) => {

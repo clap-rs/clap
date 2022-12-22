@@ -487,7 +487,7 @@ impl Command {
     /// [`Command::try_get_matches_from_mut`]: Command::try_get_matches_from_mut()
     #[inline]
     pub fn get_matches(self) -> ArgMatches {
-        self.get_matches_from(&mut env::args_os())
+        self.get_matches_from(env::args_os())
     }
 
     /// Parse [`env::args_os`], exiting on failure.
@@ -545,7 +545,7 @@ impl Command {
     #[inline]
     pub fn try_get_matches(self) -> ClapResult<ArgMatches> {
         // Start the parsing
-        self.try_get_matches_from(&mut env::args_os())
+        self.try_get_matches_from(env::args_os())
     }
 
     /// Parse the specified arguments, exiting on failure.

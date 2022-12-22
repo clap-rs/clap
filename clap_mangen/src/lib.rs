@@ -231,7 +231,7 @@ impl Man {
     }
 
     fn _render_version_section(&self, roff: &mut Roff) {
-        let version = roman(&render::version(&self.cmd));
+        let version = roman(render::version(&self.cmd));
         roff.control("SH", ["VERSION"]);
         roff.text([version]);
     }
