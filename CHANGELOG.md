@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.0.32] - 2022-12-22
+
 ### Fixes
 
 - *(parser)* When overriding `required(true)`, consider args that conflict with its group
@@ -4057,7 +4059,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.31...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.0.32...HEAD
+[4.0.32]: https://github.com/clap-rs/clap/compare/v4.0.31...v4.0.32
 [4.0.31]: https://github.com/clap-rs/clap/compare/v4.0.30...v4.0.31
 [4.0.30]: https://github.com/clap-rs/clap/compare/v4.0.29...v4.0.30
 [4.0.29]: https://github.com/clap-rs/clap/compare/v4.0.28...v4.0.29
