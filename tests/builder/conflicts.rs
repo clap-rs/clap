@@ -236,6 +236,33 @@ fn arg_conflicts_with_required_group() {
 }
 
 #[test]
+fn arg_conflicts_with_group_with_required_memeber() {
+    let mut cmd = Command::new("group_conflict")
+        .arg(arg!(-f --flag "some flag").conflicts_with("gr"))
+        .group(ArgGroup::new("gr").arg("some").arg("other"))
+        .arg(arg!(--some "some arg").required(true))
+        .arg(arg!(--other "other arg"));
+
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
+    assert!(result.is_err());
+}
+
+#[test]
 fn required_group_conflicts_with_arg() {
     let mut cmd = Command::new("group_conflict")
         .arg(arg!(-f --flag "some flag"))
