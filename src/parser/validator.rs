@@ -1,6 +1,6 @@
 // Internal
 use crate::builder::StyledStr;
-use crate::builder::{Arg, ArgPredicate, Command, PossibleValue};
+use crate::builder::{Arg, ArgGroup, ArgPredicate, Command, PossibleValue};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parser::{ArgMatcher, ParseState};
@@ -27,7 +27,7 @@ impl<'cmd> Validator<'cmd> {
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
-        let mut conflicts = Conflicts::new();
+        let conflicts = Conflicts::with_args(self.cmd, matcher);
         let has_subcmd = matcher.subcommand_name().is_some();
 
         if let ParseState::Opt(a) = parse_state {
@@ -54,8 +54,8 @@ impl<'cmd> Validator<'cmd> {
 
         if !has_subcmd && self.cmd.is_arg_required_else_help_set() {
             let num_user_values = matcher
-                .arg_ids()
-                .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
+                .args()
+                .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
                 let message = self.cmd.write_help_err(false);
@@ -80,9 +80,9 @@ impl<'cmd> Validator<'cmd> {
             ));
         }
 
-        ok!(self.validate_conflicts(matcher, &mut conflicts));
+        ok!(self.validate_conflicts(matcher, &conflicts));
         if !(self.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
-            ok!(self.validate_required(matcher, &mut conflicts));
+            ok!(self.validate_required(matcher, &conflicts));
         }
 
         Ok(())
@@ -91,19 +91,19 @@ impl<'cmd> Validator<'cmd> {
     fn validate_conflicts(
         &mut self,
         matcher: &ArgMatcher,
-        conflicts: &mut Conflicts,
+        conflicts: &Conflicts,
     ) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
 
         ok!(self.validate_exclusive(matcher));
 
-        for arg_id in matcher
-            .arg_ids()
-            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
-            .filter(|arg_id| self.cmd.find(arg_id).is_some())
+        for (arg_id, _) in matcher
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .filter(|(arg_id, _)| self.cmd.find(arg_id).is_some())
         {
             debug!("Validator::validate_conflicts::iter: id={:?}", arg_id);
-            let conflicts = conflicts.gather_conflicts(self.cmd, matcher, arg_id);
+            let conflicts = conflicts.gather_conflicts(self.cmd, arg_id);
             ok!(self.build_conflict_err(arg_id, &conflicts, matcher));
         }
 
@@ -113,9 +113,9 @@ impl<'cmd> Validator<'cmd> {
     fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
         let args_count = matcher
-            .arg_ids()
-            .filter(|arg_id| {
-                matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
+            .args()
+            .filter(|(arg_id, matched)| {
+                matched.check_explicit(&crate::builder::ArgPredicate::IsPresent)
                     // Avoid including our own groups by checking none of them.  If a group is present, the
                     // args for the group will be.
                     && self.cmd.find(arg_id).is_some()
@@ -127,14 +127,12 @@ impl<'cmd> Validator<'cmd> {
         }
 
         matcher
-            .arg_ids()
-            .filter(|arg_id| {
-                matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
-            })
-            .filter_map(|name| {
-                debug!("Validator::validate_exclusive:iter:{:?}", name);
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&crate::builder::ArgPredicate::IsPresent))
+            .filter_map(|(id, _)| {
+                debug!("Validator::validate_exclusive:iter:{:?}", id);
                 self.cmd
-                    .find(name)
+                    .find(id)
                     // Find `arg`s which are exclusive but also appear with other args.
                     .filter(|&arg| arg.is_exclusive_set() && args_count > 1)
             })
@@ -196,8 +194,9 @@ impl<'cmd> Validator<'cmd> {
         conflicting_keys: &[Id],
     ) -> Option<StyledStr> {
         let used_filtered: Vec<Id> = matcher
-            .arg_ids()
-            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .map(|(n, _)| n)
             .filter(|n| {
                 // Filter out the args we don't want to specify.
                 self.cmd.find(n).map_or(false, |a| !a.is_hide_set())
@@ -220,14 +219,14 @@ impl<'cmd> Validator<'cmd> {
 
     fn gather_requires(&mut self, matcher: &ArgMatcher) {
         debug!("Validator::gather_requires");
-        for name in matcher
-            .arg_ids()
-            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
+        for (name, matched) in matcher
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
         {
             debug!("Validator::gather_requires:iter:{:?}", name);
             if let Some(arg) = self.cmd.find(name) {
                 let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
-                    let required = matcher.check_explicit(arg.get_id(), val);
+                    let required = matched.check_explicit(val);
                     required.then(|| req_arg.clone())
                 };
 
@@ -243,11 +242,7 @@ impl<'cmd> Validator<'cmd> {
         }
     }
 
-    fn validate_required(
-        &mut self,
-        matcher: &ArgMatcher,
-        conflicts: &mut Conflicts,
-    ) -> ClapResult<()> {
+    fn validate_required(&mut self, matcher: &ArgMatcher, conflicts: &Conflicts) -> ClapResult<()> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
@@ -255,9 +250,9 @@ impl<'cmd> Validator<'cmd> {
         let mut highest_index = 0;
 
         let is_exclusive_present = matcher
-            .arg_ids()
-            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
-            .any(|id| {
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .any(|(id, _)| {
                 self.cmd
                     .find(id)
                     .map(|arg| arg.is_exclusive_set())
@@ -276,7 +271,7 @@ impl<'cmd> Validator<'cmd> {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
             if let Some(arg) = self.cmd.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
-                if !is_exclusive_present && !self.is_missing_required_ok(arg, matcher, conflicts) {
+                if !is_exclusive_present && !self.is_missing_required_ok(arg, conflicts) {
                     debug!(
                         "Validator::validate_required:iter: Missing {:?}",
                         arg.get_id()
@@ -374,14 +369,9 @@ impl<'cmd> Validator<'cmd> {
         Ok(())
     }
 
-    fn is_missing_required_ok(
-        &self,
-        a: &Arg,
-        matcher: &ArgMatcher,
-        conflicts: &mut Conflicts,
-    ) -> bool {
+    fn is_missing_required_ok(&self, a: &Arg, conflicts: &Conflicts) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
-        let conflicts = conflicts.gather_conflicts(self.cmd, matcher, a.get_id());
+        let conflicts = conflicts.gather_conflicts(self.cmd, a.get_id());
         !conflicts.is_empty()
     }
 
@@ -441,8 +431,9 @@ impl<'cmd> Validator<'cmd> {
         );
 
         let used: Vec<Id> = matcher
-            .arg_ids()
-            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .map(|(n, _)| n)
             .filter(|n| {
                 // Filter out the args we don't want to specify.
                 self.cmd.find(n).map_or(false, |a| !a.is_hide_set())
@@ -465,71 +456,92 @@ struct Conflicts {
 }
 
 impl Conflicts {
-    fn new() -> Self {
-        Self::default()
+    fn with_args(cmd: &Command, matcher: &ArgMatcher) -> Self {
+        let mut potential = FlatMap::new();
+        potential.extend_unchecked(
+            matcher
+                .args()
+                .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+                .map(|(id, _)| {
+                    let conf = gather_direct_conflicts(cmd, id);
+                    (id.clone(), conf)
+                }),
+        );
+        Self { potential }
     }
 
-    fn gather_conflicts(&mut self, cmd: &Command, matcher: &ArgMatcher, arg_id: &Id) -> Vec<Id> {
+    fn gather_conflicts(&self, cmd: &Command, arg_id: &Id) -> Vec<Id> {
         debug!("Conflicts::gather_conflicts: arg={:?}", arg_id);
         let mut conflicts = Vec::new();
-        for other_arg_id in matcher
-            .arg_ids()
-            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
-        {
+
+        let arg_id_conflicts_storage;
+        let arg_id_conflicts = if let Some(arg_id_conflicts) = self.get_direct_conflicts(arg_id) {
+            arg_id_conflicts
+        } else {
+            // `is_missing_required_ok` is a case where we check not-present args for conflicts
+            arg_id_conflicts_storage = gather_direct_conflicts(cmd, arg_id);
+            &arg_id_conflicts_storage
+        };
+        for (other_arg_id, other_arg_id_conflicts) in self.potential.iter() {
             if arg_id == other_arg_id {
                 continue;
             }
 
-            if self
-                .gather_direct_conflicts(cmd, arg_id)
-                .contains(other_arg_id)
-            {
+            if arg_id_conflicts.contains(other_arg_id) {
                 conflicts.push(other_arg_id.clone());
             }
-            if self
-                .gather_direct_conflicts(cmd, other_arg_id)
-                .contains(arg_id)
-            {
+            if other_arg_id_conflicts.contains(arg_id) {
                 conflicts.push(other_arg_id.clone());
             }
         }
+
         debug!("Conflicts::gather_conflicts: conflicts={:?}", conflicts);
         conflicts
     }
 
-    fn gather_direct_conflicts(&mut self, cmd: &Command, arg_id: &Id) -> &[Id] {
-        self.potential.entry(arg_id.clone()).or_insert_with(|| {
-            let conf = if let Some(arg) = cmd.find(arg_id) {
-                let mut conf = arg.blacklist.clone();
-                for group_id in cmd.groups_for_arg(arg_id) {
-                    let group = cmd.find_group(&group_id).expect(INTERNAL_ERROR_MSG);
-                    conf.extend(group.conflicts.iter().cloned());
-                    if !group.multiple {
-                        for member_id in &group.args {
-                            if member_id != arg_id {
-                                conf.push(member_id.clone());
-                            }
-                        }
-                    }
-                }
-
-                // Overrides are implicitly conflicts
-                conf.extend(arg.overrides.iter().cloned());
-
-                conf
-            } else if let Some(group) = cmd.find_group(arg_id) {
-                group.conflicts.clone()
-            } else {
-                debug_assert!(false, "id={:?} is unknown", arg_id);
-                Vec::new()
-            };
-            debug!(
-                "Conflicts::gather_direct_conflicts id={:?}, conflicts={:?}",
-                arg_id, conf
-            );
-            conf
-        })
+    fn get_direct_conflicts(&self, arg_id: &Id) -> Option<&[Id]> {
+        self.potential.get(arg_id).map(Vec::as_slice)
     }
+}
+
+fn gather_direct_conflicts(cmd: &Command, id: &Id) -> Vec<Id> {
+    let conf = if let Some(arg) = cmd.find(id) {
+        gather_arg_direct_conflicts(cmd, arg)
+    } else if let Some(group) = cmd.find_group(id) {
+        gather_group_direct_conflicts(group)
+    } else {
+        debug_assert!(false, "id={:?} is unknown", id);
+        Vec::new()
+    };
+    debug!(
+        "Conflicts::gather_direct_conflicts id={:?}, conflicts={:?}",
+        id, conf
+    );
+    conf
+}
+
+fn gather_arg_direct_conflicts(cmd: &Command, arg: &Arg) -> Vec<Id> {
+    let mut conf = arg.blacklist.clone();
+    for group_id in cmd.groups_for_arg(arg.get_id()) {
+        let group = cmd.find_group(&group_id).expect(INTERNAL_ERROR_MSG);
+        conf.extend(group.conflicts.iter().cloned());
+        if !group.multiple {
+            for member_id in &group.args {
+                if member_id != arg.get_id() {
+                    conf.push(member_id.clone());
+                }
+            }
+        }
+    }
+
+    // Overrides are implicitly conflicts
+    conf.extend(arg.overrides.iter().cloned());
+
+    conf
+}
+
+fn gather_group_direct_conflicts(group: &ArgGroup) -> Vec<Id> {
+    group.conflicts.clone()
 }
 
 pub(crate) fn get_possible_values_cli(a: &Arg) -> Vec<PossibleValue> {

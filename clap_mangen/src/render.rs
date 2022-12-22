@@ -13,7 +13,7 @@ pub(crate) fn about(roff: &mut Roff, cmd: &clap::Command) {
         Some(about) => format!("{} - {}", cmd.get_name(), about),
         None => cmd.get_name().to_string(),
     };
-    roff.text([roman(&s)]);
+    roff.text([roman(s)]);
 }
 
 pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
@@ -36,19 +36,19 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
                 line.push(roman(lhs));
-                line.push(bold(&format!("-{}", short)));
+                line.push(bold(format!("-{}", short)));
                 line.push(roman("|"));
-                line.push(bold(&format!("--{}", long)));
+                line.push(bold(format!("--{}", long)));
                 line.push(roman(rhs));
             }
             (Some(short), None) => {
                 line.push(roman(lhs));
-                line.push(bold(&format!("-{} ", short)));
+                line.push(bold(format!("-{} ", short)));
                 line.push(roman(rhs));
             }
             (None, Some(long)) => {
                 line.push(roman(lhs));
-                line.push(bold(&format!("--{}", long)));
+                line.push(bold(format!("--{}", long)));
                 line.push(roman(rhs));
             }
             (None, None) => continue,
@@ -101,12 +101,12 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
 
         if let Some(value) = &opt.get_value_names() {
             header.push(roman("="));
-            header.push(italic(&value.join(" ")));
+            header.push(italic(value.join(" ")));
         }
 
         if let Some(defs) = option_default_values(opt) {
             header.push(roman(" "));
-            header.push(roman(&defs));
+            header.push(roman(defs));
         }
 
         let mut body = vec![];
@@ -168,13 +168,13 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         header.push(roman(rhs));
 
         if let Some(defs) = option_default_values(pos) {
-            header.push(roman(&format!(" {}", defs)));
+            header.push(roman(format!(" {}", defs)));
         }
 
         let mut body = vec![];
         let mut arg_help_written = false;
         if let Some(help) = option_help(pos) {
-            body.push(roman(&help.to_string()));
+            body.push(roman(help.to_string()));
             arg_help_written = true;
         }
 
@@ -229,7 +229,7 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
             sub.get_name(),
             section
         );
-        roff.text([roman(&name)]);
+        roff.text([roman(name)]);
 
         if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
             for line in about.to_string().lines() {
@@ -273,11 +273,11 @@ fn markers(required: bool) -> (&'static str, &'static str) {
 }
 
 fn short_option(opt: char) -> Inline {
-    bold(&format!("-{}", opt))
+    bold(format!("-{}", opt))
 }
 
 fn long_option(opt: &str) -> Inline {
-    bold(&format!("--{}", opt))
+    bold(format!("--{}", opt))
 }
 
 fn option_help(opt: &clap::Arg) -> Option<&clap::builder::StyledStr> {

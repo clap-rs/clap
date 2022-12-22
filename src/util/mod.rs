@@ -1,7 +1,7 @@
 #![allow(clippy::single_component_path_imports)]
 
-mod flat_map;
-mod flat_set;
+pub(crate) mod flat_map;
+pub(crate) mod flat_set;
 mod graph;
 mod id;
 mod str_to_bool;
