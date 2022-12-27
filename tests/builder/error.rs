@@ -120,7 +120,7 @@ fn rich_formats_validation_error() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument 'unused' which wasn't expected, or isn't valid in this context
+error: Found value 'unused' which wasn't expected, or isn't valid in this context
 
 Usage: test
 
@@ -139,9 +139,9 @@ fn suggest_trailing() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+error: Found value '--foo' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
+  There is an flag with the same name, try to remove `--`
 
 Usage: rg [PATTERN]
 
@@ -160,7 +160,7 @@ fn trailing_already_in_use() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+error: Found value '--foo' which wasn't expected, or isn't valid in this context
 
 Usage: rg [PATTERN]
 
@@ -179,7 +179,7 @@ fn cant_use_trailing() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+error: Found value '--foo' which wasn't expected, or isn't valid in this context
 
 Usage: test
 

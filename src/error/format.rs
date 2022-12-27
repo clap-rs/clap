@@ -341,7 +341,7 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::UnknownArgument => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
             if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                styled.none("Found argument '");
+                styled.none("Found value '");
                 styled.warning(invalid_arg.to_string());
                 styled.none("' which wasn't expected, or isn't valid in this context");
                 true

@@ -659,12 +659,9 @@ impl<F: ErrorFormatter> Error<F> {
             let mut suggestions = vec![];
             if suggested_trailing_arg {
                 let mut styled_suggestion = StyledStr::new();
-                styled_suggestion.none("If you tried to supply '");
-                styled_suggestion.warning(&arg);
-                styled_suggestion.none("' as a value rather than a flag, use '");
-                styled_suggestion.good("-- ");
-                styled_suggestion.good(&arg);
-                styled_suggestion.none("'");
+                styled_suggestion.none("There is an flag with the same name, try to remove `");
+                styled_suggestion.good("--");
+                styled_suggestion.none("`");
                 suggestions.push(styled_suggestion);
             }
 
