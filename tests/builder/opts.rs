@@ -446,7 +446,7 @@ fn leading_hyphen_with_only_pos_follows() {
 #[cfg(feature = "error-context")]
 fn did_you_mean() {
     static DYM: &str = "\
-error: Found argument '--optio' which wasn't expected, or isn't valid in this context
+error: Found value '--optio' which wasn't expected, or isn't valid in this context
 
   Did you mean '--option'?
 
@@ -544,7 +544,7 @@ fn issue_1105_empty_value_short_explicit_no_space() {
 #[cfg(feature = "error-context")]
 fn issue_1073_suboptimal_flag_suggestion() {
     static DYM_ISSUE_1073: &str = "\
-error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
+error: Found value '--files-without-matches' which wasn't expected, or isn't valid in this context
 
   Did you mean '--files-without-match'?
 
