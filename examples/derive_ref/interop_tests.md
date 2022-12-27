@@ -35,7 +35,7 @@ Value of derived: DerivedArgs {
 ```console
 $ interop_augment_args --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: Found value '--unknown' which wasn't expected, or isn't valid in this context
 
 Usage: interop_augment_args[EXE] [OPTIONS]
 
@@ -70,7 +70,7 @@ Derived subcommands: Derived {
 ```console
 $ interop_augment_subcommands derived --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: Found value '--unknown' which wasn't expected, or isn't valid in this context
 
 Usage: interop_augment_subcommands[EXE] derived [OPTIONS]
 
@@ -140,9 +140,9 @@ Cli {
 ```console
 $ interop_hand_subcommand add --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: Found value '--unknown' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '--unknown' as a value rather than a flag, use '-- --unknown'
+  There is an flag with the same name, try to remove `--`
 
 Usage: interop_hand_subcommand[EXE] add [NAME]...
 
@@ -239,7 +239,7 @@ Cli {
 ```console
 $ interop_flatten_hand_args --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: Found value '--unknown' which wasn't expected, or isn't valid in this context
 
 Usage: interop_flatten_hand_args[EXE] [OPTIONS]
 

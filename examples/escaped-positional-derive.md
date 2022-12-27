@@ -33,7 +33,7 @@ Notice that we can't pass positional arguments before `--`:
 ```console
 $ escaped-positional-derive foo bar
 ? failed
-error: Found argument 'foo' which wasn't expected, or isn't valid in this context
+error: Found value 'foo' which wasn't expected, or isn't valid in this context
 
 Usage: escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 

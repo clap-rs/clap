@@ -141,7 +141,7 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
-error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+error: Found value '--subcmarg' which wasn't expected, or isn't valid in this context
 
   Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
@@ -161,7 +161,7 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &str = "\
-error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+error: Found value '--subcmarg' which wasn't expected, or isn't valid in this context
 
 Usage: dym [COMMAND]
 
@@ -353,7 +353,7 @@ fn subcommand_placeholder_test() {
 #[cfg(feature = "error-context")]
 fn subcommand_used_after_double_dash() {
     static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
-error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
+error: Found value 'subcmd' which wasn't expected, or isn't valid in this context
 
   If you tried to supply 'subcmd' as a subcommand, remove the '--' before it.
 
