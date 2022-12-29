@@ -258,8 +258,9 @@ fn infer_subcommands_pass_conflicting_aliases() {
     let m = Command::new("prog")
         .infer_subcommands(true)
         .subcommand(Command::new("test").aliases(["testa", "t", "testb"]))
-        .try_get_matches_from(vec!["prog", "te"]);
-    assert!(m.is_err(), "{:#?}", m.unwrap());
+        .try_get_matches_from(vec!["prog", "te"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("test"));
 }
 
 #[test]
