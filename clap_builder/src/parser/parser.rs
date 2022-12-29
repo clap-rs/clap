@@ -729,7 +729,7 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::parse_long_arg: Found valid arg or flag '{arg}'");
             Some((long_arg, arg))
         } else if self.cmd.is_infer_long_args_set() {
-            self.cmd.get_arguments().find_map(|a| {
+            let mut iter = self.cmd.get_arguments().filter_map(|a| {
                 if let Some(long) = a.get_long() {
                     if long.starts_with(long_arg) {
                         return Some((long, a));
@@ -738,7 +738,9 @@ impl<'cmd> Parser<'cmd> {
                 a.aliases
                     .iter()
                     .find_map(|(alias, _)| alias.starts_with(long_arg).then(|| (alias.as_str(), a)))
-            })
+            });
+
+            iter.next().filter(|_| iter.next().is_none())
         } else {
             None
         };
