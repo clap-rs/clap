@@ -558,14 +558,18 @@ impl<'cmd> Parser<'cmd> {
             if self.cmd.is_infer_subcommands_set() {
                 // For subcommand `test`, we accepts it's prefix: `t`, `te`,
                 // `tes` and `test`.
-                let v = self
-                    .cmd
-                    .all_subcommand_names()
-                    .filter(|s| s.starts_with(arg))
-                    .collect::<Vec<_>>();
+                let mut iter = self.cmd.get_subcommands().filter_map(|s| {
+                    if s.get_name().starts_with(arg) {
+                        return Some(s.get_name());
+                    }
 
-                if v.len() == 1 {
-                    return Some(v[0]);
+                    s.get_all_aliases().find(|s| s.starts_with(arg))
+                });
+
+                if let name @ Some(_) = iter.next() {
+                    if iter.next().is_none() {
+                        return name;
+                    }
                 }
 
                 // If there is any ambiguity, fallback to non-infer subcommand
