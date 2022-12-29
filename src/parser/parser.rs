@@ -760,16 +760,26 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::parse_long_arg: Found valid arg or flag '{}'", arg);
             Some((long_arg, arg))
         } else if self.cmd.is_infer_long_args_set() {
-            self.cmd.get_arguments().find_map(|a| {
-                if let Some(long) = a.get_long() {
-                    if long.starts_with(long_arg) {
-                        return Some((long, a));
+            let v = self
+                .cmd
+                .get_arguments()
+                .filter_map(|a| {
+                    if let Some(long) = a.get_long() {
+                        if long.starts_with(long_arg) {
+                            return Some((long, a));
+                        }
                     }
-                }
-                a.aliases
-                    .iter()
-                    .find_map(|(alias, _)| alias.starts_with(long_arg).then(|| (alias.as_str(), a)))
-            })
+                    a.aliases.iter().find_map(|(alias, _)| {
+                        alias.starts_with(long_arg).then(|| (alias.as_str(), a))
+                    })
+                })
+                .collect::<Vec<_>>();
+
+            if v.len() == 1 {
+                Some(v[0])
+            } else {
+                None
+            }
         } else {
             None
         };
