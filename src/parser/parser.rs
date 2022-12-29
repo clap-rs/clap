@@ -558,20 +558,18 @@ impl<'cmd> Parser<'cmd> {
             if self.cmd.is_infer_subcommands_set() {
                 // For subcommand `test`, we accepts it's prefix: `t`, `te`,
                 // `tes` and `test`.
-                let v = self
-                    .cmd
-                    .get_subcommands()
-                    .filter_map(|s| {
-                        if s.get_name().starts_with(arg) {
-                            return Some(s.get_name());
-                        }
+                let mut iter = self.cmd.get_subcommands().filter_map(|s| {
+                    if s.get_name().starts_with(arg) {
+                        return Some(s.get_name());
+                    }
 
-                        s.get_all_aliases().find(|s| s.starts_with(arg))
-                    })
-                    .collect::<Vec<_>>();
+                    s.get_all_aliases().find(|s| s.starts_with(arg))
+                });
 
-                if v.len() == 1 {
-                    return Some(v[0]);
+                if let name @ Some(_) = iter.next() {
+                    if iter.next().is_none() {
+                        return name;
+                    }
                 }
 
                 // If there is any ambiguity, fallback to non-infer subcommand
@@ -766,26 +764,18 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::parse_long_arg: Found valid arg or flag '{}'", arg);
             Some((long_arg, arg))
         } else if self.cmd.is_infer_long_args_set() {
-            let v = self
-                .cmd
-                .get_arguments()
-                .filter_map(|a| {
-                    if let Some(long) = a.get_long() {
-                        if long.starts_with(long_arg) {
-                            return Some((long, a));
-                        }
+            let mut iter = self.cmd.get_arguments().filter_map(|a| {
+                if let Some(long) = a.get_long() {
+                    if long.starts_with(long_arg) {
+                        return Some((long, a));
                     }
-                    a.aliases.iter().find_map(|(alias, _)| {
-                        alias.starts_with(long_arg).then(|| (alias.as_str(), a))
-                    })
-                })
-                .collect::<Vec<_>>();
+                }
+                a.aliases
+                    .iter()
+                    .find_map(|(alias, _)| alias.starts_with(long_arg).then(|| (alias.as_str(), a)))
+            });
 
-            if v.len() == 1 {
-                Some(v[0])
-            } else {
-                None
-            }
+            iter.next().filter(|_| iter.next().is_none())
         } else {
             None
         };
