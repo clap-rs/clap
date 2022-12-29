@@ -560,8 +560,14 @@ impl<'cmd> Parser<'cmd> {
                 // `tes` and `test`.
                 let v = self
                     .cmd
-                    .all_subcommand_names()
-                    .filter(|s| s.starts_with(arg))
+                    .get_subcommands()
+                    .filter_map(|s| {
+                        if s.get_name().starts_with(arg) {
+                            return Some(s.get_name());
+                        }
+
+                        s.get_all_aliases().find(|s| s.starts_with(arg))
+                    })
                     .collect::<Vec<_>>();
 
                 if v.len() == 1 {

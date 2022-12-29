@@ -253,6 +253,16 @@ fn infer_subcommands_pass_exact_match() {
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
+#[test]
+fn infer_subcommands_pass_conflicting_aliases() {
+    let m = Command::new("prog")
+        .infer_subcommands(true)
+        .subcommand(Command::new("test").aliases(["testa", "t", "testb"]))
+        .try_get_matches_from(vec!["prog", "te"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
 #[cfg(feature = "suggestions")]
 #[test]
 fn infer_subcommands_fail_suggestions() {

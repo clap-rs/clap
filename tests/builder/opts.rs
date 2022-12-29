@@ -735,6 +735,21 @@ fn infer_long_arg_pass_conflicts_exact_match() {
 }
 
 #[test]
+fn infer_long_arg_pass_conflicting_aliases() {
+    let cmd = Command::new("test").infer_long_args(true).arg(
+        Arg::new("abc-123")
+            .long("abc-123")
+            .aliases(["a", "abc-xyz"])
+            .action(ArgAction::SetTrue),
+    );
+
+    let matches = cmd.clone().try_get_matches_from(["test", "--ab"]).unwrap();
+    assert!(*matches
+        .get_one::<bool>("abc-123")
+        .expect("defaulted by clap"));
+}
+
+#[test]
 fn infer_long_arg_fail_conflicts() {
     let cmd = Command::new("test")
         .infer_long_args(true)
