@@ -70,7 +70,7 @@ impl ClapAttr {
             AttrValue::Expr(_) | AttrValue::Call(_) => {
                 abort!(
                     self.name,
-                    "attribute `{}` can only accept string litersl",
+                    "attribute `{}` can only accept string literals",
                     self.name
                 )
             }
