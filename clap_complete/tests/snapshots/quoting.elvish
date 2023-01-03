@@ -24,10 +24,10 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --backslash 'Avoid ''\n'''
             cand --brackets 'List packages [filter]'
             cand --expansions 'Execute the shell command with $SHELL'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand cmd-double-quotes 'Can be "always", "auto", or "never"'
             cand cmd-backticks 'For more information see `echo test`'
@@ -37,28 +37,28 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;cmd-single-quotes'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;cmd-double-quotes'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;cmd-backticks'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;cmd-backslash'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;cmd-brackets'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;cmd-expansions'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;help'= {
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''

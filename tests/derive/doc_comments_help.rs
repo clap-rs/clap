@@ -284,7 +284,7 @@ Commands:
   help   Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ";
     utils::assert_output::<Cmd>("cmd --help", OUTPUT, false);
 }

@@ -22,10 +22,10 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand -C 'some config file'
             cand --config 'some config file'
             cand --conf 'some config file'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
             cand test 'tests things'
             cand some_cmd 'tests other things'
             cand some-cmd-with-hyphens 'some-cmd-with-hyphens'
@@ -34,29 +34,29 @@ set edit:completion:arg-completer[my-app] = {|@words|
         }
         &'my-app;test'= {
             cand --case 'the case to test'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
         }
         &'my-app;some_cmd'= {
             cand --config 'the other case to test'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
         }
         &'my-app;some-cmd-with-hyphens'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
         }
         &'my-app;some-hidden-cmd'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
         }
         &'my-app;help'= {
             cand test 'tests things'

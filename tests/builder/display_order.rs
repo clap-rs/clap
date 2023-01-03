@@ -17,7 +17,7 @@ Commands:
   sub   
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ",
         false,
     );

@@ -8,8 +8,8 @@ Arguments:
   <MODE>  What mode to run the program in [possible values: fast, slow]
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 
 $ 04_01_possible fast
 Hare

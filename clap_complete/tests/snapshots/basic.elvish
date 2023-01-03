@@ -20,16 +20,16 @@ set edit:completion:arg-completer[my-app] = {|@words|
         &'my-app'= {
             cand -c 'c'
             cand -v 'v'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
             cand test 'Subcommand'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;test'= {
             cand -d 'd'
             cand -c 'c'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'my-app;help'= {
             cand test 'Subcommand'

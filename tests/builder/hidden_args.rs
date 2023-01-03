@@ -10,8 +10,8 @@ Usage: test [OPTIONS]
 Options:
   -F, --flag2         some other flag
       --option <opt>  some option
-  -h, --help          Print help information
-  -V, --version       Print version information
+  -h, --help          Print help
+  -V, --version       Print version
 ";
 
 #[test]
@@ -36,8 +36,8 @@ Usage: test [OPTIONS]
 
 Options:
   -v, --visible  This text should be visible
-  -h, --help     Print help information (use `--help` for more detail)
-  -V, --version  Print version information
+  -h, --help     Print help (see more with '--help')
+  -V, --version  Print version
 ";
 
 /// Ensure hide with short option
@@ -80,10 +80,10 @@ Options:
           This text should be visible
 
   -h, --help
-          Print help information (use `-h` for a summary)
+          Print help (see a summary with '-h')
 
   -V, --version
-          Print version information
+          Print version
 ";
 
     let cmd = Command::new("test")
@@ -117,10 +117,10 @@ Options:
           This text should be visible
 
   -h, --help
-          Print help information (use `-h` for a summary)
+          Print help (see a summary with '-h')
 
   -V, --version
-          Print version information
+          Print version
 ";
 
 #[test]
@@ -154,8 +154,8 @@ Usage: test [OPTIONS]
 Options:
   -c, --config   Some help text describing the --config arg
   -v, --visible  This text should be visible
-  -h, --help     Print help information (use `--help` for more detail)
-  -V, --version  Print version information
+  -h, --help     Print help (see more with '--help')
+  -V, --version  Print version
 ";
 
 #[test]
@@ -188,8 +188,8 @@ Arguments:
   [another]  another pos
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 #[test]
@@ -206,8 +206,8 @@ static HIDDEN_SUBCMDS: &str = "\
 Usage: test
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 #[test]

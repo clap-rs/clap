@@ -165,8 +165,8 @@ Usage: ct test [OPTIONS]
 Options:
   -o, --opt <opt>  
   -f, --flag       
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ";
 
     let cmd = Command::new("ct").author("Salim Afiune").subcommand(
@@ -195,8 +195,8 @@ Usage: ct test [OPTIONS]
 Options:
   -o, --opt <opt>  [short aliases: v]
   -f, --flag       [aliases: flag1] [short aliases: a, b, 🦆]
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ";
 
     let cmd = Command::new("ct").author("Salim Afiune").subcommand(

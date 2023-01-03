@@ -19,10 +19,10 @@ _my-app() {
 '*-C[some config file]' \
 '*--config[some config file]' \
 '*--conf[some config file]' \
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
 '::file -- some input file:_files' \
 '::choice:(first second)' \
 ":: :_my-app_commands" \
@@ -37,18 +37,18 @@ _my-app() {
             (test)
 _arguments "${_arguments_options[@]}" \
 '--case=[the case to test]: : ' \
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
 && ret=0
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" \
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
 ":: :_my-app__some_cmd_commands" \
 "*::: :->some_cmd" \
 && ret=0
@@ -63,10 +63,10 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
 Second\ to\ trigger\ display\ of\ options\:""))' \
-'-h[Print help information (use `--help` for more detail)]' \
-'--help[Print help information (use `--help` for more detail)]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
 && ret=0
 ;;
 (help)

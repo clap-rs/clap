@@ -26,10 +26,10 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand -F 'cmd flag'
             cand --flag 'cmd flag'
             cand --flg 'cmd flag'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
         }
     ]
     $completions[$command]

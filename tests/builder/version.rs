@@ -108,7 +108,7 @@ foo
 Usage: foo
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ";
     let cmd = common();
     utils::assert_output(cmd, "foo -h", EXPECTED, false);
@@ -122,7 +122,7 @@ foo
 Usage: foo
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ";
     let cmd = common();
     utils::assert_output(cmd, "foo --help", EXPECTED, false);
@@ -136,8 +136,8 @@ foo 3.0
 Usage: foo
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = with_version();
     utils::assert_output(cmd, "foo -h", EXPECTED, false);
@@ -151,8 +151,8 @@ foo 3.0
 Usage: foo
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = with_version();
     utils::assert_output(cmd, "foo --help", EXPECTED, false);
@@ -166,8 +166,8 @@ foo 3.0 (abcdefg)
 Usage: foo
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = with_long_version();
     utils::assert_output(cmd, "foo -h", EXPECTED, false);
@@ -181,8 +181,8 @@ foo 3.0 (abcdefg)
 Usage: foo
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = with_long_version();
     utils::assert_output(cmd, "foo --help", EXPECTED, false);
@@ -196,8 +196,8 @@ foo 3.0
 Usage: foo
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = with_both();
     utils::assert_output(cmd, "foo -h", EXPECTED, false);
@@ -211,8 +211,8 @@ foo 3.0
 Usage: foo
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = with_both();
     utils::assert_output(cmd, "foo --help", EXPECTED, false);

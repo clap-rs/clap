@@ -17,11 +17,11 @@ const completion: Fig.Spec = {
         },
         {
           name: ["-h", "--help"],
-          description: "Print help information",
+          description: "Print help",
         },
         {
           name: ["-V", "--version"],
-          description: "Print version information",
+          description: "Print version",
         },
       ],
     },
@@ -47,11 +47,11 @@ const completion: Fig.Spec = {
             },
             {
               name: ["-h", "--help"],
-              description: "Print help information",
+              description: "Print help",
             },
             {
               name: ["-V", "--version"],
-              description: "Print version information",
+              description: "Print version",
             },
           ],
         },
@@ -73,11 +73,11 @@ const completion: Fig.Spec = {
       options: [
         {
           name: ["-h", "--help"],
-          description: "Print help information",
+          description: "Print help",
         },
         {
           name: ["-V", "--version"],
-          description: "Print version information",
+          description: "Print version",
         },
       ],
     },
@@ -114,11 +114,11 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-h", "--help"],
-      description: "Print help information",
+      description: "Print help",
     },
     {
       name: ["-V", "--version"],
-      description: "Print version information",
+      description: "Print version",
     },
   ],
   args: [

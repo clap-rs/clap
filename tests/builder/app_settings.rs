@@ -8,8 +8,8 @@ static ALLOW_EXT_SC: &str = "\
 Usage: clap-test [COMMAND]
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 static DONT_COLLAPSE_ARGS: &str = "\
@@ -21,8 +21,8 @@ Arguments:
   [arg3]  some
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 #[test]
@@ -144,8 +144,8 @@ Usage: test [OPTIONS]
 
 Options:
   -i, --info     Provides more info
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
     let cmd = Command::new("test")
@@ -306,8 +306,8 @@ Arguments:
 
 Options:
   -o, --opt <opt>  some option
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ";
 
     let cmd = Command::new("test")
@@ -638,8 +638,8 @@ Usage: clap-test --opt=<FILE>
 
 Options:
   -o, --opt=<FILE>  some
-  -h, --help        Print help information
-  -V, --version     Print version information
+  -h, --help        Print help
+  -V, --version     Print version
 ";
 
     let cmd = Command::new("clap-test").version("v1.4.8").arg(

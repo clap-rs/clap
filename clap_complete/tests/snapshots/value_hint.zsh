@@ -35,8 +35,8 @@ _my-app() {
 '--host=[]: :_hosts' \
 '--url=[]: :_urls' \
 '--email=[]: :_email_addresses' \
-'-h[Print help information]' \
-'--help[Print help information]' \
+'-h[Print help]' \
+'--help[Print help]' \
 '*::command_with_args:_cmdambivalent' \
 && ret=0
 }

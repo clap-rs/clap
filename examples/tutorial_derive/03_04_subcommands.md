@@ -9,8 +9,8 @@ Commands:
   help  Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 
 $ 03_04_subcommands_derive help add
 Adds files to myapp
@@ -21,8 +21,8 @@ Arguments:
   [NAME]  
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 
 $ 03_04_subcommands_derive add bob
 'myapp add' was used, name is: Some("bob")
@@ -42,8 +42,8 @@ Commands:
   help  Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 
 ```
 

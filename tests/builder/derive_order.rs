@@ -12,10 +12,10 @@ Usage: test [OPTIONS]
 Options:
       --flag_a               second flag
       --flag_b               first flag
-  -h, --help                 Print help information
+  -h, --help                 Print help
       --option_a <option_a>  second option
       --option_b <option_b>  first option
-  -V, --version              Print version information
+  -V, --version              Print version
 ";
 
     let cmd = Command::new("test")
@@ -53,8 +53,8 @@ Options:
       --option_b <option_b>  first option
       --flag_a               second flag
       --option_a <option_a>  second option
-  -h, --help                 Print help information
-  -V, --version              Print version information
+  -h, --help                 Print help
+  -V, --version              Print version
 ";
 
     let cmd = Command::new("test").version("1.2").args([
@@ -87,8 +87,8 @@ Usage: test [OPTIONS]
 Options:
       --flag_b               first flag
       --option_b <option_b>  first option
-  -h, --help                 Print help information
-  -V, --version              Print version information
+  -h, --help                 Print help
+  -V, --version              Print version
       --flag_a               second flag
       --option_a <option_a>  second option
 ";
@@ -133,10 +133,10 @@ Usage: test [OPTIONS]
 Options:
       --flag_a               first flag
       --flag_b               second flag
-  -h, --help                 Print help information
+  -h, --help                 Print help
       --option_a <option_a>  first option
       --option_b <option_b>  second option
-  -V, --version              Print version information
+  -V, --version              Print version
 ";
 
     let cmd = Command::new("test")
@@ -180,8 +180,8 @@ Options:
       --option_b <option_b>  first option
       --flag_a               second flag
       --option_a <option_a>  second option
-  -h, --help                 Print help information
-  -V, --version              Print version information
+  -h, --help                 Print help
+  -V, --version              Print version
 ";
 
     let cmd = Command::new("test").subcommand(
@@ -218,8 +218,8 @@ Options:
       --flag_b               first flag
       --option_b <option_b>  first option
       --option_a <option_a>  second option
-  -h, --help                 Print help information
-  -V, --version              Print version information
+  -h, --help                 Print help
+  -V, --version              Print version
 ";
 
     let cmd = Command::new("test").subcommand(
@@ -263,8 +263,8 @@ Commands:
   help  Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
     let app_subcmd_alpha_order = Command::new("test")
@@ -298,8 +298,8 @@ Commands:
   help  Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
     let app_subcmd_decl_order = Command::new("test").version("1").subcommands(vec![

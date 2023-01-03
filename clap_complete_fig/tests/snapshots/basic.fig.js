@@ -15,7 +15,7 @@ const completion: Fig.Spec = {
         },
         {
           name: ["-h", "--help"],
-          description: "Print help information",
+          description: "Print help",
         },
       ],
     },
@@ -46,7 +46,7 @@ const completion: Fig.Spec = {
     },
     {
       name: ["-h", "--help"],
-      description: "Print help information",
+      description: "Print help",
     },
   ],
 };

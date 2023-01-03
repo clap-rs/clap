@@ -17,8 +17,8 @@ _my-app() {
     _arguments "${_arguments_options[@]}" \
 '-c[]' \
 '(-c)-v[]' \
-'-h[Print help information]' \
-'--help[Print help information]' \
+'-h[Print help]' \
+'--help[Print help]' \
 ":: :_my-app_commands" \
 "*::: :->my-app" \
 && ret=0
@@ -32,8 +32,8 @@ _my-app() {
 _arguments "${_arguments_options[@]}" \
 '*-d[]' \
 '-c[]' \
-'-h[Print help information]' \
-'--help[Print help information]' \
+'-h[Print help]' \
+'--help[Print help]' \
 && ret=0
 ;;
 (help)

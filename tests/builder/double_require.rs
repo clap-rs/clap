@@ -7,7 +7,7 @@ Options:
   -a          
   -b          
   -c          
-  -h, --help  Print help information
+  -h, --help  Print help
 ";
 
 fn cmd() -> Command {

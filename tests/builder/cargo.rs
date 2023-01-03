@@ -12,8 +12,8 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: prog
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 static AUTHORS_ONLY: &str = "prog 1
@@ -22,8 +22,8 @@ static AUTHORS_ONLY: &str = "prog 1
 Usage: prog
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 #[test]
