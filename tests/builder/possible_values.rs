@@ -322,7 +322,7 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn missing_possible_value_error() {
     static MISSING_PV_ERROR: &str = "\
-error: The argument '-O <option>' requires a value but none was supplied
+error: the argument '-O <option>' requires a value but none was supplied
   [possible values: slow, fast, \"ludicrous speed\"]
 
 For more information try '--help'

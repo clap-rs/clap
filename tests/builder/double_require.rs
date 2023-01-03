@@ -59,7 +59,7 @@ fn help_text() {
 #[cfg(feature = "error-context")]
 fn no_duplicate_error() {
     static ONLY_B_ERROR: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   -c
 
 Usage: prog -b -c
@@ -74,7 +74,7 @@ For more information try '--help'
     assert_eq!(err.to_string(), ONLY_B_ERROR);
 
     static ONLY_C_ERROR: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   -b
 
 Usage: prog -c -b

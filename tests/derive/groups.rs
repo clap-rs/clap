@@ -45,7 +45,7 @@ fn implicit_struct_group() {
     }
 
     const OUTPUT: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   <CRATES|--path <PATH>|--git <GIT>>
 
 Usage: prog --add <CRATES|--path <PATH>|--git <GIT>>

@@ -17,7 +17,7 @@ verbose: true
 
 $ 03_01_flag_bool --verbose --verbose
 ? failed
-error: The argument '--verbose' was provided more than once, but cannot be used multiple times
+error: the argument '--verbose' was provided more than once, but cannot be used multiple times
 
 Usage: 03_01_flag_bool[EXE] [OPTIONS]
 
