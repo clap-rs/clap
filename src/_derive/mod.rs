@@ -232,7 +232,8 @@
 //!   - Without `<expr>`: fills the field with `Default::default()`
 //! - `default_value = <str>`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
 //! - `default_value_t [= <expr>]`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
-//!   - Requires `std::fmt::Display` or `#[arg(value_enum)]`
+//!   - Requires `std::fmt::Display` that roundtrips correctly with the
+//!     [`Arg::value_parser`][crate::Arg::value_parser] or `#[arg(value_enum)]`
 //!   - Without `<expr>`, relies on `Default::default()`
 //! - `default_values_t = <expr>`: [`Arg::default_values`][crate::Arg::default_values] and [`Arg::required(false)`][crate::Arg::required]
 //!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::fmt::Display` or `#[arg(value_enum)]`
