@@ -21,6 +21,9 @@ _FEATURES_next = ${_FEATURES_full} --features unstable-v5
 _FEATURES_debug = ${_FEATURES_full} --features debug --features clap_complete/debug
 _FEATURES_release = ${_FEATURES_full} --release
 
+check-wasm:
+	cargo check ${_FEATURES_${@:check-%=%}} ${ARGS}
+
 check-%:
 	cargo check ${_FEATURES_${@:check-%=%}} --all-targets ${ARGS}
 
