@@ -98,14 +98,14 @@ fn multiple_aliases() {
 fn subcmd_did_you_mean_output() {
     #[cfg(feature = "suggestions")]
     static DYM_SUBCMD: &str = "\
-error: The subcommand 'subcm' wasn't recognized
+error: the subcommand 'subcm' wasn't recognized
 
   note: subcommand 'subcmd' exists
   note: to pass 'subcm' as a value, use 'dym -- subcm'
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym").subcommand(Command::new("subcmd"));
@@ -118,14 +118,14 @@ For more information try '--help'
 fn subcmd_did_you_mean_output_ambiguous() {
     #[cfg(feature = "suggestions")]
     static DYM_SUBCMD_AMBIGUOUS: &str = "\
-error: The subcommand 'te' wasn't recognized
+error: the subcommand 'te' wasn't recognized
 
   note: subcommand 'test', 'temp' exist
   note: to pass 'te' as a value, use 'dym -- te'
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym")
@@ -139,13 +139,13 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
-error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+error: found argument '--subcmarg' which wasn't expected, or isn't valid in this context
 
   note: 'subcmd --subcmdarg' exists
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym")
@@ -159,11 +159,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &str = "\
-error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+error: found argument '--subcmarg' which wasn't expected, or isn't valid in this context
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym")
@@ -351,13 +351,13 @@ fn subcommand_placeholder_test() {
 #[cfg(feature = "error-context")]
 fn subcommand_used_after_double_dash() {
     static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
-error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
+error: found argument 'subcmd' which wasn't expected, or isn't valid in this context
 
   note: subcommand 'subcmd' exists; to use it, remove the '--' before it
 
 Usage: cmd [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("cmd").subcommand(Command::new("subcmd"));
@@ -428,11 +428,11 @@ fn subcommand_not_recognized() {
     utils::assert_output(
         cmd,
         "fake help",
-        "error: The subcommand 'help' wasn't recognized
+        "error: the subcommand 'help' wasn't recognized
 
 Usage: fake [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ",
         true,
     );
@@ -502,11 +502,11 @@ fn bad_multicall_command_error() {
     let err = cmd.clone().try_get_matches_from(["world"]).unwrap_err();
     assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
     static HELLO_EXPECTED: &str = "\
-error: The subcommand 'world' wasn't recognized
+error: the subcommand 'world' wasn't recognized
 
 Usage: <COMMAND>
 
-For more information try 'help'
+For more information, try 'help'.
 ";
     utils::assert_eq(HELLO_EXPECTED, err.to_string());
 
@@ -515,14 +515,14 @@ For more information try 'help'
         let err = cmd.clone().try_get_matches_from(["baz"]).unwrap_err();
         assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
         static BAZ_EXPECTED: &str = "\
-error: The subcommand 'baz' wasn't recognized
+error: the subcommand 'baz' wasn't recognized
 
   note: subcommand 'bar' exists
   note: to pass 'baz' as a value, use ' -- baz'
 
 Usage: <COMMAND>
 
-For more information try 'help'
+For more information, try 'help'.
 ";
         utils::assert_eq(BAZ_EXPECTED, err.to_string());
     }

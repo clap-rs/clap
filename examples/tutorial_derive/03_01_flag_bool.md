@@ -17,10 +17,10 @@ verbose: true
 
 $ 03_01_flag_bool_derive --verbose --verbose
 ? failed
-error: The argument '--verbose' was provided more than once, but cannot be used multiple times
+error: the argument '--verbose' was provided more than once, but cannot be used multiple times
 
 Usage: 03_01_flag_bool_derive[EXE] [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```

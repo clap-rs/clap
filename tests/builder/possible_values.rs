@@ -183,7 +183,7 @@ error: 'slo' isn't a valid value for '-O <option>'
 
   note: value 'slow' exists
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     #[cfg(not(feature = "suggestions"))]
@@ -191,7 +191,7 @@ For more information try '--help'
 error: 'slo' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -217,7 +217,7 @@ error: 'slo' isn't a valid value for '-O <option>'
 
   note: value 'slow' exists
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     #[cfg(not(feature = "suggestions"))]
@@ -225,7 +225,7 @@ For more information try '--help'
 error: 'slo' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -255,7 +255,7 @@ error: 'slo' isn't a valid value for '-O <option>'
 
   note: value 'slow' exists
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     #[cfg(not(feature = "suggestions"))]
@@ -263,7 +263,7 @@ For more information try '--help'
 error: 'slo' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -294,7 +294,7 @@ error: 'ludicrous' isn't a valid value for '-O <option>'
 
   note: value 'ludicrous speed' exists
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     #[cfg(not(feature = "suggestions"))]
@@ -302,7 +302,7 @@ For more information try '--help'
 error: 'ludicrous' isn't a valid value for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -322,10 +322,10 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn missing_possible_value_error() {
     static MISSING_PV_ERROR: &str = "\
-error: The argument '-O <option>' requires a value but none was supplied
+error: the argument '-O <option>' requires a value but none was supplied
   [possible values: slow, fast, \"ludicrous speed\"]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(

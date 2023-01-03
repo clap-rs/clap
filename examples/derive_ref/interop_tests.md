@@ -35,11 +35,11 @@ Value of derived: DerivedArgs {
 ```console
 $ interop_augment_args --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: found argument '--unknown' which wasn't expected, or isn't valid in this context
 
 Usage: interop_augment_args[EXE] [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -70,22 +70,22 @@ Derived subcommands: Derived {
 ```console
 $ interop_augment_subcommands derived --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: found argument '--unknown' which wasn't expected, or isn't valid in this context
 
 Usage: interop_augment_subcommands[EXE] derived [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
 ```console
 $ interop_augment_subcommands unknown
 ? failed
-error: The subcommand 'unknown' wasn't recognized
+error: the subcommand 'unknown' wasn't recognized
 
 Usage: interop_augment_subcommands[EXE] [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -140,13 +140,13 @@ Cli {
 ```console
 $ interop_hand_subcommand add --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: found argument '--unknown' which wasn't expected, or isn't valid in this context
 
   note: to pass '--unknown' as a value, use '-- --unknown'
 
 Usage: interop_hand_subcommand[EXE] add [NAME]...
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -185,11 +185,11 @@ Cli {
 ```console
 $ interop_hand_subcommand unknown
 ? failed
-error: The subcommand 'unknown' wasn't recognized
+error: the subcommand 'unknown' wasn't recognized
 
 Usage: interop_hand_subcommand[EXE] [OPTIONS] <COMMAND>
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -239,10 +239,10 @@ Cli {
 ```console
 $ interop_flatten_hand_args --unknown
 ? failed
-error: Found argument '--unknown' which wasn't expected, or isn't valid in this context
+error: found argument '--unknown' which wasn't expected, or isn't valid in this context
 
 Usage: interop_flatten_hand_args[EXE] [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```

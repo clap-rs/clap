@@ -131,12 +131,12 @@ fn empty_group() {
 #[test]
 #[cfg(feature = "error-context")]
 fn req_group_usage_string() {
-    static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
+    static REQ_GROUP_USAGE: &str = "error: the following required arguments were not provided:
   <base|--delete>
 
 Usage: clap-test <base|--delete>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("req_group")
@@ -157,11 +157,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn req_group_with_conflict_usage_string() {
     static REQ_GROUP_CONFLICT_USAGE: &str = "\
-error: The argument '--delete' cannot be used with '[base]'
+error: the argument '--delete' cannot be used with '[base]'
 
 Usage: clap-test <base|--delete>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("req_group")
@@ -187,11 +187,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn req_group_with_conflict_usage_string_only_options() {
     static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str = "\
-error: The argument '--delete' cannot be used with '--all'
+error: the argument '--delete' cannot be used with '--all'
 
 Usage: clap-test <--all|--delete>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("req_group")
@@ -305,11 +305,11 @@ fn group_acts_like_arg() {
 #[test]
 fn conflict_with_overlapping_group_in_error() {
     static ERR: &str = "\
-error: The argument '--major' cannot be used with '--minor'
+error: the argument '--major' cannot be used with '--minor'
 
 Usage: prog --major
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("prog")
@@ -324,12 +324,12 @@ For more information try '--help'
 #[test]
 fn requires_group_with_overlapping_group_in_error() {
     static ERR: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   <--in|--spec>
 
 Usage: prog --config <--in|--spec>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("prog")

@@ -67,11 +67,11 @@ And errors:
 ```console
 $ pacman -S -s foo -i bar
 ? failed
-error: The argument '--search <search>...' cannot be used with '--info'
+error: the argument '--search <search>...' cannot be used with '--info'
 
 Usage: pacman[EXE] {sync|--sync|-S} --search <search>... <package>...
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 

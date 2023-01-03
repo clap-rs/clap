@@ -79,11 +79,11 @@ fn help_multi_subcommand_error() {
         .try_get_matches_from(["ctest", "help", "subcmd", "multi", "foo"])
         .unwrap_err();
 
-    static EXPECTED: &str = "error: The subcommand 'foo' wasn't recognized
+    static EXPECTED: &str = "error: the subcommand 'foo' wasn't recognized
 
 Usage: ctest subcmd multi [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     utils::assert_eq(EXPECTED, err.to_string());
 }

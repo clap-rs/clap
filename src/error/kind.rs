@@ -82,7 +82,7 @@ pub enum ErrorKind {
     /// fn is_numeric(val: &str) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
-    ///         Err(..) => Err(String::from("Value wasn't a number!")),
+    ///         Err(..) => Err(String::from("value wasn't a number!")),
     ///     }
     /// }
     ///
@@ -316,24 +316,24 @@ impl ErrorKind {
     /// End-user description of the error case, where relevant
     pub fn as_str(self) -> Option<&'static str> {
         match self {
-            Self::InvalidValue => Some("One of the values isn't valid for an argument"),
+            Self::InvalidValue => Some("one of the values isn't valid for an argument"),
             Self::UnknownArgument => {
-                Some("Found an argument which wasn't expected or isn't valid in this context")
+                Some("found an argument which wasn't expected or isn't valid in this context")
             }
-            Self::InvalidSubcommand => Some("A subcommand wasn't recognized"),
-            Self::NoEquals => Some("Equal is needed when assigning values to one of the arguments"),
-            Self::ValueValidation => Some("Invalid value for one of the arguments"),
-            Self::TooManyValues => Some("An argument received an unexpected value"),
-            Self::TooFewValues => Some("An argument requires more values"),
-            Self::WrongNumberOfValues => Some("An argument received too many or too few values"),
+            Self::InvalidSubcommand => Some("a subcommand wasn't recognized"),
+            Self::NoEquals => Some("equal is needed when assigning values to one of the arguments"),
+            Self::ValueValidation => Some("invalid value for one of the arguments"),
+            Self::TooManyValues => Some("an argument received an unexpected value"),
+            Self::TooFewValues => Some("an argument requires more values"),
+            Self::WrongNumberOfValues => Some("an argument received too many or too few values"),
             Self::ArgumentConflict => {
-                Some("An argument cannot be used with one or more of the other specified arguments")
+                Some("an argument cannot be used with one or more of the other specified arguments")
             }
             Self::MissingRequiredArgument => {
-                Some("One or more required arguments were not provided")
+                Some("one or more required arguments were not provided")
             }
-            Self::MissingSubcommand => Some("A subcommand is required but one was not provided"),
-            Self::InvalidUtf8 => Some("Invalid UTF-8 was detected in one or more arguments"),
+            Self::MissingSubcommand => Some("a subcommand is required but one was not provided"),
+            Self::InvalidUtf8 => Some("invalid UTF-8 was detected in one or more arguments"),
             Self::DisplayHelp => None,
             Self::DisplayHelpOnMissingArgumentOrSubcommand => None,
             Self::DisplayVersion => None,

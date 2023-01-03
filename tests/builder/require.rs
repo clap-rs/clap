@@ -84,13 +84,13 @@ fn positional_required_2() {
 #[cfg(feature = "error-context")]
 fn positional_required_with_requires() {
     static POSITIONAL_REQ: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   <flag>
   <opt>
 
 Usage: clap-test <flag> <opt> [bar]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("positional_required")
@@ -105,12 +105,12 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn positional_required_with_requires_if_no_value() {
     static POSITIONAL_REQ_IF_NO_VAL: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   <flag>
 
 Usage: clap-test <flag> [opt] [bar]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("positional_required")
@@ -125,13 +125,13 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn positional_required_with_requires_if_value() {
     static POSITIONAL_REQ_IF_VAL: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   <foo>
   <opt>
 
 Usage: clap-test <flag> <foo> <opt> [bar]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("positional_required")
@@ -513,14 +513,14 @@ fn required_unless_any_err() {
 #[cfg(feature = "error-context")]
 fn missing_required_output() {
     static MISSING_REQ: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --long-option-2 <option2>
   <positional>
   <positional2>
 
 Usage: clap-test --long-option-2 <option2> -F <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(utils::complex_app(), "clap-test -F", MISSING_REQ, true);
@@ -758,12 +758,12 @@ fn required_if_any_all_values_present_fail() {
 #[cfg(feature = "error-context")]
 fn list_correct_required_args() {
     static COND_REQ_IN_USAGE: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --output <output>
 
 Usage: test --target <target> --input <input> --output <output>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("Test cmd")
@@ -802,12 +802,12 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn required_if_val_present_fail_error_output() {
     static COND_REQ_IN_USAGE: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --output <output>
 
 Usage: test --target <target> --input <input> --output <output>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("Test cmd")
@@ -927,12 +927,12 @@ fn required_ifs_wrong_val_mult_fail() {
 #[cfg(feature = "error-context")]
 fn require_eq() {
     static REQUIRE_EQUALS: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --opt=<FILE>
 
 Usage: clap-test --opt=<FILE>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("clap-test").version("v1.4.8").arg(
@@ -951,12 +951,12 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn require_eq_filtered() {
     static REQUIRE_EQUALS_FILTERED: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --opt=<FILE>
 
 Usage: clap-test --opt=<FILE> --foo=<FILE>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("clap-test")
@@ -986,12 +986,12 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn require_eq_filtered_group() {
     static REQUIRE_EQUALS_FILTERED_GROUP: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --opt=<FILE>
 
 Usage: clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("clap-test")
@@ -1065,13 +1065,13 @@ fn issue_1158_app() -> Command {
 #[cfg(feature = "error-context")]
 fn multiple_required_unless_usage_printing() {
     static MULTIPLE_REQUIRED_UNLESS_USAGE: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --a <a>
   --b <b>
 
 Usage: test --c <c> --a <a> --b <b>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     let cmd = Command::new("test")
         .arg(
@@ -1109,14 +1109,14 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn issue_1158_conflicting_requirements() {
     static ISSUE_1158: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   -x <X>
   -y <Y>
   -z <Z>
 
 Usage: example -x <X> -y <Y> -z <Z> <ID>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = issue_1158_app();
@@ -1447,11 +1447,11 @@ fn required_error_doesnt_duplicate() {
                 .conflicts_with("b"),
         );
     const EXPECTED: &str = "\
-error: The argument '-b <b>' cannot be used with '-c <c>'
+error: the argument '-b <b>' cannot be used with '-c <c>'
 
 Usage: clap-test -b <b> <a>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     utils::assert_output(cmd, "clap-test aaa -b bbb -c ccc", EXPECTED, true);
 }
@@ -1469,12 +1469,12 @@ fn required_require_with_group_shows_flag() {
                 .required(true),
         );
     const EXPECTED: &str = "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   --first
 
 Usage: test --require-first <--first|--second>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     utils::assert_output(cmd, "test --require-first --second", EXPECTED, true);
 }

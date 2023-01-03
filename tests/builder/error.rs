@@ -23,11 +23,11 @@ fn assert_error<F: clap::error::ErrorFormatter>(
 
 #[test]
 fn app_error() {
-    static MESSAGE: &str = "error: Failed for mysterious reasons
+    static MESSAGE: &str = "error: failed for mysterious reasons
 
 Usage: test [OPTIONS] --all
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     let cmd = Command::new("test")
         .arg(
@@ -55,7 +55,7 @@ For more information try '--help'
         );
     let mut cmd = cmd;
     let expected_kind = ErrorKind::InvalidValue;
-    let err = cmd.error(expected_kind, "Failed for mysterious reasons");
+    let err = cmd.error(expected_kind, "failed for mysterious reasons");
     assert_error(err, expected_kind, MESSAGE, true);
 }
 
@@ -106,7 +106,7 @@ fn kind_formats_validation_error() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found an argument which wasn't expected or isn't valid in this context
+error: found an argument which wasn't expected or isn't valid in this context
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
@@ -120,11 +120,11 @@ fn rich_formats_validation_error() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument 'unused' which wasn't expected, or isn't valid in this context
+error: found argument 'unused' which wasn't expected, or isn't valid in this context
 
 Usage: test
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
@@ -139,13 +139,13 @@ fn suggest_trailing() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+error: found argument '--foo' which wasn't expected, or isn't valid in this context
 
   note: to pass '--foo' as a value, use '-- --foo'
 
 Usage: rg [PATTERN]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
@@ -160,11 +160,11 @@ fn trailing_already_in_use() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+error: found argument '--foo' which wasn't expected, or isn't valid in this context
 
 Usage: rg [PATTERN]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
@@ -179,11 +179,11 @@ fn cant_use_trailing() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: Found argument '--foo' which wasn't expected, or isn't valid in this context
+error: found argument '--foo' which wasn't expected, or isn't valid in this context
 
 Usage: test
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }

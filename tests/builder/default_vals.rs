@@ -52,7 +52,7 @@ fn opt_without_value_fail() {
     assert_eq!(err.kind(), ErrorKind::InvalidValue);
     assert!(err
         .to_string()
-        .contains("The argument '-o <opt>' requires a value but none was supplied"));
+        .contains("the argument '-o <opt>' requires a value but none was supplied"));
 }
 
 #[test]
@@ -730,12 +730,12 @@ fn default_vals_donnot_show_in_smart_usage() {
         cmd,
         "bug",
         "\
-error: The following required arguments were not provided:
+error: the following required arguments were not provided:
   <input>
 
 Usage: bug <input>
 
-For more information try '--help'
+For more information, try '--help'.
 ",
         true,
     );
@@ -812,7 +812,7 @@ fn default_values_are_possible_values() {
 #[cfg(debug_assertions)]
 #[test]
 #[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value 'one' for '[arg]"]
+#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: invalid value 'one' for '[arg]"]
 fn invalid_default_values() {
     use clap::{Arg, Command};
 
@@ -842,7 +842,7 @@ fn valid_delimited_default_values() {
 #[cfg(debug_assertions)]
 #[test]
 #[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: Invalid value 'one' for '[arg]"]
+#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: invalid value 'one' for '[arg]"]
 fn invalid_delimited_default_values() {
     use clap::{Arg, Command};
 

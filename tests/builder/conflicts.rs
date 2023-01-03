@@ -321,11 +321,11 @@ fn get_arg_conflicts_with_group() {
 #[cfg(feature = "error-context")]
 fn conflict_output() {
     static CONFLICT_ERR: &str = "\
-error: The argument '--flag...' cannot be used with '-F'
+error: the argument '--flag...' cannot be used with '-F'
 
 Usage: clap-test --flag... --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -340,11 +340,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn conflict_output_rev() {
     static CONFLICT_ERR_REV: &str = "\
-error: The argument '-F' cannot be used with '--flag...'
+error: the argument '-F' cannot be used with '--flag...'
 
 Usage: clap-test -F --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -359,11 +359,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn conflict_output_repeat() {
     static ERR: &str = "\
-error: The argument '-F' was provided more than once, but cannot be used multiple times
+error: the argument '-F' was provided more than once, but cannot be used multiple times
 
 Usage: clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(utils::complex_app(), "clap-test -F -F", ERR, true);
@@ -373,11 +373,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn conflict_output_with_required() {
     static CONFLICT_ERR: &str = "\
-error: The argument '--flag...' cannot be used with '-F'
+error: the argument '--flag...' cannot be used with '-F'
 
 Usage: clap-test --flag... --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -392,11 +392,11 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn conflict_output_rev_with_required() {
     static CONFLICT_ERR_REV: &str = "\
-error: The argument '-F' cannot be used with '--flag...'
+error: the argument '-F' cannot be used with '--flag...'
 
 Usage: clap-test -F --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -411,13 +411,13 @@ For more information try '--help'
 #[cfg(feature = "error-context")]
 fn conflict_output_three_conflicting() {
     static CONFLICT_ERR_THREE: &str = "\
-error: The argument '--one' cannot be used with:
+error: the argument '--one' cannot be used with:
   --two
   --three
 
 Usage: three_conflicting_arguments --one
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("three_conflicting_arguments")
@@ -469,7 +469,7 @@ fn two_conflicting_arguments() {
     let a = a.unwrap_err();
     assert!(
         a.to_string()
-            .contains("The argument \'--develop\' cannot be used with \'--production\'"),
+            .contains("the argument \'--develop\' cannot be used with \'--production\'"),
         "{}",
         a
     );
@@ -503,7 +503,7 @@ fn three_conflicting_arguments() {
     let a = a.unwrap_err();
     assert!(
         a.to_string()
-            .contains("The argument \'--one\' cannot be used with:"),
+            .contains("the argument \'--one\' cannot be used with:"),
         "{}",
         a
     );
@@ -734,12 +734,12 @@ fn args_negate_subcommands_two_levels() {
 #[cfg(feature = "error-context")]
 fn subcommand_conflict_error_message() {
     static CONFLICT_ERR: &str = "\
-error: Found argument 'sub1' which wasn't expected, or isn't valid in this context
+error: found argument 'sub1' which wasn't expected, or isn't valid in this context
 
 Usage: test [OPTIONS]
        test <COMMAND>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("test")
