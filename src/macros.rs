@@ -85,6 +85,12 @@ macro_rules! crate_description {
 
 /// Allows you to pull the name from your Cargo.toml at compile time.
 ///
+/// **NOTE:** This macro extracts the name from an environment variable `CARGO_PKG_NAME`.
+/// When the crate name is set to something different from the package name,
+/// use environment variables `CARGO_CRATE_NAME` or `CARGO_BIN_NAME`.
+/// See [the Cargo Book](https://doc.rust-lang.org/cargo/reference/environment-variables.html)
+/// for more information.
+///
 /// # Examples
 ///
 /// ```no_run
