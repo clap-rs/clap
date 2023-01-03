@@ -325,7 +325,7 @@ error: the argument '--flag...' cannot be used with '-F'
 
 Usage: clap-test --flag... --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -344,7 +344,7 @@ error: the argument '-F' cannot be used with '--flag...'
 
 Usage: clap-test -F --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -363,7 +363,7 @@ error: the argument '-F' was provided more than once, but cannot be used multipl
 
 Usage: clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(utils::complex_app(), "clap-test -F -F", ERR, true);
@@ -377,7 +377,7 @@ error: the argument '--flag...' cannot be used with '-F'
 
 Usage: clap-test --flag... --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -396,7 +396,7 @@ error: the argument '-F' cannot be used with '--flag...'
 
 Usage: clap-test -F --long-option-2 <option2> <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(
@@ -417,7 +417,7 @@ error: the argument '--one' cannot be used with:
 
 Usage: three_conflicting_arguments --one
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("three_conflicting_arguments")
@@ -739,7 +739,7 @@ error: found argument 'sub1' which wasn't expected, or isn't valid in this conte
 Usage: test [OPTIONS]
        test <COMMAND>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("test")

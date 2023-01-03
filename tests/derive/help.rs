@@ -223,7 +223,7 @@ fn derive_generated_error_has_full_context() {
 Usage: clap --req-str <REQ_STR>
        clap <COMMAND>
 
-For more information try '--help'
+For more information, try '--help'.
 "#;
     assert_eq!(result.unwrap_err().to_string(), expected);
 }

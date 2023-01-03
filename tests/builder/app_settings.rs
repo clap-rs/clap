@@ -67,7 +67,7 @@ error: 'sc_required' requires a subcommand but one was not provided
 
 Usage: sc_required <COMMAND>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("sc_required")

@@ -105,7 +105,7 @@ error: the subcommand 'subcm' wasn't recognized
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym").subcommand(Command::new("subcmd"));
@@ -125,7 +125,7 @@ error: the subcommand 'te' wasn't recognized
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym")
@@ -145,7 +145,7 @@ error: found argument '--subcmarg' which wasn't expected, or isn't valid in this
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym")
@@ -163,7 +163,7 @@ error: found argument '--subcmarg' which wasn't expected, or isn't valid in this
 
 Usage: dym [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("dym")
@@ -357,7 +357,7 @@ error: found argument 'subcmd' which wasn't expected, or isn't valid in this con
 
 Usage: cmd [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("cmd").subcommand(Command::new("subcmd"));
@@ -432,7 +432,7 @@ fn subcommand_not_recognized() {
 
 Usage: fake [COMMAND]
 
-For more information try '--help'
+For more information, try '--help'.
 ",
         true,
     );
@@ -506,7 +506,7 @@ error: the subcommand 'world' wasn't recognized
 
 Usage: <COMMAND>
 
-For more information try 'help'
+For more information, try 'help'.
 ";
     utils::assert_eq(HELLO_EXPECTED, err.to_string());
 
@@ -522,7 +522,7 @@ error: the subcommand 'baz' wasn't recognized
 
 Usage: <COMMAND>
 
-For more information try 'help'
+For more information, try 'help'.
 ";
         utils::assert_eq(BAZ_EXPECTED, err.to_string());
     }

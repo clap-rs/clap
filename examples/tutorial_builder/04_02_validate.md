@@ -18,12 +18,12 @@ $ 04_02_validate foobar
 ? failed
 error: invalid value 'foobar' for '<PORT>': `foobar` isn't a port number
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ 04_02_validate 0
 ? failed
 error: invalid value '0' for '<PORT>': port not in range 1-65535
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```

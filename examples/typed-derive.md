@@ -26,7 +26,7 @@ $ typed-derive -O plaid
 ? failed
 error: invalid value 'plaid' for '-O <OPTIMIZATION>': invalid digit found in string
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -46,7 +46,7 @@ $ typed-derive --bind localhost
 ? failed
 error: invalid value 'localhost' for '--bind <BIND>': invalid IP address syntax
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -59,7 +59,7 @@ $ typed-derive --sleep forever
 ? failed
 error: invalid value 'forever' for '--sleep <SLEEP>': expected number at 0
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -72,13 +72,13 @@ $ typed-derive -D Foo
 ? failed
 error: invalid value 'Foo' for '-D <DEFINES>': invalid KEY=value: no `=` found in `Foo`
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ typed-derive -D Foo=Bar
 ? failed
 error: invalid value 'Foo=Bar' for '-D <DEFINES>': invalid digit found in string
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -95,14 +95,14 @@ $ typed-derive --port
 error: the argument '--port <PORT>' requires a value but none was supplied
   [possible values: 22, 80]
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ typed-derive --port 3000
 ? failed
 error: '3000' isn't a valid value for '--port <PORT>'
   [possible values: 22, 80]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
 
@@ -119,13 +119,13 @@ $ typed-derive --log-level
 error: the argument '--log-level <LOG_LEVEL>' requires a value but none was supplied
   [possible values: info, debug, info, warn, error]
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ typed-derive --log-level critical
 ? failed
 error: 'critical' isn't a valid value for '--log-level <LOG_LEVEL>'
   [possible values: info, debug, info, warn, error]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```

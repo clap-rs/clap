@@ -122,7 +122,7 @@ fn no_empty_values_without_equals_but_requires_equals() {
 
 Usage: config [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(cmd, "config --config", NO_EUQALS_ERROR, true);

@@ -24,7 +24,7 @@ error: the following required arguments were not provided:
 
 Usage: 04_03_relations_derive[EXE] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ 04_03_relations_derive --major
 Version: 2.2.3
@@ -35,7 +35,7 @@ error: the argument '--major' cannot be used with '--minor'
 
 Usage: 04_03_relations_derive[EXE] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ 04_03_relations_derive --major -c config.toml
 ? failed
@@ -44,7 +44,7 @@ error: the following required arguments were not provided:
 
 Usage: 04_03_relations_derive[EXE] -c <CONFIG> <--set-ver <VER>|--major|--minor|--patch> <INPUT_FILE|--spec-in <SPEC_IN>>
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ 04_03_relations_derive --major -c config.toml --spec-in input.txt
 Version: 2.2.3

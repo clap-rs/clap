@@ -21,6 +21,6 @@ error: the argument '--verbose' was provided more than once, but cannot be used 
 
 Usage: 03_01_flag_bool[EXE] [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```

@@ -83,7 +83,7 @@ fn help_multi_subcommand_error() {
 
 Usage: ctest subcmd multi [OPTIONS]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     utils::assert_eq(EXPECTED, err.to_string());
 }

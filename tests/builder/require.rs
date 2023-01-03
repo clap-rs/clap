@@ -90,7 +90,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test <flag> <opt> [bar]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("positional_required")
@@ -110,7 +110,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test <flag> [opt] [bar]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("positional_required")
@@ -131,7 +131,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test <flag> <foo> <opt> [bar]
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("positional_required")
@@ -520,7 +520,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test --long-option-2 <option2> -F <positional> <positional2> [positional3]...
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     utils::assert_output(utils::complex_app(), "clap-test -F", MISSING_REQ, true);
@@ -763,7 +763,7 @@ error: the following required arguments were not provided:
 
 Usage: test --target <target> --input <input> --output <output>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("Test cmd")
@@ -807,7 +807,7 @@ error: the following required arguments were not provided:
 
 Usage: test --target <target> --input <input> --output <output>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("Test cmd")
@@ -932,7 +932,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test --opt=<FILE>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("clap-test").version("v1.4.8").arg(
@@ -956,7 +956,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test --opt=<FILE> --foo=<FILE>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("clap-test")
@@ -991,7 +991,7 @@ error: the following required arguments were not provided:
 
 Usage: clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("clap-test")
@@ -1071,7 +1071,7 @@ error: the following required arguments were not provided:
 
 Usage: test --c <c> --a <a> --b <b>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     let cmd = Command::new("test")
         .arg(
@@ -1116,7 +1116,7 @@ error: the following required arguments were not provided:
 
 Usage: example -x <X> -y <Y> -z <Z> <ID>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = issue_1158_app();
@@ -1451,7 +1451,7 @@ error: the argument '-b <b>' cannot be used with '-c <c>'
 
 Usage: clap-test -b <b> <a>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     utils::assert_output(cmd, "clap-test aaa -b bbb -c ccc", EXPECTED, true);
 }
@@ -1474,7 +1474,7 @@ error: the following required arguments were not provided:
 
 Usage: test --require-first <--first|--second>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     utils::assert_output(cmd, "test --require-first --second", EXPECTED, true);
 }

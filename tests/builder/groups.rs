@@ -136,7 +136,7 @@ fn req_group_usage_string() {
 
 Usage: clap-test <base|--delete>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("req_group")
@@ -161,7 +161,7 @@ error: the argument '--delete' cannot be used with '[base]'
 
 Usage: clap-test <base|--delete>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("req_group")
@@ -191,7 +191,7 @@ error: the argument '--delete' cannot be used with '--all'
 
 Usage: clap-test <--all|--delete>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("req_group")
@@ -309,7 +309,7 @@ error: the argument '--major' cannot be used with '--minor'
 
 Usage: prog --major
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("prog")
@@ -329,7 +329,7 @@ error: the following required arguments were not provided:
 
 Usage: prog --config <--in|--spec>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("prog")

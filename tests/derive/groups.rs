@@ -50,7 +50,7 @@ error: the following required arguments were not provided:
 
 Usage: prog --add <CRATES|--path <PATH>|--git <GIT>>
 
-For more information try '--help'
+For more information, try '--help'.
 ";
     assert_output::<Opt>("prog --add", OUTPUT, true);
 

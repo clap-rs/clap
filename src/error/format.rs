@@ -417,9 +417,9 @@ pub(crate) fn get_help_flag(cmd: &Command) -> Option<&'static str> {
 
 fn try_help(styled: &mut StyledStr, help: Option<&str>) {
     if let Some(help) = help {
-        styled.none("\n\nFor more information try '");
+        styled.none("\n\nFor more information, try '");
         styled.literal(help.to_owned());
-        styled.none("'\n");
+        styled.none("'.\n");
     } else {
         styled.none("\n");
     }

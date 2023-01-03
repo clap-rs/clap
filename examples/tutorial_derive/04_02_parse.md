@@ -18,12 +18,12 @@ $ 04_02_parse_derive foobar
 ? failed
 error: invalid value 'foobar' for '<PORT>': invalid digit found in string
 
-For more information try '--help'
+For more information, try '--help'.
 
 $ 04_02_parse_derive 0
 ? failed
 error: invalid value '0' for '<PORT>': 0 is not in 1..=65535
 
-For more information try '--help'
+For more information, try '--help'.
 
 ```
