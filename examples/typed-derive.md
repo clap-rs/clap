@@ -13,7 +13,7 @@ Options:
   -D <DEFINES>                 Hand-written parser for tuples
       --port <PORT>            Support for discrete numbers [default: 22] [possible values: 22, 80]
       --log-level <LOG_LEVEL>  Support enums from a foreign crate that don't implement `ValueEnum` [default: info] [possible values: info, debug, info, warn, error]
-  -h, --help                   Print help information
+  -h, --help                   Print help
 
 ```
 

@@ -193,8 +193,8 @@ Commands:
   help  Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
     let cmd = Command::new("clap-test").version("2.6").subcommand(
@@ -217,8 +217,8 @@ Commands:
   help  Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
     let cmd = Command::new("clap-test")
@@ -567,8 +567,8 @@ Arguments:
   [value]  
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = Command::new("repl")
         .version("1.0.0")
@@ -587,8 +587,8 @@ Arguments:
   [value]  
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let cmd = Command::new("repl")
         .version("1.0.0")
@@ -607,8 +607,8 @@ Arguments:
   [value]  
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
     let mut cmd = Command::new("repl")
         .version("1.0.0")

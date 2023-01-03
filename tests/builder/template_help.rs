@@ -57,8 +57,8 @@ Usage: MyApp [OPTIONS] <output> [COMMAND]
 Options:
   -c, --config <FILE>  Sets a custom config file
   -d...                Turn debugging information on
-  -h, --help           Print help information
-  -V, --version        Print version information
+  -h, --help           Print help
+  -V, --version        Print version
 Arguments:
   <output>  Sets an optional output file
 Commands:
@@ -82,8 +82,8 @@ Arguments:
 Options:
   -c, --config <FILE>  Sets a custom config file
   -d...                Turn debugging information on
-  -h, --help           Print help information
-  -V, --version        Print version information
+  -h, --help           Print help
+  -V, --version        Print version
 ";
 
 #[test]

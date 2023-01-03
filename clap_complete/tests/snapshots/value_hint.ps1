@@ -41,8 +41,8 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             [CompletionResult]::new('--host', 'host', [CompletionResultType]::ParameterName, 'host')
             [CompletionResult]::new('--url', 'url', [CompletionResultType]::ParameterName, 'url')
             [CompletionResult]::new('--email', 'email', [CompletionResultType]::ParameterName, 'email')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
             break
         }
     })

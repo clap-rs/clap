@@ -38,8 +38,8 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --host 'host'
             cand --url 'url'
             cand --email 'email'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
     ]
     $completions[$command]

@@ -236,8 +236,8 @@ Usage: test [OPTIONS]
 Options:
       --flag-b               first flag
       --option-b <OPTION_B>  first option
-  -h, --help                 Print help information
-  -V, --version              Print version information
+  -h, --help                 Print help
+  -V, --version              Print version
       --flag-a               second flag
       --option-a <OPTION_A>  second option
 ";
@@ -288,8 +288,8 @@ Usage: test [OPTIONS]
 Options:
       --flag-b               first flag
       --option-b <OPTION_B>  first option
-  -h, --help                 Print help information
-  -V, --version              Print version information
+  -h, --help                 Print help
+  -V, --version              Print version
       --flag-a               second flag
       --option-a <OPTION_A>  second option
 ";
@@ -340,10 +340,10 @@ Usage: test [OPTIONS]
 Options:
       --flag-a               first flag
       --flag-b               second flag
-  -h, --help                 Print help information
+  -h, --help                 Print help
       --option-a <OPTION_A>  first option
       --option-b <OPTION_B>  second option
-  -V, --version              Print version information
+  -V, --version              Print version
 ";
 
     #[derive(Parser, Debug)]
@@ -400,7 +400,7 @@ Arguments:
 
 Options:
   -h, --help
-          Print help information (use `-h` for a summary)
+          Print help (see a summary with '-h')
 ";
 
     /// Application help

@@ -10,8 +10,8 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 Usage: clap
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 ";
 
 #[test]

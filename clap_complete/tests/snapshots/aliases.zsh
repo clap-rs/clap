@@ -23,10 +23,10 @@ _my-app() {
 '-F[cmd flag]' \
 '--flag[cmd flag]' \
 '--flg[cmd flag]' \
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
 '::positional:' \
 && ret=0
 }

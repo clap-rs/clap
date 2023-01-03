@@ -271,7 +271,7 @@ Arguments:
   [A]  
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ";
     let cmd = Command::new("prog")
         .arg(Arg::new("a").value_name("A"))

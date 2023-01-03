@@ -91,7 +91,7 @@ fn kind_prints_help() {
 Usage: test
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ";
     assert_error(err, expected_kind, MESSAGE, false);
 }

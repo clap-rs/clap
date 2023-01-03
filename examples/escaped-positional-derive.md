@@ -15,8 +15,8 @@ Arguments:
 Options:
   -f             
   -p <PEAR>      
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 
 ```
 

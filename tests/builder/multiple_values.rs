@@ -432,7 +432,7 @@ Usage: test [OPTIONS]
 
 Options:
   -p [<NUM>]      
-  -h, --help      Print help information
+  -h, --help      Print help
 ";
     snapbox::assert_eq(HELP, help);
 }

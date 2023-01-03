@@ -8,8 +8,8 @@ Arguments:
   <PORT>  Network port to use
 
 Options:
-  -h, --help     Print help information
-  -V, --version  Print version information
+  -h, --help     Print help
+  -V, --version  Print version
 
 $ 04_02_validate_derive 22
 PORT = 22

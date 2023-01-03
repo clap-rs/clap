@@ -11,6 +11,6 @@ Commands:
 
 Options:
       --verbose  log
-  -h, --help     Print help information (use `--help` for more detail)
-  -V, --version  Print version information
+  -h, --help     Print help (see more with '--help')
+  -V, --version  Print version
 """
