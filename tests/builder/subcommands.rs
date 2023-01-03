@@ -100,9 +100,8 @@ fn subcmd_did_you_mean_output() {
     static DYM_SUBCMD: &str = "\
 error: The subcommand 'subcm' wasn't recognized
 
-  Did you mean 'subcmd'?
-
-  If you believe you received this message in error, try re-running with 'dym -- subcm'
+  note: subcommand 'subcmd' exists
+  note: to pass 'subcm' as a value, use 'dym -- subcm'
 
 Usage: dym [COMMAND]
 
@@ -121,9 +120,8 @@ fn subcmd_did_you_mean_output_ambiguous() {
     static DYM_SUBCMD_AMBIGUOUS: &str = "\
 error: The subcommand 'te' wasn't recognized
 
-  Did you mean 'test', 'temp'?
-
-  If you believe you received this message in error, try re-running with 'dym -- te'
+  note: subcommand 'test', 'temp' exist
+  note: to pass 'te' as a value, use 'dym -- te'
 
 Usage: dym [COMMAND]
 
@@ -143,7 +141,7 @@ fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
 error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
 
-  Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+  note: 'subcmd --subcmdarg' exists
 
 Usage: dym [COMMAND]
 
@@ -355,7 +353,7 @@ fn subcommand_used_after_double_dash() {
     static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
 error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply 'subcmd' as a subcommand, remove the '--' before it.
+  note: subcommand 'subcmd' exists; to use it, remove the '--' before it
 
 Usage: cmd [COMMAND]
 
@@ -519,9 +517,8 @@ For more information try 'help'
         static BAZ_EXPECTED: &str = "\
 error: The subcommand 'baz' wasn't recognized
 
-  Did you mean 'bar'?
-
-  If you believe you received this message in error, try re-running with ' -- baz'
+  note: subcommand 'bar' exists
+  note: to pass 'baz' as a value, use ' -- baz'
 
 Usage: <COMMAND>
 

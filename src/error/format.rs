@@ -64,23 +64,40 @@ impl ErrorFormatter for RichFormatter {
             }
         }
 
+        let mut suggested = false;
         if let Some(valid) = error.get(ContextKind::SuggestedSubcommand) {
-            styled.none("\n\n");
-            did_you_mean(&mut styled, valid);
+            styled.none("\n");
+            if !suggested {
+                styled.none("\n");
+                suggested = true;
+            }
+            did_you_mean(&mut styled, "subcommand", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedArg) {
-            styled.none("\n\n");
-            did_you_mean(&mut styled, valid);
+            styled.none("\n");
+            if !suggested {
+                styled.none("\n");
+                suggested = true;
+            }
+            did_you_mean(&mut styled, "argument", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedValue) {
-            styled.none("\n\n");
-            did_you_mean(&mut styled, valid);
+            styled.none("\n");
+            if !suggested {
+                styled.none("\n");
+                suggested = true;
+            }
+            did_you_mean(&mut styled, "value", valid);
         }
         let suggestions = error.get(ContextKind::Suggested);
         if let Some(ContextValue::StyledStrs(suggestions)) = suggestions {
+            if !suggested {
+                styled.none("\n");
+            }
             for suggestion in suggestions {
-                styled.none("\n\n");
+                styled.none("\n");
                 styled.none(TAB);
+                styled.good("note: ");
                 styled.extend(suggestion.iter());
             }
         }
@@ -409,15 +426,19 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
 }
 
 #[cfg(feature = "error-context")]
-fn did_you_mean(styled: &mut StyledStr, valid: &ContextValue) {
+fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
     if let ContextValue::String(valid) = valid {
         styled.none(TAB);
-        styled.none("Did you mean '");
+        styled.good("note: ");
+        styled.none(context);
+        styled.none(" '");
         styled.good(valid);
-        styled.none("'?");
+        styled.none("' exists");
     } else if let ContextValue::Strings(valid) = valid {
         styled.none(TAB);
-        styled.none("Did you mean ");
+        styled.good("note: ");
+        styled.none(context);
+        styled.none(" ");
         for (i, valid) in valid.iter().enumerate() {
             if i != 0 {
                 styled.none(", ");
@@ -426,7 +447,11 @@ fn did_you_mean(styled: &mut StyledStr, valid: &ContextValue) {
             styled.good(valid);
             styled.none("'");
         }
-        styled.none("?");
+        if valid.len() == 1 {
+            styled.none(" exists");
+        } else {
+            styled.none(" exist");
+        }
     }
 }
 

@@ -141,7 +141,7 @@ fn suggest_trailing() {
     static MESSAGE: &str = "\
 error: Found argument '--foo' which wasn't expected, or isn't valid in this context
 
-  If you tried to supply '--foo' as a value rather than a flag, use '-- --foo'
+  note: to pass '--foo' as a value, use '-- --foo'
 
 Usage: rg [PATTERN]
 

@@ -448,7 +448,7 @@ fn did_you_mean() {
     static DYM: &str = "\
 error: Found argument '--optio' which wasn't expected, or isn't valid in this context
 
-  Did you mean '--option'?
+  note: argument '--option' exists
 
 Usage: clap-test --option <opt>... [positional] [positional2] [positional3]...
 
@@ -546,7 +546,7 @@ fn issue_1073_suboptimal_flag_suggestion() {
     static DYM_ISSUE_1073: &str = "\
 error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
 
-  Did you mean '--files-without-match'?
+  note: argument '--files-without-match' exists
 
 Usage: ripgrep-616 --files-without-match
 
