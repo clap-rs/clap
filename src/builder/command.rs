@@ -472,14 +472,14 @@ impl Command {
     }
 
     /// Updates utilized environment values from custom source.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
     /// # use std::env;
     /// # use std::collections::HashMap;
     /// # use clap::{Command, Arg};
-    /// 
+    ///
     /// let mut cmd = Command::new("myprog")
     ///     .arg(Arg::new("data_dir")
     ///         .long("data_dir")
@@ -489,7 +489,7 @@ impl Command {
     ///
     /// let env_vars = HashMap::from_iter(env::vars_os());
     /// cmd.update_env_from(env_vars);
-    /// 
+    ///
     /// let m = cmd.get_matches_from(vec!["foo"]);
     /// assert_eq!("/home/user/Work/clap", m.get_one::<String>("data_dir").unwrap());
     /// ```
