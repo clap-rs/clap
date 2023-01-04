@@ -1,14 +1,14 @@
 #![cfg_attr(not(feature = "usage"), allow(unused_mut))]
 
 // Std
+#[cfg(feature = "env")]
+use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
 use std::io;
 use std::ops::Index;
 use std::path::Path;
-#[cfg(feature = "env")]
-use std::collections::HashMap;
 
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
@@ -495,7 +495,7 @@ impl Command {
     /// ```
     #[cfg(feature = "env")]
     pub fn update_env_from(&mut self, env_vars: HashMap<OsString, OsString>) {
-        for arg in self.args.args_mut().into_iter() {
+        for arg in self.args.args_mut() {
             if let Some((ref env_flag, ref mut maybe_env_value)) = arg.env {
                 if let Some(val) = env_vars.get::<OsString>(&env_flag.to_os_string()) {
                     maybe_env_value.replace(val.to_owned());
