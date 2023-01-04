@@ -7,6 +7,8 @@ use std::fmt;
 use std::io;
 use std::ops::Index;
 use std::path::Path;
+#[cfg(feature = "env")]
+use std::collections::HashMap;
 
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
@@ -467,6 +469,39 @@ impl Command {
     /// ```
     pub fn error(&mut self, kind: ErrorKind, message: impl std::fmt::Display) -> Error {
         Error::raw(kind, message).format(self)
+    }
+
+    /// Updates utilized environment values from custom source.
+    /// 
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use std::env;
+    /// # use std::collections::HashMap;
+    /// # use clap::{Command, Arg};
+    /// 
+    /// let mut cmd = Command::new("myprog")
+    ///     .arg(Arg::new("data_dir")
+    ///         .long("data_dir")
+    ///         .env("MYPROG_DATA_DIR"));
+    ///
+    /// env::set_var("MYPROG_DATA_DIR", "/home/user/Work/clap");
+    ///
+    /// let env_vars = HashMap::from_iter(env::vars_os());
+    /// cmd.get_env_from(env_vars);
+    /// 
+    /// let m = cmd.get_matches_from(vec!["foo"]);
+    /// assert_eq!("/home/user/Work/clap", m.get_one::<String>("data_dir").unwrap());
+    /// ```
+    #[cfg(feature = "env")]
+    pub fn update_env_from(&mut self, env_vars: HashMap<OsString, OsString>) {
+        for arg in self.args.args_mut().into_iter() {
+            if let Some((ref env_flag, ref mut maybe_env_value)) = arg.env {
+                if let Some(val) = env_vars.get::<OsString>(&env_flag.to_os_string()) {
+                    maybe_env_value.replace(val.to_owned());
+                }
+            }
+        }
     }
 
     /// Parse [`env::args_os`], exiting on failure.
