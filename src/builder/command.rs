@@ -488,7 +488,7 @@ impl Command {
     /// env::set_var("MYPROG_DATA_DIR", "/home/user/Work/clap");
     ///
     /// let env_vars = HashMap::from_iter(env::vars_os());
-    /// cmd.get_env_from(env_vars);
+    /// cmd.update_env_from(env_vars);
     /// 
     /// let m = cmd.get_matches_from(vec!["foo"]);
     /// assert_eq!("/home/user/Work/clap", m.get_one::<String>("data_dir").unwrap());
