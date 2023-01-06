@@ -317,15 +317,13 @@ impl ErrorKind {
     pub fn as_str(self) -> Option<&'static str> {
         match self {
             Self::InvalidValue => Some("one of the values isn't valid for an argument"),
-            Self::UnknownArgument => {
-                Some("found an argument which wasn't expected or isn't valid in this context")
-            }
-            Self::InvalidSubcommand => Some("a subcommand wasn't recognized"),
+            Self::UnknownArgument => Some("unexpected argument"),
+            Self::InvalidSubcommand => Some("unrecognized subcommand"),
             Self::NoEquals => Some("equal is needed when assigning values to one of the arguments"),
             Self::ValueValidation => Some("invalid value for one of the arguments"),
-            Self::TooManyValues => Some("an argument received an unexpected value"),
-            Self::TooFewValues => Some("an argument requires more values"),
-            Self::WrongNumberOfValues => Some("an argument received too many or too few values"),
+            Self::TooManyValues => Some("unexpected value for an argument"),
+            Self::TooFewValues => Some("more values required for an argument"),
+            Self::WrongNumberOfValues => Some("too many or too few values for an argument"),
             Self::ArgumentConflict => {
                 Some("an argument cannot be used with one or more of the other specified arguments")
             }

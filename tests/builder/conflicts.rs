@@ -359,7 +359,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn conflict_output_repeat() {
     static ERR: &str = "\
-error: the argument '-F' was provided more than once, but cannot be used multiple times
+error: the argument '-F' cannot be used multiple times
 
 Usage: clap-test [OPTIONS] [positional] [positional2] [positional3]... [COMMAND]
 
@@ -734,7 +734,7 @@ fn args_negate_subcommands_two_levels() {
 #[cfg(feature = "error-context")]
 fn subcommand_conflict_error_message() {
     static CONFLICT_ERR: &str = "\
-error: found argument 'sub1' which wasn't expected, or isn't valid in this context
+error: unexpected argument 'sub1'
 
 Usage: test [OPTIONS]
        test <COMMAND>

@@ -92,14 +92,14 @@ Args { optimization: None, include: None, bind: None, sleep: None, defines: [], 
 
 $ typed-derive --port
 ? failed
-error: the argument '--port <PORT>' requires a value but none was supplied
+error: a value is required for '--port <PORT>' but none was supplied
   [possible values: 22, 80]
 
 For more information, try '--help'.
 
 $ typed-derive --port 3000
 ? failed
-error: '3000' isn't a valid value for '--port <PORT>'
+error: invalid value '3000' for '--port <PORT>'
   [possible values: 22, 80]
 
 For more information, try '--help'.
@@ -116,14 +116,14 @@ Args { optimization: None, include: None, bind: None, sleep: None, defines: [], 
 
 $ typed-derive --log-level
 ? failed
-error: the argument '--log-level <LOG_LEVEL>' requires a value but none was supplied
+error: a value is required for '--log-level <LOG_LEVEL>' but none was supplied
   [possible values: info, debug, info, warn, error]
 
 For more information, try '--help'.
 
 $ typed-derive --log-level critical
 ? failed
-error: 'critical' isn't a valid value for '--log-level <LOG_LEVEL>'
+error: invalid value 'critical' for '--log-level <LOG_LEVEL>'
   [possible values: info, debug, info, warn, error]
 
 For more information, try '--help'.

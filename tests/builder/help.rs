@@ -79,7 +79,7 @@ fn help_multi_subcommand_error() {
         .try_get_matches_from(["ctest", "help", "subcmd", "multi", "foo"])
         .unwrap_err();
 
-    static EXPECTED: &str = "error: the subcommand 'foo' wasn't recognized
+    static EXPECTED: &str = "error: unrecognized subcommand 'foo'
 
 Usage: ctest subcmd multi [OPTIONS]
 

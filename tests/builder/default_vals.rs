@@ -52,7 +52,7 @@ fn opt_without_value_fail() {
     assert_eq!(err.kind(), ErrorKind::InvalidValue);
     assert!(err
         .to_string()
-        .contains("the argument '-o <opt>' requires a value but none was supplied"));
+        .contains("a value is required for '-o <opt>' but none was supplied"));
 }
 
 #[test]
@@ -796,7 +796,7 @@ fn required_args_with_default_values() {
 #[cfg(debug_assertions)]
 #[test]
 #[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: 'value' isn't a valid value for '[arg]'"]
+#[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: invalid value 'value' for '[arg]'"]
 fn default_values_are_possible_values() {
     use clap::{Arg, Command};
 
