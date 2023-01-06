@@ -131,7 +131,7 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 if ContextValue::String(invalid_arg.clone()) == *prior_arg {
                     styled.none("the argument '");
                     styled.warning(invalid_arg);
-                    styled.none("' was provided more than once, but cannot be used multiple times");
+                    styled.none("' cannot be used multiple times");
                 } else {
                     styled.none("the argument '");
                     styled.warning(invalid_arg);
@@ -181,13 +181,13 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             ) = (invalid_arg, invalid_value)
             {
                 if invalid_value.is_empty() {
-                    styled.none("the argument '");
+                    styled.none("a value is required for '");
                     styled.warning(invalid_arg);
-                    styled.none("' requires a value but none was supplied");
+                    styled.none("' but none was supplied");
                 } else {
-                    styled.none("'");
+                    styled.none("invalid value '");
                     styled.none(invalid_value);
-                    styled.none("' isn't a valid value for '");
+                    styled.none("' for '");
                     styled.warning(invalid_arg);
                     styled.none("'");
                 }
@@ -216,9 +216,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::InvalidSubcommand => {
             let invalid_sub = error.get(ContextKind::InvalidSubcommand);
             if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                styled.none("the subcommand '");
+                styled.none("unrecognized subcommand '");
                 styled.warning(invalid_sub);
-                styled.none("' wasn't recognized");
+                styled.none("'");
                 true
             } else {
                 false
@@ -276,11 +276,11 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 Some(ContextValue::String(invalid_value)),
             ) = (invalid_arg, invalid_value)
             {
-                styled.none("the value '");
+                styled.none("unexpected value '");
                 styled.warning(invalid_value);
-                styled.none("' was provided to '");
+                styled.none("' for '");
                 styled.warning(invalid_arg);
-                styled.none("' but it wasn't expecting any more values");
+                styled.none("'; no more were expected");
                 true
             } else {
                 false
@@ -297,11 +297,10 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             ) = (invalid_arg, actual_num_values, min_values)
             {
                 let were_provided = singular_or_plural(*actual_num_values as usize);
-                styled.none("the argument '");
-                styled.warning(invalid_arg);
-                styled.none("' requires at least ");
                 styled.warning(min_values.to_string());
-                styled.none(" values but only ");
+                styled.none(" more values required by '");
+                styled.warning(invalid_arg);
+                styled.none("'; only ");
                 styled.warning(actual_num_values.to_string());
                 styled.none(were_provided);
                 true
@@ -343,11 +342,10 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             ) = (invalid_arg, actual_num_values, num_values)
             {
                 let were_provided = singular_or_plural(*actual_num_values as usize);
-                styled.none("the argument '");
-                styled.warning(invalid_arg);
-                styled.none("' requires ");
                 styled.warning(num_values.to_string());
-                styled.none(" values, but ");
+                styled.none(" values required for '");
+                styled.warning(invalid_arg);
+                styled.none("' but ");
                 styled.warning(actual_num_values.to_string());
                 styled.none(were_provided);
                 true
@@ -358,9 +356,9 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::UnknownArgument => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
             if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                styled.none("found argument '");
+                styled.none("unexpected argument '");
                 styled.warning(invalid_arg.to_string());
-                styled.none("' which wasn't expected, or isn't valid in this context");
+                styled.none("'");
                 true
             } else {
                 false
