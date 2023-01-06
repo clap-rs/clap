@@ -817,9 +817,9 @@ checksum = "62ac7f900db32bf3fd12e0117dd3dc4da74bc52ebaac97f39668446d89694803"
 
 [[package]]
 name = "snapbox"
-version = "0.4.3"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efbd7b250c7243273b5aec4ca366fced84ad716d110bb7baae4814678952ebde"
+checksum = "34eced5a65e76d5a00047986a83c65f80dc666faa27b5138f331659e2ca6bcf5"
 dependencies = [
  "concolor",
  "libc",
@@ -916,9 +916,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.16.2"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd30deba9a1cd7153c22aecf93e86df639e7b81c622b0af8d9255e989991a7b7"
+checksum = "a34cc558345efd7e88b9eda9626df2138b80bb46a7606f695e751c892bc7dac6"
 dependencies = [
  "indexmap",
  "itertools",
@@ -944,9 +944,9 @@ dependencies = [
 
 [[package]]
 name = "trycmd"
-version = "0.14.6"
+version = "0.14.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd0b37ad14571d245340fb1d56cec65507bd73571005adc63dc968aa38fa9d49"
+checksum = "8a050cd97463d2f8df73e65b122dadb7f04ea31f0bd53a1306ea915cbb156849"
 dependencies = [
  "escargot",
  "glob",
