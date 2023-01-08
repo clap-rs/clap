@@ -26,21 +26,13 @@ impl Ty {
 
         if is_unit_ty(ty) {
             t(Unit)
-        } else if let Some(subty) = subty_if_name(ty, "Vec") {
-            if is_generic_ty(subty, "Vec") {
-                t(VecVec)
-            } else {
-                t(Vec)
-            }
+        } else if let Some(vt) = get_vec_ty(ty, Vec, VecVec) {
+            t(vt)
         } else if let Some(subty) = subty_if_name(ty, "Option") {
             if is_generic_ty(subty, "Option") {
                 t(OptionOption)
-            } else if let Some(subty) = subty_if_name(subty, "Vec") {
-                if is_generic_ty(subty, "Vec") {
-                    t(OptionVecVec)
-                } else {
-                    t(OptionVec)
-                }
+            } else if let Some(vt) = get_vec_ty(subty, OptionVec, OptionVecVec) {
+                t(vt)
             } else {
                 t(Option)
             }
@@ -154,4 +146,20 @@ where
     I: Iterator<Item = T>,
 {
     iter.next().filter(|_| iter.next().is_none())
+}
+
+#[cfg(feature = "unstable-v5")]
+fn get_vec_ty(ty: &Type, vec_ty: Ty, vecvec_ty: Ty) -> Option<Ty> {
+    subty_if_name(ty, "Vec").map(|subty| {
+        if is_generic_ty(subty, "Vec") {
+            vecvec_ty
+        } else {
+            vec_ty
+        }
+    })
+}
+
+#[cfg(not(feature = "unstable-v5"))]
+fn get_vec_ty(ty: &Type, vec_ty: Ty, _vecvec_ty: Ty) -> Option<Ty> {
+    is_generic_ty(ty, "Vec").then(|| vec_ty)
 }

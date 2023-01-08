@@ -1,4 +1,4 @@
-#![cfg(feature = "unstable-grouped")]
+#![cfg(all(feature = "unstable-grouped", feature = "unstable-v5"))]
 use clap::Parser;
 
 #[test]
@@ -19,23 +19,21 @@ fn test_vec_of_vec() {
 
 #[test]
 fn test_vec_of_vec_opt_out() {
-    fn parser(s: &str) -> Result<Vec<Vec<String>>, std::convert::Infallible> {
-        Ok(s.split(':')
-            .map(|v| v.split(',').map(str::to_owned).collect())
-            .collect())
+    fn parser(s: &str) -> Result<Vec<String>, std::convert::Infallible> {
+        Ok(s.split(',').map(str::to_owned).collect())
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[arg(value_parser = parser, short = 'p')]
-        arg: ::std::vec::Vec<Vec<String>>,
+        arg: Vec<::std::vec::Vec<String>>,
     }
 
     assert_eq!(
         Opt {
             arg: vec![vec!["1".into(), "2".into()], vec!["a".into(), "b".into()]],
         },
-        Opt::try_parse_from(["test", "-p", "1,2:a,b"]).unwrap(),
+        Opt::try_parse_from(["test", "-p", "1,2", "-p", "a,b"]).unwrap(),
     );
 }
 
