@@ -13,6 +13,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+MSRV changed to 1.64.0
+
+For apps with custom `--help` and `--version` flags:
+- Descriptions for `--help` and `--version` changed
+
+When apps have errors imitating clap's error style:
+- Error message style was changed, including
+  - Moving away from "did you mean" to tips
+  - Leading letter is lower case
+  - "For more" added some punctuation
+
+### Fixes
+
+- *(help)* Try be more clearer and succinct with `--help` and `--version` (also helps with overflow)
+- *(error)* Try to be more clearer and succinct with error messages
+- *(error)* Officially adopt [an error style guide](https://rustc-dev-guide.rust-lang.org/diagnostics.html#suggestion-style-guide)
+
 ## [4.0.32] - 2022-12-22
 
 ### Fixes
