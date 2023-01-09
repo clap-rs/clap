@@ -406,6 +406,17 @@ impl<'cmd> Parser<'cmd> {
                         _parse_result
                     );
                 } else {
+                    if let Some(length_range) = arg.get_num_args() {
+                        if length_range.max_values() == 1 && matcher.args.get(arg.get_id()).is_some() {
+                            return Err(ClapError::unknown_argument(
+                                self.cmd,
+                                arg_os.display().to_string(),
+                                None,
+                                true,
+                                Usage::new(self.cmd).create_usage_with_title(&[]),
+                            ));
+                        }                        
+                    }
                     let arg_values = matcher.pending_values_mut(
                         arg.get_id(),
                         Some(Identifier::Index),
