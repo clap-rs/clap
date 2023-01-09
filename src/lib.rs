@@ -24,7 +24,7 @@
 //!   - Leverage feature flags to keep to one active branch
 //!   - Being under [WG-CLI](https://github.com/rust-cli/team/) to increase the bus factor
 //! - We follow semver and will wait about 6-9 months between major breaking changes
-//! - We will support the last two minor Rust releases (MSRV, currently 1.60.0)
+//! - We will support the last two minor Rust releases (MSRV, currently 1.64.0)
 //!
 //! While these aspirations can be at odds with fast build times and low binary
 //! size, we will still strive to keep these reasonable for the flexibility you

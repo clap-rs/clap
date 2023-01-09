@@ -10,7 +10,7 @@ error[E0599]: no function or associated item named `parse` found for struct `Opt
   --> tests/derive_ui/tuple_struct.rs:16:20
    |
 13 | struct Opt(u32);
-   | ---------------- function or associated item `parse` not found for this
+   | ---------- function or associated item `parse` not found for this struct
 ...
 16 |     let opt = Opt::parse();
    |                    ^^^^^ function or associated item not found in `Opt`

@@ -3,3 +3,5 @@ error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
   |
 3 |     Sub(SubCmd),
   |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+  |
+  = help: the trait `clap::Args` is implemented for `Box<T>`

@@ -92,7 +92,7 @@ impl ValueRange {
     }
 
     pub(crate) fn num_values(&self) -> Option<usize> {
-        self.is_fixed().then(|| self.start_inclusive)
+        self.is_fixed().then_some(self.start_inclusive)
     }
 
     pub(crate) fn accepts_more(&self, current: usize) -> bool {

@@ -8,6 +8,20 @@ members = [
   "clap_mangen",
 ]
 
+[workspace.package]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+rust-version = "1.64.0"  # MSRV
+include = [
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
+]
+
 [package]
 name = "clap"
 version = "4.0.32"
@@ -21,18 +35,10 @@ keywords = [
   "parser",
   "parse"
 ]
-license = "MIT OR Apache-2.0"
-edition = "2021"
-rust-version = "1.60.0"  # MSRV
-include = [
-  "build.rs",
-  "src/**/*",
-  "Cargo.toml",
-  "LICENSE*",
-  "README.md",
-  "benches/**/*",
-  "examples/**/*"
-]
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+include.workspace = true
 
 [package.metadata.docs.rs]
 features = ["unstable-doc"]

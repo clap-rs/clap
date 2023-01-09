@@ -186,7 +186,7 @@ impl ArgMatcher {
         let num_pending = self
             .pending
             .as_ref()
-            .and_then(|p| (p.id == *o.get_id()).then(|| p.raw_vals.len()))
+            .and_then(|p| (p.id == *o.get_id()).then_some(p.raw_vals.len()))
             .unwrap_or(0);
         debug!(
             "ArgMatcher::needs_more_vals: o={}, pending={}",
