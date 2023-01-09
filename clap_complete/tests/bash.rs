@@ -84,6 +84,18 @@ fn value_hint() {
     );
 }
 
+#[test]
+fn value_terminator() {
+    let name = "my-app";
+    let cmd = common::value_terminator_command(name);
+    common::assert_matches_path(
+        "tests/snapshots/value_terminator.bash",
+        clap_complete::shells::Bash,
+        cmd,
+        name,
+    );
+}
+
 #[cfg(feature = "unstable-dynamic")]
 #[test]
 fn register_minimal() {

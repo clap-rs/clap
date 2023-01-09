@@ -252,6 +252,15 @@ pub fn value_hint_command(name: &'static str) -> clap::Command {
         )
 }
 
+pub fn value_terminator_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("arguments")
+            .help("multi-valued argument with a value terminator")
+            .num_args(1..)
+            .value_terminator(";"),
+    )
+}
+
 pub fn assert_matches_path(
     expected_path: impl AsRef<std::path::Path>,
     gen: impl clap_complete::Generator,
