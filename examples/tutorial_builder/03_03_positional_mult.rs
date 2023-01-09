@@ -2,8 +2,7 @@ use clap::{command, Arg, ArgAction};
 
 fn main() {
     let matches = command!() // requires `cargo` feature
-        .arg(Arg::new("name").num_args(1..)
-        .action(ArgAction::Append))
+        .arg(Arg::new("name").num_args(1..).action(ArgAction::Append))
         .get_matches();
 
     let args = matches
