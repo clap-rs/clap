@@ -299,7 +299,7 @@ For more information, try '--help'.
 
     #[cfg(not(feature = "suggestions"))]
     static PV_ERROR_ESCAPED: &str = "\
-error: invalid vaue 'ludicrous' for '-O <option>'
+error: invalid value 'ludicrous' for '-O <option>'
   [possible values: slow, fast, \"ludicrous speed\"]
 
 For more information, try '--help'.
