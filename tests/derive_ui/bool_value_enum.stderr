@@ -3,3 +3,5 @@ error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
   |
 6 |     #[arg(short, value_enum, default_value_t)]
   |                              ^^^^^^^^^^^^^^^ the trait `ValueEnum` is not implemented for `bool`
+  |
+  = help: the trait `ValueEnum` is implemented for `ColorChoice`

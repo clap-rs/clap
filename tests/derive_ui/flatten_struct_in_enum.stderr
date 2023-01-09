@@ -4,4 +4,7 @@ error[E0277]: the trait bound `SubCmd: Subcommand` is not satisfied
 1 | #[derive(clap::Parser)]
   |          ^^^^^^^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
   |
+  = help: the following other types implement trait `Subcommand`:
+            Box<T>
+            Opt
   = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)

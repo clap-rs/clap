@@ -3,3 +3,7 @@ error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
   |
 3 |     #[command(flatten)]
   |               ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+  |
+  = help: the following other types implement trait `clap::Args`:
+            Box<T>
+            Opt
