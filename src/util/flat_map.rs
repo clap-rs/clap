@@ -69,7 +69,7 @@ impl<K: PartialEq + Eq, V> FlatMap<K, V> {
             .keys
             .iter()
             .enumerate()
-            .find_map(|(i, k)| (k.borrow() == key).then(|| i)));
+            .find_map(|(i, k)| (k.borrow() == key).then_some(i)));
         let key = self.keys.remove(index);
         let value = self.values.remove(index);
         Some((key, value))
