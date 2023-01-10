@@ -22,6 +22,7 @@ mod macros;
 mod naming;
 mod nested_subcommands;
 mod non_literal_attributes;
+mod occurrences;
 mod options;
 mod privacy;
 mod raw_bool_literal;
