@@ -3858,6 +3858,13 @@ impl Arg {
         self.val_delim
     }
 
+    /// Get the value terminator for this argument. The value_terminator is a value
+    /// that terminates parsing of multi-valued arguments.
+    #[inline]
+    pub fn get_value_terminator(&self) -> Option<&Str> {
+        self.terminator.as_ref()
+    }
+
     /// Get the index of this argument, if any
     #[inline]
     pub fn get_index(&self) -> Option<usize> {

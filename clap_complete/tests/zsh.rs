@@ -83,3 +83,15 @@ fn value_hint() {
         name,
     );
 }
+
+#[test]
+fn value_terminator() {
+    let name = "my-app";
+    let cmd = common::value_terminator_command(name);
+    common::assert_matches_path(
+        "tests/snapshots/value_terminator.zsh",
+        clap_complete::shells::Zsh,
+        cmd,
+        name,
+    );
+}
