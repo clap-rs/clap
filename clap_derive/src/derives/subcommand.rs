@@ -244,6 +244,14 @@ fn gen_augment(
                     };
                     let initial_app_methods = item.initial_top_level_methods();
                     let final_from_attrs = item.final_top_level_methods();
+                    let override_methods = if override_required {
+                        quote_spanned! { kind.span()=>
+                            .subcommand_required(false)
+                            .arg_required_else_help(false)
+                        }
+                    } else {
+                        quote!()
+                    };
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             #deprecations;
@@ -253,7 +261,7 @@ fn gen_augment(
                             let #subcommand_var = #subcommand_var
                                 .subcommand_required(true)
                                 .arg_required_else_help(true);
-                            #subcommand_var #final_from_attrs
+                            #subcommand_var #final_from_attrs #override_methods
                         });
                     };
                     Some(subcommand)

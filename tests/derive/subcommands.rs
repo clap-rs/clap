@@ -397,7 +397,8 @@ fn update_subcommands_explicit_required() {
 
     // Full subcommand update
     let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
-    assert!(opt.try_update_from(["test"]).is_err(),);
+    opt.try_update_from(["test"]).unwrap();
+    assert_eq!(Opt::Command1(Command1 { arg1: 12, arg2: 14 }), opt);
 }
 
 #[test]

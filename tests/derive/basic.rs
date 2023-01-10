@@ -62,7 +62,15 @@ fn update_explicit_required() {
 
     let mut opt = Opt::try_parse_from(["test", "-f0", "-s1"]).unwrap();
 
-    assert!(opt.try_update_from(["test", "-f42"]).is_err());
+    opt.try_update_from(["test", "-f42"]).unwrap();
+
+    assert_eq!(
+        Opt {
+            first: 42,
+            second: 1
+        },
+        opt
+    );
 }
 
 #[test]
