@@ -37,7 +37,7 @@ fn update_basic() {
 
     let mut opt = Opt::try_parse_from(["test", "-a0"]).unwrap();
 
-    opt.update_from(["test", "-a42"]);
+    opt.try_update_from(["test", "-a42"]).unwrap();
 
     assert_eq!(Opt { single_value: 42 }, opt);
 }

@@ -30,7 +30,7 @@ fn skip_1() {
     );
     opt.s = 42;
 
-    opt.update_from(["test", "-x", "22"]);
+    opt.try_update_from(["test", "-x", "22"]).unwrap();
 
     assert_eq!(opt, Opt { x: 22, s: 42 });
 }
