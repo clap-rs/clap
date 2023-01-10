@@ -261,6 +261,20 @@ pub fn value_terminator_command(name: &'static str) -> clap::Command {
     )
 }
 
+pub fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("first")
+                .help("first multi-valued argument")
+                .num_args(1..),
+        )
+        .arg(
+            clap::Arg::new("second")
+                .help("second multi-valued argument")
+                .raw(true),
+        )
+}
+
 pub fn assert_matches_path(
     expected_path: impl AsRef<std::path::Path>,
     gen: impl clap_complete::Generator,
