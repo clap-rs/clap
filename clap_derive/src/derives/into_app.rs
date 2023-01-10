@@ -85,6 +85,8 @@ pub fn gen_for_enum(item: &Item, item_name: &Ident, generics: &Generics) -> Toke
             fn command_for_update<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name);
                 <Self as clap::Subcommand>::augment_subcommands_for_update(#app_var)
+                    .subcommand_required(false)
+                    .arg_required_else_help(false)
             }
         }
     }

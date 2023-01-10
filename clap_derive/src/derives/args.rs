@@ -187,7 +187,7 @@ pub fn gen_augment(
                     (Ty::Option, Some(sub_type)) => sub_type,
                     _ => &field.ty,
                 };
-                let implicit_methods = if **ty == Ty::Option || override_required {
+                let implicit_methods = if **ty == Ty::Option {
                     quote!()
                 } else {
                     quote_spanned! { kind.span()=>
@@ -196,10 +196,20 @@ pub fn gen_augment(
                     }
                 };
 
+                let override_methods = if override_required {
+                    quote_spanned! { kind.span()=>
+                        .subcommand_required(false)
+                        .arg_required_else_help(false)
+                    }
+                } else {
+                    quote!()
+                };
+
                 Some(quote! {
                     let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
                     let #app_var = #app_var
-                        #implicit_methods;
+                        #implicit_methods
+                        #override_methods;
                 })
             }
             Kind::Flatten(ty) => {
@@ -289,7 +299,7 @@ pub fn gen_augment(
                     }
 
                     Ty::Other => {
-                        let required = item.find_default_method().is_none() && !override_required;
+                        let required = item.find_default_method().is_none();
                         // `ArgAction::takes_values` is assuming `ArgAction::default_value` will be
                         // set though that won't always be true but this should be good enough,
                         // otherwise we'll report an "arg required" error when unwrapping.
@@ -310,6 +320,13 @@ pub fn gen_augment(
                 } else {
                     quote!()
                 };
+                let override_methods = if override_required {
+                    quote_spanned! { kind.span()=>
+                        .required(false)
+                    }
+                } else {
+                    quote!()
+                };
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg({
@@ -321,6 +338,10 @@ pub fn gen_augment(
 
                         let arg = arg
                             #explicit_methods;
+
+                        let arg = arg
+                            #override_methods;
+
                         arg
                     });
                 })
