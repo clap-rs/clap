@@ -256,11 +256,11 @@ fn gen_augment(
                         let #app_var = #app_var.subcommand({
                             #deprecations;
                             let #subcommand_var = clap::Command::new(#name);
-                            let #subcommand_var = #subcommand_var #initial_app_methods;
-                            let #subcommand_var = #arg_block;
                             let #subcommand_var = #subcommand_var
                                 .subcommand_required(true)
                                 .arg_required_else_help(true);
+                            let #subcommand_var = #subcommand_var #initial_app_methods;
+                            let #subcommand_var = #arg_block;
                             #subcommand_var #final_from_attrs #override_methods
                         });
                     };
