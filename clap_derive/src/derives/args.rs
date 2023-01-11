@@ -643,8 +643,6 @@ fn gen_parsers(
     let get_one = quote_spanned!(span=> remove_one::<#convert_type>);
     let get_many = quote_spanned!(span=> remove_many::<#convert_type>);
     let get_occurrences = quote_spanned!(span=> remove_occurrences::<#convert_type>);
-    let deref = quote!(|s| s);
-    let parse = quote_spanned!(span=> |s| ::std::result::Result::Ok::<_, clap::Error>(s));
 
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
@@ -661,9 +659,6 @@ fn gen_parsers(
         Ty::Option => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
-                    .map(#deref)
-                    .map(#parse)
-                    .transpose()?
             }
         }
 
@@ -671,8 +666,6 @@ fn gen_parsers(
             if #arg_matches.contains_id(#id) {
                 Some(
                     #arg_matches.#get_one(#id)
-                        .map(#deref)
-                        .map(#parse).transpose()?
                 )
             } else {
                 None
@@ -682,8 +675,7 @@ fn gen_parsers(
         Ty::OptionVec => quote_spanned! { ty.span()=>
             if #arg_matches.contains_id(#id) {
                 Some(#arg_matches.#get_many(#id)
-                    .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
-                    .transpose()?
+                    .map(|v| v.collect::<Vec<_>>())
                     .unwrap_or_else(Vec::new))
             } else {
                 None
@@ -693,8 +685,7 @@ fn gen_parsers(
         Ty::Vec => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_many(#id)
-                    .map(|v| v.map(#deref).map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
-                    .transpose()?
+                    .map(|v| v.collect::<Vec<_>>())
                     .unwrap_or_else(Vec::new)
             }
         }
@@ -713,9 +704,7 @@ fn gen_parsers(
         Ty::Other => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#get_one(#id)
-                    .map(#deref)
-                    .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))
-                    .and_then(#parse)?
+                    .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))?
             }
         }
     };
