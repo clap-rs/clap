@@ -476,7 +476,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group name.  To handle this case programmatically, see
+    /// If `id` is not a valid argument or group name.  To handle this case programmatically, see
     /// [`ArgMatches::try_contains_id`].
     ///
     /// # Examples
@@ -602,7 +602,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group id.
+    /// If `id` is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -648,7 +648,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group id.
+    /// If `id` is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -791,7 +791,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid argument or group id.
+    /// If `id` is not a valid argument or group id.
     ///
     /// # Examples
     ///
@@ -988,7 +988,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is is not a valid subcommand.
+    /// If `id` is not a valid subcommand.
     ///
     /// # Examples
     ///
