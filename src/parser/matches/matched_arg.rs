@@ -20,6 +20,8 @@ pub(crate) struct MatchedArg {
     vals: Vec<Vec<AnyValue>>,
     raw_vals: Vec<Vec<OsString>>,
     ignore_case: bool,
+    #[cfg(debug_assertions)]
+    has_default_val: bool,
 }
 
 impl MatchedArg {
@@ -32,6 +34,15 @@ impl MatchedArg {
             vals: Vec::new(),
             raw_vals: Vec::new(),
             ignore_case,
+            #[cfg(debug_assertions)]
+            has_default_val: {
+                let implied_default = arg
+                    .action
+                    .as_ref()
+                    .and_then(|a| a.default_value())
+                    .is_some();
+                !arg.default_vals.is_empty() || implied_default
+            },
         }
     }
 
@@ -44,6 +55,8 @@ impl MatchedArg {
             vals: Vec::new(),
             raw_vals: Vec::new(),
             ignore_case,
+            #[cfg(debug_assertions)]
+            has_default_val: false,
         }
     }
 
@@ -60,6 +73,8 @@ impl MatchedArg {
             vals: Vec::new(),
             raw_vals: Vec::new(),
             ignore_case,
+            #[cfg(debug_assertions)]
+            has_default_val: false,
         }
     }
 
@@ -182,6 +197,11 @@ impl MatchedArg {
             })
             .unwrap_or(expected)
     }
+
+    #[cfg(debug_assertions)]
+    pub(crate) fn has_default_val(&self) -> bool {
+        self.has_default_val
+    }
 }
 
 impl PartialEq for MatchedArg {
@@ -193,6 +213,8 @@ impl PartialEq for MatchedArg {
             vals: _,
             raw_vals: self_raw_vals,
             ignore_case: self_ignore_case,
+            #[cfg(debug_assertions)]
+                has_default_val: self_has_default_val,
         } = self;
         let MatchedArg {
             source: other_source,
@@ -201,7 +223,13 @@ impl PartialEq for MatchedArg {
             vals: _,
             raw_vals: other_raw_vals,
             ignore_case: other_ignore_case,
+            #[cfg(debug_assertions)]
+                has_default_val: other_has_default_val,
         } = other;
+        #[cfg(debug_assertions)]
+        if self_has_default_val != other_has_default_val {
+            return false;
+        }
         self_source == other_source
             && self_indices == other_indices
             && self_type_id == other_type_id

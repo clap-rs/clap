@@ -1219,6 +1219,13 @@ impl ArgMatches {
         ok!(self.verify_arg(id));
 
         let presence = self.args.contains_key(id);
+
+        debug_assert!(
+            !presence || !self.args.get(id).unwrap().has_default_val(),
+            "`contains_id` and `try_contains_id` always return `true` since `{:?}` has default value(s)",
+            id,
+        );
+
         Ok(presence)
     }
 }
