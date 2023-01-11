@@ -34,7 +34,7 @@ clap_mangen = "0.1"
 In your `build.rs`:
 ```rust,no_run
 fn main() -> std::io::Result<()> {
-    let out_dir = std::path::PathBuf::from(std::env::var_os("OUT_DIR").ok_or_else(|| std::io::ErrorKind::NotFound)?);
+    let out_dir = std::path::PathBuf::from(std::env::var_os("OUT_DIR").ok_or(std::io::ErrorKind::NotFound)?);
 
     let cmd = clap::Command::new("mybin")
         .arg(clap::arg!(-n --name <NAME>))
