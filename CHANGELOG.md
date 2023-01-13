@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Made `ArgPredicate` `non_exhaustive`
+- *(derive)* `Vec<Vec<T>>` types are now assuming to capture occurrences
+
+### Features
+
+- *(derive)* Group values by their occurrence with `Vec<Vec<T>>`
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
@@ -26,8 +31,13 @@ When apps have errors imitating clap's error style:
   - Leading letter is lower case
   - "For more" added some punctuation
 
+### Features
+
+- `ArgMatches::get_occurrences` support for argument values to be grouped by their occurrence
+
 ### Fixes
 
+- *(derive)* Allow `upgrade_from` when arguments / subcommands are explicitly marked as required
 - *(help)* Try be more clearer and succinct with `--help` and `--version` (also helps with overflow)
 - *(error)* Try to be more clearer and succinct with error messages
 - *(error)* Officially adopt [an error style guide](https://rustc-dev-guide.rust-lang.org/diagnostics.html#suggestion-style-guide)
