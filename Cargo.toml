@@ -69,7 +69,7 @@ default = [
   "suggestions",
 ]
 debug = ["clap_derive?/debug", "dep:backtrace"] # Enables debug messages
-unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "unstable-replace", "unstable-grouped"] # for docs.rs
+unstable-doc = ["derive", "cargo", "wrap_help", "env", "unicode", "string", "unstable-replace"] # for docs.rs
 
 # Used in default
 std = [] # support for no_std in a backwards-compatible way

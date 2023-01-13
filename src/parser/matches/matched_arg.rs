@@ -75,12 +75,10 @@ impl MatchedArg {
         self.indices.push(index)
     }
 
-    #[cfg(feature = "unstable-grouped")]
     pub(crate) fn vals(&self) -> Iter<Vec<AnyValue>> {
         self.vals.iter()
     }
 
-    #[cfg(feature = "unstable-grouped")]
     pub(crate) fn into_vals(self) -> Vec<Vec<AnyValue>> {
         self.vals
     }
@@ -93,7 +91,6 @@ impl MatchedArg {
         self.vals.into_iter().flatten()
     }
 
-    #[cfg(feature = "unstable-grouped")]
     pub(crate) fn raw_vals(&self) -> Iter<Vec<OsString>> {
         self.raw_vals.iter()
     }
