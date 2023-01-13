@@ -35,16 +35,19 @@ Our releases fall into one of:
 - Major releases which are reserved for breaking changes
   - Aspire to at least 6-9 months between releases
   - Remove all deprecated functionality
+  - Changes in help/error output that could cause glaring inconsistencies in end-user applications
   - Try to minimize new breaking changes to ease user transition and reduce time "we go dark" (unreleased feature-branch)
   - Upon release, a minor release will be made for the previous major that enables `deprecated` feature by default
 - Minor releases which are for minor compatibility changes
   - Aspire to at least 2 months between releases
   - Changes to MSRV
+  - Wide-spread help/error output changes that would cause minor inconsistencies in end-user applications
   - Deprecating existing functionality (behind the `deprecated` feature flag)
   - Making the `deprecated` feature flag enabled-by-default (only on last planned minor release)
   - `#[doc(hidden)]` all deprecated items in the prior minor release
 - Patch releases
   - One for every user-facing, user-contributed PR (i.e. release early, release often)
+  - Changes in help/error output that are one-off or improving consistency so as to not increase inconsistency with end-user applications
 
 If your change does not fit within a "patch" release, please coordinate with the clap maintainers for how to handle the situation.
 
