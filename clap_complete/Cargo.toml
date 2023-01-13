@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete"
-version = "4.0.7"
+version = "4.1.0"
 description = "Generate shell completion scripts for your clap::Command"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
 categories = ["command-line-interface"]
@@ -32,7 +32,7 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "4.0.0", default-features = false, features = ["std"] }
+clap = { path = "../", version = "4.1.0", default-features = false, features = ["std"] }
 clap_lex = { path = "../clap_lex", version = "0.3.0", optional = true }
 is_executable = { version = "1.0.1", optional = true }
 os_str_bytes = { version = "6.0", default-features = false, features = ["raw_os_str"], optional = true }
