@@ -246,7 +246,6 @@ impl ArgMatches {
     /// assert_eq!(vals, [["a", "b"], ["c", "d"]]);
     /// ```
     #[cfg_attr(debug_assertions, track_caller)]
-    #[cfg(feature = "unstable-grouped")]
     pub fn get_occurrences<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
@@ -348,7 +347,6 @@ impl ArgMatches {
     /// [`OsStr`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
-    #[cfg(feature = "unstable-grouped")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_raw_occurrences(&self, id: &str) -> Option<RawOccurrences<'_>> {
         MatchesError::unwrap(id, self.try_get_raw_occurrences(id))
@@ -460,7 +458,6 @@ impl ArgMatches {
     /// let vals: Vec<Vec<String>> = m.remove_occurrences("x").unwrap().map(Iterator::collect).collect();
     /// assert_eq!(vals, [["a", "b"], ["c", "d"]]);
     /// ```
-    #[cfg(feature = "unstable-grouped")]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn remove_occurrences<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
@@ -1110,7 +1107,6 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::get_occurrences`]
-    #[cfg(feature = "unstable-grouped")]
     pub fn try_get_occurrences<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
@@ -1143,7 +1139,6 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::get_raw_occurrences`]
-    #[cfg(feature = "unstable-grouped")]
     pub fn try_get_raw_occurrences(
         &self,
         id: &str,
@@ -1196,7 +1191,6 @@ impl ArgMatches {
     }
 
     /// Non-panicking version of [`ArgMatches::remove_occurrences`]
-    #[cfg(feature = "unstable-grouped")]
     pub fn try_remove_occurrences<T: Any + Clone + Send + Sync + 'static>(
         &mut self,
         id: &str,
@@ -1868,9 +1862,9 @@ impl<'a> Default for Indices<'a> {
     }
 }
 
-#[cfg(feature = "unstable-grouped")]
 #[cfg_attr(debug_assertions, track_caller)]
 #[inline]
+#[cfg(feature = "unstable-grouped")]
 fn unwrap_string(value: &AnyValue) -> &str {
     match value.downcast_ref::<String>() {
         Some(value) => value,

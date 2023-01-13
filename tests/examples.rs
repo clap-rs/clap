@@ -27,8 +27,6 @@ fn example_tests() {
         "wrap_help",
         #[cfg(feature = "unstable-replace")]
         "unstable-replace",
-        #[cfg(feature = "unstable-grouped")]
-        "unstable-grouped",
     ]
     .join(" ");
     t.register_bins(trycmd::cargo::compile_examples(["--features", &features]).unwrap());

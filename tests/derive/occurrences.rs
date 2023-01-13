@@ -1,4 +1,4 @@
-#![cfg(all(feature = "unstable-grouped", feature = "unstable-v5"))]
+#![cfg(feature = "unstable-v5")]
 use clap::Parser;
 
 #[test]

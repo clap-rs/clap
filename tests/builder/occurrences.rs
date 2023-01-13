@@ -1,5 +1,3 @@
-#![cfg(feature = "unstable-grouped")]
-
 use clap::{Arg, ArgAction, ArgMatches, Command};
 
 fn occurrences_as_vec_vec<'a>(m: &'a ArgMatches, name: &str) -> Vec<Vec<&'a String>> {
