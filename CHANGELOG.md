@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Small softening attempt for "unexpected argument" error
+
 ## [4.1.0] - 2023-01-13
 
 ### Compatibility
