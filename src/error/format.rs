@@ -282,7 +282,7 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 styled.warning(invalid_value);
                 styled.none("' for '");
                 styled.warning(invalid_arg);
-                styled.none("'; no more were expected");
+                styled.none("' found; no more were expected");
                 true
             } else {
                 false
@@ -360,7 +360,7 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                 styled.none("unexpected argument '");
                 styled.warning(invalid_arg.to_string());
-                styled.none("'");
+                styled.none("' found");
                 true
             } else {
                 false

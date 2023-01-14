@@ -139,7 +139,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
-error: unexpected argument '--subcmarg'
+error: unexpected argument '--subcmarg' found
 
   note: 'subcmd --subcmdarg' exists
 
@@ -159,7 +159,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &str = "\
-error: unexpected argument '--subcmarg'
+error: unexpected argument '--subcmarg' found
 
 Usage: dym [COMMAND]
 
@@ -351,7 +351,7 @@ fn subcommand_placeholder_test() {
 #[cfg(feature = "error-context")]
 fn subcommand_used_after_double_dash() {
     static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
-error: unexpected argument 'subcmd'
+error: unexpected argument 'subcmd' found
 
   note: subcommand 'subcmd' exists; to use it, remove the '--' before it
 

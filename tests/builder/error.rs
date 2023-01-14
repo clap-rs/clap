@@ -106,7 +106,7 @@ fn kind_formats_validation_error() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: unexpected argument
+error: unexpected argument found
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
@@ -120,7 +120,7 @@ fn rich_formats_validation_error() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: unexpected argument 'unused'
+error: unexpected argument 'unused' found
 
 Usage: test
 
@@ -139,7 +139,7 @@ fn suggest_trailing() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: unexpected argument '--foo'
+error: unexpected argument '--foo' found
 
   note: to pass '--foo' as a value, use '-- --foo'
 
@@ -160,7 +160,7 @@ fn trailing_already_in_use() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: unexpected argument '--foo'
+error: unexpected argument '--foo' found
 
 Usage: rg [PATTERN]
 
@@ -179,7 +179,7 @@ fn cant_use_trailing() {
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
     static MESSAGE: &str = "\
-error: unexpected argument '--foo'
+error: unexpected argument '--foo' found
 
 Usage: test
 

@@ -33,7 +33,7 @@ Notice that we can't pass positional arguments before `--`:
 ```console
 $ escaped-positional foo bar
 ? failed
-error: unexpected argument 'foo'
+error: unexpected argument 'foo' found
 
 Usage: escaped-positional[EXE] [OPTIONS] [-- <SLOP>...]
 
