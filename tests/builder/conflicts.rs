@@ -734,7 +734,7 @@ fn args_negate_subcommands_two_levels() {
 #[cfg(feature = "error-context")]
 fn subcommand_conflict_error_message() {
     static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub1'
+error: unexpected argument 'sub1' found
 
 Usage: test [OPTIONS]
        test <COMMAND>

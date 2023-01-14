@@ -3,7 +3,7 @@ args = ["--unknown-argument"]
 status.code = 2
 stdout = ""
 stderr = """
-error: unexpected argument '--unknown-argument'
+error: unexpected argument '--unknown-argument' found
 
 Usage: stdio-fixture[EXE] [OPTIONS] [COMMAND]
 

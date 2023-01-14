@@ -140,7 +140,7 @@ fn multiple_flags_in_single() {
 #[cfg(feature = "error-context")]
 fn unexpected_value_error() {
     const USE_FLAG_AS_ARGUMENT: &str = "\
-error: unexpected value 'foo' for '--a-flag'; no more were expected
+error: unexpected value 'foo' for '--a-flag' found; no more were expected
 
 Usage: mycat --a-flag [filename]
 
@@ -158,7 +158,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn issue_1284_argument_in_flag_style() {
     const USE_FLAG_AS_ARGUMENT: &str = "\
-error: unexpected argument '--another-flag'
+error: unexpected argument '--another-flag' found
 
   note: to pass '--another-flag' as a value, use '-- --another-flag'
 
@@ -202,7 +202,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn issue_2308_multiple_dashes() {
     static MULTIPLE_DASHES: &str = "\
-error: unexpected argument '-----'
+error: unexpected argument '-----' found
 
   note: to pass '-----' as a value, use '-- -----'
 
