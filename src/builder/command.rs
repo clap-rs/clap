@@ -1760,7 +1760,7 @@ impl Command {
     ///   * `{options}`             - Help for options.
     ///   * `{positionals}`         - Help for positional arguments.
     ///   * `{subcommands}`         - Help for subcommands.
-    ///   * `{tag}`                 - Standard tab sized used within clap
+    ///   * `{tab}`                 - Standard tab sized used within clap
     ///   * `{after-help}`          - Help from [`Command::after_help`] or [`Command::after_long_help`].
     ///   * `{before-help}`         - Help from [`Command::before_help`] or [`Command::before_long_help`].
     ///
