@@ -83,3 +83,10 @@ fn sub_subcommands_help() {
         common::assert_matches_path("tests/snapshots/sub_subcommand_help.roff", cmd.clone());
     }
 }
+
+#[test]
+fn value_name_without_arg() {
+    let name = "my-app";
+    let cmd = common::value_name_without_arg(name);
+    common::assert_matches_path("tests/snapshots/value_name_without_arg.bash.roff", cmd);
+}

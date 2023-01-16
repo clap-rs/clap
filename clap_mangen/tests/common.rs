@@ -312,3 +312,12 @@ pub fn possible_values_command(name: &'static str) -> clap::Command {
                 ]),
         )
 }
+
+pub fn value_name_without_arg(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("flag")
+            .long("flag")
+            .value_name("SPURIOUS")
+            .action(clap::ArgAction::SetTrue),
+    )
+}
