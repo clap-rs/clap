@@ -1,5 +1,5 @@
 use std::convert::TryInto;
-use std::ops::RangeBounds;
+use std::ops::{Bound, RangeBounds};
 
 use crate::parser::AnyValue;
 use crate::parser::AnyValueId;
@@ -811,34 +811,6 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     {
         TryMapValueParser::new(self, func)
     }
-
-    /// Restrict the valid values for the parser to a range.
-    ///
-    /// See [`InRange`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use clap::builder::TypedValueParser;
-    ///
-    /// let mut cmd =clap::Command::new("raw")
-    ///     .arg(
-    ///         clap::Arg::new("port")
-    ///             .long("port")
-    ///             .value_parser(clap::value_parser!(u16).in_range(3000..4000))
-    ///             .action(clap::ArgAction::Set)
-    ///             .required(true)
-    ///     );
-    /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
-    /// let port: u16 = *m.get_one("port").expect("required");
-    /// assert_eq!(port, 3001);
-    /// ```
-    fn in_range<R: RangeBounds<Self::Value>>(self, range: R) -> InRange<Self>
-    where
-        Self::Value: PartialOrd + Clone + std::fmt::Display,
-    {
-        InRange::with_parser(self, range)
-    }
 }
 
 impl<F, T, E> TypedValueParser for F
@@ -1236,45 +1208,116 @@ where
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct InRange<P>
-where
-    P: TypedValueParser,
-    P::Value: PartialOrd,
-{
-    parser: P,
-    bounds: (std::ops::Bound<P::Value>, std::ops::Bound<P::Value>),
+pub trait BoundedParseable: PartialOrd + Sized {
+    const MIN: Self;
+    const MAX: Self;
 }
 
-impl<P: TypedValueParser> InRange<P>
+/// Wrap a [`TypedValueParser`] in another parser that restricts the input to a range
+#[derive(Copy, Clone, Debug)]
+pub struct RangedValueParser<Parser, Target>
 where
-    P::Value: PartialOrd + Clone,
+    Parser: TypedValueParser,
+    Target: PartialOrd + TryFrom<Parser::Value>,
 {
-    pub fn new<T, R: RangeBounds<P::Value>>(range: R) -> Self
+    parser: Parser,
+    bounds: (std::ops::Bound<Target>, std::ops::Bound<Target>),
+}
+
+impl<Parser, Target> RangedValueParser<Parser, Target>
+where
+    Parser: TypedValueParser,
+    Target: BoundedParseable + TryFrom<Parser::Value> + Clone,
+{
+    /// Create a new [`InRange`] using a [`ValueParserFactory`] and a range
+    ///
+    /// This creates a new [`ValueParser`] for `T` that creates a base
+    /// parser using a [`ValueParserFactory`], then restricts that to the given `range`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .long("port")
+    ///             .value_parser(InRange::<u16>::new(3000..4000))
+    ///             .action(clap::ArgAction::Set)
+    ///             .required(true)
+    ///     );
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+    /// let port: u16 = *m.get_one("port").expect("required");
+    /// assert_eq!(port, 3001);
+    /// ```
+    pub fn new() -> Self
     where
-        T: ValueParserFactory<Parser = P>,
+        Parser::Value: ValueParserFactory<Parser = Parser>,
     {
-        Self::with_parser(T::value_parser(), range)
+        Self::with_parser(Parser::Value::value_parser())
     }
 
-    pub fn with_parser<R: RangeBounds<P::Value>>(parser: P, range: R) -> Self {
+    /// Create a new [`InRange`] that wraps another [`ValueParser`] and restricts input to a range
+    ///
+    /// This constructor explicitly takes a base parser in addition to the range.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let mut cmd = clap::Command::new("raw")
+    ///     .arg(
+    ///         clap::Arg::new("port")
+    ///             .long("port")
+    ///             .value_parser(InRange::with_parser(value_parser!(usize), 3000..4000))
+    ///             .action(clap::ArgAction::Set)
+    ///             .required(true)
+    ///     );
+    /// let m = cmd.try_get_matches_from_mut(["cmd", "--port", "3001"]).unwrap();
+    /// let port: u16 = *m.get_one("port").expect("required");
+    /// assert_eq!(port, 3001);
+    ///
+    /// ```
+    pub fn with_parser(parser: Parser) -> Self {
         Self {
             parser,
-            bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
+            bounds: (Bound::Included(Target::MIN), Bound::Included(Target::MAX)),
         }
     }
 
-    pub fn in_range<R: RangeBounds<P::Value>>(self, range: R) -> InRange<P>
-    where P::Value: std::fmt::Debug {
-        debug_assert!(
-            is_sub_bound(&self.bounds, &range),
-            "({:?}, {:?}) must be a subrange of {:?}",
-            range.start_bound(),
-            range.end_bound(),
-            self.bounds
-        );
-
-        Self::with_parser(self.parser, range)
+    /// Specialized version of [`ValueParser::in_range`]
+    ///
+    /// This is similar to [`ValueParser::in_range`], but instead of wrapping `self`
+    /// in another `InRange`, it returns the same type as `Self`. It also asserts
+    /// (with `debug_assert!`) that the new range is a subset of the current range.
+    pub fn range<R: RangeBounds<Target>>(mut self, range: R) -> Self where Target: std::fmt::Debug {
+        use std::ops::Bound::*;
+        let (old_start, old_end) = self.bounds;
+        // Consideration: when the user does `value_parser!(u8).range()`
+        // - Avoid programming mistakes by accidentally expanding the range
+        // - Make it convenient to limit the range like with `..10`
+        let start = match range.start_bound() {
+            l @ Included(i) => {
+                // TODO: assert
+                l.cloned()
+            }
+            l @ Excluded(i) => {
+                // TODO: assert
+                l.cloned()
+            }
+            Unbounded => old_start,
+        };
+        let end = match range.end_bound() {
+            l @ Included(i) => {
+                // TODO: assert
+                l.cloned()
+            }
+            l @ Excluded(i) => {
+                // TODO: assert
+                l.cloned()
+            }
+            Unbounded => old_end,
+        };
+        self.bounds = (start, end);
+        self
     }
 }
 
@@ -1316,9 +1359,10 @@ where
     true
 }
 
-impl<P: TypedValueParser> std::fmt::Display for InRange<P>
+impl<Parser, Target> std::fmt::Display for RangedValueParser<Parser, Target>
 where
-    P::Value: PartialOrd + std::fmt::Display,
+    Parser: TypedValueParser,
+    Target: PartialOrd + TryFrom<Parser::Value> + std::fmt::Display,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use std::ops::Bound::*;
@@ -1337,12 +1381,13 @@ where
     }
 }
 
-impl<P> TypedValueParser for InRange<P>
+impl<Parser, Target> TypedValueParser for RangedValueParser<Parser, Target>
 where
-    P: TypedValueParser,
-    P::Value: PartialOrd + std::fmt::Display + Sync + Send + Clone,
+    Parser: TypedValueParser,
+    Target: TryFrom<Parser::Value> + PartialOrd + std::fmt::Display + Sync + Send + Clone + 'static,
+    <Target as TryFrom<Parser::Value>>::Error: Send + Sync + 'static + std::error::Error,
 {
-    type Value = P::Value;
+    type Value = Target;
 
     fn parse_ref(
         &self,
@@ -1351,6 +1396,17 @@ where
         raw_value: &std::ffi::OsStr,
     ) -> Result<Self::Value, crate::Error> {
         let value = self.parser.parse_ref(cmd, arg, raw_value)?;
+        let value: Result<Target, _> = value.try_into();
+        let value = value.map_err(|err| {
+            let arg = arg.map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                err.into(),
+            )
+                .with_cmd(cmd)
+        })?;
         if !self.bounds.contains(&value) {
             let arg = arg
                 .map(|a| a.to_string())
@@ -1363,6 +1419,59 @@ where
             .with_cmd(cmd));
         }
         Ok(value)
+    }
+}
+
+impl<P, T, B> From<B> for RangedValueParser<P, T>
+where
+    P: TypedValueParser,
+    B: RangeBounds<T>,
+    T: BoundedParseable + TryFrom<P::Value> + Clone,
+{
+    fn from(range: B) -> Self {
+        Self::new().range(range)
+    }
+}
+
+
+
+impl<Parser, Target> Default for RangedValueParser<Parser, Target>
+where
+    Parser: TypedValueParser,
+    Target: BoundedParseable + TryFrom<Parser::Value> + Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Parse i64, primariley for use with RangedValueParser
+#[derive(Copy, Clone, Debug)]
+#[non_exhaustive]
+pub struct I64ValueParser {}
+
+impl TypedValueParser for I64ValueParser {
+    type Value = i64;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        raw_value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let value = ok!(raw_value.to_str().ok_or_else(|| {
+            crate::Error::invalid_utf8(cmd, crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            )
+        }));
+        value.parse::<i64>().map_err(|err| {
+            let arg = arg.map(|a| a.to_string())
+                .unwrap_or_else(|| "...".to_owned());
+            crate::Error::value_validation(
+                arg,
+                raw_value.to_string_lossy().into_owned(),
+                err.into(),
+            ).with_cmd(cmd)
+        })
     }
 }
 
@@ -1406,98 +1515,15 @@ where
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), 0);
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
 /// ```
+pub type RangedI64ValueParser<T: std::convert::TryFrom<i64> + Clone + Send + Sync = i64> = RangedValueParser<I64ValueParser , T>;
+
+/// Parse u64, primariley for use with RangedValueParser
 #[derive(Copy, Clone, Debug)]
-pub struct RangedI64ValueParser<T: std::convert::TryFrom<i64> + Clone + Send + Sync = i64> {
-    bounds: (std::ops::Bound<i64>, std::ops::Bound<i64>),
-    target: std::marker::PhantomData<T>,
-}
+#[non_exhaustive]
+pub struct U64ValueParser {}
 
-impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> RangedI64ValueParser<T> {
-    /// Select full range of `i64`
-    pub fn new() -> Self {
-        Self::from(..)
-    }
-
-    /// Narrow the supported range
-    pub fn range<B: RangeBounds<i64>>(mut self, range: B) -> Self {
-        // Consideration: when the user does `value_parser!(u8).range()`
-        // - Avoid programming mistakes by accidentally expanding the range
-        // - Make it convenient to limit the range like with `..10`
-        let start = match range.start_bound() {
-            l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            l @ std::ops::Bound::Excluded(i) => {
-                debug_assert!(
-                    self.bounds.contains(&i.saturating_add(1)),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            std::ops::Bound::Unbounded => self.bounds.start_bound().cloned(),
-        };
-        let end = match range.end_bound() {
-            l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            l @ std::ops::Bound::Excluded(i) => {
-                debug_assert!(
-                    self.bounds.contains(&i.saturating_sub(1)),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            std::ops::Bound::Unbounded => self.bounds.end_bound().cloned(),
-        };
-        self.bounds = (start, end);
-        self
-    }
-
-    fn format_bounds(&self) -> String {
-        let mut result = match self.bounds.0 {
-            std::ops::Bound::Included(i) => i.to_string(),
-            std::ops::Bound::Excluded(i) => i.saturating_add(1).to_string(),
-            std::ops::Bound::Unbounded => i64::MIN.to_string(),
-        };
-        result.push_str("..");
-        match self.bounds.1 {
-            std::ops::Bound::Included(i) => {
-                result.push('=');
-                result.push_str(&i.to_string());
-            }
-            std::ops::Bound::Excluded(i) => {
-                result.push_str(&i.to_string());
-            }
-            std::ops::Bound::Unbounded => {
-                result.push_str(&i64::MAX.to_string());
-            }
-        }
-        result
-    }
-}
-
-impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync + 'static> TypedValueParser
-    for RangedI64ValueParser<T>
-where
-    <T as std::convert::TryFrom<i64>>::Error: Send + Sync + 'static + std::error::Error + ToString,
-{
-    type Value = T;
+impl TypedValueParser for U64ValueParser {
+    type Value = u64;
 
     fn parse_ref(
         &self,
@@ -1506,65 +1532,18 @@ where
         raw_value: &std::ffi::OsStr,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(raw_value.to_str().ok_or_else(|| {
-            crate::Error::invalid_utf8(
-                cmd,
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+            crate::Error::invalid_utf8(cmd, crate::output::Usage::new(cmd).create_usage_with_title(&[]),
             )
         }));
-        let value = ok!(value.parse::<i64>().map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
+        value.parse::<u64>().map_err(|err| {
+            let arg = arg.map(|a| a.to_string())
                 .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 err.into(),
-            )
-            .with_cmd(cmd)
-        }));
-        if !self.bounds.contains(&value) {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
-            return Err(crate::Error::value_validation(
-                arg,
-                raw_value.to_string_lossy().into_owned(),
-                format!("{} is not in {}", value, self.format_bounds()).into(),
-            )
-            .with_cmd(cmd));
-        }
-
-        let value: Result<Self::Value, _> = value.try_into();
-        let value = ok!(value.map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(
-                arg,
-                raw_value.to_string_lossy().into_owned(),
-                err.into(),
-            )
-            .with_cmd(cmd)
-        }));
-
-        Ok(value)
-    }
-}
-
-impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync, B: RangeBounds<i64>> From<B>
-    for RangedI64ValueParser<T>
-{
-    fn from(range: B) -> Self {
-        Self {
-            bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
-            target: Default::default(),
-        }
-    }
-}
-
-impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> Default for RangedI64ValueParser<T> {
-    fn default() -> Self {
-        Self::new()
+            ).with_cmd(cmd)
+        })
     }
 }
 
@@ -1604,165 +1583,7 @@ impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> Default for RangedI64V
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), 0);
 /// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
 /// ```
-#[derive(Copy, Clone, Debug)]
-pub struct RangedU64ValueParser<T: std::convert::TryFrom<u64> = u64> {
-    bounds: (std::ops::Bound<u64>, std::ops::Bound<u64>),
-    target: std::marker::PhantomData<T>,
-}
-
-impl<T: std::convert::TryFrom<u64>> RangedU64ValueParser<T> {
-    /// Select full range of `u64`
-    pub fn new() -> Self {
-        Self::from(..)
-    }
-
-    /// Narrow the supported range
-    pub fn range<B: RangeBounds<u64>>(mut self, range: B) -> Self {
-        // Consideration: when the user does `value_parser!(u8).range()`
-        // - Avoid programming mistakes by accidentally expanding the range
-        // - Make it convenient to limit the range like with `..10`
-        let start = match range.start_bound() {
-            l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            l @ std::ops::Bound::Excluded(i) => {
-                debug_assert!(
-                    self.bounds.contains(&i.saturating_add(1)),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            std::ops::Bound::Unbounded => self.bounds.start_bound().cloned(),
-        };
-        let end = match range.end_bound() {
-            l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            l @ std::ops::Bound::Excluded(i) => {
-                debug_assert!(
-                    self.bounds.contains(&i.saturating_sub(1)),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
-                l.cloned()
-            }
-            std::ops::Bound::Unbounded => self.bounds.end_bound().cloned(),
-        };
-        self.bounds = (start, end);
-        self
-    }
-
-    fn format_bounds(&self) -> String {
-        let mut result = match self.bounds.0 {
-            std::ops::Bound::Included(i) => i.to_string(),
-            std::ops::Bound::Excluded(i) => i.saturating_add(1).to_string(),
-            std::ops::Bound::Unbounded => u64::MIN.to_string(),
-        };
-        result.push_str("..");
-        match self.bounds.1 {
-            std::ops::Bound::Included(i) => {
-                result.push('=');
-                result.push_str(&i.to_string());
-            }
-            std::ops::Bound::Excluded(i) => {
-                result.push_str(&i.to_string());
-            }
-            std::ops::Bound::Unbounded => {
-                result.push_str(&u64::MAX.to_string());
-            }
-        }
-        result
-    }
-}
-
-impl<T: std::convert::TryFrom<u64> + Clone + Send + Sync + 'static> TypedValueParser
-    for RangedU64ValueParser<T>
-where
-    <T as std::convert::TryFrom<u64>>::Error: Send + Sync + 'static + std::error::Error + ToString,
-{
-    type Value = T;
-
-    fn parse_ref(
-        &self,
-        cmd: &crate::Command,
-        arg: Option<&crate::Arg>,
-        raw_value: &std::ffi::OsStr,
-    ) -> Result<Self::Value, crate::Error> {
-        let value = ok!(raw_value.to_str().ok_or_else(|| {
-            crate::Error::invalid_utf8(
-                cmd,
-                crate::output::Usage::new(cmd).create_usage_with_title(&[]),
-            )
-        }));
-        let value = ok!(value.parse::<u64>().map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(
-                arg,
-                raw_value.to_string_lossy().into_owned(),
-                err.into(),
-            )
-            .with_cmd(cmd)
-        }));
-        if !self.bounds.contains(&value) {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
-            return Err(crate::Error::value_validation(
-                arg,
-                raw_value.to_string_lossy().into_owned(),
-                format!("{} is not in {}", value, self.format_bounds()).into(),
-            )
-            .with_cmd(cmd));
-        }
-
-        let value: Result<Self::Value, _> = value.try_into();
-        let value = ok!(value.map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(
-                arg,
-                raw_value.to_string_lossy().into_owned(),
-                err.into(),
-            )
-            .with_cmd(cmd)
-        }));
-
-        Ok(value)
-    }
-}
-
-impl<T: std::convert::TryFrom<u64>, B: RangeBounds<u64>> From<B> for RangedU64ValueParser<T> {
-    fn from(range: B) -> Self {
-        Self {
-            bounds: (range.start_bound().cloned(), range.end_bound().cloned()),
-            target: Default::default(),
-        }
-    }
-}
-
-impl<T: std::convert::TryFrom<u64>> Default for RangedU64ValueParser<T> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+pub type RangedU64ValueParser<T: std::convert::TryFrom<u64> = u64> = RangedValueParser<U64ValueParser,T>;
 
 /// Implementation for [`ValueParser::bool`]
 ///
