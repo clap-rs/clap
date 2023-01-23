@@ -120,7 +120,7 @@ fn subcmd_did_you_mean_output_ambiguous() {
     static DYM_SUBCMD_AMBIGUOUS: &str = "\
 error: unrecognized subcommand 'te'
 
-  note: subcommand 'test', 'temp' exist
+  note: subcommands 'test', 'temp' exist
   note: to pass 'te' as a value, use 'dym -- te'
 
 Usage: dym [COMMAND]

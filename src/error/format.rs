@@ -438,6 +438,9 @@ fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
         styled.none(TAB);
         styled.good("note: ");
         styled.none(context);
+        if valid.len() > 1 {
+            styled.none("s");
+        }
         styled.none(" ");
         for (i, valid) in valid.iter().enumerate() {
             if i != 0 {
