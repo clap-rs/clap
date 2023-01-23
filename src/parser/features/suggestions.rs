@@ -4,10 +4,9 @@ use std::cmp::Ordering;
 // Internal
 use crate::builder::Command;
 
-/// Produces multiple strings from a given list of possible values which are similar
-/// to the passed in value `v` within a certain confidence by least confidence.
-/// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
-/// `Some("foo")`, whereas "blark" would yield `None`.
+/// Find strings from an iterable of `possible_values` similar to a given value `v`
+/// Returns a Vec of all possible values that exceed a similarity threshold
+/// sorted by ascending similarity, most similar comes last
 #[cfg(feature = "suggestions")]
 pub(crate) fn did_you_mean<T, I>(v: &str, possible_values: I) -> Vec<String>
 where
@@ -16,8 +15,11 @@ where
 {
     let mut candidates: Vec<(f64, String)> = possible_values
         .into_iter()
-        .map(|pv| (strsim::jaro_winkler(v, pv.as_ref()), pv.as_ref().to_owned()))
-        .filter(|(confidence, _)| *confidence > 0.8)
+        // GH #4660: using `jaro` because `jaro_winkler` implementation in `strsim-rs` is wrong
+        // causing strings with common prefix >=10 to be considered perfectly similar
+        .map(|pv| (strsim::jaro(v, pv.as_ref()), pv.as_ref().to_owned()))
+        // Confidence of 0.7 so that bar -> baz is suggested
+        .filter(|(confidence, _)| *confidence > 0.7)
         .collect();
     candidates.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(Ordering::Equal));
     candidates.into_iter().map(|(_, pv)| pv).collect()
@@ -106,6 +108,15 @@ mod test {
             "alignmentStart",
             "alignmentScore",
         ];
+        assert_eq!(
+            did_you_mean("alignmentScorr", p_vals.iter()),
+            vec!["alignmentStart", "alignmentScore"]
+        );
+    }
+
+    #[test]
+    fn best_fit_long_common_prefix_issue_4660() {
+        let p_vals = ["alignmentScore", "alignmentStart"];
         assert_eq!(
             did_you_mean("alignmentScorr", p_vals.iter()),
             vec!["alignmentStart", "alignmentScore"]
