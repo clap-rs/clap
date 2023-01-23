@@ -1311,7 +1311,7 @@ fn low_index_positional_with_extra_flags() {
     assert_eq!(m.get_one::<String>("output").unwrap(), "8");
     assert_eq!(m.get_one::<String>("one").unwrap(), "1");
     assert_eq!(m.get_one::<String>("two").unwrap(), "2");
-    assert!(!*m.get_one::<bool>("yes").unwrap());
+    assert!(!m.get_flag("yes"));
 }
 
 #[test]

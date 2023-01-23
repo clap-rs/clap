@@ -449,7 +449,7 @@ impl Command {
     ///
     /// fn main() {
     ///     let m = cmd().get_matches_from(vec!["foo", "-b"]);
-    ///     println!("{}", *m.get_one::<bool>("bar").expect("defaulted by clap"));
+    ///     println!("{}", m.get_flag("bar"));
     /// }
     /// ```
     pub fn debug_assert(mut self) {
@@ -963,7 +963,7 @@ impl Command {
     /// assert!(r.is_ok(), "unexpected error: {:?}", r);
     /// let m = r.unwrap();
     /// assert_eq!(m.get_one::<String>("config").unwrap(), "file");
-    /// assert!(*m.get_one::<bool>("f").expect("defaulted"));
+    /// assert!(m.get_flag("f"));
     /// assert_eq!(m.get_one::<String>("stuff"), None);
     /// ```
     #[inline]
@@ -1943,8 +1943,8 @@ impl Command {
     ///     .replace("--save-all", &["--save-context", "--save-runtime"])
     ///     .get_matches_from(vec!["cmd", "--save-all"]);
     ///
-    /// assert!(*m.get_one::<bool>("save-context").expect("defaulted by clap"));
-    /// assert!(*m.get_one::<bool>("save-runtime").expect("defaulted by clap"));
+    /// assert!(m.get_flag("save-context"));
+    /// assert!(m.get_flag("save-runtime"));
     /// ```
     ///
     /// This can also be used with options, for example if our application with
@@ -1969,8 +1969,8 @@ impl Command {
     ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
     ///     .get_matches_from(vec!["cmd", "--save-all"]);
     ///
-    /// assert!(*m.get_one::<bool>("save-context").expect("defaulted by clap"));
-    /// assert!(*m.get_one::<bool>("save-runtime").expect("defaulted by clap"));
+    /// assert!(m.get_flag("save-context"));
+    /// assert!(m.get_flag("save-runtime"));
     /// assert_eq!(m.get_one::<String>("format").unwrap(), "json");
     /// ```
     ///
@@ -2191,7 +2191,7 @@ impl Command {
     ///
     /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
-    /// assert!(*sync_matches.get_one::<bool>("search").expect("defaulted by clap"));
+    /// assert!(sync_matches.get_flag("search"));
     /// ```
     /// [`Arg::short`]: Arg::short()
     #[must_use]
@@ -2228,7 +2228,7 @@ impl Command {
     ///
     /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
-    /// assert!(*sync_matches.get_one::<bool>("search").expect("defaulted by clap"));
+    /// assert!(sync_matches.get_flag("search"));
     /// ```
     ///
     /// [`Arg::long`]: Arg::long()
