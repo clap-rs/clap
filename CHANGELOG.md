@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Improve suggested flag/value/subcommand when two share a long preifx
+- *(error)* When suggesting one of several subcommands, use the plural `subcommands`, rather than `subcommand`
+
 ## [4.1.2] - 2023-01-23
 
 ### Fixes
