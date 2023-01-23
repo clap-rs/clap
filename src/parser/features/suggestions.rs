@@ -79,16 +79,13 @@ mod test {
     #[test]
     fn missing_letter() {
         let p_vals = ["test", "possible", "values"];
-        assert_eq!(did_you_mean("tst", p_vals.iter()), vec!["test".to_owned()]);
+        assert_eq!(did_you_mean("tst", p_vals.iter()), vec!["test"]);
     }
 
     #[test]
     fn ambiguous() {
         let p_vals = ["test", "temp", "possible", "values"];
-        assert_eq!(
-            did_you_mean("te", p_vals.iter()),
-            vec!["test".to_owned(), "temp".to_owned()]
-        );
+        assert_eq!(did_you_mean("te", p_vals.iter()), vec!["test", "temp"]);
     }
 
     #[test]
@@ -111,7 +108,7 @@ mod test {
         ];
         assert_eq!(
             did_you_mean("alignmentScorr", p_vals.iter()),
-            vec!["alignmentStart".to_owned(), "alignmentScore".to_owned()]
+            vec!["alignmentStart", "alignmentScore"]
         );
     }
 
