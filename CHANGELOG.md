@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- In documentation, refer to `get_flag`, rather than `get_one::<bool>`
+
 ## [4.1.1] - 2023-01-14
 
 ### Fixes
