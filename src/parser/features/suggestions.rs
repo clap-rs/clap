@@ -72,7 +72,7 @@ where
     }
 }
 
-#[cfg(all(test, features = "suggestions"))]
+#[cfg(all(test, feature = "suggestions"))]
 mod test {
     use super::*;
 
