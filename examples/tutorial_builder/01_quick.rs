@@ -48,7 +48,7 @@ fn main() {
     // matches just as you would the top level cmd
     if let Some(matches) = matches.subcommand_matches("test") {
         // "$ myapp test" was run
-        if *matches.get_one::<bool>("list").expect("defaulted by clap") {
+        if matches.get_flag("list") {
             // "$ myapp test -l" was run
             println!("Printing testing lists...");
         } else {

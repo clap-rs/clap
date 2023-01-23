@@ -286,7 +286,7 @@ impl Arg {
     ///             .get_matches_from(vec![
     ///                 "prog", "--do-tests"
     ///             ]);
-    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
+    /// assert_eq!(m.get_flag("test"), true);
     /// ```
     #[must_use]
     pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
@@ -314,7 +314,7 @@ impl Arg {
     ///             .get_matches_from(vec![
     ///                 "prog", "-s"
     ///             ]);
-    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
+    /// assert_eq!(m.get_flag("test"), true);
     /// ```
     #[must_use]
     pub fn short_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
@@ -399,7 +399,7 @@ impl Arg {
     ///        .get_matches_from(vec![
     ///             "prog", "--awesome"
     ///         ]);
-    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
+    /// assert_eq!(m.get_flag("test"), true);
     /// ```
     /// [`Command::aliases`]: Arg::aliases()
     #[must_use]
@@ -425,7 +425,7 @@ impl Arg {
     ///        .get_matches_from(vec![
     ///             "prog", "-t"
     ///         ]);
-    /// assert_eq!(*m.get_one::<bool>("test").expect("defaulted by clap"), true);
+    /// assert_eq!(m.get_flag("test"), true);
     /// ```
     #[must_use]
     pub fn visible_short_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
@@ -807,7 +807,7 @@ impl Arg {
     ///
     /// assert_eq!(m.subcommand_name(), Some("do-stuff"));
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
-    /// assert_eq!(*sub_m.get_one::<bool>("verb").expect("defaulted by clap"), true);
+    /// assert_eq!(sub_m.get_flag("verb"), true);
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
@@ -1900,9 +1900,9 @@ impl Arg {
     ///         "prog"
     ///     ]);
     ///
-    /// assert!(*m.get_one::<bool>("true_flag").unwrap());
-    /// assert!(!*m.get_one::<bool>("false_flag").unwrap());
-    /// assert!(!*m.get_one::<bool>("absent_flag").unwrap());
+    /// assert!(m.get_flag("true_flag"));
+    /// assert!(!m.get_flag("false_flag"));
+    /// assert!(!m.get_flag("absent_flag"));
     /// ```
     ///
     /// In this example, we show the variable coming from an option on the CLI:
@@ -3639,10 +3639,10 @@ impl Arg {
     ///         "prog", "-f", "-d", "-c"]);
     ///             //    ^~~~~~~~~~~~^~~~~ flag is overridden by color
     ///
-    /// assert!(*m.get_one::<bool>("color").unwrap());
-    /// assert!(*m.get_one::<bool>("debug").unwrap()); // even though flag conflicts with debug, it's as if flag
+    /// assert!(m.get_flag("color"));
+    /// assert!(m.get_flag("debug")); // even though flag conflicts with debug, it's as if flag
     ///                                 // was never used because it was overridden with color
-    /// assert!(!*m.get_one::<bool>("flag").unwrap());
+    /// assert!(!m.get_flag("flag"));
     /// ```
     #[must_use]
     pub fn overrides_with(mut self, arg_id: impl IntoResettable<Id>) -> Self {
@@ -3678,11 +3678,11 @@ impl Arg {
     ///         "prog", "-f", "-d", "-c"]);
     ///             //    ^~~~~~^~~~~~~~~ flag and debug are overridden by color
     ///
-    /// assert!(*m.get_one::<bool>("color").unwrap()); // even though flag conflicts with color, it's as if flag
+    /// assert!(m.get_flag("color")); // even though flag conflicts with color, it's as if flag
     ///                                 // and debug were never used because they were overridden
     ///                                 // with color
-    /// assert!(!*m.get_one::<bool>("debug").unwrap());
-    /// assert!(!*m.get_one::<bool>("flag").unwrap());
+    /// assert!(!m.get_flag("debug"));
+    /// assert!(!m.get_flag("flag"));
     /// ```
     #[must_use]
     pub fn overrides_with_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {

@@ -1005,7 +1005,7 @@ impl ArgMatches {
     ///     ]);
     ///
     /// // Both parent commands, and child subcommands can have arguments present at the same times
-    /// assert!(*app_m.get_one::<bool>("debug").expect("defaulted by clap"));
+    /// assert!(app_m.get_flag("debug"));
     ///
     /// // Get the subcommand's ArgMatches instance
     /// if let Some(sub_m) = app_m.subcommand_matches("test") {

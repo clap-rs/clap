@@ -99,15 +99,15 @@ pub enum ArgAction {
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
-    ///     matches.get_one::<bool>("flag").copied(),
-    ///     Some(true)
+    ///     matches.get_flag("flag"),
+    ///     true
     /// );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
-    ///     matches.get_one::<bool>("flag").copied(),
-    ///     Some(false)
+    ///     matches.get_flag("flag"),
+    ///     false
     /// );
     /// ```
     ///
@@ -172,15 +172,15 @@ pub enum ArgAction {
     /// let matches = cmd.clone().try_get_matches_from(["mycmd", "--flag"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
-    ///     matches.get_one::<bool>("flag").copied(),
-    ///     Some(false)
+    ///     matches.get_flag("flag"),
+    ///     false
     /// );
     ///
     /// let matches = cmd.try_get_matches_from(["mycmd"]).unwrap();
     /// assert!(matches.contains_id("flag"));
     /// assert_eq!(
-    ///     matches.get_one::<bool>("flag").copied(),
-    ///     Some(true)
+    ///     matches.get_flag("flag"),
+    ///     true
     /// );
     /// ```
     SetFalse,
