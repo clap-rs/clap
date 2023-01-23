@@ -101,6 +101,21 @@ mod test {
     }
 
     #[test]
+    fn best_fit() {
+        let p_vals = [
+            "test",
+            "possible",
+            "values",
+            "alignmentStart",
+            "alignmentScore",
+        ];
+        assert_eq!(
+            did_you_mean("alignmentScorr", p_vals.iter()),
+            vec!["alignmentStart".to_owned(), "alignmentScore".to_owned()]
+        );
+    }
+
+    #[test]
     fn flag_missing_letter() {
         let p_vals = ["test", "possible", "values"];
         assert_eq!(
@@ -124,6 +139,21 @@ mod test {
         assert_eq!(
             did_you_mean_flag("hahaahahah", &[], p_vals.iter(), []),
             None
+        );
+    }
+
+    #[test]
+    fn flag_best_fit() {
+        let p_vals = [
+            "test",
+            "possible",
+            "values",
+            "alignmentStart",
+            "alignmentScore",
+        ];
+        assert_eq!(
+            did_you_mean_flag("alignmentScorr", &[], p_vals.iter(), []),
+            Some(("alignmentScore".to_owned(), None))
         );
     }
 }
