@@ -242,7 +242,10 @@ impl<F: ErrorFormatter> Error<F> {
     /// ```
     pub fn print(&self) -> io::Result<()> {
         let style = self.formatted();
-        let color_when = if self.kind() == ErrorKind::DisplayHelp {
+        let color_when = if matches!(
+            self.kind(),
+            ErrorKind::DisplayHelp | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
+        ) {
             self.inner.color_help_when
         } else {
             self.inner.color_when
