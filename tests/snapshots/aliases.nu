@@ -9,7 +9,7 @@ module completions {
     --opt: string             # cmd option
     -O: string                # cmd option
     positional?: string
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
 }

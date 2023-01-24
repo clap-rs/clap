@@ -11,28 +11,28 @@ module completions {
     --conf                    # some config file
     -C                        # some config file
     choice?: string@"nu-complete my-app choice"
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   # tests things
   export extern "my-app test" [
     --case: string            # the case to test
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   # tests other things
   export extern "my-app some_cmd" [
     --config: string          # the other case to test
     ...path: string
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   export extern "my-app some-cmd-with-hyphens" [
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   export extern "my-app some-hidden-cmd" [
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
 }

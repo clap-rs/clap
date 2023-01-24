@@ -7,7 +7,7 @@ module completions {
     --backslash               # Avoid '\n'
     --brackets                # List packages [filter]
     --expansions              # Execute the shell command with $SHELL
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   # Can be 'always', 'auto', or 'never'

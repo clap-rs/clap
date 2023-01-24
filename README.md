@@ -82,18 +82,18 @@ module completions {
     --conf                    # some config file
     -C                        # some config file
     choice?: string@"nu-complete myapp choice"
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   # tests things
   export extern "myapp test" [
     --case: string            # the case to test
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   # top level subcommand
   export extern "myapp some_cmd" [
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
   def "nu-complete myapp some_cmd sub_cmd config" [] {
@@ -103,7 +103,7 @@ module completions {
   # sub-subcommand
   export extern "myapp some_cmd sub_cmd" [
     --config: string@"nu-complete myapp some_cmd sub_cmd config" # the other case to test
-    --version(-V)             # Print version information
+    --version(-V)             # Print version
   ]
 
 }
