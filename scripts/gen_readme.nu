@@ -21,12 +21,12 @@ Generates [Nushell]\((generate_url $github nushell/nushell)\) completions for [`
 [![Crates.io]\((generate_url $baseurl crates/d $repo)\)]\((generate_url $crates crates $repo)\)
 [![License]\((generate_url $baseurl github/license $user)/(generate_url $repo)\)]\(LICENSE\)
 [![docs.rs]\((generate_url $baseurl docsrs $repo)\)]\((generate_url $docs $repo)\)
-[![Build Status]\((generate_url $baseurl github/workflow/status $user $repo CI $branch)\)]\((generate_url $github $user $repo actions/workflows/ci.yml?query=branch%3A($branch))\)
+[![Build Status]\((generate_url $baseurl github/actions/workflow/status $user $repo ci.yml)\)]\((generate_url $github $user $repo actions/workflows/ci.yml?query=branch%3A($branch))\)
 [![GitHub last commit]\((generate_url $baseurl github/last-commit $user $repo)\)]\((generate_url $github $user $repo commits/($branch))\)\n\n"
 }
 
 def code_to_md [title: string, lang: string, code: string] {
-  $"### ($title)\n\n```($lang)\n($code)```\n"
+  $"### ($title)\n\n```($lang)\n($code)\n```\n"
 }
 
 def generate_md [file: path] {
@@ -45,7 +45,7 @@ def generate_md [file: path] {
   |append $rust_example
   |append $nu_example
   |str join "\n"
-  |save -r README.md
+  |save -r -f README.md
 }
 
 generate_md $example_file
