@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.1.4] - 2023-01-24
+
 ### Fixes
 
 - *(help)* Respect `disable_colored_help` when using `arg_required_else_help`
@@ -4117,7 +4119,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.1.3...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.1.4...HEAD
+[4.1.4]: https://github.com/clap-rs/clap/compare/v4.1.3...v4.1.4
 [4.1.3]: https://github.com/clap-rs/clap/compare/v4.1.2...v4.1.3
 [4.1.2]: https://github.com/clap-rs/clap/compare/v4.1.1...v4.1.2
 [4.1.1]: https://github.com/clap-rs/clap/compare/v4.1.0...v4.1.1
