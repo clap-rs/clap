@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Respect `disable_colored_help` when using `arg_required_else_help`
+
+### Performance
+
+- Speed up compiling `arg!` macro
+
 ## [4.1.3] - 2023-01-23
 
 ### Fixes
