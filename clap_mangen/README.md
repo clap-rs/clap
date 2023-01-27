@@ -25,10 +25,9 @@ Generate [ROFF](https://en.wikipedia.org/wiki/Roff_(software)) from a `clap::Com
 We're going to assume you want to generate your man page as part of your
 development rather than your shipped program having a flag to generate it.
 
-In your `Cargo.toml`:
-```toml
-[build-dependencies]
-clap_mangen = "0.1"
+Run
+```console
+$ cargo add --build clap_mangen
 ```
 
 In your `build.rs`:
