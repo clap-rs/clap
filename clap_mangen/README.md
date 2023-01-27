@@ -28,7 +28,7 @@ development rather than your shipped program having a flag to generate it.
 In your `Cargo.toml`:
 ```toml
 [build-dependencies]
-clap_mangen = "0.1"
+clap_mangen = "0.2"
 ```
 
 In your `build.rs`:
