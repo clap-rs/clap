@@ -23,7 +23,7 @@ pub struct Nushell;
 
 impl Generator for Nushell {
     fn file_name(&self, name: &str) -> String {
-        format!("{}.nu", name)
+        format!("{name}.nu")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn std::io::Write) {
@@ -89,9 +89,9 @@ fn append_value_completion_defs(arg: &Arg, name: &str, s: &mut String) {
     for value in possible_values {
         let vname = value.get_name();
         if vname.contains(|c: char| c.is_whitespace()) {
-            s.push_str(format!(r#" "\"{}\"""#, vname).as_str());
+            s.push_str(format!(r#" "\"{vname}\"""#).as_str());
         } else {
-            s.push_str(format!(r#" "{}""#, vname).as_str());
+            s.push_str(format!(r#" "{vname}""#).as_str());
         }
     }
 
@@ -137,20 +137,20 @@ fn append_argument(arg: &Arg, name: &str, s: &mut String) {
 
                 // long alias
                 for long in longs.iter().skip(1) {
-                    s.push_str(format!("    --{}", long).as_str());
+                    s.push_str(format!("    --{long}").as_str());
                     append_value_completion_and_help(arg, name, &possible_values, s);
                 }
 
                 // short alias
                 for short in shorts.iter().skip(1) {
-                    s.push_str(format!("    -{}", short).as_str());
+                    s.push_str(format!("    -{short}").as_str());
                     append_value_completion_and_help(arg, name, &possible_values, s);
                 }
             }
             None => {
                 // short options only
                 for short in shorts {
-                    s.push_str(format!("    -{}", short).as_str());
+                    s.push_str(format!("    -{short}").as_str());
                     append_value_completion_and_help(arg, name, &possible_values, s);
                 }
             }
@@ -159,7 +159,7 @@ fn append_argument(arg: &Arg, name: &str, s: &mut String) {
             Some(longs) => {
                 // long options only
                 for long in longs {
-                    s.push_str(format!("    --{}", long).as_str());
+                    s.push_str(format!("    --{long}").as_str());
                     append_value_completion_and_help(arg, name, &possible_values, s);
                 }
             }
@@ -176,13 +176,13 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
     }
 
     if let Some(about) = cmd.get_about() {
-        completions.push_str(format!("  # {}\n", about).as_str());
+        completions.push_str(format!("  # {about}\n").as_str());
     }
 
     if is_subcommand {
-        completions.push_str(format!("  export extern \"{}\" [\n", name).as_str());
+        completions.push_str(format!("  export extern \"{name}\" [\n").as_str());
     } else {
-        completions.push_str(format!("  export extern {} [\n", name).as_str());
+        completions.push_str(format!("  export extern {name} [\n").as_str());
     }
 
     for arg in cmd.get_arguments() {
