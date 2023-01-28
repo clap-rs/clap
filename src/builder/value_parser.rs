@@ -65,8 +65,6 @@ enum ValueParserInner {
     String,
     // Common enough to optimize
     OsString,
-    // Common enough to optimize
-    PathBuf,
     Other(Box<dyn AnyValueParser>),
 }
 
@@ -191,31 +189,6 @@ impl ValueParser {
     pub const fn os_string() -> Self {
         Self(ValueParserInner::OsString)
     }
-
-    /// [`PathBuf`][std::path::PathBuf] parser for argument values
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// # use std::path::PathBuf;
-    /// # use std::path::Path;
-    /// let mut cmd = clap::Command::new("raw")
-    ///     .arg(
-    ///         clap::Arg::new("output")
-    ///             .value_parser(clap::value_parser!(PathBuf))
-    ///             .required(true)
-    ///     );
-    ///
-    /// let m = cmd.try_get_matches_from_mut(["cmd", "hello.txt"]).unwrap();
-    /// let port: &PathBuf = m.get_one("output")
-    ///     .expect("required");
-    /// assert_eq!(port, Path::new("hello.txt"));
-    ///
-    /// assert!(cmd.try_get_matches_from_mut(["cmd", ""]).is_err());
-    /// ```
-    pub const fn path_buf() -> Self {
-        Self(ValueParserInner::PathBuf)
-    }
 }
 
 impl ValueParser {
@@ -251,7 +224,6 @@ impl ValueParser {
             ValueParserInner::Bool => &BoolValueParser {},
             ValueParserInner::String => &StringValueParser {},
             ValueParserInner::OsString => &OsStringValueParser {},
-            ValueParserInner::PathBuf => &PathBufValueParser {},
             ValueParserInner::Other(o) => o.as_ref(),
         }
     }
@@ -549,7 +521,6 @@ impl std::fmt::Debug for ValueParser {
             ValueParserInner::Bool => f.debug_struct("ValueParser::bool").finish(),
             ValueParserInner::String => f.debug_struct("ValueParser::string").finish(),
             ValueParserInner::OsString => f.debug_struct("ValueParser::os_string").finish(),
-            ValueParserInner::PathBuf => f.debug_struct("ValueParser::path_buf").finish(),
             ValueParserInner::Other(o) => write!(f, "ValueParser::other({:?})", o.type_id()),
         }
     }
@@ -561,7 +532,6 @@ impl Clone for ValueParser {
             ValueParserInner::Bool => ValueParserInner::Bool,
             ValueParserInner::String => ValueParserInner::String,
             ValueParserInner::OsString => ValueParserInner::OsString,
-            ValueParserInner::PathBuf => ValueParserInner::PathBuf,
             ValueParserInner::Other(o) => ValueParserInner::Other(o.clone_any()),
         })
     }
@@ -936,15 +906,108 @@ impl Default for OsStringValueParser {
 /// Implementation for [`ValueParser::path_buf`]
 ///
 /// Useful for composing new [`TypedValueParser`]s
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone)]
 #[non_exhaustive]
-pub struct PathBufValueParser {}
+pub struct PathBufValueParser {
+    canonicalize: bool,
+    starts_with: Option<String>,
+    ends_with: Option<String>,
+    exists: Option<bool>,
+    is_absolute: Option<bool>,
+    is_dir: Option<bool>,
+    is_file: Option<bool>,
+    is_relative: Option<bool>,
+    is_symlink: Option<bool>,
+}
+
+impl std::fmt::Debug for PathBufValueParser {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        f.debug_struct("PathBufValueParser").finish()
+    }
+}
+
+macro_rules! option_set_func {
+    ($t:ty, ($($name:tt),+)) => {
+        $(
+            /// Set the PathBufValueParser field
+            pub fn $name(mut self, value: $t) -> Self {
+                self.$name = Some(value);
+                self
+            }
+        )*
+    };
+}
+
+macro_rules! check_filebuf_property_with_param {
+    ($self:ident, $path:ident, $arg:ident, $cmd:ident, ($($name:tt),+)) => {
+        $(
+            if let Some($name) = &$self.$name {
+                if !$path.$name($name) {
+                    return Err(crate::Error::value_validation(
+                        $arg.map(ToString::to_string)
+                            .unwrap_or_else(|| "...".to_owned()),
+                        $path.to_string_lossy().to_string(),
+                        format!("{:?}.{}({:?}) failed", $path, stringify!($name), $name).into(),
+                    )
+                    .with_cmd($cmd));
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! check_filebuf_property_eq {
+    ($self:ident, $path:ident, $arg:ident, $cmd:ident, ($($name:tt),+)) => {
+        $(
+            if let Some($name) = $self.$name {
+                if $path.$name() != $name {
+                    return Err(crate::Error::value_validation(
+                        $arg.map(ToString::to_string)
+                            .unwrap_or_else(|| "...".to_owned()),
+                        $path.to_string_lossy().to_string(),
+                        format!("{:?}.{}() == {:?} failed", $path, stringify!($name), $name).into(),
+                    )
+                    .with_cmd($cmd));
+                }
+            }
+        )*
+    };
+}
 
 impl PathBufValueParser {
     /// Implementation for [`ValueParser::path_buf`]
     pub fn new() -> Self {
-        Self {}
+        Self {
+            canonicalize: false,
+            starts_with: None,
+            ends_with: None,
+            exists: None,
+            is_absolute: None,
+            is_dir: None,
+            is_file: None,
+            is_relative: None,
+            is_symlink: None,
+        }
     }
+
+    /// Set flag to canonicalize the PathBuff
+    pub fn canonicalize(mut self) -> Self {
+        self.canonicalize = true;
+        self
+    }
+
+    option_set_func!(String, (starts_with, ends_with));
+    option_set_func!(
+        bool,
+        (
+            exists,
+            is_absolute,
+            is_dir,
+            is_file,
+            is_relative,
+            is_symlink
+        )
+    );
 }
 
 impl TypedValueParser for PathBufValueParser {
@@ -973,7 +1036,35 @@ impl TypedValueParser for PathBufValueParser {
                     .unwrap_or_else(|| "...".to_owned()),
             ));
         }
-        Ok(Self::Value::from(value))
+        let mut path = Self::Value::from(value);
+        if self.canonicalize {
+            path = ok!(path.canonicalize().map_err(|e| {
+                crate::Error::value_validation(
+                    arg.map(ToString::to_string)
+                        .unwrap_or_else(|| "...".to_owned()),
+                    path.to_string_lossy().to_string(),
+                    format!("{e}").into(),
+                )
+                .with_cmd(cmd)
+            }));
+        }
+        check_filebuf_property_with_param!(self, path, arg, cmd, (starts_with, ends_with));
+        check_filebuf_property_eq!(
+            self,
+            path,
+            arg,
+            cmd,
+            (
+                exists,
+                is_absolute,
+                is_dir,
+                is_file,
+                is_relative,
+                is_symlink
+            )
+        );
+
+        Ok(path)
     }
 }
 
@@ -2110,9 +2201,9 @@ impl ValueParserFactory for std::ffi::OsString {
     }
 }
 impl ValueParserFactory for std::path::PathBuf {
-    type Parser = ValueParser;
+    type Parser = PathBufValueParser;
     fn value_parser() -> Self::Parser {
-        ValueParser::path_buf() // Default `clap_derive` to optimized implementation
+        PathBufValueParser::new() // Default `clap_derive` to optimized implementation
     }
 }
 impl ValueParserFactory for bool {
@@ -2350,7 +2441,7 @@ pub mod via_prelude {
 /// let parser = clap::value_parser!(std::ffi::OsString);
 /// assert_eq!(format!("{:?}", parser), "ValueParser::os_string");
 /// let parser = clap::value_parser!(std::path::PathBuf);
-/// assert_eq!(format!("{:?}", parser), "ValueParser::path_buf");
+/// assert_eq!(format!("{:?}", parser), "PathBufValueParser");
 /// clap::value_parser!(u16).range(3000..);
 /// clap::value_parser!(u64).range(3000..);
 ///
