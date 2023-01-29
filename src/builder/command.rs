@@ -243,7 +243,7 @@ impl Command {
         let a = self
             .args
             .remove_by_name(id)
-            .unwrap_or_else(|| panic!("Argument `{}` is undefined", id));
+            .unwrap_or_else(|| panic!("Argument `{id}` is undefined"));
 
         self.args.push(f(a));
         self
@@ -287,7 +287,7 @@ impl Command {
         let subcmd = if let Some(idx) = pos {
             self.subcommands.remove(idx)
         } else {
-            panic!("Command `{}` is undefined", name)
+            panic!("Command `{name}` is undefined")
         };
 
         self.subcommands.push(f(subcmd));
@@ -822,7 +822,7 @@ impl Command {
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
         write_help(&mut styled, self, &usage, false);
-        ok!(write!(w, "{}", styled));
+        ok!(write!(w, "{styled}"));
         w.flush()
     }
 
@@ -837,7 +837,7 @@ impl Command {
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
         write_help(&mut styled, self, &usage, true);
-        ok!(write!(w, "{}", styled));
+        ok!(write!(w, "{styled}"));
         w.flush()
     }
 
@@ -3947,22 +3947,22 @@ impl Command {
         sc_names.push_str(sc.name.as_str());
         let mut flag_subcmd = false;
         if let Some(l) = sc.get_long_flag() {
-            write!(sc_names, "|--{}", l).unwrap();
+            write!(sc_names, "|--{l}").unwrap();
             flag_subcmd = true;
         }
         if let Some(s) = sc.get_short_flag() {
-            write!(sc_names, "|-{}", s).unwrap();
+            write!(sc_names, "|-{s}").unwrap();
             flag_subcmd = true;
         }
 
         if flag_subcmd {
-            sc_names = format!("{{{}}}", sc_names);
+            sc_names = format!("{{{sc_names}}}");
         }
 
         let usage_name = self
             .bin_name
             .as_ref()
-            .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
+            .map(|bin_name| format!("{bin_name}{mid_string}{sc_names}"))
             .unwrap_or(sc_names);
         sc.usage_name = Some(usage_name);
 
@@ -4044,19 +4044,19 @@ impl Command {
                     sc_names.push_str(sc.name.as_str());
                     let mut flag_subcmd = false;
                     if let Some(l) = sc.get_long_flag() {
-                        write!(sc_names, "|--{}", l).unwrap();
+                        write!(sc_names, "|--{l}").unwrap();
                         flag_subcmd = true;
                     }
                     if let Some(s) = sc.get_short_flag() {
-                        write!(sc_names, "|-{}", s).unwrap();
+                        write!(sc_names, "|-{s}").unwrap();
                         flag_subcmd = true;
                     }
 
                     if flag_subcmd {
-                        sc_names = format!("{{{}}}", sc_names);
+                        sc_names = format!("{{{sc_names}}}");
                     }
 
-                    let usage_name = format!("{}{}{}", self_bin_name, mid_string, sc_names);
+                    let usage_name = format!("{self_bin_name}{mid_string}{sc_names}");
                     debug!(
                         "Command::_build_bin_names:iter: Setting usage_name of {} to {:?}",
                         sc.name, usage_name
@@ -4334,7 +4334,7 @@ impl Command {
                 .unwrap_or_default()
         };
         let display_name = self.get_display_name().unwrap_or_else(|| self.get_name());
-        format!("{} {}\n", display_name, ver)
+        format!("{display_name} {ver}\n")
     }
 
     pub(crate) fn format_group(&self, g: &Id) -> StyledStr {

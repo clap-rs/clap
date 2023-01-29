@@ -105,7 +105,7 @@ mod tests {
                 assert_eq!(ch.width().unwrap(), 1, "char: {}", desc);
 
                 #[cfg(not(feature = "unicode"))]
-                assert_eq!(ch_width(ch), 1, "char: {}", desc);
+                assert_eq!(ch_width(ch), 1, "char: {desc}");
             }
         }
 
@@ -123,7 +123,7 @@ mod tests {
                 assert!(ch.width().unwrap() <= 2, "char: {}", desc);
 
                 #[cfg(not(feature = "unicode"))]
-                assert_eq!(ch_width(ch), 1, "char: {}", desc);
+                assert_eq!(ch_width(ch), 1, "char: {desc}");
             }
         }
 

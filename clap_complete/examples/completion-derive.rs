@@ -75,9 +75,9 @@ fn main() {
 
     if let Some(generator) = opt.generator {
         let mut cmd = Opt::command();
-        eprintln!("Generating completion file for {:?}...", generator);
+        eprintln!("Generating completion file for {generator:?}...");
         print_completions(generator, &mut cmd);
     } else {
-        println!("{:#?}", opt);
+        println!("{opt:#?}");
     }
 }

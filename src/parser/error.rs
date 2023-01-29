@@ -27,10 +27,7 @@ impl MatchesError {
             }
             Err(err) => err,
         };
-        panic!(
-            "Mismatch between definition and access of `{}`. {}",
-            id, err
-        )
+        panic!("Mismatch between definition and access of `{id}`. {err}",)
     }
 }
 
@@ -42,8 +39,7 @@ impl std::fmt::Display for MatchesError {
             Self::Downcast { actual, expected } => {
                 writeln!(
                     f,
-                    "Could not downcast to {:?}, need to downcast to {:?}",
-                    expected, actual
+                    "Could not downcast to {expected:?}, need to downcast to {actual:?}"
                 )
             }
             Self::UnknownArgument {} => {

@@ -21,7 +21,7 @@ fn single_long_arg_without_value() {
 
     let r = cmd.try_get_matches_from(vec!["cmd", "--config" /* missing: , "config file" */]);
 
-    assert!(r.is_ok(), "unexpected error: {:?}", r);
+    assert!(r.is_ok(), "unexpected error: {r:?}");
     let m = r.unwrap();
     assert!(m.contains_id("config"));
 }

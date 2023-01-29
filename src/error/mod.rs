@@ -692,7 +692,7 @@ impl<F: ErrorFormatter> Error<F> {
                 Some((flag, None)) => {
                     err = err.insert_context_unchecked(
                         ContextKind::SuggestedArg,
-                        ContextValue::String(format!("--{}", flag)),
+                        ContextValue::String(format!("--{flag}")),
                     );
                 }
                 None => {}
@@ -782,7 +782,7 @@ impl<F: ErrorFormatter> Display for Error<F> {
         if let Some(backtrace) = self.inner.backtrace.as_ref() {
             ok!(writeln!(f));
             ok!(writeln!(f, "Backtrace:"));
-            ok!(writeln!(f, "{}", backtrace));
+            ok!(writeln!(f, "{backtrace}"));
         }
         Ok(())
     }

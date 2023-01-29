@@ -179,7 +179,7 @@ fn positional_possible_values() {
             Arg::new("positional").index(1).value_parser(["test123"]),
         ])
         .try_get_matches_from(vec!["", "-f", "test123"]);
-    assert!(r.is_ok(), "{:#?}", r);
+    assert!(r.is_ok(), "{r:#?}");
     let m = r.unwrap();
     assert!(m.contains_id("positional"));
     assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));

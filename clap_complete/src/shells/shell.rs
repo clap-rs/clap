@@ -42,7 +42,7 @@ impl FromStr for Shell {
                 return Ok(*variant);
             }
         }
-        Err(format!("invalid variant: {}", s))
+        Err(format!("invalid variant: {s}"))
     }
 }
 

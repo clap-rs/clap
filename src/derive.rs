@@ -385,7 +385,7 @@ pub trait ValueEnum: Sized + Clone {
                     .matches(input, ignore_case)
             })
             .cloned()
-            .ok_or_else(|| format!("invalid variant: {}", input))
+            .ok_or_else(|| format!("invalid variant: {input}"))
     }
 
     /// The canonical argument value.

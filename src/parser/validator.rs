@@ -519,13 +519,10 @@ fn gather_direct_conflicts(cmd: &Command, id: &Id) -> Vec<Id> {
     } else if let Some(group) = cmd.find_group(id) {
         gather_group_direct_conflicts(group)
     } else {
-        debug_assert!(false, "id={:?} is unknown", id);
+        debug_assert!(false, "id={id:?} is unknown");
         Vec::new()
     };
-    debug!(
-        "Conflicts::gather_direct_conflicts id={:?}, conflicts={:?}",
-        id, conf
-    );
+    debug!("Conflicts::gather_direct_conflicts id={id:?}, conflicts={conf:?}",);
     conf
 }
 

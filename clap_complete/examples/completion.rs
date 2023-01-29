@@ -103,7 +103,7 @@ fn main() {
 
     if let Some(generator) = matches.get_one::<Shell>("generator") {
         let mut cmd = build_cli();
-        eprintln!("Generating completion file for {}...", generator);
+        eprintln!("Generating completion file for {generator}...");
         print_completions(*generator, &mut cmd);
     }
 }

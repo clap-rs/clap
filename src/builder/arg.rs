@@ -4122,7 +4122,7 @@ impl Arg {
             if self.val_names.len() > 1 {
                 self.val_names
                     .iter()
-                    .map(|n| format!("<{}>", n))
+                    .map(|n| format!("<{n}>"))
                     .collect::<Vec<_>>()
                     .join(delim)
             } else {
@@ -4206,9 +4206,9 @@ impl Arg {
         debug_assert!(self.is_takes_value_set());
         for (n, val_name) in val_names.iter().enumerate() {
             let arg_name = if self.is_positional() && (num_vals.min_values() == 0 || !required) {
-                format!("[{}]", val_name)
+                format!("[{val_name}]")
             } else {
-                format!("<{}>", val_name)
+                format!("<{val_name}>")
             };
 
             if n != 0 {

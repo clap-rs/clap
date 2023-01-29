@@ -217,9 +217,9 @@ impl ArgMatcher {
             raw_vals: Default::default(),
             trailing_idx: None,
         });
-        debug_assert_eq!(pending.id, *id, "{}", INTERNAL_ERROR_MSG);
+        debug_assert_eq!(pending.id, *id, "{INTERNAL_ERROR_MSG}");
         if ident.is_some() {
-            debug_assert_eq!(pending.ident, ident, "{}", INTERNAL_ERROR_MSG);
+            debug_assert_eq!(pending.ident, ident, "{INTERNAL_ERROR_MSG}");
         }
         if trailing_values {
             pending.trailing_idx.get_or_insert(pending.raw_vals.len());

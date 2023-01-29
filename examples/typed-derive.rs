@@ -54,7 +54,7 @@ where
 {
     let pos = s
         .find('=')
-        .ok_or_else(|| format!("invalid KEY=value: no `=` found in `{}`", s))?;
+        .ok_or_else(|| format!("invalid KEY=value: no `=` found in `{s}`"))?;
     Ok((s[..pos].parse()?, s[pos + 1..].parse()?))
 }
 
@@ -98,5 +98,5 @@ mod foreign_crate {
 
 fn main() {
     let args = Args::parse();
-    println!("{:?}", args);
+    println!("{args:?}");
 }

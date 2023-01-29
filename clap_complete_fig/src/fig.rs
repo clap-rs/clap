@@ -11,7 +11,7 @@ pub struct Fig;
 
 impl Generator for Fig {
     fn file_name(&self, name: &str) -> String {
-        format!("{}.ts", name)
+        format!("{name}.ts")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn std::io::Write) {
@@ -267,11 +267,11 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             let mut flags = vec![];
 
             if let Some(shorts) = flag.get_short_and_visible_aliases() {
-                flags.extend(shorts.iter().map(|s| format!("-{}", s)));
+                flags.extend(shorts.iter().map(|s| format!("-{s}")));
             }
 
             if let Some(longs) = flag.get_long_and_visible_aliases() {
-                flags.extend(longs.iter().map(|s| format!("--{}", s)));
+                flags.extend(longs.iter().map(|s| format!("--{s}")));
             }
 
             if flags.len() > 1 {

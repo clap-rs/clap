@@ -1302,10 +1302,9 @@ impl ArgMatches {
             if arg == Id::EXTERNAL || self.valid_args.iter().any(|s| *s == arg) {
             } else {
                 panic!(
-                    "`{:?}` is not an id of an argument or a group.\n\
+                    "`{arg:?}` is not an id of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
-                     and not the name of short or long flags.",
-                    arg
+                     and not the name of short or long flags."
                 );
             }
         }
@@ -1320,7 +1319,7 @@ impl ArgMatches {
         {
             if name.is_empty() || self.valid_subcommands.iter().any(|s| *s == name) {
             } else {
-                panic!("`{}` is not a name of a subcommand.", name);
+                panic!("`{name}` is not a name of a subcommand.");
             }
         }
 

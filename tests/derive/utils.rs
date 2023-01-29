@@ -17,8 +17,8 @@ pub const FULL_TEMPLATE: &str = "\
 pub fn get_help<T: CommandFactory>() -> String {
     let output = <T as CommandFactory>::command().render_help().to_string();
 
-    eprintln!("\n%%% HELP %%%:=====\n{}\n=====\n", output);
-    eprintln!("\n%%% HELP (DEBUG) %%%:=====\n{:?}\n=====\n", output);
+    eprintln!("\n%%% HELP %%%:=====\n{output}\n=====\n");
+    eprintln!("\n%%% HELP (DEBUG) %%%:=====\n{output:?}\n=====\n");
 
     output
 }
@@ -28,8 +28,8 @@ pub fn get_long_help<T: CommandFactory>() -> String {
         .render_long_help()
         .to_string();
 
-    eprintln!("\n%%% LONG_HELP %%%:=====\n{}\n=====\n", output);
-    eprintln!("\n%%% LONG_HELP (DEBUG) %%%:=====\n{:?}\n=====\n", output);
+    eprintln!("\n%%% LONG_HELP %%%:=====\n{output}\n=====\n");
+    eprintln!("\n%%% LONG_HELP (DEBUG) %%%:=====\n{output:?}\n=====\n");
 
     output
 }
@@ -42,14 +42,8 @@ pub fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> String {
         .render_long_help()
         .to_string();
 
-    eprintln!(
-        "\n%%% SUBCOMMAND `{}` HELP %%%:=====\n{}\n=====\n",
-        subcmd, output
-    );
-    eprintln!(
-        "\n%%% SUBCOMMAND `{}` HELP (DEBUG) %%%:=====\n{:?}\n=====\n",
-        subcmd, output
-    );
+    eprintln!("\n%%% SUBCOMMAND `{subcmd}` HELP %%%:=====\n{output}\n=====\n",);
+    eprintln!("\n%%% SUBCOMMAND `{subcmd}` HELP (DEBUG) %%%:=====\n{output:?}\n=====\n",);
 
     output
 }

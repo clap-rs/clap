@@ -12,7 +12,7 @@ pub struct PowerShell;
 
 impl Generator for PowerShell {
     fn file_name(&self, name: &str) -> String {
-        format!("_{}.ps1", name)
+        format!("_{name}.ps1")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {

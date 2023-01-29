@@ -895,8 +895,7 @@ impl<'cmd> Parser<'cmd> {
         debug_assert_eq!(
             res,
             Ok(()),
-            "tracking of `flag_subcmd_skip` is off for `{:?}`",
-            short_arg
+            "tracking of `flag_subcmd_skip` is off for `{short_arg:?}`"
         );
         while let Some(c) = short_arg.next_flag() {
             let c = match c {
@@ -982,7 +981,7 @@ impl<'cmd> Parser<'cmd> {
                 Ok(ParseResult::FlagSubCommand(name))
             } else {
                 Ok(ParseResult::NoMatchingArg {
-                    arg: format!("-{}", c),
+                    arg: format!("-{c}"),
                 })
             };
         }
@@ -1570,7 +1569,7 @@ impl<'cmd> Parser<'cmd> {
             did_you_mean.is_none() && !trailing_values && self.cmd.has_positionals();
         ClapError::unknown_argument(
             self.cmd,
-            format!("--{}", arg),
+            format!("--{arg}"),
             did_you_mean,
             suggested_trailing_arg,
             Usage::new(self.cmd)

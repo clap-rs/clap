@@ -461,7 +461,7 @@ fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
 fn escape(s: impl AsRef<str>) -> String {
     let s = s.as_ref();
     if s.contains(char::is_whitespace) {
-        format!("{:?}", s)
+        format!("{s:?}")
     } else {
         s.to_owned()
     }

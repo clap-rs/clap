@@ -10,7 +10,7 @@ pub struct Bash;
 
 impl Generator for Bash {
     fn file_name(&self, name: &str) -> String {
-        format!("{}.bash", name)
+        format!("{name}.bash")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
@@ -114,9 +114,6 @@ fn all_subcommands(cmd: &Command) -> String {
             "{parent_fn_name},{name})
                 cmd=\"{fn_name}\"
                 ;;",
-            parent_fn_name = parent_fn_name,
-            name = name,
-            fn_name = fn_name,
         ));
     }
 
@@ -221,10 +218,10 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
 
     let mut opts = String::new();
     for short in utils::shorts_and_visible_aliases(p) {
-        write!(&mut opts, "-{} ", short).unwrap();
+        write!(&mut opts, "-{short} ").unwrap();
     }
     for long in utils::longs_and_visible_aliases(p) {
-        write!(&mut opts, "--{} ", long).unwrap();
+        write!(&mut opts, "--{long} ").unwrap();
     }
     for pos in p.get_positionals() {
         if let Some(vals) = utils::possible_values(pos) {
@@ -232,11 +229,11 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
                 write!(&mut opts, "{} ", value.get_name()).unwrap();
             }
         } else {
-            write!(&mut opts, "{} ", pos).unwrap();
+            write!(&mut opts, "{pos} ").unwrap();
         }
     }
     for (sc, _) in utils::subcommands(p) {
-        write!(&mut opts, "{} ", sc).unwrap();
+        write!(&mut opts, "{sc} ").unwrap();
     }
     opts.pop();
 
