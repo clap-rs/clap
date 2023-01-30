@@ -40,20 +40,20 @@ pub(crate) fn assert_app(cmd: &Command) {
 
     for sc in cmd.get_subcommands() {
         if let Some(s) = sc.get_short_flag().as_ref() {
-            short_flags.push(Flag::Command(format!("-{}", s), sc.get_name()));
+            short_flags.push(Flag::Command(format!("-{s}"), sc.get_name()));
         }
 
         for short_alias in sc.get_all_short_flag_aliases() {
-            short_flags.push(Flag::Command(format!("-{}", short_alias), sc.get_name()));
+            short_flags.push(Flag::Command(format!("-{short_alias}"), sc.get_name()));
         }
 
         if let Some(l) = sc.get_long_flag().as_ref() {
             assert!(!l.starts_with('-'), "Command {}: long_flag {:?} must not start with a `-`, that will be handled by the parser", sc.get_name(), l);
-            long_flags.push(Flag::Command(format!("--{}", l), sc.get_name()));
+            long_flags.push(Flag::Command(format!("--{l}"), sc.get_name()));
         }
 
         for long_alias in sc.get_all_long_flag_aliases() {
-            long_flags.push(Flag::Command(format!("--{}", long_alias), sc.get_name()));
+            long_flags.push(Flag::Command(format!("--{long_alias}"), sc.get_name()));
         }
     }
 
@@ -68,26 +68,20 @@ pub(crate) fn assert_app(cmd: &Command) {
         );
 
         if let Some(s) = arg.get_short() {
-            short_flags.push(Flag::Arg(format!("-{}", s), arg.get_id().as_str()));
+            short_flags.push(Flag::Arg(format!("-{s}"), arg.get_id().as_str()));
         }
 
         for (short_alias, _) in &arg.short_aliases {
-            short_flags.push(Flag::Arg(
-                format!("-{}", short_alias),
-                arg.get_id().as_str(),
-            ));
+            short_flags.push(Flag::Arg(format!("-{short_alias}"), arg.get_id().as_str()));
         }
 
         if let Some(l) = arg.get_long() {
             assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.get_id(), l);
-            long_flags.push(Flag::Arg(format!("--{}", l), arg.get_id().as_str()));
+            long_flags.push(Flag::Arg(format!("--{l}"), arg.get_id().as_str()));
         }
 
         for (long_alias, _) in &arg.aliases {
-            long_flags.push(Flag::Arg(
-                format!("--{}", long_alias),
-                arg.get_id().as_str(),
-            ));
+            long_flags.push(Flag::Arg(format!("--{long_alias}"), arg.get_id().as_str()));
         }
 
         // Name conflicts
@@ -429,19 +423,16 @@ fn detect_duplicate_flags(flags: &[Flag], short_or_long: &str) {
     for (one, two) in find_duplicates(flags) {
         match (one, two) {
             (Command(flag, one), Command(_, another)) if one != another => panic!(
-                "the '{}' {} flag is specified for both '{}' and '{}' subcommands",
-                flag, short_or_long, one, another
+                "the '{flag}' {short_or_long} flag is specified for both '{one}' and '{another}' subcommands"
             ),
 
             (Arg(flag, one), Arg(_, another)) if one != another => panic!(
-                "{} option names must be unique, but '{}' is in use by both '{}' and '{}'",
-                short_or_long, flag, one, another
+                "{short_or_long} option names must be unique, but '{flag}' is in use by both '{one}' and '{another}'"
             ),
 
             (Arg(flag, arg), Command(_, sub)) | (Command(flag, sub), Arg(_, arg)) => panic!(
-                "the '{}' {} flag for the '{}' argument conflicts with the short flag \
-                     for '{}' subcommand",
-                flag, short_or_long, arg, sub
+                "the '{flag}' {short_or_long} flag for the '{arg}' argument conflicts with the short flag \
+                     for '{sub}' subcommand"
             ),
 
             _ => {}
@@ -529,10 +520,8 @@ fn _verify_positionals(cmd: &Command) -> bool {
 
     assert!(
         highest_idx == num_p,
-        "Found positional argument whose index is {} but there \
-             are only {} positional arguments defined",
-        highest_idx,
-        num_p
+        "Found positional argument whose index is {highest_idx} but there \
+             are only {num_p} positional arguments defined",
     );
 
     for arg in cmd.get_arguments() {

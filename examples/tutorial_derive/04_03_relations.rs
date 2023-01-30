@@ -56,10 +56,10 @@ fn main() {
             (_, _, true) => patch += 1,
             _ => unreachable!(),
         };
-        format!("{}.{}.{}", major, minor, patch)
+        format!("{major}.{minor}.{patch}")
     };
 
-    println!("Version: {}", version);
+    println!("Version: {version}");
 
     // Check for usage of -c
     if let Some(config) = cli.config.as_deref() {
@@ -67,6 +67,6 @@ fn main() {
             .input_file
             .as_deref()
             .unwrap_or_else(|| cli.spec_in.as_deref().unwrap());
-        println!("Doing work using input {} and config {}", input, config);
+        println!("Doing work using input {input} and config {config}");
     }
 }

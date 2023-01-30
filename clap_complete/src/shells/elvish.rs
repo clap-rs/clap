@@ -12,7 +12,7 @@ pub struct Elvish;
 
 impl Generator for Elvish {
     fn file_name(&self, name: &str) -> String {
-        format!("{}.elv", name)
+        format!("{name}.elv")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
@@ -46,8 +46,6 @@ set edit:completion:arg-completer[{bin_name}] = {{|@words|
     $completions[$command]
 }}
 "#,
-            bin_name = bin_name,
-            subcommands_cases = subcommands_cases
         );
 
         w!(buf, result.as_bytes());
@@ -83,7 +81,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
             let tooltip = get_tooltip(option.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
-                completions.push_str(format!("-{} '{}'", short, tooltip).as_str());
+                completions.push_str(format!("-{short} '{tooltip}'").as_str());
             }
         }
 
@@ -91,7 +89,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
             let tooltip = get_tooltip(option.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
-                completions.push_str(format!("--{} '{}'", long, tooltip).as_str());
+                completions.push_str(format!("--{long} '{tooltip}'").as_str());
             }
         }
     }
@@ -101,7 +99,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
             let tooltip = get_tooltip(flag.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
-                completions.push_str(format!("-{} '{}'", short, tooltip).as_str());
+                completions.push_str(format!("-{short} '{tooltip}'").as_str());
             }
         }
 
@@ -109,7 +107,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
             let tooltip = get_tooltip(flag.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
-                completions.push_str(format!("--{} '{}'", long, tooltip).as_str());
+                completions.push_str(format!("--{long} '{tooltip}'").as_str());
             }
         }
     }
@@ -119,7 +117,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
         let tooltip = get_tooltip(subcommand.get_about(), data);
 
         completions.push_str(&preamble);
-        completions.push_str(format!("{} '{}'", data, tooltip).as_str());
+        completions.push_str(format!("{data} '{tooltip}'").as_str());
     }
 
     let mut subcommands_cases = format!(

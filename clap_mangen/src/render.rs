@@ -36,19 +36,19 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
                 line.push(roman(lhs));
-                line.push(bold(format!("-{}", short)));
+                line.push(bold(format!("-{short}")));
                 line.push(roman("|"));
-                line.push(bold(format!("--{}", long)));
+                line.push(bold(format!("--{long}",)));
                 line.push(roman(rhs));
             }
             (Some(short), None) => {
                 line.push(roman(lhs));
-                line.push(bold(format!("-{} ", short)));
+                line.push(bold(format!("-{short} ")));
                 line.push(roman(rhs));
             }
             (None, Some(long)) => {
                 line.push(roman(lhs));
-                line.push(bold(format!("--{}", long)));
+                line.push(bold(format!("--{long}")));
                 line.push(roman(rhs));
             }
             (None, None) => continue,
@@ -168,7 +168,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         header.push(roman(rhs));
 
         if let Some(defs) = option_default_values(pos) {
-            header.push(roman(format!(" {}", defs)));
+            header.push(roman(format!(" {defs}")));
         }
 
         let mut body = vec![];
@@ -273,11 +273,11 @@ fn markers(required: bool) -> (&'static str, &'static str) {
 }
 
 fn short_option(opt: char) -> Inline {
-    bold(format!("-{}", opt))
+    bold(format!("-{opt}"))
 }
 
 fn long_option(opt: &str) -> Inline {
-    bold(format!("--{}", opt))
+    bold(format!("--{opt}"))
 }
 
 fn option_help(opt: &clap::Arg) -> Option<&clap::builder::StyledStr> {
@@ -319,7 +319,7 @@ fn option_default_values(opt: &clap::Arg) -> Option<String> {
             .collect::<Vec<_>>()
             .join(",");
 
-        return Some(format!("[default: {}]", values));
+        return Some(format!("[default: {values}]"));
     }
 
     None
@@ -343,7 +343,7 @@ fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> (Ve
         for value in possibles {
             let val_name = value.get_name();
             match value.get_help() {
-                Some(help) => lines.push(format!("{}: {}", val_name, help)),
+                Some(help) => lines.push(format!("{val_name}: {help}")),
                 None => lines.push(val_name.to_string()),
             }
         }

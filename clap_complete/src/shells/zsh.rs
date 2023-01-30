@@ -11,7 +11,7 @@ pub struct Zsh;
 
 impl Generator for Zsh {
     fn file_name(&self, name: &str) -> String {
-        format!("_{}", name)
+        format!("_{name}")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
@@ -111,8 +111,8 @@ _{bin_name_underscore}_commands() {{
     all_subcommands.sort();
     all_subcommands.dedup();
 
-    for &(_, ref bin_name) in &all_subcommands {
-        debug!("subcommand_details:iter: bin_name={}", bin_name);
+    for (_, ref bin_name) in &all_subcommands {
+        debug!("subcommand_details:iter: bin_name={bin_name}");
 
         ret.push(format!(
             "\
@@ -223,14 +223,12 @@ fn get_subcommands_of(parent: &Command) -> String {
     let subcommand_names = utils::subcommands(parent);
     let mut all_subcommands = vec![];
 
-    for &(ref name, ref bin_name) in &subcommand_names {
+    for (ref name, ref bin_name) in &subcommand_names {
         debug!(
-            "get_subcommands_of:iter: parent={}, name={}, bin_name={}",
+            "get_subcommands_of:iter: parent={}, name={name}, bin_name={bin_name}",
             parent.get_name(),
-            name,
-            bin_name,
         );
-        let mut segments = vec![format!("({})", name)];
+        let mut segments = vec![format!("({name})")];
         let subcommand_args = get_args_of(
             parser_of(parent, bin_name).expect(INTERNAL_ERROR_MSG),
             Some(parent),
@@ -458,8 +456,8 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
             Some(val) => val[0].to_string(),
         };
         let vc = match value_completion(o) {
-            Some(val) => format!(":{}:{}", vn, val),
-            None => format!(":{}: ", vn),
+            Some(val) => format!(":{vn}:{val}"),
+            None => format!(":{vn}: "),
         };
         let vc = vc.repeat(o.get_num_args().expect("built").min_values());
 
@@ -502,11 +500,11 @@ fn arg_conflicts(cmd: &Command, arg: &Arg, app_global: Option<&Command>) -> Stri
     fn push_conflicts(conflicts: &[&Arg], res: &mut Vec<String>) {
         for conflict in conflicts {
             if let Some(s) = conflict.get_short() {
-                res.push(format!("-{}", s));
+                res.push(format!("-{s}"));
             }
 
             if let Some(l) = conflict.get_long() {
-                res.push(format!("--{}", l));
+                res.push(format!("--{l}"));
             }
         }
     }
@@ -568,13 +566,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
 
             if let Some(short_aliases) = f.get_visible_short_aliases() {
                 for alias in short_aliases {
-                    let s = format!(
-                        "'{conflicts}{multiple}-{arg}[{help}]' \\",
-                        multiple = multiple,
-                        conflicts = conflicts,
-                        arg = alias,
-                        help = help
-                    );
+                    let s = format!("'{conflicts}{multiple}-{alias}[{help}]' \\",);
 
                     debug!("write_flags_of:iter: Wrote...{}", &*s);
 

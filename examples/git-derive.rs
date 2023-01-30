@@ -102,7 +102,7 @@ fn main() {
 
     match args.command {
         Commands::Clone { remote } => {
-            println!("Cloning {}", remote);
+            println!("Cloning {remote}");
         }
         Commands::Diff {
             mut base,
@@ -136,22 +136,22 @@ fn main() {
             );
         }
         Commands::Push { remote } => {
-            println!("Pushing to {}", remote);
+            println!("Pushing to {remote}");
         }
         Commands::Add { path } => {
-            println!("Adding {:?}", path);
+            println!("Adding {path:?}");
         }
         Commands::Stash(stash) => {
             let stash_cmd = stash.command.unwrap_or(StashCommands::Push(stash.push));
             match stash_cmd {
                 StashCommands::Push(push) => {
-                    println!("Pushing {:?}", push);
+                    println!("Pushing {push:?}");
                 }
                 StashCommands::Pop { stash } => {
-                    println!("Popping {:?}", stash);
+                    println!("Popping {stash:?}");
                 }
                 StashCommands::Apply { stash } => {
-                    println!("Applying {:?}", stash);
+                    println!("Applying {stash:?}");
                 }
             }
         }

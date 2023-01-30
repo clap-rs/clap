@@ -113,7 +113,7 @@ mod test {
         assert!(m.is_required_set());
 
         let m = m.unset_setting(ArgSettings::Required);
-        assert!(!m.is_required_set(), "{:#?}", m);
+        assert!(!m.is_required_set(), "{m:#?}");
     }
 
     #[test]
@@ -138,8 +138,8 @@ mod test {
         assert!(m.is_last_set());
 
         let m = m.unset_setting(ArgSettings::Required | ArgSettings::Hidden | ArgSettings::Last);
-        assert!(!m.is_required_set(), "{:#?}", m);
-        assert!(!m.is_hide_set(), "{:#?}", m);
-        assert!(!m.is_last_set(), "{:#?}", m);
+        assert!(!m.is_required_set(), "{m:#?}");
+        assert!(!m.is_hide_set(), "{m:#?}");
+        assert!(!m.is_last_set(), "{m:#?}");
     }
 }

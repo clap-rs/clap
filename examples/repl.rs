@@ -17,7 +17,7 @@ fn main() -> Result<(), String> {
                 }
             }
             Err(err) => {
-                write!(std::io::stdout(), "{}", err).map_err(|e| e.to_string())?;
+                write!(std::io::stdout(), "{err}").map_err(|e| e.to_string())?;
                 std::io::stdout().flush().map_err(|e| e.to_string())?;
             }
         }

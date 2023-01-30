@@ -89,7 +89,7 @@ impl FromStr for ValueHint {
             "hostname" => ValueHint::Hostname,
             "url" => ValueHint::Url,
             "emailaddress" => ValueHint::EmailAddress,
-            _ => return Err(format!("unknown ValueHint: `{}`", s)),
+            _ => return Err(format!("unknown ValueHint: `{s}`")),
         })
     }
 }

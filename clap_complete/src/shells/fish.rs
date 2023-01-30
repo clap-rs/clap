@@ -12,7 +12,7 @@ pub struct Fish;
 
 impl Generator for Fish {
     fn file_name(&self, name: &str) -> String {
-        format!("{}.fish", name)
+        format!("{name}.fish")
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
@@ -56,7 +56,7 @@ fn gen_fish_inner(
     //      -n "__fish_use_subcommand"               # complete for command "myprog"
     //      -n "__fish_seen_subcommand_from subcmd1" # complete for command "myprog subcmd1"
 
-    let mut basic_template = format!("complete -c {}", root_command);
+    let mut basic_template = format!("complete -c {root_command}");
 
     if parent_commands.is_empty() {
         if cmd.has_subcommands() {
@@ -68,10 +68,10 @@ fn gen_fish_inner(
                 " -n \"{}\"",
                 parent_commands
                     .iter()
-                    .map(|command| format!("__fish_seen_subcommand_from {}", command))
+                    .map(|command| format!("__fish_seen_subcommand_from {command}"))
                     .chain(
                         cmd.get_subcommands()
-                            .map(|command| format!("not __fish_seen_subcommand_from {}", command))
+                            .map(|command| format!("not __fish_seen_subcommand_from {command}"))
                     )
                     .collect::<Vec<_>>()
                     .join("; and ")
@@ -87,7 +87,7 @@ fn gen_fish_inner(
 
         if let Some(shorts) = option.get_short_and_visible_aliases() {
             for short in shorts {
-                template.push_str(format!(" -s {}", short).as_str());
+                template.push_str(format!(" -s {short}").as_str());
             }
         }
 
@@ -113,7 +113,7 @@ fn gen_fish_inner(
 
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
             for short in shorts {
-                template.push_str(format!(" -s {}", short).as_str());
+                template.push_str(format!(" -s {short}").as_str());
             }
         }
 
