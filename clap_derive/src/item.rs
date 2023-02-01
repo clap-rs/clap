@@ -48,6 +48,7 @@ pub struct Item {
     next_help_heading: Option<Method>,
     is_enum: bool,
     is_positional: bool,
+    required_group: bool,
     skip_group: bool,
     kind: Sp<Kind>,
 }
@@ -272,6 +273,7 @@ impl Item {
             next_help_heading: None,
             is_enum: false,
             is_positional: true,
+            required_group: false,
             skip_group: false,
             kind,
         }
@@ -824,6 +826,10 @@ impl Item {
                     self.env_casing = CasingStyle::from_lit(lit);
                 }
 
+                Some(MagicAttrName::Required) if actual_attr_kind == AttrKind::Group => {
+                    self.required_group = true;
+                }
+
                 Some(MagicAttrName::Skip) if actual_attr_kind == AttrKind::Group => {
                     self.skip_group = true;
                 }
@@ -838,6 +844,7 @@ impl Item {
                 | Some(MagicAttrName::LongHelp)
                 | Some(MagicAttrName::Author)
                 | Some(MagicAttrName::Version)
+                | Some(MagicAttrName::Required)
                  => {
                     let expr = attr.value_or_abort();
                     self.push_method(*attr.kind.get(), attr.name.clone(), expr);
@@ -1057,6 +1064,10 @@ impl Item {
         self.methods
             .iter()
             .any(|m| m.name != "help" && m.name != "long_help")
+    }
+
+    pub fn required_group(&self) -> bool {
+        self.required_group
     }
 
     pub fn skip_group(&self) -> bool {

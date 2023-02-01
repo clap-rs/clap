@@ -120,3 +120,47 @@ fn helpful_panic_on_duplicate_groups() {
     use clap::CommandFactory;
     Opt::command().debug_assert();
 }
+
+#[test]
+fn required_group() {
+    #[derive(Parser, Debug)]
+    struct Opt {
+        #[command(flatten)]
+        source: Source,
+        #[command(flatten)]
+        dest: Dest,
+    }
+
+    #[derive(clap::Args, Debug)]
+    #[group(required)]
+    struct Source {
+        #[arg(long)]
+        from_path: Option<std::path::PathBuf>,
+        #[arg(long)]
+        from_git: Option<String>,
+    }
+
+    #[derive(clap::Args, Debug)]
+    #[group(required = true)]
+    struct Dest {
+        #[arg(long)]
+        to_path: Option<std::path::PathBuf>,
+        #[arg(long)]
+        to_git: Option<String>,
+    }
+
+    use clap::CommandFactory;
+    let source_id = clap::Id::from("Source");
+    let dest_id = clap::Id::from("Dest");
+    let opt_command = Opt::command();
+    let source_group = opt_command
+        .get_groups()
+        .find(|g| g.get_id() == &source_id)
+        .unwrap();
+    let dest_group = opt_command
+        .get_groups()
+        .find(|g| g.get_id() == &dest_id)
+        .unwrap();
+    assert!(source_group.is_required_set());
+    assert!(dest_group.is_required_set());
+}
