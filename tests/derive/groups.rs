@@ -93,6 +93,46 @@ fn skip_group_avoids_duplicate_ids() {
 }
 
 #[test]
+fn optional_flatten() {
+    #[derive(Parser, Debug, PartialEq, Eq)]
+    struct Opt {
+        #[command(flatten)]
+        source: Option<Source>,
+    }
+
+    #[derive(clap::Args, Debug, PartialEq, Eq)]
+    struct Source {
+        crates: Vec<String>,
+        #[arg(long)]
+        path: Option<std::path::PathBuf>,
+        #[arg(long)]
+        git: Option<String>,
+    }
+
+    assert_eq!(Opt { source: None }, Opt::try_parse_from(["test"]).unwrap());
+    assert_eq!(
+        Opt {
+            source: Some(Source {
+                crates: vec!["serde".to_owned()],
+                path: None,
+                git: None,
+            }),
+        },
+        Opt::try_parse_from(["test", "serde"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            source: Some(Source {
+                crates: Vec::new(),
+                path: Some("./".into()),
+                git: None,
+            }),
+        },
+        Opt::try_parse_from(["test", "--path=./"]).unwrap()
+    );
+}
+
+#[test]
 #[should_panic = "\
 Command clap: Argument group name must be unique
 
@@ -119,4 +159,83 @@ fn helpful_panic_on_duplicate_groups() {
 
     use clap::CommandFactory;
     Opt::command().debug_assert();
+}
+
+#[test]
+fn custom_group_id() {
+    #[derive(Parser, Debug, PartialEq, Eq)]
+    struct Opt {
+        #[command(flatten)]
+        source: Option<Source>,
+    }
+
+    #[derive(clap::Args, Debug, PartialEq, Eq)]
+    #[group(id = "source")]
+    struct Source {
+        crates: Vec<String>,
+        #[arg(long)]
+        path: Option<std::path::PathBuf>,
+        #[arg(long)]
+        git: Option<String>,
+    }
+
+    assert_eq!(Opt { source: None }, Opt::try_parse_from(["test"]).unwrap());
+    assert_eq!(
+        Opt {
+            source: Some(Source {
+                crates: vec!["serde".to_owned()],
+                path: None,
+                git: None,
+            }),
+        },
+        Opt::try_parse_from(["test", "serde"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            source: Some(Source {
+                crates: Vec::new(),
+                path: Some("./".into()),
+                git: None,
+            }),
+        },
+        Opt::try_parse_from(["test", "--path=./"]).unwrap()
+    );
+}
+
+#[test]
+fn required_group() {
+    #[derive(Parser, Debug, PartialEq, Eq)]
+    struct Opt {
+        #[command(flatten)]
+        source: Source,
+    }
+
+    #[derive(clap::Args, Debug, PartialEq, Eq)]
+    #[group(required = true, multiple = false)]
+    struct Source {
+        #[arg(long)]
+        path: Option<std::path::PathBuf>,
+        #[arg(long)]
+        git: Option<String>,
+    }
+
+    assert_eq!(
+        Opt {
+            source: Source {
+                path: Some("./".into()),
+                git: None,
+            },
+        },
+        Opt::try_parse_from(["test", "--path=./"]).unwrap()
+    );
+
+    const OUTPUT: &str = "\
+error: the following required arguments were not provided:
+  <--path <PATH>|--git <GIT>>
+
+Usage: test <--path <PATH>|--git <GIT>>
+
+For more information, try '--help'.
+";
+    assert_output::<Opt>("test", OUTPUT, true);
 }

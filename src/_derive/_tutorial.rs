@@ -202,6 +202,9 @@
 //! want one of them to be required, but making all of them required isn't feasible because perhaps
 //! they conflict with each other.
 //!
+//! [`ArgGroup`][crate::ArgGroup]s are automatically created for a `struct` with its
+//! [`ArgGroup::id`][crate::ArgGroup::id] being the struct's name.
+//!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/04_03_relations.rs")]
 //! ```

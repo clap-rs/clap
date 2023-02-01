@@ -32,7 +32,6 @@ pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 #[derive(Clone)]
 pub struct Item {
     name: Name,
-    ident: Ident,
     casing: Sp<CasingStyle>,
     env_casing: Sp<CasingStyle>,
     ty: Option<Type>,
@@ -48,6 +47,8 @@ pub struct Item {
     is_enum: bool,
     is_positional: bool,
     skip_group: bool,
+    group_id: Name,
+    group_methods: Vec<Method>,
     kind: Sp<Kind>,
 }
 
@@ -254,9 +255,9 @@ impl Item {
         env_casing: Sp<CasingStyle>,
         kind: Sp<Kind>,
     ) -> Self {
+        let group_id = Name::Derived(ident);
         Self {
             name,
-            ident,
             ty,
             casing,
             env_casing,
@@ -272,6 +273,8 @@ impl Item {
             is_enum: false,
             is_positional: true,
             skip_group: false,
+            group_id,
+            group_methods: vec![],
             kind,
         }
     }
@@ -294,10 +297,15 @@ impl Item {
                             kind.as_str()
                         ),
                     });
+                    self.name = Name::Assigned(arg);
                 }
-                AttrKind::Group | AttrKind::Arg | AttrKind::Clap | AttrKind::StructOpt => {}
+                AttrKind::Group => {
+                    self.group_id = Name::Assigned(arg);
+                }
+                AttrKind::Arg | AttrKind::Clap | AttrKind::StructOpt => {
+                    self.name = Name::Assigned(arg);
+                }
             }
-            self.name = Name::Assigned(arg);
         } else if name == "name" {
             match kind {
                 AttrKind::Arg => {
@@ -312,14 +320,13 @@ impl Item {
                             kind.as_str()
                         ),
                     });
+                    self.name = Name::Assigned(arg);
                 }
-                AttrKind::Group
-                | AttrKind::Command
-                | AttrKind::Value
-                | AttrKind::Clap
-                | AttrKind::StructOpt => {}
+                AttrKind::Group => self.group_methods.push(Method::new(name, arg)),
+                AttrKind::Command | AttrKind::Value | AttrKind::Clap | AttrKind::StructOpt => {
+                    self.name = Name::Assigned(arg);
+                }
             }
-            self.name = Name::Assigned(arg);
         } else if name == "value_parser" {
             self.value_parser = Some(ValueParser::Explicit(Method::new(name, arg)));
         } else if name == "action" {
@@ -328,7 +335,10 @@ impl Item {
             if name == "short" || name == "long" {
                 self.is_positional = false;
             }
-            self.methods.push(Method::new(name, arg));
+            match kind {
+                AttrKind::Group => self.group_methods.push(Method::new(name, arg)),
+                _ => self.methods.push(Method::new(name, arg)),
+            };
         }
     }
 
@@ -972,6 +982,15 @@ impl Item {
         quote!( #(#doc_comment)* #(#methods)* )
     }
 
+    pub fn group_id(&self) -> TokenStream {
+        self.group_id.clone().raw()
+    }
+
+    pub fn group_methods(&self) -> TokenStream {
+        let group_methods = &self.group_methods;
+        quote!( #(#group_methods)* )
+    }
+
     pub fn deprecations(&self) -> proc_macro2::TokenStream {
         let deprecations = &self.deprecations;
         quote!( #(#deprecations)* )
@@ -985,10 +1004,6 @@ impl Item {
     pub fn next_help_heading(&self) -> TokenStream {
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
         quote!( #(#next_help_heading)* )
-    }
-
-    pub fn ident(&self) -> &Ident {
-        &self.ident
     }
 
     pub fn id(&self) -> TokenStream {

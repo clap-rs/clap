@@ -1,0 +1,5 @@
+error[E0599]: no method named `name` found for struct `ArgGroup` in the current scope
+  --> tests/derive_ui/group_name_attribute.rs:11:26
+   |
+11 | #[group(required = true, name = "src")]
+   |                          ^^^^ method not found in `ArgGroup`
