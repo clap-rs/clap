@@ -4,12 +4,13 @@ use clap::Parser;
 #[command(name = "cargo")]
 #[command(bin_name = "cargo")]
 enum Cargo {
-    ExampleDerive(ExampleDerive),
+    // Subcommand name “example-derive” generated from variant name
+    ExampleDerive(ExampleDeriveArgs),
 }
 
 #[derive(clap::Args)]
 #[command(author, version, about, long_about = None)]
-struct ExampleDerive {
+struct ExampleDeriveArgs {
     #[arg(long)]
     manifest_path: Option<std::path::PathBuf>,
 }
