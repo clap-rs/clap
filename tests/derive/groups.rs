@@ -127,40 +127,41 @@ fn required_group() {
     struct Opt {
         #[command(flatten)]
         source: Source,
-        #[command(flatten)]
-        dest: Dest,
+
+        #[arg(long)]
+        alt_source: String,
     }
 
     #[derive(clap::Args, Debug)]
-    #[group(required)]
+    #[group(required = true, multiple = false, conflicts_with = "alt_source")]
     struct Source {
         #[arg(long)]
-        from_path: Option<std::path::PathBuf>,
+        path: Option<std::path::PathBuf>,
         #[arg(long)]
-        from_git: Option<String>,
+        git: Option<String>,
     }
 
-    #[derive(clap::Args, Debug)]
-    #[group(required = true)]
-    struct Dest {
-        #[arg(long)]
-        to_path: Option<std::path::PathBuf>,
-        #[arg(long)]
-        to_git: Option<String>,
-    }
+    const OUTPUT: &str = "\
+error: the following required arguments were not provided:
+  --alt-source <ALT_SOURCE>
+  <--path <PATH>|--git <GIT>>
 
+Usage: prog --alt-source <ALT_SOURCE> <--path <PATH>|--git <GIT>>
+
+For more information, try '--help'.
+";
+    assert_output::<Opt>("prog", OUTPUT, true);
+
+    use clap::Args;
+    assert_eq!(Opt::group_id(), Some(clap::Id::from("Opt")));
+    assert_eq!(Source::group_id(), Some(clap::Id::from("Source")));
     use clap::CommandFactory;
     let source_id = clap::Id::from("Source");
-    let dest_id = clap::Id::from("Dest");
     let opt_command = Opt::command();
     let source_group = opt_command
         .get_groups()
         .find(|g| g.get_id() == &source_id)
         .unwrap();
-    let dest_group = opt_command
-        .get_groups()
-        .find(|g| g.get_id() == &dest_id)
-        .unwrap();
     assert!(source_group.is_required_set());
-    assert!(dest_group.is_required_set());
+    // assert!(source_group.is_multiple()); currently broken. Fixed by PR #4704
 }

@@ -1,0 +1,7 @@
+error: `#[group(required = true, name = "src")]` does not support name
+ --> $DIR/group_name_attribute.rs:3:10
+   |
+11 |#[group(required = true, name = "src")]
+   |                         ^^^^^^^^^^^^
+   |
+  = note: this error originates in the derive macro `group` (in Nightly builds, run with -Z macro-backtrace for more info)

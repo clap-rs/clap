@@ -368,7 +368,6 @@ pub fn gen_augment(
         quote!()
     } else {
         let group_id = parent_item.ident().unraw().to_string();
-        let required = parent_item.required_group();
         let literal_group_members = fields
             .iter()
             .filter_map(|(_field, item)| {
@@ -401,11 +400,13 @@ pub fn gen_augment(
             }};
         }
 
+        let group_methods = parent_item.group_methods();
+
         quote!(
             .group(
                 clap::ArgGroup::new(#group_id)
                     .multiple(true)
-                    .required(#required)
+                    #group_methods
                     .args(#literal_group_members)
             )
         )
