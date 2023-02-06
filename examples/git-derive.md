@@ -102,13 +102,13 @@ Options:
   -h, --help  Print help
 
 $ git-derive stash -m "Prototype"
-Pushing StashPush { message: Some("Prototype") }
+Pushing StashPushArgs { message: Some("Prototype") }
 
 $ git-derive stash pop
 Popping None
 
 $ git-derive stash push -m "Prototype"
-Pushing StashPush { message: Some("Prototype") }
+Pushing StashPushArgs { message: Some("Prototype") }
 
 $ git-derive stash pop
 Popping None
