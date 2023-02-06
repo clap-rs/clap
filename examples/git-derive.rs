@@ -53,7 +53,7 @@ enum Commands {
         #[arg(required = true)]
         path: Vec<PathBuf>,
     },
-    Stash(Stash),
+    Stash(StashArgs),
     #[command(external_subcommand)]
     External(Vec<OsString>),
 }
@@ -76,23 +76,23 @@ impl std::fmt::Display for ColorWhen {
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
-struct Stash {
+struct StashArgs {
     #[command(subcommand)]
     command: Option<StashCommands>,
 
     #[command(flatten)]
-    push: StashPush,
+    push: StashPushArgs,
 }
 
 #[derive(Debug, Subcommand)]
 enum StashCommands {
-    Push(StashPush),
+    Push(StashPushArgs),
     Pop { stash: Option<String> },
     Apply { stash: Option<String> },
 }
 
 #[derive(Debug, Args)]
-struct StashPush {
+struct StashPushArgs {
     #[arg(short, long)]
     message: Option<String>,
 }
