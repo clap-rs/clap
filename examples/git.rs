@@ -130,7 +130,7 @@ fn main() {
                 .collect::<Vec<_>>();
             println!("Calling out to {ext:?} with {args:?}");
         }
-        _ => unreachable!(), // If all subcommands are defined above, anything else is unreachabe!()
+        _ => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
 
     // Continued program logic goes here...
