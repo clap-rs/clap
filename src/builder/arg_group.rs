@@ -270,7 +270,7 @@ impl ArgGroup {
     ///
     /// assert!(group.is_multiple());
     /// ```
-    pub fn is_multiple(&mut self) -> bool {
+    pub fn is_multiple(&self) -> bool {
         self.multiple
     }
 
@@ -577,10 +577,10 @@ mod test {
     fn arg_group_expose_is_multiple_helper() {
         let args: Vec<Id> = vec!["a1".into(), "a4".into()];
 
-        let mut grp_multiple = ArgGroup::new("test_multiple").args(&args).multiple(true);
+        let grp_multiple = ArgGroup::new("test_multiple").args(&args).multiple(true);
         assert!(grp_multiple.is_multiple());
 
-        let mut grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
+        let grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
         assert!(!grp_not_multiple.is_multiple());
     }
 
