@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, Arg, ArgAction, Command};
+use clap::{arg, builder::PossibleValue, Arg, ArgAction, Command};
 
 static HIDDEN_ARGS: &str = "\
 tests stuff
@@ -277,4 +277,28 @@ fn hide_subcmds_only() {
         .subcommand(Command::new("sub").hide(true));
 
     utils::assert_output(cmd, "test --help", HIDDEN_SUBCMDS_ONLY, false);
+}
+
+#[test]
+fn hidden_arg_with_possible_value_with_help() {
+    // Normally the presence of a possible value with a help text triggers a
+    // change of the --help help text by appending `(see more with '--help')`
+    // or `(see a summary with '-h')`. When the argument is completely hidden
+    // we however do not want it to trigger that change.
+    static POS_VALS_HELP: &str = "\
+Usage: ctest
+
+Options:
+  -h, --help  Print help
+";
+    let app = Command::new("ctest").arg(
+        Arg::new("pos")
+            .hide(true)
+            .value_parser([
+                PossibleValue::new("fast"),
+                PossibleValue::new("slow").help("not as fast"),
+            ])
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(app, "ctest --help", POS_VALS_HELP, false);
 }
