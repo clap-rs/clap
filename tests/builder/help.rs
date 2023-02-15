@@ -677,6 +677,29 @@ Options:
 }
 
 #[test]
+fn hidden_possible_vals() {
+    static POS_VALS_HELP: &str = "\
+Usage: ctest [pos]
+
+Arguments:
+  [pos]  
+
+Options:
+  -h, --help  Print help
+";
+    let app = Command::new("ctest").arg(
+        Arg::new("pos")
+            .hide_possible_values(true)
+            .value_parser([
+                PossibleValue::new("fast"),
+                PossibleValue::new("slow").help("not as fast"),
+            ])
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(app, "ctest --help", POS_VALS_HELP, false);
+}
+
+#[test]
 #[cfg(feature = "wrap_help")]
 fn issue_626_panic() {
     static ISSUE_626_PANIC: &str = "\
