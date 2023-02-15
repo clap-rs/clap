@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Don't show long help for `--help` just because a hidden arg has a possible value with a description
+
 ## [4.1.4] - 2023-01-24
 
 ### Fixes
