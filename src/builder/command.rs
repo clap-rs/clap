@@ -4597,9 +4597,10 @@ impl Command {
                 && (v.get_long_help().is_some()
                     || v.is_hide_long_help_set()
                     || v.is_hide_short_help_set()
-                    || v.get_possible_values()
-                        .iter()
-                        .any(PossibleValue::should_show_help))
+                    || (!v.is_hide_possible_values_set()
+                        && v.get_possible_values()
+                            .iter()
+                            .any(PossibleValue::should_show_help)))
         };
 
         // Subcommands aren't checked because we prefer short help for them, deferring to
