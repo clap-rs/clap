@@ -73,9 +73,9 @@ fn skip_group_avoids_duplicate_ids() {
     #[derive(clap::Args, Debug)]
     #[group(skip)]
     pub struct Compose<L: clap::Args, R: clap::Args> {
-        #[clap(flatten)]
+        #[command(flatten)]
         pub left: L,
-        #[clap(flatten)]
+        #[command(flatten)]
         pub right: R,
     }
 
@@ -108,9 +108,9 @@ fn helpful_panic_on_duplicate_groups() {
 
     #[derive(clap::Args, Debug)]
     pub struct Compose<L: clap::Args, R: clap::Args> {
-        #[clap(flatten)]
+        #[command(flatten)]
         pub left: L,
-        #[clap(flatten)]
+        #[command(flatten)]
         pub right: R,
     }
 

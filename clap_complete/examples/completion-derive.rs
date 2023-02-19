@@ -24,7 +24,7 @@ struct Opt {
     // If provided, outputs the completion file for given shell
     #[arg(long = "generate", value_enum)]
     generator: Option<Shell>,
-    #[clap(subcommand)]
+    #[command(subcommand)]
     command: Option<Commands>,
 }
 
