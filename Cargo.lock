@@ -131,7 +131,7 @@ dependencies = [
  "backtrace",
  "bitflags",
  "clap_derive",
- "clap_lex 0.3.1",
+ "clap_lex 0.3.2",
  "humantime",
  "is-terminal",
  "once_cell",
@@ -163,7 +163,7 @@ name = "clap_complete"
 version = "4.1.2"
 dependencies = [
  "clap 4.1.6",
- "clap_lex 0.3.1",
+ "clap_lex 0.3.2",
  "is_executable",
  "os_str_bytes",
  "pathdiff",
@@ -204,7 +204,7 @@ dependencies = [
 
 [[package]]
 name = "clap_lex"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "os_str_bytes",
 ]
