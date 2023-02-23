@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Improve handling of multi-valued arguments
+
 ## [4.1.2] - 2023-02-15
 
 ## [4.1.1] - 2023-01-23
