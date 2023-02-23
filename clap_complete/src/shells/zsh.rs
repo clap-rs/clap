@@ -614,18 +614,46 @@ fn write_positionals_of(p: &Command) -> String {
 
     let mut ret = vec![];
 
+    // Completions for commands that end with two Vec arguments require special care.
+    // - You can have two Vec args separated with a custom value terminator.
+    // - You can have two Vec args with the second one set to last (raw sets last)
+    //   which will require a '--' separator to be used before the second argument
+    //   on the command-line.
+    //
+    // We use the '-S' _arguments option to disable completion after '--'. Thus, the
+    // completion for the second argument in scenario (B) does not need to be emitted
+    // because it is implicitly handled by the '-S' option.
+    // We only need to emit the first catch-all.
+    //
+    // Have we already emitted a catch-all multi-valued positional argument
+    // without a custom value terminator?
+    let mut catch_all_emitted = false;
+
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
         let num_args = arg.get_num_args().expect("built");
+        let is_multi_valued = num_args.max_values() > 1;
+
+        if catch_all_emitted && (arg.is_last_set() || is_multi_valued) {
+            // This is the final argument and it also takes multiple arguments.
+            // We've already emitted a catch-all positional argument so we don't need
+            // to emit anything for this argument because it is implicitly handled by
+            // the use of the '-S' _arguments option.
+            continue;
+        }
+
         let cardinality_value;
-        let cardinality = if num_args.max_values() > 1 {
+        let cardinality = if is_multi_valued {
             match arg.get_value_terminator() {
                 Some(terminator) => {
                     cardinality_value = format!("*{}:", escape_value(terminator));
                     cardinality_value.as_str()
                 }
-                None => "*:",
+                None => {
+                    catch_all_emitted = true;
+                    "*:"
+                }
             }
         } else if !arg.is_required_set() {
             ":"

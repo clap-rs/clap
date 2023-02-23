@@ -111,3 +111,15 @@ fn register_minimal() {
         .action_env("SNAPSHOTS")
         .matches_path("tests/snapshots/register_minimal.bash", buf);
 }
+
+#[test]
+fn two_multi_valued_arguments() {
+    let name = "my-app";
+    let cmd = common::two_multi_valued_arguments_command(name);
+    common::assert_matches_path(
+        "tests/snapshots/two_multi_valued_arguments.bash",
+        clap_complete::shells::Bash,
+        cmd,
+        name,
+    );
+}
