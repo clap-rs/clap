@@ -2111,7 +2111,8 @@ impl Arg {
     ///
     /// Args with a lower value will be displayed first in the help message. This is helpful when
     /// one would like to emphasise frequently used args, or prioritize those towards the top of
-    /// the list. Args with duplicate display orders will be displayed in alphabetical order.
+    /// the list. Args with duplicate display orders will be displayed in the order they are
+    /// defined.
     ///
     /// **NOTE:** The default is 999 for all arguments.
     ///

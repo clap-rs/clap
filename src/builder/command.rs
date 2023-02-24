@@ -2599,7 +2599,7 @@ impl Command {
     /// Set the placement of this subcommand within the help.
     ///
     /// Subcommands with a lower value will be displayed first in the help message.  Subcommands
-    /// with duplicate display orders will be displayed in alphabetical order.
+    /// with duplicate display orders will be displayed in order they are defined.
     ///
     /// This is helpful when one would like to emphasize frequently used subcommands, or prioritize
     /// those towards the top of the list.
