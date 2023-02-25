@@ -2,6 +2,7 @@ use std::fmt::Display;
 use std::path::Path;
 use std::str::FromStr;
 
+use clap::__macro_refs::once_cell::sync::Lazy;
 use clap::builder::PossibleValue;
 use clap::ValueEnum;
 
@@ -46,6 +47,16 @@ impl FromStr for Shell {
     }
 }
 
+fn shell_possible_value(name: &'static str, paths: &'static [String]) -> PossibleValue {
+    let mut pv = PossibleValue::new(name);
+
+    for path in paths {
+        pv = pv.alias(path.as_str());
+    }
+
+    pv
+}
+
 // Hand-rolled so it can work even when `derive` feature is disabled
 impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
@@ -59,12 +70,14 @@ impl ValueEnum for Shell {
     }
 
     fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
+        static SHELL_PATHS: Lazy<ShellPaths> = Lazy::new(ShellPaths::new);
+
         Some(match self {
-            Shell::Bash => PossibleValue::new("bash"),
-            Shell::Elvish => PossibleValue::new("elvish"),
-            Shell::Fish => PossibleValue::new("fish"),
-            Shell::PowerShell => PossibleValue::new("powershell"),
-            Shell::Zsh => PossibleValue::new("zsh"),
+            Shell::Bash => shell_possible_value("bash", &SHELL_PATHS.bash),
+            Shell::Elvish => shell_possible_value("elvish", &SHELL_PATHS.elvish),
+            Shell::Fish => shell_possible_value("fish", &SHELL_PATHS.fish),
+            Shell::PowerShell => shell_possible_value("powershell", &SHELL_PATHS.powershell),
+            Shell::Zsh => shell_possible_value("zsh", &SHELL_PATHS.zsh),
         })
     }
 }
@@ -151,5 +164,53 @@ fn parse_shell_from_path(path: &Path) -> Option<Shell> {
         "elvish" => Some(Shell::Elvish),
         "powershell" | "powershell_ise" => Some(Shell::PowerShell),
         _ => None,
+    }
+}
+
+#[derive(Default)]
+struct ShellPaths {
+    bash: Vec<String>,
+    elvish: Vec<String>,
+    fish: Vec<String>,
+    powershell: Vec<String>,
+    zsh: Vec<String>,
+}
+
+impl ShellPaths {
+    fn new() -> Self {
+        #[cfg(windows)]
+        const SEPARATOR: char = ';';
+        #[cfg(not(windows))]
+        const SEPARATOR: char = ':';
+
+        let mut this = Self::default();
+
+        let path_var = match std::env::var("PATH") {
+            Ok(path_var) => path_var,
+            Err(_) => return this,
+        };
+
+        for base in path_var.split(SEPARATOR).map(Path::new) {
+            add_shell_path(&mut this.bash, base, "bash");
+            add_shell_path(&mut this.elvish, base, "elvish");
+            add_shell_path(&mut this.fish, base, "fish");
+            add_shell_path(&mut this.powershell, base, "powershell");
+            add_shell_path(&mut this.zsh, base, "zsh");
+        }
+
+        this
+    }
+}
+
+fn add_shell_path(shell_paths: &mut Vec<String>, base: &Path, name: &str) {
+    let path = base.join(name);
+
+    #[cfg(windows)]
+    let path = &path.with_extension("exe");
+
+    if path.exists() {
+        if let Some(path) = path.to_str() {
+            shell_paths.push(path.to_string());
+        }
     }
 }
