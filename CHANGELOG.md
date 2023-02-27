@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Don't `deny` lints on the users behalf
+
 ## [4.1.7] - 2023-02-27
 
 ### Fixes
