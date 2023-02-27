@@ -224,4 +224,8 @@ _my-app__test_commands() {
     _describe -t commands 'my-app test commands' commands "$@"
 }
 
-_my-app "$@"
+if [ "$funcstack[1]" = "_my-app" ]; then
+    _my-app "$@"
+else
+    compdef _my-app my-app
+fi

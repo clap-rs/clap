@@ -43,7 +43,11 @@ _{name}() {{
 
 {subcommand_details}
 
-_{name} \"$@\"
+if [ \"$funcstack[1]\" = \"_{name}\" ]; then
+    _{name} \"$@\"
+else
+    compdef _{name} {name}
+fi
 ",
                 name = bin_name,
                 initial_args = get_args_of(cmd, None),
