@@ -211,4 +211,8 @@ _my-app__help__help_commands() {
     _describe -t commands 'my-app help help commands' commands "$@"
 }
 
-_my-app "$@"
+if [ "$funcstack[1]" = "_my-app" ]; then
+    _my-app "$@"
+else
+    compdef _my-app my-app
+fi
