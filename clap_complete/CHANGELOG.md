@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(zsh)* Allow sourcing completion
+
 ## [4.1.3] - 2023-02-23
 
 ### Fixes
