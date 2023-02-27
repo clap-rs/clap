@@ -109,6 +109,7 @@ pub fn gen_for_struct(
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::FromArgMatches for #item_name #ty_generics #where_clause {
@@ -144,6 +145,7 @@ pub fn gen_for_struct(
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::Args for #item_name #ty_generics #where_clause {
