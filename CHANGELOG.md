@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Hide some nightly clippy warnings
+
 ## [4.1.6] - 2023-02-15
 
 ### Fixes
