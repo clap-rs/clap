@@ -65,9 +65,9 @@ pub fn gen_for_enum(item: &Item, item_name: &Ident, variants: &[(&Variant, Item)
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
-            clippy::almost_swapped,
         )]
         #[deny(clippy::correctness)]
+        #[allow(clippy::almost_swapped)]
         impl clap::ValueEnum for #item_name {
             #value_variants
             #to_possible_value
