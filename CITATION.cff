@@ -1,0 +1,22 @@
+# Parser settings.
+cff-version: 1.2.0
+message: Please cite this crate using these information.
+
+# Version information.
+date-released: 2023-02-28
+version: 4.1.8
+
+# Project information.
+abstract: A full featured, fast Command Line Argument Parser for Rust
+authors:
+  - alias: kbknapp
+    family-names: Knapp
+    given-names: Kevin B.
+  - name: The Clap Community
+license:
+  - Apache-2.0
+  - MIT
+repository-artifact: https://crates.io/crates/clap
+repository-code: https://github.com/clap-rs/clap
+title: clap
+url: https://docs.rs/clap

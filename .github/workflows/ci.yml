@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: none
     name: CI
-    needs: [test, check, docs, rustfmt, clippy]
+    needs: [test, check, docs, rustfmt, clippy, cffconvert]
     runs-on: ubuntu-latest
     steps:
       - name: Done
@@ -187,3 +187,15 @@ jobs:
       run: make clippy-full
     - name: Lint (release)
       run: make clippy-release
+  cffconvert:
+    name: cffconvert
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: CFF validation
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        with:
+          args: --validate
