@@ -28,8 +28,14 @@ pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
     }
 }
 
+fn get_command_name(cmd: &clap::Command) -> &str {
+    cmd.get_bin_name()
+        .or_else(|| cmd.get_display_name())
+        .unwrap_or_else(|| cmd.get_name())
+}
+
 pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
-    let mut line = vec![bold(cmd.get_name()), roman(" ")];
+    let mut line = vec![bold(get_command_name(cmd)), roman(" ")];
 
     for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
         let (lhs, rhs) = option_markers(opt);
@@ -225,12 +231,7 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
     for sub in cmd.get_subcommands().filter(|s| !s.is_hide_set()) {
         roff.control("TP", []);
 
-        let name = format!(
-            "{}-{}({})",
-            cmd.get_display_name().unwrap_or_else(|| cmd.get_name()),
-            sub.get_name(),
-            section
-        );
+        let name = format!("{}-{}({})", get_command_name(cmd), sub.get_name(), section);
         roff.text([roman(name)]);
 
         if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
