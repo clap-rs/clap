@@ -7,6 +7,7 @@ mod arguments;
 mod author_version_about;
 mod basic;
 mod boxed;
+mod conflicts_with;
 mod custom_string_parsers;
 mod default_value;
 mod deny_warnings;
