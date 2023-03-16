@@ -4673,9 +4673,7 @@ impl Command {
 
     pub(crate) fn write_version_err(&self, use_long: bool) -> StyledStr {
         let msg = self._render_version(use_long);
-        let mut styled = StyledStr::new();
-        styled.none(msg);
-        styled
+        StyledStr::from(msg)
     }
 
     pub(crate) fn long_help_exists(&self) -> bool {

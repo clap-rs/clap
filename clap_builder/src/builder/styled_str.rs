@@ -171,9 +171,7 @@ impl Default for &'_ StyledStr {
 
 impl From<std::string::String> for StyledStr {
     fn from(name: std::string::String) -> Self {
-        let mut styled = StyledStr::new();
-        styled.none(name);
-        styled
+        StyledStr(name)
     }
 }
 
