@@ -1,7 +1,23 @@
 /// Terminal-styling container
 ///
-/// For now, this is the same as a [`Str`][crate::builder::Str].  This exists to reserve space in
-/// the API for exposing terminal styling.
+/// Styling may be encoded as [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code)
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap_builder as clap;
+/// // `cstr!` converts tags to ANSI codes
+/// let after_help: &'static str = color_print::cstr!(
+/// r#"<bold><underline>Examples</underline></bold>
+///
+///   <dim>$</dim> <bold>mybin --input file.toml</bold>
+/// "#);
+///
+/// let cmd = clap::Command::new("mybin")
+///     .after_help(after_help)  // The `&str` gets converted into a `StyledStr`
+///     // ...
+/// #   ;
+/// ```
 #[derive(Clone, Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StyledStr(String);
 
