@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(assert)* Improve the assert when using the wrong action with `get_count` / `get_flag`
+
 ## [4.1.8] - 2023-02-27
 
 ### Fixes
