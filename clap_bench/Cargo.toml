@@ -14,7 +14,7 @@ release = false
 [dev-dependencies]
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
 criterion = "0.4.0"
-lazy_static = "1"
+lazy_static = "1.4.0"
 
 [[bench]]
 harness = false
