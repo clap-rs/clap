@@ -14,7 +14,7 @@ impl StyledStr {
     /// Display using [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code) styling
     #[cfg(feature = "color")]
     pub fn ansi(&self) -> impl std::fmt::Display + '_ {
-        AnsiDisplay { styled: self }
+        self.0.as_str()
     }
 
     pub(crate) fn header(&mut self, msg: impl Into<String>) {
@@ -207,18 +207,6 @@ impl std::fmt::Display for StyledStr {
         }
 
         Ok(())
-    }
-}
-
-#[cfg(feature = "color")]
-struct AnsiDisplay<'s> {
-    styled: &'s StyledStr,
-}
-
-#[cfg(feature = "color")]
-impl std::fmt::Display for AnsiDisplay<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        self.styled.0.fmt(f)
     }
 }
 
