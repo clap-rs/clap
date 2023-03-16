@@ -368,7 +368,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     .get_subcommand_help_heading()
                     .unwrap_or(&default_help_heading),
             );
-            self.header(":\n");
+            self.header(":");
+            self.none("\n");
 
             self.write_subcommands(self.cmd);
         }
@@ -379,7 +380,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             }
             first = false;
             // Write positional args if any
-            self.header("Arguments:\n");
+            self.header("Arguments:");
+            self.none("\n");
             self.write_args(&pos, "Arguments", positional_sort_key);
         }
 
@@ -388,7 +390,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.none("\n\n");
             }
             first = false;
-            self.header("Options:\n");
+            self.header("Options:");
+            self.none("\n");
             self.write_args(&non_pos, "Options", option_sort_key);
         }
         if !custom_headings.is_empty() {
@@ -410,7 +413,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.none("\n\n");
                     }
                     first = false;
-                    self.header(format!("{heading}:\n"));
+                    self.header(heading);
+                    self.header(":");
+                    self.none("\n");
                     self.write_args(&args, heading, option_sort_key);
                 }
             }
