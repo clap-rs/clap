@@ -197,6 +197,20 @@ impl From<&'_ &'static str> for StyledStr {
     }
 }
 
+impl std::fmt::Write for StyledStr {
+    #[inline]
+    fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
+        self.0.push_str(s);
+        Ok(())
+    }
+
+    #[inline]
+    fn write_char(&mut self, c: char) -> Result<(), std::fmt::Error> {
+        self.0.push(c);
+        Ok(())
+    }
+}
+
 /// Color-unaware printing. Never uses coloring.
 impl std::fmt::Display for StyledStr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
