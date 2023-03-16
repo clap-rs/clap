@@ -806,7 +806,7 @@ impl Message {
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
 
-                let styled = format::format_error_message(&message, Some(cmd), usage);
+                let styled = format::format_error_message(&message, Some(cmd), usage.as_ref());
 
                 *self = Self::Formatted(styled);
             }

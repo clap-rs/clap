@@ -4280,7 +4280,7 @@ impl Arg {
             styled.literal("-");
             styled.literal(s);
         }
-        styled.extend(self.stylize_arg_suffix(required).into_iter());
+        styled.push_styled(&self.stylize_arg_suffix(required));
         styled
     }
 

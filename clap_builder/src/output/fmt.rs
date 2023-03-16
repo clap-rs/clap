@@ -53,25 +53,23 @@ impl Colorizer {
             }
         };
 
-        self.content.write_colored(writer)
+        self.content.write_to(writer)
     }
 
     #[cfg(not(feature = "color"))]
     pub(crate) fn print(&self) -> std::io::Result<()> {
-        use std::io::Write;
-
         // [e]println can't be used here because it panics
         // if something went wrong. We don't want that.
         match self.stream {
             Stream::Stdout => {
                 let stdout = std::io::stdout();
                 let mut stdout = stdout.lock();
-                write!(stdout, "{}", self)
+                self.content.write_to(&mut stdout)
             }
             Stream::Stderr => {
                 let stderr = std::io::stderr();
                 let mut stderr = stderr.lock();
-                write!(stderr, "{}", self)
+                self.content.write_to(&mut stderr)
             }
         }
     }
