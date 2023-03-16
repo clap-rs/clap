@@ -139,9 +139,12 @@ impl ArgMatches {
     /// ```
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_count(&self, id: &str) -> u8 {
-        *self
-            .get_one::<u8>(id)
-            .expect("ArgAction::Count is defaulted")
+        *self.get_one::<u8>(id).unwrap_or_else(|| {
+            panic!(
+                "arg `{}`'s `ArgAction` should be `Count` which should provide a default",
+                id
+            )
+        })
     }
 
     /// Gets the value of a specific [`ArgAction::SetTrue`][crate::ArgAction::SetTrue] or [`ArgAction::SetFalse`][crate::ArgAction::SetFalse] flag
@@ -173,7 +176,12 @@ impl ArgMatches {
     pub fn get_flag(&self, id: &str) -> bool {
         *self
             .get_one::<bool>(id)
-            .expect("ArgAction::SetTrue / ArgAction::SetFalse is defaulted")
+            .unwrap_or_else(|| {
+                panic!(
+                    "arg `{}`'s `ArgAction` should be one of `SetTrue`, `SetFalse` which should provide a default",
+                    id
+                )
+            })
     }
 
     /// Iterate over values of a specific option or positional argument.
