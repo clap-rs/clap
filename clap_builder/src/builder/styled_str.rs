@@ -18,38 +18,38 @@ impl StyledStr {
     }
 
     pub(crate) fn header(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Header), msg.into());
+        self.stylize(Style::Header, msg.into());
     }
 
     pub(crate) fn literal(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Literal), msg.into());
+        self.stylize(Style::Literal, msg.into());
     }
 
     pub(crate) fn placeholder(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Placeholder), msg.into());
+        self.stylize(Style::Placeholder, msg.into());
     }
 
     #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
     pub(crate) fn good(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Good), msg.into());
+        self.stylize(Style::Good, msg.into());
     }
 
     #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
     pub(crate) fn warning(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Warning), msg.into());
+        self.stylize(Style::Warning, msg.into());
     }
 
     pub(crate) fn error(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Error), msg.into());
+        self.stylize(Style::Error, msg.into());
     }
 
     #[allow(dead_code)]
     pub(crate) fn hint(&mut self, msg: impl Into<String>) {
-        self.stylize_(Some(Style::Hint), msg.into());
+        self.stylize(Style::Hint, msg.into());
     }
 
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
-        self.stylize_(None, msg.into());
+        self.0.push_str(&msg.into());
     }
 
     pub(crate) fn trim(&mut self) {
@@ -107,17 +107,17 @@ impl StyledStr {
     }
 
     #[cfg(feature = "color")]
-    fn stylize_(&mut self, style: Option<Style>, msg: String) {
+    fn stylize(&mut self, style: Style, msg: String) {
         if !msg.is_empty() {
             use std::fmt::Write as _;
 
-            let style = style.map(|s| s.as_style()).unwrap_or_default();
+            let style = style.as_style();
             let _ = write!(self.0, "{}{}{}", style.render(), msg, style.render_reset());
         }
     }
 
     #[cfg(not(feature = "color"))]
-    fn stylize_(&mut self, _style: Option<Style>, msg: String) {
+    fn stylize(&mut self, _style: Style, msg: String) {
         self.0.push_str(&msg);
     }
 
