@@ -25,9 +25,9 @@ checksum = "4b46cbb362ab8752921c97e041f5e366ee6297bd428a31275b9fcf1e380f7299"
 
 [[package]]
 name = "anstream"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd0982309face56a044e935a18bbffcddeb1ce72e69a3ecc3bafb56d4e959f37"
+checksum = "1be94522db49757a6f9266e8ac18a59704e3e1c770c2e8173a39f9f8161a163a"
 dependencies = [
  "anstyle",
  "anstyle-parse",
@@ -40,9 +40,9 @@ dependencies = [
 
 [[package]]
 name = "anstyle"
-version = "0.3.3"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "453bc2a7b261f8c4d1ce5b2c6c222d648d00988d30315e4911fbddc4ddf8983c"
+checksum = "1ba0b55c2201aa802adb684e7963ce2c3191675629e7df899774331e3ac747cf"
 
 [[package]]
 name = "anstyle-parse"
@@ -203,18 +203,18 @@ dependencies = [
 name = "clap_builder"
 version = "4.1.14"
 dependencies = [
+ "anstream",
+ "anstyle",
  "backtrace",
  "bitflags",
  "clap_lex 0.4.0",
  "humantime",
- "is-terminal",
  "once_cell",
  "rustversion",
  "shlex",
  "snapbox",
  "static_assertions",
  "strsim",
- "termcolor",
  "terminal_size",
  "trybuild",
  "trycmd",

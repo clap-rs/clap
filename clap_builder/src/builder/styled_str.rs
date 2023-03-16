@@ -196,40 +196,12 @@ impl StyledStr {
     }
 
     #[cfg(feature = "color")]
-    pub(crate) fn write_colored(&self, buffer: &mut termcolor::Buffer) -> std::io::Result<()> {
-        use std::io::Write;
-        use termcolor::WriteColor;
-
+    pub(crate) fn write_colored(&self, buffer: &mut dyn std::io::Write) -> std::io::Result<()> {
         for (style, content) in &self.pieces {
-            let mut color = termcolor::ColorSpec::new();
-            match style {
-                Some(Style::Header) => {
-                    color.set_bold(true);
-                    color.set_underline(true);
-                }
-                Some(Style::Literal) => {
-                    color.set_bold(true);
-                }
-                Some(Style::Placeholder) => {}
-                Some(Style::Good) => {
-                    color.set_fg(Some(termcolor::Color::Green));
-                }
-                Some(Style::Warning) => {
-                    color.set_fg(Some(termcolor::Color::Yellow));
-                }
-                Some(Style::Error) => {
-                    color.set_fg(Some(termcolor::Color::Red));
-                    color.set_bold(true);
-                }
-                Some(Style::Hint) => {
-                    color.set_dimmed(true);
-                }
-                None => {}
-            }
-
-            ok!(buffer.set_color(&color));
+            let style = style.map(|s| s.as_style()).unwrap_or_default();
+            ok!(style.write_to(buffer));
             ok!(buffer.write_all(content.as_bytes()));
-            ok!(buffer.reset());
+            ok!(style.write_reset_to(buffer));
         }
 
         Ok(())
@@ -310,14 +282,12 @@ struct AnsiDisplay<'s> {
 #[cfg(feature = "color")]
 impl std::fmt::Display for AnsiDisplay<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let mut buffer = termcolor::Buffer::ansi();
-        ok!(self
-            .styled
-            .write_colored(&mut buffer)
-            .map_err(|_| std::fmt::Error));
-        let buffer = buffer.into_inner();
-        let buffer = ok!(String::from_utf8(buffer).map_err(|_| std::fmt::Error));
-        ok!(std::fmt::Display::fmt(&buffer, f));
+        for (style, content) in &self.styled.pieces {
+            let style = style.map(|s| s.as_style()).unwrap_or_default();
+            ok!(style.render().fmt(f));
+            ok!(content.fmt(f));
+            ok!(style.render_reset().fmt(f));
+        }
 
         Ok(())
     }
@@ -344,6 +314,19 @@ impl Style {
             Self::Warning => 4,
             Self::Error => 5,
             Self::Hint => 6,
+        }
+    }
+
+    #[cfg(feature = "color")]
+    fn as_style(&self) -> anstyle::Style {
+        match self {
+            Style::Header => (anstyle::Effects::BOLD | anstyle::Effects::UNDERLINE).into(),
+            Style::Literal => anstyle::Effects::BOLD.into(),
+            Style::Placeholder => anstyle::Style::default(),
+            Style::Good => anstyle::AnsiColor::Green.on_default(),
+            Style::Warning => anstyle::AnsiColor::Yellow.on_default(),
+            Style::Error => anstyle::AnsiColor::Red.on_default() | anstyle::Effects::BOLD,
+            Style::Hint => anstyle::Effects::DIMMED.into(),
         }
     }
 }
