@@ -109,6 +109,12 @@ impl ArgMatcher {
         self.matches.args.contains_key(arg)
     }
 
+    #[cfg(feature = "o1")]
+    pub(crate) fn arg_ids(&self) -> crate::util::flat_map::Keys<'_, Id, MatchedArg> {
+        self.matches.args.keys()
+    }
+
+    #[cfg(not(feature = "o1"))]
     pub(crate) fn arg_ids(&self) -> std::slice::Iter<'_, Id> {
         self.matches.args.keys()
     }

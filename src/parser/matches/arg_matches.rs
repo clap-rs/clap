@@ -1369,6 +1369,9 @@ pub(crate) struct SubCommand {
 /// ```
 #[derive(Clone, Debug)]
 pub struct IdsRef<'a> {
+    #[cfg(feature = "o1")]
+    iter: crate::util::flat_map::Keys<'a, Id, MatchedArg>,
+    #[cfg(not(feature = "o1"))]
     iter: std::slice::Iter<'a, Id>,
 }
 

@@ -313,6 +313,9 @@ impl<F: ErrorFormatter> Error<F> {
         kind: ContextKind,
         value: ContextValue,
     ) -> Self {
+        #[cfg(feature = "o1")]
+        self.inner.context.insert(kind, value);
+        #[cfg(not(feature = "o1"))]
         self.inner.context.insert_unchecked(kind, value);
         self
     }
@@ -324,6 +327,9 @@ impl<F: ErrorFormatter> Error<F> {
         mut self,
         context: [(ContextKind, ContextValue); N],
     ) -> Self {
+        #[cfg(feature = "o1")]
+        self.inner.context.extend(context);
+        #[cfg(not(feature = "o1"))]
         self.inner.context.extend_unchecked(context);
         self
     }

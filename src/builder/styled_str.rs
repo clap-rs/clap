@@ -2,7 +2,7 @@
 ///
 /// For now, this is the same as a [`Str`][crate::builder::Str].  This exists to reserve space in
 /// the API for exposing terminal styling.
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Default, Debug, PartialEq, Eq, Hash)]
 pub struct StyledStr {
     #[cfg(feature = "color")]
     pieces: Vec<(Option<Style>, String)>,
@@ -323,7 +323,7 @@ impl std::fmt::Display for AnsiDisplay<'_> {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum Style {
     Header,
     Literal,

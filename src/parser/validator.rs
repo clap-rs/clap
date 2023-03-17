@@ -467,15 +467,17 @@ struct Conflicts {
 impl Conflicts {
     fn with_args(cmd: &Command, matcher: &ArgMatcher) -> Self {
         let mut potential = FlatMap::new();
-        potential.extend_unchecked(
-            matcher
-                .args()
-                .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
-                .map(|(id, _)| {
-                    let conf = gather_direct_conflicts(cmd, id);
-                    (id.clone(), conf)
-                }),
-        );
+        let iter = matcher
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .map(|(id, _)| {
+                let conf = gather_direct_conflicts(cmd, id);
+                (id.clone(), conf)
+            });
+        #[cfg(feature = "o1")]
+        potential.extend(iter);
+        #[cfg(not(feature = "o1"))]
+        potential.extend_unchecked(iter);
         Self { potential }
     }
 
