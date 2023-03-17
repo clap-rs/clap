@@ -24,7 +24,7 @@ include = [
 
 [package]
 name = "clap"
-version = "4.1.9"
+version = "4.1.10"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
