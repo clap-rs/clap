@@ -1057,8 +1057,8 @@ impl Command {
     ///
     /// Using `0` will ignore terminal widths and use source formatting.
     ///
-    /// Defaults to current terminal width when `wrap_help` feature flag is enabled.  If the flag
-    /// is disabled or it cannot be determined, the default is 100.
+    /// Defaults to current terminal width when `wrap_help` feature flag is enabled.  If current
+    /// width cannot be determined, the default is 100.
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
