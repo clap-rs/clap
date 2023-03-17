@@ -181,7 +181,7 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.1.10"
+version = "4.1.11"
 dependencies = [
  "backtrace",
  "bitflags 2.0.1",
@@ -208,7 +208,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.1.10",
+ "clap 4.1.11",
  "criterion",
  "lazy_static",
 ]
@@ -217,7 +217,7 @@ dependencies = [
 name = "clap_complete"
 version = "4.1.5"
 dependencies = [
- "clap 4.1.10",
+ "clap 4.1.11",
  "clap_lex 0.3.3",
  "is_executable",
  "os_str_bytes",
@@ -232,7 +232,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.1.2"
 dependencies = [
- "clap 4.1.10",
+ "clap 4.1.11",
  "clap_complete",
  "snapbox",
 ]
@@ -268,7 +268,7 @@ dependencies = [
 name = "clap_mangen"
 version = "0.2.10"
 dependencies = [
- "clap 4.1.10",
+ "clap 4.1.11",
  "roff",
  "snapbox",
 ]
