@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* On Windows, avoid underlined text artifacts
+
 ## [4.1.9] - 2023-03-16
 
 ### Fixes
