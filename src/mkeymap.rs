@@ -142,6 +142,10 @@ impl MKeyMap {
             // since it's a cold function, using this wouldn't hurt much
             .map(|i| self.args.remove(i))
     }
+
+    pub(crate) fn reserve(&mut self, additional: usize) {
+        self.args.reserve(additional);
+    }
 }
 
 impl Index<&'_ KeyType> for MKeyMap {

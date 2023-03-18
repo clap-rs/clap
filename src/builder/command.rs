@@ -140,6 +140,15 @@ impl Command {
         new_inner(name.into())
     }
 
+    /// Pre-allocate space for `additional` [`Arg`]s to be added.
+    ///
+    /// This is generally **not** needed and only exists for the more extreme cases
+    #[doc(hidden = true)]
+    pub fn reserve_args(mut self, additional: usize) -> Self {
+        self.args.reserve(additional);
+        self
+    }
+
     /// Adds an [argument] to the list of valid possibilities.
     ///
     /// # Examples
