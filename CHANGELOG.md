@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Reduce repeated alloc calls when building a `Command`
+- Reduce duplicate dependencies for faster builds
+
 ## [4.1.12] - 2023-03-18
 
 ### Internal
