@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Internal
+
+- *(derive)* Update to `syn` v2
+
+### Performance
+
+- *(derive)* Faster build times by dropping `proc-macro-error` dependency
+
 ## [4.1.11] - 2023-03-17
 
 ### Internal
