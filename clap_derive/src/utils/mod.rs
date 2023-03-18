@@ -1,3 +1,5 @@
+pub mod error;
+
 mod doc_comments;
 mod spanned;
 mod ty;
