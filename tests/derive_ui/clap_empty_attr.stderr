@@ -1,8 +1,8 @@
 error: expected attribute arguments in parentheses: #[command(...)]
- --> tests/derive_ui/clap_empty_attr.rs:4:1
+ --> tests/derive_ui/clap_empty_attr.rs:4:3
   |
 4 | #[command]
-  | ^^^^^^^^^^
+  |   ^^^^^^^
 
 error: expected parentheses: #[arg(...)]
  --> tests/derive_ui/clap_empty_attr.rs:9:11

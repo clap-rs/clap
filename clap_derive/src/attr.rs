@@ -25,18 +25,18 @@ impl ClapAttr {
     pub fn parse_all(all_attrs: &[Attribute]) -> Result<Vec<Self>, syn::Error> {
         let mut parsed = Vec::new();
         for attr in all_attrs {
-            let kind = if attr.path.is_ident("clap") {
-                Sp::new(AttrKind::Clap, attr.path.span())
-            } else if attr.path.is_ident("structopt") {
-                Sp::new(AttrKind::StructOpt, attr.path.span())
-            } else if attr.path.is_ident("command") {
-                Sp::new(AttrKind::Command, attr.path.span())
-            } else if attr.path.is_ident("group") {
-                Sp::new(AttrKind::Group, attr.path.span())
-            } else if attr.path.is_ident("arg") {
-                Sp::new(AttrKind::Arg, attr.path.span())
-            } else if attr.path.is_ident("value") {
-                Sp::new(AttrKind::Value, attr.path.span())
+            let kind = if attr.path().is_ident("clap") {
+                Sp::new(AttrKind::Clap, attr.path().span())
+            } else if attr.path().is_ident("structopt") {
+                Sp::new(AttrKind::StructOpt, attr.path().span())
+            } else if attr.path().is_ident("command") {
+                Sp::new(AttrKind::Command, attr.path().span())
+            } else if attr.path().is_ident("group") {
+                Sp::new(AttrKind::Group, attr.path().span())
+            } else if attr.path().is_ident("arg") {
+                Sp::new(AttrKind::Arg, attr.path().span())
+            } else if attr.path().is_ident("value") {
+                Sp::new(AttrKind::Value, attr.path().span())
             } else {
                 continue;
             };
@@ -126,7 +126,7 @@ impl Parse for ClapAttr {
             let nested;
             parenthesized!(nested in input);
 
-            let method_args: Punctuated<_, Token![,]> = nested.parse_terminated(Expr::parse)?;
+            let method_args: Punctuated<_, _> = nested.parse_terminated(Expr::parse, Token![,])?;
             Some(AttrValue::Call(Vec::from_iter(method_args)))
         } else {
             None
