@@ -126,6 +126,8 @@ impl MKeyMap {
     /// We need a lazy build here since some we may change args after creating
     /// the map, you can checkout who uses `args_mut`.
     pub(crate) fn _build(&mut self) {
+        // There will be at least as many keys as args, so that is a good starting point
+        self.keys.reserve(self.args.len());
         for (i, arg) in self.args.iter().enumerate() {
             append_keys(&mut self.keys, arg, i);
         }
