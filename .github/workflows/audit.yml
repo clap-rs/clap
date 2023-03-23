@@ -1,26 +1,49 @@
 name: Security audit
+
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths:
       - '**/Cargo.toml'
       - '**/Cargo.lock'
   push:
-    paths:
-      - '**/Cargo.toml'
-      - '**/Cargo.lock'
-  schedule:
-  - cron: '3 3 3 * *'
-permissions:
-  contents: read
+    branches:
+    - main
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
 jobs:
   security_audit:
     permissions:
       issues: write # to create issues (actions-rs/audit-check)
       checks: write # to create check (actions-rs/audit-check)
     runs-on: ubuntu-latest
+    # Prevent sudden announcement of a new advisory from failing ci:
+    continue-on-error: true
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
     - uses: actions-rs/audit-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+
+  cargo_deny:
+    permissions:
+      issues: write # to create issues (actions-rs/audit-check)
+      checks: write # to create check (actions-rs/audit-check)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        checks:
+          - bans licenses sources
+    steps:
+    - uses: actions/checkout@v3
+    - uses: EmbarkStudios/cargo-deny-action@v1
+      with:
+        command: check ${{ matrix.checks }}
+        rust-version: stable
