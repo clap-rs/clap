@@ -1,6 +1,6 @@
 error: #[arg(default_values_t)] can be used only on Vec types
 
-         = note: see https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes
+       = note: see https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes
 
  --> tests/derive_ui/default_values_t_invalid.rs:6:11
   |

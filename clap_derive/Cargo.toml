@@ -29,11 +29,10 @@ proc-macro = true
 bench = false
 
 [dependencies]
-syn = { version = "1.0.74", features = ["full"] }
+syn = { version = "2.0.8", features = ["full"] }
 quote = "1.0.9"
 proc-macro2 = "1.0.42"
 heck = "0.4.0"
-proc-macro-error = "1.0.4"
 
 [features]
 default = []

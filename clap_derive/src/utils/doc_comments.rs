@@ -6,24 +6,26 @@
 use std::iter;
 
 pub fn extract_doc_comment(attrs: &[syn::Attribute]) -> Vec<String> {
-    use syn::Lit::*;
-    use syn::Meta::*;
-    use syn::MetaNameValue;
-
     // multiline comments (`/** ... */`) may have LFs (`\n`) in them,
     // we need to split so we could handle the lines correctly
     //
     // we also need to remove leading and trailing blank lines
     let mut lines: Vec<_> = attrs
         .iter()
-        .filter(|attr| attr.path.is_ident("doc"))
+        .filter(|attr| attr.path().is_ident("doc"))
         .filter_map(|attr| {
-            if let Ok(NameValue(MetaNameValue { lit: Str(s), .. })) = attr.parse_meta() {
-                Some(s.value())
-            } else {
-                // non #[doc = "..."] attributes are not our concern
-                // we leave them for rustc to handle
-                None
+            // non #[doc = "..."] attributes are not our concern
+            // we leave them for rustc to handle
+            match &attr.meta {
+                syn::Meta::NameValue(syn::MetaNameValue {
+                    value:
+                        syn::Expr::Lit(syn::ExprLit {
+                            lit: syn::Lit::Str(s),
+                            ..
+                        }),
+                    ..
+                }) => Some(s.value()),
+                _ => None,
             }
         })
         .skip_while(|s| is_blank(s))

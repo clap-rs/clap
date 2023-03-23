@@ -13,7 +13,6 @@
 // MIT/Apache 2.0 license.
 
 use proc_macro2::{Ident, Span, TokenStream};
-use proc_macro_error::{abort, abort_call_site};
 use quote::{format_ident, quote, quote_spanned};
 use syn::ext::IdentExt;
 use syn::{
@@ -21,14 +20,11 @@ use syn::{
     Fields, Generics,
 };
 
-use crate::dummies;
 use crate::item::{Item, Kind, Name};
 use crate::utils::{inner_type, sub_type, Sp, Ty};
 
-pub fn derive_args(input: &DeriveInput) -> TokenStream {
+pub fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
-
-    dummies::args(ident);
 
     match input.data {
         Data::Struct(DataStruct {
@@ -36,15 +32,15 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
             ..
         }) => {
             let name = Name::Derived(ident.clone());
-            let item = Item::from_args_struct(input, name);
+            let item = Item::from_args_struct(input, name)?;
             let fields = fields
                 .named
                 .iter()
                 .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
-                    (field, item)
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
+                    Ok((field, item))
                 })
-                .collect::<Vec<_>>();
+                .collect::<Result<Vec<_>, syn::Error>>()?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Struct(DataStruct {
@@ -52,15 +48,15 @@ pub fn derive_args(input: &DeriveInput) -> TokenStream {
             ..
         }) => {
             let name = Name::Derived(ident.clone());
-            let item = Item::from_args_struct(input, name);
+            let item = Item::from_args_struct(input, name)?;
             let fields = Punctuated::<Field, Comma>::new();
             let fields = fields
                 .iter()
                 .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
-                    (field, item)
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
+                    Ok((field, item))
                 })
-                .collect::<Vec<_>>();
+                .collect::<Result<Vec<_>, syn::Error>>()?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
         _ => abort_call_site!("`#[derive(Args)]` only supports non-tuple structs"),
@@ -72,7 +68,7 @@ pub fn gen_for_struct(
     item_name: &Ident,
     generics: &Generics,
     fields: &[(&Field, Item)],
-) -> TokenStream {
+) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Command(_)) {
         abort! { item.kind().span(),
             "`{}` cannot be used with `command`",
@@ -82,13 +78,13 @@ pub fn gen_for_struct(
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let constructor = gen_constructor(fields);
-    let updater = gen_updater(fields, true);
+    let constructor = gen_constructor(fields)?;
+    let updater = gen_updater(fields, true)?;
     let raw_deprecated = raw_deprecated();
 
     let app_var = Ident::new("__clap_app", Span::call_site());
-    let augmentation = gen_augment(fields, &app_var, item, false);
-    let augmentation_update = gen_augment(fields, &app_var, item, true);
+    let augmentation = gen_augment(fields, &app_var, item, false)?;
+    let augmentation_update = gen_augment(fields, &app_var, item, true)?;
 
     let group_id = if item.skip_group() {
         quote!(None)
@@ -97,7 +93,7 @@ pub fn gen_for_struct(
         quote!(Some(clap::Id::from(#group_id)))
     };
 
-    quote! {
+    Ok(quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
         #[allow(
             clippy::style,
@@ -157,7 +153,7 @@ pub fn gen_for_struct(
                 #augmentation_update
             }
         }
-    }
+    })
 }
 
 /// Generate a block of code to add arguments/subcommands corresponding to
@@ -167,11 +163,12 @@ pub fn gen_augment(
     app_var: &Ident,
     parent_item: &Item,
     override_required: bool,
-) -> TokenStream {
+) -> Result<TokenStream, syn::Error> {
     let mut subcommand_specified = false;
-    let args = fields.iter().filter_map(|(field, item)| {
+    let mut args = Vec::new();
+    for (field, item) in fields {
         let kind = item.kind();
-        match &*kind {
+        let genned = match &*kind {
             Kind::Command(_)
             | Kind::Value
             | Kind::Skip(_, _)
@@ -179,7 +176,10 @@ pub fn gen_augment(
             | Kind::ExternalSubcommand => None,
             Kind::Subcommand(ty) => {
                 if subcommand_specified {
-                    abort!(field.span(), "`#[command(subcommand)]` can only be used once per container");
+                    abort!(
+                        field.span(),
+                        "`#[command(subcommand)]` can only be used once per container"
+                    );
                 }
                 subcommand_specified = true;
 
@@ -354,8 +354,9 @@ pub fn gen_augment(
                     });
                 })
             }
-        }
-    });
+        };
+        args.push(genned);
+    }
 
     let deprecations = if !override_required {
         parent_item.deprecations()
@@ -408,7 +409,7 @@ pub fn gen_augment(
             )
         )
     };
-    quote! {{
+    Ok(quote! {{
         #deprecations
         let #app_var = #app_var
             #initial_app_methods
@@ -416,15 +417,15 @@ pub fn gen_augment(
             ;
         #( #args )*
         #app_var #final_app_methods
-    }}
+    }})
 }
 
-pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
+pub fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Error> {
     let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
         let arg_matches = format_ident!("__clap_arg_matches");
-        match &*kind {
+        let genned = match &*kind {
             Kind::Command(_)
             | Kind::Value
             | Kind::ExternalSubcommand => {
@@ -519,18 +520,20 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> TokenStream {
             },
 
             Kind::Arg(ty) | Kind::FromGlobal(ty) => {
-                gen_parsers(item, ty, field_name, field, None)
+                gen_parsers(item, ty, field_name, field, None)?
             }
-        }
-    });
+        };
+        Ok(genned)
+    }).collect::<Result<Vec<_>, syn::Error>>()?;
 
-    quote! {{
+    Ok(quote! {{
         #( #fields ),*
-    }}
+    }})
 }
 
-pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
-    let fields = fields.iter().map(|(field, item)| {
+pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> Result<TokenStream, syn::Error> {
+    let mut genned_fields = Vec::new();
+    for (field, item) in fields {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
 
@@ -544,10 +547,8 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
         };
         let arg_matches = format_ident!("__clap_arg_matches");
 
-        match &*kind {
-            Kind::Command(_)
-            | Kind::Value
-            | Kind::ExternalSubcommand => {
+        let genned = match &*kind {
+            Kind::Command(_) | Kind::Value | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
                     "`{}` cannot be used with `arg`",
                     kind.name(),
@@ -617,17 +618,20 @@ pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> TokenStream {
                         #updater
                     }
                 }
-            },
+            }
 
             Kind::Skip(_, _) => quote!(),
 
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(item, ty, field_name, field, Some(&access)),
-        }
-    });
-
-    quote! {
-        #( #fields )*
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => {
+                gen_parsers(item, ty, field_name, field, Some(&access))?
+            }
+        };
+        genned_fields.push(genned);
     }
+
+    Ok(quote! {
+        #( #genned_fields )*
+    })
 }
 
 fn gen_parsers(
@@ -636,7 +640,7 @@ fn gen_parsers(
     field_name: &Ident,
     field: &Field,
     update: Option<&TokenStream>,
-) -> TokenStream {
+) -> Result<TokenStream, syn::Error> {
     let span = ty.span();
     let convert_type = inner_type(&field.ty);
     let id = item.id();
@@ -709,7 +713,7 @@ fn gen_parsers(
         }
     };
 
-    if let Some(access) = update {
+    let genned = if let Some(access) = update {
         quote_spanned! { field.span()=>
             if #arg_matches.contains_id(#id) {
                 #access
@@ -718,7 +722,8 @@ fn gen_parsers(
         }
     } else {
         quote_spanned!(field.span()=> #field_name: #field_value )
-    }
+    };
+    Ok(genned)
 }
 
 #[cfg(feature = "raw-deprecated")]

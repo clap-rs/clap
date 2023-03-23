@@ -13,7 +13,6 @@
 // MIT/Apache 2.0 license.
 
 use proc_macro2::TokenStream;
-use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::Ident;
 use syn::Variant;
@@ -23,11 +22,10 @@ use syn::{
 };
 
 use crate::derives::{args, into_app, subcommand};
-use crate::dummies;
 use crate::item::Item;
 use crate::item::Name;
 
-pub fn derive_parser(input: &DeriveInput) -> TokenStream {
+pub fn derive_parser(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
     let pkg_name = std::env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
@@ -36,52 +34,46 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
             fields: Fields::Named(ref fields),
             ..
         }) => {
-            dummies::parser_struct(ident);
-
             let name = Name::Assigned(quote!(#pkg_name));
-            let item = Item::from_args_struct(input, name);
+            let item = Item::from_args_struct(input, name)?;
             let fields = fields
                 .named
                 .iter()
                 .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
-                    (field, item)
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
+                    Ok((field, item))
                 })
-                .collect::<Vec<_>>();
+                .collect::<Result<Vec<_>, syn::Error>>()?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
             ..
         }) => {
-            dummies::parser_struct(ident);
-
             let name = Name::Assigned(quote!(#pkg_name));
-            let item = Item::from_args_struct(input, name);
+            let item = Item::from_args_struct(input, name)?;
             let fields = Punctuated::<Field, Comma>::new();
             let fields = fields
                 .iter()
                 .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing());
-                    (field, item)
+                    let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
+                    Ok((field, item))
                 })
-                .collect::<Vec<_>>();
+                .collect::<Result<Vec<_>, syn::Error>>()?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Enum(ref e) => {
-            dummies::parser_enum(ident);
-
             let name = Name::Assigned(quote!(#pkg_name));
-            let item = Item::from_subcommand_enum(input, name);
+            let item = Item::from_subcommand_enum(input, name)?;
             let variants = e
                 .variants
                 .iter()
                 .map(|variant| {
                     let item =
-                        Item::from_subcommand_variant(variant, item.casing(), item.env_casing());
-                    (variant, item)
+                        Item::from_subcommand_variant(variant, item.casing(), item.env_casing())?;
+                    Ok((variant, item))
                 })
-                .collect::<Vec<_>>();
+                .collect::<Result<Vec<_>, syn::Error>>()?;
             gen_for_enum(&item, ident, &input.generics, &variants)
         }
         _ => abort_call_site!("`#[derive(Parser)]` only supports non-tuple structs and enums"),
@@ -93,18 +85,18 @@ fn gen_for_struct(
     item_name: &Ident,
     generics: &Generics,
     fields: &[(&Field, Item)],
-) -> TokenStream {
+) -> Result<TokenStream, syn::Error> {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let into_app = into_app::gen_for_struct(item, item_name, generics);
-    let args = args::gen_for_struct(item, item_name, generics, fields);
+    let into_app = into_app::gen_for_struct(item, item_name, generics)?;
+    let args = args::gen_for_struct(item, item_name, generics, fields)?;
 
-    quote! {
+    Ok(quote! {
         impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app
         #args
-    }
+    })
 }
 
 fn gen_for_enum(
@@ -112,16 +104,16 @@ fn gen_for_enum(
     item_name: &Ident,
     generics: &Generics,
     variants: &[(&Variant, Item)],
-) -> TokenStream {
+) -> Result<TokenStream, syn::Error> {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let into_app = into_app::gen_for_enum(item, item_name, generics);
-    let subcommand = subcommand::gen_for_enum(item, item_name, generics, variants);
+    let into_app = into_app::gen_for_enum(item, item_name, generics)?;
+    let subcommand = subcommand::gen_for_enum(item, item_name, generics, variants)?;
 
-    quote! {
+    Ok(quote! {
         impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app
         #subcommand
-    }
+    })
 }

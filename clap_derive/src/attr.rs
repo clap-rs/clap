@@ -1,8 +1,6 @@
 use std::iter::FromIterator;
 
 use proc_macro2::TokenStream;
-use proc_macro_error::abort;
-use proc_macro_error::ResultExt;
 use quote::quote;
 use quote::ToTokens;
 use syn::spanned::Spanned;
@@ -24,49 +22,44 @@ pub struct ClapAttr {
 }
 
 impl ClapAttr {
-    pub fn parse_all(all_attrs: &[Attribute]) -> Vec<Self> {
-        all_attrs
-            .iter()
-            .filter_map(|attr| {
-                let kind = if attr.path.is_ident("clap") {
-                    Some(Sp::new(AttrKind::Clap, attr.path.span()))
-                } else if attr.path.is_ident("structopt") {
-                    Some(Sp::new(AttrKind::StructOpt, attr.path.span()))
-                } else if attr.path.is_ident("command") {
-                    Some(Sp::new(AttrKind::Command, attr.path.span()))
-                } else if attr.path.is_ident("group") {
-                    Some(Sp::new(AttrKind::Group, attr.path.span()))
-                } else if attr.path.is_ident("arg") {
-                    Some(Sp::new(AttrKind::Arg, attr.path.span()))
-                } else if attr.path.is_ident("value") {
-                    Some(Sp::new(AttrKind::Value, attr.path.span()))
-                } else {
-                    None
-                };
-                kind.map(|k| (k, attr))
-            })
-            .flat_map(|(k, attr)| {
-                attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
-                    .unwrap_or_abort()
-                    .into_iter()
-                    .map(move |mut a| {
-                        a.kind = k;
-                        a
-                    })
-            })
-            .collect()
+    pub fn parse_all(all_attrs: &[Attribute]) -> Result<Vec<Self>, syn::Error> {
+        let mut parsed = Vec::new();
+        for attr in all_attrs {
+            let kind = if attr.path().is_ident("clap") {
+                Sp::new(AttrKind::Clap, attr.path().span())
+            } else if attr.path().is_ident("structopt") {
+                Sp::new(AttrKind::StructOpt, attr.path().span())
+            } else if attr.path().is_ident("command") {
+                Sp::new(AttrKind::Command, attr.path().span())
+            } else if attr.path().is_ident("group") {
+                Sp::new(AttrKind::Group, attr.path().span())
+            } else if attr.path().is_ident("arg") {
+                Sp::new(AttrKind::Arg, attr.path().span())
+            } else if attr.path().is_ident("value") {
+                Sp::new(AttrKind::Value, attr.path().span())
+            } else {
+                continue;
+            };
+            for mut attr in
+                attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)?
+            {
+                attr.kind = kind;
+                parsed.push(attr);
+            }
+        }
+        Ok(parsed)
     }
 
-    pub fn value_or_abort(&self) -> &AttrValue {
+    pub fn value_or_abort(&self) -> Result<&AttrValue, syn::Error> {
         self.value
             .as_ref()
-            .unwrap_or_else(|| abort!(self.name, "attribute `{}` requires a value", self.name))
+            .ok_or_else(|| format_err!(self.name, "attribute `{}` requires a value", self.name))
     }
 
-    pub fn lit_str_or_abort(&self) -> &LitStr {
-        let value = self.value_or_abort();
+    pub fn lit_str_or_abort(&self) -> Result<&LitStr, syn::Error> {
+        let value = self.value_or_abort()?;
         match value {
-            AttrValue::LitStr(tokens) => tokens,
+            AttrValue::LitStr(tokens) => Ok(tokens),
             AttrValue::Expr(_) | AttrValue::Call(_) => {
                 abort!(
                     self.name,
@@ -133,7 +126,7 @@ impl Parse for ClapAttr {
             let nested;
             parenthesized!(nested in input);
 
-            let method_args: Punctuated<_, Token![,]> = nested.parse_terminated(Expr::parse)?;
+            let method_args: Punctuated<_, _> = nested.parse_terminated(Expr::parse, Token![,])?;
             Some(AttrValue::Call(Vec::from_iter(method_args)))
         } else {
             None
