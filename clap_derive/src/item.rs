@@ -277,6 +277,10 @@ impl Item {
     }
 
     fn push_method(&mut self, kind: AttrKind, name: Ident, arg: impl ToTokens) {
+        self.push_method_(kind, name, arg.to_token_stream());
+    }
+
+    fn push_method_(&mut self, kind: AttrKind, name: Ident, arg: TokenStream) {
         if name == "id" {
             match kind {
                 AttrKind::Command | AttrKind::Value => {
@@ -293,7 +297,7 @@ impl Item {
                 }
                 AttrKind::Group | AttrKind::Arg | AttrKind::Clap | AttrKind::StructOpt => {}
             }
-            self.name = Name::Assigned(quote!(#arg));
+            self.name = Name::Assigned(arg);
         } else if name == "name" {
             match kind {
                 AttrKind::Arg => {
@@ -315,16 +319,16 @@ impl Item {
                 | AttrKind::Clap
                 | AttrKind::StructOpt => {}
             }
-            self.name = Name::Assigned(quote!(#arg));
+            self.name = Name::Assigned(arg);
         } else if name == "value_parser" {
-            self.value_parser = Some(ValueParser::Explicit(Method::new(name, quote!(#arg))));
+            self.value_parser = Some(ValueParser::Explicit(Method::new(name, arg)));
         } else if name == "action" {
-            self.action = Some(Action::Explicit(Method::new(name, quote!(#arg))));
+            self.action = Some(Action::Explicit(Method::new(name, arg)));
         } else {
             if name == "short" || name == "long" {
                 self.is_positional = false;
             }
-            self.methods.push(Method::new(name, quote!(#arg)));
+            self.methods.push(Method::new(name, arg));
         }
     }
 
