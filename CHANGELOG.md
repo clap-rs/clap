@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* `#[group]` raw attribute support
+
+### Performance
+
+- *(derive)* `clap_builder` was pulled out of `clap` so it could build in parallel to `clap_derive`
+- `os_str_bytes` dependency was removed for faster builds and smaller binaries
+
 ## [4.1.13] - 2023-03-18
 
 ### Performance

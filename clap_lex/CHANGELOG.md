@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking Change
+
+- `RawOsStr` and `RawOsString` are no long exported
+- Return types were changed from `RawOsStr` to `OsStr`
+
+### Features
+
+- `OsStrExt` trait added to help with processing `OsStr`s
+
+### Performance
+
+- `os_str_bytes` dependency was dropped to improve build times and reduce binary size
+
 ## [0.3.3] - 2023-03-16
 
 ## [0.3.2] - 2023-02-23
