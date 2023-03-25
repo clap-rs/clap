@@ -276,8 +276,8 @@ impl ArgMatches {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
+    /// ```rust
+    /// # #[cfg(unix)] {
     /// # use clap::{Command, arg, value_parser};
     /// # use std::ffi::{OsStr,OsString};
     /// # use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -297,6 +297,7 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), Some(OsStr::new("Hi")));
     /// assert_eq!(itr.next(), Some(OsStr::from_bytes(&[0xe9, b'!'])));
     /// assert_eq!(itr.next(), None);
+    /// # }
     /// ```
     /// [`Iterator`]: std::iter::Iterator
     /// [`OsSt`]: std::ffi::OsStr
@@ -324,8 +325,8 @@ impl ArgMatches {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
+    /// ```rust
+    /// # #[cfg(unix)] {
     /// # use clap::{Command, arg, value_parser, ArgAction, Arg};
     /// # use std::ffi::{OsStr,OsString};
     /// # use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -350,6 +351,7 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), Some(vec![OsStr::new("a"), OsStr::new("b")]));
     /// assert_eq!(itr.next(), Some(vec![OsStr::new("c"), OsStr::from_bytes(&[0xe9, b'!'])]));
     /// assert_eq!(itr.next(), None);
+    /// # }
     /// ```
     /// [`Iterator`]: std::iter::Iterator
     /// [`OsStr`]: std::ffi::OsStr
@@ -1508,8 +1510,8 @@ impl<'a, T: 'a> Default for ValuesRef<'a, T> {
 ///
 /// # Examples
 ///
-#[cfg_attr(not(unix), doc = " ```ignore")]
-#[cfg_attr(unix, doc = " ```")]
+/// ```rust
+/// # #[cfg(unix)] {
 /// # use clap::{Command, arg, value_parser};
 /// use std::ffi::OsString;
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -1527,6 +1529,7 @@ impl<'a, T: 'a> Default for ValuesRef<'a, T> {
 ///         .as_bytes(),
 ///     [b'H', b'i', b' ', 0xe9, b'!']
 /// );
+/// # }
 /// ```
 #[derive(Clone, Debug)]
 pub struct RawValues<'a> {

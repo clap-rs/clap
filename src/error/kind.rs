@@ -39,8 +39,8 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "suggestions"), doc = " ```no_run")]
-    #[cfg_attr(feature = "suggestions", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "suggestions")] {
     /// # use clap::{Command, Arg, error::ErrorKind, };
     /// let result = Command::new("prog")
     ///     .subcommand(Command::new("config")
@@ -50,6 +50,7 @@ pub enum ErrorKind {
     ///     .try_get_matches_from(vec!["prog", "confi"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
+    /// # }
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
@@ -222,8 +223,8 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
+    /// ```rust
+    /// # #[cfg(unix)] {
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
@@ -236,6 +237,7 @@ pub enum ErrorKind {
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidUtf8);
+    /// # }
     /// ```
     ///
     /// [`Arg::allow_invalid_utf8`]: crate::Arg::allow_invalid_utf8
@@ -250,13 +252,14 @@ pub enum ErrorKind {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg, error::ErrorKind};
     /// let result = Command::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--help"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind(), ErrorKind::DisplayHelp);
+    /// # }
     /// ```
     DisplayHelp,
 

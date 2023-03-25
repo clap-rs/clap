@@ -41,9 +41,10 @@
 //! *(See also [feature flag reference][_features])*
 //!
 //! Then define your CLI in `main.rs`:
-#![cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-#![cfg_attr(feature = "derive", doc = " ```no_run")]
+//! ```rust
+//! # #[cfg(feature = "derive")] {
 #![doc = include_str!("../examples/demo.rs")]
+//! # }
 //! ```
 //!
 //! And try it out:

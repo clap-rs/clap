@@ -14,12 +14,13 @@ pub enum ColorChoice {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "color"), doc = " ```ignore")]
-    #[cfg_attr(feature = "color", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "color")] {
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Auto)
     ///     .get_matches();
+    /// # }
     /// ```
     Auto,
 
@@ -31,12 +32,13 @@ pub enum ColorChoice {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "color"), doc = " ```ignore")]
-    #[cfg_attr(feature = "color", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "color")] {
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Always)
     ///     .get_matches();
+    /// # }
     /// ```
     Always,
 
@@ -48,12 +50,13 @@ pub enum ColorChoice {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "color"), doc = " ```ignore")]
-    #[cfg_attr(feature = "color", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "color")] {
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Never)
     ///     .get_matches();
+    /// # }
     /// ```
     Never,
 }

@@ -2608,8 +2608,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, };
     /// let m = Command::new("cust-ord")
     ///     .subcommand(Command::new("alpha") // typically subcommands are grouped
@@ -2627,6 +2627,7 @@ impl Command {
     ///     .get_matches_from(vec![
     ///         "cust-ord", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays the following help message
@@ -2756,8 +2757,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
+    /// ```rust
+    /// # #[cfg(unix)] {
     /// # use std::ffi::OsString;
     /// # use clap::Command;
     /// # use clap::value_parser;
@@ -2778,6 +2779,7 @@ impl Command {
     ///     },
     ///     _ => {},
     /// }
+    /// # }
     /// ```
     ///
     /// ```
