@@ -1,16 +1,16 @@
 //! How to use value hints and generate shell completions.
 //!
 //! Usage with zsh:
-//! ```sh
-//! cargo run --example completion-derive -- --generate=zsh > /usr/local/share/zsh/site-functions/_completion_derive
-//! compinit
-//! ./target/debug/examples/completion_derive --<TAB>
+//! ```console
+//! $ cargo run --example completion-derive -- --generate=zsh > /usr/local/share/zsh/site-functions/_completion_derive
+//! $ compinit
+//! $ ./target/debug/examples/completion_derive --<TAB>
 //! ```
 //! fish:
-//! ```sh
-//! cargo run --example completion-derive -- --generate=fish > completion_derive.fish
-//! . ./completion_derive.fish
-//! ./target/debug/examples/completion_derive --<TAB>
+//! ```console
+//! $ cargo run --example completion-derive -- --generate=fish > completion_derive.fish
+//! $ . ./completion_derive.fish
+//! $ ./target/debug/examples/completion_derive --<TAB>
 //! ```
 use clap::{Args, Command, CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::{generate, Generator, Shell};

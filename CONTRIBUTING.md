@@ -77,7 +77,7 @@ Note: We have not yet determined the End-of-Life schedule for previous major ver
 ### Verifying Changes
 
 A common (sub)set of commands for verifying your change:
-```sh
+```console
 $ make test-full
 $ make clippy-full
 $ make doc
