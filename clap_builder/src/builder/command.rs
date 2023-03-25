@@ -105,6 +105,7 @@ pub struct Command {
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
+    deferred: Option<fn(Command) -> Command>,
     app_ext: Extensions,
 }
 
@@ -425,6 +426,30 @@ impl Command {
         for subcmd in subcmds {
             self = self.subcommand(subcmd);
         }
+        self
+    }
+
+    /// Delay initialization for parts of the `Command`
+    ///
+    /// This is useful for large applications to delay definitions of subcommands until they are
+    /// being invoked.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, arg};
+    /// Command::new("myprog")
+    ///     .subcommand(Command::new("config")
+    ///         .about("Controls configuration features")
+    ///         .defer(|cmd| {
+    ///             cmd.arg(arg!(<config> "Required configuration file to use"))
+    ///         })
+    ///     )
+    /// # ;
+    /// ```
+    pub fn defer(mut self, deferred: fn(Command) -> Command) -> Self {
+        self.deferred = Some(deferred);
         self
     }
 
@@ -3824,6 +3849,10 @@ impl Command {
     pub(crate) fn _build_self(&mut self, expand_help_tree: bool) {
         debug!("Command::_build: name={:?}", self.get_name());
         if !self.settings.is_set(AppSettings::Built) {
+            if let Some(deferred) = self.deferred.take() {
+                *self = (deferred)(std::mem::take(self));
+            }
+
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;
 
@@ -4652,6 +4681,7 @@ impl Default for Command {
             subcommand_heading: Default::default(),
             external_value_parser: Default::default(),
             long_help_exists: false,
+            deferred: None,
             app_ext: Default::default(),
         }
     }

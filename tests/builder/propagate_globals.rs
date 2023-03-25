@@ -17,7 +17,7 @@ fn get_app() -> Command {
                 .global(true)
                 .action(ArgAction::Count),
         )
-        .subcommand(Command::new("outer").subcommand(Command::new("inner")))
+        .subcommand(Command::new("outer").defer(|cmd| cmd.subcommand(Command::new("inner"))))
 }
 
 fn get_matches(cmd: Command, argv: &'static str) -> ArgMatches {
