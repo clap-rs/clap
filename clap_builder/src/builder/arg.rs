@@ -39,6 +39,7 @@ use crate::INTERNAL_ERROR_MSG;
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Arg, arg, ArgAction};
 /// // Using the traditional builder pattern and setting each option manually
 /// let cfg = Arg::new("config")
@@ -99,6 +100,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Arg::new("config")
     /// # ;
@@ -130,6 +132,7 @@ impl Arg {
     /// argument via a single hyphen (`-`) such as `-c`:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg,  ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("config")
@@ -144,6 +147,7 @@ impl Arg {
     ///
     /// To use `-h` for your own flag and still have help:
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg,  ArgAction};
     /// let m = Command::new("prog")
     ///     .disable_help_flag(true)
@@ -190,6 +194,7 @@ impl Arg {
     /// Setting `long` allows using the argument via a double hyphen (`--`) such as `--config`
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -216,6 +221,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -245,6 +251,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -275,6 +282,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -303,6 +311,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -332,6 +341,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -361,6 +371,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -390,6 +401,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -416,6 +428,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///             .arg(Arg::new("test")
@@ -460,6 +473,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Arg::new("config")
     ///     .index(1)
@@ -467,6 +481,7 @@ impl Arg {
     /// ```
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
@@ -507,6 +522,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
     /// let m = Command::new("myprog")
     ///     .arg(arg!(<cmd> ... "commands to run").trailing_var_arg(true))
@@ -552,6 +568,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Arg, ArgAction};
     /// Arg::new("args")
     ///     .action(ArgAction::Set)
@@ -563,6 +580,7 @@ impl Arg {
     /// and requires that the `--` syntax be used to access it early.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("first"))
@@ -584,6 +602,7 @@ impl Arg {
     /// failing to use the `--` syntax results in an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("first"))
@@ -625,6 +644,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required(true)
@@ -634,6 +654,7 @@ impl Arg {
     /// Setting required requires that the argument be used at runtime.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -650,6 +671,7 @@ impl Arg {
     /// Setting required and then *not* supplying that argument at runtime is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -682,6 +704,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .requires("input")
@@ -693,6 +716,7 @@ impl Arg {
     /// required
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -710,6 +734,7 @@ impl Arg {
     /// Setting [`Arg::requires(name)`] and *not* supplying that argument is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -742,6 +767,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .exclusive(true)
@@ -752,6 +778,7 @@ impl Arg {
     /// is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("exclusive")
@@ -792,6 +819,7 @@ impl Arg {
     /// want to clutter the source with three duplicate [`Arg`] definitions.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("verb")
@@ -861,6 +889,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -901,6 +930,7 @@ impl Arg {
     /// The default value is [`ValueParser::string`][crate::builder::ValueParser::string].
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::ArgAction;
     /// let mut cmd = clap::Command::new("raw")
     ///     .arg(
@@ -979,6 +1009,7 @@ impl Arg {
     ///
     /// Option:
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
@@ -993,6 +1024,7 @@ impl Arg {
     ///
     /// Flag/option hybrid (see also [default_missing_value][Arg::default_missing_value])
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("mode")
@@ -1022,6 +1054,7 @@ impl Arg {
     ///
     /// Tuples
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("file")
@@ -1048,6 +1081,7 @@ impl Arg {
     /// A common mistake is to define an option which allows multiple values and a positional
     /// argument.
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let cmd = Command::new("prog")
     ///     .arg(Arg::new("file")
@@ -1076,6 +1110,7 @@ impl Arg {
     /// A solution for the example above is to limit how many values with a maximum, or specific
     /// number, or to say [`ArgAction::Append`] is ok, but multiple values are not.
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("file")
@@ -1118,6 +1153,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Arg::new("cfg")
     ///     .long("config")
@@ -1126,6 +1162,7 @@ impl Arg {
     /// ```
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
@@ -1182,6 +1219,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Arg::new("speed")
     ///     .short('s')
@@ -1189,6 +1227,7 @@ impl Arg {
     /// ```
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
@@ -1231,7 +1270,8 @@ impl Arg {
     ///
     /// For example, to take a username as argument:
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Arg, ValueHint};
     /// Arg::new("user")
     ///     .short('u')
@@ -1241,7 +1281,8 @@ impl Arg {
     ///
     /// To take a full command line and its arguments (for example, when writing a command wrapper):
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ValueHint, ArgAction};
     /// Command::new("prog")
     ///     .trailing_var_arg(true)
@@ -1273,6 +1314,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("pv")
     ///     .arg(Arg::new("option")
@@ -1290,6 +1332,7 @@ impl Arg {
     /// This setting also works when multiple values can be defined:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("pv")
     ///     .arg(Arg::new("option")
@@ -1338,6 +1381,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("pat")
@@ -1355,6 +1399,7 @@ impl Arg {
     /// hyphen is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("pat")
@@ -1388,6 +1433,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let res = Command::new("myprog")
     ///     .arg(Arg::new("num").allow_negative_numbers(true))
@@ -1419,6 +1465,7 @@ impl Arg {
     /// it and the associated value.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -1436,6 +1483,7 @@ impl Arg {
     /// error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -1484,6 +1532,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("config")
@@ -1520,6 +1569,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("vals")
     ///     .action(ArgAction::Set)
@@ -1532,6 +1582,7 @@ impl Arg {
     /// to perform them
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cmds")
@@ -1610,6 +1661,7 @@ impl Arg {
     /// First we use the default value without providing any value at runtime.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, parser::ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -1627,6 +1679,7 @@ impl Arg {
     /// Next we provide a value at runtime to override the default.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, parser::ValueSource};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -1704,6 +1757,7 @@ impl Arg {
     ///
     /// For POSIX style `--color`:
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, parser::ValueSource};
     /// fn cli() -> Command {
     ///     Command::new("prog")
@@ -1742,6 +1796,7 @@ impl Arg {
     ///
     /// For bool literals:
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, parser::ValueSource, value_parser};
     /// fn cli() -> Command {
     ///     Command::new("prog")
@@ -1849,6 +1904,7 @@ impl Arg {
     /// In this example, we show the variable coming from the environment:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::env;
     /// # use clap::{Command, Arg, ArgAction};
     ///
@@ -1875,6 +1931,7 @@ impl Arg {
     /// `false`.  Anything else will considered as `true`.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::env;
     /// # use clap::{Command, Arg, ArgAction};
     /// # use clap::builder::FalseyValueParser;
@@ -1910,6 +1967,7 @@ impl Arg {
     /// In this example, we show the variable coming from an option on the CLI:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::env;
     /// # use clap::{Command, Arg, ArgAction};
     ///
@@ -1931,6 +1989,7 @@ impl Arg {
     /// presence of a default:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::env;
     /// # use clap::{Command, Arg, ArgAction};
     ///
@@ -1952,6 +2011,7 @@ impl Arg {
     /// In this example, we show the use of multiple values in a single environment variable:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::env;
     /// # use clap::{Command, Arg, ArgAction};
     ///
@@ -2017,6 +2077,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2068,6 +2129,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2127,6 +2189,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("a") // Typically args are grouped alphabetically by name.
@@ -2195,6 +2258,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -2247,6 +2311,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2293,6 +2358,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
@@ -2322,6 +2388,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("connect")
     ///     .arg(Arg::new("host")
@@ -2351,6 +2418,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("mode")
@@ -2380,6 +2448,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("connect")
     ///     .arg(Arg::new("host")
@@ -2413,6 +2482,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Arg::new("debug")
     ///     .hide_short_help(true);
@@ -2422,6 +2492,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2450,6 +2521,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2497,6 +2569,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2525,6 +2598,7 @@ impl Arg {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2567,6 +2641,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("debug")
     ///     .long("debug")
@@ -2579,6 +2654,7 @@ impl Arg {
     /// was one of said arguments.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("debug")
@@ -2611,6 +2687,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// Arg::new("debug")
     ///     .long("debug")
@@ -2623,6 +2700,7 @@ impl Arg {
     /// was one of said arguments.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("debug")
@@ -2665,6 +2743,7 @@ impl Arg {
     /// First we use the default value only if another arg is present at runtime.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// # use clap::builder::{ArgPredicate};
     /// let m = Command::new("prog")
@@ -2684,6 +2763,7 @@ impl Arg {
     /// Next we run the same test, but without providing `--flag`.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
@@ -2702,6 +2782,7 @@ impl Arg {
     /// Now lets only use the default value if `--opt` contains the value `special`.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -2721,6 +2802,7 @@ impl Arg {
     /// default value.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -2740,6 +2822,7 @@ impl Arg {
     /// value of some other Arg.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
@@ -2799,6 +2882,7 @@ impl Arg {
     /// First we use the default value only if another arg is present at runtime.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
@@ -2823,6 +2907,7 @@ impl Arg {
     /// Next we run the same test, but without providing `--flag`.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
@@ -2845,6 +2930,7 @@ impl Arg {
     /// true, only the first evaluated "wins"
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// # use clap::builder::ArgPredicate;
     /// let m = Command::new("prog")
@@ -2912,6 +2998,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required_unless_present("debug")
@@ -2922,6 +3009,7 @@ impl Arg {
     /// but it's not an error because the `unless` arg has been supplied.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2941,6 +3029,7 @@ impl Arg {
     /// Setting `Arg::required_unless_present(name)` and *not* supplying `name` or this arg is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2979,6 +3068,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required_unless_present_all(["cfg", "dbg"])
@@ -2989,6 +3079,7 @@ impl Arg {
     /// because *all* of the `names` args have been supplied.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3012,6 +3103,7 @@ impl Arg {
     /// either *all* of `unless` args or the `self` arg is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3055,6 +3147,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required_unless_present_any(["cfg", "dbg"])
@@ -3067,6 +3160,7 @@ impl Arg {
     /// have been supplied.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3090,6 +3184,7 @@ impl Arg {
     /// or this arg is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3127,6 +3222,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required_if_eq("other_arg", "value")
@@ -3134,6 +3230,7 @@ impl Arg {
     /// ```
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3214,6 +3311,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required_if_eq_any([
@@ -3228,6 +3326,7 @@ impl Arg {
     /// anything other than `val`, this argument isn't required.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3254,6 +3353,7 @@ impl Arg {
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3297,6 +3397,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .required_if_eq_all([
@@ -3311,6 +3412,7 @@ impl Arg {
     /// anything other than `val`, this argument isn't required.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3337,6 +3439,7 @@ impl Arg {
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3379,6 +3482,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .requires_if("val", "arg")
@@ -3390,6 +3494,7 @@ impl Arg {
     /// `val`, the other argument isn't required.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3408,6 +3513,7 @@ impl Arg {
     /// `arg` is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3439,6 +3545,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .requires_ifs([
@@ -3453,6 +3560,7 @@ impl Arg {
     /// than `val`, `arg` isn't required.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3478,6 +3586,7 @@ impl Arg {
     /// arguments is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction, builder::ArgPredicate};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3538,6 +3647,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .conflicts_with("debug")
@@ -3547,6 +3657,7 @@ impl Arg {
     /// Setting conflicting argument, and having both arguments present at runtime is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3592,6 +3703,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// Arg::new("config")
     ///     .conflicts_with_all(["debug", "input"])
@@ -3602,6 +3714,7 @@ impl Arg {
     /// conflicting argument is an error.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
     /// let res = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3640,6 +3753,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
     /// let m = Command::new("prog")
     ///     .arg(arg!(-f --flag "some flag")
@@ -3679,6 +3793,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
     /// let m = Command::new("prog")
     ///     .arg(arg!(-f --flag "some flag")
@@ -3722,6 +3837,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").long_help("long help");
     /// assert_eq!(Some("long help".to_owned()), arg.get_long_help().map(|s| s.to_string()));
@@ -3904,6 +4020,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::ffi::OsStr;
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").env("ENVIRONMENT");
@@ -3919,6 +4036,7 @@ impl Arg {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// let arg = Arg::new("foo").default_value("default value");
     /// assert_eq!(arg.get_default_values(), &["default value"]);
@@ -3931,7 +4049,8 @@ impl Arg {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Arg;
     /// let arg = Arg::new("foo");
     /// assert_eq!(arg.is_positional(), true);
@@ -3977,6 +4096,7 @@ impl Arg {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// let cmd = clap::Command::new("raw")
     ///     .arg(
     ///         clap::Arg::new("port")

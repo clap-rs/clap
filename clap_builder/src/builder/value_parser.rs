@@ -18,6 +18,7 @@ use crate::parser::AnyValueId;
 /// # Example
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("color")
@@ -83,6 +84,7 @@ impl ValueParser {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// type EnvVar = (String, Option<String>);
     /// fn parse_env_var(env: &str) -> Result<EnvVar, std::io::Error> {
     ///     if let Some((var, value)) = env.split_once('=') {
@@ -120,6 +122,7 @@ impl ValueParser {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// let mut cmd = clap::Command::new("raw")
     ///     .arg(
     ///         clap::Arg::new("download")
@@ -146,6 +149,7 @@ impl ValueParser {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// let mut cmd = clap::Command::new("raw")
     ///     .arg(
     ///         clap::Arg::new("port")
@@ -168,6 +172,7 @@ impl ValueParser {
     ///
     /// ```rust
     /// # #[cfg(unix)] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, builder::ValueParser};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -198,6 +203,7 @@ impl ValueParser {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::path::PathBuf;
     /// # use std::path::Path;
     /// let mut cmd = clap::Command::new("raw")
@@ -263,6 +269,7 @@ impl ValueParser {
 /// # Example
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("hostname")
@@ -304,6 +311,7 @@ impl From<_AnonymousValueParser> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -334,6 +342,7 @@ impl From<std::ops::Range<i64>> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -364,6 +373,7 @@ impl From<std::ops::RangeInclusive<i64>> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -394,6 +404,7 @@ impl From<std::ops::RangeFrom<i64>> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -424,6 +435,7 @@ impl From<std::ops::RangeTo<i64>> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -454,6 +466,7 @@ impl From<std::ops::RangeToInclusive<i64>> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -483,6 +496,7 @@ impl From<std::ops::RangeFull> for ValueParser {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("color")
@@ -517,6 +531,7 @@ where
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// let possible = vec!["always", "auto", "never"];
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
@@ -647,6 +662,7 @@ where
 ///
 /// ```rust
 /// # #[cfg(feature = "error-context")] {
+/// # use clap_builder as clap;
 /// # use clap::error::ErrorKind;
 /// # use clap::error::ContextKind;
 /// # use clap::error::ContextValue;
@@ -725,6 +741,7 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// # use clap::builder::TypedValueParser as _;
@@ -769,6 +786,7 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::ffi::OsString;
     /// # use std::ffi::OsStr;
     /// # use std::path::PathBuf;
@@ -993,6 +1011,7 @@ impl Default for PathBufValueParser {
 /// # Example
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::ColorChoice;
 /// # use clap::builder::TypedValueParser;
@@ -1111,6 +1130,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("color")
@@ -1126,6 +1146,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 ///
 /// Semantics:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
@@ -1220,6 +1241,7 @@ where
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -1237,6 +1259,7 @@ where
 ///
 /// Semantics:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
@@ -1418,6 +1441,7 @@ impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> Default for RangedI64V
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("port")
@@ -1435,6 +1459,7 @@ impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> Default for RangedI64V
 ///
 /// Semantics:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
@@ -1682,6 +1707,7 @@ impl Default for BoolValueParser {
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
@@ -1697,6 +1723,7 @@ impl Default for BoolValueParser {
 ///
 /// Semantics:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
@@ -1775,6 +1802,7 @@ impl Default for FalseyValueParser {
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
@@ -1790,6 +1818,7 @@ impl Default for FalseyValueParser {
 ///
 /// Semantics:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
@@ -1873,6 +1902,7 @@ impl Default for BoolishValueParser {
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// let mut cmd = clap::Command::new("raw")
 ///     .arg(
 ///         clap::Arg::new("append")
@@ -1888,6 +1918,7 @@ impl Default for BoolishValueParser {
 ///
 /// Semantics:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::ffi::OsStr;
 /// # use clap::builder::TypedValueParser;
 /// # let cmd = clap::Command::new("test");
@@ -2060,6 +2091,7 @@ where
 /// # Example
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// #[derive(Copy, Clone, Debug)]
 /// pub struct Custom(u32);
 ///
@@ -2328,6 +2360,7 @@ pub mod via_prelude {
 ///
 /// Usage:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use std::path::PathBuf;
 /// # use std::path::Path;
 /// let mut cmd = clap::Command::new("raw")
@@ -2345,6 +2378,7 @@ pub mod via_prelude {
 ///
 /// Example mappings:
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::ColorChoice;
 /// // Built-in types
 /// let parser = clap::value_parser!(String);

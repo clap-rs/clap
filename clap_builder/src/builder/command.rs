@@ -52,6 +52,7 @@ use crate::builder::debug_asserts::assert_app;
 /// # Examples
 ///
 /// ```no_run
+/// # use clap_builder as clap;
 /// # use clap::{Command, Arg};
 /// let m = Command::new("My Program")
 ///     .author("Me, me@mail.com")
@@ -120,7 +121,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("My Program")
     /// # ;
@@ -144,7 +146,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, Arg};
     /// Command::new("myprog")
     ///     // Adding a single "flag" argument with a short and help text, using Arg::new()
@@ -186,11 +189,12 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, Arg};
     /// Command::new("myprog")
     ///     .args([
-    ///         arg!("[debug] -d 'turns on debugging info'"),
+    ///         arg!(-d --debug "turns on debugging info"),
     ///         Arg::new("input").help("the input file to use")
     ///     ])
     /// # ;
@@ -215,6 +219,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     ///
     /// let mut cmd = Command::new("foo")
@@ -261,6 +266,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     ///
     /// let mut cmd = Command::new("foo")
@@ -313,13 +319,14 @@ impl Command {
     /// The following example demonstrates using an [`ArgGroup`] to ensure that one, and only one,
     /// of the arguments from the specified group is present at runtime.
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, ArgGroup};
     /// Command::new("cmd")
-    ///     .arg(arg!("--set-ver [ver] 'set the version manually'"))
-    ///     .arg(arg!("--major 'auto increase major'"))
-    ///     .arg(arg!("--minor 'auto increase minor'"))
-    ///     .arg(arg!("--patch 'auto increase patch'"))
+    ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+    ///     .arg(arg!(--major "auto increase major"))
+    ///     .arg(arg!(--minor "auto increase minor"))
+    ///     .arg(arg!(--patch "auto increase patch"))
     ///     .group(ArgGroup::new("vers")
     ///          .args(["set-ver", "major", "minor","patch"])
     ///          .required(true))
@@ -336,15 +343,16 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, ArgGroup};
     /// Command::new("cmd")
-    ///     .arg(arg!("--set-ver [ver] 'set the version manually'"))
-    ///     .arg(arg!("--major         'auto increase major'"))
-    ///     .arg(arg!("--minor         'auto increase minor'"))
-    ///     .arg(arg!("--patch         'auto increase patch'"))
-    ///     .arg(arg!("-c [FILE]       'a config file'"))
-    ///     .arg(arg!("-i [IFACE]      'an interface'"))
+    ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+    ///     .arg(arg!(--major         "auto increase major"))
+    ///     .arg(arg!(--minor         "auto increase minor"))
+    ///     .arg(arg!(--patch         "auto increase patch"))
+    ///     .arg(arg!(-c <FILE>       "a config file").required(false))
+    ///     .arg(arg!(-i <IFACE>      "an interface").required(false))
     ///     .groups([
     ///         ArgGroup::new("vers")
     ///             .args(["set-ver", "major", "minor","patch"])
@@ -374,12 +382,13 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
     /// Command::new("myprog")
     ///     .subcommand(Command::new("config")
     ///         .about("Controls configuration features")
-    ///         .arg(arg!("<config> 'Required configuration file to use'")))
+    ///         .arg(arg!(<config> "Required configuration file to use")))
     /// # ;
     /// ```
     #[inline]
@@ -404,6 +413,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// # Command::new("myprog")
     /// .subcommands( [
@@ -434,6 +444,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// fn cmd() -> Command {
     ///     Command::new("foo")
@@ -461,6 +472,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let mut cmd = Command::new("myprog");
     /// let err = cmd.error(ErrorKind::InvalidValue, "Some failure case");
@@ -478,6 +490,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let matches = Command::new("myprog")
     ///     // Args and options go here...
@@ -501,6 +514,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let mut cmd = Command::new("myprog")
     ///     // Args and options go here...
@@ -528,6 +542,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let matches = Command::new("myprog")
     ///     // Args and options go here...
@@ -560,6 +575,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
     ///
@@ -598,6 +614,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
     ///
@@ -643,6 +660,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let arg_vec = vec!["my_prog", "some", "args", "to", "parse"];
     ///
@@ -715,6 +733,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// let mut cmd = Command::new("myprog");
     /// cmd.print_help();
@@ -739,6 +758,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// let mut cmd = Command::new("myprog");
     /// cmd.print_long_help();
@@ -766,6 +786,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// use std::io;
     /// let mut cmd = Command::new("myprog");
@@ -792,6 +813,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// use std::io;
     /// let mut cmd = Command::new("myprog");
@@ -852,6 +874,7 @@ impl Command {
     /// ### Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// use std::io;
     /// let cmd = Command::new("myprog");
@@ -876,6 +899,7 @@ impl Command {
     /// ### Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// use std::io;
     /// let cmd = Command::new("myprog");
@@ -894,6 +918,7 @@ impl Command {
     /// ### Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// use std::io;
     /// let mut cmd = Command::new("myprog");
@@ -925,6 +950,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
     /// let m = Command::new("myprog")
     ///     .no_binary_name(true)
@@ -951,6 +977,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
     /// let cmd = Command::new("cmd")
     ///   .ignore_errors(true)
@@ -1007,6 +1034,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .dont_delimit_trailing_values(true)
@@ -1032,6 +1060,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Never)
@@ -1062,11 +1091,12 @@ impl Command {
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
-    /// **NOTE:** This requires the [`wrap_help` feature][crate::_features]
+    /// **NOTE:** This requires the `wrap_help` feature
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .term_width(80)
@@ -1089,11 +1119,12 @@ impl Command {
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
-    /// **NOTE:** This requires the [`wrap_help` feature][crate::_features]
+    /// **NOTE:** This requires the `wrap_help` feature
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .max_term_width(100)
@@ -1112,6 +1143,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
     ///     .disable_version_flag(true)
@@ -1139,6 +1171,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .version("v1.1")
@@ -1166,6 +1199,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .next_line_help(true)
@@ -1187,6 +1221,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
     ///     .disable_help_flag(true)
@@ -1210,6 +1245,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
     ///     .disable_help_subcommand(true)
@@ -1240,6 +1276,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .disable_colored_help(true)
@@ -1264,6 +1301,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .help_expected(true)
@@ -1277,6 +1315,7 @@ impl Command {
     /// # Panics
     ///
     /// ```rust,no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myapp")
     ///     .help_expected(true)
@@ -1363,6 +1402,7 @@ impl Command {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .infer_subcommands(true)
@@ -1422,7 +1462,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("My Program")
     ///      .bin_name("my_binary")
@@ -1438,7 +1479,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("My Program")
     ///      .display_name("my_program")
@@ -1461,7 +1503,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///      .author("Me, me@mymain.com")
@@ -1484,7 +1527,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .about("Does really amazing things for great people")
@@ -1505,7 +1549,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .long_about(
@@ -1530,7 +1575,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .after_help("Does really amazing things for great people... but be careful with -R!")
@@ -1552,7 +1598,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .after_long_help("Does really amazing things to great people... but be careful with -R, \
@@ -1573,7 +1620,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .before_help("Some info I'd like to appear before the help info")
@@ -1593,7 +1641,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
@@ -1615,7 +1664,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .version("v0.1.24")
@@ -1637,7 +1687,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .long_version(
@@ -1670,7 +1721,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .override_usage("myapp [-clDas] <some_file>")
@@ -1679,7 +1731,8 @@ impl Command {
     ///
     /// Or for multiple usage lines:
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .override_usage(
@@ -1708,7 +1761,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myapp")
     ///     .override_help("myapp v1.0\n\
@@ -1768,7 +1822,8 @@ impl Command {
     ///
     /// For a very brief help:
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .version("1.0")
@@ -1778,7 +1833,8 @@ impl Command {
     ///
     /// For showing more application context:
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .version("1.0")
@@ -1899,6 +1955,7 @@ impl Command {
     /// end up getting parsed as if the user typed the entire incantation.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// let m = Command::new("cmd")
     ///     .subcommand(Command::new("module")
@@ -1932,6 +1989,7 @@ impl Command {
     /// need to change!
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("cmd")
     ///     .arg(Arg::new("save-context")
@@ -1954,6 +2012,7 @@ impl Command {
     /// above to enforce this:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("cmd")
     ///     .arg(Arg::new("save-context")
@@ -1995,6 +2054,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command};
     /// Command::new("myprog")
     ///     .arg_required_else_help(true);
@@ -2084,6 +2144,7 @@ impl Command {
     /// Style number one from above:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
@@ -2102,6 +2163,7 @@ impl Command {
     /// Now the same example, but using a default value for the first optional positional argument
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
@@ -2121,6 +2183,7 @@ impl Command {
     /// Style number two from above:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
@@ -2140,6 +2203,7 @@ impl Command {
     /// Now nofice if we don't specify `foo` or `baz` but use the `--` operator.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = Command::new("myprog")
@@ -2176,6 +2240,7 @@ impl Command {
     /// # Examples
     ///
     /// ```
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let matches = Command::new("pacman")
     ///     .subcommand(
@@ -2212,7 +2277,8 @@ impl Command {
     /// `--` such as `--sync` they will be stripped. Hyphens in the middle of the word; however,
     /// will *not* be stripped (i.e. `sync-file` is allowed).
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let matches = Command::new("pacman")
     ///     .subcommand(
@@ -2255,6 +2321,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///     .subcommand(Command::new("test")
@@ -2281,7 +2348,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").short_flag('t')
@@ -2308,7 +2376,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").long_flag("test")
@@ -2343,6 +2412,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("myprog")
     ///     .subcommand(Command::new("test")
@@ -2370,6 +2440,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///     .subcommand(Command::new("test").short_flag('t')
@@ -2398,6 +2469,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").long_flag("test")
@@ -2434,7 +2506,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("myprog")
     ///     .subcommand(Command::new("test")
@@ -2463,7 +2536,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").short_flag('t')
@@ -2493,7 +2567,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").long_flag("test")
@@ -2530,7 +2605,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///     .subcommand(Command::new("test")
@@ -2552,7 +2628,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").short_flag('b')
@@ -2576,7 +2653,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     /// let m = Command::new("myprog")
     ///             .subcommand(Command::new("test").long_flag("test")
@@ -2610,6 +2688,7 @@ impl Command {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, };
     /// let m = Command::new("cust-ord")
     ///     .subcommand(Command::new("alpha") // typically subcommands are grouped
@@ -2657,6 +2736,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .subcommand(
@@ -2680,6 +2760,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let err = Command::new("myprog")
     ///     .subcommand_required(true)
@@ -2716,6 +2797,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::ffi::OsString;
     /// # use clap::Command;
     /// // Assume there is an external subcommand named "subcmd"
@@ -2759,6 +2841,7 @@ impl Command {
     ///
     /// ```rust
     /// # #[cfg(unix)] {
+    /// # use clap_builder as clap;
     /// # use std::ffi::OsString;
     /// # use clap::Command;
     /// # use clap::value_parser;
@@ -2782,7 +2865,8 @@ impl Command {
     /// # }
     /// ```
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::value_parser;
     /// // Assume there is an external subcommand named "subcmd"
@@ -2829,6 +2913,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// Command::new("myprog")
     ///     .args_conflicts_with_subcommands(true);
@@ -2866,6 +2951,7 @@ impl Command {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let cmd = Command::new("cmd").subcommand(Command::new("sub")).arg(
     ///     Arg::new("arg")
@@ -2916,6 +3002,7 @@ impl Command {
     /// This first example shows that it is an error to not use a required argument
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind};
     /// let err = Command::new("myprog")
     ///     .subcommand_negates_reqs(true)
@@ -2933,6 +3020,7 @@ impl Command {
     /// valid subcommand is used.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind};
     /// let noerr = Command::new("myprog")
     ///     .subcommand_negates_reqs(true)
@@ -3017,6 +3105,7 @@ impl Command {
     /// This does not allow the subcommand to be passed as the first non-path argument.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let mut cmd = Command::new("hostname")
     ///     .multicall(true)
@@ -3044,6 +3133,7 @@ impl Command {
     /// and as subcommands of the "main" applet.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// fn applet_commands() -> [Command; 2] {
     ///     [Command::new("true"), Command::new("false")]
@@ -3087,7 +3177,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .subcommand(Command::new("sub1"))
@@ -3113,7 +3204,8 @@ impl Command {
     ///
     /// but usage of `subcommand_value_name`
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .subcommand(Command::new("sub1"))
@@ -3151,7 +3243,8 @@ impl Command {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .subcommand(Command::new("sub1"))
@@ -3177,7 +3270,8 @@ impl Command {
     ///
     /// but usage of `subcommand_help_heading`
     ///
-    /// ```no_run
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// Command::new("myprog")
     ///     .subcommand(Command::new("sub1"))
@@ -3693,6 +3787,7 @@ impl Command {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// let cmd = clap::Command::new("raw")
     ///     .external_subcommand_value_parser(clap::value_parser!(String));
     /// let value_parser = cmd.get_external_subcommand_value_parser();

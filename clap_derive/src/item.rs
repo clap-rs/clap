@@ -565,7 +565,7 @@ impl Item {
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<String> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: clap::__derive_refs::once_cell::sync::Lazy<String> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             });
@@ -574,7 +574,7 @@ impl Item {
                         })
                     } else {
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<String> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: clap::__derive_refs::once_cell::sync::Lazy<String> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 ::std::string::ToString::to_string(&val)
                             });
@@ -633,11 +633,11 @@ impl Item {
                                         })
                                 }
 
-                                static DEFAULT_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_STRINGS: clap::__derive_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: clap::__derive_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_STRINGS.iter().map(::std::string::String::as_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
@@ -653,11 +653,11 @@ impl Item {
                                     iterable.into_iter().map(|val| val.borrow().to_string())
                                 }
 
-                                static DEFAULT_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_STRINGS: clap::__derive_refs::once_cell::sync::Lazy<Vec<::std::string::String>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: clap::__derive_refs::once_cell::sync::Lazy<Vec<&str>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_STRINGS.iter().map(::std::string::String::as_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
@@ -697,7 +697,7 @@ impl Item {
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: clap::__derive_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 clap::ValueEnum::to_possible_value(&val).unwrap().get_name().to_owned()
                             });
@@ -706,7 +706,7 @@ impl Item {
                         })
                     } else {
                         quote_spanned!(attr.name.clone().span()=> {
-                            static DEFAULT_VALUE: clap::__macro_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                            static DEFAULT_VALUE: clap::__derive_refs::once_cell::sync::Lazy<::std::ffi::OsString> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                 let val: #ty = #val;
                                 ::std::ffi::OsString::from(val)
                             });
@@ -765,11 +765,11 @@ impl Item {
                                         })
                                 }
 
-                                static DEFAULT_OS_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_OS_STRINGS: clap::__derive_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: clap::__derive_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_OS_STRINGS.iter().map(::std::ffi::OsString::as_os_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()
@@ -785,11 +785,11 @@ impl Item {
                                     iterable.into_iter().map(|val| val.borrow().into())
                                 }
 
-                                static DEFAULT_OS_STRINGS: clap::__macro_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_OS_STRINGS: clap::__derive_refs::once_cell::sync::Lazy<Vec<::std::ffi::OsString>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     iter_to_vals(#expr).collect()
                                 });
 
-                                static DEFAULT_VALUES: clap::__macro_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__macro_refs::once_cell::sync::Lazy::new(|| {
+                                static DEFAULT_VALUES: clap::__derive_refs::once_cell::sync::Lazy<Vec<&::std::ffi::OsStr>> = clap::__derive_refs::once_cell::sync::Lazy::new(|| {
                                     DEFAULT_OS_STRINGS.iter().map(::std::ffi::OsString::as_os_str).collect()
                                 });
                                 DEFAULT_VALUES.iter().copied()

@@ -4,6 +4,7 @@
 ///
 /// ```rust
 /// # #[cfg(feature = "help")] {
+/// # use clap_builder as clap;
 /// # use clap::Command;
 /// # use clap::Arg;
 /// let cmd = Command::new("mycmd")
@@ -35,6 +36,7 @@ pub enum ArgAction {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -57,6 +59,7 @@ pub enum ArgAction {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -88,6 +91,7 @@ pub enum ArgAction {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -115,6 +119,7 @@ pub enum ArgAction {
     /// You can use [`TypedValueParser::map`][crate::builder::TypedValueParser::map] to have the
     /// flag control an application-specific type:
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// # use clap::builder::TypedValueParser as _;
@@ -161,6 +166,7 @@ pub enum ArgAction {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -195,6 +201,7 @@ pub enum ArgAction {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -227,6 +234,7 @@ pub enum ArgAction {
     ///
     /// ```rust
     /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -253,6 +261,7 @@ pub enum ArgAction {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")

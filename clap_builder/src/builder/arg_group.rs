@@ -35,6 +35,7 @@ use crate::util::Id;
 /// the arguments from the specified group is present at runtime.
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, arg, ArgGroup, error::ErrorKind};
 /// let result = Command::new("cmd")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually"))
@@ -53,6 +54,7 @@ use crate::util::Id;
 ///
 /// This next example shows a passing parse of the same scenario
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, arg, ArgGroup, Id};
 /// let result = Command::new("cmd")
 ///     .arg(arg!(--"set-ver" <ver> "set the version manually"))
@@ -102,6 +104,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, ArgGroup};
     /// ArgGroup::new("config")
     /// # ;
@@ -115,6 +118,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, ArgGroup};
     /// ArgGroup::default().id("config")
     /// # ;
@@ -130,6 +134,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -163,6 +168,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -193,6 +199,7 @@ impl ArgGroup {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{ArgGroup};
     /// let args: Vec<&str> = vec!["a1".into(), "a4".into()];
     /// let grp = ArgGroup::new("program").args(&args);
@@ -213,6 +220,7 @@ impl ArgGroup {
     /// group
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -232,6 +240,7 @@ impl ArgGroup {
     /// an error if more than one of the args in the group was used.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -263,6 +272,7 @@ impl ArgGroup {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{ArgGroup};
     /// let mut group = ArgGroup::new("myprog")
     ///     .args(["f", "c"])
@@ -290,6 +300,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -329,6 +340,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -373,6 +385,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -418,6 +431,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")
@@ -459,6 +473,7 @@ impl ArgGroup {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgGroup, error::ErrorKind, ArgAction};
     /// let result = Command::new("myprog")
     ///     .arg(Arg::new("flag")

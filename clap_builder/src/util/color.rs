@@ -16,6 +16,7 @@ pub enum ColorChoice {
     ///
     /// ```rust
     /// # #[cfg(feature = "color")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Auto)
@@ -34,6 +35,7 @@ pub enum ColorChoice {
     ///
     /// ```rust
     /// # #[cfg(feature = "color")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Always)
@@ -52,6 +54,7 @@ pub enum ColorChoice {
     ///
     /// ```rust
     /// # #[cfg(feature = "color")] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, ColorChoice};
     /// Command::new("myprog")
     ///     .color(ColorChoice::Never)

@@ -96,7 +96,7 @@ fn skip_group_avoids_duplicate_ids() {
 #[should_panic = "\
 Command clap: Argument group name must be unique
 
-\t'Compose' is already in use (note: `Args` implicitly creates `ArgGroup`s; disable with `#[group(skip)]`"]
+\t'Compose' is already in use"]
 fn helpful_panic_on_duplicate_groups() {
     #[derive(Parser, Debug)]
     struct Opt {

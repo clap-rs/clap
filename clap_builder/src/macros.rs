@@ -4,14 +4,12 @@
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # use clap_builder as clap;
+/// # use clap::crate_version;
 /// # use clap::Command;
-/// # fn main() {
 /// let m = Command::new("cmd")
 ///             .version(crate_version!())
 ///             .get_matches();
-/// # }
 /// ```
 #[cfg(feature = "cargo")]
 #[macro_export]
@@ -33,14 +31,12 @@ macro_rules! crate_version {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # use clap_builder as clap;
+/// # use clap::crate_authors;
 /// # use clap::Command;
-/// # fn main() {
 /// let m = Command::new("cmd")
 ///             .author(crate_authors!("\n"))
 ///             .get_matches();
-/// # }
 /// ```
 #[cfg(feature = "cargo")]
 #[macro_export]
@@ -66,14 +62,12 @@ macro_rules! crate_authors {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # use clap_builder as clap;
+/// # use clap::crate_description;
 /// # use clap::Command;
-/// # fn main() {
 /// let m = Command::new("cmd")
 ///             .about(crate_description!())
 ///             .get_matches();
-/// # }
 /// ```
 #[cfg(feature = "cargo")]
 #[macro_export]
@@ -94,13 +88,11 @@ macro_rules! crate_description {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # use clap_builder as clap;
+/// # use clap::crate_name;
 /// # use clap::Command;
-/// # fn main() {
 /// let m = Command::new(crate_name!())
 ///             .get_matches();
-/// # }
 /// ```
 #[cfg(feature = "cargo")]
 #[macro_export]
@@ -122,11 +114,9 @@ macro_rules! crate_name {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # fn main() {
+/// # use clap_builder as clap;
+/// # use clap::command;
 /// let m = command!().get_matches();
-/// # }
 /// ```
 #[cfg(feature = "cargo")]
 #[macro_export]
@@ -508,6 +498,7 @@ macro_rules! arg_impl {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, Arg, arg};
 /// let cmd = Command::new("prog")
 ///     .args(&[

@@ -1,5 +1,5 @@
 //! This module contains traits that are usable with the `#[derive(...)].`
-//! macros in [`clap_derive`].
+//! macros in `clap_derive`.
 
 use crate::builder::PossibleValue;
 use crate::{ArgMatches, Command, Error};
@@ -20,63 +20,7 @@ use std::ffi::OsString;
 ///
 /// See also [`Subcommand`] and [`Args`].
 ///
-/// See the [derive reference](crate::_derive) for attributes and best practices.
-///
-/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
-///
-/// # Examples
-///
-/// The following example creates a `Context` struct that would be used
-/// throughout the application representing the normalized values coming from
-/// the CLI.
-///
-/// ```rust
-/// # #[cfg(feature = "derive")] {
-/// /// My super CLI
-/// #[derive(clap::Parser)]
-/// #[command(name = "demo")]
-/// struct Context {
-///     /// More verbose output
-///     #[arg(long)]
-///     verbose: bool,
-///     /// An optional name
-///     #[arg(short, long)]
-///     name: Option<String>,
-/// }
-/// # }
-/// ```
-///
-/// The equivalent [`Command`] struct + `From` implementation:
-///
-/// ```rust
-/// # use clap::{Command, Arg, ArgMatches, ArgAction};
-/// Command::new("demo")
-///     .about("My super CLI")
-///     .arg(Arg::new("verbose")
-///         .long("verbose")
-///         .action(ArgAction::SetTrue)
-///         .help("More verbose output"))
-///     .arg(Arg::new("name")
-///         .long("name")
-///         .short('n')
-///         .help("An optional name")
-///         .action(ArgAction::Set));
-///
-/// struct Context {
-///     verbose: bool,
-///     name: Option<String>,
-/// }
-///
-/// impl From<ArgMatches> for Context {
-///     fn from(m: ArgMatches) -> Self {
-///         Context {
-///             verbose: m.get_flag("verbose"),
-///             name: m.get_one::<String>("name").cloned(),
-///         }
-///     }
-/// }
-/// ```
-///
+/// **NOTE:** Deriving requires the `derive` feature flag
 pub trait Parser: FromArgMatches + CommandFactory + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
@@ -266,27 +210,7 @@ pub trait FromArgMatches: Sized {
 ///   `Args`.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
-/// See the [derive reference](crate::_derive) for attributes and best practices.
-///
-/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
-///
-/// # Example
-///
-/// ```rust
-/// # #[cfg(feature = "derive")] {
-/// #[derive(clap::Parser)]
-/// struct Args {
-///     #[command(flatten)]
-///     logging: LogArgs,
-/// }
-///
-/// #[derive(clap::Args)]
-/// struct LogArgs {
-///     #[arg(long, short = 'v', action = clap::ArgAction::Count)]
-///     verbose: u8,
-/// }
-/// # }
-/// ```
+/// **NOTE:** Deriving requires the `derive` feature flag
 pub trait Args: FromArgMatches + Sized {
     /// Report the [`ArgGroup::id`][crate::ArgGroup::id] for this set of arguments
     fn group_id() -> Option<crate::Id> {
@@ -313,27 +237,7 @@ pub trait Args: FromArgMatches + Sized {
 /// - `#[command(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
 ///   `Subcommand`.
 ///
-/// See the [derive reference](crate::_derive) for attributes and best practices.
-///
-/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
-///
-/// # Example
-///
-/// ```rust
-/// # #[cfg(feature = "derive")] {
-/// #[derive(clap::Parser)]
-/// struct Args {
-///     #[command(subcommand)]
-///     action: Action,
-/// }
-///
-/// #[derive(clap::Subcommand)]
-/// enum Action {
-///     Add,
-///     Remove,
-/// }
-/// # }
-/// ```
+/// **NOTE:** Deriving requires the `derive` feature flag
 pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
@@ -356,29 +260,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// - Call [`EnumValueParser`][crate::builder::EnumValueParser]
 /// - Allowing using the `#[arg(default_value_t)]` attribute without implementing `Display`.
 ///
-/// See the [derive reference](crate::_derive) for attributes and best practices.
-///
-/// **NOTE:** Deriving requires the [`derive` feature flag][crate::_features]
-///
-/// # Example
-///
-/// ```rust
-/// # #[cfg(feature = "derive")] {
-/// #[derive(clap::Parser)]
-/// struct Args {
-///     #[arg(value_enum)]
-///     level: Level,
-/// }
-///
-/// #[derive(clap::ValueEnum, Clone)]
-/// enum Level {
-///     Debug,
-///     Info,
-///     Warning,
-///     Error,
-/// }
-/// # }
-/// ```
+/// **NOTE:** Deriving requires the `derive` feature flag
 pub trait ValueEnum: Sized + Clone {
     /// All possible argument values, in display order.
     fn value_variants<'a>() -> &'a [Self];

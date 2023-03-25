@@ -26,6 +26,7 @@ use crate::INTERNAL_ERROR_MSG;
 /// # Examples
 ///
 /// ```no_run
+/// # use clap_builder as clap;
 /// # use clap::{Command, Arg, ArgAction};
 /// # use clap::parser::ValueSource;
 /// let matches = Command::new("MyApp")
@@ -93,6 +94,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("port")
@@ -122,6 +124,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -156,6 +159,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -200,6 +204,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("ports")
@@ -241,6 +246,7 @@ impl ArgMatches {
     ///
     /// # Examples
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command,Arg, ArgAction, value_parser};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("x")
@@ -278,6 +284,7 @@ impl ArgMatches {
     ///
     /// ```rust
     /// # #[cfg(unix)] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, value_parser};
     /// # use std::ffi::{OsStr,OsString};
     /// # use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -327,6 +334,7 @@ impl ArgMatches {
     ///
     /// ```rust
     /// # #[cfg(unix)] {
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, value_parser, ArgAction, Arg};
     /// # use std::ffi::{OsStr,OsString};
     /// # use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -381,6 +389,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let mut m = Command::new("myprog")
     ///     .arg(Arg::new("file")
@@ -416,6 +425,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let mut m = Command::new("myprog")
     ///     .arg(Arg::new("file")
@@ -456,6 +466,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, value_parser, ArgAction};
     /// let mut m = Command::new("myprog")
     ///     .arg(Arg::new("x")
@@ -489,6 +500,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
@@ -510,7 +522,8 @@ impl ArgMatches {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, arg, value_parser};
     ///
     /// let m = Command::new("myprog")
@@ -538,6 +551,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let mut cmd = Command::new("myapp")
     ///     .arg(Arg::new("output")
@@ -576,6 +590,7 @@ impl ArgMatches {
     ///
     /// # Examples
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command,Arg, ArgAction};
     /// let m = Command::new("myprog")
     ///     .arg(Arg::new("exec")
@@ -614,6 +629,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// # use clap::parser::ValueSource;
     /// let m = Command::new("myprog")
@@ -664,6 +680,7 @@ impl ArgMatches {
     /// in an `ArgMatches` struct for querying.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
@@ -683,6 +700,7 @@ impl ArgMatches {
     /// Now notice, if we use one of the other styles of options:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
@@ -703,6 +721,7 @@ impl ArgMatches {
     /// flags. Let's also throw in the final option style for good measure.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
@@ -732,6 +751,7 @@ impl ArgMatches {
     /// One final combination of flags/options to see how they combine:
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("flag")
@@ -761,6 +781,7 @@ impl ArgMatches {
     /// The last part to mention is when values are sent in multiple groups with a [delimiter].
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
@@ -803,6 +824,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
@@ -820,6 +842,7 @@ impl ArgMatches {
     /// Another quick example is when flags and options are used together
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
@@ -843,6 +866,7 @@ impl ArgMatches {
     /// index.
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("myapp")
     ///     .arg(Arg::new("option")
@@ -881,6 +905,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     ///  let app_m = Command::new("git")
     ///      .subcommand(Command::new("clone"))
@@ -901,6 +926,7 @@ impl ArgMatches {
     /// with pattern matching!
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::ffi::OsString;
     /// # use std::ffi::OsStr;
     /// # use clap::Command;
@@ -938,6 +964,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     ///  let mut app_m = Command::new("git")
     ///      .subcommand(Command::new("clone"))
@@ -960,6 +987,7 @@ impl ArgMatches {
     /// with pattern matching!
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use std::ffi::OsString;
     /// # use clap::Command;
     /// // Assume there is an external subcommand named "subcmd"
@@ -1000,6 +1028,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let app_m = Command::new("myprog")
     ///     .arg(Arg::new("debug")
@@ -1037,6 +1066,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```no_run
+    /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, };
     ///  let app_m = Command::new("git")
     ///      .subcommand(Command::new("clone"))
@@ -1353,7 +1383,8 @@ pub(crate) struct SubCommand {
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, arg, value_parser};
 ///
 /// let m = Command::new("myprog")
@@ -1398,6 +1429,7 @@ impl<'a> ExactSizeIterator for IdsRef<'a> {}
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, Arg, ArgAction};
 /// let mut m = Command::new("myapp")
 ///     .arg(Arg::new("output")
@@ -1454,6 +1486,7 @@ impl<T> Default for Values<T> {
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, Arg, ArgAction};
 /// let m = Command::new("myapp")
 ///     .arg(Arg::new("output")
@@ -1512,6 +1545,7 @@ impl<'a, T: 'a> Default for ValuesRef<'a, T> {
 ///
 /// ```rust
 /// # #[cfg(unix)] {
+/// # use clap_builder as clap;
 /// # use clap::{Command, arg, value_parser};
 /// use std::ffi::OsString;
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -1820,6 +1854,7 @@ impl<'a> ExactSizeIterator for RawOccurrenceValues<'a> {}
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Command, Arg, ArgAction};
 /// let m = Command::new("myapp")
 ///     .arg(Arg::new("output")

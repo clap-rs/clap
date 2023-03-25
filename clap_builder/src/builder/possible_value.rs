@@ -16,6 +16,7 @@ use crate::util::eq_ignore_case;
 /// # Examples
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::{Arg, builder::PossibleValue, ArgAction};
 /// let cfg = Arg::new("config")
 ///     .action(ArgAction::Set)
@@ -50,6 +51,7 @@ impl PossibleValue {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("fast")
     /// # ;
@@ -72,6 +74,7 @@ impl PossibleValue {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("slow")
     ///     .help("not fast")
@@ -92,6 +95,7 @@ impl PossibleValue {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("secret")
     ///     .hide(true)
@@ -110,6 +114,7 @@ impl PossibleValue {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("slow")
     ///     .alias("not-fast")
@@ -130,6 +135,7 @@ impl PossibleValue {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::PossibleValue;
     /// PossibleValue::new("slow")
     ///     .aliases(["not-fast", "snake-like"])
@@ -208,6 +214,7 @@ impl PossibleValue {
     /// # Examples
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::PossibleValue;
     /// let arg_value = PossibleValue::new("fast").alias("not-slow");
     ///

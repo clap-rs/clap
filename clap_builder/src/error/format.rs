@@ -22,7 +22,7 @@ pub trait ErrorFormatter: Sized {
 ///
 /// No context is included.
 ///
-/// **NOTE:** Consider removing the [`error-context`][crate::_features] default feature if using this to remove all
+/// **NOTE:** Consider removing the `error-context` default feature if using this to remove all
 /// overhead for [`RichFormatter`].
 #[non_exhaustive]
 pub struct KindFormatter;

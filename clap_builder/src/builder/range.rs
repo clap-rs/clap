@@ -26,7 +26,8 @@ impl ValueRange {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::ValueRange;
     /// let range = ValueRange::new(5);
     /// let range = ValueRange::new(5..10);
@@ -38,6 +39,7 @@ impl ValueRange {
     ///
     /// While this will panic:
     /// ```should_panic
+    /// # use clap_builder as clap;
     /// # use clap::builder::ValueRange;
     /// let range = ValueRange::new(10..5);  // Panics!
     /// ```
@@ -67,7 +69,8 @@ impl ValueRange {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::builder::ValueRange;
     /// let range = ValueRange::new(5);
     /// assert!(range.takes_values());
