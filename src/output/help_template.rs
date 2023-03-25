@@ -234,6 +234,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     }
 
     /// Writes binary name of a Parser Object to the wrapped stream.
+    #[cfg(not(feature = "unstable-v5"))]
     fn write_bin_name(&mut self) {
         debug!("HelpTemplate::write_bin_name");
 
