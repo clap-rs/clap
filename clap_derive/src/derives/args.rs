@@ -14,7 +14,6 @@
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
-use syn::ext::IdentExt;
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
     Fields, Generics,
@@ -89,7 +88,7 @@ pub fn gen_for_struct(
     let group_id = if item.skip_group() {
         quote!(None)
     } else {
-        let group_id = item.ident().unraw().to_string();
+        let group_id = item.group_id();
         quote!(Some(clap::Id::from(#group_id)))
     };
 
@@ -368,7 +367,7 @@ pub fn gen_augment(
     let group_app_methods = if parent_item.skip_group() {
         quote!()
     } else {
-        let group_id = parent_item.ident().unraw().to_string();
+        let group_id = parent_item.group_id();
         let literal_group_members = fields
             .iter()
             .filter_map(|(_field, item)| {
@@ -401,10 +400,13 @@ pub fn gen_augment(
             }};
         }
 
+        let group_methods = parent_item.group_methods();
+
         quote!(
             .group(
                 clap::ArgGroup::new(#group_id)
                     .multiple(true)
+                    #group_methods
                     .args(#literal_group_members)
             )
         )

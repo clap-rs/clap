@@ -194,7 +194,14 @@
 //! These correspond to the [`ArgGroup`][crate::ArgGroup] which is implicitly created for each
 //! `Args` derive.
 //!
-//! At the moment, only `#[group(skip)]` is supported
+//! **Raw attributes:**  Any [`ArgGroup` method][crate::ArgGroup] can also be used as an attribute, see [Terminology](#terminology) for syntax.
+//! - e.g. `#[group(required = true)]` would translate to `arg_group.required(true)`
+//!
+//! **Magic attributes**:
+//! - `id = <expr>`: [`ArgGroup::id`][crate::ArgGroup::id]
+//!   - When not present: struct's name is used
+//! - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
+//!   - Without `<expr>`: fills the field with `Default::default()`
 //!
 //! ### Arg Attributes
 //!
@@ -205,7 +212,7 @@
 //!
 //! **Magic attributes**:
 //! - `id = <expr>`: [`Arg::id`][crate::Arg::id]
-//!   - When not present: case-converted field name is used
+//!   - When not present: field's name is used
 //! - `value_parser [= <expr>]`: [`Arg::value_parser`][crate::Arg::value_parser]
 //!   - When not present: will auto-select an implementation based on the field type using
 //!     [`value_parser!`][crate::value_parser!]
