@@ -106,8 +106,8 @@ impl<F: ErrorFormatter> Error<F> {
     ///
     /// # Example
     ///
-    #[cfg_attr(not(feature = "error-context"), doc = " ```ignore")]
-    #[cfg_attr(feature = "error-context", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "error-context")] {
     /// # use clap::error::ErrorKind;
     /// # use clap::error::ContextKind;
     /// # use clap::error::ContextValue;
@@ -120,6 +120,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// err.insert(ContextKind::InvalidValue, ContextValue::String("bar".to_owned()));
     ///
     /// err.print();
+    /// # }
     /// ```
     pub fn new(kind: ErrorKind) -> Self {
         Self {

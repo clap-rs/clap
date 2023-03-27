@@ -30,8 +30,8 @@ use std::ffi::OsString;
 /// throughout the application representing the normalized values coming from
 /// the CLI.
 ///
-#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-#[cfg_attr(feature = "derive", doc = " ```")]
+/// ```rust
+/// # #[cfg(feature = "derive")] {
 /// /// My super CLI
 /// #[derive(clap::Parser)]
 /// #[command(name = "demo")]
@@ -43,6 +43,7 @@ use std::ffi::OsString;
 ///     #[arg(short, long)]
 ///     name: Option<String>,
 /// }
+/// # }
 /// ```
 ///
 /// The equivalent [`Command`] struct + `From` implementation:
@@ -179,19 +180,20 @@ pub trait FromArgMatches: Sized {
     /// Motivation: If our application had two CLI options, `--name
     /// <STRING>` and the flag `--debug`, we may create a struct as follows:
     ///
-    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-    #[cfg_attr(feature = "derive", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "derive")] {
     /// struct Context {
     ///     name: String,
     ///     debug: bool
     /// }
+    /// # }
     /// ```
     ///
     /// We then need to convert the `ArgMatches` that `clap` generated into our struct.
     /// `from_arg_matches` serves as the equivalent of:
     ///
-    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-    #[cfg_attr(feature = "derive", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "derive")] {
     /// # use clap::ArgMatches;
     /// # struct Context {
     /// #   name: String,
@@ -205,6 +207,7 @@ pub trait FromArgMatches: Sized {
     ///        }
     ///    }
     /// }
+    /// # }
     /// ```
     fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error>;
 
@@ -213,19 +216,20 @@ pub trait FromArgMatches: Sized {
     /// Motivation: If our application had two CLI options, `--name
     /// <STRING>` and the flag `--debug`, we may create a struct as follows:
     ///
-    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-    #[cfg_attr(feature = "derive", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "derive")] {
     /// struct Context {
     ///     name: String,
     ///     debug: bool
     /// }
+    /// # }
     /// ```
     ///
     /// We then need to convert the `ArgMatches` that `clap` generated into our struct.
     /// `from_arg_matches_mut` serves as the equivalent of:
     ///
-    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-    #[cfg_attr(feature = "derive", doc = " ```no_run")]
+    /// ```rust
+    /// # #[cfg(feature = "derive")] {
     /// # use clap::ArgMatches;
     /// # struct Context {
     /// #   name: String,
@@ -239,6 +243,7 @@ pub trait FromArgMatches: Sized {
     ///        }
     ///    }
     /// }
+    /// # }
     /// ```
     fn from_arg_matches_mut(matches: &mut ArgMatches) -> Result<Self, Error> {
         Self::from_arg_matches(matches)
@@ -267,8 +272,8 @@ pub trait FromArgMatches: Sized {
 ///
 /// # Example
 ///
-#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-#[cfg_attr(feature = "derive", doc = " ```")]
+/// ```rust
+/// # #[cfg(feature = "derive")] {
 /// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[command(flatten)]
@@ -280,6 +285,7 @@ pub trait FromArgMatches: Sized {
 ///     #[arg(long, short = 'v', action = clap::ArgAction::Count)]
 ///     verbose: u8,
 /// }
+/// # }
 /// ```
 pub trait Args: FromArgMatches + Sized {
     /// Report the [`ArgGroup::id`][crate::ArgGroup::id] for this set of arguments
@@ -313,8 +319,8 @@ pub trait Args: FromArgMatches + Sized {
 ///
 /// # Example
 ///
-#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-#[cfg_attr(feature = "derive", doc = " ```")]
+/// ```rust
+/// # #[cfg(feature = "derive")] {
 /// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[command(subcommand)]
@@ -326,6 +332,7 @@ pub trait Args: FromArgMatches + Sized {
 ///     Add,
 ///     Remove,
 /// }
+/// # }
 /// ```
 pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
@@ -355,8 +362,8 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///
 /// # Example
 ///
-#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
-#[cfg_attr(feature = "derive", doc = " ```")]
+/// ```rust
+/// # #[cfg(feature = "derive")] {
 /// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[arg(value_enum)]
@@ -370,6 +377,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///     Warning,
 ///     Error,
 /// }
+/// # }
 /// ```
 pub trait ValueEnum: Sized + Clone {
     /// All possible argument values, in display order.

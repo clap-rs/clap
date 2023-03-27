@@ -217,7 +217,7 @@ where
 ///
 /// Usage:
 ///
-/// ```shell
+/// ```console
 /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
 /// ```
 pub fn generate<G, S>(gen: G, cmd: &mut clap::Command, bin_name: S, buf: &mut dyn Write)

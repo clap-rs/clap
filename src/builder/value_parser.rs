@@ -166,8 +166,8 @@ impl ValueParser {
     ///
     /// # Example
     ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```rust")]
+    /// ```rust
+    /// # #[cfg(unix)] {
     /// # use clap::{Command, Arg, builder::ValueParser};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
@@ -187,6 +187,7 @@ impl ValueParser {
     /// let arg: &OsString = m.get_one("arg")
     ///     .expect("required");
     /// assert_eq!(arg.as_bytes(), &[0xe9]);
+    /// # }
     /// ```
     pub const fn os_string() -> Self {
         Self(ValueParserInner::OsString)
@@ -644,8 +645,8 @@ where
 ///
 /// # Example
 ///
-#[cfg_attr(not(feature = "error-context"), doc = " ```ignore")]
-#[cfg_attr(feature = "error-context", doc = " ```")]
+/// ```rust
+/// # #[cfg(feature = "error-context")] {
 /// # use clap::error::ErrorKind;
 /// # use clap::error::ContextKind;
 /// # use clap::error::ContextValue;
@@ -681,6 +682,7 @@ where
 ///         Ok(Custom(val))
 ///     }
 /// }
+/// # }
 /// ```
 pub trait TypedValueParser: Clone + Send + Sync + 'static {
     /// Argument's value type

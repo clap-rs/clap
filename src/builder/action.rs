@@ -2,8 +2,8 @@
 ///
 /// # Examples
 ///
-#[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-#[cfg_attr(feature = "help", doc = " ```")]
+/// ```rust
+/// # #[cfg(feature = "help")] {
 /// # use clap::Command;
 /// # use clap::Arg;
 /// let cmd = Command::new("mycmd")
@@ -20,6 +20,7 @@
 /// // New help available
 /// let err = cmd.try_get_matches_from(["mycmd", "-?"]).unwrap_err();
 /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+/// # }
 /// ```
 #[derive(Clone, Debug)]
 #[non_exhaustive]
@@ -224,8 +225,8 @@ pub enum ArgAction {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::Command;
     /// # use clap::Arg;
     /// let cmd = Command::new("mycmd")
@@ -242,6 +243,7 @@ pub enum ArgAction {
     /// // New help available
     /// let err = cmd.try_get_matches_from(["mycmd", "-?"]).unwrap_err();
     /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+    /// # }
     /// ```
     Help,
     /// When encountered, display [`Command::version`][super::Command::version]

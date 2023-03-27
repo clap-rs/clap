@@ -1125,8 +1125,8 @@ impl Arg {
     /// # ;
     /// ```
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("config")
@@ -1136,6 +1136,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     /// Running the above program produces the following output
     ///
@@ -1187,8 +1188,8 @@ impl Arg {
     ///     .value_names(["fast", "slow"]);
     /// ```
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("io")
@@ -1197,6 +1198,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// Running the above program produces the following output
@@ -2013,8 +2015,8 @@ impl Arg {
     /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2023,6 +2025,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays
@@ -2063,8 +2066,8 @@ impl Arg {
     /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2077,6 +2080,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays
@@ -2121,8 +2125,8 @@ impl Arg {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("a") // Typically args are grouped alphabetically by name.
@@ -2144,6 +2148,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays the following help message
@@ -2188,8 +2193,8 @@ impl Arg {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("opt")
@@ -2204,6 +2209,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays the following help message
@@ -2239,8 +2245,8 @@ impl Arg {
     ///
     /// Setting `Hidden` will hide the argument when displaying help text
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2250,6 +2256,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays
@@ -2413,8 +2420,8 @@ impl Arg {
     ///
     /// Setting `hide_short_help(true)` will hide the argument when displaying short help text
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2424,6 +2431,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "-h"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays
@@ -2440,8 +2448,8 @@ impl Arg {
     ///
     /// However, when --help is called
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2451,6 +2459,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// Then the following would be displayed
@@ -2486,8 +2495,8 @@ impl Arg {
     ///
     /// Setting `hide_long_help(true)` will hide the argument when displaying long help text
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2497,6 +2506,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// The above example displays
@@ -2513,8 +2523,8 @@ impl Arg {
     ///
     /// However, when -h is called
     ///
-    #[cfg_attr(not(feature = "help"), doc = " ```ignore")]
-    #[cfg_attr(feature = "help", doc = " ```")]
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
     /// # use clap::{Command, Arg};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -2524,6 +2534,7 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "-h"
     ///     ]);
+    /// # }
     /// ```
     ///
     /// Then the following would be displayed

@@ -1,16 +1,16 @@
 //! Example to test arguments with different ValueHint values.
 //!
 //! Usage with zsh:
-//! ```sh
-//! cargo run --example completion -- --generate=zsh > /usr/local/share/zsh/site-functions/_completion
-//! compinit
-//! ./target/debug/examples/completion --<TAB>
+//! ```console
+//! $ cargo run --example completion -- --generate=zsh > /usr/local/share/zsh/site-functions/_completion$
+//! $ compinit
+//! $ ./target/debug/examples/completion --<TAB>
 //! ```
 //! fish:
-//! ```sh
-//! cargo run --example completion -- --generate=fish > completion.fish
-//! . ./completion.fish
-//! ./target/debug/examples/completion --<TAB>
+//! ```console
+//! $ cargo run --example completion -- --generate=fish > completion.fish
+//! $ . ./completion.fish
+//! $ ./target/debug/examples/completion --<TAB>
 //! ```
 use clap::{value_parser, Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
