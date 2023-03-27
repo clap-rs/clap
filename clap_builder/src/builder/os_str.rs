@@ -2,8 +2,8 @@ use crate::builder::Str;
 
 /// A UTF-8-encoded fixed string
 ///
-/// **NOTE:** To support dynamic values (i.e. `OsString`), enable the [`string`
-/// feature][crate::_features]
+/// **NOTE:** To support dynamic values (i.e. `OsString`), enable the `string`
+/// feature
 #[derive(Default, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct OsStr {
     name: Inner,

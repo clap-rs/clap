@@ -177,9 +177,34 @@ dependencies = [
 name = "clap"
 version = "4.1.13"
 dependencies = [
+ "clap_builder",
+ "clap_derive",
+ "humantime",
+ "once_cell",
+ "rustversion",
+ "shlex",
+ "snapbox",
+ "static_assertions",
+ "trybuild",
+ "trycmd",
+ "unic-emoji-char",
+]
+
+[[package]]
+name = "clap_bench"
+version = "0.0.0"
+dependencies = [
+ "clap 4.1.13",
+ "criterion",
+ "lazy_static",
+]
+
+[[package]]
+name = "clap_builder"
+version = "4.1.13"
+dependencies = [
  "backtrace",
  "bitflags",
- "clap_derive",
  "clap_lex 0.3.3",
  "humantime",
  "is-terminal",
@@ -196,15 +221,6 @@ dependencies = [
  "unic-emoji-char",
  "unicase",
  "unicode-width",
-]
-
-[[package]]
-name = "clap_bench"
-version = "0.0.0"
-dependencies = [
- "clap 4.1.13",
- "criterion",
- "lazy_static",
 ]
 
 [[package]]

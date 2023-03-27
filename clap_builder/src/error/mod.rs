@@ -108,6 +108,7 @@ impl<F: ErrorFormatter> Error<F> {
     ///
     /// ```rust
     /// # #[cfg(feature = "error-context")] {
+    /// # use clap_builder as clap;
     /// # use clap::error::ErrorKind;
     /// # use clap::error::ContextKind;
     /// # use clap::error::ContextValue;
@@ -153,6 +154,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// # Example
     ///
     /// ```rust
+    /// # use clap_builder as clap;
     /// # use clap::Command;
     /// # use clap::Arg;
     /// # use clap::error::KindFormatter;
@@ -229,6 +231,7 @@ impl<F: ErrorFormatter> Error<F> {
     ///
     /// # Example
     /// ```no_run
+    /// # use clap_builder as clap;
     /// use clap::Command;
     ///
     /// match Command::new("Command").try_get_matches() {
@@ -259,6 +262,7 @@ impl<F: ErrorFormatter> Error<F> {
     ///
     /// # Example
     /// ```no_run
+    /// # use clap_builder as clap;
     /// use clap::Command;
     ///
     /// match Command::new("Command").try_get_matches() {

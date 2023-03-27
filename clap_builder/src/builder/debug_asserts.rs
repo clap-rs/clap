@@ -274,28 +274,20 @@ pub(crate) fn assert_app(cmd: &Command) {
     }
 
     for group in cmd.get_groups() {
-        let derive_hint = if cfg!(feature = "derive") {
-            " (note: `Args` implicitly creates `ArgGroup`s; disable with `#[group(skip)]`"
-        } else {
-            ""
-        };
-
         // Name conflicts
         assert!(
             cmd.get_groups().filter(|x| x.id == group.id).count() < 2,
-            "Command {}: Argument group name must be unique\n\n\t'{}' is already in use{}",
+            "Command {}: Argument group name must be unique\n\n\t'{}' is already in use",
             cmd.get_name(),
             group.get_id(),
-            derive_hint
         );
 
         // Groups should not have naming conflicts with Args
         assert!(
             !cmd.get_arguments().any(|x| x.get_id() == group.get_id()),
-            "Command {}: Argument group name '{}' must not conflict with argument name{}",
+            "Command {}: Argument group name '{}' must not conflict with argument name",
             cmd.get_name(),
             group.get_id(),
-            derive_hint
         );
 
         for arg in &group.args {

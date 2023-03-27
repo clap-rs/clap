@@ -19,6 +19,7 @@ use crate::builder::ValueRange;
 /// # Example
 ///
 /// ```rust
+/// # use clap_builder as clap;
 /// # use clap::Command;
 /// # use clap::Arg;
 /// fn common() -> Command {

@@ -95,26 +95,7 @@
 // Breaks up parallelism that clarifies intent
 #![allow(clippy::collapsible_else_if)]
 
-#[cfg(not(feature = "std"))]
-compile_error!("`std` feature is currently required to build `clap`");
-
-pub use crate::builder::ArgAction;
-pub use crate::builder::Command;
-pub use crate::builder::ValueHint;
-pub use crate::builder::{Arg, ArgGroup};
-pub use crate::parser::ArgMatches;
-pub use crate::util::color::ColorChoice;
-pub use crate::util::Id;
-
-/// Command Line Argument Parser Error
-///
-/// See [`Command::error`] to create an error.
-///
-/// [`Command::error`]: crate::Command::error
-pub type Error = crate::error::Error<crate::error::DefaultFormatter>;
-
-pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
-
+pub use clap_builder::*;
 #[cfg(feature = "derive")]
 #[doc(hidden)]
 pub use clap_derive::{self, *};
@@ -131,25 +112,8 @@ pub mod _features;
 pub mod _tutorial;
 
 #[doc(hidden)]
-pub mod __macro_refs {
-    #[cfg(any(feature = "derive", feature = "cargo"))]
+#[cfg(feature = "derive")]
+pub mod __derive_refs {
     #[doc(hidden)]
     pub use once_cell;
 }
-
-#[macro_use]
-#[allow(missing_docs)]
-mod macros;
-
-mod derive;
-
-pub mod builder;
-pub mod error;
-pub mod parser;
-
-mod mkeymap;
-mod output;
-mod util;
-
-const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
-                                  report at https://github.com/clap-rs/clap/issues";
