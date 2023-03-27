@@ -2,15 +2,15 @@
 //!
 //! Usage with zsh:
 //! ```sh
-//! cargo run --example value_hints_derive -- --generate=zsh > /usr/local/share/zsh/site-functions/_value_hints_derive
+//! cargo run --example completion-derive -- --generate=zsh > /usr/local/share/zsh/site-functions/_completion_derive
 //! compinit
-//! ./target/debug/examples/value_hints_derive --<TAB>
+//! ./target/debug/examples/completion_derive --<TAB>
 //! ```
 //! fish:
 //! ```sh
-//! cargo run --example value_hints_derive -- --generate=fish > value_hints_derive.fish
-//! . ./value_hints_derive.fish
-//! ./target/debug/examples/value_hints_derive --<TAB>
+//! cargo run --example completion-derive -- --generate=fish > completion_derive.fish
+//! . ./completion_derive.fish
+//! ./target/debug/examples/completion_derive --<TAB>
 //! ```
 use clap::{Args, Command, CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::{generate, Generator, Shell};
