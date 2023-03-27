@@ -230,7 +230,6 @@ dependencies = [
  "clap 4.1.13",
  "clap_lex 0.3.3",
  "is_executable",
- "os_str_bytes",
  "pathdiff",
  "shlex",
  "snapbox",
@@ -269,9 +268,6 @@ dependencies = [
 [[package]]
 name = "clap_lex"
 version = "0.3.3"
-dependencies = [
- "os_str_bytes",
-]
 
 [[package]]
 name = "clap_mangen"

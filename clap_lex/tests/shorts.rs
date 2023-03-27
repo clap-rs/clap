@@ -37,7 +37,7 @@ fn next_value_os() {
     let next = raw.next(&mut cursor).unwrap();
     let mut shorts = next.to_short().unwrap();
 
-    let actual = shorts.next_value_os().unwrap().to_str_lossy();
+    let actual = shorts.next_value_os().unwrap().to_string_lossy();
 
     assert_eq!(actual, "short");
 }
@@ -51,7 +51,7 @@ fn next_flag_with_value() {
     let mut shorts = next.to_short().unwrap();
 
     assert_eq!(shorts.next_flag().unwrap().unwrap(), 's');
-    let actual = shorts.next_value_os().unwrap().to_str_lossy();
+    let actual = shorts.next_value_os().unwrap().to_string_lossy();
 
     assert_eq!(actual, "hort");
 }

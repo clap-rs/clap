@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use clap_lex::RawOsStr;
+use clap_lex::OsStrExt as _;
 
 use crate::builder::OsStr;
 use crate::builder::ValueRange;
@@ -841,16 +841,16 @@ fn assert_defaults<'d>(
     for default_os in defaults {
         let value_parser = arg.get_value_parser();
         let assert_cmd = Command::new("assert");
-        if let Some(delim) = arg.get_value_delimiter() {
-            let default_os = RawOsStr::new(default_os);
-            for part in default_os.split(delim) {
-                if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), &part.to_os_str())
-                {
+        if let Some(val_delim) = arg.get_value_delimiter() {
+            let mut val_delim_buffer = [0; 4];
+            let val_delim = val_delim.encode_utf8(&mut val_delim_buffer);
+            for part in default_os.split(val_delim) {
+                if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), part) {
                     panic!(
                         "Argument `{}`'s {}={:?} failed validation: {}",
                         arg.get_id(),
                         field,
-                        part.to_str_lossy(),
+                        part.to_string_lossy(),
                         err
                     );
                 }

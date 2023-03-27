@@ -8,6 +8,7 @@
 //!
 //! ```rust
 //! use std::path::PathBuf;
+//! use std::ffi::OsStr;
 //!
 //! type BoxedError = Box<dyn std::error::Error + Send + Sync>;
 //!
@@ -26,7 +27,7 @@
 //! }
 //!
 //! impl Color {
-//!     fn parse(s: Option<&clap_lex::RawOsStr>) -> Result<Self, BoxedError> {
+//!     fn parse(s: Option<&OsStr>) -> Result<Self, BoxedError> {
 //!         let s = s.map(|s| s.to_str().ok_or(s));
 //!         match s {
 //!             Some(Ok("always")) | Some(Ok("")) | None => {
@@ -64,13 +65,13 @@
 //!             args.paths.push(PathBuf::from("-"));
 //!         } else if let Some((long, value)) = arg.to_long() {
 //!             match long {
-//!                 Ok("verbose") => {
+//!                 "verbose" => {
 //!                     if let Some(value) = value {
 //!                         return Err(format!("`--verbose` does not take a value, got `{:?}`", value).into());
 //!                     }
 //!                     args.verbosity += 1;
 //!                 }
-//!                 Ok("color") => {
+//!                 "color" => {
 //!                     args.color = Color::parse(value)?;
 //!                 }
 //!                 _ => {
@@ -93,12 +94,12 @@
 //!                         return Err(format!("Unexpected flag: -{}", c).into());
 //!                     }
 //!                     Err(e) => {
-//!                         return Err(format!("Unexpected flag: -{}", e.to_str_lossy()).into());
+//!                         return Err(format!("Unexpected flag: -{}", e.to_string_lossy()).into());
 //!                     }
 //!                 }
 //!             }
 //!         } else {
-//!             args.paths.push(PathBuf::from(arg.to_value_os().to_os_str().into_owned()));
+//!             args.paths.push(PathBuf::from(arg.to_value_os().to_owned()));
 //!         }
 //!     }
 //!
@@ -109,13 +110,14 @@
 //! println!("{:?}", args);
 //! ```
 
+mod ext;
+
 use std::ffi::OsStr;
 use std::ffi::OsString;
 
 pub use std::io::SeekFrom;
 
-pub use os_str_bytes::RawOsStr;
-pub use os_str_bytes::RawOsString;
+pub use ext::OsStrExt;
 
 /// Command-line arguments
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
@@ -275,30 +277,27 @@ impl ArgCursor {
 /// Command-line Argument
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ParsedArg<'s> {
-    inner: std::borrow::Cow<'s, RawOsStr>,
-    utf8: Option<&'s str>,
+    inner: &'s OsStr,
 }
 
 impl<'s> ParsedArg<'s> {
     fn new(inner: &'s OsStr) -> Self {
-        let utf8 = inner.to_str();
-        let inner = RawOsStr::new(inner);
-        Self { inner, utf8 }
+        Self { inner }
     }
 
     /// Argument is length of 0
     pub fn is_empty(&self) -> bool {
-        self.inner.as_ref().is_empty()
+        self.inner.is_empty()
     }
 
     /// Does the argument look like a stdio argument (`-`)
     pub fn is_stdio(&self) -> bool {
-        self.inner.as_ref() == "-"
+        self.inner == "-"
     }
 
     /// Does the argument look like an argument escape (`--`)
     pub fn is_escape(&self) -> bool {
-        self.inner.as_ref() == "--"
+        self.inner == "--"
     }
 
     /// Does the argument look like a number
@@ -309,56 +308,38 @@ impl<'s> ParsedArg<'s> {
     }
 
     /// Treat as a long-flag
-    pub fn to_long(&self) -> Option<(Result<&str, &RawOsStr>, Option<&RawOsStr>)> {
-        if let Some(raw) = self.utf8 {
-            let remainder = raw.strip_prefix("--")?;
-            if remainder.is_empty() {
-                debug_assert!(self.is_escape());
-                return None;
-            }
-
-            let (flag, value) = if let Some((p0, p1)) = remainder.split_once('=') {
-                (p0, Some(p1))
-            } else {
-                (remainder, None)
-            };
-            let flag = Ok(flag);
-            let value = value.map(RawOsStr::from_str);
-            Some((flag, value))
-        } else {
-            let raw = self.inner.as_ref();
-            let remainder = raw.strip_prefix("--")?;
-            if remainder.is_empty() {
-                debug_assert!(self.is_escape());
-                return None;
-            }
-
-            let (flag, value) = if let Some((p0, p1)) = remainder.split_once('=') {
-                (p0, Some(p1))
-            } else {
-                (remainder, None)
-            };
-            let flag = flag.to_str().ok_or(flag);
-            Some((flag, value))
+    pub fn to_long(&self) -> Option<(&str, Option<&OsStr>)> {
+        let raw = self.inner;
+        let remainder = raw.strip_prefix("--")?;
+        if remainder.is_empty() {
+            debug_assert!(self.is_escape());
+            return None;
         }
+
+        let (flag, value) = if let Some((p0, p1)) = remainder.split_once("=") {
+            (p0, Some(p1))
+        } else {
+            (remainder, None)
+        };
+        let flag = flag.to_str()?;
+        Some((flag, value))
     }
 
     /// Can treat as a long-flag
     pub fn is_long(&self) -> bool {
-        self.inner.as_ref().starts_with("--") && !self.is_escape()
+        self.inner.starts_with("--") && !self.is_escape()
     }
 
     /// Treat as a short-flag
     pub fn to_short(&self) -> Option<ShortFlags<'_>> {
-        if let Some(remainder_os) = self.inner.as_ref().strip_prefix('-') {
-            if remainder_os.starts_with('-') {
+        if let Some(remainder_os) = self.inner.strip_prefix("-") {
+            if remainder_os.starts_with("-") {
                 None
             } else if remainder_os.is_empty() {
                 debug_assert!(self.is_stdio());
                 None
             } else {
-                let remainder = self.utf8.map(|s| &s[1..]);
-                Some(ShortFlags::new(remainder_os, remainder))
+                Some(ShortFlags::new(remainder_os))
             }
         } else {
             None
@@ -367,48 +348,42 @@ impl<'s> ParsedArg<'s> {
 
     /// Can treat as a short-flag
     pub fn is_short(&self) -> bool {
-        self.inner.as_ref().starts_with('-')
-            && !self.is_stdio()
-            && !self.inner.as_ref().starts_with("--")
+        self.inner.starts_with("-") && !self.is_stdio() && !self.inner.starts_with("--")
     }
 
     /// Treat as a value
     ///
     /// **NOTE:** May return a flag or an escape.
-    pub fn to_value_os(&self) -> &RawOsStr {
-        self.inner.as_ref()
+    pub fn to_value_os(&self) -> &OsStr {
+        self.inner
     }
 
     /// Treat as a value
     ///
     /// **NOTE:** May return a flag or an escape.
-    pub fn to_value(&self) -> Result<&str, &RawOsStr> {
-        self.utf8.ok_or_else(|| self.inner.as_ref())
+    pub fn to_value(&self) -> Result<&str, &OsStr> {
+        self.inner.to_str().ok_or(self.inner)
     }
 
     /// Safely print an argument that may contain non-UTF8 content
     ///
     /// This may perform lossy conversion, depending on the platform. If you would like an implementation which escapes the path please use Debug instead.
     pub fn display(&self) -> impl std::fmt::Display + '_ {
-        self.inner.to_str_lossy()
+        self.inner.to_string_lossy()
     }
 }
 
 /// Walk through short flags within a [`ParsedArg`]
 #[derive(Clone, Debug)]
 pub struct ShortFlags<'s> {
-    inner: &'s RawOsStr,
+    inner: &'s OsStr,
     utf8_prefix: std::str::CharIndices<'s>,
-    invalid_suffix: Option<&'s RawOsStr>,
+    invalid_suffix: Option<&'s OsStr>,
 }
 
 impl<'s> ShortFlags<'s> {
-    fn new(inner: &'s RawOsStr, utf8: Option<&'s str>) -> Self {
-        let (utf8_prefix, invalid_suffix) = if let Some(utf8) = utf8 {
-            (utf8, None)
-        } else {
-            split_nonutf8_once(inner)
-        };
+    fn new(inner: &'s OsStr) -> Self {
+        let (utf8_prefix, invalid_suffix) = split_nonutf8_once(inner);
         let utf8_prefix = utf8_prefix.char_indices();
         Self {
             inner,
@@ -440,7 +415,7 @@ impl<'s> ShortFlags<'s> {
     /// Advance the iterator, returning the next short flag on success
     ///
     /// On error, returns the invalid-UTF8 value
-    pub fn next_flag(&mut self) -> Option<Result<char, &'s RawOsStr>> {
+    pub fn next_flag(&mut self) -> Option<Result<char, &'s OsStr>> {
         if let Some((_, flag)) = self.utf8_prefix.next() {
             return Some(Ok(flag));
         }
@@ -454,11 +429,11 @@ impl<'s> ShortFlags<'s> {
     }
 
     /// Advance the iterator, returning everything left as a value
-    pub fn next_value_os(&mut self) -> Option<&'s RawOsStr> {
+    pub fn next_value_os(&mut self) -> Option<&'s OsStr> {
         if let Some((index, _)) = self.utf8_prefix.next() {
             self.utf8_prefix = "".char_indices();
             self.invalid_suffix = None;
-            return Some(&self.inner[index..]);
+            return Some(self.inner.split_at(index).1);
         }
 
         if let Some(suffix) = self.invalid_suffix {
@@ -471,19 +446,19 @@ impl<'s> ShortFlags<'s> {
 }
 
 impl<'s> Iterator for ShortFlags<'s> {
-    type Item = Result<char, &'s RawOsStr>;
+    type Item = Result<char, &'s OsStr>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.next_flag()
     }
 }
 
-fn split_nonutf8_once(b: &RawOsStr) -> (&str, Option<&RawOsStr>) {
-    match std::str::from_utf8(b.as_raw_bytes()) {
+fn split_nonutf8_once(b: &OsStr) -> (&str, Option<&OsStr>) {
+    match b.try_str() {
         Ok(s) => (s, None),
         Err(err) => {
             let (valid, after_valid) = b.split_at(err.valid_up_to());
-            let valid = std::str::from_utf8(valid.as_raw_bytes()).unwrap();
+            let valid = valid.try_str().unwrap();
             (valid, Some(after_valid))
         }
     }
