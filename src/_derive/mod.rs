@@ -291,6 +291,9 @@
 //!
 //! Notes:
 //! - For custom type behavior, you can override the implied attributes/settings and/or set additional ones
+//!   - To completel opt-out of implied behavior, you can refer to the type by another means, like
+//!     using `std::vec::Vec` instead of `Vec`.  For improving this, see
+//!     [#4626](https://github.com/clap-rs/clap/issues/4626).
 //! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
 //!   - This gives the user some flexibility in designing their argument, like with `num_args(0..)`
 //!
