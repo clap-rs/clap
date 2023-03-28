@@ -166,11 +166,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.header("Usage:");
                     }
                     "usage" => {
-                        self.writer.extend(
-                            self.usage
-                                .create_usage_no_title(&[])
-                                .unwrap_or_default()
-                                .into_iter(),
+                        self.writer.push_styled(
+                            &self.usage.create_usage_no_title(&[]).unwrap_or_default(),
                         );
                     }
                     "all-args" => {
@@ -284,9 +281,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.none("\n");
             }
             let mut output = output.clone();
-            replace_newline_var(&mut output);
+            output.replace_newline_var();
             output.wrap(self.term_w);
-            self.writer.extend(output.into_iter());
+            self.writer.push_styled(&output);
             if after_new_line {
                 self.none("\n");
             }
@@ -304,9 +301,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         };
         if let Some(output) = before_help {
             let mut output = output.clone();
-            replace_newline_var(&mut output);
+            output.replace_newline_var();
             output.wrap(self.term_w);
-            self.writer.extend(output.into_iter());
+            self.writer.push_styled(&output);
             self.none("\n\n");
         }
     }
@@ -323,9 +320,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         if let Some(output) = after_help {
             self.none("\n\n");
             let mut output = output.clone();
-            replace_newline_var(&mut output);
+            output.replace_newline_var();
             output.wrap(self.term_w);
-            self.writer.extend(output.into_iter());
+            self.writer.push_styled(&output);
         }
     }
 }
@@ -470,7 +467,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         self.none(TAB);
         self.short(arg);
         self.long(arg);
-        self.writer.extend(arg.stylize_arg_suffix(None).into_iter());
+        self.writer.push_styled(&arg.stylize_arg_suffix(None));
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {
@@ -580,7 +577,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         let trailing_indent = self.get_spaces(trailing_indent);
 
         let mut help = about.clone();
-        replace_newline_var(&mut help);
+        help.replace_newline_var();
         if !spec_vals.is_empty() {
             if !help.is_empty() {
                 let sep = if self.use_long && arg.is_some() {
@@ -602,7 +599,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         help.wrap(avail_chars);
         help.indent("", &trailing_indent);
         let help_is_empty = help.is_empty();
-        self.writer.extend(help.into_iter());
+        self.writer.push_styled(&help);
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
@@ -668,10 +665,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         };
 
                         let mut help = help.clone();
-                        replace_newline_var(&mut help);
+                        help.replace_newline_var();
                         help.wrap(avail_chars);
                         help.indent("", &trailing_indent);
-                        self.writer.extend(help.into_iter());
+                        self.writer.push_styled(&help);
                     }
                 }
             }
@@ -948,7 +945,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         let width = sc_str.display_width();
 
         self.none(TAB);
-        self.writer.extend(sc_str.into_iter());
+        self.writer.push_styled(&sc_str);
         if !next_line_help {
             self.spaces(longest + TAB_WIDTH - width);
         }
@@ -1019,12 +1016,6 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
 
 fn should_show_subcommand(subcommand: &Command) -> bool {
     !subcommand.is_hide_set()
-}
-
-fn replace_newline_var(styled: &mut StyledStr) {
-    for (_, content) in styled.iter_mut() {
-        *content = content.replace("{n}", "\n");
-    }
 }
 
 fn longest_filter(arg: &Arg) -> bool {

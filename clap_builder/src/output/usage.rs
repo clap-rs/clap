@@ -40,7 +40,7 @@ impl<'cmd> Usage<'cmd> {
         let mut styled = StyledStr::new();
         styled.header("Usage:");
         styled.none(" ");
-        styled.extend(usage.into_iter());
+        styled.push_styled(&usage);
         Some(styled)
     }
 
@@ -103,7 +103,7 @@ impl<'cmd> Usage<'cmd> {
                     // Short-circuit full usage creation since no args will be relevant
                     styled.literal(name);
                 } else {
-                    styled.extend(self.create_help_usage(false).into_iter());
+                    styled.push_styled(&self.create_help_usage(false));
                 }
                 styled.placeholder(" <");
                 styled.placeholder(placeholder);
@@ -190,7 +190,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn write_args(&self, incls: &[Id], force_optional: bool, styled: &mut StyledStr) {
         for required in self.get_args(incls, force_optional) {
             styled.none(" ");
-            styled.extend(required.into_iter());
+            styled.push_styled(&required);
         }
     }
 
@@ -280,7 +280,7 @@ impl<'cmd> Usage<'cmd> {
                     let styled = required_positionals[index].take().unwrap();
                     let mut new = StyledStr::new();
                     new.literal("-- ");
-                    new.extend(styled.into_iter());
+                    new.push_styled(&styled);
                     required_positionals[index] = Some(new);
                 }
             } else {
@@ -288,7 +288,7 @@ impl<'cmd> Usage<'cmd> {
                 if pos.is_last_set() {
                     styled = StyledStr::new();
                     styled.literal("[-- ");
-                    styled.extend(pos.stylized(Some(true)).into_iter());
+                    styled.push_styled(&pos.stylized(Some(true)));
                     styled.literal("]");
                 } else {
                     styled = pos.stylized(Some(false));

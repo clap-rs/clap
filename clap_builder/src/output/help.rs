@@ -10,21 +10,15 @@ pub(crate) fn write_help(writer: &mut StyledStr, cmd: &Command, usage: &Usage<'_
     debug!("write_help");
 
     if let Some(h) = cmd.get_override_help() {
-        writer.extend(h.iter());
+        writer.push_styled(h);
     } else {
         #[cfg(feature = "help")]
         {
             use super::AutoHelp;
             use super::HelpTemplate;
             if let Some(tmpl) = cmd.get_help_template() {
-                for (style, content) in tmpl.iter() {
-                    if style.is_none() {
-                        HelpTemplate::new(writer, cmd, usage, use_long)
-                            .write_templated_help(content);
-                    } else {
-                        writer.stylize(style, content);
-                    }
-                }
+                HelpTemplate::new(writer, cmd, usage, use_long)
+                    .write_templated_help(tmpl.as_styled_str());
             } else {
                 AutoHelp::new(writer, cmd, usage, use_long).write_help();
             }
