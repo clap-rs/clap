@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- Removed the languishing `unstable-replace` feature (open to discussion at [#2836](https://github.com/clap-rs/clap/issues/2836))
+- Removed the stablized `unstable-grouped` feature
+
+### Features
+
+- Allow any `StyledStr` to accept text styled with ANSI escape codes
+- Respect `CLICOLOR`, `CLICOLOR_FORCE`
+
+### Fixes
+
+- Lighten the tone for "unexpected argument" errors (open to discussion at [#4638](https://github.com/clap-rs/clap/issues/4638))
+
 ## [4.1.14] - 2023-03-28
 
 ### Features
