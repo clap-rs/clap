@@ -429,19 +429,22 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
 fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
     if let ContextValue::String(valid) = valid {
         styled.none(TAB);
-        styled.good("tip: ");
+        styled.good("tip: a similar ");
         styled.none(context);
-        styled.none(" '");
+        styled.none(" exists: '");
         styled.good(valid);
-        styled.none("' exists");
+        styled.none("'");
     } else if let ContextValue::Strings(valid) = valid {
         styled.none(TAB);
-        styled.good("tip: ");
-        styled.none(context);
-        if valid.len() > 1 {
-            styled.none("s");
+        if valid.len() == 1 {
+            styled.good("tip: a similar ");
+            styled.none(context);
+            styled.none(" exists: ");
+        } else {
+            styled.good("tip: some similar ");
+            styled.none(context);
+            styled.none("s exist: ");
         }
-        styled.none(" ");
         for (i, valid) in valid.iter().enumerate() {
             if i != 0 {
                 styled.none(", ");
@@ -449,11 +452,6 @@ fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
             styled.none("'");
             styled.good(valid);
             styled.none("'");
-        }
-        if valid.len() == 1 {
-            styled.none(" exists");
-        } else {
-            styled.none(" exist");
         }
     }
 }

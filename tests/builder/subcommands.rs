@@ -100,7 +100,7 @@ fn subcmd_did_you_mean_output() {
     static DYM_SUBCMD: &str = "\
 error: unrecognized subcommand 'subcm'
 
-  tip: subcommand 'subcmd' exists
+  tip: a similar subcommand exists: 'subcmd'
   tip: to pass 'subcm' as a value, use 'dym -- subcm'
 
 Usage: dym [COMMAND]
@@ -120,7 +120,7 @@ fn subcmd_did_you_mean_output_ambiguous() {
     static DYM_SUBCMD_AMBIGUOUS: &str = "\
 error: unrecognized subcommand 'te'
 
-  tip: subcommands 'test', 'temp' exist
+  tip: some similar subcommands exist: 'test', 'temp'
   tip: to pass 'te' as a value, use 'dym -- te'
 
 Usage: dym [COMMAND]
@@ -517,7 +517,7 @@ For more information, try 'help'.
         static BAZ_EXPECTED: &str = "\
 error: unrecognized subcommand 'baz'
 
-  tip: subcommand 'bar' exists
+  tip: a similar subcommand exists: 'bar'
   tip: to pass 'baz' as a value, use ' -- baz'
 
 Usage: <COMMAND>
