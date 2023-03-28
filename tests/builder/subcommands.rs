@@ -100,8 +100,8 @@ fn subcmd_did_you_mean_output() {
     static DYM_SUBCMD: &str = "\
 error: unrecognized subcommand 'subcm'
 
-  note: subcommand 'subcmd' exists
-  note: to pass 'subcm' as a value, use 'dym -- subcm'
+  tip: subcommand 'subcmd' exists
+  tip: to pass 'subcm' as a value, use 'dym -- subcm'
 
 Usage: dym [COMMAND]
 
@@ -120,8 +120,8 @@ fn subcmd_did_you_mean_output_ambiguous() {
     static DYM_SUBCMD_AMBIGUOUS: &str = "\
 error: unrecognized subcommand 'te'
 
-  note: subcommands 'test', 'temp' exist
-  note: to pass 'te' as a value, use 'dym -- te'
+  tip: subcommands 'test', 'temp' exist
+  tip: to pass 'te' as a value, use 'dym -- te'
 
 Usage: dym [COMMAND]
 
@@ -141,7 +141,7 @@ fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
 error: unexpected argument '--subcmarg' found
 
-  note: 'subcmd --subcmdarg' exists
+  tip: 'subcmd --subcmdarg' exists
 
 Usage: dym [COMMAND]
 
@@ -353,7 +353,7 @@ fn subcommand_used_after_double_dash() {
     static SUBCMD_AFTER_DOUBLE_DASH: &str = "\
 error: unexpected argument 'subcmd' found
 
-  note: subcommand 'subcmd' exists; to use it, remove the '--' before it
+  tip: subcommand 'subcmd' exists; to use it, remove the '--' before it
 
 Usage: cmd [COMMAND]
 
@@ -517,8 +517,8 @@ For more information, try 'help'.
         static BAZ_EXPECTED: &str = "\
 error: unrecognized subcommand 'baz'
 
-  note: subcommand 'bar' exists
-  note: to pass 'baz' as a value, use ' -- baz'
+  tip: subcommand 'bar' exists
+  tip: to pass 'baz' as a value, use ' -- baz'
 
 Usage: <COMMAND>
 
