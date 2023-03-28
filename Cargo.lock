@@ -207,7 +207,7 @@ dependencies = [
  "anstyle",
  "backtrace",
  "bitflags",
- "clap_lex 0.4.0",
+ "clap_lex 0.4.1",
  "color-print",
  "humantime",
  "once_cell",
@@ -229,7 +229,7 @@ name = "clap_complete"
 version = "4.1.6"
 dependencies = [
  "clap 4.1.14",
- "clap_lex 0.4.0",
+ "clap_lex 0.4.1",
  "is_executable",
  "pathdiff",
  "shlex",
@@ -268,7 +268,7 @@ dependencies = [
 
 [[package]]
 name = "clap_lex"
-version = "0.4.0"
+version = "0.4.1"
 
 [[package]]
 name = "clap_mangen"
