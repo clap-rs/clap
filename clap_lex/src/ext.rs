@@ -193,6 +193,7 @@ pub trait OsStrExt: private::Sealed {
     /// assert_eq!("Per", first);
     /// assert_eq!(" Martin-Löf", last);
     /// ```
+    #[deprecated(since = "4.1.0", note = "This is not sound for all `index`")]
     fn split_at(&self, index: usize) -> (&OsStr, &OsStr);
     /// Splits the string on the first occurrence of the specified delimiter and
     /// returns prefix before delimiter and suffix after delimiter.
@@ -212,7 +213,8 @@ pub trait OsStrExt: private::Sealed {
 
 impl OsStrExt for OsStr {
     fn try_str(&self) -> Result<&str, std::str::Utf8Error> {
-        let bytes = to_bytes(self);
+        // SAFETY: Only interacting with `OsStr` as `&str
+        let bytes = unsafe { to_bytes(self) };
         std::str::from_utf8(bytes)
     }
 
@@ -221,17 +223,24 @@ impl OsStrExt for OsStr {
     }
 
     fn find(&self, needle: &str) -> Option<usize> {
+        // SAFETY: Only interacting with `OsStr` as `&str
+        let bytes = unsafe { to_bytes(self) };
         (0..=self.len().checked_sub(needle.len())?)
-            .find(|&x| to_bytes(self)[x..].starts_with(needle.as_bytes()))
+            .find(|&x| bytes[x..].starts_with(needle.as_bytes()))
     }
 
     fn strip_prefix(&self, prefix: &str) -> Option<&OsStr> {
-        to_bytes(self)
-            .strip_prefix(prefix.as_bytes())
-            .map(to_os_str)
+        // SAFETY: Only interacting with `OsStr` as `&str
+        let bytes = unsafe { to_bytes(self) };
+        bytes.strip_prefix(prefix.as_bytes()).map(|s| {
+            // SAFETY: Only interacting with `OsStr` as `&str
+            unsafe { to_os_str(s) }
+        })
     }
     fn starts_with(&self, prefix: &str) -> bool {
-        to_bytes(self).starts_with(prefix.as_bytes())
+        // SAFETY: Only interacting with `OsStr` as `&str
+        let bytes = unsafe { to_bytes(self) };
+        bytes.starts_with(prefix.as_bytes())
     }
 
     fn split<'s, 'n>(&'s self, needle: &'n str) -> Split<'s, 'n> {
@@ -243,17 +252,24 @@ impl OsStrExt for OsStr {
     }
 
     fn split_at(&self, index: usize) -> (&OsStr, &OsStr) {
-        let (first, second) = to_bytes(self).split_at(index);
-        (to_os_str(first), to_os_str(second))
+        // BUG: This is unsafe and has been deprecated
+        unsafe {
+            let bytes = to_bytes(self);
+            let (first, second) = bytes.split_at(index);
+            (to_os_str(first), to_os_str(second))
+        }
     }
 
     fn split_once(&self, needle: &'_ str) -> Option<(&OsStr, &OsStr)> {
         let start = self.find(needle)?;
         let end = start + needle.len();
-        let haystack = to_bytes(self);
-        let first = &haystack[0..start];
-        let second = &haystack[end..];
-        Some((to_os_str(first), to_os_str(second)))
+        // SAFETY: Only interacting with `OsStr` as `&str
+        unsafe {
+            let haystack = to_bytes(self);
+            let first = &haystack[0..start];
+            let second = &haystack[end..];
+            Some((to_os_str(first), to_os_str(second)))
+        }
     }
 }
 
@@ -265,33 +281,40 @@ mod private {
 
 /// Allow access to raw bytes
 ///
-/// **Note:** the bytes only make sense when compared with ASCII or `&str`
+/// # Safety
 ///
-/// **Note:** This must never be serialized as there is no guarantee at how invalid UTF-8 will be
-/// encoded, even within the same version of this crate (since its dependent on rustc version)
-fn to_bytes(s: &OsStr) -> &[u8] {
+/// - The bytes only make sense when compared with ASCII or `&str`
+/// - This must never be serialized as there is no guarantee at how invalid UTF-8 will be
+///   encoded, even within the same version of this crate (since its dependent on rustc version)
+unsafe fn to_bytes(s: &OsStr) -> &[u8] {
     // SAFETY:
     // - Lifetimes are the same
-    // - Types are compatible (`OsStr` is a transparent wrapper for `[u8]`)
+    // - Types are compatible (`OsStr` is effectively a transparent wrapper for `[u8]`)
     // - The primary contract is that the encoding for invalid surrogate code points is not
     //   guaranteed which isn't a problem here
     //
     // There is a proposal to support this natively (https://github.com/rust-lang/rust/pull/95290)
     // but its in limbo
-    unsafe { std::mem::transmute(s) }
+    std::mem::transmute(s)
 }
 
 /// Restore raw bytes as `OsStr`
-fn to_os_str(s: &[u8]) -> &OsStr {
+///
+/// # Safety
+///
+/// - The bytes only make sense when compared with ASCII or `&str`
+/// - This must never be serialized as there is no guarantee at how invalid UTF-8 will be
+///   encoded, even within the same version of this crate (since its dependent on rustc version)
+unsafe fn to_os_str(s: &[u8]) -> &OsStr {
     // SAFETY:
     // - Lifetimes are the same
-    // - Types are compatible (`OsStr` is a transparent wrapper for `[u8]`)
+    // - Types are compatible (`OsStr` is effectively a transparent wrapper for `[u8]`)
     // - The primary contract is that the encoding for invalid surrogate code points is not
     //   guaranteed which isn't a problem here
     //
     // There is a proposal to support this natively (https://github.com/rust-lang/rust/pull/95290)
     // but its in limbo
-    unsafe { std::mem::transmute(s) }
+    std::mem::transmute(s)
 }
 
 pub struct Split<'s, 'n> {
@@ -318,4 +341,15 @@ impl<'s, 'n> Iterator for Split<'s, 'n> {
             }
         }
     }
+}
+
+/// Split an `OsStr`
+///
+/// # Safety
+///
+/// `index` must be at a valid UTF-8 boundary
+pub(crate) unsafe fn split_at(os: &OsStr, index: usize) -> (&OsStr, &OsStr) {
+    let bytes = to_bytes(os);
+    let (first, second) = bytes.split_at(index);
+    (to_os_str(first), to_os_str(second))
 }
