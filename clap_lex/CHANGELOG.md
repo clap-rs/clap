@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- Deprecated `OsStrExt::split_at` as its unsound
+
 ## [0.4.0] - 2023-03-25
 
 ### Breaking Change
