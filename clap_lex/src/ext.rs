@@ -287,6 +287,12 @@ mod private {
 /// There is no guarantee how non-UTF8 bytes will be encoded, even within versions of this crate
 /// (since its dependent on rustc)
 fn to_bytes(s: &OsStr) -> &[u8] {
+    // Unix and WASI have a safe API for these conversions.
+    #[cfg(unix)]
+    return std::os::unix::ffi::OsStrExt::as_bytes(s);
+    #[cfg(target_os = "wasi")]
+    return std::os::wasi::ffi::OsStrExt::as_bytes(s);
+
     // SAFETY:
     // - Lifetimes are the same
     // - Types are compatible (`OsStr` is effectively a transparent wrapper for `[u8]`)
@@ -295,7 +301,10 @@ fn to_bytes(s: &OsStr) -> &[u8] {
     //
     // There is a proposal to support this natively (https://github.com/rust-lang/rust/pull/95290)
     // but its in limbo
-    unsafe { std::mem::transmute(s) }
+    #[cfg(not(any(unix, target_os = "wasi")))]
+    unsafe {
+        std::mem::transmute(s)
+    }
 }
 
 /// Restore raw bytes as `OsStr`
@@ -305,6 +314,11 @@ fn to_bytes(s: &OsStr) -> &[u8] {
 /// - `&[u8]` must either by a `&str` or originated with `to_bytes` within the same binary
 /// - Any splits of the original `&[u8]` must be done along UTF-8 boundaries
 unsafe fn to_os_str_unchecked(s: &[u8]) -> &OsStr {
+    #[cfg(unix)]
+    return std::os::unix::ffi::OsStrExt::from_bytes(s);
+    #[cfg(target_os = "wasi")]
+    return std::os::wasi::ffi::OsStrExt::from_bytes(s);
+
     // SAFETY:
     // - Lifetimes are the same
     // - Types are compatible (`OsStr` is effectively a transparent wrapper for `[u8]`)
@@ -313,6 +327,7 @@ unsafe fn to_os_str_unchecked(s: &[u8]) -> &OsStr {
     //
     // There is a proposal to support this natively (https://github.com/rust-lang/rust/pull/95290)
     // but its in limbo
+    #[cfg(not(any(unix, target_os = "wasi")))]
     std::mem::transmute(s)
 }
 
