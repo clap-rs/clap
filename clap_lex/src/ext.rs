@@ -193,6 +193,7 @@ pub trait OsStrExt: private::Sealed {
     /// assert_eq!("Per", first);
     /// assert_eq!(" Martin-Löf", last);
     /// ```
+    #[deprecated(since = "4.1.0", note = "This is not sound for all `index`")]
     fn split_at(&self, index: usize) -> (&OsStr, &OsStr);
     /// Splits the string on the first occurrence of the specified delimiter and
     /// returns prefix before delimiter and suffix after delimiter.
@@ -251,7 +252,7 @@ impl OsStrExt for OsStr {
     }
 
     fn split_at(&self, index: usize) -> (&OsStr, &OsStr) {
-        // BUG: This is unsafe
+        // BUG: This is unsafe and has been deprecated
         unsafe {
             let bytes = to_bytes(self);
             let (first, second) = bytes.split_at(index);
@@ -294,7 +295,7 @@ unsafe fn to_bytes(s: &OsStr) -> &[u8] {
     //
     // There is a proposal to support this natively (https://github.com/rust-lang/rust/pull/95290)
     // but its in limbo
-    unsafe { std::mem::transmute(s) }
+    std::mem::transmute(s)
 }
 
 /// Restore raw bytes as `OsStr`
@@ -313,7 +314,7 @@ unsafe fn to_os_str(s: &[u8]) -> &OsStr {
     //
     // There is a proposal to support this natively (https://github.com/rust-lang/rust/pull/95290)
     // but its in limbo
-    unsafe { std::mem::transmute(s) }
+    std::mem::transmute(s)
 }
 
 pub struct Split<'s, 'n> {
@@ -340,4 +341,15 @@ impl<'s, 'n> Iterator for Split<'s, 'n> {
             }
         }
     }
+}
+
+/// Split an `OsStr`
+///
+/// # Safety
+///
+/// `index` must be at a valid UTF-8 boundary
+pub(crate) unsafe fn split_at(os: &OsStr, index: usize) -> (&OsStr, &OsStr) {
+    let bytes = to_bytes(os);
+    let (first, second) = bytes.split_at(index);
+    (to_os_str(first), to_os_str(second))
 }

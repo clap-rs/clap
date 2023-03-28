@@ -433,7 +433,9 @@ impl<'s> ShortFlags<'s> {
         if let Some((index, _)) = self.utf8_prefix.next() {
             self.utf8_prefix = "".char_indices();
             self.invalid_suffix = None;
-            return Some(self.inner.split_at(index).1);
+            // SAFETY: `char_indices` ensures `index` is at a valid UTF-8 boundary
+            let remainder = unsafe { ext::split_at(self.inner, index).1 };
+            return Some(remainder);
         }
 
         if let Some(suffix) = self.invalid_suffix {
@@ -457,7 +459,8 @@ fn split_nonutf8_once(b: &OsStr) -> (&str, Option<&OsStr>) {
     match b.try_str() {
         Ok(s) => (s, None),
         Err(err) => {
-            let (valid, after_valid) = b.split_at(err.valid_up_to());
+            // SAFETY: `char_indices` ensures `index` is at a valid UTF-8 boundary
+            let (valid, after_valid) = unsafe { ext::split_at(b, err.valid_up_to()) };
             let valid = valid.try_str().unwrap();
             (valid, Some(after_valid))
         }
