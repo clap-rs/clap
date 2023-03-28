@@ -427,21 +427,21 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
 
 #[cfg(feature = "error-context")]
 fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
+    styled.none(TAB);
+    styled.good("tip:");
     if let ContextValue::String(valid) = valid {
-        styled.none(TAB);
-        styled.good("tip: a similar ");
+        styled.none(" a similar ");
         styled.none(context);
         styled.none(" exists: '");
         styled.good(valid);
         styled.none("'");
     } else if let ContextValue::Strings(valid) = valid {
-        styled.none(TAB);
         if valid.len() == 1 {
-            styled.good("tip: a similar ");
+            styled.none(" a similar ");
             styled.none(context);
             styled.none(" exists: ");
         } else {
-            styled.good("tip: some similar ");
+            styled.none(" some similar ");
             styled.none(context);
             styled.none("s exist: ");
         }
