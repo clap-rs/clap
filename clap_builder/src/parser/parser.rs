@@ -76,20 +76,6 @@ impl<'cmd> Parser<'cmd> {
         let contains_last = self.cmd.get_arguments().any(|x| x.is_last_set());
 
         while let Some(arg_os) = raw_args.next(&mut args_cursor) {
-            // Recover the replaced items if any.
-            if let Some(replaced_items) = arg_os
-                .to_value()
-                .ok()
-                .and_then(|a| self.cmd.get_replacement(a))
-            {
-                debug!(
-                    "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
-                    arg_os, replaced_items
-                );
-                raw_args.insert(&args_cursor, replaced_items);
-                continue;
-            }
-
             debug!(
                 "Parser::get_matches_with: Begin parsing '{:?}'",
                 arg_os.to_value_os(),
