@@ -65,13 +65,13 @@
 //!             args.paths.push(PathBuf::from("-"));
 //!         } else if let Some((long, value)) = arg.to_long() {
 //!             match long {
-//!                 "verbose" => {
+//!                 Ok("verbose") => {
 //!                     if let Some(value) = value {
 //!                         return Err(format!("`--verbose` does not take a value, got `{:?}`", value).into());
 //!                     }
 //!                     args.verbosity += 1;
 //!                 }
-//!                 "color" => {
+//!                 Ok("color") => {
 //!                     args.color = Color::parse(value)?;
 //!                 }
 //!                 _ => {
@@ -308,7 +308,7 @@ impl<'s> ParsedArg<'s> {
     }
 
     /// Treat as a long-flag
-    pub fn to_long(&self) -> Option<(&str, Option<&OsStr>)> {
+    pub fn to_long(&self) -> Option<(Result<&str, &OsStr>, Option<&OsStr>)> {
         let raw = self.inner;
         let remainder = raw.strip_prefix("--")?;
         if remainder.is_empty() {
@@ -321,7 +321,7 @@ impl<'s> ParsedArg<'s> {
         } else {
             (remainder, None)
         };
-        let flag = flag.to_str()?;
+        let flag = flag.to_str().ok_or(flag);
         Some((flag, value))
     }
 

@@ -368,23 +368,28 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
         if !is_escaped {
             if let Some((flag, value)) = arg.to_long() {
-                if let Some(value) = value {
-                    if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
+                if let Ok(flag) = flag {
+                    if let Some(value) = value {
+                        if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag))
+                        {
+                            completions.extend(
+                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                                    .into_iter()
+                                    .map(|os| {
+                                        // HACK: Need better `OsStr` manipulation
+                                        format!("--{}={}", flag, os.to_string_lossy()).into()
+                                    }),
+                            )
+                        }
+                    } else {
                         completions.extend(
-                            complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                            crate::generator::utils::longs_and_visible_aliases(cmd)
                                 .into_iter()
-                                .map(|os| {
-                                    // HACK: Need better `OsStr` manipulation
-                                    format!("--{}={}", flag, os.to_string_lossy()).into()
+                                .filter_map(|f| {
+                                    f.starts_with(flag).then(|| format!("--{}", f).into())
                                 }),
-                        )
+                        );
                     }
-                } else {
-                    completions.extend(
-                        crate::generator::utils::longs_and_visible_aliases(cmd)
-                            .into_iter()
-                            .filter_map(|f| f.starts_with(flag).then(|| format!("--{}", f).into())),
-                    );
                 }
             } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
                 // HACK: Assuming knowledge of is_escape / is_stdio

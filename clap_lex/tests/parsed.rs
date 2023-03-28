@@ -36,7 +36,7 @@ fn to_long_no_value() {
     assert!(next.is_long());
 
     let (key, value) = next.to_long().unwrap();
-    assert_eq!(key, "long");
+    assert_eq!(key, Ok("long"));
     assert_eq!(value, None);
 }
 
@@ -50,7 +50,7 @@ fn to_long_with_empty_value() {
     assert!(next.is_long());
 
     let (key, value) = next.to_long().unwrap();
-    assert_eq!(key, "long");
+    assert_eq!(key, Ok("long"));
     assert_eq!(value, Some(OsStr::new("")));
 }
 
@@ -64,7 +64,7 @@ fn to_long_with_value() {
     assert!(next.is_long());
 
     let (key, value) = next.to_long().unwrap();
-    assert_eq!(key, "long");
+    assert_eq!(key, Ok("long"));
     assert_eq!(value, Some(OsStr::new("hello")));
 }
 

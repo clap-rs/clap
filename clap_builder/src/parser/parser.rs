@@ -720,7 +720,7 @@ impl<'cmd> Parser<'cmd> {
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        long_arg: &str,
+        long_arg: Result<&str, &OsStr>,
         long_value: Option<&OsStr>,
         parse_state: &ParseState,
         pos_counter: usize,
@@ -738,6 +738,14 @@ impl<'cmd> Parser<'cmd> {
         }
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
+        let long_arg = match long_arg {
+            Ok(long_arg) => long_arg,
+            Err(long_arg_os) => {
+                return Ok(ParseResult::NoMatchingArg {
+                    arg: long_arg_os.to_string_lossy().into_owned(),
+                })
+            }
+        };
         if long_arg.is_empty() {
             debug_assert!(
                 long_value.is_some(),
