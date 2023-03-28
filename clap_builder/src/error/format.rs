@@ -99,7 +99,7 @@ impl ErrorFormatter for RichFormatter {
             for suggestion in suggestions {
                 styled.none("\n");
                 styled.none(TAB);
-                styled.good("note: ");
+                styled.good("tip: ");
                 styled.push_styled(suggestion);
             }
         }
@@ -429,14 +429,14 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
 fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
     if let ContextValue::String(valid) = valid {
         styled.none(TAB);
-        styled.good("note: ");
+        styled.good("tip: ");
         styled.none(context);
         styled.none(" '");
         styled.good(valid);
         styled.none("' exists");
     } else if let ContextValue::Strings(valid) = valid {
         styled.none(TAB);
-        styled.good("note: ");
+        styled.good("tip: ");
         styled.none(context);
         if valid.len() > 1 {
             styled.none("s");
