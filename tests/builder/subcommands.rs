@@ -226,24 +226,6 @@ Options:
 }
 
 #[test]
-#[cfg(feature = "unstable-replace")]
-fn replace() {
-    let m = Command::new("prog")
-        .subcommand(
-            Command::new("module").subcommand(Command::new("install").about("Install module")),
-        )
-        .replace("install", ["module", "install"])
-        .try_get_matches_from(vec!["prog", "install"])
-        .unwrap();
-
-    assert_eq!(m.subcommand_name(), Some("module"));
-    assert_eq!(
-        m.subcommand_matches("module").unwrap().subcommand_name(),
-        Some("install")
-    );
-}
-
-#[test]
 fn issue_1031_args_with_same_name() {
     let res = Command::new("prog")
         .arg(arg!(--"ui-path" <PATH>).required(true))

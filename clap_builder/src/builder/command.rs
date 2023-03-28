@@ -24,7 +24,6 @@ use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
-use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, Id};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
@@ -99,7 +98,6 @@ pub struct Command {
     g_settings: AppFlags,
     args: MKeyMap,
     subcommands: Vec<Command>,
-    replacers: FlatMap<Str, Vec<Str>>,
     groups: Vec<ArgGroup>,
     current_help_heading: Option<Str>,
     current_disp_ord: Option<usize>,
@@ -1924,129 +1922,6 @@ impl Command {
         self
     }
 
-    /// Replaces an argument or subcommand used on the CLI at runtime with other arguments or subcommands.
-    ///
-    /// **Note:** This is gated behind [`unstable-replace`](https://github.com/clap-rs/clap/issues/2836)
-    ///
-    /// When this method is used, `name` is removed from the CLI, and `target`
-    /// is inserted in its place. Parsing continues as if the user typed
-    /// `target` instead of `name`.
-    ///
-    /// This can be used to create "shortcuts" for subcommands, or if a
-    /// particular argument has the semantic meaning of several other specific
-    /// arguments and values.
-    ///
-    /// # Examples
-    ///
-    /// We'll start with the "subcommand short" example. In this example, let's
-    /// assume we have a program with a subcommand `module` which can be invoked
-    /// via `cmd module`. Now let's also assume `module` also has a subcommand
-    /// called `install` which can be invoked `cmd module install`. If for some
-    /// reason users needed to be able to reach `cmd module install` via the
-    /// short-hand `cmd install`, we'd have several options.
-    ///
-    /// We *could* create another sibling subcommand to `module` called
-    /// `install`, but then we would need to manage another subcommand and manually
-    /// dispatch to `cmd module install` handling code. This is error prone and
-    /// tedious.
-    ///
-    /// We could instead use [`Command::replace`] so that, when the user types `cmd
-    /// install`, `clap` will replace `install` with `module install` which will
-    /// end up getting parsed as if the user typed the entire incantation.
-    ///
-    /// ```rust
-    /// # use clap_builder as clap;
-    /// # use clap::Command;
-    /// let m = Command::new("cmd")
-    ///     .subcommand(Command::new("module")
-    ///         .subcommand(Command::new("install")))
-    ///     .replace("install", &["module", "install"])
-    ///     .get_matches_from(vec!["cmd", "install"]);
-    ///
-    /// assert!(m.subcommand_matches("module").is_some());
-    /// assert!(m.subcommand_matches("module").unwrap().subcommand_matches("install").is_some());
-    /// ```
-    ///
-    /// Now let's show an argument example!
-    ///
-    /// Let's assume we have an application with two flags `--save-context` and
-    /// `--save-runtime`. But often users end up needing to do *both* at the
-    /// same time. We can add a third flag `--save-all` which semantically means
-    /// the same thing as `cmd --save-context --save-runtime`. To implement that,
-    /// we have several options.
-    ///
-    /// We could create this third argument and manually check if that argument
-    /// and in our own consumer code handle the fact that both `--save-context`
-    /// and `--save-runtime` *should* have been used. But again this is error
-    /// prone and tedious. If we had code relying on checking `--save-context`
-    /// and we forgot to update that code to *also* check `--save-all` it'd mean
-    /// an error!
-    ///
-    /// Luckily we can use [`Command::replace`] so that when the user types
-    /// `--save-all`, `clap` will replace that argument with `--save-context
-    /// --save-runtime`, and parsing will continue like normal. Now all our code
-    /// that was originally checking for things like `--save-context` doesn't
-    /// need to change!
-    ///
-    /// ```rust
-    /// # use clap_builder as clap;
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let m = Command::new("cmd")
-    ///     .arg(Arg::new("save-context")
-    ///         .long("save-context")
-    ///         .action(ArgAction::SetTrue))
-    ///     .arg(Arg::new("save-runtime")
-    ///         .long("save-runtime")
-    ///         .action(ArgAction::SetTrue))
-    ///     .replace("--save-all", &["--save-context", "--save-runtime"])
-    ///     .get_matches_from(vec!["cmd", "--save-all"]);
-    ///
-    /// assert!(m.get_flag("save-context"));
-    /// assert!(m.get_flag("save-runtime"));
-    /// ```
-    ///
-    /// This can also be used with options, for example if our application with
-    /// `--save-*` above also had a `--format=TYPE` option. Let's say it
-    /// accepted `txt` or `json` values. However, when `--save-all` is used,
-    /// only `--format=json` is allowed, or valid. We could change the example
-    /// above to enforce this:
-    ///
-    /// ```rust
-    /// # use clap_builder as clap;
-    /// # use clap::{Command, Arg, ArgAction};
-    /// let m = Command::new("cmd")
-    ///     .arg(Arg::new("save-context")
-    ///         .long("save-context")
-    ///         .action(ArgAction::SetTrue))
-    ///     .arg(Arg::new("save-runtime")
-    ///         .long("save-runtime")
-    ///         .action(ArgAction::SetTrue))
-    ///     .arg(Arg::new("format")
-    ///         .long("format")
-    ///         .action(ArgAction::Set)
-    ///         .value_parser(["txt", "json"]))
-    ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
-    ///     .get_matches_from(vec!["cmd", "--save-all"]);
-    ///
-    /// assert!(m.get_flag("save-context"));
-    /// assert!(m.get_flag("save-runtime"));
-    /// assert_eq!(m.get_one::<String>("format").unwrap(), "json");
-    /// ```
-    ///
-    /// [`Command::replace`]: Command::replace()
-    #[inline]
-    #[cfg(feature = "unstable-replace")]
-    #[must_use]
-    pub fn replace(
-        mut self,
-        name: impl Into<Str>,
-        target: impl IntoIterator<Item = impl Into<Str>>,
-    ) -> Self {
-        self.replacers
-            .insert(name.into(), target.into_iter().map(Into::into).collect());
-        self
-    }
-
     /// Exit gracefully if no arguments are present (e.g. `$ myprog`).
     ///
     /// **NOTE:** [`subcommands`] count as arguments
@@ -3853,10 +3728,6 @@ impl Command {
         self.max_w
     }
 
-    pub(crate) fn get_replacement(&self, key: &str) -> Option<&[Str]> {
-        self.replacers.get(key).map(|v| v.as_slice())
-    }
-
     pub(crate) fn get_keymap(&self) -> &MKeyMap {
         &self.args
     }
@@ -4749,7 +4620,6 @@ impl Default for Command {
             g_settings: Default::default(),
             args: Default::default(),
             subcommands: Default::default(),
-            replacers: Default::default(),
             groups: Default::default(),
             current_help_heading: Default::default(),
             current_disp_ord: Some(0),
