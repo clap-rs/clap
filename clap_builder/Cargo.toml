@@ -1,6 +1,6 @@
 [package]
 name = "clap_builder"
-version = "4.2.0"
+version = "4.2.1"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
