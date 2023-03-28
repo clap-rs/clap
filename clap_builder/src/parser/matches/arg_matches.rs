@@ -570,56 +570,6 @@ impl ArgMatches {
         !self.args.is_empty()
     }
 
-    /// Get an [`Iterator`] over groups of values of a specific option.
-    ///
-    /// specifically grouped by the occurrences of the options.
-    ///
-    /// Each group is a `Vec<&str>` containing the arguments passed to a single occurrence
-    /// of the option.
-    ///
-    /// If the option doesn't support multiple occurrences, or there was only a single occurrence,
-    /// the iterator will only contain a single item.
-    ///
-    /// Returns `None` if the option wasn't present.
-    ///
-    /// # Panics
-    ///
-    /// If the value is invalid UTF-8.
-    ///
-    /// If `id` is not a valid argument or group id.
-    ///
-    /// # Examples
-    /// ```rust
-    /// # use clap_builder as clap;
-    /// # use clap::{Command,Arg, ArgAction};
-    /// let m = Command::new("myprog")
-    ///     .arg(Arg::new("exec")
-    ///         .short('x')
-    ///         .num_args(1..)
-    ///         .action(ArgAction::Append)
-    ///         .value_terminator(";"))
-    ///     .get_matches_from(vec![
-    ///         "myprog", "-x", "echo", "hi", ";", "-x", "echo", "bye"]);
-    /// let vals: Vec<Vec<&str>> = m.grouped_values_of("exec").unwrap().collect();
-    /// assert_eq!(vals, [["echo", "hi"], ["echo", "bye"]]);
-    /// ```
-    /// [`Iterator`]: std::iter::Iterator
-    #[cfg(feature = "unstable-grouped")]
-    #[cfg_attr(debug_assertions, track_caller)]
-    #[deprecated(
-        since = "4.1.0",
-        note = "Use get_occurrences or remove_occurrences instead"
-    )]
-    #[allow(deprecated)]
-    pub fn grouped_values_of(&self, id: &str) -> Option<GroupedValues> {
-        let arg = some!(self.get_arg(id));
-        let v = GroupedValues {
-            iter: arg.vals().map(|g| g.iter().map(unwrap_string).collect()),
-            len: arg.vals().len(),
-        };
-        Some(v)
-    }
-
     /// Report where argument value came from
     ///
     /// # Panics
@@ -1903,18 +1853,6 @@ impl<'a> Default for Indices<'a> {
         Indices {
             iter: EMPTY[..].iter().cloned(),
             len: 0,
-        }
-    }
-}
-
-#[cfg_attr(debug_assertions, track_caller)]
-#[inline]
-#[cfg(feature = "unstable-grouped")]
-fn unwrap_string(value: &AnyValue) -> &str {
-    match value.downcast_ref::<String>() {
-        Some(value) => value,
-        None => {
-            panic!("Must use `_os` lookups with `Arg::allow_invalid_utf8`",)
         }
     }
 }

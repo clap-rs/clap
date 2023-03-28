@@ -52,7 +52,6 @@ string = []  # Allow runtime generated strings
 
 # In-work features
 unstable-replace = []
-unstable-grouped = []
 unstable-v5 = ["deprecated"]
 
 [lib]
