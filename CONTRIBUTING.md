@@ -67,4 +67,3 @@ When we're ready to release, a project owner should do the following
 [issues]: https://github.com/ORG/PROJECT/issues
 [new issue]: https://github.com/ORG/PROJECT/issues/new
 [all issues]: https://github.com/ORG/PROJECT/issues?utf8=%E2%9C%93&q=is%3Aissue
-[travis]: https://github.com/ORG/PROJECT/blob/master/.travis.yml
