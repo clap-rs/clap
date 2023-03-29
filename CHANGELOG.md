@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't highlight uninteresting parts of the error message
+
 ## [4.2.0] - 2023-03-28
 
 ### Compatibility
