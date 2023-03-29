@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+    - id: check-yaml
+      stages: [commit]
+    - id: check-json
+      stages: [commit]
+    - id: check-toml
+      stages: [commit]
+    - id: check-merge-conflict
+      stages: [commit]
+    - id: check-case-conflict
+      stages: [commit]
+    - id: detect-private-key
+      stages: [commit]
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.11.1
+    hooks:
+    - id: typos
+      stages: [commit]
+  - repo: https://github.com/crate-ci/committed
+    rev: v1.0.4
+    hooks:
+    - id: committed
+      stages: [commit-msg]

@@ -1,0 +1,21 @@
+name: Spelling
+
+permissions:
+  contents: read
+
+on: [pull_request]
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+jobs:
+  spelling:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v3
+    - name: Spell Check Repo
+      uses: crate-ci/typos@master

@@ -1,0 +1,24 @@
+# Not run as part of pre-commit checks because they don't handle sending the correct commit
+# range to `committed`
+name: Lint Commits
+on: [pull_request]
+
+permissions:
+  contents: read
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+jobs:
+  committed:
+    name: Lint Commits
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Lint Commits
+      uses: crate-ci/committed@master

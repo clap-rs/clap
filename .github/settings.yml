@@ -1,0 +1,52 @@
+# These settings are synced to GitHub by https://probot.github.io/apps/settings/
+
+repository:
+  description: "DESCRIPTION"
+  homepage: "https://docs.rs/PROJECT"
+  topics: ""
+  has_issues: true
+  has_projects: false
+  has_wiki: false
+  has_downloads: true
+  default_branch: main
+
+  allow_squash_merge: true
+  allow_merge_commit: true
+  allow_rebase_merge: true
+
+  allow_auto_merge: true
+  delete_branch_on_merge: true
+
+  squash_merge_commit_title: "PR_TITLE"
+  squash_merge_commit_message: "PR_BODY"
+  merge_commit_message: "PR_BODY"
+
+labels:
+  # Type
+  - name: bug
+    color: '#b60205'
+    description: Not as expected
+  - name: enhancement
+    color: '#1d76db'
+    description: Improve the expected
+  # Flavor
+  - name: question
+    color: "#cc317c"
+    description: Uncertainty is involved
+  - name: breaking-change
+    color: "#e99695"
+  - name: good first issue
+    color: '#c2e0c6'
+    description: Help wanted!
+
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews: null
+      required_conversation_resolution: true
+      required_status_checks:
+        # Required. Require branches to be up to date before merging.
+        strict: false
+        contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
+      enforce_admins: false
+      restrictions: null

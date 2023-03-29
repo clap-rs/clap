@@ -1,0 +1,71 @@
+{
+  "schedule": [
+    "before 3am on the first day of the month"
+  ],
+  "semanticCommits": "enabled",
+  "configMigration": true,
+  "dependencyDashboard": true,
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "^rust-toolchain\\.toml$",
+        "Cargo.toml$",
+        "clippy.toml$",
+        "\.clippy.toml$",
+        "^\.github/workflows/ci.yml$",
+        "^\.github/workflows/rust-next.yml$",
+      ],
+      "matchStrings": [
+        "MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)",
+        "(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?MSRV",
+      ],
+      "depNameTemplate": "rust",
+      "packageNameTemplate": "rust-lang/rust",
+      "datasourceTemplate": "github-releases",
+    }
+  ],
+  "packageRules": [
+    {
+      "commitMessageTopic": "MSRV",
+      "matchManagers": ["regex"],
+      "matchPackageNames": ["rust"],
+      "stabilityDays": 126,  // 3 releases * 6 weeks per release * 7 days per week
+    },
+    // Goals:
+    // - Keep version reqs low, ignoring compatible normal/build dependencies
+    // - Take advantage of latest dev-dependencies
+    // - Rollup safe upgrades to reduce CI runner load
+    // - Help keep number of versions down by always using latest breaking change
+    // - Have lockfile and manifest in-sync
+    {
+      "matchManagers": ["cargo"],
+      "matchDepTypes": ["build-dependencies", "dependencies"],
+      "matchCurrentVersion": ">=0.1.0",
+      "matchUpdateTypes": ["patch"],
+      "enabled": false,
+    },
+    {
+      "matchManagers": ["cargo"],
+      "matchDepTypes": ["build-dependencies", "dependencies"],
+      "matchCurrentVersion": ">=1.0.0",
+      "matchUpdateTypes": ["minor"],
+      "enabled": false,
+    },
+    {
+      "matchManagers": ["cargo"],
+      "matchDepTypes": ["dev-dependencies"],
+      "matchCurrentVersion": ">=0.1.0",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "groupName": "compatible (dev)",
+    },
+    {
+      "matchManagers": ["cargo"],
+      "matchDepTypes": ["dev-dependencies"],
+      "matchCurrentVersion": ">=1.0.0",
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+      "groupName": "compatible (dev)",
+    },
+  ],
+}
