@@ -25,19 +25,19 @@ labels:
   # Type
   - name: bug
     color: '#b60205'
-    description: Not as expected
+    description: "Not as expected"
   - name: enhancement
     color: '#1d76db'
-    description: Improve the expected
+    description: "Improve the expected"
   # Flavor
   - name: question
     color: "#cc317c"
-    description: Uncertainty is involved
+    description: "Uncertainty is involved"
   - name: breaking-change
     color: "#e99695"
   - name: good first issue
     color: '#c2e0c6'
-    description: Help wanted!
+    description: "Help wanted!"
 
 branches:
   - name: main
