@@ -1,6 +1,2 @@
-pre-release-commit-message = "chore: Release"
-tag-message = "{{tag_name}}"
-tag-name = "{{prefix}}v{{version}}"
-consolidate-commits = true
-consolidate-pushes = true
+dependent-version = "fix"
 allow-branch = ["main"]
