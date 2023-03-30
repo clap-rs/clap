@@ -9,6 +9,7 @@ include = [
   "build.rs",
   "src/**/*",
   "Cargo.toml",
+  "Cargo.lock",
   "LICENSE*",
   "README.md",
   "benches/**/*",
