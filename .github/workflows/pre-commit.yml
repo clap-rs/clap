@@ -1,9 +1,17 @@
 name: pre-commit
+
+permissions: {} # none
+
 on:
   pull_request:
   push:
-    branches: ["*master"]
-permissions: {} # none
+    branches: [master]
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
 jobs:
   pre-commit:
     permissions:

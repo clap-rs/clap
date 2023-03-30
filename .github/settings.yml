@@ -1,9 +1,9 @@
 # These settings are synced to GitHub by https://probot.github.io/apps/settings/
 
 repository:
-  description: A full featured, fast Command Line Argument Parser for Rust
-  homepage: docs.rs/clap
-  topics: rust cli command-line argparse clap
+  description: "A full featured, fast Command Line Argument Parser for Rust"
+  homepage: "docs.rs/clap"
+  topics: "rust cli command-line argparse clap"
   has_issues: true
   has_projects: false
   has_wiki: false

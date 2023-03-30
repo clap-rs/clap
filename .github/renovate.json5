@@ -4,7 +4,33 @@
   ],
   "semanticCommits": "enabled",
   "configMigration": true,
+  "dependencyDashboard": true,
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "^rust-toolchain\\.toml$",
+        "Cargo.toml$",
+        "clippy.toml$",
+        "\.clippy.toml$",
+        "^\.github/workflows/ci.yml$",
+        "^\.github/workflows/rust-next.yml$",
+      ],
+      "matchStrings": [
+        "MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)",
+        "(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?MSRV",
+      ],
+      "depNameTemplate": "rust",
+      "packageNameTemplate": "rust-lang/rust",
+      "datasourceTemplate": "github-releases",
+    }
+  ],
   "packageRules": [
+    {
+      "commitMessageTopic": "MSRV",
+      "matchManagers": ["regex"],
+      "matchPackageNames": ["rust"],
+      "stabilityDays": 252,  // 6 releases * 6 weeks per release * 7 days per week
+    },
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
     // - Take advantage of latest dev-dependencies

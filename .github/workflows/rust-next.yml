@@ -1,9 +1,16 @@
 name: rust-next
+
+permissions:
+  contents: read
+
 on:
   schedule:
   - cron: '3 3 3 * *'
-permissions:
-  contents: read
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
 
 jobs:
   test:
@@ -50,11 +57,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
     - uses: Swatinem/rust-cache@v2
     - name: Build
       run: make build-${{matrix.features}}
@@ -65,53 +70,3 @@ jobs:
     - name: Test (ultra-minimal)
       if: matrix.build == 'minimal'
       run: make test-minimal ARGS='--manifest-path Cargo.toml'
-  rustfmt:
-    name: rustfmt
-    strategy:
-      matrix:
-        rust:
-        - stable
-        - beta
-    continue-on-error: ${{ matrix.rust != 'stable' }}
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
-        components: rustfmt
-    - uses: Swatinem/rust-cache@v2
-    - name: Check formatting
-      run: cargo fmt --all -- --check
-  clippy:
-    name: clippy
-    strategy:
-      matrix:
-        rust:
-        - 1.64.0  # MSRV
-        - stable
-    continue-on-error: ${{ matrix.rust != '1.64.0' }}  # MSRV
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
-        components: clippy
-    - uses: Swatinem/rust-cache@v2
-    - name: Lint (ultra-minimal)
-      run: make clippy-minimal ARGS='--manifest-path Cargo.toml'
-    - name: Lint Minimal
-      run: make clippy-minimal
-    - name: Lint All
-      run: make clippy-full
-    - name: Lint (release)
-      run: make clippy-release
