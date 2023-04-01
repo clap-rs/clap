@@ -1,4 +1,4 @@
-msrv = "1.64.0"  # MSRV
+msrv = "1.65.0"  # MSRV
 warn-on-all-wildcard-imports = true
 allow-expect-in-tests = true
 allow-unwrap-in-tests = true
