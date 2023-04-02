@@ -1912,7 +1912,7 @@ impl Command {
         self
     }
 
-    /// Change the starting value for assigning future display orders for ags.
+    /// Change the starting value for assigning future display orders for args.
     ///
     /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
     #[inline]
