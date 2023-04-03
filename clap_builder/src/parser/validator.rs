@@ -199,7 +199,10 @@ impl<'cmd> Validator<'cmd> {
             .map(|(n, _)| n)
             .filter(|n| {
                 // Filter out the args we don't want to specify.
-                self.cmd.find(n).map_or(false, |a| !a.is_hide_set())
+                self.cmd
+                    .find(n)
+                    .map(|a| !a.is_hide_set())
+                    .unwrap_or_default()
             })
             .filter(|key| !conflicting_keys.contains(key))
             .cloned()
@@ -445,7 +448,10 @@ impl<'cmd> Validator<'cmd> {
             .map(|(n, _)| n)
             .filter(|n| {
                 // Filter out the args we don't want to specify.
-                self.cmd.find(n).map_or(false, |a| !a.is_hide_set())
+                self.cmd
+                    .find(n)
+                    .map(|a| !a.is_hide_set())
+                    .unwrap_or_default()
             })
             .cloned()
             .chain(raw_req_args)

@@ -672,7 +672,8 @@ fn write_positionals_of(p: &Command) -> String {
             help = arg
                 .get_help()
                 .map(|s| s.to_string())
-                .map_or("".to_owned(), |v| " -- ".to_owned() + &v)
+                .map(|v| " -- ".to_owned() + &v)
+                .unwrap_or_else(|| "".to_owned())
                 .replace('[', "\\[")
                 .replace(']', "\\]")
                 .replace('\'', "'\\''")

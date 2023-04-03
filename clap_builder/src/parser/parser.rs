@@ -305,7 +305,8 @@ impl<'cmd> Parser<'cmd> {
                         .cmd
                         .get_positionals()
                         .last()
-                        .map_or(false, |p_name| !p_name.is_last_set());
+                        .map(|p_name| !p_name.is_last_set())
+                        .unwrap_or_default();
 
                 let missing_pos = self.cmd.is_allow_missing_positional_set()
                     && is_second_to_last
@@ -779,9 +780,10 @@ impl<'cmd> Parser<'cmd> {
                         matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
                     })
                     .filter(|&n| {
-                        self.cmd.find(n).map_or(true, |a| {
-                            !(a.is_hide_set() || required.contains(a.get_id()))
-                        })
+                        self.cmd
+                            .find(n)
+                            .map(|a| !(a.is_hide_set() || required.contains(a.get_id())))
+                            .unwrap_or(true)
                     })
                     .cloned()
                     .collect();
@@ -810,9 +812,8 @@ impl<'cmd> Parser<'cmd> {
             .cmd
             .get_keymap()
             .get(&pos_counter)
-            .map_or(false, |arg| {
-                arg.is_allow_hyphen_values_set() && !arg.is_last_set()
-            })
+            .map(|arg| arg.is_allow_hyphen_values_set() && !arg.is_last_set())
+            .unwrap_or_default()
         {
             debug!(
                 "Parser::parse_long_args: positional at {} allows hyphens",
@@ -847,7 +848,8 @@ impl<'cmd> Parser<'cmd> {
             .cmd
             .get_keymap()
             .get(&pos_counter)
-            .map_or(false, |arg| arg.is_allow_negative_numbers_set())
+            .map(|arg| arg.is_allow_negative_numbers_set())
+            .unwrap_or_default()
             && short_arg.is_number()
         {
             debug!("Parser::parse_short_arg: negative number");
@@ -856,9 +858,8 @@ impl<'cmd> Parser<'cmd> {
             .cmd
             .get_keymap()
             .get(&pos_counter)
-            .map_or(false, |arg| {
-                arg.is_allow_hyphen_values_set() && !arg.is_last_set()
-            })
+            .map(|arg| arg.is_allow_hyphen_values_set() && !arg.is_last_set())
+            .unwrap_or_default()
             && short_arg
                 .clone()
                 .any(|c| !c.map(|c| self.cmd.contains_short(c)).unwrap_or_default())
@@ -1536,7 +1537,7 @@ impl<'cmd> Parser<'cmd> {
             .filter(|arg_id| {
                 matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
             })
-            .filter(|n| self.cmd.find(n).map_or(true, |a| !a.is_hide_set()))
+            .filter(|n| self.cmd.find(n).map(|a| !a.is_hide_set()).unwrap_or(true))
             .cloned()
             .collect();
 

@@ -1,12 +1,18 @@
 name: CI
+
+permissions:
+  contents: read
+
 on:
   pull_request:
   push:
-    branches: ["*master"]
-  schedule:
-  - cron: '3 3 3 * *'
-permissions:
-  contents: read
+    branches:
+      - "*master"
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
 
 jobs:
   ci:
@@ -54,11 +60,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
     - uses: Swatinem/rust-cache@v2
     - name: Build
       run: make build-${{matrix.features}}
@@ -101,11 +105,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Install rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
-          override: true
+          targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
       - name: Check
         run: make check-${{ matrix.features }}
@@ -122,11 +125,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: 1.64.0  # MSRV
-        profile: minimal
-        override: true
     - uses: Swatinem/rust-cache@v2
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
@@ -137,11 +138,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: 1.64.0  # MSRV
-        profile: minimal
-        override: true
     - uses: Swatinem/rust-cache@v2
     - name: Check documentation
       env:
@@ -154,13 +153,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
         # Not MSRV because its harder to jump between versions and people are
         # more likely to have stable
         toolchain: stable
-        profile: minimal
-        override: true
         components: rustfmt
     - uses: Swatinem/rust-cache@v2
     - name: Check formatting
@@ -172,11 +169,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: 1.64.0  # MSRV
-        profile: minimal
-        override: true
         components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Lint (ultra-minimal)

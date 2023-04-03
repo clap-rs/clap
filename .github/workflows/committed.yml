@@ -3,6 +3,14 @@
 name: Lint Commits
 on: [pull_request]
 
+permissions:
+  contents: read
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
 jobs:
   committed:
     name: Lint Commits

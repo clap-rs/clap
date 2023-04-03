@@ -130,7 +130,9 @@ impl ArgMatcher {
     }
 
     pub(crate) fn check_explicit(&self, arg: &Id, predicate: &ArgPredicate) -> bool {
-        self.get(arg).map_or(false, |a| a.check_explicit(predicate))
+        self.get(arg)
+            .map(|a| a.check_explicit(predicate))
+            .unwrap_or_default()
     }
 
     pub(crate) fn start_custom_arg(&mut self, arg: &Arg, source: ValueSource) {

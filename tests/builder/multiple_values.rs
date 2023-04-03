@@ -1297,7 +1297,6 @@ fn low_index_positional_with_extra_flags() {
     assert_eq!(
         m.get_many::<String>("input")
             .unwrap()
-            .into_iter()
             .map(String::from)
             .collect::<Vec<_>>(),
         vec![
