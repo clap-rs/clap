@@ -724,13 +724,13 @@ Options:
         .version("0.1")
         .term_width(52)
         .arg(Arg::new("cafe")
-           .short('c')
-           .long("cafe")
-           .value_name("FILE")
-           .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
+            .short('c')
+            .long("cafe")
+            .value_name("FILE")
+            .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
-           .action(ArgAction::Set));
+            .action(ArgAction::Set));
     utils::assert_output(cmd, "ctest --help", ISSUE_626_PANIC, false);
 }
 
@@ -742,13 +742,13 @@ fn issue_626_variable_panic() {
             .version("0.1")
             .term_width(i)
             .arg(Arg::new("cafe")
-               .short('c')
-               .long("cafe")
-               .value_name("FILE")
-               .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
+                .short('c')
+                .long("cafe")
+                .value_name("FILE")
+                .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
                d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
                Le café est souvent une contribution majeure aux exportations des régions productrices.")
-               .action(ArgAction::Set))
+                .action(ArgAction::Set))
             .try_get_matches_from(vec!["ctest", "--help"]);
     }
 }
@@ -838,7 +838,7 @@ fn dont_wrap_urls() {
                 .help("Install toolchains that require an emulator. See https://github.com/rust-lang/rustup/wiki/Non-host-toolchains")
                 .long("force-non-host")
                 .action(ArgAction::SetTrue))
-    );
+        );
 
     const EXPECTED: &str = "\
 Usage: Example update [OPTIONS]
@@ -905,35 +905,35 @@ Options:
 
     let app1 = Command::new("ctest")
         .version("0.1")
-			.term_width(120)
-			.hide_possible_values(true)
-			.arg(Arg::new("filter")
-				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+        .term_width(120)
+        .hide_possible_values(true)
+        .arg(Arg::new("filter")
+            .help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
             images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
-				.long("filter")
-				.value_parser(filter_values)
-				.action(ArgAction::Set));
+            .long("filter")
+            .value_parser(filter_values)
+            .action(ArgAction::Set));
     utils::assert_output(app1, "ctest --help", ISSUE_688, false);
 
     let app2 = Command::new("ctest")
         .version("0.1")
-			.term_width(120)
-			.arg(Arg::new("filter")
-				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+        .term_width(120)
+        .arg(Arg::new("filter")
+            .help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
             images. The default is Linear (Bilinear).")
-				.long("filter")
-				.value_parser(filter_values)
-				.action(ArgAction::Set));
+            .long("filter")
+            .value_parser(filter_values)
+            .action(ArgAction::Set));
     utils::assert_output(app2, "ctest --help", ISSUE_688, false);
 
     let app3 = Command::new("ctest")
         .version("0.1")
-			.term_width(120)
-			.arg(Arg::new("filter")
-				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+        .term_width(120)
+        .arg(Arg::new("filter")
+            .help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
             images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
-				.long("filter")
-				.action(ArgAction::Set));
+            .long("filter")
+            .action(ArgAction::Set));
     utils::assert_output(app3, "ctest --help", ISSUE_688, false);
 }
 
@@ -1853,7 +1853,7 @@ Options:
 #[rustfmt::skip]
 #[test]
 fn issue_1487() {
-static ISSUE_1487: &str = "\
+    static ISSUE_1487: &str = "\
 Usage: ctest <arg1|arg2>
 
 Arguments:
@@ -1865,13 +1865,13 @@ Options:
 ";
 
     let cmd = Command::new("test")
-    .arg(Arg::new("arg1")
-        .group("group1"))
-    .arg(Arg::new("arg2")
-        .group("group1"))
-    .group(ArgGroup::new("group1")
-        .args(["arg1", "arg2"])
-        .required(true));
+        .arg(Arg::new("arg1")
+            .group("group1"))
+        .arg(Arg::new("arg2")
+            .group("group1"))
+        .group(ArgGroup::new("group1")
+            .args(["arg1", "arg2"])
+            .required(true));
     utils::assert_output(cmd, "ctest -h", ISSUE_1487, false);
 }
 
@@ -2819,4 +2819,72 @@ fn display_name_subcommand_explicit() {
         cmd.find_subcommand("child").unwrap().get_display_name(),
         Some("child.display")
     );
+}
+
+#[test]
+fn value_terminator_in_usage_message() {
+    static EXPECTED: &str = "\
+Usage: cmd [<multiple_options>... :] [last]
+
+Arguments:
+  [<multiple_options>... :]  
+  [last]                     
+
+Options:
+  -h, --help  Print help
+";
+    let cmd = Command::new("cmd")
+        .arg(
+            Arg::new("multiple_options")
+                .num_args(0..)
+                .value_terminator(":"),
+        )
+        .arg(Arg::new("last").required(false));
+    utils::assert_output(cmd, "cmd --help", EXPECTED, false);
+}
+
+#[test]
+fn non_positional_value_terminator_in_usage_message() {
+    static EXPECTED: &str = "\
+Usage: cmd [OPTIONS] [last]
+
+Arguments:
+  [last]  
+
+Options:
+  -o, --multiple_options [<multiple_options>... :]  
+  -h, --help                                        Print help
+";
+    let cmd = Command::new("cmd")
+        .arg(
+            Arg::new("multiple_options")
+                .short('o')
+                .long("multiple_options")
+                .num_args(0..)
+                .value_terminator(":"),
+        )
+        .arg(Arg::new("last").required(false));
+    utils::assert_output(cmd, "cmd --help", EXPECTED, false);
+}
+
+#[test]
+fn required_options_with_value_terminator_in_usage_message() {
+    static EXPECTED: &str = "\
+Usage: cmd [<multiple_options>... :] [<multiple_options>... :] [<multiple_options>... :] [last]
+
+Arguments:
+  [<multiple_options>... :] [<multiple_options>... :] [<multiple_options>... :]  
+  [last]                                                                         
+
+Options:
+  -h, --help  Print help
+";
+    let cmd = Command::new("cmd")
+        .arg(
+            Arg::new("multiple_options")
+                .num_args(3..)
+                .value_terminator(":"),
+        )
+        .arg(Arg::new("last").required(false));
+    utils::assert_output(cmd, "cmd --help", EXPECTED, false);
 }

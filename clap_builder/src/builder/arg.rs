@@ -69,8 +69,10 @@ pub struct Arg {
     pub(crate) r_unless_all: Vec<Id>,
     pub(crate) short: Option<char>,
     pub(crate) long: Option<Str>,
-    pub(crate) aliases: Vec<(Str, bool)>, // (name, visible)
-    pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
+    pub(crate) aliases: Vec<(Str, bool)>,
+    // (name, visible)
+    pub(crate) short_aliases: Vec<(char, bool)>,
+    // (name, visible)
     pub(crate) disp_ord: Option<usize>,
     pub(crate) val_names: Vec<Str>,
     pub(crate) num_vals: Option<ValueRange>,
@@ -4337,10 +4339,21 @@ impl Arg {
 
         debug_assert!(self.is_takes_value_set());
         for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = if self.is_positional() && (num_vals.min_values() == 0 || !required) {
-                format!("[{val_name}]")
+            let optional = self.is_positional() && (num_vals.min_values() == 0 || !required);
+            let arg_name = if let Some(ref terminator) = self.terminator {
+                // #4812: Added the variadic arguments stop delimiter to the
+                // usage message.
+                if optional {
+                    format!("[<{val_name}>... {terminator}]")
+                } else {
+                    format!("<{val_name}>... {terminator}")
+                }
             } else {
-                format!("<{val_name}>")
+                if optional {
+                    format!("[{val_name}]")
+                } else {
+                    format!("<{val_name}>")
+                }
             };
 
             if n != 0 {
@@ -4349,13 +4362,17 @@ impl Arg {
             rendered.push_str(&arg_name);
         }
 
-        let mut extra_values = false;
-        extra_values |= val_names.len() < num_vals.max_values();
-        if self.is_positional() && matches!(*self.get_action(), ArgAction::Append) {
-            extra_values = true;
-        }
-        if extra_values {
-            rendered.push_str("...");
+        if self.terminator.is_none() {
+            // #4812: Conditionalized to preserve the original behavior when no
+            // stop delimiter is present.
+            let mut extra_values = false;
+            extra_values |= val_names.len() < num_vals.max_values();
+            if self.is_positional() && matches!(*self.get_action(), ArgAction::Append) {
+                extra_values = true;
+            }
+            if extra_values {
+                rendered.push_str("...");
+            }
         }
 
         rendered

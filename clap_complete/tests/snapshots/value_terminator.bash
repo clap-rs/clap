@@ -19,7 +19,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-h --help [arguments]..."
+            opts="-h --help [<arguments>... ;]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
