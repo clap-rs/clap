@@ -4,8 +4,8 @@
 #![cfg_attr(not(feature = "error-context"), allow(unused_imports))]
 
 use crate::builder::Command;
-use crate::builder::Style;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 #[cfg(feature = "error-context")]
 use crate::error::ContextKind;
 #[cfg(feature = "error-context")]
@@ -31,9 +31,10 @@ pub struct KindFormatter;
 impl ErrorFormatter for KindFormatter {
     fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
         use std::fmt::Write as _;
+        let styles = &error.inner.styles;
 
         let mut styled = StyledStr::new();
-        start_error(&mut styled);
+        start_error(&mut styled, styles);
         if let Some(msg) = error.kind().as_str() {
             styled.push_str(msg);
         } else if let Some(source) = error.inner.source.as_ref() {
@@ -57,12 +58,13 @@ pub struct RichFormatter;
 impl ErrorFormatter for RichFormatter {
     fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
         use std::fmt::Write as _;
-        let good = Style::Good.as_style();
+        let styles = &error.inner.styles;
+        let good = &styles.good;
 
         let mut styled = StyledStr::new();
-        start_error(&mut styled);
+        start_error(&mut styled, styles);
 
-        if !write_dynamic_context(error, &mut styled) {
+        if !write_dynamic_context(error, &mut styled, styles) {
             if let Some(msg) = error.kind().as_str() {
                 styled.push_str(msg);
             } else if let Some(source) = error.inner.source.as_ref() {
@@ -79,7 +81,7 @@ impl ErrorFormatter for RichFormatter {
                 styled.push_str("\n");
                 suggested = true;
             }
-            did_you_mean(&mut styled, "subcommand", valid);
+            did_you_mean(&mut styled, styles, "subcommand", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedArg) {
             styled.push_str("\n");
@@ -87,7 +89,7 @@ impl ErrorFormatter for RichFormatter {
                 styled.push_str("\n");
                 suggested = true;
             }
-            did_you_mean(&mut styled, "argument", valid);
+            did_you_mean(&mut styled, styles, "argument", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedValue) {
             styled.push_str("\n");
@@ -95,7 +97,7 @@ impl ErrorFormatter for RichFormatter {
                 styled.push_str("\n");
                 suggested = true;
             }
-            did_you_mean(&mut styled, "value", valid);
+            did_you_mean(&mut styled, styles, "value", valid);
         }
         let suggestions = error.get(ContextKind::Suggested);
         if let Some(ContextValue::StyledStrs(suggestions)) = suggestions {
@@ -118,25 +120,29 @@ impl ErrorFormatter for RichFormatter {
             put_usage(&mut styled, usage);
         }
 
-        try_help(&mut styled, error.inner.help_flag);
+        try_help(&mut styled, styles, error.inner.help_flag);
 
         styled
     }
 }
 
-fn start_error(styled: &mut StyledStr) {
+fn start_error(styled: &mut StyledStr, styles: &Styles) {
     use std::fmt::Write as _;
-    let error = Style::Error.as_style();
+    let error = &styles.error;
     let _ = write!(styled, "{}error:{} ", error.render(), error.render_reset());
 }
 
 #[must_use]
 #[cfg(feature = "error-context")]
-fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) -> bool {
+fn write_dynamic_context(
+    error: &crate::error::Error,
+    styled: &mut StyledStr,
+    styles: &Styles,
+) -> bool {
     use std::fmt::Write as _;
-    let good = Style::Good.as_style();
-    let warning = Style::Warning.as_style();
-    let literal = Style::Literal.as_style();
+    let good = styles.good;
+    let warning = styles.warning;
+    let literal = styles.literal;
 
     match error.kind() {
         ErrorKind::ArgumentConflict => {
@@ -449,17 +455,18 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
 
 pub(crate) fn format_error_message(
     message: &str,
+    styles: &Styles,
     cmd: Option<&Command>,
     usage: Option<&StyledStr>,
 ) -> StyledStr {
     let mut styled = StyledStr::new();
-    start_error(&mut styled);
+    start_error(&mut styled, styles);
     styled.push_str(message);
     if let Some(usage) = usage {
         put_usage(&mut styled, usage);
     }
     if let Some(cmd) = cmd {
-        try_help(&mut styled, get_help_flag(cmd));
+        try_help(&mut styled, styles, get_help_flag(cmd));
     }
     styled
 }
@@ -488,10 +495,10 @@ pub(crate) fn get_help_flag(cmd: &Command) -> Option<&'static str> {
     }
 }
 
-fn try_help(styled: &mut StyledStr, help: Option<&str>) {
+fn try_help(styled: &mut StyledStr, styles: &Styles, help: Option<&str>) {
     if let Some(help) = help {
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &styles.literal;
         let _ = write!(
             styled,
             "\n\nFor more information, try '{}{help}{}'.\n",
@@ -504,9 +511,9 @@ fn try_help(styled: &mut StyledStr, help: Option<&str>) {
 }
 
 #[cfg(feature = "error-context")]
-fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
+fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &ContextValue) {
     use std::fmt::Write as _;
-    let good = Style::Good.as_style();
+    let good = &styles.good;
 
     let _ = write!(styled, "{TAB}{}tip:{}", good.render(), good.render_reset());
     if let ContextValue::String(valid) = valid {

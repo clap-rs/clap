@@ -198,39 +198,67 @@ impl std::fmt::Display for StyledStr {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub(crate) enum Style {
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub(crate) struct Styles {
+    pub header: anstyle::Style,
+    pub literal: anstyle::Style,
+    pub placeholder: anstyle::Style,
+    pub good: anstyle::Style,
+    pub warning: anstyle::Style,
+    pub error: anstyle::Style,
     #[allow(dead_code)]
-    Header,
-    #[allow(dead_code)]
-    Literal,
-    #[allow(dead_code)]
-    Placeholder,
-    #[allow(dead_code)]
-    Good,
-    #[allow(dead_code)]
-    Warning,
-    #[allow(dead_code)]
-    Error,
-    #[allow(dead_code)]
-    Hint,
+    pub hint: anstyle::Style,
 }
 
-impl Style {
-    pub(crate) fn as_style(&self) -> anstyle::Style {
+impl Styles {
+    pub const fn plain() -> Self {
+        Self {
+            header: anstyle::Style::new(),
+            literal: anstyle::Style::new(),
+            placeholder: anstyle::Style::new(),
+            good: anstyle::Style::new(),
+            warning: anstyle::Style::new(),
+            error: anstyle::Style::new(),
+            hint: anstyle::Style::new(),
+        }
+    }
+
+    pub const fn styled() -> Self {
         #[cfg(feature = "color")]
-        match self {
-            Style::Header => (anstyle::Effects::BOLD | anstyle::Effects::UNDERLINE).into(),
-            Style::Literal => anstyle::Effects::BOLD.into(),
-            Style::Placeholder => anstyle::Style::default(),
-            Style::Good => anstyle::AnsiColor::Green.on_default(),
-            Style::Warning => anstyle::AnsiColor::Yellow.on_default(),
-            Style::Error => anstyle::AnsiColor::Red.on_default() | anstyle::Effects::BOLD,
-            Style::Hint => anstyle::Effects::DIMMED.into(),
+        {
+            Self {
+                header: anstyle::Style::new().bold().underline(),
+                literal: anstyle::Style::new().bold(),
+                placeholder: anstyle::Style::new(),
+                good: anstyle::Style::new()
+                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Green))),
+                warning: anstyle::Style::new()
+                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Yellow))),
+                error: anstyle::Style::new()
+                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red)))
+                    .bold(),
+                hint: anstyle::Style::new().dimmed(),
+            }
         }
         #[cfg(not(feature = "color"))]
         {
-            anstyle::Style::new()
+            Self::plain()
         }
+    }
+}
+
+impl super::AppTag for Styles {}
+
+impl Default for Styles {
+    fn default() -> Self {
+        Self::styled()
+    }
+}
+
+impl Default for &'_ Styles {
+    fn default() -> Self {
+        const STYLES: Styles = Styles::styled();
+        &STYLES
     }
 }

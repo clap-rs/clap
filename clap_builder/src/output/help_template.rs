@@ -6,8 +6,8 @@ use std::usize;
 // Internal
 use crate::builder::PossibleValue;
 use crate::builder::Str;
-use crate::builder::Style;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::{Arg, Command};
 use crate::output::display_width;
 use crate::output::wrap;
@@ -75,6 +75,7 @@ const DEFAULT_NO_ARGS_TEMPLATE: &str = "\
 pub(crate) struct HelpTemplate<'cmd, 'writer> {
     writer: &'writer mut StyledStr,
     cmd: &'cmd Command,
+    styles: &'cmd Styles,
     usage: &'cmd Usage<'cmd>,
     next_line_help: bool,
     term_w: usize,
@@ -113,6 +114,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         HelpTemplate {
             writer,
             cmd,
+            styles: cmd.get_styles(),
             usage,
             next_line_help,
             term_w,
@@ -128,7 +130,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     pub(crate) fn write_templated_help(&mut self, template: &str) {
         debug!("HelpTemplate::write_templated_help");
         use std::fmt::Write as _;
-        let header = Style::Header.as_style();
+        let header = &self.styles.header;
 
         let mut parts = template.split('{');
         if let Some(first) = parts.next() {
@@ -340,7 +342,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     pub(crate) fn write_all_args(&mut self) {
         debug!("HelpTemplate::write_all_args");
         use std::fmt::Write as _;
-        let header = Style::Header.as_style();
+        let header = &self.styles.header;
 
         let pos = self
             .cmd
@@ -492,7 +494,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         self.writer.push_str(TAB);
         self.short(arg);
         self.long(arg);
-        self.writer.push_styled(&arg.stylize_arg_suffix(None));
+        self.writer
+            .push_styled(&arg.stylize_arg_suffix(&self.styles, None));
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {
@@ -512,7 +515,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn short(&mut self, arg: &Arg) {
         debug!("HelpTemplate::short");
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &self.styles.literal;
 
         if let Some(s) = arg.get_short() {
             let _ = write!(
@@ -530,7 +533,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn long(&mut self, arg: &Arg) {
         debug!("HelpTemplate::long");
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &self.styles.literal;
 
         if let Some(long) = arg.get_long() {
             if arg.get_short().is_some() {
@@ -601,7 +604,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     ) {
         debug!("HelpTemplate::help");
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &self.styles.literal;
 
         // Is help on next line, if so then indent
         if next_line_help {
@@ -865,7 +868,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn write_subcommands(&mut self, cmd: &Command) {
         debug!("HelpTemplate::write_subcommands");
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &self.styles.literal;
 
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;

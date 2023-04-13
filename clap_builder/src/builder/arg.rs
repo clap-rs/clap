@@ -16,8 +16,8 @@ use crate::builder::IntoResettable;
 use crate::builder::OsStr;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
-use crate::builder::Style;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::ValueRange;
 use crate::util::AnyValueId;
 use crate::ArgAction;
@@ -4272,9 +4272,9 @@ impl Arg {
         }
     }
 
-    pub(crate) fn stylized(&self, required: Option<bool>) -> StyledStr {
+    pub(crate) fn stylized(&self, styles: &Styles, required: Option<bool>) -> StyledStr {
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &styles.literal;
 
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
@@ -4288,14 +4288,14 @@ impl Arg {
         } else if let Some(s) = self.get_short() {
             let _ = write!(styled, "{}-{s}{}", literal.render(), literal.render_reset());
         }
-        styled.push_styled(&self.stylize_arg_suffix(required));
+        styled.push_styled(&self.stylize_arg_suffix(styles, required));
         styled
     }
 
-    pub(crate) fn stylize_arg_suffix(&self, required: Option<bool>) -> StyledStr {
+    pub(crate) fn stylize_arg_suffix(&self, styles: &Styles, required: Option<bool>) -> StyledStr {
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
-        let placeholder = Style::Placeholder.as_style();
+        let literal = &styles.literal;
+        let placeholder = &styles.placeholder;
         let mut styled = StyledStr::new();
 
         let mut need_closing_bracket = false;
@@ -4427,7 +4427,8 @@ impl Eq for Arg {}
 
 impl Display for Arg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        self.stylized(None).fmt(f)
+        let plain = Styles::plain();
+        self.stylized(&plain, None).fmt(f)
     }
 }
 

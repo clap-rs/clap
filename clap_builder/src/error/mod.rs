@@ -17,8 +17,8 @@ use std::{
 };
 
 // Internal
-use crate::builder::Style;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::output::fmt::Colorizer;
 use crate::output::fmt::Stream;
 use crate::parser::features::suggestions;
@@ -70,6 +70,7 @@ struct ErrorInner {
     message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
     help_flag: Option<&'static str>,
+    styles: Styles,
     color_when: ColorChoice,
     color_help_when: ColorChoice,
     backtrace: Option<Backtrace>,
@@ -133,6 +134,7 @@ impl<F: ErrorFormatter> Error<F> {
                 message: None,
                 source: None,
                 help_flag: None,
+                styles: Styles::plain(),
                 color_when: ColorChoice::Never,
                 color_help_when: ColorChoice::Never,
                 backtrace: Backtrace::new(),
@@ -145,7 +147,8 @@ impl<F: ErrorFormatter> Error<F> {
     ///
     /// Generally, this is used with [`Error::new`]
     pub fn with_cmd(self, cmd: &Command) -> Self {
-        self.set_color(cmd.get_color())
+        self.set_styles(cmd.get_styles().clone())
+            .set_color(cmd.get_color())
             .set_colored_help(cmd.color_help())
             .set_help_flag(format::get_help_flag(cmd))
     }
@@ -296,6 +299,11 @@ impl<F: ErrorFormatter> Error<F> {
         self
     }
 
+    pub(crate) fn set_styles(mut self, styles: Styles) -> Self {
+        self.inner.styles = styles;
+        self
+    }
+
     pub(crate) fn set_color(mut self, color_when: ColorChoice) -> Self {
         self.inner.color_when = color_when;
         self
@@ -436,8 +444,9 @@ impl<F: ErrorFormatter> Error<F> {
         usage: Option<StyledStr>,
     ) -> Self {
         use std::fmt::Write as _;
-        let warning = Style::Warning.as_style();
-        let good = Style::Good.as_style();
+        let styles = cmd.get_styles();
+        let warning = &styles.warning;
+        let good = &styles.good;
         let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -667,8 +676,9 @@ impl<F: ErrorFormatter> Error<F> {
         usage: Option<StyledStr>,
     ) -> Self {
         use std::fmt::Write as _;
-        let warning = Style::Warning.as_style();
-        let good = Style::Good.as_style();
+        let styles = cmd.get_styles();
+        let warning = &styles.warning;
+        let good = &styles.good;
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -729,8 +739,9 @@ impl<F: ErrorFormatter> Error<F> {
         usage: Option<StyledStr>,
     ) -> Self {
         use std::fmt::Write as _;
-        let warning = Style::Warning.as_style();
-        let good = Style::Good.as_style();
+        let styles = cmd.get_styles();
+        let warning = &styles.warning;
+        let good = &styles.good;
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -763,7 +774,7 @@ impl<F: ErrorFormatter> Error<F> {
 
     fn formatted(&self) -> Cow<'_, StyledStr> {
         if let Some(message) = self.inner.message.as_ref() {
-            message.formatted()
+            message.formatted(&self.inner.styles)
         } else {
             let styled = F::format_error(self);
             Cow::Owned(styled)
@@ -822,7 +833,12 @@ impl Message {
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
 
-                let styled = format::format_error_message(&message, Some(cmd), usage.as_ref());
+                let styled = format::format_error_message(
+                    &message,
+                    cmd.get_styles(),
+                    Some(cmd),
+                    usage.as_ref(),
+                );
 
                 *self = Self::Formatted(styled);
             }
@@ -830,10 +846,10 @@ impl Message {
         }
     }
 
-    fn formatted(&self) -> Cow<StyledStr> {
+    fn formatted(&self, styles: &Styles) -> Cow<StyledStr> {
         match self {
             Message::Raw(s) => {
-                let styled = format::format_error_message(s, None, None);
+                let styled = format::format_error_message(s, styles, None, None);
 
                 Cow::Owned(styled)
             }

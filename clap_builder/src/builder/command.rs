@@ -17,6 +17,7 @@ use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::{Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -3338,6 +3339,10 @@ impl Command {
         }
     }
 
+    pub(crate) fn get_styles(&self) -> &Styles {
+        self.app_ext.get().unwrap_or_default()
+    }
+
     /// Iterate through the set of subcommands, getting a reference to each.
     #[inline]
     pub fn get_subcommands(&self) -> impl Iterator<Item = &Command> {
@@ -4649,7 +4654,7 @@ impl fmt::Display for Command {
     }
 }
 
-trait AppTag: crate::builder::ext::Extension {}
+pub(crate) trait AppTag: crate::builder::ext::Extension {}
 
 #[derive(Default, Copy, Clone, Debug)]
 struct TermWidth(usize);

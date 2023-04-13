@@ -4,8 +4,8 @@
 #![cfg_attr(not(feature = "usage"), allow(dead_code))]
 
 // Internal
-use crate::builder::Style;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::{ArgPredicate, Command};
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
@@ -16,6 +16,7 @@ static DEFAULT_SUB_VALUE_NAME: &str = "COMMAND";
 
 pub(crate) struct Usage<'cmd> {
     cmd: &'cmd Command,
+    styles: &'cmd Styles,
     required: Option<&'cmd ChildGraph<Id>>,
 }
 
@@ -23,6 +24,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn new(cmd: &'cmd Command) -> Self {
         Usage {
             cmd,
+            styles: cmd.get_styles(),
             required: None,
         }
     }
@@ -39,7 +41,7 @@ impl<'cmd> Usage<'cmd> {
         let usage = some!(self.create_usage_no_title(used));
 
         use std::fmt::Write as _;
-        let header = Style::Header.as_style();
+        let header = &self.styles.header;
         let mut styled = StyledStr::new();
         let _ = write!(
             styled,
@@ -80,8 +82,8 @@ impl<'cmd> Usage<'cmd> {
     fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
-        let placeholder = Style::Placeholder.as_style();
+        let literal = &self.styles.literal;
+        let placeholder = &self.styles.placeholder;
         let mut styled = StyledStr::new();
 
         let name = self
@@ -165,8 +167,8 @@ impl<'cmd> Usage<'cmd> {
     fn create_smart_usage(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_smart_usage");
         use std::fmt::Write;
-        let literal = Style::Literal.as_style();
-        let placeholder = Style::Placeholder.as_style();
+        let literal = &self.styles.literal;
+        let placeholder = &self.styles.placeholder;
         let mut styled = StyledStr::new();
 
         let bin_name = self
@@ -245,7 +247,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn get_args(&self, incls: &[Id], force_optional: bool) -> Vec<StyledStr> {
         debug!("Usage::get_args: incls={:?}", incls,);
         use std::fmt::Write as _;
-        let literal = Style::Literal.as_style();
+        let literal = &self.styles.literal;
 
         let required_owned;
         let required = if let Some(required) = self.required {
@@ -297,7 +299,7 @@ impl<'cmd> Usage<'cmd> {
                     continue;
                 }
 
-                let stylized = arg.stylized(Some(!force_optional));
+                let stylized = arg.stylized(&self.styles, Some(!force_optional));
                 if let Some(index) = arg.get_index() {
                     let new_len = index + 1;
                     if required_positionals.len() < new_len {
@@ -338,10 +340,10 @@ impl<'cmd> Usage<'cmd> {
                 if pos.is_last_set() {
                     styled = StyledStr::new();
                     let _ = write!(styled, "{}[--{} ", literal.render(), literal.render_reset());
-                    styled.push_styled(&pos.stylized(Some(true)));
+                    styled.push_styled(&pos.stylized(&self.styles, Some(true)));
                     let _ = write!(styled, "{}]{}", literal.render(), literal.render_reset());
                 } else {
-                    styled = pos.stylized(Some(false));
+                    styled = pos.stylized(&self.styles, Some(false));
                 }
                 required_positionals[index] = Some(styled);
             }
@@ -461,7 +463,7 @@ impl<'cmd> Usage<'cmd> {
                     continue;
                 }
 
-                let stylized = arg.stylized(Some(true));
+                let stylized = arg.stylized(&self.styles, Some(true));
                 if let Some(index) = arg.get_index() {
                     if !arg.is_last_set() || incl_last {
                         let new_len = index + 1;
