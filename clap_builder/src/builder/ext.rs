@@ -1,7 +1,6 @@
 use crate::util::AnyValueId;
 use crate::util::FlatMap;
 
-#[allow(dead_code)]
 #[derive(Default, Clone, Debug)]
 pub(crate) struct Extensions {
     extensions: FlatMap<AnyValueId, BoxedExtension>,

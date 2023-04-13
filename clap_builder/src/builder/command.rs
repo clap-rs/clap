@@ -11,6 +11,7 @@ use std::path::Path;
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
+use crate::builder::ext::Extensions;
 use crate::builder::ArgAction;
 use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
@@ -90,8 +91,6 @@ pub struct Command {
     usage_name: Option<String>,
     help_str: Option<StyledStr>,
     disp_ord: Option<usize>,
-    term_w: Option<usize>,
-    max_w: Option<usize>,
     #[cfg(feature = "help")]
     template: Option<StyledStr>,
     settings: AppFlags,
@@ -105,6 +104,7 @@ pub struct Command {
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
+    app_ext: Extensions,
 }
 
 /// # Basic API
@@ -1104,7 +1104,7 @@ impl Command {
     #[must_use]
     #[cfg(any(not(feature = "unstable-v5"), feature = "wrap_help"))]
     pub fn term_width(mut self, width: usize) -> Self {
-        self.term_w = Some(width);
+        self.app_ext.set(TermWidth(width));
         self
     }
 
@@ -1131,8 +1131,8 @@ impl Command {
     #[inline]
     #[must_use]
     #[cfg(any(not(feature = "unstable-v5"), feature = "wrap_help"))]
-    pub fn max_term_width(mut self, w: usize) -> Self {
-        self.max_w = Some(w);
+    pub fn max_term_width(mut self, width: usize) -> Self {
+        self.app_ext.set(MaxTermWidth(width));
         self
     }
 
@@ -3720,12 +3720,12 @@ impl Command {
 
     #[cfg(feature = "help")]
     pub(crate) fn get_term_width(&self) -> Option<usize> {
-        self.term_w
+        self.app_ext.get::<TermWidth>().map(|e| e.0)
     }
 
     #[cfg(feature = "help")]
     pub(crate) fn get_max_term_width(&self) -> Option<usize> {
-        self.max_w
+        self.app_ext.get::<MaxTermWidth>().map(|e| e.0)
     }
 
     pub(crate) fn get_keymap(&self) -> &MKeyMap {
@@ -4190,8 +4190,7 @@ impl Command {
 
             sc.settings = sc.settings | self.g_settings;
             sc.g_settings = sc.g_settings | self.g_settings;
-            sc.term_w = self.term_w;
-            sc.max_w = self.max_w;
+            sc.app_ext.update(&self.app_ext);
         }
     }
 
@@ -4612,8 +4611,6 @@ impl Default for Command {
             usage_name: Default::default(),
             help_str: Default::default(),
             disp_ord: Default::default(),
-            term_w: Default::default(),
-            max_w: Default::default(),
             #[cfg(feature = "help")]
             template: Default::default(),
             settings: Default::default(),
@@ -4627,6 +4624,7 @@ impl Default for Command {
             subcommand_heading: Default::default(),
             external_value_parser: Default::default(),
             long_help_exists: false,
+            app_ext: Default::default(),
         }
     }
 }
@@ -4650,6 +4648,18 @@ impl fmt::Display for Command {
         write!(f, "{}", self.name)
     }
 }
+
+trait AppTag: crate::builder::ext::Extension {}
+
+#[derive(Default, Copy, Clone, Debug)]
+struct TermWidth(usize);
+
+impl AppTag for TermWidth {}
+
+#[derive(Default, Copy, Clone, Debug)]
+struct MaxTermWidth(usize);
+
+impl AppTag for MaxTermWidth {}
 
 fn two_elements_of<I, T>(mut iter: I) -> Option<(T, T)>
 where
