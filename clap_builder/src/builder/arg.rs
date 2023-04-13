@@ -16,6 +16,7 @@ use crate::builder::IntoResettable;
 use crate::builder::OsStr;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
+use crate::builder::Style;
 use crate::builder::StyledStr;
 use crate::builder::ValueRange;
 use crate::util::AnyValueId;
@@ -4275,11 +4276,13 @@ impl Arg {
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
         if let Some(l) = self.get_long() {
-            styled.literal("--");
-            styled.literal(l);
+            styled.stylize(Style::Literal, "--");
+            styled.stylize(Style::Literal, l);
         } else if let Some(s) = self.get_short() {
-            styled.literal("-");
-            styled.literal(s);
+            styled.stylize(Style::Literal, "-");
+            let mut b = [0; 4];
+            let s = s.encode_utf8(&mut b);
+            styled.stylize(Style::Literal, s);
         }
         styled.push_styled(&self.stylize_arg_suffix(required));
         styled
@@ -4294,26 +4297,26 @@ impl Arg {
             if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
-                    styled.placeholder("[=");
+                    styled.stylize(Style::Placeholder, "[=");
                 } else {
-                    styled.literal("=");
+                    styled.stylize(Style::Literal, "=");
                 }
             } else if is_optional_val {
                 need_closing_bracket = true;
-                styled.placeholder(" [");
+                styled.stylize(Style::Placeholder, " [");
             } else {
-                styled.placeholder(" ");
+                styled.stylize(Style::Placeholder, " ");
             }
         }
         if self.is_takes_value_set() || self.is_positional() {
             let required = required.unwrap_or_else(|| self.is_required_set());
             let arg_val = self.render_arg_val(required);
-            styled.placeholder(arg_val);
+            styled.stylize(Style::Placeholder, &arg_val);
         } else if matches!(*self.get_action(), ArgAction::Count) {
-            styled.placeholder("...");
+            styled.stylize(Style::Placeholder, "...");
         }
         if need_closing_bracket {
-            styled.placeholder("]");
+            styled.stylize(Style::Placeholder, "]");
         }
 
         styled

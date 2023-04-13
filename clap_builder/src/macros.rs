@@ -631,8 +631,8 @@ macro_rules! debug {
         let prefix = format!("[{:>w$}] \t", module_path!(), w = 28);
         let body = format!($($arg)*);
         let mut styled = $crate::builder::StyledStr::new();
-        styled.hint(prefix);
-        styled.hint(body);
+        styled.stylize($crate::builder::Style::Hint, &prefix);
+        styled.stylize($crate::builder::Style::Hint, &body);
         styled.none("\n");
         let color = $crate::output::fmt::Colorizer::new($crate::output::fmt::Stream::Stderr, $crate::ColorChoice::Auto).with_content(styled);
         let _ = color.print();

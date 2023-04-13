@@ -33,35 +33,19 @@ impl StyledStr {
         self.0.as_str()
     }
 
-    pub(crate) fn header(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Header, msg.into());
+    #[cfg(feature = "color")]
+    pub(crate) fn stylize(&mut self, style: Style, msg: &str) {
+        if !msg.is_empty() {
+            use std::fmt::Write as _;
+
+            let style = style.as_style();
+            let _ = write!(self.0, "{}{}{}", style.render(), msg, style.render_reset());
+        }
     }
 
-    pub(crate) fn literal(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Literal, msg.into());
-    }
-
-    pub(crate) fn placeholder(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Placeholder, msg.into());
-    }
-
-    #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
-    pub(crate) fn good(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Good, msg.into());
-    }
-
-    #[cfg_attr(not(feature = "error-context"), allow(dead_code))]
-    pub(crate) fn warning(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Warning, msg.into());
-    }
-
-    pub(crate) fn error(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Error, msg.into());
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn hint(&mut self, msg: impl Into<String>) {
-        self.stylize(Style::Hint, msg.into());
+    #[cfg(not(feature = "color"))]
+    pub(crate) fn stylize(&mut self, _style: Style, msg: &str) {
+        self.0.push_str(msg);
     }
 
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
@@ -120,21 +104,6 @@ impl StyledStr {
         new = new.trim_end().to_owned();
 
         self.0 = new;
-    }
-
-    #[cfg(feature = "color")]
-    fn stylize(&mut self, style: Style, msg: String) {
-        if !msg.is_empty() {
-            use std::fmt::Write as _;
-
-            let style = style.as_style();
-            let _ = write!(self.0, "{}{}{}", style.render(), msg, style.render_reset());
-        }
-    }
-
-    #[cfg(not(feature = "color"))]
-    fn stylize(&mut self, _style: Style, msg: String) {
-        self.0.push_str(&msg);
     }
 
     #[inline(never)]
@@ -240,12 +209,19 @@ impl std::fmt::Display for StyledStr {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub(crate) enum Style {
+    #[allow(dead_code)]
     Header,
+    #[allow(dead_code)]
     Literal,
+    #[allow(dead_code)]
     Placeholder,
+    #[allow(dead_code)]
     Good,
+    #[allow(dead_code)]
     Warning,
+    #[allow(dead_code)]
     Error,
+    #[allow(dead_code)]
     Hint,
 }
 
