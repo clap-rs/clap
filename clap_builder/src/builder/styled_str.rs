@@ -34,17 +34,16 @@ impl StyledStr {
     }
 
     #[cfg(feature = "color")]
-    pub(crate) fn stylize(&mut self, style: Style, msg: &str) {
+    pub(crate) fn stylize(&mut self, style: anstyle::Style, msg: &str) {
         if !msg.is_empty() {
             use std::fmt::Write as _;
 
-            let style = style.as_style();
             let _ = write!(self.0, "{}{}{}", style.render(), msg, style.render_reset());
         }
     }
 
     #[cfg(not(feature = "color"))]
-    pub(crate) fn stylize(&mut self, _style: Style, msg: &str) {
+    pub(crate) fn stylize(&mut self, _style: anstyle::Style, msg: &str) {
         self.0.push_str(msg);
     }
 
@@ -226,8 +225,7 @@ pub(crate) enum Style {
 }
 
 impl Style {
-    #[cfg(feature = "color")]
-    fn as_style(&self) -> anstyle::Style {
+    pub(crate) fn as_style(&self) -> anstyle::Style {
         match self {
             Style::Header => (anstyle::Effects::BOLD | anstyle::Effects::UNDERLINE).into(),
             Style::Literal => anstyle::Effects::BOLD.into(),

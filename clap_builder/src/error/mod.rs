@@ -441,11 +441,11 @@ impl<F: ErrorFormatter> Error<F> {
         {
             let mut styled_suggestion = StyledStr::new();
             styled_suggestion.none("to pass '");
-            styled_suggestion.stylize(Style::Warning, &subcmd);
+            styled_suggestion.stylize(Style::Warning.as_style(), &subcmd);
             styled_suggestion.none("' as a value, use '");
-            styled_suggestion.stylize(Style::Good, &name);
-            styled_suggestion.stylize(Style::Good, " -- ");
-            styled_suggestion.stylize(Style::Good, &subcmd);
+            styled_suggestion.stylize(Style::Good.as_style(), &name);
+            styled_suggestion.stylize(Style::Good.as_style(), " -- ");
+            styled_suggestion.stylize(Style::Good.as_style(), &subcmd);
             styled_suggestion.none("'");
 
             err = err.extend_context_unchecked([
@@ -670,10 +670,10 @@ impl<F: ErrorFormatter> Error<F> {
             if suggested_trailing_arg {
                 let mut styled_suggestion = StyledStr::new();
                 styled_suggestion.none("to pass '");
-                styled_suggestion.stylize(Style::Warning, &arg);
+                styled_suggestion.stylize(Style::Warning.as_style(), &arg);
                 styled_suggestion.none("' as a value, use '");
-                styled_suggestion.stylize(Style::Good, "-- ");
-                styled_suggestion.stylize(Style::Good, &arg);
+                styled_suggestion.stylize(Style::Good.as_style(), "-- ");
+                styled_suggestion.stylize(Style::Good.as_style(), &arg);
                 styled_suggestion.none("'");
                 suggestions.push(styled_suggestion);
             }
@@ -688,10 +688,10 @@ impl<F: ErrorFormatter> Error<F> {
                 Some((flag, Some(sub))) => {
                     let mut styled_suggestion = StyledStr::new();
                     styled_suggestion.none("'");
-                    styled_suggestion.stylize(Style::Good, &sub);
+                    styled_suggestion.stylize(Style::Good.as_style(), &sub);
                     styled_suggestion.none(" ");
-                    styled_suggestion.stylize(Style::Good, "--");
-                    styled_suggestion.stylize(Style::Good, &flag);
+                    styled_suggestion.stylize(Style::Good.as_style(), "--");
+                    styled_suggestion.stylize(Style::Good.as_style(), &flag);
                     styled_suggestion.none("' exists");
                     suggestions.push(styled_suggestion);
                 }
@@ -725,9 +725,9 @@ impl<F: ErrorFormatter> Error<F> {
         {
             let mut styled_suggestion = StyledStr::new();
             styled_suggestion.none("subcommand '");
-            styled_suggestion.stylize(Style::Good, &arg);
+            styled_suggestion.stylize(Style::Good.as_style(), &arg);
             styled_suggestion.none("' exists; to use it, remove the '");
-            styled_suggestion.stylize(Style::Warning, "--");
+            styled_suggestion.stylize(Style::Warning.as_style(), "--");
             styled_suggestion.none("' before it");
 
             err = err.extend_context_unchecked([

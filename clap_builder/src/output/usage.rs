@@ -39,7 +39,7 @@ impl<'cmd> Usage<'cmd> {
         let usage = some!(self.create_usage_no_title(used));
 
         let mut styled = StyledStr::new();
-        styled.stylize(Style::Header, "Usage:");
+        styled.stylize(Style::Header.as_style(), "Usage:");
         styled.none(" ");
         styled.push_styled(&usage);
         Some(styled)
@@ -79,10 +79,10 @@ impl<'cmd> Usage<'cmd> {
             .get_usage_name()
             .or_else(|| self.cmd.get_bin_name())
             .unwrap_or_else(|| self.cmd.get_name());
-        styled.stylize(Style::Literal, name);
+        styled.stylize(Style::Literal.as_style(), name);
 
         if self.needs_options_tag() {
-            styled.stylize(Style::Placeholder, " [OPTIONS]");
+            styled.stylize(Style::Placeholder.as_style(), " [OPTIONS]");
         }
 
         self.write_args(&[], !incl_reqs, &mut styled);
@@ -102,21 +102,21 @@ impl<'cmd> Usage<'cmd> {
                 styled.none("       ");
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
                     // Short-circuit full usage creation since no args will be relevant
-                    styled.stylize(Style::Literal, name);
+                    styled.stylize(Style::Literal.as_style(), name);
                 } else {
                     styled.push_styled(&self.create_help_usage(false));
                 }
-                styled.stylize(Style::Placeholder, " <");
-                styled.stylize(Style::Placeholder, placeholder);
-                styled.stylize(Style::Placeholder, ">");
+                styled.stylize(Style::Placeholder.as_style(), " <");
+                styled.stylize(Style::Placeholder.as_style(), placeholder);
+                styled.stylize(Style::Placeholder.as_style(), ">");
             } else if self.cmd.is_subcommand_required_set() {
-                styled.stylize(Style::Placeholder, " <");
-                styled.stylize(Style::Placeholder, placeholder);
-                styled.stylize(Style::Placeholder, ">");
+                styled.stylize(Style::Placeholder.as_style(), " <");
+                styled.stylize(Style::Placeholder.as_style(), placeholder);
+                styled.stylize(Style::Placeholder.as_style(), ">");
             } else {
-                styled.stylize(Style::Placeholder, " [");
-                styled.stylize(Style::Placeholder, placeholder);
-                styled.stylize(Style::Placeholder, "]");
+                styled.stylize(Style::Placeholder.as_style(), " [");
+                styled.stylize(Style::Placeholder.as_style(), placeholder);
+                styled.stylize(Style::Placeholder.as_style(), "]");
             }
         }
         styled.trim();
@@ -131,7 +131,7 @@ impl<'cmd> Usage<'cmd> {
         let mut styled = StyledStr::new();
 
         styled.stylize(
-            Style::Literal,
+            Style::Literal.as_style(),
             self.cmd
                 .get_usage_name()
                 .or_else(|| self.cmd.get_bin_name())
@@ -141,14 +141,14 @@ impl<'cmd> Usage<'cmd> {
         self.write_args(used, false, &mut styled);
 
         if self.cmd.is_subcommand_required_set() {
-            styled.stylize(Style::Placeholder, " <");
+            styled.stylize(Style::Placeholder.as_style(), " <");
             styled.stylize(
-                Style::Placeholder,
+                Style::Placeholder.as_style(),
                 self.cmd
                     .get_subcommand_value_name()
                     .unwrap_or(DEFAULT_SUB_VALUE_NAME),
             );
-            styled.stylize(Style::Placeholder, ">");
+            styled.stylize(Style::Placeholder.as_style(), ">");
         }
         styled
     }
@@ -282,7 +282,7 @@ impl<'cmd> Usage<'cmd> {
                 if pos.is_last_set() {
                     let styled = required_positionals[index].take().unwrap();
                     let mut new = StyledStr::new();
-                    new.stylize(Style::Literal, "-- ");
+                    new.stylize(Style::Literal.as_style(), "-- ");
                     new.push_styled(&styled);
                     required_positionals[index] = Some(new);
                 }
@@ -290,9 +290,9 @@ impl<'cmd> Usage<'cmd> {
                 let mut styled;
                 if pos.is_last_set() {
                     styled = StyledStr::new();
-                    styled.stylize(Style::Literal, "[-- ");
+                    styled.stylize(Style::Literal.as_style(), "[-- ");
                     styled.push_styled(&pos.stylized(Some(true)));
-                    styled.stylize(Style::Literal, "]");
+                    styled.stylize(Style::Literal.as_style(), "]");
                 } else {
                     styled = pos.stylized(Some(false));
                 }
