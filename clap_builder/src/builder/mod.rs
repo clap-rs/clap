@@ -7,6 +7,7 @@ mod arg_group;
 mod arg_predicate;
 mod arg_settings;
 mod command;
+mod ext;
 mod os_str;
 mod possible_value;
 mod range;
