@@ -4276,13 +4276,13 @@ impl Arg {
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
         if let Some(l) = self.get_long() {
-            styled.stylize(Style::Literal, "--");
-            styled.stylize(Style::Literal, l);
+            styled.stylize(Style::Literal.as_style(), "--");
+            styled.stylize(Style::Literal.as_style(), l);
         } else if let Some(s) = self.get_short() {
-            styled.stylize(Style::Literal, "-");
+            styled.stylize(Style::Literal.as_style(), "-");
             let mut b = [0; 4];
             let s = s.encode_utf8(&mut b);
-            styled.stylize(Style::Literal, s);
+            styled.stylize(Style::Literal.as_style(), s);
         }
         styled.push_styled(&self.stylize_arg_suffix(required));
         styled
@@ -4297,26 +4297,26 @@ impl Arg {
             if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
-                    styled.stylize(Style::Placeholder, "[=");
+                    styled.stylize(Style::Placeholder.as_style(), "[=");
                 } else {
-                    styled.stylize(Style::Literal, "=");
+                    styled.stylize(Style::Literal.as_style(), "=");
                 }
             } else if is_optional_val {
                 need_closing_bracket = true;
-                styled.stylize(Style::Placeholder, " [");
+                styled.stylize(Style::Placeholder.as_style(), " [");
             } else {
-                styled.stylize(Style::Placeholder, " ");
+                styled.stylize(Style::Placeholder.as_style(), " ");
             }
         }
         if self.is_takes_value_set() || self.is_positional() {
             let required = required.unwrap_or_else(|| self.is_required_set());
             let arg_val = self.render_arg_val(required);
-            styled.stylize(Style::Placeholder, &arg_val);
+            styled.stylize(Style::Placeholder.as_style(), &arg_val);
         } else if matches!(*self.get_action(), ArgAction::Count) {
-            styled.stylize(Style::Placeholder, "...");
+            styled.stylize(Style::Placeholder.as_style(), "...");
         }
         if need_closing_bracket {
-            styled.stylize(Style::Placeholder, "]");
+            styled.stylize(Style::Placeholder.as_style(), "]");
         }
 
         styled

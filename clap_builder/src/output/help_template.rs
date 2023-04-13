@@ -803,11 +803,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     }
 
     fn header<T: AsRef<str>>(&mut self, msg: T) {
-        self.writer.stylize(Style::Header, msg.as_ref());
+        self.writer.stylize(Style::Header.as_style(), msg.as_ref());
     }
 
     fn literal<T: AsRef<str>>(&mut self, msg: T) {
-        self.writer.stylize(Style::Literal, msg.as_ref());
+        self.writer.stylize(Style::Literal.as_style(), msg.as_ref());
     }
 
     fn none<T: Into<String>>(&mut self, msg: T) {
@@ -836,14 +836,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let mut styled = StyledStr::new();
-            styled.stylize(Style::Literal, subcommand.get_name());
+            styled.stylize(Style::Literal.as_style(), subcommand.get_name());
             if let Some(short) = subcommand.get_short_flag() {
                 styled.none(", ");
-                styled.stylize(Style::Literal, &format!("-{short}"));
+                styled.stylize(Style::Literal.as_style(), &format!("-{short}"));
             }
             if let Some(long) = subcommand.get_long_flag() {
                 styled.none(", ");
-                styled.stylize(Style::Literal, &format!("--{long}"));
+                styled.stylize(Style::Literal.as_style(), &format!("--{long}"));
             }
             longest = longest.max(styled.display_width());
             ord_v.push((subcommand.get_display_order(), styled, subcommand));
