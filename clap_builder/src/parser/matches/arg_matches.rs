@@ -8,11 +8,11 @@ use std::slice::Iter;
 // Internal
 #[cfg(debug_assertions)]
 use crate::builder::Str;
-use crate::parser::AnyValue;
-use crate::parser::AnyValueId;
 use crate::parser::MatchedArg;
 use crate::parser::MatchesError;
 use crate::parser::ValueSource;
+use crate::util::AnyValue;
+use crate::util::AnyValueId;
 use crate::util::FlatMap;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;

@@ -1,3 +1,5 @@
+use crate::util::AnyValueId;
+
 /// Violation of [`ArgMatches`][crate::ArgMatches] assumptions
 #[derive(Clone, Debug)]
 #[allow(missing_copy_implementations)] // We might add non-Copy types in the future
@@ -7,9 +9,9 @@ pub enum MatchesError {
     #[non_exhaustive]
     Downcast {
         /// Type for value stored in [`ArgMatches`][crate::ArgMatches]
-        actual: super::AnyValueId,
+        actual: AnyValueId,
         /// The target type to downcast to
-        expected: super::AnyValueId,
+        expected: AnyValueId,
     },
     /// Argument not defined in [`Command`][crate::Command]
     #[non_exhaustive]

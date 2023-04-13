@@ -1,8 +1,8 @@
 use std::convert::TryInto;
 use std::ops::RangeBounds;
 
-use crate::parser::AnyValue;
-use crate::parser::AnyValueId;
+use crate::util::AnyValue;
+use crate::util::AnyValueId;
 
 /// Parse/validate argument values
 ///

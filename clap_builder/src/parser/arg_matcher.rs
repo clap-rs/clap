@@ -5,10 +5,10 @@ use std::ops::Deref;
 
 // Internal
 use crate::builder::{Arg, ArgPredicate, Command};
-use crate::parser::AnyValue;
 use crate::parser::Identifier;
 use crate::parser::PendingArg;
 use crate::parser::{ArgMatches, MatchedArg, SubCommand, ValueSource};
+use crate::util::AnyValue;
 use crate::util::FlatMap;
 use crate::util::Id;
 use crate::INTERNAL_ERROR_MSG;
