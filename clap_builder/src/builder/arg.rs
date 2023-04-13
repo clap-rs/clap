@@ -18,6 +18,7 @@ use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::builder::ValueRange;
+use crate::util::AnyValueId;
 use crate::ArgAction;
 use crate::Id;
 use crate::ValueHint;
@@ -4004,7 +4005,7 @@ impl Arg {
         self.value_hint.unwrap_or_else(|| {
             if self.is_takes_value_set() {
                 let type_id = self.get_value_parser().type_id();
-                if type_id == crate::parser::AnyValueId::of::<std::path::PathBuf>() {
+                if type_id == AnyValueId::of::<std::path::PathBuf>() {
                     ValueHint::AnyPath
                 } else {
                     ValueHint::default()

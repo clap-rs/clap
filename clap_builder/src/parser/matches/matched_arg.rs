@@ -6,10 +6,10 @@ use std::{
 };
 
 use crate::builder::ArgPredicate;
-use crate::parser::AnyValue;
-use crate::parser::AnyValueId;
 use crate::parser::ValueSource;
 use crate::util::eq_ignore_case;
+use crate::util::AnyValue;
+use crate::util::AnyValueId;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Clone)]

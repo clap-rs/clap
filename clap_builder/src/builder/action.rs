@@ -1,3 +1,6 @@
+#[cfg(debug_assertions)]
+use crate::util::AnyValueId;
+
 /// Behavior of arguments when they are encountered while parsing
 ///
 /// # Examples
@@ -337,9 +340,7 @@ impl ArgAction {
     }
 
     #[cfg(debug_assertions)]
-    pub(crate) fn value_type_id(&self) -> Option<crate::parser::AnyValueId> {
-        use crate::parser::AnyValueId;
-
+    pub(crate) fn value_type_id(&self) -> Option<AnyValueId> {
         match self {
             Self::Set => None,
             Self::Append => None,
