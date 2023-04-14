@@ -4273,50 +4273,73 @@ impl Arg {
     }
 
     pub(crate) fn stylized(&self, required: Option<bool>) -> StyledStr {
+        use std::fmt::Write as _;
+        let literal = Style::Literal.as_style();
+
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
         if let Some(l) = self.get_long() {
-            styled.stylize(Style::Literal.as_style(), "--");
-            styled.stylize(Style::Literal.as_style(), l);
+            let _ = write!(
+                styled,
+                "{}--{l}{}",
+                literal.render(),
+                literal.render_reset()
+            );
         } else if let Some(s) = self.get_short() {
-            styled.stylize(Style::Literal.as_style(), "-");
-            let mut b = [0; 4];
-            let s = s.encode_utf8(&mut b);
-            styled.stylize(Style::Literal.as_style(), s);
+            let _ = write!(styled, "{}-{s}{}", literal.render(), literal.render_reset());
         }
         styled.push_styled(&self.stylize_arg_suffix(required));
         styled
     }
 
     pub(crate) fn stylize_arg_suffix(&self, required: Option<bool>) -> StyledStr {
+        use std::fmt::Write as _;
+        let literal = Style::Literal.as_style();
+        let placeholder = Style::Placeholder.as_style();
         let mut styled = StyledStr::new();
 
         let mut need_closing_bracket = false;
         if self.is_takes_value_set() && !self.is_positional() {
             let is_optional_val = self.get_min_vals() == 0;
-            if self.is_require_equals_set() {
+            let (style, start) = if self.is_require_equals_set() {
                 if is_optional_val {
                     need_closing_bracket = true;
-                    styled.stylize(Style::Placeholder.as_style(), "[=");
+                    (placeholder, "[=")
                 } else {
-                    styled.stylize(Style::Literal.as_style(), "=");
+                    (literal, "=")
                 }
             } else if is_optional_val {
                 need_closing_bracket = true;
-                styled.stylize(Style::Placeholder.as_style(), " [");
+                (placeholder, " [")
             } else {
-                styled.stylize(Style::Placeholder.as_style(), " ");
-            }
+                (placeholder, " ")
+            };
+            let _ = write!(styled, "{}{start}{}", style.render(), style.render_reset());
         }
         if self.is_takes_value_set() || self.is_positional() {
             let required = required.unwrap_or_else(|| self.is_required_set());
             let arg_val = self.render_arg_val(required);
-            styled.stylize(Style::Placeholder.as_style(), &arg_val);
+            let _ = write!(
+                styled,
+                "{}{arg_val}{}",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
         } else if matches!(*self.get_action(), ArgAction::Count) {
-            styled.stylize(Style::Placeholder.as_style(), "...");
+            let _ = write!(
+                styled,
+                "{}...{}",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
         }
         if need_closing_bracket {
-            styled.stylize(Style::Placeholder.as_style(), "]");
+            let _ = write!(
+                styled,
+                "{}]{}",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
         }
 
         styled

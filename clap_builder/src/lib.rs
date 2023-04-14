@@ -16,6 +16,10 @@
     clippy::single_char_pattern
 )]
 #![forbid(unsafe_code)]
+// Wanting consistency in our calls
+#![allow(clippy::write_with_newline)]
+// Gets in the way of logging
+#![allow(clippy::let_and_return)]
 // HACK https://github.com/rust-lang/rust-clippy/issues/7290
 #![allow(clippy::single_component_path_imports)]
 #![allow(clippy::branches_sharing_code)]

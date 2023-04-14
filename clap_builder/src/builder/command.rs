@@ -4321,9 +4321,9 @@ impl Command {
             .collect::<Vec<_>>()
             .join("|");
         let mut styled = StyledStr::new();
-        styled.none("<");
-        styled.none(g_string);
-        styled.none(">");
+        styled.push_str("<");
+        styled.push_string(g_string);
+        styled.push_str(">");
         styled
     }
 }
