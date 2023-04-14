@@ -33,5 +33,5 @@ pub(crate) fn write_help(writer: &mut StyledStr, cmd: &Command, usage: &Usage<'_
     // Remove any extra lines caused by book keeping
     writer.trim();
     // Ensure there is still a trailing newline
-    writer.none("\n");
+    writer.push_str("\n");
 }

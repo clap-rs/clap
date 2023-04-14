@@ -628,12 +628,13 @@ macro_rules! impl_settings {
 #[cfg(feature = "debug")]
 macro_rules! debug {
     ($($arg:tt)*) => ({
-        let prefix = format!("[{:>w$}] \t", module_path!(), w = 28);
+        use std::fmt::Write as _;
+        let hint = $crate::builder::Style::Hint.as_style();
+
+        let module_path = module_path!();
         let body = format!($($arg)*);
         let mut styled = $crate::builder::StyledStr::new();
-        styled.stylize($crate::builder::Style::Hint.as_style(), &prefix);
-        styled.stylize($crate::builder::Style::Hint.as_style(), &body);
-        styled.none("\n");
+        let _ = write!(styled, "{}[{module_path:>28}]{body}{}\n", hint.render(), hint.render_reset());
         let color = $crate::output::fmt::Colorizer::new($crate::output::fmt::Stream::Stderr, $crate::ColorChoice::Auto).with_content(styled);
         let _ = color.print();
     })

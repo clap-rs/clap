@@ -33,22 +33,14 @@ impl StyledStr {
         self.0.as_str()
     }
 
-    #[cfg(feature = "color")]
-    pub(crate) fn stylize(&mut self, style: anstyle::Style, msg: &str) {
-        if !msg.is_empty() {
-            use std::fmt::Write as _;
-
-            let _ = write!(self.0, "{}{}{}", style.render(), msg, style.render_reset());
-        }
+    /// May allow the compiler to consolidate the `Drop`s for `msg`, reducing code size compared to
+    /// `styled.push_str(&msg)`
+    pub(crate) fn push_string(&mut self, msg: String) {
+        self.0.push_str(&msg);
     }
 
-    #[cfg(not(feature = "color"))]
-    pub(crate) fn stylize(&mut self, _style: anstyle::Style, msg: &str) {
+    pub(crate) fn push_str(&mut self, msg: &str) {
         self.0.push_str(msg);
-    }
-
-    pub(crate) fn none(&mut self, msg: impl Into<String>) {
-        self.0.push_str(&msg.into());
     }
 
     pub(crate) fn trim(&mut self) {
@@ -162,7 +154,7 @@ impl From<std::string::String> for StyledStr {
 impl From<&'_ std::string::String> for StyledStr {
     fn from(name: &'_ std::string::String) -> Self {
         let mut styled = StyledStr::new();
-        styled.none(name);
+        styled.push_str(name);
         styled
     }
 }
@@ -170,7 +162,7 @@ impl From<&'_ std::string::String> for StyledStr {
 impl From<&'static str> for StyledStr {
     fn from(name: &'static str) -> Self {
         let mut styled = StyledStr::new();
-        styled.none(name);
+        styled.push_str(name);
         styled
     }
 }
@@ -226,6 +218,7 @@ pub(crate) enum Style {
 
 impl Style {
     pub(crate) fn as_style(&self) -> anstyle::Style {
+        #[cfg(feature = "color")]
         match self {
             Style::Header => (anstyle::Effects::BOLD | anstyle::Effects::UNDERLINE).into(),
             Style::Literal => anstyle::Effects::BOLD.into(),
@@ -234,6 +227,10 @@ impl Style {
             Style::Warning => anstyle::AnsiColor::Yellow.on_default(),
             Style::Error => anstyle::AnsiColor::Red.on_default() | anstyle::Effects::BOLD,
             Style::Hint => anstyle::Effects::DIMMED.into(),
+        }
+        #[cfg(not(feature = "color"))]
+        {
+            anstyle::Style::new()
         }
     }
 }

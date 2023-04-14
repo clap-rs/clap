@@ -435,18 +435,22 @@ impl<F: ErrorFormatter> Error<F> {
         name: String,
         usage: Option<StyledStr>,
     ) -> Self {
+        use std::fmt::Write as _;
+        let warning = Style::Warning.as_style();
+        let good = Style::Good.as_style();
         let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
         {
             let mut styled_suggestion = StyledStr::new();
-            styled_suggestion.none("to pass '");
-            styled_suggestion.stylize(Style::Warning.as_style(), &subcmd);
-            styled_suggestion.none("' as a value, use '");
-            styled_suggestion.stylize(Style::Good.as_style(), &name);
-            styled_suggestion.stylize(Style::Good.as_style(), " -- ");
-            styled_suggestion.stylize(Style::Good.as_style(), &subcmd);
-            styled_suggestion.none("'");
+            let _ = write!(
+                styled_suggestion,
+                "to pass '{}{subcmd}{}' as a value, use '{}{name} -- {subcmd}{}'",
+                warning.render(),
+                warning.render_reset(),
+                good.render(),
+                good.render_reset()
+            );
 
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
@@ -662,6 +666,9 @@ impl<F: ErrorFormatter> Error<F> {
         suggested_trailing_arg: bool,
         usage: Option<StyledStr>,
     ) -> Self {
+        use std::fmt::Write as _;
+        let warning = Style::Warning.as_style();
+        let good = Style::Good.as_style();
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -669,12 +676,14 @@ impl<F: ErrorFormatter> Error<F> {
             let mut suggestions = vec![];
             if suggested_trailing_arg {
                 let mut styled_suggestion = StyledStr::new();
-                styled_suggestion.none("to pass '");
-                styled_suggestion.stylize(Style::Warning.as_style(), &arg);
-                styled_suggestion.none("' as a value, use '");
-                styled_suggestion.stylize(Style::Good.as_style(), "-- ");
-                styled_suggestion.stylize(Style::Good.as_style(), &arg);
-                styled_suggestion.none("'");
+                let _ = write!(
+                    styled_suggestion,
+                    "to pass '{}{arg}{}' as a value, use '{}-- {arg}{}'",
+                    warning.render(),
+                    warning.render_reset(),
+                    good.render(),
+                    good.render_reset()
+                );
                 suggestions.push(styled_suggestion);
             }
 
@@ -687,12 +696,12 @@ impl<F: ErrorFormatter> Error<F> {
             match did_you_mean {
                 Some((flag, Some(sub))) => {
                     let mut styled_suggestion = StyledStr::new();
-                    styled_suggestion.none("'");
-                    styled_suggestion.stylize(Style::Good.as_style(), &sub);
-                    styled_suggestion.none(" ");
-                    styled_suggestion.stylize(Style::Good.as_style(), "--");
-                    styled_suggestion.stylize(Style::Good.as_style(), &flag);
-                    styled_suggestion.none("' exists");
+                    let _ = write!(
+                        styled_suggestion,
+                        "'{}{sub} --{flag}{}' exists",
+                        good.render(),
+                        good.render_reset()
+                    );
                     suggestions.push(styled_suggestion);
                 }
                 Some((flag, None)) => {
@@ -719,16 +728,22 @@ impl<F: ErrorFormatter> Error<F> {
         arg: String,
         usage: Option<StyledStr>,
     ) -> Self {
+        use std::fmt::Write as _;
+        let warning = Style::Warning.as_style();
+        let good = Style::Good.as_style();
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
         {
             let mut styled_suggestion = StyledStr::new();
-            styled_suggestion.none("subcommand '");
-            styled_suggestion.stylize(Style::Good.as_style(), &arg);
-            styled_suggestion.none("' exists; to use it, remove the '");
-            styled_suggestion.stylize(Style::Warning.as_style(), "--");
-            styled_suggestion.none("' before it");
+            let _ = write!(
+                styled_suggestion,
+                "subcommand '{}{arg}{}' exists; to use it, remove the '{}--{}' before it",
+                good.render(),
+                good.render_reset(),
+                warning.render(),
+                warning.render_reset()
+            );
 
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidArg, ContextValue::String(arg)),
