@@ -33,7 +33,7 @@
       matchPackageNames: [
         'rust',
       ],
-      stabilityDays: "336 days",  // 8 releases * 6 weeks per release * 7 days per week
+      minimumReleaseAge: "336 days",  // 8 releases * 6 weeks per release * 7 days per week
       internalChecksFilter: "strict",
     },
     // Goals:
