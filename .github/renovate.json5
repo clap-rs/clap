@@ -1,6 +1,6 @@
 {
   schedule: [
-    'before 3am on the first day of the month'
+    'before 3am on the first day of the month',
   ],
   semanticCommits: 'enabled',
   configMigration: true,
@@ -22,7 +22,7 @@
       depNameTemplate: 'rust',
       packageNameTemplate: 'rust-lang/rust',
       datasourceTemplate: 'github-releases',
-    }
+    },
   ],
   packageRules: [
     {
