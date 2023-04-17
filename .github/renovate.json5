@@ -11,9 +11,9 @@
         "^rust-toolchain\\.toml$",
         "Cargo.toml$",
         "clippy.toml$",
-        "\.clippy.toml$",
-        "^\.github/workflows/ci.yml$",
-        "^\.github/workflows/rust-next.yml$",
+        "\\.clippy.toml$",
+        "^\\.github/workflows/ci.yml$",
+        "^\\.github/workflows/rust-next.yml$",
       ],
       "matchStrings": [
         "MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)",
