@@ -203,18 +203,18 @@ impl std::fmt::Display for StyledStr {
 #[non_exhaustive]
 #[allow(missing_copy_implementations)] // Large enough type that I want an explicit `clone()` for now
 pub struct Styles {
-    /// Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
+    /// General Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
     pub header: anstyle::Style,
-    /// Literal command-line syntax, like `--help`
-    pub literal: anstyle::Style,
-    /// Descriptions within command-line syntax, like [`value_name`][crate::Arg::value_name]
-    pub placeholder: anstyle::Style,
-    /// Suggested usage
-    pub good: anstyle::Style,
-    /// Invalid usage
-    pub warning: anstyle::Style,
     /// Error heading
     pub error: anstyle::Style,
+    /// Literal command-line syntax, e.g. `--help`
+    pub literal: anstyle::Style,
+    /// Descriptions within command-line syntax, e.g. [`value_name`][crate::Arg::value_name]
+    pub placeholder: anstyle::Style,
+    /// Highlight suggested usage
+    pub valid: anstyle::Style,
+    /// Highlight invalid usage
+    pub invalid: anstyle::Style,
 }
 
 impl Styles {
@@ -222,11 +222,11 @@ impl Styles {
     pub const fn plain() -> Self {
         Self {
             header: anstyle::Style::new(),
+            error: anstyle::Style::new(),
             literal: anstyle::Style::new(),
             placeholder: anstyle::Style::new(),
-            good: anstyle::Style::new(),
-            warning: anstyle::Style::new(),
-            error: anstyle::Style::new(),
+            valid: anstyle::Style::new(),
+            invalid: anstyle::Style::new(),
         }
     }
 
@@ -236,15 +236,15 @@ impl Styles {
         {
             Self {
                 header: anstyle::Style::new().bold().underline(),
-                literal: anstyle::Style::new().bold(),
-                placeholder: anstyle::Style::new(),
-                good: anstyle::Style::new()
-                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Green))),
-                warning: anstyle::Style::new()
-                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Yellow))),
                 error: anstyle::Style::new()
                     .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red)))
                     .bold(),
+                literal: anstyle::Style::new().bold(),
+                placeholder: anstyle::Style::new(),
+                valid: anstyle::Style::new()
+                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Green))),
+                invalid: anstyle::Style::new()
+                    .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Yellow))),
             }
         }
         #[cfg(not(feature = "color"))]

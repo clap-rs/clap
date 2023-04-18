@@ -445,8 +445,8 @@ impl<F: ErrorFormatter> Error<F> {
     ) -> Self {
         use std::fmt::Write as _;
         let styles = cmd.get_styles();
-        let warning = &styles.warning;
-        let good = &styles.good;
+        let invalid = &styles.invalid;
+        let valid = &styles.valid;
         let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -455,10 +455,10 @@ impl<F: ErrorFormatter> Error<F> {
             let _ = write!(
                 styled_suggestion,
                 "to pass '{}{subcmd}{}' as a value, use '{}{name} -- {subcmd}{}'",
-                warning.render(),
-                warning.render_reset(),
-                good.render(),
-                good.render_reset()
+                invalid.render(),
+                invalid.render_reset(),
+                valid.render(),
+                valid.render_reset()
             );
 
             err = err.extend_context_unchecked([
@@ -677,8 +677,8 @@ impl<F: ErrorFormatter> Error<F> {
     ) -> Self {
         use std::fmt::Write as _;
         let styles = cmd.get_styles();
-        let warning = &styles.warning;
-        let good = &styles.good;
+        let invalid = &styles.invalid;
+        let valid = &styles.valid;
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -689,10 +689,10 @@ impl<F: ErrorFormatter> Error<F> {
                 let _ = write!(
                     styled_suggestion,
                     "to pass '{}{arg}{}' as a value, use '{}-- {arg}{}'",
-                    warning.render(),
-                    warning.render_reset(),
-                    good.render(),
-                    good.render_reset()
+                    invalid.render(),
+                    invalid.render_reset(),
+                    valid.render(),
+                    valid.render_reset()
                 );
                 suggestions.push(styled_suggestion);
             }
@@ -709,8 +709,8 @@ impl<F: ErrorFormatter> Error<F> {
                     let _ = write!(
                         styled_suggestion,
                         "'{}{sub} --{flag}{}' exists",
-                        good.render(),
-                        good.render_reset()
+                        valid.render(),
+                        valid.render_reset()
                     );
                     suggestions.push(styled_suggestion);
                 }
@@ -740,8 +740,8 @@ impl<F: ErrorFormatter> Error<F> {
     ) -> Self {
         use std::fmt::Write as _;
         let styles = cmd.get_styles();
-        let warning = &styles.warning;
-        let good = &styles.good;
+        let invalid = &styles.invalid;
+        let valid = &styles.valid;
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -750,10 +750,10 @@ impl<F: ErrorFormatter> Error<F> {
             let _ = write!(
                 styled_suggestion,
                 "subcommand '{}{arg}{}' exists; to use it, remove the '{}--{}' before it",
-                good.render(),
-                good.render_reset(),
-                warning.render(),
-                warning.render_reset()
+                valid.render(),
+                valid.render_reset(),
+                invalid.render(),
+                invalid.render_reset()
             );
 
             err = err.extend_context_unchecked([
