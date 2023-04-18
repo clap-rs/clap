@@ -215,9 +215,6 @@ pub struct Styles {
     pub warning: anstyle::Style,
     /// Error heading
     pub error: anstyle::Style,
-    /// Extra details
-    #[allow(dead_code)]
-    pub hint: anstyle::Style,
 }
 
 impl Styles {
@@ -230,7 +227,6 @@ impl Styles {
             good: anstyle::Style::new(),
             warning: anstyle::Style::new(),
             error: anstyle::Style::new(),
-            hint: anstyle::Style::new(),
         }
     }
 
@@ -249,7 +245,6 @@ impl Styles {
                 error: anstyle::Style::new()
                     .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red)))
                     .bold(),
-                hint: anstyle::Style::new().dimmed(),
             }
         }
         #[cfg(not(feature = "color"))]

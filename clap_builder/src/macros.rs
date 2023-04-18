@@ -629,8 +629,7 @@ macro_rules! impl_settings {
 macro_rules! debug {
     ($($arg:tt)*) => ({
         use std::fmt::Write as _;
-        let styles = $crate::builder::Styles::styled();
-        let hint = &styles.hint;
+        let hint = anstyle::Style::new().dimmed();
 
         let module_path = module_path!();
         let body = format!($($arg)*);
