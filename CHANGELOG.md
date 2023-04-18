@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `Command::styles` for theming help/errors (behind `unstable-styles`)
+
 ## [4.2.2] - 2023-04-13
 
 ### Internal
