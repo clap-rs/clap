@@ -198,20 +198,30 @@ impl std::fmt::Display for StyledStr {
     }
 }
 
+/// Terminal styling definitions
 #[derive(Clone, Debug)]
 #[non_exhaustive]
-pub(crate) struct Styles {
+#[allow(missing_copy_implementations)] // Large enough type that I want an explicit `clone()` for now
+pub struct Styles {
+    /// Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
     pub header: anstyle::Style,
+    /// Literal command-line syntax, like `--help`
     pub literal: anstyle::Style,
+    /// Descriptions within command-line syntax, like [`value_name`][crate::Arg::value_name]
     pub placeholder: anstyle::Style,
+    /// Suggested usage
     pub good: anstyle::Style,
+    /// Invalid usage
     pub warning: anstyle::Style,
+    /// Error heading
     pub error: anstyle::Style,
+    /// Extra details
     #[allow(dead_code)]
     pub hint: anstyle::Style,
 }
 
 impl Styles {
+    /// No terminal styling
     pub const fn plain() -> Self {
         Self {
             header: anstyle::Style::new(),
@@ -224,6 +234,7 @@ impl Styles {
         }
     }
 
+    /// Default terminal styling
     pub const fn styled() -> Self {
         #[cfg(feature = "color")]
         {

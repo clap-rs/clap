@@ -1081,6 +1081,31 @@ impl Command {
         }
     }
 
+    /// Sets when to color output.
+    ///
+    /// **NOTE:** This choice is propagated to all child subcommands.
+    ///
+    /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, ColorChoice};
+    /// Command::new("myprog")
+    ///     .color(ColorChoice::Never)
+    ///     .get_matches();
+    /// ```
+    /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    #[cfg(feature = "unstable-styles")]
+    pub fn styles(mut self, styles: Styles) -> Self {
+        self.app_ext.set(styles);
+        self
+    }
+
     /// Sets the terminal width at which to wrap help messages.
     ///
     /// Using `0` will ignore terminal widths and use source formatting.

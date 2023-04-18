@@ -32,7 +32,7 @@ tag-name = "v{{version}}"
 [features]
 default = ["std", "color", "help", "usage", "error-context", "suggestions"]
 debug = ["dep:backtrace"] # Enables debug messages
-unstable-doc = ["cargo", "wrap_help", "env", "unicode", "string"] # for docs.rs
+unstable-doc = ["cargo", "wrap_help", "env", "unicode", "string", "unstable-styles"] # for docs.rs
 
 # Used in default
 std = ["anstyle/std"] # support for no_std in a backwards-compatible way
@@ -52,6 +52,7 @@ string = []  # Allow runtime generated strings
 
 # In-work features
 unstable-v5 = ["deprecated"]
+unstable-styles = ["color"]
 
 [lib]
 bench = false
