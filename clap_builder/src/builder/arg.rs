@@ -4274,7 +4274,7 @@ impl Arg {
 
     pub(crate) fn stylized(&self, styles: &Styles, required: Option<bool>) -> StyledStr {
         use std::fmt::Write as _;
-        let literal = &styles.literal;
+        let literal = styles.get_literal();
 
         let mut styled = StyledStr::new();
         // Write the name such --long or -l
@@ -4294,8 +4294,8 @@ impl Arg {
 
     pub(crate) fn stylize_arg_suffix(&self, styles: &Styles, required: Option<bool>) -> StyledStr {
         use std::fmt::Write as _;
-        let literal = &styles.literal;
-        let placeholder = &styles.placeholder;
+        let literal = styles.get_literal();
+        let placeholder = styles.get_placeholder();
         let mut styled = StyledStr::new();
 
         let mut need_closing_bracket = false;

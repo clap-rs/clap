@@ -200,23 +200,15 @@ impl std::fmt::Display for StyledStr {
 
 /// Terminal styling definitions
 #[derive(Clone, Debug)]
-#[non_exhaustive]
 #[allow(missing_copy_implementations)] // Large enough type that I want an explicit `clone()` for now
 pub struct Styles {
-    /// General Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
-    pub header: anstyle::Style,
-    /// Error heading
-    pub error: anstyle::Style,
-    /// Usage heading
-    pub usage: anstyle::Style,
-    /// Literal command-line syntax, e.g. `--help`
-    pub literal: anstyle::Style,
-    /// Descriptions within command-line syntax, e.g. [`value_name`][crate::Arg::value_name]
-    pub placeholder: anstyle::Style,
-    /// Highlight suggested usage
-    pub valid: anstyle::Style,
-    /// Highlight invalid usage
-    pub invalid: anstyle::Style,
+    header: anstyle::Style,
+    error: anstyle::Style,
+    usage: anstyle::Style,
+    literal: anstyle::Style,
+    placeholder: anstyle::Style,
+    valid: anstyle::Style,
+    invalid: anstyle::Style,
 }
 
 impl Styles {
@@ -255,6 +247,100 @@ impl Styles {
         {
             Self::plain()
         }
+    }
+
+    /// General Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
+    #[inline]
+    pub const fn header(mut self, style: anstyle::Style) -> Self {
+        self.header = style;
+        self
+    }
+
+    /// Error heading
+    #[inline]
+    pub const fn error(mut self, style: anstyle::Style) -> Self {
+        self.error = style;
+        self
+    }
+
+    /// Usage heading
+    #[inline]
+    pub const fn usage(mut self, style: anstyle::Style) -> Self {
+        self.usage = style;
+        self
+    }
+
+    /// Literal command-line syntax, e.g. `--help`
+    #[inline]
+    pub const fn literal(mut self, style: anstyle::Style) -> Self {
+        self.literal = style;
+        self
+    }
+
+    /// Descriptions within command-line syntax, e.g. [`value_name`][crate::Arg::value_name]
+    #[inline]
+    pub const fn placeholder(mut self, style: anstyle::Style) -> Self {
+        self.placeholder = style;
+        self
+    }
+
+    /// Highlight suggested usage
+    #[inline]
+    pub const fn valid(mut self, style: anstyle::Style) -> Self {
+        self.valid = style;
+        self
+    }
+
+    /// Highlight invalid usage
+    #[inline]
+    pub const fn invalid(mut self, style: anstyle::Style) -> Self {
+        self.invalid = style;
+        self
+    }
+}
+
+/// Reflection
+impl Styles {
+    /// General Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
+    #[inline(always)]
+    pub const fn get_header(&self) -> anstyle::Style {
+        self.header
+    }
+
+    /// Error heading
+    #[inline(always)]
+    pub const fn get_error(&self) -> anstyle::Style {
+        self.error
+    }
+
+    /// Usage heading
+    #[inline(always)]
+    pub const fn get_usage(&self) -> anstyle::Style {
+        self.usage
+    }
+
+    /// Literal command-line syntax, e.g. `--help`
+    #[inline(always)]
+    pub const fn get_literal(&self) -> anstyle::Style {
+        self.literal
+    }
+
+    /// Descriptions within command-line syntax, e.g. [`value_name`][crate::Arg::value_name]
+    #[inline(always)]
+    pub const fn get_placeholder(&self) -> anstyle::Style {
+        self.placeholder
+    }
+
+    /// Highlight suggested usage
+    #[inline(always)]
+    pub const fn get_valid(&self) -> anstyle::Style {
+        self.valid
+    }
+
+    /// Highlight invalid usage
+    #[inline(always)]
+    pub const fn get_invalid(&self) -> anstyle::Style {
+        self.invalid
     }
 }
 

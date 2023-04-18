@@ -45,8 +45,8 @@ impl<'cmd> Usage<'cmd> {
         let _ = write!(
             styled,
             "{}Usage:{} ",
-            self.styles.usage.render(),
-            self.styles.usage.render_reset()
+            self.styles.get_usage().render(),
+            self.styles.get_usage().render_reset()
         );
         styled.push_styled(&usage);
         Some(styled)
@@ -81,8 +81,8 @@ impl<'cmd> Usage<'cmd> {
     fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
         use std::fmt::Write as _;
-        let literal = &self.styles.literal;
-        let placeholder = &self.styles.placeholder;
+        let literal = &self.styles.get_literal();
+        let placeholder = &self.styles.get_placeholder();
         let mut styled = StyledStr::new();
 
         let name = self
@@ -166,8 +166,8 @@ impl<'cmd> Usage<'cmd> {
     fn create_smart_usage(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_smart_usage");
         use std::fmt::Write;
-        let literal = &self.styles.literal;
-        let placeholder = &self.styles.placeholder;
+        let literal = &self.styles.get_literal();
+        let placeholder = &self.styles.get_placeholder();
         let mut styled = StyledStr::new();
 
         let bin_name = self
@@ -246,7 +246,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn get_args(&self, incls: &[Id], force_optional: bool) -> Vec<StyledStr> {
         debug!("Usage::get_args: incls={:?}", incls,);
         use std::fmt::Write as _;
-        let literal = &self.styles.literal;
+        let literal = &self.styles.get_literal();
 
         let required_owned;
         let required = if let Some(required) = self.required {

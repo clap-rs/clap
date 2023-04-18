@@ -170,8 +170,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         let _ = write!(
                             self.writer,
                             "{}Usage:{}",
-                            self.styles.usage.render(),
-                            self.styles.usage.render_reset()
+                            self.styles.get_usage().render(),
+                            self.styles.get_usage().render_reset()
                         );
                     }
                     "usage" => {
@@ -341,7 +341,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     pub(crate) fn write_all_args(&mut self) {
         debug!("HelpTemplate::write_all_args");
         use std::fmt::Write as _;
-        let header = &self.styles.header;
+        let header = &self.styles.get_header();
 
         let pos = self
             .cmd
@@ -514,7 +514,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn short(&mut self, arg: &Arg) {
         debug!("HelpTemplate::short");
         use std::fmt::Write as _;
-        let literal = &self.styles.literal;
+        let literal = &self.styles.get_literal();
 
         if let Some(s) = arg.get_short() {
             let _ = write!(
@@ -532,7 +532,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn long(&mut self, arg: &Arg) {
         debug!("HelpTemplate::long");
         use std::fmt::Write as _;
-        let literal = &self.styles.literal;
+        let literal = &self.styles.get_literal();
 
         if let Some(long) = arg.get_long() {
             if arg.get_short().is_some() {
@@ -603,7 +603,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     ) {
         debug!("HelpTemplate::help");
         use std::fmt::Write as _;
-        let literal = &self.styles.literal;
+        let literal = &self.styles.get_literal();
 
         // Is help on next line, if so then indent
         if next_line_help {
@@ -867,7 +867,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn write_subcommands(&mut self, cmd: &Command) {
         debug!("HelpTemplate::write_subcommands");
         use std::fmt::Write as _;
-        let literal = &self.styles.literal;
+        let literal = &self.styles.get_literal();
 
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;

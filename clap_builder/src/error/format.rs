@@ -59,7 +59,7 @@ impl ErrorFormatter for RichFormatter {
     fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
         use std::fmt::Write as _;
         let styles = &error.inner.styles;
-        let valid = &styles.valid;
+        let valid = &styles.get_valid();
 
         let mut styled = StyledStr::new();
         start_error(&mut styled, styles);
@@ -128,7 +128,7 @@ impl ErrorFormatter for RichFormatter {
 
 fn start_error(styled: &mut StyledStr, styles: &Styles) {
     use std::fmt::Write as _;
-    let error = &styles.error;
+    let error = &styles.get_error();
     let _ = write!(styled, "{}error:{} ", error.render(), error.render_reset());
 }
 
@@ -140,9 +140,9 @@ fn write_dynamic_context(
     styles: &Styles,
 ) -> bool {
     use std::fmt::Write as _;
-    let valid = styles.valid;
-    let invalid = styles.invalid;
-    let literal = styles.literal;
+    let valid = styles.get_valid();
+    let invalid = styles.get_invalid();
+    let literal = styles.get_literal();
 
     match error.kind() {
         ErrorKind::ArgumentConflict => {
@@ -503,7 +503,7 @@ pub(crate) fn get_help_flag(cmd: &Command) -> Option<&'static str> {
 fn try_help(styled: &mut StyledStr, styles: &Styles, help: Option<&str>) {
     if let Some(help) = help {
         use std::fmt::Write as _;
-        let literal = &styles.literal;
+        let literal = &styles.get_literal();
         let _ = write!(
             styled,
             "\n\nFor more information, try '{}{help}{}'.\n",
@@ -522,15 +522,15 @@ fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &
     let _ = write!(
         styled,
         "{TAB}{}tip:{}",
-        styles.valid.render(),
-        styles.valid.render_reset()
+        styles.get_valid().render(),
+        styles.get_valid().render_reset()
     );
     if let ContextValue::String(valid) = valid {
         let _ = write!(
             styled,
             " a similar {context} exists: '{}{valid}{}'",
-            styles.valid.render(),
-            styles.valid.render_reset()
+            styles.get_valid().render(),
+            styles.get_valid().render_reset()
         );
     } else if let ContextValue::Strings(valid) = valid {
         if valid.len() == 1 {
@@ -545,8 +545,8 @@ fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &
             let _ = write!(
                 styled,
                 "'{}{valid}{}'",
-                styles.valid.render(),
-                styles.valid.render_reset()
+                styles.get_valid().render(),
+                styles.get_valid().render_reset()
             );
         }
     }

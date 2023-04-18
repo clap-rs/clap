@@ -445,8 +445,8 @@ impl<F: ErrorFormatter> Error<F> {
     ) -> Self {
         use std::fmt::Write as _;
         let styles = cmd.get_styles();
-        let invalid = &styles.invalid;
-        let valid = &styles.valid;
+        let invalid = &styles.get_invalid();
+        let valid = &styles.get_valid();
         let mut err = Self::new(ErrorKind::InvalidSubcommand).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -677,8 +677,8 @@ impl<F: ErrorFormatter> Error<F> {
     ) -> Self {
         use std::fmt::Write as _;
         let styles = cmd.get_styles();
-        let invalid = &styles.invalid;
-        let valid = &styles.valid;
+        let invalid = &styles.get_invalid();
+        let valid = &styles.get_valid();
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
@@ -740,8 +740,8 @@ impl<F: ErrorFormatter> Error<F> {
     ) -> Self {
         use std::fmt::Write as _;
         let styles = cmd.get_styles();
-        let invalid = &styles.invalid;
-        let valid = &styles.valid;
+        let invalid = &styles.get_invalid();
+        let valid = &styles.get_valid();
         let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
 
         #[cfg(feature = "error-context")]
