@@ -207,6 +207,8 @@ pub struct Styles {
     pub header: anstyle::Style,
     /// Error heading
     pub error: anstyle::Style,
+    /// Usage heading
+    pub usage: anstyle::Style,
     /// Literal command-line syntax, e.g. `--help`
     pub literal: anstyle::Style,
     /// Descriptions within command-line syntax, e.g. [`value_name`][crate::Arg::value_name]
@@ -223,6 +225,7 @@ impl Styles {
         Self {
             header: anstyle::Style::new(),
             error: anstyle::Style::new(),
+            usage: anstyle::Style::new(),
             literal: anstyle::Style::new(),
             placeholder: anstyle::Style::new(),
             valid: anstyle::Style::new(),
@@ -239,6 +242,7 @@ impl Styles {
                 error: anstyle::Style::new()
                     .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red)))
                     .bold(),
+                usage: anstyle::Style::new().bold().underline(),
                 literal: anstyle::Style::new().bold(),
                 placeholder: anstyle::Style::new(),
                 valid: anstyle::Style::new()

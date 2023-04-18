@@ -130,7 +130,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     pub(crate) fn write_templated_help(&mut self, template: &str) {
         debug!("HelpTemplate::write_templated_help");
         use std::fmt::Write as _;
-        let header = &self.styles.header;
 
         let mut parts = template.split('{');
         if let Some(first) = parts.next() {
@@ -171,8 +170,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         let _ = write!(
                             self.writer,
                             "{}Usage:{}",
-                            header.render(),
-                            header.render_reset()
+                            self.styles.usage.render(),
+                            self.styles.usage.render_reset()
                         );
                     }
                     "usage" => {

@@ -41,13 +41,12 @@ impl<'cmd> Usage<'cmd> {
         let usage = some!(self.create_usage_no_title(used));
 
         use std::fmt::Write as _;
-        let header = &self.styles.header;
         let mut styled = StyledStr::new();
         let _ = write!(
             styled,
             "{}Usage:{} ",
-            header.render(),
-            header.render_reset()
+            self.styles.usage.render(),
+            self.styles.usage.render_reset()
         );
         styled.push_styled(&usage);
         Some(styled)
