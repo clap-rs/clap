@@ -5,10 +5,10 @@ allow-unwrap-in-tests = true
 allow-dbg-in-tests = true
 allow-print-in-tests = true
 disallowed-methods = [
-    { path = "std::option::Option::map_or", reason = "use `map(..).unwrap_or(..)`" },
-    { path = "std::option::Option::map_or_else", reason = "use `map(..).unwrap_or_else(..)`" },
-    { path = "std::result::Result::map_or", reason = "use `map(..).unwrap_or(..)`" },
-    { path = "std::result::Result::map_or_else", reason = "use `map(..).unwrap_or_else(..)`" },
+    { path = "std::option::Option::map_or", reason = "prefer `map(..).unwrap_or(..)` for legibility" },
+    { path = "std::option::Option::map_or_else", reason = "prefer `map(..).unwrap_or_else(..)` for legibility" },
+    { path = "std::result::Result::map_or", reason = "prefer `map(..).unwrap_or(..)` for legibility" },
+    { path = "std::result::Result::map_or_else", reason = "prefer `map(..).unwrap_or_else(..)` for legibility" },
     { path = "std::iter::Iterator::for_each", reason = "prefer `for` for side-effects" },
     { path = "std::iter::Iterator::try_for_each", reason = "prefer `for` for side-effects" },
 ]
