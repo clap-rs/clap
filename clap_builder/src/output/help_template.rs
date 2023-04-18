@@ -1,3 +1,8 @@
+// HACK: for rust 1.64 (1.68 doesn't need this since this is in lib.rs)
+//
+// Wanting consistency in our calls
+#![allow(clippy::write_with_newline)]
+
 // Std
 use std::borrow::Cow;
 use std::cmp;
