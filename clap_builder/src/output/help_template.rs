@@ -1,3 +1,8 @@
+// HACK: for rust 1.64 (1.68 doesn't need this since this is in lib.rs)
+//
+// Wanting consistency in our calls
+#![allow(clippy::write_with_newline)]
+
 // Std
 use std::borrow::Cow;
 use std::cmp;
@@ -7,6 +12,7 @@ use std::usize;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::{Arg, Command};
 use crate::output::display_width;
 use crate::output::wrap;
@@ -74,6 +80,7 @@ const DEFAULT_NO_ARGS_TEMPLATE: &str = "\
 pub(crate) struct HelpTemplate<'cmd, 'writer> {
     writer: &'writer mut StyledStr,
     cmd: &'cmd Command,
+    styles: &'cmd Styles,
     usage: &'cmd Usage<'cmd>,
     next_line_help: bool,
     term_w: usize,
@@ -112,6 +119,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         HelpTemplate {
             writer,
             cmd,
+            styles: cmd.get_styles(),
             usage,
             next_line_help,
             term_w,
@@ -126,10 +134,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// [`Command::help_template`]: Command::help_template()
     pub(crate) fn write_templated_help(&mut self, template: &str) {
         debug!("HelpTemplate::write_templated_help");
+        use std::fmt::Write as _;
 
         let mut parts = template.split('{');
         if let Some(first) = parts.next() {
-            self.none(first);
+            self.writer.push_str(first);
         }
         for part in parts {
             if let Some((tag, rest)) = part.split_once('}') {
@@ -163,7 +172,12 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.write_about(true, true);
                     }
                     "usage-heading" => {
-                        self.header("Usage:");
+                        let _ = write!(
+                            self.writer,
+                            "{}Usage:{}",
+                            self.styles.get_usage().render(),
+                            self.styles.get_usage().render_reset()
+                        );
                     }
                     "usage" => {
                         self.writer.push_styled(
@@ -193,7 +207,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.write_subcommands(self.cmd);
                     }
                     "tab" => {
-                        self.none(TAB);
+                        self.writer.push_str(TAB);
                     }
                     "after-help" => {
                         self.write_after_help();
@@ -202,12 +216,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.write_before_help();
                     }
                     _ => {
-                        self.none("{");
-                        self.none(tag);
-                        self.none("}");
+                        let _ = write!(self.writer, "{{{tag}}}");
                     }
                 }
-                self.none(rest);
+                self.writer.push_str(rest);
             }
         }
     }
@@ -227,7 +239,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 .replace("{n}", "\n"),
             self.term_w,
         );
-        self.none(&display_name);
+        self.writer.push_string(display_name);
     }
 
     /// Writes binary name of a Parser Object to the wrapped stream.
@@ -245,7 +257,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         } else {
             wrap(&self.cmd.get_name().replace("{n}", "\n"), self.term_w)
         };
-        self.none(&bin_name);
+        self.writer.push_string(bin_name);
     }
 
     fn write_version(&mut self) {
@@ -254,18 +266,18 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             .get_version()
             .or_else(|| self.cmd.get_long_version());
         if let Some(output) = version {
-            self.none(wrap(output, self.term_w));
+            self.writer.push_string(wrap(output, self.term_w));
         }
     }
 
     fn write_author(&mut self, before_new_line: bool, after_new_line: bool) {
         if let Some(author) = self.cmd.get_author() {
             if before_new_line {
-                self.none("\n");
+                self.writer.push_str("\n");
             }
-            self.none(wrap(author, self.term_w));
+            self.writer.push_string(wrap(author, self.term_w));
             if after_new_line {
-                self.none("\n");
+                self.writer.push_str("\n");
             }
         }
     }
@@ -278,14 +290,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         };
         if let Some(output) = about {
             if before_new_line {
-                self.none("\n");
+                self.writer.push_str("\n");
             }
             let mut output = output.clone();
             output.replace_newline_var();
             output.wrap(self.term_w);
             self.writer.push_styled(&output);
             if after_new_line {
-                self.none("\n");
+                self.writer.push_str("\n");
             }
         }
     }
@@ -304,7 +316,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             output.replace_newline_var();
             output.wrap(self.term_w);
             self.writer.push_styled(&output);
-            self.none("\n\n");
+            self.writer.push_str("\n\n");
         }
     }
 
@@ -318,7 +330,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             self.cmd.get_after_help()
         };
         if let Some(output) = after_help {
-            self.none("\n\n");
+            self.writer.push_str("\n\n");
             let mut output = output.clone();
             output.replace_newline_var();
             output.wrap(self.term_w);
@@ -333,6 +345,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// including titles of a Parser Object to the wrapped stream.
     pub(crate) fn write_all_args(&mut self) {
         debug!("HelpTemplate::write_all_args");
+        use std::fmt::Write as _;
+        let header = &self.styles.get_header();
+
         let pos = self
             .cmd
             .get_positionals()
@@ -357,39 +372,52 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
         if subcmds {
             if !first {
-                self.none("\n\n");
+                self.writer.push_str("\n\n");
             }
             first = false;
             let default_help_heading = Str::from("Commands");
-            self.header(
-                self.cmd
-                    .get_subcommand_help_heading()
-                    .unwrap_or(&default_help_heading),
+            let help_heading = self
+                .cmd
+                .get_subcommand_help_heading()
+                .unwrap_or(&default_help_heading);
+            let _ = write!(
+                self.writer,
+                "{}{help_heading}:{}\n",
+                header.render(),
+                header.render_reset()
             );
-            self.header(":");
-            self.none("\n");
 
             self.write_subcommands(self.cmd);
         }
 
         if !pos.is_empty() {
             if !first {
-                self.none("\n\n");
+                self.writer.push_str("\n\n");
             }
             first = false;
             // Write positional args if any
-            self.header("Arguments:");
-            self.none("\n");
+            let help_heading = "Arguments";
+            let _ = write!(
+                self.writer,
+                "{}{help_heading}:{}\n",
+                header.render(),
+                header.render_reset()
+            );
             self.write_args(&pos, "Arguments", positional_sort_key);
         }
 
         if !non_pos.is_empty() {
             if !first {
-                self.none("\n\n");
+                self.writer.push_str("\n\n");
             }
             first = false;
-            self.header("Options:");
-            self.none("\n");
+            let help_heading = "Options";
+            let _ = write!(
+                self.writer,
+                "{}{help_heading}:{}\n",
+                header.render(),
+                header.render_reset()
+            );
             self.write_args(&non_pos, "Options", option_sort_key);
         }
         if !custom_headings.is_empty() {
@@ -408,12 +436,15 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
                 if !args.is_empty() {
                     if !first {
-                        self.none("\n\n");
+                        self.writer.push_str("\n\n");
                     }
                     first = false;
-                    self.header(heading);
-                    self.header(":");
-                    self.none("\n");
+                    let _ = write!(
+                        self.writer,
+                        "{}{heading}:{}\n",
+                        header.render(),
+                        header.render_reset()
+                    );
                     self.write_args(&args, heading, option_sort_key);
                 }
             }
@@ -451,9 +482,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
         for (i, (_, arg)) in ord_v.iter().enumerate() {
             if i != 0 {
-                self.none("\n");
+                self.writer.push_str("\n");
                 if next_line_help && self.use_long {
-                    self.none("\n");
+                    self.writer.push_str("\n");
                 }
             }
             self.write_arg(arg, next_line_help, longest);
@@ -464,10 +495,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn write_arg(&mut self, arg: &Arg, next_line_help: bool, longest: usize) {
         let spec_vals = &self.spec_vals(arg);
 
-        self.none(TAB);
+        self.writer.push_str(TAB);
         self.short(arg);
         self.long(arg);
-        self.writer.push_styled(&arg.stylize_arg_suffix(None));
+        self.writer
+            .push_styled(&arg.stylize_arg_suffix(self.styles, None));
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {
@@ -486,22 +518,37 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// Writes argument's short command to the wrapped stream.
     fn short(&mut self, arg: &Arg) {
         debug!("HelpTemplate::short");
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
 
         if let Some(s) = arg.get_short() {
-            self.literal(format!("-{s}"));
+            let _ = write!(
+                self.writer,
+                "{}-{s}{}",
+                literal.render(),
+                literal.render_reset()
+            );
         } else if arg.get_long().is_some() {
-            self.none("    ");
+            self.writer.push_str("    ");
         }
     }
 
     /// Writes argument's long command to the wrapped stream.
     fn long(&mut self, arg: &Arg) {
         debug!("HelpTemplate::long");
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
+
         if let Some(long) = arg.get_long() {
             if arg.get_short().is_some() {
-                self.none(", ");
+                self.writer.push_str(", ");
             }
-            self.literal(format!("--{long}"));
+            let _ = write!(
+                self.writer,
+                "{}--{long}{}",
+                literal.render(),
+                literal.render_reset()
+            );
         }
     }
 
@@ -513,9 +560,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             next_line_help,
             longest
         );
-        if self.use_long || next_line_help {
+        let padding = if self.use_long || next_line_help {
             // long help prints messages on the next line so it doesn't need to align text
             debug!("HelpTemplate::align_to_about: printing long help so skip alignment");
+            0
         } else if !arg.is_positional() {
             let self_len = display_width(&arg.to_string());
             // Since we're writing spaces from the tab point we first need to know if we
@@ -533,7 +581,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self_len, spcs
             );
 
-            self.spaces(spcs);
+            spcs
         } else {
             let self_len = display_width(&arg.to_string());
             let padding = TAB_WIDTH;
@@ -543,8 +591,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self_len, spcs
             );
 
-            self.spaces(spcs);
-        }
+            spcs
+        };
+
+        self.write_padding(padding);
     }
 
     /// Writes argument's help to the wrapped stream.
@@ -557,13 +607,15 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         longest: usize,
     ) {
         debug!("HelpTemplate::help");
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
 
         // Is help on next line, if so then indent
         if next_line_help {
             debug!("HelpTemplate::help: Next Line...{:?}", next_line_help);
-            self.none("\n");
-            self.none(TAB);
-            self.none(NEXT_LINE_INDENT);
+            self.writer.push_str("\n");
+            self.writer.push_str(TAB);
+            self.writer.push_str(NEXT_LINE_INDENT);
         }
 
         let spaces = if next_line_help {
@@ -585,9 +637,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 } else {
                     " "
                 };
-                help.none(sep);
+                help.push_str(sep);
             }
-            help.none(spec_vals);
+            help.push_str(spec_vals);
         }
         let avail_chars = self.term_w.saturating_sub(spaces);
         debug!(
@@ -612,11 +664,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     "HelpTemplate::help: Found possible vals...{:?}",
                     possible_vals
                 );
-                if !help_is_empty {
-                    self.none("\n\n");
-                    self.spaces(spaces);
-                }
-                self.none("Possible values:");
                 let longest = possible_vals
                     .iter()
                     .filter_map(|f| f.get_visible_quoted_name().map(|name| display_width(&name)))
@@ -641,21 +688,29 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 };
                 let trailing_indent = self.get_spaces(trailing_indent);
 
+                if !help_is_empty {
+                    let _ = write!(self.writer, "\n\n{:spaces$}", "");
+                }
+                self.writer.push_str("Possible values:");
                 for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
-                    self.none("\n");
-                    self.spaces(spaces);
-                    self.none("- ");
-                    self.literal(pv.get_name());
+                    let name = pv.get_name();
+                    let _ = write!(
+                        self.writer,
+                        "\n{:spaces$}- {}{name}{}",
+                        "",
+                        literal.render(),
+                        literal.render_reset()
+                    );
                     if let Some(help) = pv.get_help() {
                         debug!("HelpTemplate::help: Possible Value help");
 
                         if possible_value_new_line {
-                            self.none(":\n");
-                            self.spaces(trailing_indent.len());
+                            let padding = trailing_indent.len();
+                            let _ = write!(self.writer, ":\n{:padding$}", "");
                         } else {
-                            self.none(": ");
                             // To align help messages
-                            self.spaces(longest - display_width(pv.get_name()));
+                            let padding = longest - display_width(pv.get_name());
+                            let _ = write!(self.writer, ": {:padding$}", "");
                         }
 
                         let avail_chars = if self.term_w > trailing_indent.len() {
@@ -801,24 +856,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         spec_vals.join(connector)
     }
 
-    fn header<T: Into<String>>(&mut self, msg: T) {
-        self.writer.header(msg);
-    }
-
-    fn literal<T: Into<String>>(&mut self, msg: T) {
-        self.writer.literal(msg);
-    }
-
-    fn none<T: Into<String>>(&mut self, msg: T) {
-        self.writer.none(msg);
-    }
-
     fn get_spaces(&self, n: usize) -> String {
         " ".repeat(n)
     }
 
-    fn spaces(&mut self, n: usize) {
-        self.none(self.get_spaces(n));
+    fn write_padding(&mut self, amount: usize) {
+        use std::fmt::Write as _;
+        let _ = write!(self.writer, "{:amount$}", "");
     }
 }
 
@@ -827,6 +871,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, cmd: &Command) {
         debug!("HelpTemplate::write_subcommands");
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
+
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
         let mut ord_v = Vec::new();
@@ -835,14 +882,28 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let mut styled = StyledStr::new();
-            styled.literal(subcommand.get_name());
+            let name = subcommand.get_name();
+            let _ = write!(
+                styled,
+                "{}{name}{}",
+                literal.render(),
+                literal.render_reset()
+            );
             if let Some(short) = subcommand.get_short_flag() {
-                styled.none(", ");
-                styled.literal(format!("-{short}"));
+                let _ = write!(
+                    styled,
+                    ", {}-{short}{}",
+                    literal.render(),
+                    literal.render_reset()
+                );
             }
             if let Some(long) = subcommand.get_long_flag() {
-                styled.none(", ");
-                styled.literal(format!("--{long}"));
+                let _ = write!(
+                    styled,
+                    ", {}--{long}{}",
+                    literal.render(),
+                    literal.render_reset()
+                );
             }
             longest = longest.max(styled.display_width());
             ord_v.push((subcommand.get_display_order(), styled, subcommand));
@@ -858,7 +919,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             if first {
                 first = false;
             } else {
-                self.none("\n");
+                self.writer.push_str("\n");
             }
             self.write_subcommand(sc_str, sc, next_line_help, longest);
         }
@@ -942,12 +1003,12 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
     /// Writes subcommand to the wrapped stream.
     fn subcmd(&mut self, sc_str: StyledStr, next_line_help: bool, longest: usize) {
-        let width = sc_str.display_width();
-
-        self.none(TAB);
+        self.writer.push_str(TAB);
         self.writer.push_styled(&sc_str);
         if !next_line_help {
-            self.spaces(longest + TAB_WIDTH - width);
+            let width = sc_str.display_width();
+            let padding = longest + TAB_WIDTH - width;
+            self.write_padding(padding);
         }
     }
 }

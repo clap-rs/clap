@@ -17,6 +17,7 @@ use crate::builder::IntoResettable;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::{Arg, ArgGroup, ArgPredicate};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
@@ -1078,6 +1079,31 @@ impl Command {
             ColorChoice::Always => cmd.global_setting(AppSettings::ColorAlways),
             ColorChoice::Never => cmd.global_setting(AppSettings::ColorNever),
         }
+    }
+
+    /// Sets when to color output.
+    ///
+    /// **NOTE:** This choice is propagated to all child subcommands.
+    ///
+    /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, ColorChoice};
+    /// Command::new("myprog")
+    ///     .color(ColorChoice::Never)
+    ///     .get_matches();
+    /// ```
+    /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    #[cfg(feature = "unstable-styles")]
+    pub fn styles(mut self, styles: Styles) -> Self {
+        self.app_ext.set(styles);
+        self
     }
 
     /// Sets the terminal width at which to wrap help messages.
@@ -3338,6 +3364,10 @@ impl Command {
         }
     }
 
+    pub(crate) fn get_styles(&self) -> &Styles {
+        self.app_ext.get().unwrap_or_default()
+    }
+
     /// Iterate through the set of subcommands, getting a reference to each.
     #[inline]
     pub fn get_subcommands(&self) -> impl Iterator<Item = &Command> {
@@ -4321,9 +4351,9 @@ impl Command {
             .collect::<Vec<_>>()
             .join("|");
         let mut styled = StyledStr::new();
-        styled.none("<");
-        styled.none(g_string);
-        styled.none(">");
+        styled.push_str("<");
+        styled.push_string(g_string);
+        styled.push_str(">");
         styled
     }
 }
@@ -4649,7 +4679,7 @@ impl fmt::Display for Command {
     }
 }
 
-trait AppTag: crate::builder::ext::Extension {}
+pub(crate) trait AppTag: crate::builder::ext::Extension {}
 
 #[derive(Default, Copy, Clone, Debug)]
 struct TermWidth(usize);

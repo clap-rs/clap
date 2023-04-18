@@ -5,6 +5,7 @@
 
 use crate::builder::Command;
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 #[cfg(feature = "error-context")]
 use crate::error::ContextKind;
 #[cfg(feature = "error-context")]
@@ -29,16 +30,19 @@ pub struct KindFormatter;
 
 impl ErrorFormatter for KindFormatter {
     fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
+        use std::fmt::Write as _;
+        let styles = &error.inner.styles;
+
         let mut styled = StyledStr::new();
-        start_error(&mut styled);
+        start_error(&mut styled, styles);
         if let Some(msg) = error.kind().as_str() {
-            styled.none(msg.to_owned());
+            styled.push_str(msg);
         } else if let Some(source) = error.inner.source.as_ref() {
-            styled.none(source.to_string());
+            let _ = write!(styled, "{}", source);
         } else {
-            styled.none("unknown cause");
+            styled.push_str("unknown cause");
         }
-        styled.none("\n");
+        styled.push_str("\n");
         styled
     }
 }
@@ -53,53 +57,60 @@ pub struct RichFormatter;
 #[cfg(feature = "error-context")]
 impl ErrorFormatter for RichFormatter {
     fn format_error(error: &crate::error::Error<Self>) -> StyledStr {
-        let mut styled = StyledStr::new();
-        start_error(&mut styled);
+        use std::fmt::Write as _;
+        let styles = &error.inner.styles;
+        let valid = &styles.get_valid();
 
-        if !write_dynamic_context(error, &mut styled) {
+        let mut styled = StyledStr::new();
+        start_error(&mut styled, styles);
+
+        if !write_dynamic_context(error, &mut styled, styles) {
             if let Some(msg) = error.kind().as_str() {
-                styled.none(msg.to_owned());
+                styled.push_str(msg);
             } else if let Some(source) = error.inner.source.as_ref() {
-                styled.none(source.to_string());
+                let _ = write!(styled, "{}", source);
             } else {
-                styled.none("unknown cause");
+                styled.push_str("unknown cause");
             }
         }
 
         let mut suggested = false;
         if let Some(valid) = error.get(ContextKind::SuggestedSubcommand) {
-            styled.none("\n");
+            styled.push_str("\n");
             if !suggested {
-                styled.none("\n");
+                styled.push_str("\n");
                 suggested = true;
             }
-            did_you_mean(&mut styled, "subcommand", valid);
+            did_you_mean(&mut styled, styles, "subcommand", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedArg) {
-            styled.none("\n");
+            styled.push_str("\n");
             if !suggested {
-                styled.none("\n");
+                styled.push_str("\n");
                 suggested = true;
             }
-            did_you_mean(&mut styled, "argument", valid);
+            did_you_mean(&mut styled, styles, "argument", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedValue) {
-            styled.none("\n");
+            styled.push_str("\n");
             if !suggested {
-                styled.none("\n");
+                styled.push_str("\n");
                 suggested = true;
             }
-            did_you_mean(&mut styled, "value", valid);
+            did_you_mean(&mut styled, styles, "value", valid);
         }
         let suggestions = error.get(ContextKind::Suggested);
         if let Some(ContextValue::StyledStrs(suggestions)) = suggestions {
             if !suggested {
-                styled.none("\n");
+                styled.push_str("\n");
             }
             for suggestion in suggestions {
-                styled.none("\n");
-                styled.none(TAB);
-                styled.good("tip: ");
+                let _ = write!(
+                    styled,
+                    "\n{TAB}{}tip:{} ",
+                    valid.render(),
+                    valid.render_reset()
+                );
                 styled.push_styled(suggestion);
             }
         }
@@ -109,20 +120,30 @@ impl ErrorFormatter for RichFormatter {
             put_usage(&mut styled, usage);
         }
 
-        try_help(&mut styled, error.inner.help_flag);
+        try_help(&mut styled, styles, error.inner.help_flag);
 
         styled
     }
 }
 
-fn start_error(styled: &mut StyledStr) {
-    styled.error("error:");
-    styled.none(" ");
+fn start_error(styled: &mut StyledStr, styles: &Styles) {
+    use std::fmt::Write as _;
+    let error = &styles.get_error();
+    let _ = write!(styled, "{}error:{} ", error.render(), error.render_reset());
 }
 
 #[must_use]
 #[cfg(feature = "error-context")]
-fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) -> bool {
+fn write_dynamic_context(
+    error: &crate::error::Error,
+    styled: &mut StyledStr,
+    styles: &Styles,
+) -> bool {
+    use std::fmt::Write as _;
+    let valid = styles.get_valid();
+    let invalid = styles.get_invalid();
+    let literal = styles.get_literal();
+
     match error.kind() {
         ErrorKind::ArgumentConflict => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
@@ -131,30 +152,42 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 (invalid_arg, prior_arg)
             {
                 if ContextValue::String(invalid_arg.clone()) == *prior_arg {
-                    styled.none("the argument '");
-                    styled.warning(invalid_arg);
-                    styled.none("' cannot be used multiple times");
+                    let _ = write!(
+                        styled,
+                        "the argument '{}{invalid_arg}{}' cannot be used multiple times",
+                        invalid.render(),
+                        invalid.render_reset()
+                    );
                 } else {
-                    styled.none("the argument '");
-                    styled.warning(invalid_arg);
-                    styled.none("' cannot be used with");
+                    let _ = write!(
+                        styled,
+                        "the argument '{}{invalid_arg}{}' cannot be used with",
+                        invalid.render(),
+                        invalid.render_reset()
+                    );
 
                     match prior_arg {
                         ContextValue::Strings(values) => {
-                            styled.none(":");
+                            styled.push_str(":");
                             for v in values {
-                                styled.none("\n");
-                                styled.none(TAB);
-                                styled.warning(&**v);
+                                let _ = write!(
+                                    styled,
+                                    "\n{TAB}{}{v}{}",
+                                    invalid.render(),
+                                    invalid.render_reset()
+                                );
                             }
                         }
                         ContextValue::String(value) => {
-                            styled.none(" '");
-                            styled.warning(value);
-                            styled.none("'");
+                            let _ = write!(
+                                styled,
+                                " '{}{value}{}'",
+                                invalid.render(),
+                                invalid.render_reset()
+                            );
                         }
                         _ => {
-                            styled.none(" one or more of the other specified arguments");
+                            styled.push_str(" one or more of the other specified arguments");
                         }
                     }
                 }
@@ -166,9 +199,12 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::NoEquals => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
             if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                styled.none("equal sign is needed when assigning values to '");
-                styled.warning(invalid_arg);
-                styled.none("'");
+                let _ = write!(
+                    styled,
+                    "equal sign is needed when assigning values to '{}{invalid_arg}{}'",
+                    invalid.render(),
+                    invalid.render_reset()
+                );
                 true
             } else {
                 false
@@ -183,31 +219,46 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             ) = (invalid_arg, invalid_value)
             {
                 if invalid_value.is_empty() {
-                    styled.none("a value is required for '");
-                    styled.warning(invalid_arg);
-                    styled.none("' but none was supplied");
+                    let _ = write!(
+                        styled,
+                        "a value is required for '{}{invalid_arg}{}' but none was supplied",
+                        invalid.render(),
+                        invalid.render_reset()
+                    );
                 } else {
-                    styled.none("invalid value '");
-                    styled.none(invalid_value);
-                    styled.none("' for '");
-                    styled.warning(invalid_arg);
-                    styled.none("'");
+                    let _ = write!(
+                        styled,
+                        "invalid value '{}{invalid_value}{}' for '{}{invalid_arg}{}'",
+                        invalid.render(),
+                        invalid.render_reset(),
+                        literal.render(),
+                        literal.render_reset()
+                    );
                 }
 
                 let possible_values = error.get(ContextKind::ValidValue);
                 if let Some(ContextValue::Strings(possible_values)) = possible_values {
                     if !possible_values.is_empty() {
-                        styled.none("\n");
-                        styled.none(TAB);
-                        styled.none("[possible values: ");
+                        let _ = write!(styled, "\n{TAB}[possible values: ");
                         if let Some((last, elements)) = possible_values.split_last() {
                             for v in elements {
-                                styled.good(escape(v));
-                                styled.none(", ");
+                                let _ = write!(
+                                    styled,
+                                    "{}{}{}, ",
+                                    valid.render(),
+                                    Escape(v),
+                                    valid.render_reset()
+                                );
                             }
-                            styled.good(escape(last));
+                            let _ = write!(
+                                styled,
+                                "{}{}{}",
+                                valid.render(),
+                                Escape(last),
+                                valid.render_reset()
+                            );
                         }
-                        styled.none("]");
+                        styled.push_str("]");
                     }
                 }
                 true
@@ -218,9 +269,12 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::InvalidSubcommand => {
             let invalid_sub = error.get(ContextKind::InvalidSubcommand);
             if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                styled.none("unrecognized subcommand '");
-                styled.warning(invalid_sub);
-                styled.none("'");
+                let _ = write!(
+                    styled,
+                    "unrecognized subcommand '{}{invalid_sub}{}'",
+                    invalid.render(),
+                    invalid.render_reset()
+                );
                 true
             } else {
                 false
@@ -229,11 +283,14 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::MissingRequiredArgument => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
             if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
-                styled.none("the following required arguments were not provided:");
+                styled.push_str("the following required arguments were not provided:");
                 for v in invalid_arg {
-                    styled.none("\n");
-                    styled.none(TAB);
-                    styled.good(&**v);
+                    let _ = write!(
+                        styled,
+                        "\n{TAB}{}{v}{}",
+                        valid.render(),
+                        valid.render_reset()
+                    );
                 }
                 true
             } else {
@@ -243,24 +300,36 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::MissingSubcommand => {
             let invalid_sub = error.get(ContextKind::InvalidSubcommand);
             if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                styled.none("'");
-                styled.warning(invalid_sub);
-                styled.none("' requires a subcommand but one was not provided");
+                let _ = write!(
+                    styled,
+                    "'{}{invalid_sub}{}' requires a subcommand but one was not provided",
+                    invalid.render(),
+                    invalid.render_reset()
+                );
 
                 let possible_values = error.get(ContextKind::ValidSubcommand);
                 if let Some(ContextValue::Strings(possible_values)) = possible_values {
                     if !possible_values.is_empty() {
-                        styled.none("\n");
-                        styled.none(TAB);
-                        styled.none("[subcommands: ");
+                        let _ = write!(styled, "\n{TAB}[subcommands: ");
                         if let Some((last, elements)) = possible_values.split_last() {
                             for v in elements {
-                                styled.good(escape(v));
-                                styled.none(", ");
+                                let _ = write!(
+                                    styled,
+                                    "{}{}{}, ",
+                                    valid.render(),
+                                    Escape(v),
+                                    valid.render_reset()
+                                );
                             }
-                            styled.good(escape(last));
+                            let _ = write!(
+                                styled,
+                                "{}{}{}",
+                                valid.render(),
+                                Escape(last),
+                                valid.render_reset()
+                            );
                         }
-                        styled.none("]");
+                        styled.push_str("]");
                     }
                 }
 
@@ -278,11 +347,14 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 Some(ContextValue::String(invalid_value)),
             ) = (invalid_arg, invalid_value)
             {
-                styled.none("unexpected value '");
-                styled.warning(invalid_value);
-                styled.none("' for '");
-                styled.warning(invalid_arg);
-                styled.none("' found; no more were expected");
+                let _ = write!(
+                    styled,
+                    "unexpected value '{}{invalid_value}{}' for '{}{invalid_arg}{}' found; no more were expected",
+                    invalid.render(),
+                    invalid.render_reset(),
+                    literal.render(),
+                    literal.render_reset(),
+                );
                 true
             } else {
                 false
@@ -299,12 +371,16 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             ) = (invalid_arg, actual_num_values, min_values)
             {
                 let were_provided = singular_or_plural(*actual_num_values as usize);
-                styled.warning(min_values.to_string());
-                styled.none(" more values required by '");
-                styled.warning(invalid_arg);
-                styled.none("'; only ");
-                styled.warning(actual_num_values.to_string());
-                styled.none(were_provided);
+                let _ = write!(
+                    styled,
+                    "{}{min_values}{} more values required by '{}{invalid_arg}{}'; only {}{actual_num_values}{}{were_provided}",
+                    valid.render(),
+                    valid.render_reset(),
+                    literal.render(),
+                    literal.render_reset(),
+                    invalid.render(),
+                    invalid.render_reset(),
+                );
                 true
             } else {
                 false
@@ -318,15 +394,16 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
                 Some(ContextValue::String(invalid_value)),
             ) = (invalid_arg, invalid_value)
             {
-                styled.none("invalid value '");
-                styled.warning(invalid_value);
-                styled.none("' for '");
-                styled.warning(invalid_arg);
+                let _ = write!(
+                    styled,
+                    "invalid value '{}{invalid_value}{}' for '{}{invalid_arg}{}'",
+                    invalid.render(),
+                    invalid.render_reset(),
+                    literal.render(),
+                    literal.render_reset(),
+                );
                 if let Some(source) = error.inner.source.as_deref() {
-                    styled.none("': ");
-                    styled.none(source.to_string());
-                } else {
-                    styled.none("'");
+                    let _ = write!(styled, ": {}", source);
                 }
                 true
             } else {
@@ -344,12 +421,16 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
             ) = (invalid_arg, actual_num_values, num_values)
             {
                 let were_provided = singular_or_plural(*actual_num_values as usize);
-                styled.warning(num_values.to_string());
-                styled.none(" values required for '");
-                styled.warning(invalid_arg);
-                styled.none("' but ");
-                styled.warning(actual_num_values.to_string());
-                styled.none(were_provided);
+                let _ = write!(
+                    styled,
+                    "{}{num_values}{} values required for '{}{invalid_arg}{}' but {}{actual_num_values}{}{were_provided}",
+                    valid.render(),
+                    valid.render_reset(),
+                    literal.render(),
+                    literal.render_reset(),
+                    invalid.render(),
+                    invalid.render_reset(),
+                );
                 true
             } else {
                 false
@@ -358,9 +439,12 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
         ErrorKind::UnknownArgument => {
             let invalid_arg = error.get(ContextKind::InvalidArg);
             if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                styled.none("unexpected argument '");
-                styled.warning(invalid_arg.to_string());
-                styled.none("' found");
+                let _ = write!(
+                    styled,
+                    "unexpected argument '{}{invalid_arg}{}' found",
+                    invalid.render(),
+                    invalid.render_reset(),
+                );
                 true
             } else {
                 false
@@ -376,17 +460,18 @@ fn write_dynamic_context(error: &crate::error::Error, styled: &mut StyledStr) ->
 
 pub(crate) fn format_error_message(
     message: &str,
+    styles: &Styles,
     cmd: Option<&Command>,
     usage: Option<&StyledStr>,
 ) -> StyledStr {
     let mut styled = StyledStr::new();
-    start_error(&mut styled);
-    styled.none(message);
+    start_error(&mut styled, styles);
+    styled.push_str(message);
     if let Some(usage) = usage {
         put_usage(&mut styled, usage);
     }
     if let Some(cmd) = cmd {
-        try_help(&mut styled, get_help_flag(cmd));
+        try_help(&mut styled, styles, get_help_flag(cmd));
     }
     styled
 }
@@ -401,7 +486,7 @@ fn singular_or_plural(n: usize) -> &'static str {
 }
 
 fn put_usage(styled: &mut StyledStr, usage: &StyledStr) {
-    styled.none("\n\n");
+    styled.push_str("\n\n");
     styled.push_styled(usage);
 }
 
@@ -415,52 +500,66 @@ pub(crate) fn get_help_flag(cmd: &Command) -> Option<&'static str> {
     }
 }
 
-fn try_help(styled: &mut StyledStr, help: Option<&str>) {
+fn try_help(styled: &mut StyledStr, styles: &Styles, help: Option<&str>) {
     if let Some(help) = help {
-        styled.none("\n\nFor more information, try '");
-        styled.literal(help.to_owned());
-        styled.none("'.\n");
+        use std::fmt::Write as _;
+        let literal = &styles.get_literal();
+        let _ = write!(
+            styled,
+            "\n\nFor more information, try '{}{help}{}'.\n",
+            literal.render(),
+            literal.render_reset()
+        );
     } else {
-        styled.none("\n");
+        styled.push_str("\n");
     }
 }
 
 #[cfg(feature = "error-context")]
-fn did_you_mean(styled: &mut StyledStr, context: &str, valid: &ContextValue) {
-    styled.none(TAB);
-    styled.good("tip:");
+fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &ContextValue) {
+    use std::fmt::Write as _;
+
+    let _ = write!(
+        styled,
+        "{TAB}{}tip:{}",
+        styles.get_valid().render(),
+        styles.get_valid().render_reset()
+    );
     if let ContextValue::String(valid) = valid {
-        styled.none(" a similar ");
-        styled.none(context);
-        styled.none(" exists: '");
-        styled.good(valid);
-        styled.none("'");
+        let _ = write!(
+            styled,
+            " a similar {context} exists: '{}{valid}{}'",
+            styles.get_valid().render(),
+            styles.get_valid().render_reset()
+        );
     } else if let ContextValue::Strings(valid) = valid {
         if valid.len() == 1 {
-            styled.none(" a similar ");
-            styled.none(context);
-            styled.none(" exists: ");
+            let _ = write!(styled, " a similar {context} exists: ",);
         } else {
-            styled.none(" some similar ");
-            styled.none(context);
-            styled.none("s exist: ");
+            let _ = write!(styled, " some similar {context}s exist: ",);
         }
         for (i, valid) in valid.iter().enumerate() {
             if i != 0 {
-                styled.none(", ");
+                styled.push_str(", ");
             }
-            styled.none("'");
-            styled.good(valid);
-            styled.none("'");
+            let _ = write!(
+                styled,
+                "'{}{valid}{}'",
+                styles.get_valid().render(),
+                styles.get_valid().render_reset()
+            );
         }
     }
 }
 
-fn escape(s: impl AsRef<str>) -> String {
-    let s = s.as_ref();
-    if s.contains(char::is_whitespace) {
-        format!("{s:?}")
-    } else {
-        s.to_owned()
+struct Escape<'s>(&'s str);
+
+impl<'s> std::fmt::Display for Escape<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if self.0.contains(char::is_whitespace) {
+            std::fmt::Debug::fmt(self.0, f)
+        } else {
+            self.0.fmt(f)
+        }
     }
 }

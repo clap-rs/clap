@@ -32,11 +32,11 @@ tag-name = "v{{version}}"
 [features]
 default = ["std", "color", "help", "usage", "error-context", "suggestions"]
 debug = ["dep:backtrace"] # Enables debug messages
-unstable-doc = ["cargo", "wrap_help", "env", "unicode", "string"] # for docs.rs
+unstable-doc = ["cargo", "wrap_help", "env", "unicode", "string", "unstable-styles"] # for docs.rs
 
 # Used in default
-std = [] # support for no_std in a backwards-compatible way
-color = ["dep:anstyle", "dep:anstream"]
+std = ["anstyle/std"] # support for no_std in a backwards-compatible way
+color = ["dep:anstream"]
 help = []
 usage = []
 error-context = []
@@ -52,6 +52,7 @@ string = []  # Allow runtime generated strings
 
 # In-work features
 unstable-v5 = ["deprecated"]
+unstable-styles = ["color"]
 
 [lib]
 bench = false
@@ -62,7 +63,7 @@ bitflags = "1.2.0"
 unicase = { version = "2.6.0", optional = true }
 strsim = { version = "0.10.0",  optional = true }
 anstream = { version = "0.3.0", optional = true }
-anstyle = { version = "1.0.0", features = ["std"], optional = true }
+anstyle = "1.0.0"
 terminal_size = { version = "0.2.1", optional = true }
 backtrace = { version = "0.3.67", optional = true }
 unicode-width = { version = "0.1.9", optional = true }

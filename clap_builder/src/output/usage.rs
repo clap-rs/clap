@@ -5,6 +5,7 @@
 
 // Internal
 use crate::builder::StyledStr;
+use crate::builder::Styles;
 use crate::builder::{ArgPredicate, Command};
 use crate::parser::ArgMatcher;
 use crate::util::ChildGraph;
@@ -15,6 +16,7 @@ static DEFAULT_SUB_VALUE_NAME: &str = "COMMAND";
 
 pub(crate) struct Usage<'cmd> {
     cmd: &'cmd Command,
+    styles: &'cmd Styles,
     required: Option<&'cmd ChildGraph<Id>>,
 }
 
@@ -22,6 +24,7 @@ impl<'cmd> Usage<'cmd> {
     pub(crate) fn new(cmd: &'cmd Command) -> Self {
         Usage {
             cmd,
+            styles: cmd.get_styles(),
             required: None,
         }
     }
@@ -37,9 +40,14 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::create_usage_with_title");
         let usage = some!(self.create_usage_no_title(used));
 
+        use std::fmt::Write as _;
         let mut styled = StyledStr::new();
-        styled.header("Usage:");
-        styled.none(" ");
+        let _ = write!(
+            styled,
+            "{}Usage:{} ",
+            self.styles.get_usage().render(),
+            self.styles.get_usage().render_reset()
+        );
         styled.push_styled(&usage);
         Some(styled)
     }
@@ -72,16 +80,33 @@ impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
     fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
+        let placeholder = &self.styles.get_placeholder();
         let mut styled = StyledStr::new();
+
         let name = self
             .cmd
             .get_usage_name()
             .or_else(|| self.cmd.get_bin_name())
             .unwrap_or_else(|| self.cmd.get_name());
-        styled.literal(name);
+        if !name.is_empty() {
+            // the trim won't properly remove a leading space due to the formatting
+            let _ = write!(
+                styled,
+                "{}{name}{}",
+                literal.render(),
+                literal.render_reset()
+            );
+        }
 
         if self.needs_options_tag() {
-            styled.placeholder(" [OPTIONS]");
+            let _ = write!(
+                styled,
+                "{} [OPTIONS]{}",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
         }
 
         self.write_args(&[], !incl_reqs, &mut styled);
@@ -90,32 +115,45 @@ impl<'cmd> Usage<'cmd> {
         if self.cmd.has_visible_subcommands() && incl_reqs
             || self.cmd.is_allow_external_subcommands_set()
         {
-            let placeholder = self
+            let value_name = self
                 .cmd
                 .get_subcommand_value_name()
                 .unwrap_or(DEFAULT_SUB_VALUE_NAME);
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
-                styled.none("\n");
-                styled.none("       ");
+                let _ = write!(styled, "\n       ");
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
                     // Short-circuit full usage creation since no args will be relevant
-                    styled.literal(name);
+                    let _ = write!(
+                        styled,
+                        "{}{name}{}",
+                        literal.render(),
+                        literal.render_reset()
+                    );
                 } else {
                     styled.push_styled(&self.create_help_usage(false));
                 }
-                styled.placeholder(" <");
-                styled.placeholder(placeholder);
-                styled.placeholder(">");
+                let _ = write!(
+                    styled,
+                    " {}<{value_name}>{}",
+                    placeholder.render(),
+                    placeholder.render_reset()
+                );
             } else if self.cmd.is_subcommand_required_set() {
-                styled.placeholder(" <");
-                styled.placeholder(placeholder);
-                styled.placeholder(">");
+                let _ = write!(
+                    styled,
+                    " {}<{value_name}>{}",
+                    placeholder.render(),
+                    placeholder.render_reset()
+                );
             } else {
-                styled.placeholder(" [");
-                styled.placeholder(placeholder);
-                styled.placeholder("]");
+                let _ = write!(
+                    styled,
+                    " {}[{value_name}]{}",
+                    placeholder.render(),
+                    placeholder.render_reset()
+                );
             }
         }
         styled.trim();
@@ -127,25 +165,36 @@ impl<'cmd> Usage<'cmd> {
     // args, and requirements
     fn create_smart_usage(&self, used: &[Id]) -> StyledStr {
         debug!("Usage::create_smart_usage");
+        use std::fmt::Write;
+        let literal = &self.styles.get_literal();
+        let placeholder = &self.styles.get_placeholder();
         let mut styled = StyledStr::new();
 
-        styled.literal(
-            self.cmd
-                .get_usage_name()
-                .or_else(|| self.cmd.get_bin_name())
-                .unwrap_or_else(|| self.cmd.get_name()),
+        let bin_name = self
+            .cmd
+            .get_usage_name()
+            .or_else(|| self.cmd.get_bin_name())
+            .unwrap_or_else(|| self.cmd.get_name());
+        let _ = write!(
+            styled,
+            "{}{bin_name}{}",
+            literal.render(),
+            literal.render_reset()
         );
 
         self.write_args(used, false, &mut styled);
 
         if self.cmd.is_subcommand_required_set() {
-            styled.placeholder(" <");
-            styled.placeholder(
-                self.cmd
-                    .get_subcommand_value_name()
-                    .unwrap_or(DEFAULT_SUB_VALUE_NAME),
+            let value_name = self
+                .cmd
+                .get_subcommand_value_name()
+                .unwrap_or(DEFAULT_SUB_VALUE_NAME);
+            let _ = write!(
+                styled,
+                " {}<{value_name}>{}",
+                placeholder.render(),
+                placeholder.render_reset()
             );
-            styled.placeholder(">");
         }
         styled
     }
@@ -189,13 +238,15 @@ impl<'cmd> Usage<'cmd> {
     // Returns the required args in usage string form by fully unrolling all groups
     pub(crate) fn write_args(&self, incls: &[Id], force_optional: bool, styled: &mut StyledStr) {
         for required in self.get_args(incls, force_optional) {
-            styled.none(" ");
+            styled.push_str(" ");
             styled.push_styled(&required);
         }
     }
 
     pub(crate) fn get_args(&self, incls: &[Id], force_optional: bool) -> Vec<StyledStr> {
         debug!("Usage::get_args: incls={:?}", incls,);
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
 
         let required_owned;
         let required = if let Some(required) = self.required {
@@ -247,7 +298,7 @@ impl<'cmd> Usage<'cmd> {
                     continue;
                 }
 
-                let stylized = arg.stylized(Some(!force_optional));
+                let stylized = arg.stylized(self.styles, Some(!force_optional));
                 if let Some(index) = arg.get_index() {
                     let new_len = index + 1;
                     if required_positionals.len() < new_len {
@@ -279,7 +330,7 @@ impl<'cmd> Usage<'cmd> {
                 if pos.is_last_set() {
                     let styled = required_positionals[index].take().unwrap();
                     let mut new = StyledStr::new();
-                    new.literal("-- ");
+                    let _ = write!(new, "{}--{} ", literal.render(), literal.render_reset());
                     new.push_styled(&styled);
                     required_positionals[index] = Some(new);
                 }
@@ -287,11 +338,11 @@ impl<'cmd> Usage<'cmd> {
                 let mut styled;
                 if pos.is_last_set() {
                     styled = StyledStr::new();
-                    styled.literal("[-- ");
-                    styled.push_styled(&pos.stylized(Some(true)));
-                    styled.literal("]");
+                    let _ = write!(styled, "{}[--{} ", literal.render(), literal.render_reset());
+                    styled.push_styled(&pos.stylized(self.styles, Some(true)));
+                    let _ = write!(styled, "{}]{}", literal.render(), literal.render_reset());
                 } else {
-                    styled = pos.stylized(Some(false));
+                    styled = pos.stylized(self.styles, Some(false));
                 }
                 required_positionals[index] = Some(styled);
             }
@@ -411,7 +462,7 @@ impl<'cmd> Usage<'cmd> {
                     continue;
                 }
 
-                let stylized = arg.stylized(Some(true));
+                let stylized = arg.stylized(self.styles, Some(true));
                 if let Some(index) = arg.get_index() {
                     if !arg.is_last_set() || incl_last {
                         let new_len = index + 1;
