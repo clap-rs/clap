@@ -303,44 +303,44 @@ impl Styles {
 impl Styles {
     /// General Heading style, e.g. [`help_heading`][crate::Arg::help_heading]
     #[inline(always)]
-    pub const fn get_header(&self) -> anstyle::Style {
-        self.header
+    pub const fn get_header(&self) -> &anstyle::Style {
+        &self.header
     }
 
     /// Error heading
     #[inline(always)]
-    pub const fn get_error(&self) -> anstyle::Style {
-        self.error
+    pub const fn get_error(&self) -> &anstyle::Style {
+        &self.error
     }
 
     /// Usage heading
     #[inline(always)]
-    pub const fn get_usage(&self) -> anstyle::Style {
-        self.usage
+    pub const fn get_usage(&self) -> &anstyle::Style {
+        &self.usage
     }
 
     /// Literal command-line syntax, e.g. `--help`
     #[inline(always)]
-    pub const fn get_literal(&self) -> anstyle::Style {
-        self.literal
+    pub const fn get_literal(&self) -> &anstyle::Style {
+        &self.literal
     }
 
     /// Descriptions within command-line syntax, e.g. [`value_name`][crate::Arg::value_name]
     #[inline(always)]
-    pub const fn get_placeholder(&self) -> anstyle::Style {
-        self.placeholder
+    pub const fn get_placeholder(&self) -> &anstyle::Style {
+        &self.placeholder
     }
 
     /// Highlight suggested usage
     #[inline(always)]
-    pub const fn get_valid(&self) -> anstyle::Style {
-        self.valid
+    pub const fn get_valid(&self) -> &anstyle::Style {
+        &self.valid
     }
 
     /// Highlight invalid usage
     #[inline(always)]
-    pub const fn get_invalid(&self) -> anstyle::Style {
-        self.invalid
+    pub const fn get_invalid(&self) -> &anstyle::Style {
+        &self.invalid
     }
 }
 
