@@ -17,8 +17,12 @@ repository:
   # Not really needed
   allow_rebase_merge: false
 
-  # Manual: allow_auto_merge: true, see https://github.com/probot/settings/issues/402
+  allow_auto_merge: true
   delete_branch_on_merge: true
+
+  squash_merge_commit_title: "PR_TITLE"
+  squash_merge_commit_message: "PR_BODY"
+  merge_commit_message: "PR_BODY"
 
 #labels:
 #  - name: "A-builder"
