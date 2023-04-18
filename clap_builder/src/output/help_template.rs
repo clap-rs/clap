@@ -494,7 +494,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         self.short(arg);
         self.long(arg);
         self.writer
-            .push_styled(&arg.stylize_arg_suffix(&self.styles, None));
+            .push_styled(&arg.stylize_arg_suffix(self.styles, None));
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {

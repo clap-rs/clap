@@ -298,7 +298,7 @@ impl<'cmd> Usage<'cmd> {
                     continue;
                 }
 
-                let stylized = arg.stylized(&self.styles, Some(!force_optional));
+                let stylized = arg.stylized(self.styles, Some(!force_optional));
                 if let Some(index) = arg.get_index() {
                     let new_len = index + 1;
                     if required_positionals.len() < new_len {
@@ -339,10 +339,10 @@ impl<'cmd> Usage<'cmd> {
                 if pos.is_last_set() {
                     styled = StyledStr::new();
                     let _ = write!(styled, "{}[--{} ", literal.render(), literal.render_reset());
-                    styled.push_styled(&pos.stylized(&self.styles, Some(true)));
+                    styled.push_styled(&pos.stylized(self.styles, Some(true)));
                     let _ = write!(styled, "{}]{}", literal.render(), literal.render_reset());
                 } else {
-                    styled = pos.stylized(&self.styles, Some(false));
+                    styled = pos.stylized(self.styles, Some(false));
                 }
                 required_positionals[index] = Some(styled);
             }
@@ -462,7 +462,7 @@ impl<'cmd> Usage<'cmd> {
                     continue;
                 }
 
-                let stylized = arg.stylized(&self.styles, Some(true));
+                let stylized = arg.stylized(self.styles, Some(true));
                 if let Some(index) = arg.get_index() {
                     if !arg.is_last_set() || incl_last {
                         let new_len = index + 1;
