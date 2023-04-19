@@ -808,9 +808,9 @@ Usage: ctest [mode]
 Arguments:
   [mode]  Some values:
             - l, long           Copy-friendly, 14
-          characters, contains symbols.
+            characters, contains symbols.
             - m, med, medium    Copy-friendly, 8 characters,
-          contains symbols.
+            contains symbols.
 
 Options:
   -h, --help     Print help
