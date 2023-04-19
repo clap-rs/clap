@@ -184,7 +184,7 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.2.3"
+version = "4.2.4"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -203,14 +203,14 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.2.3",
+ "clap 4.2.4",
  "criterion",
  "lazy_static",
 ]
 
 [[package]]
 name = "clap_builder"
-version = "4.2.3"
+version = "4.2.4"
 dependencies = [
  "anstream",
  "anstyle",
@@ -237,7 +237,7 @@ dependencies = [
 name = "clap_complete"
 version = "4.2.0"
 dependencies = [
- "clap 4.2.3",
+ "clap 4.2.4",
  "clap_lex 0.4.1",
  "is_executable",
  "pathdiff",
@@ -251,7 +251,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.2.0"
 dependencies = [
- "clap 4.2.3",
+ "clap 4.2.4",
  "clap_complete",
  "snapbox",
 ]
@@ -283,7 +283,7 @@ version = "0.4.1"
 name = "clap_mangen"
 version = "0.2.10"
 dependencies = [
- "clap 4.2.3",
+ "clap 4.2.4",
  "roff",
  "snapbox",
 ]
