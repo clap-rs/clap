@@ -3364,7 +3364,9 @@ impl Command {
         }
     }
 
-    pub(crate) fn get_styles(&self) -> &Styles {
+    /// Return the current `Styles` for the `Command`
+    #[inline]
+    pub fn get_styles(&self) -> &Styles {
         self.app_ext.get().unwrap_or_default()
     }
 
