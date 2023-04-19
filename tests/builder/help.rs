@@ -801,6 +801,35 @@ Options:
 
 #[test]
 #[cfg(feature = "wrap_help")]
+fn wrapped_indentation() {
+    static HELP: &str = "\
+Usage: ctest [mode]
+
+Arguments:
+  [mode]  Some values:
+            - l, long           Copy-friendly, 14
+            characters, contains symbols.
+            - m, med, medium    Copy-friendly, 8 characters,
+            contains symbols.
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+";
+
+    let cmd = Command::new("ctest")
+        .version("0.1")
+        .term_width(60)
+        .arg(Arg::new("mode").help(
+            "Some values:
+  - l, long           Copy-friendly, 14 characters, contains symbols.
+  - m, med, medium    Copy-friendly, 8 characters, contains symbols.",
+        ));
+    utils::assert_output(cmd, "ctest --help", HELP, false);
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
 fn wrapping_newline_variables() {
     static WRAPPING_NEWLINE_CHARS: &str = "\
 Usage: ctest [mode]
