@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Corrected docs for `Command::style`
+
 ## [4.2.3] - 2023-04-18
 
 ### Features
