@@ -1081,22 +1081,21 @@ impl Command {
         }
     }
 
-    /// Sets when to color output.
+    /// Sets the [`Styles`] for terminal output
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
-    /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
+    /// **NOTE:** Default behaviour is [`Styles::default`].
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap_builder as clap;
-    /// # use clap::{Command, ColorChoice};
+    /// # use clap::{Command, ColorChoice, builder::Styles};
     /// Command::new("myprog")
-    ///     .color(ColorChoice::Never)
+    ///     .styles(Styles::styled().usage(Default::default()))
     ///     .get_matches();
     /// ```
-    /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
     #[cfg(feature = "color")]
     #[inline]
     #[must_use]
@@ -3364,7 +3363,9 @@ impl Command {
         }
     }
 
-    pub(crate) fn get_styles(&self) -> &Styles {
+    /// Return the current `Styles` for the `Command`
+    #[inline]
+    pub fn get_styles(&self) -> &Styles {
         self.app_ext.get().unwrap_or_default()
     }
 
