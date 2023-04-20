@@ -17,10 +17,10 @@ _my-app() {
     _arguments "${_arguments_options[@]}" \
 '--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
 '--double-quotes[Can be "always", "auto", or "never"]' \
-'--backticks[For more information see `echo test`]' \
+'--backticks[For more information see \`echo test\`]' \
 '--backslash[Avoid '\''\\n'\'']' \
 '--brackets[List packages \[filter\]]' \
-'--expansions[Execute the shell command with $SHELL]' \
+'--expansions[Execute the shell command with \$SHELL]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
@@ -124,10 +124,10 @@ _my-app_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
 'cmd-double-quotes:Can be "always", "auto", or "never"' \
-'cmd-backticks:For more information see `echo test`' \
+'cmd-backticks:For more information see \`echo test\`' \
 'cmd-backslash:Avoid '\''\\n'\''' \
 'cmd-brackets:List packages \[filter\]' \
-'cmd-expansions:Execute the shell command with $SHELL' \
+'cmd-expansions:Execute the shell command with \$SHELL' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app commands' commands "$@"
@@ -197,10 +197,10 @@ _my-app__help_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
 'cmd-double-quotes:Can be "always", "auto", or "never"' \
-'cmd-backticks:For more information see `echo test`' \
+'cmd-backticks:For more information see \`echo test\`' \
 'cmd-backslash:Avoid '\''\\n'\''' \
 'cmd-brackets:List packages \[filter\]' \
-'cmd-expansions:Execute the shell command with $SHELL' \
+'cmd-expansions:Execute the shell command with \$SHELL' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app help commands' commands "$@"
