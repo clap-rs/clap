@@ -489,7 +489,7 @@ impl<'cmd> Parser<'cmd> {
         if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
             let candidates = suggestions::did_you_mean(
                 &arg_os.display().to_string(),
-                self.cmd.all_subcommand_names(),
+                self.cmd.visible_subcommand_names(),
             );
             // If the argument looks like a subcommand.
             if !candidates.is_empty() {

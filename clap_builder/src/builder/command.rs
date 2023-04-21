@@ -4458,6 +4458,16 @@ impl Command {
         })
     }
 
+    pub(crate) fn visible_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures {
+        self.get_subcommands()
+            .filter(|sc| !sc.is_set(AppSettings::Hidden))
+            .flat_map(|sc| {
+                let name = sc.get_name();
+                let aliases = sc.get_visible_aliases();
+                std::iter::once(name).chain(aliases)
+            })
+    }
+
     pub(crate) fn required_graph(&self) -> ChildGraph<Id> {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in self.args.args().filter(|a| a.is_required_set()) {
