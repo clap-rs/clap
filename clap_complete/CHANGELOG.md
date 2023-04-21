@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.2.1] - 2023-04-21
+
 - *(zsh)* Improved escaping
 
 ## [4.2.0] - 2023-03-28
@@ -131,7 +133,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.0...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.1...HEAD
+[4.2.1]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.0...clap_complete-v4.2.1
 [4.2.0]: https://github.com/clap-rs/clap/compare/clap_complete-v4.1.6...clap_complete-v4.2.0
 [4.1.6]: https://github.com/clap-rs/clap/compare/clap_complete-v4.1.5...clap_complete-v4.1.6
 [4.1.5]: https://github.com/clap-rs/clap/compare/clap_complete-v4.1.4...clap_complete-v4.1.5

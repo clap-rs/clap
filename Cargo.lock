@@ -235,7 +235,7 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.2.0"
+version = "4.2.1"
 dependencies = [
  "clap 4.2.4",
  "clap_lex 0.4.1",
