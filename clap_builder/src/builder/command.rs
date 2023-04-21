@@ -209,8 +209,6 @@ impl Command {
 
     /// Allows one to mutate an [`Arg`] after it's been added to a [`Command`].
     ///
-    /// This can be useful for modifying the auto-generated help or version arguments.
-    ///
     /// # Panics
     ///
     /// If the argument is undefined
