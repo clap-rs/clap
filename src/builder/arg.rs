@@ -5324,7 +5324,7 @@ impl Default for ArgProvider {
     }
 }
 
-/// Write the values such as <name1> <name2>
+/// Write the values such as `<name1> <name2>`
 pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
 where
     F: FnMut(&str, bool) -> Result<T, E>,
