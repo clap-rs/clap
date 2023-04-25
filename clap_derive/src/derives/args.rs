@@ -85,7 +85,6 @@ pub fn gen_for_struct(
             clippy::cargo,
             clippy::suspicious_else_formatting,
         )]
-        #[deny(clippy::correctness)]
         impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
             fn augment_args<'b>(#app_var: clap::Command<'b>) -> clap::Command<'b> {
                 #augmentation
@@ -130,7 +129,6 @@ pub fn gen_from_arg_matches_for_struct(
             clippy::cargo,
             clippy::suspicious_else_formatting,
         )]
-        #[deny(clippy::correctness)]
         impl #impl_generics clap::FromArgMatches for #struct_name #ty_generics #where_clause {
             fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
