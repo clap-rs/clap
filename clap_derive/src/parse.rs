@@ -207,8 +207,8 @@ impl Parse for ClapAttr {
                 }
                 "default_value_t" => Ok(DefaultValueT(name, None)),
                 "default_value_os_t" => Ok(DefaultValueOsT(name, None)),
-                "about" => (Ok(About(name))),
-                "author" => (Ok(Author(name))),
+                "about" => Ok(About(name)),
+                "author" => Ok(Author(name)),
                 "version" => Ok(Version(name)),
 
                 "skip" => Ok(Skip(name, None)),
