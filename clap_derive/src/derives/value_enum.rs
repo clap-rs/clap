@@ -60,7 +60,6 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             clippy::cargo,
             clippy::suspicious_else_formatting,
         )]
-        #[deny(clippy::correctness)]
         impl clap::ValueEnum for #name {
             #value_variants
             #to_possible_value
