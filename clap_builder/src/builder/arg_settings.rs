@@ -49,6 +49,8 @@ pub(crate) enum ArgSettings {
 }
 
 bitflags! {
+    #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[repr(transparent)]
     struct Flags: u32 {
         const REQUIRED         = 1;
         const GLOBAL           = 1 << 3;

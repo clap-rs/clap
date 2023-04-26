@@ -63,6 +63,8 @@ pub(crate) enum AppSettings {
 }
 
 bitflags! {
+    #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[repr(transparent)]
     struct Flags: u64 {
         const SC_NEGATE_REQS                 = 1;
         const SC_REQUIRED                    = 1 << 1;
