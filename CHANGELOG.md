@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Improve panic when a group requires a non-existent ID
+
 ## [4.2.4] - 2023-04-19
 
 ### Documentation
