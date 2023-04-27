@@ -300,6 +300,28 @@ pub(crate) fn assert_app(cmd: &Command) {
                 arg
             );
         }
+
+        for arg in &group.requires {
+            // Args listed inside groups should exist
+            assert!(
+                cmd.id_exists(arg),
+                "Command {}: Argument group '{}' requires non-existent '{}' id",
+                cmd.get_name(),
+                group.get_id(),
+                arg
+            );
+        }
+
+        for arg in &group.conflicts {
+            // Args listed inside groups should exist
+            assert!(
+                cmd.id_exists(arg),
+                "Command {}: Argument group '{}' conflicts with non-existent '{}' id",
+                cmd.get_name(),
+                group.get_id(),
+                arg
+            );
+        }
     }
 
     // Conflicts between flags and subcommands
