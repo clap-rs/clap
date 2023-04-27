@@ -84,6 +84,7 @@ pub fn gen_for_struct(
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
         )]
         impl #impl_generics clap::Args for #struct_name #ty_generics #where_clause {
             fn augment_args<'b>(#app_var: clap::Command<'b>) -> clap::Command<'b> {
@@ -128,6 +129,7 @@ pub fn gen_from_arg_matches_for_struct(
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
         )]
         impl #impl_generics clap::FromArgMatches for #struct_name #ty_generics #where_clause {
             fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {

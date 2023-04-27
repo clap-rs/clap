@@ -54,6 +54,7 @@ pub fn gen_for_struct(
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
         )]
         #[allow(deprecated)]
         impl #impl_generics clap::CommandFactory for #struct_name #ty_generics #where_clause {
@@ -99,6 +100,7 @@ pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute])
             clippy::nursery,
             clippy::cargo,
             clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
         )]
         impl #impl_generics clap::CommandFactory for #enum_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::Command<'b> {
