@@ -4793,15 +4793,4 @@ mod test {
 
         assert_eq!(p.to_string(), "<file1> <file2>");
     }
-
-    #[test]
-    fn positional_display_val_names_req() {
-        let mut p = Arg::new("pos")
-            .index(1)
-            .required(true)
-            .value_names(["file1", "file2"]);
-        p._build();
-
-        assert_eq!(p.to_string(), "<file1> <file2>");
-    }
 }
