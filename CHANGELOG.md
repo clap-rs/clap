@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.2.5] - 2023-04-27
+
 ### Fixes
 
 - Improve panic when a group requires a non-existent ID
@@ -4233,7 +4235,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.2.4...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.2.5...HEAD
+[4.2.5]: https://github.com/clap-rs/clap/compare/v4.2.4...v4.2.5
 [4.2.4]: https://github.com/clap-rs/clap/compare/v4.2.3...v4.2.4
 [4.2.3]: https://github.com/clap-rs/clap/compare/v4.2.2...v4.2.3
 [4.2.2]: https://github.com/clap-rs/clap/compare/v4.2.1...v4.2.2
