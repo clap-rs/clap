@@ -439,7 +439,7 @@ impl<'cmd> Usage<'cmd> {
                 required_groups.insert(elem);
                 required_groups_members.extend(group_members);
             } else {
-                debug_assert!(self.cmd.find(req).is_some());
+                debug_assert!(self.cmd.find(req).is_some(), "`{req}` must exist");
             }
         }
 
