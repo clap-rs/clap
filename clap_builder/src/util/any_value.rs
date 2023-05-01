@@ -69,6 +69,12 @@ impl PartialOrd for AnyValueId {
     }
 }
 
+impl PartialEq<std::any::TypeId> for AnyValueId {
+    fn eq(&self, other: &std::any::TypeId) -> bool {
+        self.type_id == *other
+    }
+}
+
 impl Ord for AnyValueId {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.type_id.cmp(&other.type_id)
@@ -108,5 +114,14 @@ mod test {
         use super::*;
 
         assert_eq!(format!("{:?}", AnyValue::new(5)), "AnyValue { inner: i32 }");
+    }
+
+    #[test]
+    fn eq_to_type_id() {
+        use super::*;
+
+        let any_value_id = AnyValueId::of::<i32>();
+        let type_id = std::any::TypeId::of::<i32>();
+        assert_eq!(any_value_id, type_id);
     }
 }
