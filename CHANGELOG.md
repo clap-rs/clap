@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `impl Eq<std::any::TypeId> for clap_builder::util::AnyValueId`
+
 ## [4.2.5] - 2023-04-27
 
 ### Fixes
