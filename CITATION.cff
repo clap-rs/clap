@@ -3,8 +3,8 @@ cff-version: 1.2.0
 message: Please cite this crate using these information.
 
 # Version information.
-date-released: 2023-04-27
-version: 4.2.5
+date-released: 2023-05-02
+version: 4.2.6
 
 # Project information.
 abstract: A full featured, fast Command Line Argument Parser for Rust
