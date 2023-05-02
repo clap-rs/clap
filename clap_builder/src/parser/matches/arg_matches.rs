@@ -1405,7 +1405,12 @@ impl<T> Iterator for Values<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
+        if let Some(next) = self.iter.next() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.len, Some(self.len))
@@ -1414,7 +1419,12 @@ impl<T> Iterator for Values<T> {
 
 impl<T> DoubleEndedIterator for Values<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back()
+        if let Some(next) = self.iter.next_back() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
 }
 
@@ -1463,7 +1473,12 @@ impl<'a, T: 'a> Iterator for ValuesRef<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
+        if let Some(next) = self.iter.next() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.len, Some(self.len))
@@ -1472,7 +1487,12 @@ impl<'a, T: 'a> Iterator for ValuesRef<'a, T> {
 
 impl<'a, T: 'a> DoubleEndedIterator for ValuesRef<'a, T> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back()
+        if let Some(next) = self.iter.next_back() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
 }
 
@@ -1526,7 +1546,12 @@ impl<'a> Iterator for RawValues<'a> {
     type Item = &'a OsStr;
 
     fn next(&mut self) -> Option<&'a OsStr> {
-        self.iter.next()
+        if let Some(next) = self.iter.next() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.len, Some(self.len))
@@ -1535,7 +1560,12 @@ impl<'a> Iterator for RawValues<'a> {
 
 impl<'a> DoubleEndedIterator for RawValues<'a> {
     fn next_back(&mut self) -> Option<&'a OsStr> {
-        self.iter.next_back()
+        if let Some(next) = self.iter.next_back() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
 }
 
@@ -1570,7 +1600,12 @@ impl<'a> Iterator for GroupedValues<'a> {
     type Item = Vec<&'a str>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
+        if let Some(next) = self.iter.next() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.len, Some(self.len))
@@ -1580,7 +1615,12 @@ impl<'a> Iterator for GroupedValues<'a> {
 #[allow(deprecated)]
 impl<'a> DoubleEndedIterator for GroupedValues<'a> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back()
+        if let Some(next) = self.iter.next_back() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
 }
 
@@ -1830,7 +1870,12 @@ impl<'a> Iterator for Indices<'a> {
     type Item = usize;
 
     fn next(&mut self) -> Option<usize> {
-        self.iter.next()
+        if let Some(next) = self.iter.next() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.len, Some(self.len))
@@ -1839,7 +1884,12 @@ impl<'a> Iterator for Indices<'a> {
 
 impl<'a> DoubleEndedIterator for Indices<'a> {
     fn next_back(&mut self) -> Option<usize> {
-        self.iter.next_back()
+        if let Some(next) = self.iter.next_back() {
+            self.len -= 1;
+            Some(next)
+        } else {
+            None
+        }
     }
 }
 
@@ -1947,5 +1997,38 @@ mod tests {
             .expect("present")
             .len();
         assert_eq!(l, 1);
+    }
+
+    #[test]
+    fn rev_iter() {
+        let mut matches = crate::Command::new("myprog")
+            .arg(crate::Arg::new("a").short('a').action(ArgAction::Append))
+            .arg(crate::Arg::new("b").short('b').action(ArgAction::Append))
+            .try_get_matches_from(vec!["myprog", "-a1", "-b1", "-b3"])
+            .unwrap();
+
+        let a_index = matches
+            .indices_of("a")
+            .expect("missing aopt indices")
+            .collect::<Vec<_>>();
+        dbg!(&a_index);
+        let a_value = matches
+            .remove_many::<String>("a")
+            .expect("missing aopt values");
+        dbg!(&a_value);
+        let a = a_index.into_iter().zip(a_value).rev().collect::<Vec<_>>();
+        dbg!(a);
+
+        let b_index = matches
+            .indices_of("b")
+            .expect("missing aopt indices")
+            .collect::<Vec<_>>();
+        dbg!(&b_index);
+        let b_value = matches
+            .remove_many::<String>("b")
+            .expect("missing aopt values");
+        dbg!(&b_value);
+        let b = b_index.into_iter().zip(b_value).rev().collect::<Vec<_>>();
+        dbg!(b);
     }
 }
