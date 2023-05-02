@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Correctly track remaining length for iterators provided by `ArgMatches`
+
 ## [4.2.6] - 2023-05-02
 
 ### Features
