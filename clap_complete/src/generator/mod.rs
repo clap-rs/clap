@@ -28,10 +28,10 @@ pub trait Generator {
     /// pub struct Fish;
     ///
     /// impl Generator for Fish {
-    /// #   fn generate(&self, cmd: &Command, buf: &mut dyn Write) {}
     ///     fn file_name(&self, name: &str) -> String {
     ///         format!("{}.fish", name)
     ///     }
+    /// #   fn generate(&self, cmd: &Command, buf: &mut dyn Write) {}
     /// }
     /// ```
     fn file_name(&self, name: &str) -> String;
@@ -55,12 +55,12 @@ pub trait Generator {
     /// pub struct ClapDebug;
     ///
     /// impl Generator for ClapDebug {
+    /// #   fn file_name(&self, name: &str) -> String {
+    /// #       name.into()
+    /// #   }
     ///     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
     ///         write!(buf, "{}", cmd).unwrap();
     ///     }
-    /// #   fn file_name(&self, name: &str) -> String {
-    /// #    name.into()
-    /// #   }
     /// }
     /// ```
     fn generate(&self, cmd: &Command, buf: &mut dyn Write);
