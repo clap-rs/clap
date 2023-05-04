@@ -84,63 +84,11 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     let preamble = String::from("\n            [CompletionResult]::new(");
 
     for option in p.get_opts() {
-        if let Some(shorts) = option.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_help(), shorts[0]);
-            for short in shorts {
-                completions.push_str(&preamble);
-                completions.push_str(
-                    format!(
-                        "'-{}', '{}', {}, '{}')",
-                        short, short, "[CompletionResultType]::ParameterName", tooltip
-                    )
-                    .as_str(),
-                );
-            }
-        }
-
-        if let Some(longs) = option.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_help(), longs[0]);
-            for long in longs {
-                completions.push_str(&preamble);
-                completions.push_str(
-                    format!(
-                        "'--{}', '{}', {}, '{}')",
-                        long, long, "[CompletionResultType]::ParameterName", tooltip
-                    )
-                    .as_str(),
-                );
-            }
-        }
+        generate_aliases(&mut completions, &preamble, option);
     }
 
     for flag in utils::flags(p) {
-        if let Some(shorts) = flag.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_help(), shorts[0]);
-            for short in shorts {
-                completions.push_str(&preamble);
-                completions.push_str(
-                    format!(
-                        "'-{}', '{}', {}, '{}')",
-                        short, short, "[CompletionResultType]::ParameterName", tooltip
-                    )
-                    .as_str(),
-                );
-            }
-        }
-
-        if let Some(longs) = flag.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_help(), longs[0]);
-            for long in longs {
-                completions.push_str(&preamble);
-                completions.push_str(
-                    format!(
-                        "'--{}', '{}', {}, '{}')",
-                        long, long, "[CompletionResultType]::ParameterName", tooltip
-                    )
-                    .as_str(),
-                );
-            }
-        }
+        generate_aliases(&mut completions, &preamble, &flag);
     }
 
     for subcommand in p.get_subcommands() {
@@ -171,4 +119,27 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     }
 
     subcommands_cases
+}
+
+fn generate_aliases(completions: &mut String, preamble: &String, arg: &Arg) {
+    use std::fmt::Write as _;
+
+    if let Some(aliases) = arg.get_short_and_visible_aliases() {
+        let tooltip = get_tooltip(arg.get_help(), aliases[0]);
+        for alias in aliases {
+            let _ = write!(
+                completions,
+                "{preamble}'-{alias}', '{alias}', [CompletionResultType]::ParameterName, '{tooltip}')"
+            );
+        }
+    }
+    if let Some(aliases) = arg.get_long_and_visible_aliases() {
+        let tooltip = get_tooltip(arg.get_help(), aliases[0]);
+        for alias in aliases {
+            let _ = write!(
+                completions,
+                "{preamble}'--{alias}', '{alias}', [CompletionResultType]::ParameterName, '{tooltip}')"
+            );
+        }
+    }
 }
