@@ -654,11 +654,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         self.writer.push_styled(&help);
         if let Some(arg) = arg {
             const DASH_SPACE: usize = "- ".len();
-            const COLON_SPACE: usize = ": ".len();
             let possible_vals = arg.get_possible_values();
-            if self.use_long
+            if !possible_vals.is_empty()
                 && !arg.is_hide_possible_values_set()
-                && possible_vals.iter().any(PossibleValue::should_show_help)
+                && self.use_long_pv(arg)
             {
                 debug!(
                     "HelpTemplate::help: Found possible vals...{:?}",
@@ -666,26 +665,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 );
                 let longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_quoted_name().map(|name| display_width(&name)))
+                    .filter(|f| !f.is_hide_set())
+                    .map(|f| display_width(f.get_name()))
                     .max()
                     .expect("Only called with possible value");
-                let help_longest = possible_vals
-                    .iter()
-                    .filter_map(|f| f.get_visible_help().map(|h| h.display_width()))
-                    .max()
-                    .expect("Only called with possible value with help");
-                // should new line
-                let taken = longest + spaces + DASH_SPACE;
-
-                let possible_value_new_line =
-                    self.term_w >= taken && self.term_w < taken + COLON_SPACE + help_longest;
 
                 let spaces = spaces + TAB_WIDTH - DASH_SPACE;
-                let trailing_indent = if possible_value_new_line {
-                    spaces + DASH_SPACE
-                } else {
-                    spaces + longest + DASH_SPACE + COLON_SPACE
-                };
+                let trailing_indent = spaces + DASH_SPACE;
                 let trailing_indent = self.get_spaces(trailing_indent);
 
                 if !help_is_empty {
@@ -704,14 +690,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     if let Some(help) = pv.get_help() {
                         debug!("HelpTemplate::help: Possible Value help");
 
-                        if possible_value_new_line {
-                            let padding = trailing_indent.len();
-                            let _ = write!(self.writer, ":\n{:padding$}", "");
-                        } else {
-                            // To align help messages
-                            let padding = longest - display_width(pv.get_name());
-                            let _ = write!(self.writer, ": {:padding$}", "");
-                        }
+                        // To align help messages
+                        let padding = longest - display_width(pv.get_name());
+                        let _ = write!(self.writer, ": {:padding$}", "");
 
                         let avail_chars = if self.term_w > trailing_indent.len() {
                             self.term_w - trailing_indent.len()
@@ -835,10 +816,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
 
         let possible_vals = a.get_possible_values();
-        if !(a.is_hide_possible_values_set()
-            || possible_vals.is_empty()
-            || self.use_long && possible_vals.iter().any(PossibleValue::should_show_help))
-        {
+        if !possible_vals.is_empty() && !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
             debug!(
                 "HelpTemplate::spec_vals: Found possible vals...{:?}",
                 possible_vals
@@ -863,6 +841,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn write_padding(&mut self, amount: usize) {
         use std::fmt::Write as _;
         let _ = write!(self.writer, "{:amount$}", "");
+    }
+
+    fn use_long_pv(&self, arg: &Arg) -> bool {
+        self.use_long
+            && arg
+                .get_possible_values()
+                .iter()
+                .any(PossibleValue::should_show_help)
     }
 }
 
