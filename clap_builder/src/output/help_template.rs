@@ -914,11 +914,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
 
-        let mut first = true;
-        for (_, sc_str, sc) in ord_v {
-            if first {
-                first = false;
-            } else {
+        for (i, (_, sc_str, sc)) in ord_v.into_iter().enumerate() {
+            if 0 < i {
                 self.writer.push_str("\n");
             }
             self.write_subcommand(sc_str, sc, next_line_help, longest);
