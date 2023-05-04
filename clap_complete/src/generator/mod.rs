@@ -164,7 +164,7 @@ pub trait Generator {
 /// to see the name of the files generated.
 pub fn generate_to<G, S, T>(
     gen: G,
-    cmd: &mut clap::Command,
+    cmd: &mut Command,
     bin_name: S,
     out_dir: T,
 ) -> Result<PathBuf, Error>
@@ -181,7 +181,7 @@ where
     let path = out_dir.join(file_name);
     let mut file = File::create(&path)?;
 
-    _generate::<G, S>(gen, cmd, &mut file);
+    _generate::<G>(gen, cmd, &mut file);
     Ok(path)
 }
 
@@ -220,21 +220,16 @@ where
 /// ```console
 /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
 /// ```
-pub fn generate<G, S>(gen: G, cmd: &mut clap::Command, bin_name: S, buf: &mut dyn Write)
+pub fn generate<G, S>(gen: G, cmd: &mut Command, bin_name: S, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
 {
     cmd.set_bin_name(bin_name);
-    _generate::<G, S>(gen, cmd, buf)
+    _generate::<G>(gen, cmd, buf)
 }
 
-fn _generate<G, S>(gen: G, cmd: &mut clap::Command, buf: &mut dyn Write)
-where
-    G: Generator,
-    S: Into<String>,
-{
+fn _generate<G: Generator>(gen: G, cmd: &mut Command, buf: &mut dyn Write) {
     cmd.build();
-
     gen.generate(cmd, buf)
 }
