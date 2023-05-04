@@ -41,7 +41,7 @@ fn respond(line: &str) -> Result<bool, String> {
             std::io::stdout().flush().map_err(|e| e.to_string())?;
             return Ok(true);
         }
-        Some((name, _matches)) => unimplemented!("{}", name),
+        Some((name, _matches)) => unimplemented!("{name}"),
         None => unreachable!("subcommand required"),
     }
 

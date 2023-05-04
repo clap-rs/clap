@@ -450,9 +450,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             }
         }
     }
+
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args(&mut self, args: &[&Arg], _category: &str, sort_key: ArgSortKey) {
-        debug!("HelpTemplate::write_args {}", _category);
+        debug!("HelpTemplate::write_args {_category}");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
         let mut ord_v = Vec::new();
@@ -577,8 +578,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             };
             let spcs = longest + padding - self_len;
             debug!(
-                "HelpTemplate::align_to_about: positional=false arg_len={}, spaces={}",
-                self_len, spcs
+                "HelpTemplate::align_to_about: positional=false arg_len={self_len}, spaces={spcs}"
             );
 
             spcs
@@ -587,8 +587,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             let padding = TAB_WIDTH;
             let spcs = longest + padding - self_len;
             debug!(
-                "HelpTemplate::align_to_about: positional=true arg_len={}, spaces={}",
-                self_len, spcs
+                "HelpTemplate::align_to_about: positional=true arg_len={self_len}, spaces={spcs}",
             );
 
             spcs
@@ -612,7 +611,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
         // Is help on next line, if so then indent
         if next_line_help {
-            debug!("HelpTemplate::help: Next Line...{:?}", next_line_help);
+            debug!("HelpTemplate::help: Next Line...{next_line_help:?}");
             self.writer.push_str("\n");
             self.writer.push_str(TAB);
             self.writer.push_str(NEXT_LINE_INDENT);
@@ -659,10 +658,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 && !arg.is_hide_possible_values_set()
                 && self.use_long_pv(arg)
             {
-                debug!(
-                    "HelpTemplate::help: Found possible vals...{:?}",
-                    possible_vals
-                );
+                debug!("HelpTemplate::help: Found possible vals...{possible_vals:?}");
                 let longest = possible_vals
                     .iter()
                     .filter(|f| !f.is_hide_set())
@@ -741,7 +737,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     }
 
     fn spec_vals(&self, a: &Arg) -> String {
-        debug!("HelpTemplate::spec_vals: a={}", a);
+        debug!("HelpTemplate::spec_vals: a={a}");
         let mut spec_vals = Vec::new();
         #[cfg(feature = "env")]
         if let Some(ref env) = a.env {
@@ -817,10 +813,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
         let possible_vals = a.get_possible_values();
         if !possible_vals.is_empty() && !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
-            debug!(
-                "HelpTemplate::spec_vals: Found possible vals...{:?}",
-                possible_vals
-            );
+            debug!("HelpTemplate::spec_vals: Found possible vals...{possible_vals:?}");
 
             let pvs = possible_vals
                 .iter()
@@ -896,7 +889,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 
-        debug!("HelpTemplate::write_subcommands longest = {}", longest);
+        debug!("HelpTemplate::write_subcommands longest = {longest}");
 
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
 

@@ -80,7 +80,7 @@ fn gen_fish_inner(
         );
     }
 
-    debug!("gen_fish_inner: parent_commands={:?}", parent_commands);
+    debug!("gen_fish_inner: parent_commands={parent_commands:?}");
 
     for option in cmd.get_opts() {
         let mut template = basic_template.clone();

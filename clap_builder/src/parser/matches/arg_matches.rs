@@ -43,7 +43,7 @@ use crate::INTERNAL_ERROR_MSG;
 /// // to get information about the "cfg" argument we created, such as the value supplied we use
 /// // various ArgMatches methods, such as [ArgMatches::get_one]
 /// if let Some(c) = matches.get_one::<String>("cfg") {
-///     println!("Value for -c: {}", c);
+///     println!("Value for -c: {c}");
 /// }
 ///
 /// // The ArgMatches::get_one method returns an Option because the user may not have supplied
@@ -924,7 +924,7 @@ impl ArgMatches {
     ///     ("clone",  sub_m) => {}, // clone was used
     ///     ("push",   sub_m) => {}, // push was used
     ///     ("commit", sub_m) => {}, // commit was used
-    ///     (name, _)         => unimplemented!("{}", name),
+    ///     (name, _)         => unimplemented!("{name}"),
     /// }
     /// ```
     ///

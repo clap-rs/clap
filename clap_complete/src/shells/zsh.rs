@@ -657,7 +657,7 @@ fn write_positionals_of(p: &Command) -> String {
             value_completion = value_completion(arg).unwrap_or_default()
         );
 
-        debug!("write_positionals_of:iter: Wrote...{}", a);
+        debug!("write_positionals_of:iter: Wrote...{a}");
 
         ret.push(a);
     }

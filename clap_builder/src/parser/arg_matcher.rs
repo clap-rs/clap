@@ -45,10 +45,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn propagate_globals(&mut self, global_arg_vec: &[Id]) {
-        debug!(
-            "ArgMatcher::get_global_values: global_arg_vec={:?}",
-            global_arg_vec
-        );
+        debug!("ArgMatcher::get_global_values: global_arg_vec={global_arg_vec:?}");
         let mut vals_map = FlatMap::new();
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
@@ -137,10 +134,7 @@ impl ArgMatcher {
 
     pub(crate) fn start_custom_arg(&mut self, arg: &Arg, source: ValueSource) {
         let id = arg.get_id().clone();
-        debug!(
-            "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
-            id, source
-        );
+        debug!("ArgMatcher::start_custom_arg: id={id:?}, source={source:?}");
         let ma = self.entry(id).or_insert(MatchedArg::new_arg(arg));
         debug_assert_eq!(ma.type_id(), Some(arg.get_value_parser().type_id()));
         ma.set_source(source);
@@ -148,10 +142,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn start_custom_group(&mut self, id: Id, source: ValueSource) {
-        debug!(
-            "ArgMatcher::start_custom_arg: id={:?}, source={:?}",
-            id, source
-        );
+        debug!("ArgMatcher::start_custom_arg: id={id:?}, source={source:?}");
         let ma = self.entry(id).or_insert(MatchedArg::new_group());
         debug_assert_eq!(ma.type_id(), None);
         ma.set_source(source);
@@ -160,7 +151,7 @@ impl ArgMatcher {
 
     pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
         let id = Id::from_static_ref(Id::EXTERNAL);
-        debug!("ArgMatcher::start_occurrence_of_external: id={:?}", id,);
+        debug!("ArgMatcher::start_occurrence_of_external: id={id:?}");
         let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));
         debug_assert_eq!(
             ma.type_id(),
@@ -196,10 +187,7 @@ impl ArgMatcher {
             num_pending
         );
         let expected = o.get_num_args().expect(INTERNAL_ERROR_MSG);
-        debug!(
-            "ArgMatcher::needs_more_vals: expected={}, actual={}",
-            expected, num_pending
-        );
+        debug!("ArgMatcher::needs_more_vals: expected={expected}, actual={num_pending}");
         expected.accepts_more(num_pending)
     }
 

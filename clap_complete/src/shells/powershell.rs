@@ -95,11 +95,8 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
         completions.push_str(&preamble);
         completions.push_str(
-            format!(
-                "'{}', '{}', {}, '{}')",
-                data, data, "[CompletionResultType]::ParameterValue", tooltip
-            )
-            .as_str(),
+            format!("'{data}', '{data}', [CompletionResultType]::ParameterValue, '{tooltip}')")
+                .as_str(),
         );
     }
 

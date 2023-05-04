@@ -482,7 +482,7 @@ fn assert_app_flags(cmd: &Command) {
                 )+
 
                 if !s.is_empty() {
-                    panic!("{}", s)
+                    panic!("{s}")
                 }
             }
         };

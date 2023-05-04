@@ -121,17 +121,17 @@ fn arg_conflicts_with_group() {
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 }
 
@@ -149,17 +149,17 @@ fn arg_conflicts_with_group_with_multiple_sources() {
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some", "usb1"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some", "usb1", "--other", "40"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "-f", "--some", "usb1"]);
@@ -192,17 +192,17 @@ fn group_conflicts_with_arg() {
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 }
 
@@ -226,12 +226,12 @@ fn arg_conflicts_with_required_group() {
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 }
 
@@ -255,12 +255,12 @@ fn arg_conflicts_with_group_with_required_memeber() {
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--flag"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 }
 
@@ -290,12 +290,12 @@ fn required_group_conflicts_with_arg() {
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 
     let result = cmd.try_get_matches_from_mut(vec!["myprog", "--other"]);
     if let Err(err) = result {
-        panic!("{}", err);
+        panic!("{err}");
     }
 }
 

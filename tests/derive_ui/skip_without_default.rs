@@ -25,5 +25,5 @@ pub struct Opt {
 
 fn main() {
     let opt = Opt::parse();
-    println!("{:?}", opt);
+    println!("{opt:?}");
 }

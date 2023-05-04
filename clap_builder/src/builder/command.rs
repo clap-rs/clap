@@ -684,10 +684,7 @@ impl Command {
                 if let Some(command) = argv0.file_stem().and_then(|f| f.to_str()) {
                     // Stop borrowing command so we can get another mut ref to it.
                     let command = command.to_owned();
-                    debug!(
-                        "Command::try_get_matches_from_mut: Parsed command {} from argv",
-                        command
-                    );
+                    debug!("Command::try_get_matches_from_mut: Parsed command {command} from argv");
 
                     debug!("Command::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
                     raw_args.insert(&cursor, [&command]);
@@ -789,7 +786,7 @@ impl Command {
     /// let mut cmd = Command::new("myprog");
     /// let mut out = io::stdout();
     /// let help = cmd.render_help();
-    /// println!("{}", help);
+    /// println!("{help}");
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
@@ -816,7 +813,7 @@ impl Command {
     /// let mut cmd = Command::new("myprog");
     /// let mut out = io::stdout();
     /// let help = cmd.render_long_help();
-    /// println!("{}", help);
+    /// println!("{help}");
     /// ```
     /// [`io::Write`]: std::io::Write
     /// [`-h` (short)]: Arg::help()
@@ -984,7 +981,7 @@ impl Command {
     ///
     /// let r = cmd.try_get_matches_from(vec!["cmd", "-c", "file", "-f", "-x"]);
     ///
-    /// assert!(r.is_ok(), "unexpected error: {:?}", r);
+    /// assert!(r.is_ok(), "unexpected error: {r:?}");
     /// let m = r.unwrap();
     /// assert_eq!(m.get_one::<String>("config").unwrap(), "file");
     /// assert!(m.get_flag("f"));
@@ -3695,7 +3692,7 @@ impl Command {
     /// let cmd = clap::Command::new("raw")
     ///     .external_subcommand_value_parser(clap::value_parser!(String));
     /// let value_parser = cmd.get_external_subcommand_value_parser();
-    /// println!("{:?}", value_parser);
+    /// println!("{value_parser:?}");
     /// ```
     pub fn get_external_subcommand_value_parser(&self) -> Option<&super::ValueParser> {
         if !self.is_allow_external_subcommands_set() {
@@ -3792,7 +3789,7 @@ impl Command {
         let mut parser = Parser::new(self);
         if let Err(error) = parser.get_matches_with(&mut matcher, raw_args, args_cursor) {
             if self.is_set(AppSettings::IgnoreErrors) {
-                debug!("Command::_do_parse: ignoring error: {}", error);
+                debug!("Command::_do_parse: ignoring error: {error}");
             } else {
                 return Err(error);
             }
@@ -4436,7 +4433,7 @@ impl Command {
 
     /// Iterate through the groups this arg is member of.
     pub(crate) fn groups_for_arg<'a>(&'a self, arg: &Id) -> impl Iterator<Item = Id> + 'a {
-        debug!("Command::groups_for_arg: id={:?}", arg);
+        debug!("Command::groups_for_arg: id={arg:?}");
         let arg = arg.clone();
         self.groups
             .iter()
@@ -4476,7 +4473,7 @@ impl Command {
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
-        debug!("Command::unroll_args_in_group: group={:?}", group);
+        debug!("Command::unroll_args_in_group: group={group:?}");
         let mut g_vec = vec![group];
         let mut args = vec![];
 
@@ -4489,7 +4486,7 @@ impl Command {
                 .args
                 .iter()
             {
-                debug!("Command::unroll_args_in_group:iter: entity={:?}", n);
+                debug!("Command::unroll_args_in_group:iter: entity={n:?}");
                 if !args.contains(n) {
                     if self.find(n).is_some() {
                         debug!("Command::unroll_args_in_group:iter: this is an arg");
