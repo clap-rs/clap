@@ -24,11 +24,12 @@ use std::str::FromStr;
 ///
 /// [^1]: fish completions currently only support named arguments (e.g. -o or --opt), not
 ///       positional arguments.
-#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Hash, Copy, Clone)]
 #[non_exhaustive]
 pub enum ValueHint {
     /// Default value if hint is not specified. Follows shell default behavior, which is usually
     /// auto-completing filenames.
+    #[default]
     Unknown,
     /// None of the hints below apply. Disables shell completion for this argument.
     Other,
@@ -64,12 +65,6 @@ pub enum ValueHint {
     Url,
     /// Email address.
     EmailAddress,
-}
-
-impl Default for ValueHint {
-    fn default() -> Self {
-        ValueHint::Unknown
-    }
 }
 
 impl FromStr for ValueHint {
