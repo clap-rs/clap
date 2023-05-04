@@ -595,12 +595,7 @@ fn assert_trailing_var_args(
             .allow_hyphen_values(true),
     );
     let m = cmd.try_get_matches_from(input);
-    assert!(
-        m.is_ok(),
-        "failed with args {:?}: {}",
-        input,
-        m.unwrap_err()
-    );
+    assert!(m.is_ok(), "failed with args {input:?}: {}", m.unwrap_err());
     let m = m.unwrap();
 
     let actual_var_args = m

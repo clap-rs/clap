@@ -57,10 +57,10 @@ fn main() {
                 .exit();
             }
         };
-        format!("{}.{}.{}", major, minor, patch)
+        format!("{major}.{minor}.{patch}")
     };
 
-    println!("Version: {}", version);
+    println!("Version: {version}");
 
     // Check for usage of -c
     if matches.contains_id("config") {
@@ -76,8 +76,7 @@ fn main() {
             })
             .display();
         println!(
-            "Doing work using input {} and config {}",
-            input,
+            "Doing work using input {input} and config {}",
             matches.get_one::<PathBuf>("config").unwrap().display()
         );
     }

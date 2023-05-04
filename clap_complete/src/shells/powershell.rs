@@ -75,7 +75,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     let command_name = if previous_command_name.is_empty() {
         p.get_bin_name().expect(INTERNAL_ERROR_MSG).to_string()
     } else {
-        format!("{};{}", previous_command_name, &p.get_name())
+        format!("{previous_command_name};{}", &p.get_name())
     };
 
     let mut completions = String::new();
@@ -96,8 +96,8 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
         completions.push_str(&preamble);
         completions.push_str(
             format!(
-                "'{}', '{}', {}, '{}')",
-                data, data, "[CompletionResultType]::ParameterValue", tooltip
+                "'{data}', '{data}', {}, '{tooltip}')",
+                "[CompletionResultType]::ParameterValue"
             )
             .as_str(),
         );
@@ -105,10 +105,10 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
     let mut subcommands_cases = format!(
         r"
-        '{}' {{{}
+        '{}' {{{completions}
             break
         }}",
-        &command_name, completions
+        &command_name
     );
 
     for subcommand in p.get_subcommands() {

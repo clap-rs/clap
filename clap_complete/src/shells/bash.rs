@@ -21,7 +21,7 @@ impl Generator for Bash {
         w!(
             buf,
             format!(
-                "_{name}() {{
+                "_{bin_name}() {{
     local i cur prev opts cmd
     COMPREPLY=()
     cur=\"${{COMP_WORDS[COMP_CWORD]}}\"
@@ -58,9 +58,8 @@ impl Generator for Bash {
     esac
 }}
 
-complete -F _{name} -o bashdefault -o default {name}
+complete -F _{bin_name} -o bashdefault -o default {bin_name}
 ",
-                name = bin_name,
                 cmd = bin_name.replace('-', "__"),
                 name_opts = all_options_for_path(cmd, bin_name),
                 name_opts_details = option_details_for_path(cmd, bin_name),
@@ -82,7 +81,6 @@ fn all_subcommands(cmd: &Command) -> String {
     ) {
         let fn_name = format!(
             "{parent_fn_name}__{cmd_name}",
-            parent_fn_name = parent_fn_name,
             cmd_name = cmd.get_name().to_string().replace('-', "__")
         );
         subcmds.push((
@@ -167,11 +165,10 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
         if let Some(longs) = o.get_long_and_visible_aliases() {
             opts.extend(longs.iter().map(|long| {
                 format!(
-                    "--{})
+                    "--{long})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                    long,
                     vals_for(o)
                 )
             }));
@@ -180,11 +177,10 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
         if let Some(shorts) = o.get_short_and_visible_aliases() {
             opts.extend(shorts.iter().map(|short| {
                 format!(
-                    "-{})
+                    "-{short})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                    short,
                     vals_for(o)
                 )
             }));

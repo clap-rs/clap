@@ -5,7 +5,7 @@ use clap::{arg, command, ArgGroup, ArgMatches, Command};
 fn main() {
     let matches = cli().get_matches();
     let values = Value::from_matches(&matches);
-    println!("{:#?}", values);
+    println!("{values:#?}");
 }
 
 fn cli() -> Command {

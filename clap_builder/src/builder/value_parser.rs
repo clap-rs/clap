@@ -1292,19 +1292,13 @@ impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> RangedI64ValueParser<T
         // - Make it convenient to limit the range like with `..10`
         let start = match range.start_bound() {
             l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
+                debug_assert!(self.bounds.contains(i), "{i} must be in {:?}", self.bounds);
                 l.cloned()
             }
             l @ std::ops::Bound::Excluded(i) => {
                 debug_assert!(
                     self.bounds.contains(&i.saturating_add(1)),
-                    "{} must be in {:?}",
-                    i,
+                    "{i} must be in {:?}",
                     self.bounds
                 );
                 l.cloned()
@@ -1313,19 +1307,13 @@ impl<T: std::convert::TryFrom<i64> + Clone + Send + Sync> RangedI64ValueParser<T
         };
         let end = match range.end_bound() {
             l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
+                debug_assert!(self.bounds.contains(i), "{i} must be in {:?}", self.bounds);
                 l.cloned()
             }
             l @ std::ops::Bound::Excluded(i) => {
                 debug_assert!(
                     self.bounds.contains(&i.saturating_sub(1)),
-                    "{} must be in {:?}",
-                    i,
+                    "{i} must be in {:?}",
                     self.bounds
                 );
                 l.cloned()
@@ -1396,7 +1384,7 @@ where
             return Err(crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
-                format!("{} is not in {}", value, self.format_bounds()).into(),
+                format!("{value} is not in {}", self.format_bounds()).into(),
             )
             .with_cmd(cmd));
         }
@@ -1492,19 +1480,13 @@ impl<T: std::convert::TryFrom<u64>> RangedU64ValueParser<T> {
         // - Make it convenient to limit the range like with `..10`
         let start = match range.start_bound() {
             l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
+                debug_assert!(self.bounds.contains(i), "{i} must be in {:?}", self.bounds);
                 l.cloned()
             }
             l @ std::ops::Bound::Excluded(i) => {
                 debug_assert!(
                     self.bounds.contains(&i.saturating_add(1)),
-                    "{} must be in {:?}",
-                    i,
+                    "{i} must be in {:?}",
                     self.bounds
                 );
                 l.cloned()
@@ -1513,19 +1495,13 @@ impl<T: std::convert::TryFrom<u64>> RangedU64ValueParser<T> {
         };
         let end = match range.end_bound() {
             l @ std::ops::Bound::Included(i) => {
-                debug_assert!(
-                    self.bounds.contains(i),
-                    "{} must be in {:?}",
-                    i,
-                    self.bounds
-                );
+                debug_assert!(self.bounds.contains(i), "{i} must be in {:?}", self.bounds);
                 l.cloned()
             }
             l @ std::ops::Bound::Excluded(i) => {
                 debug_assert!(
                     self.bounds.contains(&i.saturating_sub(1)),
-                    "{} must be in {:?}",
-                    i,
+                    "{i} must be in {:?}",
                     self.bounds
                 );
                 l.cloned()
@@ -1596,7 +1572,7 @@ where
             return Err(crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
-                format!("{} is not in {}", value, self.format_bounds()).into(),
+                format!("{value} is not in {}", self.format_bounds()).into(),
             )
             .with_cmd(cmd));
         }

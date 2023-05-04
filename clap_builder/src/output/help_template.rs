@@ -761,7 +761,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 } else {
                     Default::default()
                 };
-                let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
+                let env_info = format!("[env: {}{env_val}]", env.0.to_string_lossy());
                 spec_vals.push(env_info);
             }
         }

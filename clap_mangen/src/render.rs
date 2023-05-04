@@ -10,7 +10,7 @@ pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
 
 pub(crate) fn about(roff: &mut Roff, cmd: &clap::Command) {
     let s = match cmd.get_about().or_else(|| cmd.get_long_about()) {
-        Some(about) => format!("{} - {}", cmd.get_name(), about),
+        Some(about) => format!("{} - {about}", cmd.get_name()),
         None => cmd.get_name().to_string(),
     };
     roff.text([roman(s)]);
@@ -203,10 +203,9 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
         roff.control("TP", []);
 
         let name = format!(
-            "{}-{}({})",
+            "{}-{}({section})",
             cmd.get_display_name().unwrap_or_else(|| cmd.get_name()),
-            sub.get_name(),
-            section
+            sub.get_name()
         );
         roff.text([roman(name)]);
 

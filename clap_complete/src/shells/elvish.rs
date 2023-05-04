@@ -70,7 +70,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     let command_name = if previous_command_name.is_empty() {
         p.get_bin_name().expect(INTERNAL_ERROR_MSG).to_string()
     } else {
-        format!("{};{}", previous_command_name, &p.get_name())
+        format!("{previous_command_name};{}", &p.get_name())
     };
 
     let mut completions = String::new();
@@ -122,9 +122,9 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
     let mut subcommands_cases = format!(
         r"
-        &'{}'= {{{}
+        &'{}'= {{{completions}
         }}",
-        &command_name, completions
+        &command_name
     );
 
     for subcommand in p.get_subcommands() {

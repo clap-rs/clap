@@ -124,7 +124,7 @@ pub mod bash {
 
     /// The recommended file name for the registration code
     pub fn file_name(name: &str) -> String {
-        format!("{}.bash", name)
+        format!("{name}.bash")
     }
 
     /// Define the completion behavior
@@ -154,8 +154,7 @@ pub mod bash {
         let escaped_name = name.replace('-', "_");
         debug_assert!(
             escaped_name.chars().all(|c| c.is_xid_continue()),
-            "`name` must be an identifier, got `{}`",
-            escaped_name
+            "`name` must be an identifier, got `{escaped_name}`"
         );
         let mut upper_name = escaped_name.clone();
         upper_name.make_ascii_uppercase();
@@ -201,7 +200,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         .replace("COMPLETER", &completer)
         .replace("UPPER", &upper_name);
 
-        writeln!(buf, "{}", script)?;
+        writeln!(buf, "{script}")?;
         Ok(())
     }
 
@@ -377,7 +376,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                                     .into_iter()
                                     .map(|os| {
                                         // HACK: Need better `OsStr` manipulation
-                                        format!("--{}={}", flag, os.to_string_lossy()).into()
+                                        format!("--{flag}={}", os.to_string_lossy()).into()
                                     }),
                             )
                         }
@@ -386,7 +385,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                             crate::generator::utils::longs_and_visible_aliases(cmd)
                                 .into_iter()
                                 .filter_map(|f| {
-                                    f.starts_with(flag).then(|| format!("--{}", f).into())
+                                    f.starts_with(flag).then(|| format!("--{f}").into())
                                 }),
                         );
                     }
@@ -396,7 +395,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 completions.extend(
                     crate::generator::utils::longs_and_visible_aliases(cmd)
                         .into_iter()
-                        .map(|f| format!("--{}", f).into()),
+                        .map(|f| format!("--{f}").into()),
                 );
             }
 
@@ -406,7 +405,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     crate::generator::utils::shorts_and_visible_aliases(cmd)
                         .into_iter()
                         // HACK: Need better `OsStr` manipulation
-                        .map(|f| format!("{}{}", arg.to_value_os().to_string_lossy(), f).into()),
+                        .map(|f| format!("{}{f}", arg.to_value_os().to_string_lossy()).into()),
                 );
             }
         }

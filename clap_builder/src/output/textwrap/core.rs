@@ -99,10 +99,10 @@ mod tests {
         // characters such as '#' and '©'.
         for ch in '\u{1}'..'\u{FF}' {
             if is_emoji(ch) {
-                let desc = format!("{:?} U+{:04X}", ch, ch as u32);
+                let desc = format!("{ch:?} U+{:04X}", ch as u32);
 
                 #[cfg(feature = "unicode")]
-                assert_eq!(ch.width().unwrap(), 1, "char: {}", desc);
+                assert_eq!(ch.width().unwrap(), 1, "char: {desc}");
 
                 #[cfg(not(feature = "unicode"))]
                 assert_eq!(ch_width(ch), 1, "char: {desc}");
@@ -117,10 +117,10 @@ mod tests {
         // emojis such as 😊.
         for ch in '\u{FF}'..'\u{2FFFF}' {
             if is_emoji(ch) {
-                let desc = format!("{:?} U+{:04X}", ch, ch as u32);
+                let desc = format!("{ch:?} U+{:04X}", ch as u32);
 
                 #[cfg(feature = "unicode")]
-                assert!(ch.width().unwrap() <= 2, "char: {}", desc);
+                assert!(ch.width().unwrap() <= 2, "char: {desc}");
 
                 #[cfg(not(feature = "unicode"))]
                 assert_eq!(ch_width(ch), 1, "char: {desc}");

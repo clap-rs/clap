@@ -56,8 +56,7 @@ pub fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expected: &s
     assert_eq!(
         stderr,
         err.use_stderr(),
-        "Should Use STDERR failed. Should be {} but is {}",
-        stderr,
+        "Should Use STDERR failed. Should be {stderr} but is {}",
         err.use_stderr()
     );
     snapbox::assert_eq(expected, actual)

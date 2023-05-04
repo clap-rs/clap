@@ -128,11 +128,8 @@ fn main() {
                 .unwrap_or("worktree");
             let path = path.as_deref().unwrap_or_else(|| OsStr::new(""));
             println!(
-                "Diffing {}..{} {} (color={})",
-                base,
-                head,
-                path.to_string_lossy(),
-                color
+                "Diffing {base}..{head} {} (color={color})",
+                path.to_string_lossy()
             );
         }
         Commands::Push { remote } => {

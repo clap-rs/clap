@@ -13,8 +13,7 @@ fn assert_error<F: clap::error::ErrorFormatter>(
     assert_eq!(
         stderr,
         err.use_stderr(),
-        "Should Use STDERR failed. Should be {} but is {}",
-        stderr,
+        "Should Use STDERR failed. Should be {stderr} but is {}",
         err.use_stderr()
     );
     assert_eq!(expected_kind, err.kind());

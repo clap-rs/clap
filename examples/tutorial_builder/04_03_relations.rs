@@ -58,10 +58,10 @@ fn main() {
             (_, _, true) => patch += 1,
             _ => unreachable!(),
         };
-        format!("{}.{}.{}", major, minor, patch)
+        format!("{major}.{minor}.{patch}")
     };
 
-    println!("Version: {}", version);
+    println!("Version: {version}");
 
     // Check for usage of -c
     if matches.contains_id("config") {
@@ -70,8 +70,7 @@ fn main() {
             .unwrap_or_else(|| matches.get_one::<PathBuf>("spec-in").unwrap())
             .display();
         println!(
-            "Doing work using input {} and config {}",
-            input,
+            "Doing work using input {input} and config {}",
             matches.get_one::<PathBuf>("config").unwrap().display()
         );
     }

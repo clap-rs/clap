@@ -1,8 +1,13 @@
 msrv = "1.64.0"  # MSRV
+
 warn-on-all-wildcard-imports = true
-allow-expect-in-tests = true
-allow-unwrap-in-tests = true
+
 allow-dbg-in-tests = true
+allow-expect-in-tests = true
+## TODO: This parameter requires clippy v1.67+. Uncomment once MSRV is bumped.
+# allow-mixed-uninlined-format-args = false
+allow-unwrap-in-tests = true
+
 disallowed-methods = [
     { path = "std::option::Option::map_or", reason = "use `map(..).unwrap_or(..)`" },
     { path = "std::option::Option::map_or_else", reason = "use `map(..).unwrap_or_else(..)`" },

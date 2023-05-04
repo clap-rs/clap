@@ -22,11 +22,11 @@ impl Generator for Zsh {
         w!(
             buf,
             format!(
-                "#compdef {name}
+                "#compdef {bin_name}
 
 autoload -U is-at-least
 
-_{name}() {{
+_{bin_name}() {{
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -43,13 +43,12 @@ _{name}() {{
 
 {subcommand_details}
 
-if [ \"$funcstack[1]\" = \"_{name}\" ]; then
-    _{name} \"$@\"
+if [ \"$funcstack[1]\" = \"_{bin_name}\" ]; then
+    _{bin_name} \"$@\"
 else
-    compdef _{name} {name}
+    compdef _{bin_name} {bin_name}
 fi
 ",
-                name = bin_name,
                 initial_args = get_args_of(cmd, None),
                 subcommands = get_subcommands_of(cmd),
                 subcommand_details = subcommand_details(cmd)
@@ -104,7 +103,6 @@ _{bin_name_underscore}_commands() {{
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
         bin_name_underscore = bin_name.replace(' ', "__"),
-        bin_name = bin_name,
         subcommands_and_args = subcommands_of(p)
     );
     ret.push(parent_text);
@@ -126,7 +124,6 @@ _{bin_name_underscore}_commands() {{
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
             bin_name_underscore = bin_name.replace(' ', "__"),
-            bin_name = bin_name,
             subcommands_and_args =
                 subcommands_of(parser_of(p, bin_name).expect(INTERNAL_ERROR_MSG))
         ));
@@ -156,7 +153,6 @@ fn subcommands_of(p: &Command) -> String {
 
         let text = format!(
             "'{name}:{help}' \\",
-            name = name,
             help = escape_help(&subcommand.get_about().unwrap_or_default().to_string())
         );
 
@@ -643,7 +639,6 @@ fn write_positionals_of(p: &Command) -> String {
 
         let a = format!(
             "'{cardinality}:{name}{help}:{value_completion}' \\",
-            cardinality = cardinality,
             name = arg.get_id(),
             help = arg
                 .get_help()

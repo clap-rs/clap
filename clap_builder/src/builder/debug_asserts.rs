@@ -48,7 +48,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         if let Some(l) = sc.get_long_flag().as_ref() {
-            assert!(!l.starts_with('-'), "Command {}: long_flag {:?} must not start with a `-`, that will be handled by the parser", sc.get_name(), l);
+            assert!(!l.starts_with('-'), "Command {}: long_flag {l:?} must not start with a `-`, that will be handled by the parser", sc.get_name());
             long_flags.push(Flag::Command(format!("--{l}"), sc.get_name()));
         }
 
@@ -76,7 +76,7 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         if let Some(l) = arg.get_long() {
-            assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.get_id(), l);
+            assert!(!l.starts_with('-'), "Argument {}: long {l:?} must not start with a `-`, that will be handled by the parser", arg.get_id());
             long_flags.push(Flag::Arg(format!("--{l}"), arg.get_id().as_str()));
         }
 
@@ -99,9 +99,8 @@ pub(crate) fn assert_app(cmd: &Command) {
             if let Some((first, second)) = cmd.two_args_of(|x| x.get_long() == Some(l)) {
                 panic!(
                     "Command {}: Long option names must be unique for each argument, \
-                            but '--{}' is in use by both '{}' and '{}'{}",
+                            but '--{l}' is in use by both '{}' and '{}'{}",
                     cmd.get_name(),
-                    l,
                     first.get_id(),
                     second.get_id(),
                     duplicate_tip(cmd, first, second)
@@ -114,9 +113,8 @@ pub(crate) fn assert_app(cmd: &Command) {
             if let Some((first, second)) = cmd.two_args_of(|x| x.get_short() == Some(s)) {
                 panic!(
                     "Command {}: Short option names must be unique for each argument, \
-                            but '-{}' is in use by both '{}' and '{}'{}",
+                            but '-{s}' is in use by both '{}' and '{}'{}",
                     cmd.get_name(),
-                    s,
                     first.get_id(),
                     second.get_id(),
                     duplicate_tip(cmd, first, second),
@@ -190,9 +188,8 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{}' specified in 'required_unless*' for '{}' does not exist",
+                "Command {}: Argument or group '{req}' specified in 'required_unless*' for '{}' does not exist",
                     cmd.get_name(),
-                req,
                 arg.get_id(),
             );
         }
@@ -205,9 +202,8 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{}' specified in 'required_unless*' for '{}' does not exist",
+                "Command {}: Argument or group '{req}' specified in 'required_unless*' for '{}' does not exist",
                     cmd.get_name(),
-                req,
                 arg.get_id(),
             );
         }
@@ -216,9 +212,8 @@ pub(crate) fn assert_app(cmd: &Command) {
         for req in &arg.blacklist {
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{}' specified in 'conflicts_with*' for '{}' does not exist",
+                "Command {}: Argument or group '{req}' specified in 'conflicts_with*' for '{}' does not exist",
                     cmd.get_name(),
-                req,
                 arg.get_id(),
             );
         }
@@ -227,9 +222,8 @@ pub(crate) fn assert_app(cmd: &Command) {
         for req in &arg.overrides {
             assert!(
                 cmd.id_exists(req),
-                "Command {}: Argument or group '{}' specified in 'overrides_with*' for '{}' does not exist",
+                "Command {}: Argument or group '{req}' specified in 'overrides_with*' for '{}' does not exist",
                     cmd.get_name(),
-                req,
                 arg.get_id(),
             );
         }
@@ -294,10 +288,9 @@ pub(crate) fn assert_app(cmd: &Command) {
             // Args listed inside groups should exist
             assert!(
                 cmd.get_arguments().any(|x| x.get_id() == arg),
-                "Command {}: Argument group '{}' contains non-existent argument '{}'",
+                "Command {}: Argument group '{}' contains non-existent argument '{arg}'",
                 cmd.get_name(),
-                group.get_id(),
-                arg
+                group.get_id()
             );
         }
 
@@ -305,10 +298,9 @@ pub(crate) fn assert_app(cmd: &Command) {
             // Args listed inside groups should exist
             assert!(
                 cmd.id_exists(arg),
-                "Command {}: Argument group '{}' requires non-existent '{}' id",
+                "Command {}: Argument group '{}' requires non-existent '{arg}' id",
                 cmd.get_name(),
-                group.get_id(),
-                arg
+                group.get_id()
             );
         }
 
@@ -316,10 +308,9 @@ pub(crate) fn assert_app(cmd: &Command) {
             // Args listed inside groups should exist
             assert!(
                 cmd.id_exists(arg),
-                "Command {}: Argument group '{}' conflicts with non-existent '{}' id",
+                "Command {}: Argument group '{}' conflicts with non-existent '{arg}' id",
                 cmd.get_name(),
-                group.get_id(),
-                arg
+                group.get_id()
             );
         }
     }
@@ -343,10 +334,9 @@ pub(crate) fn assert_app(cmd: &Command) {
         for alias in sc.get_all_aliases() {
             assert!(
                 subs.insert(alias),
-                "Command {}: command `{}` alias `{}` is duplicated",
+                "Command {}: command `{}` alias `{alias}` is duplicated",
                 cmd.get_name(),
-                sc.get_name(),
-                alias
+                sc.get_name()
             );
         }
     }
@@ -768,10 +758,8 @@ fn assert_arg(arg: &Arg) {
         let num_val_names = arg.get_value_names().unwrap_or(&[]).len();
         if num_vals.max_values() < num_val_names {
             panic!(
-                "Argument {}: Too many value names ({}) compared to `num_args` ({})",
-                arg.get_id(),
-                num_val_names,
-                num_vals
+                "Argument {}: Too many value names ({num_val_names}) compared to `num_args` ({num_vals})",
+                arg.get_id()
             );
         }
     }
@@ -779,24 +767,21 @@ fn assert_arg(arg: &Arg) {
     assert_eq!(
         num_vals.takes_values(),
         arg.is_takes_value_set(),
-        "Argument {}: mismatch between `num_args` ({}) and `takes_value`",
+        "Argument {}: mismatch between `num_args` ({num_vals}) and `takes_value`",
         arg.get_id(),
-        num_vals,
     );
     assert_eq!(
         num_vals.is_multiple(),
         arg.is_multiple_values_set(),
-        "Argument {}: mismatch between `num_args` ({}) and `multiple_values`",
+        "Argument {}: mismatch between `num_args` ({num_vals}) and `multiple_values`",
         arg.get_id(),
-        num_vals,
     );
 
     if 1 < num_vals.min_values() {
         assert!(
             !arg.is_require_equals_set(),
-            "Argument {}: cannot accept more than 1 arg (num_args={}) with require_equals",
-            arg.get_id(),
-            num_vals
+            "Argument {}: cannot accept more than 1 arg (num_args={num_vals}) with require_equals",
+            arg.get_id()
         );
     }
 
@@ -869,21 +854,16 @@ fn assert_defaults<'d>(
             for part in default_os.split(val_delim) {
                 if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), part) {
                     panic!(
-                        "Argument `{}`'s {}={:?} failed validation: {}",
+                        "Argument `{}`'s {field}={:?} failed validation: {err}",
                         arg.get_id(),
-                        field,
-                        part.to_string_lossy(),
-                        err
+                        part.to_string_lossy()
                     );
                 }
             }
         } else if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), default_os) {
             panic!(
-                "Argument `{}`'s {}={:?} failed validation: {}",
-                arg.get_id(),
-                field,
-                default_os,
-                err
+                "Argument `{}`'s {field}={default_os:?} failed validation: {err}",
+                arg.get_id()
             );
         }
     }

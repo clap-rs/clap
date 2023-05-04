@@ -3984,8 +3984,7 @@ impl Command {
                 self.display_name.as_deref().unwrap_or(&self.name)
             };
             let display_name = format!(
-                "{}{}{}",
-                self_display_name,
+                "{self_display_name}{}{}",
                 if !self_display_name.is_empty() {
                     "-"
                 } else {
@@ -4068,8 +4067,7 @@ impl Command {
 
                 if sc.bin_name.is_none() {
                     let bin_name = format!(
-                        "{}{}{}",
-                        self_bin_name,
+                        "{self_bin_name}{}{}",
                         if !self_bin_name.is_empty() { " " } else { "" },
                         &*sc.name
                     );
@@ -4092,8 +4090,7 @@ impl Command {
                         self.display_name.as_deref().unwrap_or(&self.name)
                     };
                     let display_name = format!(
-                        "{}{}{}",
-                        self_display_name,
+                        "{self_display_name}{}{}",
                         if !self_display_name.is_empty() {
                             "-"
                         } else {
