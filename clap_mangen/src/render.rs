@@ -1,4 +1,4 @@
-use clap::ArgAction;
+use clap::{Arg, ArgAction};
 use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
@@ -122,34 +122,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
         roff.text(header);
         roff.text(body);
 
-        if let Some((possible_values_text, with_help)) = get_possible_values(opt) {
-            if arg_help_written {
-                // It looks nice to have a separation between the help and the values
-                roff.text([Inline::LineBreak]);
-            }
-            if with_help {
-                roff.text([Inline::LineBreak, italic("Possible values:")]);
-
-                // Need to indent twice to get it to look right, because .TP heading indents, but
-                // that indent doesn't Carry over to the .IP for the bullets. The standard shift
-                // size is 7 for terminal devices
-                roff.control("RS", ["14"]);
-                for line in possible_values_text {
-                    roff.control("IP", ["\\(bu", "2"]);
-                    roff.text([roman(line)]);
-                }
-                roff.control("RE", []);
-            } else {
-                let possible_value_text: Vec<Inline> = vec![
-                    Inline::LineBreak,
-                    roman("["),
-                    italic("possible values: "),
-                    roman(possible_values_text.join(", ")),
-                    roman("]"),
-                ];
-                roff.text(possible_value_text);
-            }
-        }
+        possible_options(roff, opt, arg_help_written);
 
         if let Some(env) = option_environment(opt) {
             roff.control("RS", []);
@@ -189,34 +162,38 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             roff.text(env);
             roff.control("RE", []);
         }
-        // If possible options are available
-        if let Some((possible_values_text, with_help)) = get_possible_values(pos) {
-            if arg_help_written {
-                // It looks nice to have a separation between the help and the values
-                roff.text([Inline::LineBreak]);
-            }
-            if with_help {
-                roff.text([Inline::LineBreak, italic("Possible values:")]);
 
-                // Need to indent twice to get it to look right, because .TP heading indents, but
-                // that indent doesn't Carry over to the .IP for the bullets. The standard shift
-                // size is 7 for terminal devices
-                roff.control("RS", ["14"]);
-                for line in possible_values_text {
-                    roff.control("IP", ["\\(bu", "2"]);
-                    roff.text([roman(line)]);
-                }
-                roff.control("RE", []);
-            } else {
-                let possible_value_text: Vec<Inline> = vec![
-                    Inline::LineBreak,
-                    roman("["),
-                    italic("possible values: "),
-                    roman(possible_values_text.join(", ")),
-                    roman("]"),
-                ];
-                roff.text(possible_value_text);
+        possible_options(roff, pos, arg_help_written)
+    }
+}
+
+fn possible_options(roff: &mut Roff, arg: &Arg, arg_help_written: bool) {
+    if let Some((possible_values_text, with_help)) = get_possible_values(arg) {
+        if arg_help_written {
+            // It looks nice to have a separation between the help and the values
+            roff.text([Inline::LineBreak]);
+        }
+        if with_help {
+            roff.text([Inline::LineBreak, italic("Possible values:")]);
+
+            // Need to indent twice to get it to look right, because .TP heading indents, but
+            // that indent doesn't Carry over to the .IP for the bullets. The standard shift
+            // size is 7 for terminal devices
+            roff.control("RS", ["14"]);
+            for line in possible_values_text {
+                roff.control("IP", ["\\(bu", "2"]);
+                roff.text([roman(line)]);
             }
+            roff.control("RE", []);
+        } else {
+            let possible_value_text: Vec<Inline> = vec![
+                Inline::LineBreak,
+                roman("["),
+                italic("possible values: "),
+                roman(possible_values_text.join(", ")),
+                roman("]"),
+            ];
+            roff.text(possible_value_text);
         }
     }
 }
