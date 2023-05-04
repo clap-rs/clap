@@ -38,7 +38,7 @@ impl ErrorFormatter for KindFormatter {
         if let Some(msg) = error.kind().as_str() {
             styled.push_str(msg);
         } else if let Some(source) = error.inner.source.as_ref() {
-            let _ = write!(styled, "{}", source);
+            let _ = write!(styled, "{source}");
         } else {
             styled.push_str("unknown cause");
         }
@@ -68,7 +68,7 @@ impl ErrorFormatter for RichFormatter {
             if let Some(msg) = error.kind().as_str() {
                 styled.push_str(msg);
             } else if let Some(source) = error.inner.source.as_ref() {
-                let _ = write!(styled, "{}", source);
+                let _ = write!(styled, "{source}");
             } else {
                 styled.push_str("unknown cause");
             }
@@ -357,7 +357,7 @@ fn write_dynamic_context(
                     literal.render_reset(),
                 );
                 if let Some(source) = error.inner.source.as_deref() {
-                    let _ = write!(styled, ": {}", source);
+                    let _ = write!(styled, ": {source}");
                 }
                 true
             } else {

@@ -8,7 +8,7 @@ fn single_short_arg_without_value() {
 
     let r = cmd.try_get_matches_from(vec!["cmd", "-c" /* missing: , "config file" */]);
 
-    assert!(r.is_ok(), "unexpected error: {:?}", r);
+    assert!(r.is_ok(), "unexpected error: {r:?}");
     let m = r.unwrap();
     assert!(m.contains_id("config"));
 }
@@ -42,7 +42,7 @@ fn multiple_args_and_final_arg_without_value() {
         "cmd", "-c", "file", "-f", "-x", /* missing: , "some stuff" */
     ]);
 
-    assert!(r.is_ok(), "unexpected error: {:?}", r);
+    assert!(r.is_ok(), "unexpected error: {r:?}");
     let m = r.unwrap();
     assert_eq!(
         m.get_one::<String>("config").map(|v| v.as_str()),
@@ -69,7 +69,7 @@ fn multiple_args_and_intermittent_arg_without_value() {
         "-c", "file", "-f",
     ]);
 
-    assert!(r.is_ok(), "unexpected error: {:?}", r);
+    assert!(r.is_ok(), "unexpected error: {r:?}");
     let m = r.unwrap();
     assert_eq!(
         m.get_one::<String>("config").map(|v| v.as_str()),

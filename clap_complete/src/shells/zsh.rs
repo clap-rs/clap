@@ -475,14 +475,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
             for short in shorts {
-                let s = format!(
-                    "'{conflicts}{multiple}-{arg}+[{help}]{value_completion}' \\",
-                    conflicts = conflicts,
-                    multiple = multiple,
-                    arg = short,
-                    value_completion = vc,
-                    help = help
-                );
+                let s = format!("'{conflicts}{multiple}-{short}+[{help}]{vc}' \\");
 
                 debug!("write_opts_of:iter: Wrote...{}", &*s);
                 ret.push(s);
@@ -490,14 +483,7 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
         }
         if let Some(longs) = o.get_long_and_visible_aliases() {
             for long in longs {
-                let l = format!(
-                    "'{conflicts}{multiple}--{arg}=[{help}]{value_completion}' \\",
-                    conflicts = conflicts,
-                    multiple = multiple,
-                    arg = long,
-                    value_completion = vc,
-                    help = help
-                );
+                let l = format!("'{conflicts}{multiple}--{long}=[{help}]{vc}' \\");
 
                 debug!("write_opts_of:iter: Wrote...{}", &*l);
                 ret.push(l);
@@ -564,13 +550,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
         };
 
         if let Some(short) = f.get_short() {
-            let s = format!(
-                "'{conflicts}{multiple}-{arg}[{help}]' \\",
-                multiple = multiple,
-                conflicts = conflicts,
-                arg = short,
-                help = help
-            );
+            let s = format!("'{conflicts}{multiple}-{short}[{help}]' \\");
 
             debug!("write_flags_of:iter: Wrote...{}", &*s);
 
@@ -588,13 +568,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
         }
 
         if let Some(long) = f.get_long() {
-            let l = format!(
-                "'{conflicts}{multiple}--{arg}[{help}]' \\",
-                conflicts = conflicts,
-                multiple = multiple,
-                arg = long,
-                help = help
-            );
+            let l = format!("'{conflicts}{multiple}--{long}[{help}]' \\");
 
             debug!("write_flags_of:iter: Wrote...{}", &*l);
 
@@ -602,13 +576,7 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
 
             if let Some(aliases) = f.get_visible_aliases() {
                 for alias in aliases {
-                    let l = format!(
-                        "'{conflicts}{multiple}--{arg}[{help}]' \\",
-                        conflicts = conflicts,
-                        multiple = multiple,
-                        arg = alias,
-                        help = help
-                    );
+                    let l = format!("'{conflicts}{multiple}--{alias}[{help}]' \\");
 
                     debug!("write_flags_of:iter: Wrote...{}", &*l);
 

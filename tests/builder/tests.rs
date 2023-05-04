@@ -96,17 +96,17 @@ pub fn check_complex_output(args: &str, out: &str) {
             writeln!(w, "flag NOT present").unwrap();
         }
         n => {
-            writeln!(w, "flag present {} times", n).unwrap();
+            writeln!(w, "flag present {n} times").unwrap();
         }
     }
 
     if matches.contains_id("option") {
         if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
-            writeln!(w, "option present with value: {}", v).unwrap();
+            writeln!(w, "option present with value: {v}").unwrap();
         }
         if let Some(ov) = matches.get_many::<String>("option") {
             for o in ov {
-                writeln!(w, "An option: {}", o).unwrap();
+                writeln!(w, "An option: {o}").unwrap();
             }
         }
     } else {
@@ -114,7 +114,7 @@ pub fn check_complex_output(args: &str, out: &str) {
     }
 
     if let Some(p) = matches.get_one::<String>("positional").map(|v| v.as_str()) {
-        writeln!(w, "positional present with value: {}", p).unwrap();
+        writeln!(w, "positional present with value: {p}").unwrap();
     } else {
         writeln!(w, "positional NOT present").unwrap();
     }
@@ -183,11 +183,11 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.contains_id("option") {
         if let Some(v) = matches.get_one::<String>("option").map(|v| v.as_str()) {
-            writeln!(w, "option present with value: {}", v).unwrap();
+            writeln!(w, "option present with value: {v}").unwrap();
         }
         if let Some(ov) = matches.get_many::<String>("option") {
             for o in ov {
-                writeln!(w, "An option: {}", o).unwrap();
+                writeln!(w, "An option: {o}").unwrap();
             }
         }
     } else {

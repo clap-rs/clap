@@ -2650,8 +2650,7 @@ fn disable_help_flag_affects_help_subcommand() {
         .collect::<Vec<_>>();
     assert!(
         !args.contains(&"help"),
-        "`help` should not be present: {:?}",
-        args
+        "`help` should not be present: {args:?}"
     );
 }
 

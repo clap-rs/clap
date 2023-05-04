@@ -27,7 +27,7 @@ fn issue_946() {
                 .help("filters to apply to output"),
         )
         .try_get_matches_from(vec!["compiletest", "--exact"]);
-    assert!(r.is_ok(), "{:#?}", r);
+    assert!(r.is_ok(), "{r:#?}");
     let matches = r.unwrap();
 
     assert!(*matches.get_one::<bool>("exact").expect("defaulted by clap"));
@@ -45,7 +45,7 @@ fn positional() {
             Arg::new("positional").index(1),
         ])
         .try_get_matches_from(vec!["", "-f", "test"]);
-    assert!(r.is_ok(), "{:#?}", r);
+    assert!(r.is_ok(), "{r:#?}");
     let m = r.unwrap();
     assert!(m.contains_id("positional"));
     assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
@@ -124,7 +124,7 @@ fn positional_multiple() {
                 .num_args(1..),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
-    assert!(r.is_ok(), "{:#?}", r);
+    assert!(r.is_ok(), "{r:#?}");
     let m = r.unwrap();
     assert!(m.contains_id("positional"));
     assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
@@ -148,7 +148,7 @@ fn positional_multiple_3() {
                 .num_args(1..),
         ])
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
-    assert!(r.is_ok(), "{:#?}", r);
+    assert!(r.is_ok(), "{r:#?}");
     let m = r.unwrap();
     assert!(m.contains_id("positional"));
     assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
