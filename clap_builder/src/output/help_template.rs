@@ -656,9 +656,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             const DASH_SPACE: usize = "- ".len();
             const COLON_SPACE: usize = ": ".len();
             let possible_vals = arg.get_possible_values();
-            if self.use_long
+            if !possible_vals.is_empty()
                 && !arg.is_hide_possible_values_set()
-                && possible_vals.iter().any(PossibleValue::should_show_help)
+                && self.use_long_pv(arg)
             {
                 debug!(
                     "HelpTemplate::help: Found possible vals...{:?}",
@@ -835,10 +835,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
 
         let possible_vals = a.get_possible_values();
-        if !(a.is_hide_possible_values_set()
-            || possible_vals.is_empty()
-            || self.use_long && possible_vals.iter().any(PossibleValue::should_show_help))
-        {
+        if !possible_vals.is_empty() && !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
             debug!(
                 "HelpTemplate::spec_vals: Found possible vals...{:?}",
                 possible_vals
@@ -863,6 +860,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     fn write_padding(&mut self, amount: usize) {
         use std::fmt::Write as _;
         let _ = write!(self.writer, "{:amount$}", "");
+    }
+
+    fn use_long_pv(&self, arg: &Arg) -> bool {
+        self.use_long
+            && arg
+                .get_possible_values()
+                .iter()
+                .any(PossibleValue::should_show_help)
     }
 }
 
