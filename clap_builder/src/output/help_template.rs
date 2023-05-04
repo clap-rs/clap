@@ -665,7 +665,8 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 );
                 let longest = possible_vals
                     .iter()
-                    .filter_map(|f| f.get_visible_quoted_name().map(|name| display_width(&name)))
+                    .filter(|f| !f.is_hide_set())
+                    .map(|f| display_width(f.get_name()))
                     .max()
                     .expect("Only called with possible value");
 
