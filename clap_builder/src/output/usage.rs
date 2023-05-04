@@ -79,7 +79,7 @@ impl<'cmd> Usage<'cmd> {
 impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
     fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
-        debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
+        debug!("Usage::create_help_usage; incl_reqs={incl_reqs:?}");
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
@@ -157,7 +157,7 @@ impl<'cmd> Usage<'cmd> {
             }
         }
         styled.trim();
-        debug!("Usage::create_help_usage: usage={}", styled);
+        debug!("Usage::create_help_usage: usage={styled}");
         styled
     }
 
@@ -220,7 +220,7 @@ impl<'cmd> Usage<'cmd> {
                 continue;
             }
             for grp_s in self.cmd.groups_for_arg(f.get_id()) {
-                debug!("Usage::needs_options_tag:iter:iter: grp_s={:?}", grp_s);
+                debug!("Usage::needs_options_tag:iter:iter: grp_s={grp_s:?}");
                 if self.cmd.get_groups().any(|g| g.id == grp_s && g.required) {
                     debug!("Usage::needs_options_tag:iter:iter: Group is required");
                     continue 'outer;
@@ -244,7 +244,7 @@ impl<'cmd> Usage<'cmd> {
     }
 
     pub(crate) fn get_args(&self, incls: &[Id], force_optional: bool) -> Vec<StyledStr> {
-        debug!("Usage::get_args: incls={:?}", incls,);
+        debug!("Usage::get_args: incls={incls:?}",);
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
 
@@ -275,7 +275,7 @@ impl<'cmd> Usage<'cmd> {
             // by unroll_requirements_for_arg.
             unrolled_reqs.push(a.clone());
         }
-        debug!("Usage::get_args: unrolled_reqs={:?}", unrolled_reqs);
+        debug!("Usage::get_args: unrolled_reqs={unrolled_reqs:?}");
 
         let mut required_groups_members = FlatSet::new();
         let mut required_groups = FlatSet::new();
@@ -360,7 +360,7 @@ impl<'cmd> Usage<'cmd> {
             ret_val.push(pos);
         }
 
-        debug!("Usage::get_args: ret_val={:?}", ret_val);
+        debug!("Usage::get_args: ret_val={ret_val:?}");
         ret_val
     }
 
@@ -410,10 +410,7 @@ impl<'cmd> Usage<'cmd> {
             // by unroll_requirements_for_arg.
             unrolled_reqs.push(a.clone());
         }
-        debug!(
-            "Usage::get_required_usage_from: unrolled_reqs={:?}",
-            unrolled_reqs
-        );
+        debug!("Usage::get_required_usage_from: unrolled_reqs={unrolled_reqs:?}");
 
         let mut required_groups_members = FlatSet::new();
         let mut required_groups = FlatSet::new();
@@ -427,10 +424,7 @@ impl<'cmd> Usage<'cmd> {
                             .any(|arg| m.check_explicit(arg, &ArgPredicate::IsPresent))
                     })
                     .unwrap_or(false);
-                debug!(
-                    "Usage::get_required_usage_from:iter:{:?} group is_present={}",
-                    req, is_present
-                );
+                debug!("Usage::get_required_usage_from:iter:{req:?} group is_present={is_present}");
                 if is_present {
                     continue;
                 }
@@ -454,10 +448,7 @@ impl<'cmd> Usage<'cmd> {
                 let is_present = matcher
                     .map(|m| m.check_explicit(req, &ArgPredicate::IsPresent))
                     .unwrap_or(false);
-                debug!(
-                    "Usage::get_required_usage_from:iter:{:?} arg is_present={}",
-                    req, is_present
-                );
+                debug!("Usage::get_required_usage_from:iter:{req:?} arg is_present={is_present}");
                 if is_present {
                     continue;
                 }
@@ -486,7 +477,7 @@ impl<'cmd> Usage<'cmd> {
             ret_val.push(pos);
         }
 
-        debug!("Usage::get_required_usage_from: ret_val={:?}", ret_val);
+        debug!("Usage::get_required_usage_from: ret_val={ret_val:?}");
         ret_val
     }
 }

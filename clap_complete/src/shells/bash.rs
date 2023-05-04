@@ -158,7 +158,7 @@ fn subcommand_details(cmd: &Command) -> String {
 }
 
 fn option_details_for_path(cmd: &Command, path: &str) -> String {
-    debug!("option_details_for_path: path={}", path);
+    debug!("option_details_for_path: path={path}");
 
     let p = utils::find_subcommand_with_path(cmd, path.split("__").skip(1).collect());
     let mut opts = vec![String::new()];
@@ -212,7 +212,7 @@ fn vals_for(o: &Arg) -> String {
 }
 
 fn all_options_for_path(cmd: &Command, path: &str) -> String {
-    debug!("all_options_for_path: path={}", path);
+    debug!("all_options_for_path: path={path}");
 
     let p = utils::find_subcommand_with_path(cmd, path.split("__").skip(1).collect());
 

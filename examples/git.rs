@@ -118,7 +118,7 @@ fn main() {
                     println!("Pushing {message:?}");
                 }
                 (name, _) => {
-                    unreachable!("Unsupported subcommand `{}`", name)
+                    unreachable!("Unsupported subcommand `{name}`")
                 }
             }
         }

@@ -908,7 +908,7 @@ impl Item {
         if !lines.is_empty() {
             let (short_help, long_help) =
                 format_doc_comment(&lines, !self.verbatim_doc_comment, self.force_long_help);
-            let short_name = format_ident!("{}", short_name);
+            let short_name = format_ident!("{short_name}");
             let short = Method::new(
                 short_name,
                 short_help
@@ -917,7 +917,7 @@ impl Item {
             );
             self.doc_comment.push(short);
             if let Some(long_name) = long_name {
-                let long_name = format_ident!("{}", long_name);
+                let long_name = format_ident!("{long_name}");
                 let long = Method::new(
                     long_name,
                     long_help
@@ -946,7 +946,7 @@ impl Item {
             (_, _) => {
                 let old = self.kind.name();
                 let new = kind.name();
-                abort!(kind.span(), "`{}` cannot be used with `{}`", new, old);
+                abort!(kind.span(), "`{new}` cannot be used with `{old}`");
             }
         }
         Ok(())
@@ -1405,7 +1405,7 @@ impl CasingStyle {
             "lower" | "lowercase" => cs(Lower),
             "upper" | "uppercase" => cs(Upper),
             "verbatim" | "verbatimcase" => cs(Verbatim),
-            s => abort!(name, "unsupported casing: `{}`", s),
+            s => abort!(name, "unsupported casing: `{s}`"),
         };
         Ok(s)
     }

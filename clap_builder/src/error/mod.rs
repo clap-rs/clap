@@ -275,7 +275,7 @@ impl<F: ErrorFormatter> Error<F> {
     ///     },
     ///     Err(err) => {
     ///         let err = err.render();
-    ///         println!("{}", err);
+    ///         println!("{err}");
     ///         // do_something
     ///     },
     /// };

@@ -38,5 +38,5 @@ impl Default for Command {
 
 fn main() {
     let opt = MakeCookie::parse();
-    println!("{:?}", opt);
+    println!("{opt:?}");
 }

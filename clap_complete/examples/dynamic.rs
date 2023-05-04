@@ -27,7 +27,7 @@ fn main() {
     {
         completions.complete(&mut command());
     } else {
-        println!("{:#?}", matches);
+        println!("{matches:#?}");
     }
 }
 

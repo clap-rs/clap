@@ -2382,17 +2382,17 @@ pub mod via_prelude {
 /// # use clap::ColorChoice;
 /// // Built-in types
 /// let parser = clap::value_parser!(String);
-/// assert_eq!(format!("{:?}", parser), "ValueParser::string");
+/// assert_eq!(format!("{parser:?}"), "ValueParser::string");
 /// let parser = clap::value_parser!(std::ffi::OsString);
-/// assert_eq!(format!("{:?}", parser), "ValueParser::os_string");
+/// assert_eq!(format!("{parser:?}"), "ValueParser::os_string");
 /// let parser = clap::value_parser!(std::path::PathBuf);
-/// assert_eq!(format!("{:?}", parser), "ValueParser::path_buf");
+/// assert_eq!(format!("{parser:?}"), "ValueParser::path_buf");
 /// clap::value_parser!(u16).range(3000..);
 /// clap::value_parser!(u64).range(3000..);
 ///
 /// // FromStr types
 /// let parser = clap::value_parser!(usize);
-/// assert_eq!(format!("{:?}", parser), "_AnonymousValueParser(ValueParser::other(usize))");
+/// assert_eq!(format!("{parser:?}"), "_AnonymousValueParser(ValueParser::other(usize))");
 ///
 /// // ValueEnum types
 /// clap::value_parser!(ColorChoice);

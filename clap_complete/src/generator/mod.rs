@@ -29,7 +29,7 @@ pub trait Generator {
     ///
     /// impl Generator for Fish {
     ///     fn file_name(&self, name: &str) -> String {
-    ///         format!("{}.fish", name)
+    ///         format!("{name}.fish")
     ///     }
     /// #   fn generate(&self, cmd: &Command, buf: &mut dyn Write) {}
     /// }
@@ -59,7 +59,7 @@ pub trait Generator {
     /// #       name.into()
     /// #   }
     ///     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
-    ///         write!(buf, "{}", cmd).unwrap();
+    ///         write!(buf, "{cmd}").unwrap();
     ///     }
     /// }
     /// ```
@@ -150,7 +150,7 @@ pub trait Generator {
 ///         outdir,   // We need to specify where to write to
 ///     )?;
 ///
-///     println!("cargo:warning=completion file is generated: {:?}", path);
+///     println!("cargo:warning=completion file is generated: {path:?}");
 ///
 ///     Ok(())
 /// }

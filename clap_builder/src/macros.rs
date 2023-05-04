@@ -175,8 +175,7 @@ macro_rules! arg_impl {
         debug_assert_eq!(
             ident_or_char_literal.len(),
             1,
-            "Single-letter identifier expected, got {}",
-            ident_or_char_literal
+            "Single-letter identifier expected, got {ident_or_char_literal}",
         );
         ident_or_char_literal.chars().next().unwrap()
     }};
@@ -404,7 +403,7 @@ macro_rules! arg_impl {
                 $arg.action($crate::ArgAction::Count)
             }
             action => {
-                panic!("Unexpected action {:?}", action)
+                panic!("Unexpected action {action:?}")
             }
         };
         let arg = $crate::arg_impl! {

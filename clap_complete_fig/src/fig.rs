@@ -53,7 +53,7 @@ fn escape_string(string: &str) -> String {
 
 fn gen_fig_inner(parent_commands: &[&str], indent: usize, cmd: &Command, buffer: &mut String) {
     if cmd.has_subcommands() {
-        write!(buffer, "{:indent$}subcommands: [\n", "", indent = indent).unwrap();
+        write!(buffer, "{:indent$}subcommands: [\n", "").unwrap();
         // generate subcommands
         for subcommand in cmd.get_subcommands() {
             let mut aliases: Vec<&str> = subcommand.get_all_aliases().collect();
@@ -111,7 +111,7 @@ fn gen_fig_inner(parent_commands: &[&str], indent: usize, cmd: &Command, buffer:
 
             write!(buffer, "{:indent$}}},\n", "", indent = indent + 2).unwrap();
         }
-        write!(buffer, "{:indent$}],\n", "", indent = indent).unwrap();
+        write!(buffer, "{:indent$}],\n", "").unwrap();
     }
 
     buffer.push_str(&gen_options(cmd, indent));
@@ -121,17 +121,17 @@ fn gen_fig_inner(parent_commands: &[&str], indent: usize, cmd: &Command, buffer:
     match args.len() {
         0 => {}
         1 => {
-            write!(buffer, "{:indent$}args: ", "", indent = indent).unwrap();
+            write!(buffer, "{:indent$}args: ", "").unwrap();
 
             buffer.push_str(&gen_args(args[0], indent));
         }
         _ => {
-            write!(buffer, "{:indent$}args: [\n", "", indent = indent).unwrap();
+            write!(buffer, "{:indent$}args: [\n", "").unwrap();
             for arg in args {
                 write!(buffer, "{:indent$}", "", indent = indent + 2).unwrap();
                 buffer.push_str(&gen_args(arg, indent + 2));
             }
-            write!(buffer, "{:indent$}]\n", "", indent = indent).unwrap();
+            write!(buffer, "{:indent$}]\n", "").unwrap();
         }
     };
 }
@@ -142,7 +142,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
     let flags = generator::utils::flags(cmd);
 
     if cmd.get_opts().next().is_some() || !flags.is_empty() {
-        write!(&mut buffer, "{:indent$}options: [\n", "", indent = indent).unwrap();
+        write!(&mut buffer, "{:indent$}options: [\n", "").unwrap();
 
         for option in cmd.get_opts() {
             write!(&mut buffer, "{:indent$}{{\n", "", indent = indent + 2).unwrap();
@@ -346,7 +346,7 @@ fn gen_options(cmd: &Command, indent: usize) -> String {
             write!(&mut buffer, "{:indent$}}},\n", "", indent = indent + 2).unwrap();
         }
 
-        write!(&mut buffer, "{:indent$}],\n", "", indent = indent).unwrap();
+        write!(&mut buffer, "{:indent$}],\n", "").unwrap();
     }
 
     buffer
@@ -467,7 +467,7 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         };
     };
 
-    write!(&mut buffer, "{:indent$}}},\n", "", indent = indent).unwrap();
+    write!(&mut buffer, "{:indent$}}},\n", "").unwrap();
 
     buffer
 }

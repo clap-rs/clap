@@ -49,7 +49,7 @@
 //!
 //!     if let Some(generator) = matches.get_one::<Shell>("generator").copied() {
 //!         let mut cmd = build_cli();
-//!         eprintln!("Generating completion file for {}...", generator);
+//!         eprintln!("Generating completion file for {generator}...");
 //!         print_completions(generator, &mut cmd);
 //!     }
 //! }

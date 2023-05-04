@@ -4107,7 +4107,7 @@ impl Arg {
     /// let value_parser = cmd.get_arguments()
     ///     .find(|a| a.get_id() == "port").unwrap()
     ///     .get_value_parser();
-    /// println!("{:?}", value_parser);
+    /// println!("{value_parser:?}");
     /// ```
     pub fn get_value_parser(&self) -> &super::ValueParser {
         if let Some(value_parser) = self.value_parser.as_ref() {

@@ -40,7 +40,7 @@
 //!                 Ok(Color::Never)
 //!             }
 //!             Some(invalid) => {
-//!                 Err(format!("Invalid value for `--color`, {:?}", invalid).into())
+//!                 Err(format!("Invalid value for `--color`, {invalid:?}").into())
 //!             }
 //!         }
 //!     }
@@ -67,7 +67,7 @@
 //!             match long {
 //!                 Ok("verbose") => {
 //!                     if let Some(value) = value {
-//!                         return Err(format!("`--verbose` does not take a value, got `{:?}`", value).into());
+//!                         return Err(format!("`--verbose` does not take a value, got `{value:?}`").into());
 //!                     }
 //!                     args.verbosity += 1;
 //!                 }
@@ -91,7 +91,7 @@
 //!                         args.color = Color::parse(value)?;
 //!                     }
 //!                     Ok(c) => {
-//!                         return Err(format!("Unexpected flag: -{}", c).into());
+//!                         return Err(format!("Unexpected flag: -{c}").into());
 //!                     }
 //!                     Err(e) => {
 //!                         return Err(format!("Unexpected flag: -{}", e.to_string_lossy()).into());
@@ -107,7 +107,7 @@
 //! }
 //!
 //! let args = parse_args(["bin", "--hello", "world"]);
-//! println!("{:?}", args);
+//! println!("{args:?}");
 //! ```
 
 mod ext;
@@ -139,7 +139,7 @@ impl RawArgs {
     /// let _bin = raw.next_os(&mut cursor);
     ///
     /// let mut paths = raw.remaining(&mut cursor).map(PathBuf::from).collect::<Vec<_>>();
-    /// println!("{:?}", paths);
+    /// println!("{paths:?}");
     /// ```
     pub fn from_args() -> Self {
         Self::new(std::env::args_os())
@@ -156,7 +156,7 @@ impl RawArgs {
     /// let _bin = raw.next_os(&mut cursor);
     ///
     /// let mut paths = raw.remaining(&mut cursor).map(PathBuf::from).collect::<Vec<_>>();
-    /// println!("{:?}", paths);
+    /// println!("{paths:?}");
     /// ```
     pub fn new(iter: impl IntoIterator<Item = impl Into<std::ffi::OsString>>) -> Self {
         let iter = iter.into_iter();
@@ -174,7 +174,7 @@ impl RawArgs {
     /// let _bin = raw.next_os(&mut cursor);
     ///
     /// let mut paths = raw.remaining(&mut cursor).map(PathBuf::from).collect::<Vec<_>>();
-    /// println!("{:?}", paths);
+    /// println!("{paths:?}");
     /// ```
     pub fn cursor(&self) -> ArgCursor {
         ArgCursor::new()
@@ -213,7 +213,7 @@ impl RawArgs {
     /// let _bin = raw.next_os(&mut cursor);
     ///
     /// let mut paths = raw.remaining(&mut cursor).map(PathBuf::from).collect::<Vec<_>>();
-    /// println!("{:?}", paths);
+    /// println!("{paths:?}");
     /// ```
     pub fn remaining(&self, cursor: &mut ArgCursor) -> impl Iterator<Item = &OsStr> {
         let remaining = self.items[cursor.cursor..].iter().map(|s| s.as_os_str());

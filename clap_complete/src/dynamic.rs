@@ -71,7 +71,7 @@ pub mod bash {
 
         /// Process the completion request
         pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
-            debug!("CompleteCommand::try_complete: {:?}", self);
+            debug!("CompleteCommand::try_complete: {self:?}");
             let CompleteCommand::Complete(args) = self;
             if let Some(out_path) = args.register.as_deref() {
                 let mut buf = Vec::new();
@@ -124,7 +124,7 @@ pub mod bash {
 
     /// The recommended file name for the registration code
     pub fn file_name(name: &str) -> String {
-        format!("{}.bash", name)
+        format!("{name}.bash")
     }
 
     /// Define the completion behavior
@@ -154,8 +154,7 @@ pub mod bash {
         let escaped_name = name.replace('-', "_");
         debug_assert!(
             escaped_name.chars().all(|c| c.is_xid_continue()),
-            "`name` must be an identifier, got `{}`",
-            escaped_name
+            "`name` must be an identifier, got `{escaped_name}`"
         );
         let mut upper_name = escaped_name.clone();
         upper_name.make_ascii_uppercase();
@@ -201,7 +200,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         .replace("COMPLETER", &completer)
         .replace("UPPER", &upper_name);
 
-        writeln!(buf, "{}", script)?;
+        writeln!(buf, "{script}")?;
         Ok(())
     }
 
@@ -386,7 +385,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                             crate::generator::utils::longs_and_visible_aliases(cmd)
                                 .into_iter()
                                 .filter_map(|f| {
-                                    f.starts_with(flag).then(|| format!("--{}", f).into())
+                                    f.starts_with(flag).then(|| format!("--{f}").into())
                                 }),
                         );
                     }
@@ -396,7 +395,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 completions.extend(
                     crate::generator::utils::longs_and_visible_aliases(cmd)
                         .into_iter()
-                        .map(|f| format!("--{}", f).into()),
+                        .map(|f| format!("--{f}").into()),
                 );
             }
 
@@ -431,7 +430,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         current_dir: Option<&std::path::Path>,
     ) -> Vec<OsString> {
         let mut values = Vec::new();
-        debug!("complete_arg_value: arg={:?}, value={:?}", arg, value);
+        debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
         if let Some(possible_values) = crate::generator::utils::possible_values(arg) {
             if let Ok(value) = value {
@@ -500,7 +499,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
             .split_once("\\")
             .unwrap_or((OsStr::new(""), value_os));
         let root = current_dir.join(existing);
-        debug!("complete_path: root={:?}, prefix={:?}", root, prefix);
+        debug!("complete_path: root={root:?}, prefix={prefix:?}");
         let prefix = prefix.to_string_lossy();
 
         for entry in std::fs::read_dir(&root)

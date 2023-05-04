@@ -19,5 +19,5 @@ struct Source {
 
 fn main() {
     let opt = Opt::parse();
-    println!("{:?}", opt);
+    println!("{opt:?}");
 }

@@ -1531,7 +1531,7 @@ fn values_per_occurrence_named() {
     ]);
     let m = match m {
         Ok(m) => m,
-        Err(err) => panic!("{}", err),
+        Err(err) => panic!("{err}"),
     };
     assert_eq!(
         m.get_many::<String>("pos")
