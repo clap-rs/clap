@@ -64,7 +64,7 @@ fn double_hyphen_as_value() {
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config", "--"]);
-    assert!(res.is_ok(), "{:?}", res);
+    assert!(res.is_ok(), "{res:?}");
     assert_eq!(
         res.unwrap().get_one::<String>("cfg").map(|v| v.as_str()),
         Some("--")
@@ -428,7 +428,7 @@ fn leading_hyphen_with_only_pos_follows() {
         )
         .arg(arg!([arg] "some arg"))
         .try_get_matches_from(vec!["", "-o", "-2", "--", "val"]);
-    assert!(r.is_ok(), "{:?}", r);
+    assert!(r.is_ok(), "{r:?}");
     let m = r.unwrap();
     assert!(m.contains_id("o"));
     assert_eq!(

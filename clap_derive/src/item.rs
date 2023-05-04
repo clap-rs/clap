@@ -1247,8 +1247,8 @@ impl Method {
                     ident,
                     "cannot derive `{}` from Cargo.toml\n\n= note: {note}\n\n= help: {help}\n\n",
                     ident,
-                    note = format_args!("`{}` environment variable is not set", env_var),
-                    help = format_args!("use `{} = \"...\"` to set {} manually", ident, ident)
+                    note = format_args!("`{env_var}` environment variable is not set"),
+                    help = format_args!("use `{ident} = \"...\"` to set {ident} manually")
                 );
             }
         };

@@ -50,9 +50,7 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
     $completions.Where{{ $_.CompletionText -like "$wordToComplete*" }} |
         Sort-Object -Property ListItemText
 }}
-"#,
-            bin_name = bin_name,
-            subcommands_cases = subcommands_cases
+"#
         );
 
         w!(buf, result.as_bytes());

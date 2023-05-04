@@ -143,10 +143,7 @@ impl ArgMatches {
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn get_count(&self, id: &str) -> u8 {
         *self.get_one::<u8>(id).unwrap_or_else(|| {
-            panic!(
-                "arg `{}`'s `ArgAction` should be `Count` which should provide a default",
-                id
-            )
+            panic!("arg `{id}`'s `ArgAction` should be `Count` which should provide a default")
         })
     }
 
@@ -182,8 +179,7 @@ impl ArgMatches {
             .get_one::<bool>(id)
             .unwrap_or_else(|| {
                 panic!(
-                    "arg `{}`'s `ArgAction` should be one of `SetTrue`, `SetFalse` which should provide a default",
-                    id
+                    "arg `{id}`'s `ArgAction` should be one of `SetTrue`, `SetFalse` which should provide a default"
                 )
             })
     }
