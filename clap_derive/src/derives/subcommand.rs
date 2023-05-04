@@ -17,6 +17,7 @@ use quote::{format_ident, quote, quote_spanned};
 use syn::{spanned::Spanned, Data, DeriveInput, FieldsUnnamed, Generics, Variant};
 
 use crate::derives::args;
+use crate::derives::args::collect_args_fields;
 use crate::item::{Item, Kind, Name};
 use crate::utils::{is_simple_ty, subty_if_name};
 
@@ -264,15 +265,7 @@ fn gen_augment(
                 let sub_augment = match variant.fields {
                     Named(ref fields) => {
                         // Defer to `gen_augment` for adding cmd methods
-                        let fields = fields
-                            .named
-                            .iter()
-                            .map(|field| {
-                                let item =
-                                    Item::from_args_field(field, item.casing(), item.env_casing())?;
-                                Ok((field, item))
-                            })
-                            .collect::<Result<Vec<_>, syn::Error>>()?;
+                        let fields = collect_args_fields(item, fields)?;
                         args::gen_augment(&fields, &subcommand_var, item, override_required)?
                     }
                     Unit => {
@@ -484,14 +477,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
             Named(ref fields) => {
-                let fields = fields
-                    .named
-                    .iter()
-                    .map(|field| {
-                        let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
-                        Ok((field, item))
-                    })
-                    .collect::<Result<Vec<_>, syn::Error>>()?;
+                let fields = collect_args_fields(item, fields)?;
                 args::gen_constructor(&fields)?
             },
             Unit => quote!(),
@@ -599,14 +585,7 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStr
                 let field_names = fields.named.iter().map(|field| {
                     field.ident.as_ref().unwrap()
                 }).collect::<Vec<_>>();
-                let fields = fields
-                    .named
-                    .iter()
-                    .map(|field| {
-                        let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
-                        Ok((field, item))
-                    })
-                    .collect::<Result<Vec<_>, syn::Error>>()?;
+                let fields = collect_args_fields(item, fields)?;
                 let update = args::gen_updater(&fields, false)?;
                 (quote!( { #( #field_names, )* }), quote!( { #update } ))
             }

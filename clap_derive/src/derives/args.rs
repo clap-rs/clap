@@ -16,7 +16,7 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
-    Fields, Generics,
+    Fields, FieldsNamed, Generics,
 };
 
 use crate::item::{Item, Kind, Name};
@@ -32,14 +32,7 @@ pub fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
         }) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_args_struct(input, name)?;
-            let fields = fields
-                .named
-                .iter()
-                .map(|field| {
-                    let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
-                    Ok((field, item))
-                })
-                .collect::<Result<Vec<_>, syn::Error>>()?;
+            let fields = collect_args_fields(&item, fields)?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Struct(DataStruct {
@@ -739,4 +732,18 @@ pub fn raw_deprecated() -> TokenStream {
         #![allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
 
     }
+}
+
+pub fn collect_args_fields<'a>(
+    item: &'a Item,
+    fields: &'a FieldsNamed,
+) -> Result<Vec<(&'a Field, Item)>, syn::Error> {
+    fields
+        .named
+        .iter()
+        .map(|field| {
+            let item = Item::from_args_field(field, item.casing(), item.env_casing())?;
+            Ok((field, item))
+        })
+        .collect()
 }
