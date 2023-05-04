@@ -449,15 +449,12 @@ Usage: test [OPTIONS]
 Options:
       --possible-values <possible_values>
           Possible values:
-          - short_name:
-            Long enough help message, barely warrant wrapping
-          - second:
-            Short help gets handled the same
+          - short_name: Long enough help message, barely warrant wrapping
+          - second:     Short help gets handled the same
 
       --possible-values-with-new-line <possible_values_with_new_line>
           Possible values:
-          - long enough name to trigger new line:
-            Really long enough help message to clearly warrant
+          - long enough name to trigger new line:   Really long enough help message to clearly warrant
             wrapping believe me
           - second
 
