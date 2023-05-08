@@ -297,6 +297,20 @@
 //! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
 //!   - This gives the user some flexibility in designing their argument, like with `num_args(0..)`
 //!
+//! ### Positional bool
+//!
+//! Following is not allowed:
+//!
+//! ```rust,compile_fail
+//! use clap::Parser;
+//!
+//! #[derive(Parser, Debug)]
+//! struct RetardedArgs {
+//!     #[clap(value_parser)]
+//!     enabled: bool,
+//! }
+//! ```
+//!
 //! ## Doc Comments
 //!
 //! In clap, help messages for the whole binary can be specified

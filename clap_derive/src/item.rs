@@ -236,6 +236,46 @@ impl Item {
                     );
                 }
             }
+            Kind::Arg(ty) if ty.is_other() && res.is_positional() => {
+                if let syn::Type::Path(ty) = &field.ty {
+                    if let Some(path) = ty.path.segments.last() {
+                        if let syn::PathArguments::None = path.arguments {
+                            let is_action_set_override =
+                                parsed_attrs
+                                    .iter()
+                                    .any(|attr| match (&attr.magic, &attr.value) {
+                                        (
+                                            Some(MagicAttrName::Action),
+                                            Some(AttrValue::Expr(syn::Expr::Path(path))),
+                                        ) => {
+                                            let mut segments = path.path.segments.iter();
+                                            let first = segments.next();
+                                            let second = segments.next();
+                                            let third = segments.next();
+                                            match (first, second, third) {
+                                                (Some(first), Some(second), Some(third)) => {
+                                                    first.ident == "clap"
+                                                        && second.ident == "ArgAction"
+                                                        && third.ident == "Set"
+                                                }
+                                                (Some(first), Some(second), None) => {
+                                                    first.ident == "ArgAction"
+                                                        && second.ident == "Set"
+                                                }
+                                                (Some(first), None, None) => first.ident == "Set",
+                                                _ => false,
+                                            }
+                                        }
+                                        _ => false,
+                                    });
+
+                            if !is_action_set_override && path.ident == "bool" {
+                                abort!(field.span(), "positional boolean requires 'action = clap::ArgAction::Set'")
+                            }
+                        }
+                    }
+                }
+            }
             Kind::Skip(_, _)
             | Kind::FromGlobal(_)
             | Kind::Arg(_)

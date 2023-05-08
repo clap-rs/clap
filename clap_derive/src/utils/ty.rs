@@ -53,6 +53,11 @@ impl Ty {
             Self::Other => "...other...",
         }
     }
+
+    #[inline]
+    pub fn is_other(&self) -> bool {
+        matches!(self, Self::Other)
+    }
 }
 
 pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {
