@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- *(bash)* Respect `ValueHint::Other`
+
 ## [4.2.1] - 2023-04-21
 
 - *(zsh)* Improved escaping
