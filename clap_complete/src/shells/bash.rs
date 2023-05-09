@@ -206,6 +206,8 @@ fn vals_for(o: &Arg) -> String {
                 .collect::<Vec<_>>()
                 .join(" ")
         )
+    } else if o.get_value_hint() == ValueHint::Other {
+        String::from("\"${cur}\"")
     } else {
         String::from("$(compgen -f \"${cur}\")")
     }

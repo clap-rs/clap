@@ -34,7 +34,7 @@ _my-app() {
                     return 0
                     ;;
                 --other)
-                    COMPREPLY=($(compgen -f "${cur}"))
+                    COMPREPLY=("${cur}")
                     return 0
                     ;;
                 --path)
