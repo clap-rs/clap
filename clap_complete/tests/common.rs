@@ -275,6 +275,12 @@ pub fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
         )
 }
 
+pub fn subcommand_last(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(clap::Arg::new("free").last(true))
+        .subcommands([clap::Command::new("foo"), clap::Command::new("bar")])
+}
+
 pub fn assert_matches_path(
     expected_path: impl AsRef<std::path::Path>,
     gen: impl clap_complete::Generator,

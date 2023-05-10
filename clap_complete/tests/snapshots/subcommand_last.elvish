@@ -1,0 +1,48 @@
+
+use builtin;
+use str;
+
+set edit:completion:arg-completer[my-app] = {|@words|
+    fn spaces {|n|
+        builtin:repeat $n ' ' | str:join ''
+    }
+    fn cand {|text desc|
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
+    }
+    var command = 'my-app'
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
+            break
+        }
+        set command = $command';'$word
+    }
+    var completions = [
+        &'my-app'= {
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand foo 'foo'
+            cand bar 'bar'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'my-app;foo'= {
+            cand -h 'Print help'
+            cand --help 'Print help'
+        }
+        &'my-app;bar'= {
+            cand -h 'Print help'
+            cand --help 'Print help'
+        }
+        &'my-app;help'= {
+            cand foo 'foo'
+            cand bar 'bar'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'my-app;help;foo'= {
+        }
+        &'my-app;help;bar'= {
+        }
+        &'my-app;help;help'= {
+        }
+    ]
+    $completions[$command]
+}

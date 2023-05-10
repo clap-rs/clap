@@ -123,3 +123,15 @@ fn two_multi_valued_arguments() {
         name,
     );
 }
+
+#[test]
+fn subcommand_last() {
+    let name = "my-app";
+    let cmd = common::subcommand_last(name);
+    common::assert_matches_path(
+        "tests/snapshots/subcommand_last.bash",
+        clap_complete::shells::Bash,
+        cmd,
+        name,
+    );
+}

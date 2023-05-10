@@ -624,7 +624,9 @@ fn write_positionals_of(p: &Command) -> String {
         }
 
         let cardinality_value;
-        let cardinality = if is_multi_valued {
+        // If we have any subcommands, we'll emit a catch-all argument, so we shouldn't
+        // emit one here.
+        let cardinality = if is_multi_valued && !p.has_subcommands() {
             match arg.get_value_terminator() {
                 Some(terminator) => {
                     cardinality_value = format!("*{}:", escape_value(terminator));
