@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Avoid error when mixing multiple values with subcommands
+
 ## [4.2.2] - 2023-05-09
 
 - *(bash)* Respect `ValueHint::Other`
