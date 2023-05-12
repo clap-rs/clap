@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.2.3] - 2023-05-12
+
 ### Fixes
 
 - *(zsh)* Avoid error when mixing multiple values with subcommands
@@ -141,7 +143,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.2...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.3...HEAD
+[4.2.3]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.2...clap_complete-v4.2.3
 [4.2.2]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.1...clap_complete-v4.2.2
 [4.2.1]: https://github.com/clap-rs/clap/compare/clap_complete-v4.2.0...clap_complete-v4.2.1
 [4.2.0]: https://github.com/clap-rs/clap/compare/clap_complete-v4.1.6...clap_complete-v4.2.0
