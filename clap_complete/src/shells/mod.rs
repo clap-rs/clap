@@ -11,5 +11,5 @@ pub use bash::Bash;
 pub use elvish::Elvish;
 pub use fish::Fish;
 pub use powershell::PowerShell;
-pub use shell::Shell;
+pub use shell::{Shell, ShellIter};
 pub use zsh::Zsh;

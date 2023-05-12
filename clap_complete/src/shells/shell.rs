@@ -138,6 +138,29 @@ impl Shell {
             None
         }
     }
+
+    /// Return an iterator over all [`Shell`] variants
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use clap_complete::shells::Shell;
+    ///
+    /// let shells: Vec<_> = Shell::iter().collect();
+    /// assert_eq!(
+    ///     shells,
+    ///     [
+    ///         Shell::Bash,
+    ///         Shell::Elvish,
+    ///         Shell::Fish,
+    ///         Shell::PowerShell,
+    ///         Shell::Zsh,
+    ///     ]
+    /// );
+    /// ```
+    pub fn iter() -> ShellIter {
+        ShellIter::default()
+    }
 }
 
 // use a separate function to avoid having to monomorphize the entire function due
@@ -151,5 +174,44 @@ fn parse_shell_from_path(path: &Path) -> Option<Shell> {
         "elvish" => Some(Shell::Elvish),
         "powershell" | "powershell_ise" => Some(Shell::PowerShell),
         _ => None,
+    }
+}
+
+/// An iterator over all [`Shell`] variants
+///
+/// See [`Shell::iter()`] for more information
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct ShellIter {
+    next: Option<Shell>,
+}
+
+impl Default for ShellIter {
+    fn default() -> ShellIter {
+        ShellIter {
+            next: Some(Shell::Bash),
+        }
+    }
+}
+
+impl Iterator for ShellIter {
+    type Item = Shell;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = self.next.and_then(|to_return| match to_return {
+            Shell::Bash => Some(Shell::Elvish),
+            Shell::Elvish => Some(Shell::Fish),
+            Shell::Fish => Some(Shell::PowerShell),
+            Shell::PowerShell => Some(Shell::Zsh),
+            Shell::Zsh => None,
+        });
+
+        std::mem::replace(&mut self.next, next)
+    }
+}
+
+impl ShellIter {
+    /// Returns a new [`ShellIter`]
+    pub fn new() -> ShellIter {
+        ShellIter::default()
     }
 }
