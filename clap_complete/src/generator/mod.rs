@@ -162,6 +162,32 @@ pub trait Generator {
 ///
 /// **NOTE:** Please look at the individual [shells][crate::shells]
 /// to see the name of the files generated.
+///
+/// Using [`ValueEnum::value_variants()`][clap::ValueEnum::value_variants] you can easily loop over
+/// all the supported shell variants to generate all the completions at once too.
+///
+/// ```ignore
+/// use clap::ValueEnum;
+/// use clap_complete::{generate_to, Shell};
+/// use std::env;
+/// use std::io::Error;
+///
+/// include!("src/cli.rs");
+///
+/// fn main() -> Result<(), Error> {
+///     let outdir = match env::var_os("OUT_DIR") {
+///         None => return Ok(()),
+///         Some(outdir) => outdir,
+///     };
+///
+///     let mut cmd = build_cli();
+///     for &shell in Shell::value_variants() {
+///         generate_to(shell, &mut cmd, "myapp", outdir)?;
+///     }
+///
+///     Ok(())
+/// }
+/// ```
 pub fn generate_to<G, S, T>(
     gen: G,
     cmd: &mut Command,
