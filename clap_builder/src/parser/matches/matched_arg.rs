@@ -67,6 +67,10 @@ impl MatchedArg {
         self.indices.iter().cloned()
     }
 
+    pub(crate) fn num_indices(&self) -> usize {
+        self.indices.len()
+    }
+
     pub(crate) fn get_index(&self, index: usize) -> Option<usize> {
         self.indices.get(index).cloned()
     }

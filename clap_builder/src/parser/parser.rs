@@ -1024,6 +1024,12 @@ impl<'cmd> Parser<'cmd> {
     ) -> ClapResult<()> {
         debug!("Parser::push_arg_values: {raw_vals:?}");
 
+        // If there were no values, treat the arg like a flag
+        if raw_vals.is_empty() {
+            matcher.add_index_to(arg.get_id(), self.cur_idx.get());
+            return Ok(());
+        }
+
         for raw_val in raw_vals {
             // update the current index because each value is a distinct index to clap
             self.cur_idx.set(self.cur_idx.get() + 1);

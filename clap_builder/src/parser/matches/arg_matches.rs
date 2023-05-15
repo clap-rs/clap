@@ -834,7 +834,7 @@ impl ArgMatches {
         let arg = some!(self.get_arg(id));
         let i = Indices {
             iter: arg.indices(),
-            len: arg.num_vals(),
+            len: arg.num_indices(),
         };
         Some(i)
     }
