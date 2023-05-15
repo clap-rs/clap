@@ -238,6 +238,9 @@
 //! - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
 //!   - Without `<expr>`: fills the field with `Default::default()`
 //! - `default_value = <str>`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
+//!   - Sets the default by parsing a string, as if that string had been passed on the command line.
+//!   - For example, a value of `"123"` could be used with a `u32` arg, although `default_value_t = 123` would be a more idiomatic choice.
+//!   - This attribute is a good way to set the default value of a `String` arg.
 //! - `default_value_t [= <expr>]`: [`Arg::default_value`][crate::Arg::default_value] and [`Arg::required(false)`][crate::Arg::required]
 //!   - Requires `std::fmt::Display` that roundtrips correctly with the
 //!     [`Arg::value_parser`][crate::Arg::value_parser] or `#[arg(value_enum)]`
