@@ -145,7 +145,7 @@
 //!
 //! We've previously showed that arguments can be [`required`][crate::Arg::required] or optional.
 //! When optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
-//! set `#[arg(default_value_t)]`.
+//! set `#[arg(default_value_t)]` or one of the related attributes.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]
