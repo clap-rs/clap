@@ -2845,3 +2845,24 @@ fn display_name_subcommand_explicit() {
         Some("child.display")
     );
 }
+
+#[test]
+fn issue_4847_usage() {
+    static USAGE_WITH_GROUP: &str = "\
+Usage: deno [OPTIONS]
+
+Options:
+      --example <REQUIRED> [OPTIONAL]  issue 4847
+  -h, --help                           Print help
+";
+
+    let cmd = clap::Command::new("hello").bin_name("deno").arg(
+        Arg::new("example")
+            .long("example")
+            .num_args(1..=2)
+            .help("issue 4847")
+            .value_names(&["REQUIRED", "OPTIONAL"]),
+    );
+
+    utils::assert_output(cmd, "deno --help", USAGE_WITH_GROUP, false);
+}
