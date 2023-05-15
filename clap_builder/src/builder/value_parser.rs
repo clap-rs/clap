@@ -1162,7 +1162,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 pub struct PossibleValuesParser(Vec<super::PossibleValue>);
 
 impl PossibleValuesParser {
-    /// Verify the value is from an enumerated set pf [`PossibleValue`][crate::builder::PossibleValue].
+    /// Verify the value is from an enumerated set of [`PossibleValue`][crate::builder::PossibleValue].
     pub fn new(values: impl Into<PossibleValuesParser>) -> Self {
         values.into()
     }
