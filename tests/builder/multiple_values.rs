@@ -1082,10 +1082,8 @@ fn req_delimiter_complex() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "When using a positional argument with \
-`.num_args(1..)` that is *not the last* positional argument, the last \
-positional argument (i.e. the one with the highest index) *must* have \
-.required(true) or .last(true) set."]
+#[should_panic = "Positional argument `[target]` *must* have `required(true)` or `last(true)` set \
+because a prior positional argument (`<files>...`) has `num_args(1..)`"]
 fn low_index_positional_not_required() {
     let _ = Command::new("lip")
         .arg(
