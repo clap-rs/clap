@@ -1260,6 +1260,8 @@ impl Command {
 
     /// Disables the `help` [`subcommand`].
     ///
+    /// **NOTE:** This choice is propagated to all child subcommands.
+    ///
     /// # Examples
     ///
     /// ```rust
