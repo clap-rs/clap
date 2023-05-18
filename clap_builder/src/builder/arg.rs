@@ -1656,8 +1656,6 @@ impl Arg {
     /// at runtime, nor were the conditions met for `Arg::default_value_if`, the `Arg::default_value`
     /// will be applied.
     ///
-    /// **NOTE:** This implicitly sets [`Arg::action(ArgAction::Set)`].
-    ///
     /// # Examples
     ///
     /// First we use the default value without providing any value at runtime.
@@ -2737,8 +2735,6 @@ impl Arg {
     /// runtime **and** these other conditions are met as well. If you have set `Arg::default_value`
     /// and `Arg::default_value_if`, and the user **did not** provide this arg at runtime, nor were
     /// the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be applied.
-    ///
-    /// **NOTE:** This implicitly sets [`Arg::action(ArgAction::Set)`].
     ///
     /// # Examples
     ///
