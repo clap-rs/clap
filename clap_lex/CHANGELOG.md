@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.5.0] - 2023-05-19
+
 ### Breaking Change
 
 - Removed `OsStrExt::split_at`
@@ -75,7 +77,8 @@ MSRV changed to 1.64.0
 - Drop `memchr` dependency
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v0.4.1...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v0.5.0...HEAD
+[0.5.0]: https://github.com/clap-rs/clap/compare/clap_lex-v0.4.1...clap_lex-v0.5.0
 [0.4.1]: https://github.com/clap-rs/clap/compare/clap_lex-v0.4.0...clap_lex-v0.4.1
 [0.4.0]: https://github.com/clap-rs/clap/compare/clap_lex-v0.3.3...clap_lex-v0.4.0
 [0.3.3]: https://github.com/clap-rs/clap/compare/clap_lex-v0.3.2...clap_lex-v0.3.3
