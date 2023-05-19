@@ -1412,6 +1412,37 @@ fn multiple_vals_with_hyphen() {
 }
 
 #[test]
+#[should_panic]
+fn multiple_positional_multiple_values() {
+    let _ = Command::new("do")
+        .arg(
+            Arg::new("cmd1")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .allow_hyphen_values(true)
+                .value_terminator(";"),
+        )
+        .arg(
+            Arg::new("cmd2")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .allow_hyphen_values(true)
+                .value_terminator(";"),
+        )
+        .try_get_matches_from(vec![
+            "do",
+            "find",
+            "-type",
+            "f",
+            "-name",
+            "special",
+            ";",
+            "/home/clap",
+            "foo",
+        ]);
+}
+
+#[test]
 fn issue_1480_max_values_consumes_extra_arg_1() {
     let res = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
