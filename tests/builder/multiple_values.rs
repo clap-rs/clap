@@ -1447,16 +1447,13 @@ fn multiple_positional_multiple_values() {
         .unwrap()
         .map(|v| v.as_str())
         .collect();
-    assert_eq!(
-        &cmd1,
-        &["find", "-type", "f", "-name", "special", "/home/clap"]
-    );
+    assert_eq!(&cmd1, &["find", "-type", "f", "-name", "special"]);
     let cmd2: Vec<_> = m
         .get_many::<String>("cmd2")
         .unwrap()
         .map(|v| v.as_str())
         .collect();
-    assert_eq!(&cmd2, &["foo"]);
+    assert_eq!(&cmd2, &["/home/clap", "foo"]);
 }
 
 #[test]

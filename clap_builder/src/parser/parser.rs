@@ -372,26 +372,27 @@ impl<'cmd> Parser<'cmd> {
                 if matcher.pending_arg_id() != Some(arg.get_id()) || !arg.is_multiple_values_set() {
                     ok!(self.resolve_pending(matcher));
                 }
-                if let Some(_parse_result) = self.check_terminator(arg, arg_os.to_value_os()) {
-                    debug!(
-                        "Parser::get_matches_with: ignoring terminator result {_parse_result:?}"
-                    );
-                } else {
-                    let arg_values = matcher.pending_values_mut(
-                        arg.get_id(),
-                        Some(Identifier::Index),
-                        trailing_values,
-                    );
-                    arg_values.push(arg_os.to_value_os().to_owned());
-                }
+                parse_state =
+                    if let Some(parse_result) = self.check_terminator(arg, arg_os.to_value_os()) {
+                        debug_assert_eq!(parse_result, ParseResult::ValuesDone);
+                        pos_counter += 1;
+                        ParseState::ValuesDone
+                    } else {
+                        let arg_values = matcher.pending_values_mut(
+                            arg.get_id(),
+                            Some(Identifier::Index),
+                            trailing_values,
+                        );
+                        arg_values.push(arg_os.to_value_os().to_owned());
 
-                // Only increment the positional counter if it doesn't allow multiples
-                if !arg.is_multiple() {
-                    pos_counter += 1;
-                    parse_state = ParseState::ValuesDone;
-                } else {
-                    parse_state = ParseState::Pos(arg.get_id().clone());
-                }
+                        // Only increment the positional counter if it doesn't allow multiples
+                        if !arg.is_multiple() {
+                            pos_counter += 1;
+                            ParseState::ValuesDone
+                        } else {
+                            ParseState::Pos(arg.get_id().clone())
+                        }
+                    };
                 valid_arg_found = true;
             } else if let Some(external_parser) =
                 self.cmd.get_external_subcommand_value_parser().cloned()
