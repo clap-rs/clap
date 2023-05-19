@@ -1412,9 +1412,8 @@ fn multiple_vals_with_hyphen() {
 }
 
 #[test]
-#[should_panic]
 fn multiple_positional_multiple_values() {
-    let _ = Command::new("do")
+    let res = Command::new("do")
         .arg(
             Arg::new("cmd1")
                 .action(ArgAction::Set)
@@ -1440,6 +1439,24 @@ fn multiple_positional_multiple_values() {
             "/home/clap",
             "foo",
         ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+
+    let m = res.unwrap();
+    let cmd1: Vec<_> = m
+        .get_many::<String>("cmd1")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(
+        &cmd1,
+        &["find", "-type", "f", "-name", "special", "/home/clap"]
+    );
+    let cmd2: Vec<_> = m
+        .get_many::<String>("cmd2")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd2, &["foo"]);
 }
 
 #[test]
