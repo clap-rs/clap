@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(assert)* Allow multiple, value-terminated, positional arguments
+- *(assert)* Clear up language on `last` assertion
+- *(parser)* Correctly assign values to arguments when using multiple, value-termianted, positional arguments
+- *(parser)* Ensure `value_terminator` has higher precedence than `allow_hyphen_values`
+- *(help)* Only use next-line-help on subcommand list when explicitly specified, not just with `--help`
+- *(help)* Correctly align possible values list
+- *(help)* Don't waste code, vertical space in moving possible value descriptions to next line
+
 ## [4.2.7] - 2023-05-02
 
 ### Fixes
