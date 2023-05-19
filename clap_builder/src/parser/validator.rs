@@ -136,8 +136,9 @@ impl<'cmd> Validator<'cmd> {
                     // Find `arg`s which are exclusive but also appear with other args.
                     .filter(|&arg| arg.is_exclusive_set() && args_count > 1)
             })
-            // Throw an error for the first conflict found.
-            .try_for_each(|arg| {
+            .next()
+            .map(|arg| {
+                // Throw an error for the first conflict found.
                 Err(Error::argument_conflict(
                     self.cmd,
                     arg.to_string(),
@@ -147,6 +148,7 @@ impl<'cmd> Validator<'cmd> {
                         .create_usage_with_title(&[]),
                 ))
             })
+            .unwrap_or(Ok(()))
     }
 
     fn build_conflict_err(
