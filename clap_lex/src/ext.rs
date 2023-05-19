@@ -162,39 +162,6 @@ pub trait OsStrExt: private::Sealed {
     ///
     /// [`split_whitespace`]: str::split_whitespace
     fn split<'s, 'n>(&'s self, needle: &'n str) -> Split<'s, 'n>;
-    /// Divide one string slice into two at an index.
-    ///
-    /// The argument, `mid`, should be a byte offset from the start of the
-    /// string. It must also be on the boundary of a UTF-8 code point.
-    ///
-    /// The two slices returned go from the start of the string slice to `mid`,
-    /// and from `mid` to the end of the string slice.
-    ///
-    /// To get mutable string slices instead, see the [`split_at_mut`]
-    /// method.
-    ///
-    /// [`split_at_mut`]: str::split_at_mut
-    ///
-    /// # Panics
-    ///
-    /// Panics if `mid` is not on a UTF-8 code point boundary, or if it is
-    /// past the end of the last code point of the string slice.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// use clap_lex::OsStrExt as _;
-    /// let s = std::ffi::OsStr::new("Per Martin-Löf");
-    ///
-    /// let (first, last) = s.split_at(3);
-    ///
-    /// assert_eq!("Per", first);
-    /// assert_eq!(" Martin-Löf", last);
-    /// ```
-    #[deprecated(since = "4.1.0", note = "This is not sound for all `index`")]
-    fn split_at(&self, index: usize) -> (&OsStr, &OsStr);
     /// Splits the string on the first occurrence of the specified delimiter and
     /// returns prefix before delimiter and suffix after delimiter.
     ///
@@ -246,15 +213,6 @@ impl OsStrExt for OsStr {
         Split {
             haystack: Some(self),
             needle,
-        }
-    }
-
-    fn split_at(&self, index: usize) -> (&OsStr, &OsStr) {
-        let bytes = to_bytes(self);
-        unsafe {
-            // BUG: This is unsafe and has been deprecated
-            let (first, second) = bytes.split_at(index);
-            (to_os_str_unchecked(first), to_os_str_unchecked(second))
         }
     }
 
