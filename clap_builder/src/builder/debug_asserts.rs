@@ -603,6 +603,7 @@ fn _verify_positionals(cmd: &Command) -> bool {
             .get_positionals()
             .filter(|p| {
                 p.is_multiple_values_set()
+                    && p.get_value_terminator().is_none()
                     && !p.get_num_args().expect(INTERNAL_ERROR_MSG).is_fixed()
             })
             .count();
