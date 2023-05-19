@@ -1457,6 +1457,96 @@ fn multiple_positional_multiple_values() {
 }
 
 #[test]
+fn value_terminator_has_higher_precedence_than_allow_hyphen_values() {
+    let res = Command::new("do")
+        .arg(
+            Arg::new("cmd1")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .allow_hyphen_values(true)
+                .value_terminator("--foo"),
+        )
+        .arg(
+            Arg::new("cmd2")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .allow_hyphen_values(true)
+                .value_terminator(";"),
+        )
+        .try_get_matches_from(vec![
+            "do",
+            "find",
+            "-type",
+            "f",
+            "-name",
+            "special",
+            "--foo",
+            "/home/clap",
+            "foo",
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+
+    let m = res.unwrap();
+    let cmd1: Vec<_> = m
+        .get_many::<String>("cmd1")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd1, &["find", "-type", "f", "-name", "special"]);
+    let cmd2: Vec<_> = m
+        .get_many::<String>("cmd2")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd2, &["/home/clap", "foo"]);
+}
+
+#[test]
+fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
+    let res = Command::new("do")
+        .arg(
+            Arg::new("cmd1")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .allow_hyphen_values(true)
+                .value_terminator("--"),
+        )
+        .arg(
+            Arg::new("cmd2")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .allow_hyphen_values(true)
+                .value_terminator(";"),
+        )
+        .try_get_matches_from(vec![
+            "do",
+            "find",
+            "-type",
+            "f",
+            "-name",
+            "special",
+            "--",
+            "/home/clap",
+            "foo",
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+
+    let m = res.unwrap();
+    let cmd1: Vec<_> = m
+        .get_many::<String>("cmd1")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd1, &["find", "-type", "f", "-name", "special"]);
+    let cmd2: Vec<_> = m
+        .get_many::<String>("cmd2")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd2, &["/home/clap", "foo"]);
+}
+
+#[test]
 fn issue_1480_max_values_consumes_extra_arg_1() {
     let res = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
