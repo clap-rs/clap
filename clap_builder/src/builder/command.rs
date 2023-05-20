@@ -297,6 +297,42 @@ impl Command {
         self
     }
 
+    /// Allows one to remove a [`Command`] after it's been added as a subcommand.
+    ///
+    /// # Panics
+    ///
+    /// If the subcommand is undefined
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::Command;
+    ///
+    /// let mut cmd = Command::new("foo")
+    ///         .subcommand(Command::new("bar"))
+    ///         .remove_subcommand("bar");
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec!["foo", "bar"]);
+    ///
+    /// // Since we removed the "bar" subcommand, this should err.
+    ///
+    /// assert!(res.is_err());
+    /// ```
+    #[must_use]
+    pub fn remove_subcommand(mut self, name: impl AsRef<str>) -> Self {
+        let name = name.as_ref();
+        let pos = self.subcommands.iter().position(|s| s.name == name);
+
+        if let Some(idx) = pos {
+            self.subcommands.remove(idx);
+        } else {
+            panic!("Command `{name}` is undefined");
+        }
+
+        self
+    }
+
     /// Adds an [`ArgGroup`] to the application.
     ///
     /// [`ArgGroup`]s are a family of related arguments.
