@@ -19,7 +19,8 @@ def generate_preamble [user: string, repo: string] {
 Generates [Nushell]\((generate_url $github nushell/nushell)\) completions for [`clap`]\((generate_url $github clap-rs/clap)\) based CLIs\n
 [![Crates.io]\((generate_url $baseurl crates/v $repo)\)]\((generate_url $crates crates $repo)\)
 [![Crates.io]\((generate_url $baseurl crates/d $repo)\)]\((generate_url $crates crates $repo)\)
-[![License]\((generate_url $baseurl github/license $user)/(generate_url $repo)\)]\(LICENSE\)
+[![License]\(https://img.shields.io/badge/license-Apache%202.0-blue\)]\(LICENSE-APACHE\)
+[![License]\(https://img.shields.io/badge/license-MIT-blue\)]\(LICENSE-MIT\)
 [![docs.rs]\((generate_url $baseurl docsrs $repo)\)]\((generate_url $docs $repo)\)
 [![Build Status]\((generate_url $baseurl github/actions/workflow/status $user $repo ci.yml)\)]\((generate_url $github $user $repo actions/workflows/ci.yml?query=branch%3A($branch))\)
 [![GitHub last commit]\((generate_url $baseurl github/last-commit $user $repo)\)]\((generate_url $github $user $repo commits/($branch))\)\n\n"

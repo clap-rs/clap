@@ -4,7 +4,8 @@ Generates [Nushell](https://github.com/nushell/nushell) completions for [`clap`]
 
 [![Crates.io](https://img.shields.io/crates/v/clap_complete_nushell)](https://crates.io/crates/clap_complete_nushell)
 [![Crates.io](https://img.shields.io/crates/d/clap_complete_nushell)](https://crates.io/crates/clap_complete_nushell)
-[![License](https://img.shields.io/github/license/nibon7/clap_complete_nushell)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE-APACHE)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE-MIT)
 [![docs.rs](https://img.shields.io/docsrs/clap_complete_nushell)](https://docs.rs/clap_complete_nushell)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/nibon7/clap_complete_nushell/ci.yml)](https://github.com/nibon7/clap_complete_nushell/actions/workflows/ci.yml?query=branch%3Amain)
 [![GitHub last commit](https://img.shields.io/github/last-commit/nibon7/clap_complete_nushell)](https://github.com/nibon7/clap_complete_nushell/commits/main)
