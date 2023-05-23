@@ -141,7 +141,7 @@
 //!
 //! **Magic attributes:**
 //! - `name  = <expr>`: [`Command::name`][crate::Command::name]
-//!   - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (if on [`Parser`][crate::Parser] container), variant name (if on [`Subcommand`][crate::Subcommand] variant)
+//!   - When not present: [package `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (if on [`Parser`][crate::Parser] container), variant name (if on [`Subcommand`][crate::Subcommand] variant)
 //! - `version [= <expr>]`: [`Command::version`][crate::Command::version]
 //!   - When not present: no version set
 //!   - Without `<expr>`: defaults to [crate `version`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-version-field)
