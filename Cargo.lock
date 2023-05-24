@@ -552,7 +552,7 @@ dependencies = [
 
 [[package]]
 name = "clap_complete_nushell"
-version = "0.1.11"
+version = "4.3.0"
 dependencies = [
  "clap 4.3.0",
  "clap_complete",
