@@ -36,7 +36,7 @@ roff = "0.2.1"
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "env"] }
 
 [dev-dependencies]
-snapbox = { version = "0.4.10", features = ["diff"] }
+snapbox = { version = "0.4.11", features = ["diff"] }
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
 
 [features]

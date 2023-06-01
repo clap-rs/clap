@@ -106,12 +106,12 @@ clap_derive = { path = "./clap_derive", version = "=4.3.0", optional = true }
 once_cell = { version = "1.12.0", optional = true }
 
 [dev-dependencies]
-trybuild = "1.0.77"
+trybuild = "1.0.80"
 rustversion = "1.0.12"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.14.15", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.14.16", default-features = false, features = ["color-auto", "diff", "examples"] }
 humantime = "2.1.0"
-snapbox = "0.4.10"
+snapbox = "0.4.11"
 shlex = "1.1.0"
 static_assertions = "1.1.0"
 unic-emoji-char = "0.9.0"

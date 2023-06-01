@@ -35,7 +35,7 @@ clap = { path = "../", version = "4.0.0", default-features = false, features = [
 clap_complete = { path = "../clap_complete", version = "4.0.0" }
 
 [dev-dependencies]
-snapbox = { version = "0.4.10", features = ["diff"] }
+snapbox = { version = "0.4.11", features = ["diff"] }
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
 nu-cli = "0.78.0"
 nu-command = "0.78.0"
