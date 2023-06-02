@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- *(derive)* Reduce the amount of generated code
+
 ## [4.3.0] - 2023-05-19
 
 ### Fixes
