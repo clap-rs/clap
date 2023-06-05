@@ -86,7 +86,13 @@ pub fn gen_for_struct(
     };
 
     Ok(quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,
@@ -122,7 +128,13 @@ pub fn gen_for_struct(
             }
         }
 
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,

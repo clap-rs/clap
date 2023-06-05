@@ -29,7 +29,13 @@ pub fn gen_for_struct(
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     let tokens = quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,
@@ -70,7 +76,13 @@ pub fn gen_for_enum(
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     Ok(quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,

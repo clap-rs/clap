@@ -51,7 +51,13 @@ pub fn gen_for_enum(
     let to_possible_value = gen_to_possible_value(item, &lits);
 
     Ok(quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,

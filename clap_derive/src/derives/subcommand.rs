@@ -66,7 +66,13 @@ pub fn gen_for_enum(
     let has_subcommand = gen_has_subcommand(variants)?;
 
     Ok(quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,
@@ -93,7 +99,13 @@ pub fn gen_for_enum(
             #update_from_arg_matches
         }
 
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,

@@ -87,6 +87,9 @@ fn gen_for_struct(
 
     Ok(quote! {
         #[automatically_derived]
+        #[allow(
+            unused_qualifications,
+        )]
         impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app

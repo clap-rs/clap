@@ -12,6 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+#![deny(unused_qualifications)]
 #![deny(warnings)]
 
 use clap::Parser;
@@ -50,4 +51,17 @@ fn warning_never_enum() {
         },
         Opt::try_parse_from(["test", "foo", "foo"]).unwrap()
     );
+}
+
+#[test]
+fn warning_unused_qualifications() {
+    // This causes `clap::Args` within the derive to be unused qualifications
+    use clap::Args;
+
+    #[derive(Args, Clone, Copy, Debug, Default)]
+    #[group(skip)]
+    pub struct Compose<L: Args> {
+        #[command(flatten)]
+        pub left: L,
+    }
 }
