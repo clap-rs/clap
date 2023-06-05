@@ -100,6 +100,11 @@ pub use clap_builder::*;
 #[doc(hidden)]
 pub use clap_derive::{self, *};
 
+#[cfg(feature = "complete")]
+pub mod complete {
+    pub use clap_complete::*;
+}
+
 #[cfg(feature = "unstable-doc")]
 pub mod _cookbook;
 #[cfg(feature = "unstable-doc")]

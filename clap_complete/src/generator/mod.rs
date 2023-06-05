@@ -8,7 +8,7 @@ use std::io::Error;
 use std::io::Write;
 use std::path::PathBuf;
 
-use clap::Command;
+use clap_builder::Command;
 
 /// Generator trait which can be used to write generators
 pub trait Generator {

@@ -1,7 +1,7 @@
 use std::io::Write;
 
-use clap::builder::StyledStr;
-use clap::*;
+use clap_builder::builder::StyledStr;
+use clap_builder::*;
 
 use crate::generator::{utils, Generator};
 use crate::INTERNAL_ERROR_MSG;

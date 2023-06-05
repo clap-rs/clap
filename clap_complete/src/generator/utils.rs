@@ -1,6 +1,6 @@
 //! Helpers for writing generators
 
-use clap::{Arg, Command};
+use clap_builder::{Arg, Command};
 
 /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.
 ///
@@ -120,7 +120,7 @@ pub fn flags(p: &Command) -> Vec<Arg> {
 }
 
 /// Get the possible values for completion
-pub fn possible_values(a: &Arg) -> Option<Vec<clap::builder::PossibleValue>> {
+pub fn possible_values(a: &Arg) -> Option<Vec<clap_builder::builder::PossibleValue>> {
     if !a.get_num_args().expect("built").takes_values() {
         None
     } else {
@@ -133,8 +133,8 @@ pub fn possible_values(a: &Arg) -> Option<Vec<clap::builder::PossibleValue>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use clap::Arg;
-    use clap::ArgAction;
+    use clap_builder::Arg;
+    use clap_builder::ArgAction;
 
     fn common_app() -> Command {
         Command::new("myapp")

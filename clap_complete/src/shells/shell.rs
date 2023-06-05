@@ -2,8 +2,8 @@ use std::fmt::Display;
 use std::path::Path;
 use std::str::FromStr;
 
-use clap::builder::PossibleValue;
-use clap::ValueEnum;
+use clap_builder::builder::PossibleValue;
+use clap_builder::ValueEnum;
 
 use crate::shells;
 use crate::Generator;
@@ -80,7 +80,7 @@ impl Generator for Shell {
         }
     }
 
-    fn generate(&self, cmd: &clap::Command, buf: &mut dyn std::io::Write) {
+    fn generate(&self, cmd: &clap_builder::Command, buf: &mut dyn std::io::Write) {
         match self {
             Shell::Bash => shells::Bash.generate(cmd, buf),
             Shell::Elvish => shells::Elvish.generate(cmd, buf),

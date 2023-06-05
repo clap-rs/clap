@@ -1,6 +1,6 @@
 use std::{fmt::Write as _, io::Write};
 
-use clap::*;
+use clap_builder::*;
 
 use crate::generator::{utils, Generator};
 

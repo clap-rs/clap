@@ -6,10 +6,12 @@ pub mod bash {
     use std::ffi::OsString;
     use std::io::Write;
 
+    use clap_builder as clap;
+    use clap_derive::{self, *};
     use clap_lex::OsStrExt as _;
     use unicode_xid::UnicodeXID;
 
-    #[derive(clap::Subcommand)]
+    #[derive(clap_derive::Subcommand)]
     #[command(hide = true)]
     #[allow(missing_docs)]
     #[derive(Clone, Debug)]
@@ -18,8 +20,8 @@ pub mod bash {
         Complete(CompleteArgs),
     }
 
-    #[derive(clap::Args)]
-    #[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
+    #[derive(Args)]
+    #[command(group = clap_builder::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
     #[allow(missing_docs)]
     #[derive(Clone, Debug)]
     pub struct CompleteArgs {
@@ -64,13 +66,16 @@ pub mod bash {
 
     impl CompleteCommand {
         /// Process the completion request
-        pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
+        pub fn complete(&self, cmd: &mut clap_builder::Command) -> std::convert::Infallible {
             self.try_complete(cmd).unwrap_or_else(|e| e.exit());
             std::process::exit(0)
         }
 
         /// Process the completion request
-        pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
+        pub fn try_complete(
+            &self,
+            cmd: &mut clap_builder::Command,
+        ) -> clap_builder::error::Result<()> {
             debug!("CompleteCommand::try_complete: {self:?}");
             let CompleteCommand::Complete(args) = self;
             if let Some(out_path) = args.register.as_deref() {
@@ -220,7 +225,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         Menu,
     }
 
-    impl clap::ValueEnum for CompType {
+    impl clap_builder::ValueEnum for CompType {
         fn value_variants<'a>() -> &'a [Self] {
             &[
                 Self::Normal,
@@ -230,13 +235,13 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 Self::Menu,
             ]
         }
-        fn to_possible_value(&self) -> ::std::option::Option<clap::builder::PossibleValue> {
+        fn to_possible_value(&self) -> ::std::option::Option<clap_builder::builder::PossibleValue> {
             match self {
                 Self::Normal => {
                     let value = "9";
                     debug_assert_eq!(b'\t'.to_string(), value);
                     Some(
-                        clap::builder::PossibleValue::new(value)
+                        clap_builder::builder::PossibleValue::new(value)
                             .alias("normal")
                             .help("Normal completion"),
                     )
@@ -245,7 +250,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "63";
                     debug_assert_eq!(b'?'.to_string(), value);
                     Some(
-                        clap::builder::PossibleValue::new(value)
+                        clap_builder::builder::PossibleValue::new(value)
                             .alias("successive")
                             .help("List completions after successive tabs"),
                     )
@@ -254,7 +259,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "33";
                     debug_assert_eq!(b'!'.to_string(), value);
                     Some(
-                        clap::builder::PossibleValue::new(value)
+                        clap_builder::builder::PossibleValue::new(value)
                             .alias("alternatives")
                             .help("List alternatives on partial word completion"),
                     )
@@ -263,7 +268,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "64";
                     debug_assert_eq!(b'@'.to_string(), value);
                     Some(
-                        clap::builder::PossibleValue::new(value)
+                        clap_builder::builder::PossibleValue::new(value)
                             .alias("unmodified")
                             .help("List completions if the word is not unmodified"),
                     )
@@ -272,7 +277,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                     let value = "37";
                     debug_assert_eq!(b'%'.to_string(), value);
                     Some(
-                        clap::builder::PossibleValue::new(value)
+                        clap_builder::builder::PossibleValue::new(value)
                             .alias("menu")
                             .help("Menu completion"),
                     )
@@ -289,7 +294,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
     /// Complete the command specified
     pub fn complete(
-        cmd: &mut clap::Command,
+        cmd: &mut clap_builder::Command,
         args: Vec<std::ffi::OsString>,
         arg_index: usize,
         _comp_type: CompType,
@@ -350,7 +355,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
     fn complete_arg(
         arg: &clap_lex::ParsedArg<'_>,
-        cmd: &clap::Command,
+        cmd: &clap_builder::Command,
         current_dir: Option<&std::path::Path>,
         pos_index: usize,
         is_escaped: bool,
@@ -426,7 +431,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 
     fn complete_arg_value(
         value: Result<&str, &OsStr>,
-        arg: &clap::Arg,
+        arg: &clap_builder::Arg,
         current_dir: Option<&std::path::Path>,
     ) -> Vec<OsString> {
         let mut values = Vec::new();
@@ -445,29 +450,29 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
                 Err(value_os) => value_os,
             };
             match arg.get_value_hint() {
-                clap::ValueHint::Other => {
+                clap_builder::ValueHint::Other => {
                     // Should not complete
                 }
-                clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
+                clap_builder::ValueHint::Unknown | clap_builder::ValueHint::AnyPath => {
                     values.extend(complete_path(value_os, current_dir, |_| true));
                 }
-                clap::ValueHint::FilePath => {
+                clap_builder::ValueHint::FilePath => {
                     values.extend(complete_path(value_os, current_dir, |p| p.is_file()));
                 }
-                clap::ValueHint::DirPath => {
+                clap_builder::ValueHint::DirPath => {
                     values.extend(complete_path(value_os, current_dir, |p| p.is_dir()));
                 }
-                clap::ValueHint::ExecutablePath => {
+                clap_builder::ValueHint::ExecutablePath => {
                     use is_executable::IsExecutable;
                     values.extend(complete_path(value_os, current_dir, |p| p.is_executable()));
                 }
-                clap::ValueHint::CommandName
-                | clap::ValueHint::CommandString
-                | clap::ValueHint::CommandWithArguments
-                | clap::ValueHint::Username
-                | clap::ValueHint::Hostname
-                | clap::ValueHint::Url
-                | clap::ValueHint::EmailAddress => {
+                clap_builder::ValueHint::CommandName
+                | clap_builder::ValueHint::CommandString
+                | clap_builder::ValueHint::CommandWithArguments
+                | clap_builder::ValueHint::Username
+                | clap_builder::ValueHint::Hostname
+                | clap_builder::ValueHint::Url
+                | clap_builder::ValueHint::EmailAddress => {
                     // No completion implementation
                 }
                 _ => {
@@ -530,7 +535,7 @@ complete OPTIONS -F _clap_complete_NAME EXECUTABLES
         completions
     }
 
-    fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<OsString> {
+    fn complete_subcommand(value: &str, cmd: &clap_builder::Command) -> Vec<OsString> {
         debug!(
             "complete_subcommand: cmd={:?}, value={:?}",
             cmd.get_name(),

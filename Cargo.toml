@@ -92,6 +92,7 @@ wrap_help = ["clap_builder/wrap_help"]
 env = ["clap_builder/env"] # Use environment variables during arg parsing
 unicode = ["clap_builder/unicode"]  # Support for unicode characters in arguments and help messages
 string = ["clap_builder/string"]  # Allow runtime generated strings
+complete = ["dep:clap_complete"]
 
 # In-work features
 unstable-v5 = ["clap_builder/unstable-v5", "clap_derive?/unstable-v5", "deprecated"]
@@ -103,6 +104,7 @@ bench = false
 [dependencies]
 clap_builder = { path = "./clap_builder", version = "=4.3.1", default-features = false }
 clap_derive = { path = "./clap_derive", version = "=4.3.1", optional = true }
+clap_complete = { path = "./clap_complete", version = "=4.3.1", optional = true }
 once_cell = { version = "1.12.0", optional = true }
 
 [dev-dependencies]
