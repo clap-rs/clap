@@ -29,7 +29,13 @@ pub fn gen_for_struct(
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     let tokens = quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,
@@ -42,6 +48,7 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
         )]
+        #[automatically_derived]
         impl #impl_generics clap::CommandFactory for #item_name #ty_generics #where_clause {
             fn command<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name);
@@ -69,7 +76,13 @@ pub fn gen_for_enum(
     let app_var = Ident::new("__clap_app", Span::call_site());
 
     Ok(quote! {
-        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
         #[allow(
             clippy::style,
             clippy::complexity,
@@ -82,6 +95,7 @@ pub fn gen_for_enum(
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
         )]
+        #[automatically_derived]
         impl #impl_generics clap::CommandFactory for #item_name #ty_generics #where_clause {
             fn command<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name)

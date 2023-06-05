@@ -86,6 +86,10 @@ fn gen_for_struct(
     let args = args::gen_for_struct(item, item_name, generics, fields)?;
 
     Ok(quote! {
+        #[automatically_derived]
+        #[allow(
+            unused_qualifications,
+        )]
         impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app
@@ -105,6 +109,7 @@ fn gen_for_enum(
     let subcommand = subcommand::gen_for_enum(item, item_name, generics, variants)?;
 
     Ok(quote! {
+        #[automatically_derived]
         impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
 
         #into_app
