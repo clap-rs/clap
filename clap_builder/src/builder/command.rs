@@ -4030,7 +4030,7 @@ impl Command {
             }
             .to_owned();
 
-            for mut sc in &mut self.subcommands {
+            for sc in &mut self.subcommands {
                 debug!("Command::_build_bin_names:iter: bin_name set...");
 
                 if sc.usage_name.is_none() {
