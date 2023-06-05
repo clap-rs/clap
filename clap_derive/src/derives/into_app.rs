@@ -42,6 +42,7 @@ pub fn gen_for_struct(
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
         )]
+        #[automatically_derived]
         impl #impl_generics clap::CommandFactory for #item_name #ty_generics #where_clause {
             fn command<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name);
@@ -82,6 +83,7 @@ pub fn gen_for_enum(
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
         )]
+        #[automatically_derived]
         impl #impl_generics clap::CommandFactory for #item_name #ty_generics #where_clause {
             fn command<'b>() -> clap::Command {
                 let #app_var = clap::Command::new(#name)
