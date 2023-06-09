@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `Command::defer` for delayed initialization of subcommands to reduce startup times of large applications like deno
+
 ## [4.3.2] - 2023-06-05
 
 ### Fixes
