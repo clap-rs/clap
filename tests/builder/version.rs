@@ -19,7 +19,7 @@ fn with_both() -> Command {
 }
 
 fn with_subcommand() -> Command {
-    with_version().subcommand(Command::new("bar").subcommand(Command::new("baz")))
+    with_version().subcommand(Command::new("bar").defer(|cmd| cmd.subcommand(Command::new("baz"))))
 }
 
 #[test]
