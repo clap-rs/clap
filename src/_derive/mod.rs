@@ -482,7 +482,7 @@
 //!   [`Parser`][crate::Parser])
 //! - Proactively check for bad [`Command`][crate::Command] configurations by calling
 //!   [`Command::debug_assert`][crate::Command::debug_assert] in a test
-//!   ([example](../tutorial_derive/05_01_assert.rs))
+//!   ([example][_tutorial#testing])
 //! - Always remember to [document](#doc-comments) args and commands with `#![deny(missing_docs)]`
 
 pub mod _tutorial;
