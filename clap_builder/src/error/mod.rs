@@ -214,21 +214,26 @@ impl<F: ErrorFormatter> Error<F> {
         }
     }
 
+    /// Returns the exit code that `.exit` will exit the process with.
+    ///
+    /// When the error's kind would print to `stderr` this returns `2`,
+    /// else it returns `0`.
+    pub fn exit_code(&self) -> i32 {
+        if self.use_stderr() {
+            USAGE_CODE
+        } else {
+            SUCCESS_CODE
+        }
+    }
+
     /// Prints the error and exits.
     ///
     /// Depending on the error kind, this either prints to `stderr` and exits with a status of `2`
     /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
-        if self.use_stderr() {
-            // Swallow broken pipe errors
-            let _ = self.print();
-
-            safe_exit(USAGE_CODE);
-        }
-
         // Swallow broken pipe errors
         let _ = self.print();
-        safe_exit(SUCCESS_CODE)
+        safe_exit(self.exit_code())
     }
 
     /// Prints formatted and colored error to `stdout` or `stderr` according to its error kind
