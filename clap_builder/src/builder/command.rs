@@ -2598,13 +2598,13 @@ impl Command {
 
     /// Set the placement of this subcommand within the help.
     ///
-    /// Subcommands with a lower value will be displayed first in the help message.  Subcommands
-    /// with duplicate display orders will be displayed in order they are defined.
+    /// Subcommands with a lower value will be displayed first in the help message.
+    /// Those with the same display order will be sorted.
     ///
-    /// This is helpful when one would like to emphasize frequently used subcommands, or prioritize
-    /// those towards the top of the list.
-    ///
-    /// **NOTE:** The default is 999 for all subcommands.
+    /// `Command`s are automatically assigned a display order based on the order they are added to
+    /// their parent [`Command`].
+    /// Overriding this is helpful when the order commands are added in isn't the same as the
+    /// display order, whether in one-off cases or to automatically sort commands.
     ///
     /// # Examples
     ///
@@ -2613,17 +2613,11 @@ impl Command {
     /// # use clap_builder as clap;
     /// # use clap::{Command, };
     /// let m = Command::new("cust-ord")
-    ///     .subcommand(Command::new("alpha") // typically subcommands are grouped
-    ///                                                // alphabetically by name. Subcommands
-    ///                                                // without a display_order have a value of
-    ///                                                // 999 and are displayed alphabetically with
-    ///                                                // all other 999 subcommands
-    ///         .about("Some help and text"))
     ///     .subcommand(Command::new("beta")
-    ///         .display_order(1)   // In order to force this subcommand to appear *first*
-    ///                             // all we have to do is give it a value lower than 999.
-    ///                             // Any other subcommands with a value of 1 will be displayed
-    ///                             // alphabetically with this one...then 2 values, then 3, etc.
+    ///         .display_order(0)  // Sort
+    ///         .about("Some help and text"))
+    ///     .subcommand(Command::new("alpha")
+    ///         .display_order(0)  // Sort
     ///         .about("I should be first!"))
     ///     .get_matches_from(vec![
     ///         "cust-ord", "--help"
@@ -2639,8 +2633,9 @@ impl Command {
     /// Usage: cust-ord [OPTIONS]
     ///
     /// Commands:
-    ///     beta    I should be first!
-    ///     alpha   Some help and text
+    ///     alpha    I should be first!
+    ///     beta     Some help and text
+    ///     help     Print help for the subcommand(s)
     ///
     /// Options:
     ///     -h, --help       Print help

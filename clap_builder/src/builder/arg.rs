@@ -2175,12 +2175,15 @@ impl Arg {
 
     /// Allows custom ordering of args within the help message.
     ///
-    /// Args with a lower value will be displayed first in the help message. This is helpful when
-    /// one would like to emphasise frequently used args, or prioritize those towards the top of
-    /// the list. Args with duplicate display orders will be displayed in the order they are
-    /// defined.
+    /// `Arg`s with a lower value will be displayed first in the help message.
+    /// Those with the same display order will be sorted.
     ///
-    /// **NOTE:** The default is 999 for all arguments.
+    /// `Arg`s are automatically assigned a display order based on the order they are added to the
+    /// [`Command`][crate::Command].
+    /// Overriding this is helpful when the order arguments are added in isn't the same as the
+    /// display order, whether in one-off cases or to automatically sort arguments.
+    ///
+    /// To change, see [`Command::next_display_order`][crate::Command::next_display_order].
     ///
     /// **NOTE:** This setting is ignored for [positional arguments] which are always displayed in
     /// [index] order.
@@ -2192,22 +2195,23 @@ impl Arg {
     /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
     /// let m = Command::new("prog")
-    ///     .arg(Arg::new("a") // Typically args are grouped alphabetically by name.
-    ///                              // Args without a display_order have a value of 999 and are
-    ///                              // displayed alphabetically with all other 999 valued args.
-    ///         .long("long-option")
-    ///         .short('o')
+    ///     .arg(Arg::new("boat")
+    ///         .short('b')
+    ///         .long("boat")
     ///         .action(ArgAction::Set)
+    ///         .display_order(0)  // Sort
     ///         .help("Some help and text"))
-    ///     .arg(Arg::new("b")
-    ///         .long("other-option")
-    ///         .short('O')
+    ///     .arg(Arg::new("airplane")
+    ///         .short('a')
+    ///         .long("airplane")
     ///         .action(ArgAction::Set)
-    ///         .display_order(1)   // In order to force this arg to appear *first*
-    ///                             // all we have to do is give it a value lower than 999.
-    ///                             // Any other args with a value of 1 will be displayed
-    ///                             // alphabetically with this one...then 2 values, then 3, etc.
+    ///         .display_order(0)  // Sort
     ///         .help("I should be first!"))
+    ///     .arg(Arg::new("custom-help")
+    ///         .short('?')
+    ///         .action(ArgAction::Help)
+    ///         .display_order(100)  // Don't sort
+    ///         .help("Alt help"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -2222,10 +2226,10 @@ impl Arg {
     /// Usage: cust-ord [OPTIONS]
     ///
     /// Options:
-    ///     -h, --help                Print help information
-    ///     -V, --version             Print version information
-    ///     -O, --other-option <b>    I should be first!
-    ///     -o, --long-option <a>     Some help and text
+    ///     -a, --airplane <airplane>    I should be first!
+    ///     -b, --boat <boar>            Some help and text
+    ///     -h, --help                   Print help information
+    ///     -?                           Alt help
     /// ```
     /// [positional arguments]: Arg::index()
     /// [index]: Arg::index()
