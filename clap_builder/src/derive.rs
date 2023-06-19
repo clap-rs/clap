@@ -71,34 +71,6 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         let mut matches = ok!(<Self as CommandFactory>::command().try_get_matches_from(itr));
         <Self as FromArgMatches>::from_arg_matches_mut(&mut matches).map_err(format_error::<Self>)
     }
-
-    /// Update from iterator, exit on error
-    fn update_from<I, T>(&mut self, itr: I)
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        let mut matches = <Self as CommandFactory>::command_for_update().get_matches_from(itr);
-        let res = <Self as FromArgMatches>::update_from_arg_matches_mut(self, &mut matches)
-            .map_err(format_error::<Self>);
-        if let Err(e) = res {
-            // Since this is more of a development-time error, we aren't doing as fancy of a quit
-            // as `get_matches_from`
-            e.exit()
-        }
-    }
-
-    /// Update from iterator, return Err on error.
-    fn try_update_from<I, T>(&mut self, itr: I) -> Result<(), Error>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        let mut matches =
-            ok!(<Self as CommandFactory>::command_for_update().try_get_matches_from(itr));
-        <Self as FromArgMatches>::update_from_arg_matches_mut(self, &mut matches)
-            .map_err(format_error::<Self>)
-    }
 }
 
 /// Create a [`Command`] relevant for a user-defined container.
@@ -109,10 +81,6 @@ pub trait CommandFactory: Sized {
     ///
     /// See [`FromArgMatches::from_arg_matches_mut`] for instantiating `Self`.
     fn command() -> Command;
-    /// Build a [`Command`] that can update `self`.
-    ///
-    /// See [`FromArgMatches::update_from_arg_matches_mut`] for updating `self`.
-    fn command_for_update() -> Command;
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
@@ -192,14 +160,6 @@ pub trait FromArgMatches: Sized {
     fn from_arg_matches_mut(matches: &mut ArgMatches) -> Result<Self, Error> {
         Self::from_arg_matches(matches)
     }
-
-    /// Assign values from `ArgMatches` to `self`.
-    fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error>;
-
-    /// Assign values from `ArgMatches` to `self`.
-    fn update_from_arg_matches_mut(&mut self, matches: &mut ArgMatches) -> Result<(), Error> {
-        self.update_from_arg_matches(matches)
-    }
 }
 
 /// Parse a set of arguments into a user-defined container.
@@ -220,12 +180,6 @@ pub trait Args: FromArgMatches + Sized {
     ///
     /// See also [`CommandFactory`].
     fn augment_args(cmd: Command) -> Command;
-    /// Append to [`Command`] so it can update `self`.
-    ///
-    /// This is used to implement `#[command(flatten)]`
-    ///
-    /// See also [`CommandFactory`].
-    fn augment_args_for_update(cmd: Command) -> Command;
 }
 
 /// Parse a sub-command into a user-defined enum.
@@ -243,12 +197,6 @@ pub trait Subcommand: FromArgMatches + Sized {
     ///
     /// See also [`CommandFactory`].
     fn augment_subcommands(cmd: Command) -> Command;
-    /// Append to [`Command`] so it can update `self`.
-    ///
-    /// This is used to implement `#[command(flatten)]`
-    ///
-    /// See also [`CommandFactory`].
-    fn augment_subcommands_for_update(cmd: Command) -> Command;
     /// Test whether `Self` can parse a specific subcommand
     fn has_subcommand(name: &str) -> bool;
 }
@@ -314,9 +262,6 @@ impl<T: CommandFactory> CommandFactory for Box<T> {
     fn command<'help>() -> Command {
         <T as CommandFactory>::command()
     }
-    fn command_for_update<'help>() -> Command {
-        <T as CommandFactory>::command_for_update()
-    }
 }
 
 impl<T: FromArgMatches> FromArgMatches for Box<T> {
@@ -326,29 +271,17 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
     fn from_arg_matches_mut(matches: &mut ArgMatches) -> Result<Self, Error> {
         <T as FromArgMatches>::from_arg_matches_mut(matches).map(Box::new)
     }
-    fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
-        <T as FromArgMatches>::update_from_arg_matches(self, matches)
-    }
-    fn update_from_arg_matches_mut(&mut self, matches: &mut ArgMatches) -> Result<(), Error> {
-        <T as FromArgMatches>::update_from_arg_matches_mut(self, matches)
-    }
 }
 
 impl<T: Args> Args for Box<T> {
     fn augment_args(cmd: Command) -> Command {
         <T as Args>::augment_args(cmd)
     }
-    fn augment_args_for_update(cmd: Command) -> Command {
-        <T as Args>::augment_args_for_update(cmd)
-    }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
     fn augment_subcommands(cmd: Command) -> Command {
         <T as Subcommand>::augment_subcommands(cmd)
-    }
-    fn augment_subcommands_for_update(cmd: Command) -> Command {
-        <T as Subcommand>::augment_subcommands_for_update(cmd)
     }
     fn has_subcommand(name: &str) -> bool {
         <T as Subcommand>::has_subcommand(name)

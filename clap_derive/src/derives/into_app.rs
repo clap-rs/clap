@@ -54,11 +54,6 @@ pub fn gen_for_struct(
                 let #app_var = clap::Command::new(#name);
                 <Self as clap::Args>::augment_args(#app_var)
             }
-
-            fn command_for_update<'b>() -> clap::Command {
-                let #app_var = clap::Command::new(#name);
-                <Self as clap::Args>::augment_args_for_update(#app_var)
-            }
         }
     };
 
@@ -102,13 +97,6 @@ pub fn gen_for_enum(
                     .subcommand_required(true)
                     .arg_required_else_help(true);
                 <Self as clap::Subcommand>::augment_subcommands(#app_var)
-            }
-
-            fn command_for_update<'b>() -> clap::Command {
-                let #app_var = clap::Command::new(#name);
-                <Self as clap::Subcommand>::augment_subcommands_for_update(#app_var)
-                    .subcommand_required(false)
-                    .arg_required_else_help(false)
             }
         }
     })

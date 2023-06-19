@@ -71,12 +71,10 @@ pub fn gen_for_struct(
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let constructor = gen_constructor(fields)?;
-    let updater = gen_updater(fields, true)?;
     let raw_deprecated = raw_deprecated();
 
     let app_var = Ident::new("__clap_app", Span::call_site());
-    let augmentation = gen_augment(fields, &app_var, item, false)?;
-    let augmentation_update = gen_augment(fields, &app_var, item, true)?;
+    let augmentation = gen_augment(fields, &app_var, item)?;
 
     let group_id = if item.skip_group() {
         quote!(None)
@@ -116,16 +114,6 @@ pub fn gen_for_struct(
                 let v = #item_name #constructor;
                 ::std::result::Result::Ok(v)
             }
-
-            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
-                self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
-            }
-
-            fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
-                #raw_deprecated
-                #updater
-                ::std::result::Result::Ok(())
-            }
         }
 
         #[allow(
@@ -155,9 +143,6 @@ pub fn gen_for_struct(
             fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
                 #augmentation
             }
-            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
-                #augmentation_update
-            }
         }
     })
 }
@@ -168,7 +153,6 @@ pub fn gen_augment(
     fields: &[(&Field, Item)],
     app_var: &Ident,
     parent_item: &Item,
-    override_required: bool,
 ) -> Result<TokenStream, syn::Error> {
     let mut subcommand_specified = false;
     let mut args = Vec::new();
@@ -202,20 +186,10 @@ pub fn gen_augment(
                     }
                 };
 
-                let override_methods = if override_required {
-                    quote_spanned! { kind.span()=>
-                        .subcommand_required(false)
-                        .arg_required_else_help(false)
-                    }
-                } else {
-                    quote!()
-                };
-
                 Some(quote! {
                     let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
                     let #app_var = #app_var
-                        #implicit_methods
-                        #override_methods;
+                        #implicit_methods;
                 })
             }
             Kind::Flatten(ty) => {
@@ -226,21 +200,12 @@ pub fn gen_augment(
 
                 let next_help_heading = item.next_help_heading();
                 let next_display_order = item.next_display_order();
-                if override_required {
-                    Some(quote_spanned! { kind.span()=>
-                        let #app_var = #app_var
-                            #next_help_heading
-                            #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
-                    })
-                } else {
-                    Some(quote_spanned! { kind.span()=>
-                        let #app_var = #app_var
-                            #next_help_heading
-                            #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
-                    })
-                }
+                Some(quote_spanned! { kind.span()=>
+                    let #app_var = #app_var
+                        #next_help_heading
+                        #next_display_order;
+                    let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
+                })
             }
             Kind::Arg(ty) => {
                 let value_parser = item.value_parser(&field.ty);
@@ -329,18 +294,7 @@ pub fn gen_augment(
 
                 let id = item.id();
                 let explicit_methods = item.field_methods();
-                let deprecations = if !override_required {
-                    item.deprecations()
-                } else {
-                    quote!()
-                };
-                let override_methods = if override_required {
-                    quote_spanned! { kind.span()=>
-                        .required(false)
-                    }
-                } else {
-                    quote!()
-                };
+                let deprecations = item.deprecations();
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg({
@@ -353,9 +307,6 @@ pub fn gen_augment(
                         let arg = arg
                             #explicit_methods;
 
-                        let arg = arg
-                            #override_methods;
-
                         arg
                     });
                 })
@@ -364,11 +315,7 @@ pub fn gen_augment(
         args.push(genned);
     }
 
-    let deprecations = if !override_required {
-        parent_item.deprecations()
-    } else {
-        quote!()
-    };
+    let deprecations = parent_item.deprecations();
     let initial_app_methods = parent_item.initial_top_level_methods();
     let final_app_methods = parent_item.final_top_level_methods();
     let group_app_methods = if parent_item.skip_group() {
@@ -538,109 +485,6 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Er
     Ok(quote! {{
         #( #fields ),*
     }})
-}
-
-pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> Result<TokenStream, syn::Error> {
-    let mut genned_fields = Vec::new();
-    for (field, item) in fields {
-        let field_name = field.ident.as_ref().unwrap();
-        let kind = item.kind();
-
-        let access = if use_self {
-            quote! {
-                #[allow(non_snake_case)]
-                let #field_name = &mut self.#field_name;
-            }
-        } else {
-            quote!()
-        };
-        let arg_matches = format_ident!("__clap_arg_matches");
-
-        let genned = match &*kind {
-            Kind::Command(_) | Kind::Value | Kind::ExternalSubcommand => {
-                abort! { kind.span(),
-                    "`{}` cannot be used with `arg`",
-                    kind.name(),
-                }
-            }
-            Kind::Subcommand(ty) => {
-                let subcmd_type = match (**ty, sub_type(&field.ty)) {
-                    (Ty::Option, Some(sub_type)) => sub_type,
-                    _ => &field.ty,
-                };
-
-                let updater = quote_spanned! { ty.span()=>
-                    <#subcmd_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
-                };
-
-                let updater = match **ty {
-                    Ty::Option => quote_spanned! { kind.span()=>
-                        if let Some(#field_name) = #field_name.as_mut() {
-                            #updater
-                        } else {
-                            *#field_name = Some(<#subcmd_type as clap::FromArgMatches>::from_arg_matches_mut(
-                                #arg_matches
-                            )?);
-                        }
-                    },
-                    _ => quote_spanned! { kind.span()=>
-                        #updater
-                    },
-                };
-
-                quote_spanned! { kind.span()=>
-                    {
-                        #access
-                        #updater
-                    }
-                }
-            }
-
-            Kind::Flatten(ty) => {
-                let inner_type = match (**ty, sub_type(&field.ty)) {
-                    (Ty::Option, Some(sub_type)) => sub_type,
-                    _ => &field.ty,
-                };
-
-                let updater = quote_spanned! { ty.span()=>
-                    <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
-                };
-
-                let updater = match **ty {
-                    Ty::Option => quote_spanned! { kind.span()=>
-                        if let Some(#field_name) = #field_name.as_mut() {
-                            #updater
-                        } else {
-                            *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
-                                #arg_matches
-                            )?);
-                        }
-                    },
-                    _ => quote_spanned! { kind.span()=>
-                        #updater
-                    },
-                };
-
-                quote_spanned! { kind.span()=>
-                    {
-                        #access
-                        #updater
-                    }
-                }
-            }
-
-            Kind::Skip(_, _) => quote!(),
-
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => {
-                gen_parsers(item, ty, field_name, field, Some(&access))?
-            }
-        };
-        genned_fields.push(genned);
-    }
-
-    Ok(quote! {
-        #( #genned_fields )*
-    })
 }
 
 fn gen_parsers(

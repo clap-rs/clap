@@ -21,9 +21,6 @@ pub fn into_app(name: &Ident) -> proc_macro2::TokenStream {
             fn command<'b>() -> clap::Command {
                 unimplemented!()
             }
-            fn command_for_update<'b>() -> clap::Command {
-                unimplemented!()
-            }
         }
     }
 }
@@ -34,9 +31,6 @@ pub fn from_arg_matches(name: &Ident) -> proc_macro2::TokenStream {
         #[automatically_derived]
         impl clap::FromArgMatches for #name {
             fn from_arg_matches(_m: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
-                unimplemented!()
-            }
-            fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error>{
                 unimplemented!()
             }
         }
@@ -50,9 +44,6 @@ pub fn subcommand(name: &Ident) -> proc_macro2::TokenStream {
         #[automatically_derived]
         impl clap::Subcommand for #name {
             fn augment_subcommands(_cmd: clap::Command) -> clap::Command {
-                unimplemented!()
-            }
-            fn augment_subcommands_for_update(_cmd: clap::Command) -> clap::Command {
                 unimplemented!()
             }
             fn has_subcommand(name: &str) -> bool {
@@ -70,9 +61,6 @@ pub fn args(name: &Ident) -> proc_macro2::TokenStream {
         #[automatically_derived]
         impl clap::Args for #name {
             fn augment_args(_cmd: clap::Command) -> clap::Command {
-                unimplemented!()
-            }
-            fn augment_args_for_update(_cmd: clap::Command) -> clap::Command {
                 unimplemented!()
             }
         }

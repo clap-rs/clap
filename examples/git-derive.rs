@@ -144,7 +144,7 @@ fn main() {
         Commands::Stash(stash) => {
             let stash_cmd = stash.command.unwrap_or(StashCommands::Push(stash.push));
             match stash_cmd {
-                StashCommands::Push(push) => {
+                StashCommands::Push(StashPushArgs { message: push }) => {
                     println!("Pushing {push:?}");
                 }
                 StashCommands::Pop { stash } => {
