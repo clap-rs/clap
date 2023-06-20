@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- `ColorChoice::possible_values` is added to simplify things for builder users
+
+### Fixes
+
+- `ColorChoice::to_possible_value` no longer includes descriptions, encouraging shorter help where possible
+
 ## [4.3.4] - 2023-06-14
 
 ### Features
