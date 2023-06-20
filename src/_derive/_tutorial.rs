@@ -10,19 +10,20 @@
 //! # Documentation: Derive Tutorial
 //!
 //! 1. [Quick Start](#quick-start)
-//! 2. [Configuring the Parser](#configuring-the-parser)
-//! 3. [Adding Arguments](#adding-arguments)
+//! 2. [Concepts](#concepts)
+//! 3. [Configuring the Parser](#configuring-the-parser)
+//! 4. [Adding Arguments](#adding-arguments)
 //!     1. [Positionals](#positionals)
 //!     2. [Options](#options)
 //!     3. [Flags](#flags)
 //!     4. [Subcommands](#subcommands)
 //!     5. [Defaults](#defaults)
-//! 4. Validation
+//! 5. Validation
 //!     1. [Enumerated values](#enumerated-values)
 //!     2. [Validated values](#validated-values)
 //!     3. [Argument Relations](#argument-relations)
 //!     4. [Custom Validation](#custom-validation)
-//! 5. [Testing](#testing)
+//! 6. [Testing](#testing)
 //!
 //! See also
 //! - [FAQ: When should I use the builder vs derive APIs?][crate::_faq#when-should-i-use-the-builder-vs-derive-apis]
@@ -38,6 +39,54 @@
 //! ```
 //!
 #![doc = include_str!("../../examples/tutorial_derive/01_quick.md")]
+//!
+//! ## Concepts
+//!
+//! To use the Derive API, annotate a `struct` definition with `#[derive(Parser)]`. This
+//! will use that `struct` to define the structure of your command line application. At
+//! runtime, `clap` will attempt to parse the provided command line arguments into an
+//! instance of that `struct`.
+//!
+//! To control how command line arguments are parsed into an instance of your `struct`,
+//! annotate the fields of the `struct` with `#[attributes]`. For instance, in your
+//! `struct` definition,
+//! ```rust
+//! #[arg(short, long, action = clap::ArgAction::Count)]
+//! verbose: u8
+//! ```
+//! would create both the short flag `-v` and the long flag `--verbose` (automatically
+//! derived from the name of the field) and set the behavior of the flag to increment
+//! the value of the field each time one of the flags is encountered.
+//!
+//! Attributes can control other aspects of command line parsing as well. For instance,
+//! you can annotate the `struct` definition with `#[command(author="your name",
+//! about="about your program")]` to set that data on your command line application.
+//!
+//! Attributes come in two flavors, **raw** and **magic**. Raw attributes are
+//! forwarded directly to the underlying [`clap` builder][crate::builder]. Any
+//! [`Command`][crate::Command], [`Arg`][crate::Arg], or
+//! [`PossibleValue`][crate::builder::PossibleValue] method can be used as an attribute.
+//! This means that all of the customizations provided by the structs in the Builder API
+//! are also available in the Derive API by using the corresponding method name in the
+//! attribute.
+//!
+//! On the other hand, magic attributes are specially handled by the attribute. Unlike
+//! raw attributes, they generally take on reasonable default values when not provided
+//! or have some "magic" processing done on them. For instance, although
+//! [`Arg::short`][crate::Arg::short] exists, `short` is a magic attribute when used in
+//! `#[arg(short)]`, as it "magically" uses the first letter in the name of the field as
+//! the short flag. (Of course, you can still use `#[arg(short='x')])` to pick a
+//! different character for the flag.) `#[arg(help)]` is another magic attribute because
+//! if it is omitted, its value will be set to the doc comment of the field. The Builder
+//! API is not capable of performing these magical actions.
+//!
+//! Attributes are documented in full in the [Derive Reference][crate::_derive#attributes].
+//!
+//! To parse the provided command line arguments into an instance of your `struct`,
+//! simply call [`MyCliStruct::parse()`][crate::Parser::parse]. This function will
+//! attempt to parse the provided arguments into an instance of your `struct`, returning
+//! the instance if parsing succeeded or exiting with an informative error message if
+//! parsing failed.
 //!
 //! ## Configuring the Parser
 //!
