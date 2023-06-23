@@ -23,6 +23,7 @@
 //!     3. [Argument Relations](#argument-relations)
 //!     4. [Custom Validation](#custom-validation)
 //! 5. [Testing](#testing)
+//! 6. [Next Steps](#next-steps)
 //!
 //! See also
 //! - [FAQ: When should I use the builder vs derive APIs?][crate::_faq#when-should-i-use-the-builder-vs-derive-apis]
@@ -225,3 +226,10 @@
 //! ```rust,no_run
 #![doc = include_str!("../examples/tutorial_builder/05_01_assert.rs")]
 //! ```
+//!
+//! ## Next Steps
+//!
+//! - [Cookbook][crate::_cookbook] for application-focused examples
+//! - Explore more features in the [API reference][super]
+//!
+//! For support, see [Discussions](https://github.com/clap-rs/clap/discussions)

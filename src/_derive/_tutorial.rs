@@ -23,6 +23,7 @@
 //!     3. [Argument Relations](#argument-relations)
 //!     4. [Custom Validation](#custom-validation)
 //! 5. [Testing](#testing)
+//! 6. [Next Steps](#next-steps)
 //!
 //! See also
 //! - [FAQ: When should I use the builder vs derive APIs?][crate::_faq#when-should-i-use-the-builder-vs-derive-apis]
@@ -232,3 +233,18 @@
 //! ```rust,no_run
 #![doc = include_str!("../../examples/tutorial_derive/05_01_assert.rs")]
 //! ```
+//!
+//! ## Next Steps
+//!
+//! - [Cookbook][crate::_cookbook] for application-focused examples
+//! - Explore more features in the [Derive reference][super]
+//!   - See also [`Command`], [`Arg`], [`ArgGroup`], and [`PossibleValue`] builder functions which
+//!     can be used as attributes
+//!
+//! For support, see [Discussions](https://github.com/clap-rs/clap/discussions)
+
+#![allow(unused_imports)]
+use crate::builder::Arg;
+use crate::builder::ArgGroup;
+use crate::builder::Command;
+use crate::builder::PossibleValue;
