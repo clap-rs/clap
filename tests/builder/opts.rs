@@ -659,7 +659,7 @@ fn issue_2279() {
 }
 
 #[test]
-fn infer_long_arg() {
+fn infer_long_arg_pass() {
     let cmd = Command::new("test")
         .infer_long_args(true)
         .arg(
@@ -715,4 +715,58 @@ fn infer_long_arg() {
 
     let matches = cmd.clone().try_get_matches_from(["test", "--a"]).unwrap();
     assert!(*matches.get_one::<bool>("arg").expect("defaulted by clap"));
+}
+
+#[test]
+fn infer_long_arg_pass_conflicts_exact_match() {
+    let cmd = Command::new("test")
+        .infer_long_args(true)
+        .arg(Arg::new("arg").long("arg").action(ArgAction::SetTrue))
+        .arg(Arg::new("arg2").long("arg2").action(ArgAction::SetTrue));
+
+    let matches = cmd.clone().try_get_matches_from(["test", "--arg"]).unwrap();
+    assert!(*matches.get_one::<bool>("arg").expect("defaulted by clap"));
+
+    let matches = cmd
+        .clone()
+        .try_get_matches_from(["test", "--arg2"])
+        .unwrap();
+    assert!(*matches.get_one::<bool>("arg2").expect("defaulted by clap"));
+}
+
+#[test]
+fn infer_long_arg_pass_conflicting_aliases() {
+    let cmd = Command::new("test").infer_long_args(true).arg(
+        Arg::new("abc-123")
+            .long("abc-123")
+            .aliases(["a", "abc-xyz"])
+            .action(ArgAction::SetTrue),
+    );
+
+    let matches = cmd.clone().try_get_matches_from(["test", "--ab"]).unwrap();
+    assert!(*matches
+        .get_one::<bool>("abc-123")
+        .expect("defaulted by clap"));
+}
+
+#[test]
+fn infer_long_arg_fail_conflicts() {
+    let cmd = Command::new("test")
+        .infer_long_args(true)
+        .arg(
+            Arg::new("abc-123")
+                .long("abc-123")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("abc-xyz")
+                .long("abc-xyz")
+                .action(ArgAction::SetTrue),
+        );
+
+    let error = cmd
+        .clone()
+        .try_get_matches_from(["test", "--abc"])
+        .unwrap_err();
+    assert_eq!(error.kind(), ErrorKind::UnknownArgument);
 }
