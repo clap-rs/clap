@@ -63,7 +63,7 @@
 #![doc = include_str!("../examples/tutorial_builder/02_crate.md")]
 //!
 //! You can use [`Command`][crate::Command] methods to change the application level behavior of
-//! clap.
+//! clap, like [`Command::next_line_help`].
 //!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/02_app_settings.rs")]
@@ -82,7 +82,7 @@
 #![doc = include_str!("../examples/tutorial_builder/03_03_positional.md")]
 //!
 //! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
-//! accept multiple values, use [`Append`][crate::ArgAction::Append]:
+//! accept multiple values, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_03_positional_mult.rs")]
 //! ```
@@ -101,7 +101,7 @@
 #![doc = include_str!("../examples/tutorial_builder/03_02_option.md")]
 //!
 //! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
-//! accept multiple occurrences, use [`Append`][crate::ArgAction::Append]:
+//! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_02_option_mult.rs")]
 //! ```
@@ -175,14 +175,14 @@
 //!
 //! ### Validated values
 //!
-//! More generally, you can validate and parse into any data type.
+//! More generally, you can validate and parse into any data type with [`Arg::value_parser`].
 //!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/04_02_parse.rs")]
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/04_02_parse.md")]
 //!
-//! A custom parser can be used to improve the error messages or provide additional validation:
+//! A [custom parser][TypedValueParser] can be used to improve the error messages or provide additional validation:
 //!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/04_02_validate.rs")]
@@ -233,3 +233,10 @@
 //! - Explore more features in the [API reference][super]
 //!
 //! For support, see [Discussions](https://github.com/clap-rs/clap/discussions)
+
+#![allow(unused_imports)]
+use crate::builder::Arg;
+use crate::builder::ArgGroup;
+use crate::builder::Command;
+use crate::builder::PossibleValue;
+use crate::builder::TypedValueParser;
