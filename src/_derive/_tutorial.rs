@@ -23,6 +23,7 @@
 //!     3. [Argument Relations](#argument-relations)
 //!     4. [Custom Validation](#custom-validation)
 //! 5. [Testing](#testing)
+//! 6. [Next Steps](#next-steps)
 //!
 //! See also
 //! - [FAQ: When should I use the builder vs derive APIs?][crate::_faq#when-should-i-use-the-builder-vs-derive-apis]
@@ -31,7 +32,12 @@
 //! ## Quick Start
 //!
 //! You can create an application declaratively with a `struct` and some
-//! attributes.  **This requires enabling the [`derive` feature flag][crate::_features].**
+//! attributes.
+//!
+//! First, ensure `clap` is available with the [`derive` feature flag][crate::_features]:
+//! ```console
+//! $ cargo add clap --features derive
+//! ```
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/01_quick.rs")]
@@ -49,14 +55,14 @@
 //!
 #![doc = include_str!("../../examples/tutorial_derive/02_apps.md")]
 //!
-//! You can use `#[command(author, version, about)]` attribute defaults to fill these fields in from your `Cargo.toml` file.
+//! You can use [`#[command(author, version, about)]` attribute defaults][super#command-attributes] to fill these fields in from your `Cargo.toml` file.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.md")]
 //!
-//! You can use attributes to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute.
+//! You can use attributes to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute, like [`Command::next_line_help`].
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_app_settings.rs")]
@@ -74,8 +80,8 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_03_positional.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
-//! accept multiple values, use [`Append`][crate::ArgAction::Append] via `Vec`:
+//! Note that the [default `ArgAction` is `Set`][super#arg-types].  To
+//! accept multiple values, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_03_positional_mult.rs")]
 //! ```
@@ -88,17 +94,17 @@
 //! - They can be optional
 //! - Intent is clearer
 //!
-//! The `#[arg(short = 'n')]` and `#[arg(long = "name")]` attributes that define
+//! The [`#[arg(short = 'n')]`][Arg::short] and [`#[arg(long = "name")]`][Arg::long] attributes that define
 //! the flags are [`Arg`][crate::Args] methods that are derived from the field name when no value
-//! is specified (`#[arg(short)]` and `#[arg(long)]`).
+//! is specified ([`#[arg(short)]` and `#[arg(long)]`][super#arg-attributes]).
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
-//! accept multiple occurrences, use [`Append`][crate::ArgAction::Append] via `Vec`:
+//! Note that the [default `ArgAction` is `Set`][super#arg-types].  To
+//! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option_mult.rs")]
 //! ```
@@ -106,17 +112,15 @@
 //!
 //! ### Flags
 //!
-//! Flags can also be switches that can be on/off.  This is enabled via the
-//! `#[arg(action = ArgAction::SetTrue)]` attribute though this is implied when the field is a
-//! `bool`.
+//! Flags can also be switches that can be on/off:
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_bool.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_bool.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction] for a `bool` field is
-//! [`SetTrue`][crate::ArgAction::SetTrue].  To accept multiple flags, use
+//! Note that the [default `ArgAction` for a `bool` field is
+//! `SetTrue`][super#arg-types].  To accept multiple flags, override the [action][Arg::action] with
 //! [`Count`][crate::ArgAction::Count]:
 //!
 //! ```rust
@@ -126,7 +130,7 @@
 //!
 //! ### Subcommands
 //!
-//! Subcommands are derived with `#[derive(Subcommand)]` and be added via `#[command(subcommand)]` attribute. Each
+//! Subcommands are derived with `#[derive(Subcommand)]` and be added via [`#[command(subcommand)]` attribute][super#command-attributes]. Each
 //! instance of a [Subcommand][crate::Subcommand] can have its own version, author(s), Args, and even its own
 //! subcommands.
 //!
@@ -145,7 +149,7 @@
 //!
 //! We've previously showed that arguments can be [`required`][crate::Arg::required] or optional.
 //! When optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
-//! set `#[arg(default_value_t)]`.
+//! set [`#[arg(default_value_t)]`][super#arg-attributes].
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]
@@ -160,7 +164,8 @@
 //! ### Enumerated values
 //!
 //! For example, if you have arguments of specific values you want to test for, you can derive
-//! [`ValueEnum`][crate::ValueEnum].
+//! [`ValueEnum`][super#valueenum-attributes]
+//! (any [`PossibleValue`] builder function can be used as variant attributes).
 //!
 //! This allows you specify the valid values for that argument. If the user does not use one of
 //! those specific values, they will receive a graceful exit with error message informing them
@@ -173,14 +178,14 @@
 //!
 //! ### Validated values
 //!
-//! More generally, you can validate and parse into any data type.
+//! More generally, you can validate and parse into any data type with [`Arg::value_parser`].
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/04_02_parse.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/04_02_parse.md")]
 //!
-//! A custom parser can be used to improve the error messages or provide additional validation:
+//! A [custom parser][TypedValueParser] can be used to improve the error messages or provide additional validation:
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/04_02_validate.rs")]
@@ -227,3 +232,19 @@
 //! ```rust,no_run
 #![doc = include_str!("../../examples/tutorial_derive/05_01_assert.rs")]
 //! ```
+//!
+//! ## Next Steps
+//!
+//! - [Cookbook][crate::_cookbook] for application-focused examples
+//! - Explore more features in the [Derive reference][super]
+//!   - See also [`Command`], [`Arg`], [`ArgGroup`], and [`PossibleValue`] builder functions which
+//!     can be used as attributes
+//!
+//! For support, see [Discussions](https://github.com/clap-rs/clap/discussions)
+
+#![allow(unused_imports)]
+use crate::builder::Arg;
+use crate::builder::ArgGroup;
+use crate::builder::Command;
+use crate::builder::PossibleValue;
+use crate::builder::TypedValueParser;
