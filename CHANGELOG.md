@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Further clarify magic behavior in derive tutorial
+- Further clarify derive API's relationship to builder within the tutorial
+
 ## [4.3.6] - 2023-06-23
 
 ### Documentation
