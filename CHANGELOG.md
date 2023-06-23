@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Error on ambiguity with `infer_long_arg`, rather than arbitrarily picking one, matching the documentation and subcommand's behavior
+
 ## [4.3.7] - 2023-06-23
 
 ### Documentation
