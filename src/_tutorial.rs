@@ -32,6 +32,11 @@
 //!
 //! You can create an application with several arguments using usage strings.
 //!
+//! First, ensure `clap` is available:
+//! ```console
+//! $ cargo add clap
+//! ```
+//!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/01_quick.rs")]
 //! ```

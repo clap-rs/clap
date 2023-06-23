@@ -31,7 +31,12 @@
 //! ## Quick Start
 //!
 //! You can create an application declaratively with a `struct` and some
-//! attributes.  **This requires enabling the [`derive` feature flag][crate::_features].**
+//! attributes.
+//!
+//! First, ensure `clap` is available with the [`derive` feature flag][crate::_features]:
+//! ```console
+//! $ cargo add clap --features derive
+//! ```
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/01_quick.rs")]
