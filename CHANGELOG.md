@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- `Command::ignore_errors` no longer masks help/version
+
 ## [4.3.8] - 2023-06-23
 
 ### Fixes
