@@ -1,5 +1,7 @@
 use clap::{arg, Arg, ArgAction, Command};
 
+use super::utils;
+
 #[test]
 fn single_short_arg_without_value() {
     let cmd = Command::new("cmd").ignore_errors(true).arg(arg!(
@@ -123,4 +125,27 @@ fn subcommand() {
         sub_m.get_one::<String>("stuff").map(|v| v.as_str()),
         Some("some other val")
     );
+}
+
+#[test]
+#[should_panic(expected = "`Result::unwrap_err()` on an `Ok` value")]
+fn help_command() {
+    static HELP: &str = "\
+Usage: test
+
+Options:
+  -h, --help  Print help
+";
+
+    let cmd = Command::new("test").ignore_errors(true);
+
+    utils::assert_output(cmd, "test --help", HELP, false);
+}
+
+#[test]
+#[should_panic(expected = "`Result::unwrap_err()` on an `Ok` value")]
+fn version_command() {
+    let cmd = Command::new("test").ignore_errors(true).version("0.1");
+
+    utils::assert_output(cmd, "test --version", "test 0.1\n", false);
 }
