@@ -3810,7 +3810,7 @@ impl Command {
         // do the real parsing
         let mut parser = Parser::new(self);
         if let Err(error) = parser.get_matches_with(&mut matcher, raw_args, args_cursor) {
-            if self.is_set(AppSettings::IgnoreErrors) {
+            if self.is_set(AppSettings::IgnoreErrors) && error.use_stderr() {
                 debug!("Command::_do_parse: ignoring error: {error}");
             } else {
                 return Err(error);
