@@ -475,9 +475,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.3.8"
+version = "4.3.9"
 dependencies = [
- "clap_builder 4.3.8",
+ "clap_builder 4.3.9",
  "clap_derive",
  "humantime",
  "once_cell",
@@ -494,7 +494,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.3.8",
+ "clap 4.3.9",
  "criterion",
  "lazy_static",
 ]
@@ -512,7 +512,7 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.3.8"
+version = "4.3.9"
 dependencies = [
  "anstream",
  "anstyle",
@@ -539,7 +539,7 @@ dependencies = [
 name = "clap_complete"
 version = "4.3.1"
 dependencies = [
- "clap 4.3.8",
+ "clap 4.3.9",
  "clap_lex 0.5.0",
  "is_executable",
  "pathdiff",
@@ -553,7 +553,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.3.1"
 dependencies = [
- "clap 4.3.8",
+ "clap 4.3.9",
  "clap_complete",
  "snapbox",
 ]
@@ -562,7 +562,7 @@ dependencies = [
 name = "clap_complete_nushell"
 version = "4.3.1"
 dependencies = [
- "clap 4.3.8",
+ "clap 4.3.9",
  "clap_complete",
  "nu-cli",
  "nu-command",
@@ -597,7 +597,7 @@ checksum = "2da6da31387c7e4ef160ffab6d5e7f00c42626fe39aea70a7b0f1773f7dd6c1b"
 name = "clap_mangen"
 version = "0.2.12"
 dependencies = [
- "clap 4.3.8",
+ "clap 4.3.9",
  "roff",
  "snapbox",
 ]
