@@ -128,7 +128,6 @@ fn subcommand() {
 }
 
 #[test]
-#[should_panic(expected = "`Result::unwrap_err()` on an `Ok` value")]
 fn help_command() {
     static HELP: &str = "\
 Usage: test
@@ -143,7 +142,6 @@ Options:
 }
 
 #[test]
-#[should_panic(expected = "`Result::unwrap_err()` on an `Ok` value")]
 fn version_command() {
     let cmd = Command::new("test").ignore_errors(true).version("0.1");
 
