@@ -858,21 +858,15 @@ impl Arg {
 
     #[inline]
     #[must_use]
-    pub(crate) fn setting<F>(mut self, setting: F) -> Self
-    where
-        F: Into<ArgFlags>,
-    {
-        self.settings.insert(setting.into());
+    pub(crate) fn setting(mut self, setting: ArgSettings) -> Self {
+        self.settings.set(setting);
         self
     }
 
     #[inline]
     #[must_use]
-    pub(crate) fn unset_setting<F>(mut self, setting: F) -> Self
-    where
-        F: Into<ArgFlags>,
-    {
-        self.settings.remove(setting.into());
+    pub(crate) fn unset_setting(mut self, setting: ArgSettings) -> Self {
+        self.settings.unset(setting);
         self
     }
 }

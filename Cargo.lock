@@ -523,7 +523,6 @@ dependencies = [
  "anstream",
  "anstyle",
  "backtrace",
- "bitflags 2.3.3",
  "clap_lex 0.5.0",
  "color-print",
  "humantime",
