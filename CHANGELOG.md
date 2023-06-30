@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Drop a dependency, reducing binary size by 1.3 KiB
+
 ## [4.3.9] - 2023-06-28
 
 ### Fixes
