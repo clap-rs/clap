@@ -1907,21 +1907,15 @@ impl Command {
 
     #[inline]
     #[must_use]
-    pub(crate) fn setting<F>(mut self, setting: F) -> Self
-    where
-        F: Into<AppFlags>,
-    {
-        self.settings.insert(setting.into());
+    pub(crate) fn setting(mut self, setting: AppSettings) -> Self {
+        self.settings.set(setting);
         self
     }
 
     #[inline]
     #[must_use]
-    pub(crate) fn unset_setting<F>(mut self, setting: F) -> Self
-    where
-        F: Into<AppFlags>,
-    {
-        self.settings.remove(setting.into());
+    pub(crate) fn unset_setting(mut self, setting: AppSettings) -> Self {
+        self.settings.unset(setting);
         self
     }
 
@@ -3852,26 +3846,22 @@ impl Command {
             self.settings = self.settings | self.g_settings;
 
             if self.is_multicall_set() {
-                self.settings.insert(AppSettings::SubcommandRequired.into());
-                self.settings.insert(AppSettings::DisableHelpFlag.into());
-                self.settings.insert(AppSettings::DisableVersionFlag.into());
+                self.settings.set(AppSettings::SubcommandRequired);
+                self.settings.set(AppSettings::DisableHelpFlag);
+                self.settings.set(AppSettings::DisableVersionFlag);
             }
             if !cfg!(feature = "help") && self.get_override_help().is_none() {
-                self.settings.insert(AppSettings::DisableHelpFlag.into());
-                self.settings
-                    .insert(AppSettings::DisableHelpSubcommand.into());
+                self.settings.set(AppSettings::DisableHelpFlag);
+                self.settings.set(AppSettings::DisableHelpSubcommand);
             }
             if self.is_set(AppSettings::ArgsNegateSubcommands) {
-                self.settings
-                    .insert(AppSettings::SubcommandsNegateReqs.into());
+                self.settings.set(AppSettings::SubcommandsNegateReqs);
             }
             if self.external_value_parser.is_some() {
-                self.settings
-                    .insert(AppSettings::AllowExternalSubcommands.into());
+                self.settings.set(AppSettings::AllowExternalSubcommands);
             }
             if !self.has_subcommands() {
-                self.settings
-                    .insert(AppSettings::DisableHelpSubcommand.into());
+                self.settings.set(AppSettings::DisableHelpSubcommand);
             }
 
             self._propagate();
@@ -3924,14 +3914,13 @@ impl Command {
                 let is_allow_negative_numbers_set = self.is_allow_negative_numbers_set();
                 for arg in self.args.args_mut() {
                     if is_allow_hyphen_values_set && arg.is_takes_value_set() {
-                        arg.settings.insert(ArgSettings::AllowHyphenValues.into());
+                        arg.settings.set(ArgSettings::AllowHyphenValues);
                     }
                     if is_allow_negative_numbers_set && arg.is_takes_value_set() {
-                        arg.settings
-                            .insert(ArgSettings::AllowNegativeNumbers.into());
+                        arg.settings.set(ArgSettings::AllowNegativeNumbers);
                     }
                     if is_trailing_var_arg_set && arg.get_index() == Some(highest_idx) {
-                        arg.settings.insert(ArgSettings::TrailingVarArg.into());
+                        arg.settings.set(ArgSettings::TrailingVarArg);
                     }
                 }
             }
