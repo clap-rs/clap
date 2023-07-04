@@ -37,7 +37,7 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             [CompletionResult]::new('--cmd', 'cmd', [CompletionResultType]::ParameterName, 'cmd')
             [CompletionResult]::new('-u', 'u', [CompletionResultType]::ParameterName, 'u')
             [CompletionResult]::new('--user', 'user', [CompletionResultType]::ParameterName, 'user')
-            [CompletionResult]::new('-H', 'H', [CompletionResultType]::ParameterName, 'H')
+            [CompletionResult]::new('-H', 'H ', [CompletionResultType]::ParameterName, 'H')
             [CompletionResult]::new('--host', 'host', [CompletionResultType]::ParameterName, 'host')
             [CompletionResult]::new('--url', 'url', [CompletionResultType]::ParameterName, 'url')
             [CompletionResult]::new('--email', 'email', [CompletionResultType]::ParameterName, 'email')

@@ -29,7 +29,7 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             [CompletionResult]::new('--expansions', 'expansions', [CompletionResultType]::ParameterName, 'Execute the shell command with $SHELL')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('-V', 'V ', [CompletionResultType]::ParameterName, 'Print version')
             [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version')
             [CompletionResult]::new('cmd-single-quotes', 'cmd-single-quotes', [CompletionResultType]::ParameterValue, 'Can be ''always'', ''auto'', or ''never''')
             [CompletionResult]::new('cmd-double-quotes', 'cmd-double-quotes', [CompletionResultType]::ParameterValue, 'Can be "always", "auto", or "never"')
