@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(powershell)* Attempt to allow completing `-s` separately from `-S`
+
 ## [4.3.1] - 2023-06-02
 
 ## [4.3.0] - 2023-05-19
