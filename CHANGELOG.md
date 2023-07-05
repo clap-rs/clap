@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* Support fields wrapped in `num::Wrapping`, `Box`, or `Arc`
+- *(derive)* Support `Box<str>`, `Box<OsStr>`, and `Box<Path>`
+
 ## [4.3.10] - 2023-06-30
 
 ### Performance
