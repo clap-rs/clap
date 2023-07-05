@@ -2223,16 +2223,16 @@ impl ValueParserFactory for i32 {
         RangedI64ValueParser::new().range(start..=end)
     }
 }
-impl ValueParserFactory for i64 {
-    type Parser = RangedI64ValueParser<i64>;
-    fn value_parser() -> Self::Parser {
-        RangedI64ValueParser::new()
-    }
-}
 impl ValueParserFactory for u64 {
     type Parser = RangedU64ValueParser<u64>;
     fn value_parser() -> Self::Parser {
         RangedU64ValueParser::new()
+    }
+}
+impl ValueParserFactory for i64 {
+    type Parser = RangedI64ValueParser<i64>;
+    fn value_parser() -> Self::Parser {
+        RangedI64ValueParser::new()
     }
 }
 impl<T> ValueParserFactory for std::num::Wrapping<T>
