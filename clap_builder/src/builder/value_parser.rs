@@ -2137,16 +2137,36 @@ impl ValueParserFactory for String {
         ValueParser::string() // Default `clap_derive` to optimized implementation
     }
 }
+impl ValueParserFactory for Box<str> {
+    type Parser = MapValueParser<StringValueParser, fn(String) -> Box<str>>;
+    fn value_parser() -> Self::Parser {
+        StringValueParser::new().map(String::into_boxed_str)
+    }
+}
 impl ValueParserFactory for std::ffi::OsString {
     type Parser = ValueParser;
     fn value_parser() -> Self::Parser {
         ValueParser::os_string() // Default `clap_derive` to optimized implementation
     }
 }
+impl ValueParserFactory for Box<std::ffi::OsStr> {
+    type Parser =
+        MapValueParser<OsStringValueParser, fn(std::ffi::OsString) -> Box<std::ffi::OsStr>>;
+    fn value_parser() -> Self::Parser {
+        OsStringValueParser::new().map(std::ffi::OsString::into_boxed_os_str)
+    }
+}
 impl ValueParserFactory for std::path::PathBuf {
     type Parser = ValueParser;
     fn value_parser() -> Self::Parser {
         ValueParser::path_buf() // Default `clap_derive` to optimized implementation
+    }
+}
+impl ValueParserFactory for Box<std::path::Path> {
+    type Parser =
+        MapValueParser<PathBufValueParser, fn(std::path::PathBuf) -> Box<std::path::Path>>;
+    fn value_parser() -> Self::Parser {
+        PathBufValueParser::new().map(std::path::PathBuf::into_boxed_path)
     }
 }
 impl ValueParserFactory for bool {
