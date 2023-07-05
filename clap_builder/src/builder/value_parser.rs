@@ -2215,6 +2215,17 @@ impl ValueParserFactory for u64 {
         RangedU64ValueParser::new()
     }
 }
+impl<T> ValueParserFactory for std::num::Wrapping<T>
+where
+    T: ValueParserFactory,
+    <T as ValueParserFactory>::Parser: TypedValueParser<Value = T>,
+    T: Send + Sync + Clone,
+{
+    type Parser = MapValueParser<<T as ValueParserFactory>::Parser, fn(T) -> std::num::Wrapping<T>>;
+    fn value_parser() -> Self::Parser {
+        T::value_parser().map(std::num::Wrapping)
+    }
+}
 impl<T> ValueParserFactory for Box<T>
 where
     T: ValueParserFactory,
