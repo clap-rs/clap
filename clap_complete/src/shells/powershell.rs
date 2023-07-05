@@ -124,7 +124,9 @@ fn generate_aliases(completions: &mut String, preamble: &String, arg: &Arg) {
         for alias in aliases {
             let _ = write!(
                 completions,
-                "{preamble}'-{alias}', '{alias}', [CompletionResultType]::ParameterName, '{tooltip}')"
+                "{preamble}'-{alias}', '{alias}{}', [CompletionResultType]::ParameterName, '{tooltip}')",
+                // make PowerShell realize there is a difference between `-s` and `-S`
+                if alias.is_uppercase() { " " } else { "" },
             );
         }
     }
