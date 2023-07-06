@@ -8,21 +8,41 @@ use crate::builder::Command;
 /// Returns a Vec of all possible values that exceed a similarity threshold
 /// sorted by ascending similarity, most similar comes last
 #[cfg(feature = "suggestions")]
-pub(crate) fn did_you_mean<T, I>(v: &str, possible_values: I) -> Vec<String>
+pub(crate) fn did_you_mean<T, I>(input: &str, possible_values: I) -> Vec<String>
 where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
 {
     let mut candidates: Vec<(f64, String)> = possible_values
         .into_iter()
-        // GH #4660: using `jaro` because `jaro_winkler` implementation in `strsim-rs` is wrong
-        // causing strings with common prefix >=10 to be considered perfectly similar
-        .map(|pv| (strsim::jaro(v, pv.as_ref()), pv.as_ref().to_owned()))
+        .map(|pv| {
+            let confidence = if words_are_swapped(input, pv.as_ref()) {
+                0.9
+            } else {
+                // GH #4660: using `jaro` because `jaro_winkler` implementation in `strsim-rs` is wrong
+                // causing strings with common prefix >=10 to be considered perfectly similar
+                strsim::jaro(input, pv.as_ref())
+            };
+
+            (confidence, pv.as_ref().to_owned())
+        })
         // Confidence of 0.7 so that bar -> baz is suggested
         .filter(|(confidence, _)| *confidence > 0.7)
         .collect();
     candidates.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(Ordering::Equal));
     candidates.into_iter().map(|(_, pv)| pv).collect()
+}
+
+#[cfg(feature = "suggestions")]
+fn words_are_swapped(input: &str, candidate: &str) -> bool {
+    let input_words = input.split_once('-');
+    let candidate_words = candidate.split_once('-');
+    match (input_words, candidate_words) {
+        (Some((input1, input2)), Some((candidate1, candidate2))) => {
+            input1 == candidate2 && input2 == candidate1
+        }
+        _ => false,
+    }
 }
 
 #[cfg(not(feature = "suggestions"))]
@@ -127,7 +147,7 @@ mod test {
     fn swapped_words_1() {
         assert_eq!(
             did_you_mean("write-lock", ["lock-write", "no-lock"].iter()),
-            vec!["no-lock"]
+            vec!["no-lock", "lock-write"]
         );
     }
 
@@ -135,7 +155,7 @@ mod test {
     fn swapped_words_2() {
         assert_eq!(
             did_you_mean("features-all", ["all-features", "features"].iter()),
-            vec!["all-features", "features"]
+            vec!["features", "all-features"]
         );
     }
 
