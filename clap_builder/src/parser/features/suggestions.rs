@@ -124,6 +124,22 @@ mod test {
     }
 
     #[test]
+    fn swapped_words_1() {
+        assert_eq!(
+            did_you_mean("write-lock", ["lock-write", "no-lock"].iter()),
+            vec!["no-lock"]
+        );
+    }
+
+    #[test]
+    fn swapped_words_2() {
+        assert_eq!(
+            did_you_mean("features-all", ["all-features", "features"].iter()),
+            vec!["all-features", "features"]
+        );
+    }
+
+    #[test]
     fn flag_missing_letter() {
         let p_vals = ["test", "possible", "values"];
         assert_eq!(
