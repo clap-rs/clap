@@ -1650,6 +1650,8 @@ impl Arg {
     /// at runtime, nor were the conditions met for `Arg::default_value_if`, the `Arg::default_value`
     /// will be applied.
     ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
     /// # Examples
     ///
     /// First we use the default value without providing any value at runtime.
@@ -1746,6 +1748,8 @@ impl Arg {
     /// [`.num_args(0..N)`][Arg::num_args] and the
     /// [`.require_equals(true)`][Arg::require_equals] configuration option. These are required in
     /// order to unambiguously determine what, if any, value was supplied for the argument.
+    ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
     ///
     /// # Examples
     ///
@@ -1892,6 +1896,8 @@ impl Arg {
     /// - When [`Arg::action(ArgAction::Set)`] is set,
     ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
     ///   return the default specified.
+    ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
     ///
     /// # Examples
     ///
@@ -2734,6 +2740,8 @@ impl Arg {
     /// and `Arg::default_value_if`, and the user **did not** provide this arg at runtime, nor were
     /// the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be applied.
     ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
     /// # Examples
     ///
     /// First we use the default value only if another arg is present at runtime.
@@ -2872,6 +2880,8 @@ impl Arg {
     ///
     /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
     /// if multiple conditions are true, the first one found will be applied and the ultimate value.
+    ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
     ///
     /// # Examples
     ///
