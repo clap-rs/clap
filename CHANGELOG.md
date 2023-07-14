@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.3.12] - 2023-07-14
+
 ### Fixes
 
 - *(derive)* Don't error on enum variant field attributes
@@ -4333,7 +4335,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.11...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.12...HEAD
+[4.3.12]: https://github.com/clap-rs/clap/compare/v4.3.11...v4.3.12
 [4.3.11]: https://github.com/clap-rs/clap/compare/v4.3.10...v4.3.11
 [4.3.10]: https://github.com/clap-rs/clap/compare/v4.3.9...v4.3.10
 [4.3.9]: https://github.com/clap-rs/clap/compare/v4.3.8...v4.3.9
