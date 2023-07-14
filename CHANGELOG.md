@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Don't error on enum variant field attributes
+
 ## [4.3.11] - 2023-07-05
 
 ### Features
