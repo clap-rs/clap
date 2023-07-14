@@ -182,7 +182,7 @@ fn gen_augment(
 
             Kind::Flatten(_) => match variant.fields {
                 Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                    let ty = &unnamed[0];
+                    let ty = &unnamed[0].ty;
                     let deprecations = if !override_required {
                         item.deprecations()
                     } else {
@@ -223,7 +223,7 @@ fn gen_augment(
                     }
                     Unit => quote!( #subcommand_var ),
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                        let ty = &unnamed[0];
+                        let ty = &unnamed[0].ty;
                         if override_required {
                             quote_spanned! { ty.span()=>
                                 {
@@ -293,7 +293,7 @@ fn gen_augment(
                         }
                     }
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                        let ty = &unnamed[0];
+                        let ty = &unnamed[0].ty;
                         let arg_block = if override_required {
                             quote_spanned! { ty.span()=>
                                 {
@@ -390,7 +390,7 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn:
         .iter()
         .map(|(variant, _attrs)| match variant.fields {
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
-                let ty = &fields.unnamed[0];
+                let ty = &fields.unnamed[0].ty;
                 Ok(quote! {
                     if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
                         return true;
@@ -496,7 +496,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
             },
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
-                let ty = &fields.unnamed[0];
+                let ty = &fields.unnamed[0].ty;
                 quote!( ( <#ty as clap::FromArgMatches>::from_arg_matches_mut(__clap_arg_matches)? ) )
             }
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
@@ -512,7 +512,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
         let variant_name = &variant.ident;
         match variant.fields {
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
-                let ty = &fields.unnamed[0];
+                let ty = &fields.unnamed[0].ty;
                 Ok(quote! {
                     if __clap_arg_matches
                         .subcommand_name()
@@ -632,7 +632,7 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStr
         let variant_name = &variant.ident;
         match variant.fields {
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
-                let ty = &fields.unnamed[0];
+                let ty = &fields.unnamed[0].ty;
                 Ok(quote! {
                     if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
                         if let Self :: #variant_name (child) = s {
