@@ -12,6 +12,12 @@ fn example_tests() {
         "std",
         #[cfg(feature = "color")]
         "color",
+        #[cfg(feature = "help")]
+        "help",
+        #[cfg(feature = "usage")]
+        "usage",
+        #[cfg(feature = "error-context")]
+        "error-context",
         #[cfg(feature = "suggestions")]
         "suggestions",
         // Optional
@@ -28,8 +34,10 @@ fn example_tests() {
         #[cfg(feature = "string")]
         "string",
         // In-work
-        #[cfg(feature = "unstable-replace")]
-        "unstable-replace",
+        //#[cfg(feature = "unstable-v5")]  // Currently has failures
+        //"unstable-v5",
+        #[cfg(feature = "unstable-styles")]
+        "unstable-styles",
     ]
     .join(" ");
     t.register_bins(trycmd::cargo::compile_examples(["--features", &features]).unwrap());
