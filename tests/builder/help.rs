@@ -1064,6 +1064,65 @@ Options:
 }
 
 #[test]
+fn explicit_short_long_help() {
+    static SHORT_ABOUT: &str = "\
+bar
+
+Usage: myapp [OPTIONS] [arg1]
+
+Arguments:
+  [arg1]  some option
+
+Options:
+  -?             
+  -h, --help     
+  -V, --version  Print version
+";
+
+    static LONG_ABOUT: &str = "\
+something really really long, with
+multiple lines of text
+that should be displayed
+
+Usage: myapp [OPTIONS] [arg1]
+
+Arguments:
+  [arg1]
+          some option
+
+Options:
+  -?
+          
+
+  -h, --help
+          
+
+  -V, --version
+          Print version
+";
+
+    let cmd = Command::new("myapp")
+        .disable_help_flag(true)
+        .version("1.0")
+        .author("foo")
+        .about("bar")
+        .long_about(
+            "something really really long, with\nmultiple lines of text\nthat should be displayed",
+        )
+        .arg(Arg::new("arg1").help("some option"))
+        .arg(Arg::new("short").short('?').action(ArgAction::HelpShort))
+        .arg(
+            Arg::new("long")
+                .short('h')
+                .long("help")
+                .action(ArgAction::HelpLong),
+        );
+    utils::assert_output(cmd.clone(), "myapp -?", SHORT_ABOUT, false);
+    utils::assert_output(cmd.clone(), "myapp -h", LONG_ABOUT, false);
+    utils::assert_output(cmd, "myapp --help", LONG_ABOUT, false);
+}
+
+#[test]
 fn ripgrep_usage() {
     static RIPGREP_USAGE: &str = "\
 Usage: rg [OPTIONS] <pattern> [<path> ...]

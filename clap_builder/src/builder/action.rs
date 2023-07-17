@@ -257,6 +257,58 @@ pub enum ArgAction {
     /// # }
     /// ```
     Help,
+    /// When encountered, display [`Command::print_help`][super::Command::print_help]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("special-help")
+    ///             .short('?')
+    ///             .action(clap::ArgAction::HelpShort)
+    ///     );
+    ///
+    /// // Existing help still exists
+    /// let err = cmd.clone().try_get_matches_from(["mycmd", "-h"]).unwrap_err();
+    /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+    ///
+    /// // New help available
+    /// let err = cmd.try_get_matches_from(["mycmd", "-?"]).unwrap_err();
+    /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+    /// # }
+    /// ```
+    HelpShort,
+    /// When encountered, display [`Command::print_long_help`][super::Command::print_long_help]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
+    /// # use clap::Command;
+    /// # use clap::Arg;
+    /// let cmd = Command::new("mycmd")
+    ///     .arg(
+    ///         Arg::new("special-help")
+    ///             .short('?')
+    ///             .action(clap::ArgAction::HelpLong)
+    ///     );
+    ///
+    /// // Existing help still exists
+    /// let err = cmd.clone().try_get_matches_from(["mycmd", "-h"]).unwrap_err();
+    /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+    ///
+    /// // New help available
+    /// let err = cmd.try_get_matches_from(["mycmd", "-?"]).unwrap_err();
+    /// assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
+    /// # }
+    /// ```
+    HelpLong,
     /// When encountered, display [`Command::version`][super::Command::version]
     ///
     /// Depending on the flag, [`Command::long_version`][super::Command::long_version] may be shown
@@ -299,6 +351,8 @@ impl ArgAction {
             Self::SetFalse => false,
             Self::Count => false,
             Self::Help => false,
+            Self::HelpShort => false,
+            Self::HelpLong => false,
             Self::Version => false,
         }
     }
@@ -311,6 +365,8 @@ impl ArgAction {
             Self::SetFalse => Some(std::ffi::OsStr::new("true")),
             Self::Count => Some(std::ffi::OsStr::new("0")),
             Self::Help => None,
+            Self::HelpShort => None,
+            Self::HelpLong => None,
             Self::Version => None,
         }
     }
@@ -323,6 +379,8 @@ impl ArgAction {
             Self::SetFalse => Some(std::ffi::OsStr::new("false")),
             Self::Count => None,
             Self::Help => None,
+            Self::HelpShort => None,
+            Self::HelpLong => None,
             Self::Version => None,
         }
     }
@@ -335,6 +393,8 @@ impl ArgAction {
             Self::SetFalse => Some(super::ValueParser::bool()),
             Self::Count => Some(crate::value_parser!(u8).into()),
             Self::Help => None,
+            Self::HelpShort => None,
+            Self::HelpLong => None,
             Self::Version => None,
         }
     }
@@ -348,6 +408,8 @@ impl ArgAction {
             Self::SetFalse => None,
             Self::Count => Some(AnyValueId::of::<CountType>()),
             Self::Help => None,
+            Self::HelpShort => None,
+            Self::HelpLong => None,
             Self::Version => None,
         }
     }
