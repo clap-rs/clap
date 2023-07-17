@@ -1068,7 +1068,7 @@ fn explicit_short_long_help() {
     static SHORT_ABOUT: &str = "\
 bar
 
-Usage: myapp [OPTIONS] [arg1]
+Usage: myapp [arg1]
 
 Arguments:
   [arg1]  some option
@@ -1084,7 +1084,7 @@ something really really long, with
 multiple lines of text
 that should be displayed
 
-Usage: myapp [OPTIONS] [arg1]
+Usage: myapp [arg1]
 
 Arguments:
   [arg1]
@@ -1351,7 +1351,7 @@ fn override_help_short() {
 }
 
 static OVERRIDE_HELP_LONG: &str = "\
-Usage: test [OPTIONS]
+Usage: test
 
 Options:
   -h, --hell     Print help

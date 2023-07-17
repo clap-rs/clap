@@ -4,6 +4,7 @@
 #![cfg_attr(not(feature = "usage"), allow(dead_code))]
 
 // Internal
+use crate::builder::ArgAction;
 use crate::builder::StyledStr;
 use crate::builder::Styles;
 use crate::builder::{ArgPredicate, Command};
@@ -209,6 +210,20 @@ impl<'cmd> Usage<'cmd> {
             if f.get_long() == Some("help") || f.get_long() == Some("version") {
                 debug!("Usage::needs_options_tag:iter Option is built-in");
                 continue;
+            }
+            match f.get_action() {
+                ArgAction::Set
+                | ArgAction::Append
+                | ArgAction::SetTrue
+                | ArgAction::SetFalse
+                | ArgAction::Count => {}
+                ArgAction::Help
+                | ArgAction::HelpShort
+                | ArgAction::HelpLong
+                | ArgAction::Version => {
+                    debug!("Usage::needs_options_tag:iter Option is built-in");
+                    continue;
+                }
             }
 
             if f.is_hide_set() {
