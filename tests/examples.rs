@@ -7,24 +7,27 @@
 fn example_tests() {
     let t = trycmd::TestCases::new();
     let features = [
+        // Default
         #[cfg(feature = "std")]
         "std",
+        #[cfg(feature = "color")]
+        "color",
+        #[cfg(feature = "suggestions")]
+        "suggestions",
+        // Optional
         #[cfg(feature = "derive")]
         "derive",
         #[cfg(feature = "cargo")]
         "cargo",
-        #[cfg(feature = "color")]
-        "color",
+        #[cfg(feature = "wrap_help")]
+        "wrap_help",
         #[cfg(feature = "env")]
         "env",
-        #[cfg(feature = "suggestions")]
-        "suggestions",
         #[cfg(feature = "unicode")]
         "unicode",
         #[cfg(feature = "string")]
         "string",
-        #[cfg(feature = "wrap_help")]
-        "wrap_help",
+        // In-work
         #[cfg(feature = "unstable-replace")]
         "unstable-replace",
     ]
