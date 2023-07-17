@@ -115,6 +115,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
     }
 
+    #[cfg(not(feature = "unstable-v5"))]
     fn term_w(cmd: &'cmd Command) -> usize {
         match cmd.get_term_width() {
             Some(0) => usize::MAX,
@@ -129,6 +130,26 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 cmp::min(current_width, max_width)
             }
         }
+    }
+
+    #[cfg(feature = "unstable-v5")]
+    fn term_w(cmd: &'cmd Command) -> usize {
+        let term_w = match cmd.get_term_width() {
+            Some(0) => usize::MAX,
+            Some(w) => w,
+            None => {
+                let (current_width, _h) = dimensions();
+                current_width.unwrap_or(usize::MAX)
+            }
+        };
+
+        let max_term_w = match cmd.get_max_term_width() {
+            Some(0) => usize::MAX,
+            Some(mw) => mw,
+            None => 100,
+        };
+
+        cmp::min(term_w, max_term_w)
     }
 
     /// Write help to stream for the parser in the format defined by the template.
