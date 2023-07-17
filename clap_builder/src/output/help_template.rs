@@ -101,7 +101,22 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             cmd.get_name(),
             use_long
         );
-        let term_w = match cmd.get_term_width() {
+        let term_w = Self::term_w(cmd);
+        let next_line_help = cmd.is_next_line_help_set();
+
+        HelpTemplate {
+            writer,
+            cmd,
+            styles: cmd.get_styles(),
+            usage,
+            next_line_help,
+            term_w,
+            use_long,
+        }
+    }
+
+    fn term_w(cmd: &'cmd Command) -> usize {
+        match cmd.get_term_width() {
             Some(0) => usize::MAX,
             Some(w) => w,
             None => {
@@ -113,17 +128,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 };
                 cmp::min(current_width, max_width)
             }
-        };
-        let next_line_help = cmd.is_next_line_help_set();
-
-        HelpTemplate {
-            writer,
-            cmd,
-            styles: cmd.get_styles(),
-            usage,
-            next_line_help,
-            term_w,
-            use_long,
         }
     }
 
