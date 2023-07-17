@@ -1158,7 +1158,7 @@ impl Command {
     /// This only applies when [`term_width`][Command::term_width] is unset so that the current
     /// terminal's width will be used.  See [`Command::term_width`] for more details.
     ///
-    /// Using `0` will ignore terminal widths and use source formatting (default).
+    /// Using `0` will ignore this, always respecting [`Command::term_width`] (default).
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
