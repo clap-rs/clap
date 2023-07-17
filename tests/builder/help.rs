@@ -916,6 +916,7 @@ fn old_newline_variables() {
 #[test]
 #[cfg(feature = "wrap_help")]
 fn issue_688_hide_pos_vals() {
+    #[cfg(not(feature = "unstable-v5"))]
     static ISSUE_688: &str = "\
 Usage: ctest [OPTIONS]
 
@@ -923,6 +924,18 @@ Options:
       --filter <filter>  Sets the filter, or sampling method, to use for interpolation when resizing the particle
                          images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian,
                          Lanczos3]
+  -h, --help             Print help
+  -V, --version          Print version
+";
+
+    #[cfg(feature = "unstable-v5")]
+    static ISSUE_688: &str = "\
+Usage: ctest [OPTIONS]
+
+Options:
+      --filter <filter>  Sets the filter, or sampling method, to use for interpolation when resizing
+                         the particle images. The default is Linear (Bilinear). [possible values:
+                         Nearest, Linear, Cubic, Gaussian, Lanczos3]
   -h, --help             Print help
   -V, --version          Print version
 ";
@@ -1511,12 +1524,24 @@ fn hide_default_val() {
 #[test]
 #[cfg(feature = "wrap_help")]
 fn escaped_whitespace_values() {
+    #[cfg(not(feature = "unstable-v5"))]
     static ESCAPED_DEFAULT_VAL: &str = "\
 Usage: default [OPTIONS]
 
 Options:
       --arg <argument>  Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \" \", \"\\n\", \"\\t\",
                         other]
+  -h, --help            Print help
+  -V, --version         Print version
+";
+
+    #[cfg(feature = "unstable-v5")]
+    static ESCAPED_DEFAULT_VAL: &str = "\
+Usage: default [OPTIONS]
+
+Options:
+      --arg <argument>  Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \"
+                        \", \"\\n\", \"\\t\", other]
   -h, --help            Print help
   -V, --version         Print version
 ";

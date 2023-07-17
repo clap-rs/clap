@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Made `ArgPredicate` `non_exhaustive`
+- *(help)* Change default `Command::term_width` to "source format"
+- *(help)* Change default `Command::max_term_width` to 100
 - *(derive)* `Vec<Vec<T>>` types are now assuming to capture occurrences
 
 ### Features

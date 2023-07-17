@@ -1132,6 +1132,9 @@ impl Command {
     /// Defaults to current terminal width when `wrap_help` feature flag is enabled.  If current
     /// width cannot be determined, the default is 100.
     ///
+    /// **`unstable-v5` feature**: Defaults to unbound, being subject to
+    /// [`Command::max_term_width`].
+    ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///
     /// **NOTE:** This requires the `wrap_help` feature
@@ -1158,7 +1161,9 @@ impl Command {
     /// This only applies when [`term_width`][Command::term_width] is unset so that the current
     /// terminal's width will be used.  See [`Command::term_width`] for more details.
     ///
-    /// Using `0` will ignore terminal widths and use source formatting (default).
+    /// Using `0` will ignore this, always respecting [`Command::term_width`] (default).
+    ///
+    /// **`unstable-v5` feature**: Defaults to 100.
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
     ///

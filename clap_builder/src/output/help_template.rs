@@ -101,19 +101,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             cmd.get_name(),
             use_long
         );
-        let term_w = match cmd.get_term_width() {
-            Some(0) => usize::MAX,
-            Some(w) => w,
-            None => {
-                let (current_width, _h) = dimensions();
-                let current_width = current_width.unwrap_or(100);
-                let max_width = match cmd.get_max_term_width() {
-                    None | Some(0) => usize::MAX,
-                    Some(mw) => mw,
-                };
-                cmp::min(current_width, max_width)
-            }
-        };
+        let term_w = Self::term_w(cmd);
         let next_line_help = cmd.is_next_line_help_set();
 
         HelpTemplate {
@@ -125,6 +113,43 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             term_w,
             use_long,
         }
+    }
+
+    #[cfg(not(feature = "unstable-v5"))]
+    fn term_w(cmd: &'cmd Command) -> usize {
+        match cmd.get_term_width() {
+            Some(0) => usize::MAX,
+            Some(w) => w,
+            None => {
+                let (current_width, _h) = dimensions();
+                let current_width = current_width.unwrap_or(100);
+                let max_width = match cmd.get_max_term_width() {
+                    None | Some(0) => usize::MAX,
+                    Some(mw) => mw,
+                };
+                cmp::min(current_width, max_width)
+            }
+        }
+    }
+
+    #[cfg(feature = "unstable-v5")]
+    fn term_w(cmd: &'cmd Command) -> usize {
+        let term_w = match cmd.get_term_width() {
+            Some(0) => usize::MAX,
+            Some(w) => w,
+            None => {
+                let (current_width, _h) = dimensions();
+                current_width.unwrap_or(usize::MAX)
+            }
+        };
+
+        let max_term_w = match cmd.get_max_term_width() {
+            Some(0) => usize::MAX,
+            Some(mw) => mw,
+            None => 100,
+        };
+
+        cmp::min(term_w, max_term_w)
     }
 
     /// Write help to stream for the parser in the format defined by the template.
