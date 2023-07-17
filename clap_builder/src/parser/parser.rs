@@ -1237,6 +1237,16 @@ impl<'cmd> Parser<'cmd> {
                 debug!("Help: use_long={use_long}");
                 Err(self.help_err(use_long))
             }
+            ArgAction::HelpShort => {
+                let use_long = false;
+                debug!("Help: use_long={use_long}");
+                Err(self.help_err(use_long))
+            }
+            ArgAction::HelpLong => {
+                let use_long = true;
+                debug!("Help: use_long={use_long}");
+                Err(self.help_err(use_long))
+            }
             ArgAction::Version => {
                 let use_long = match ident {
                     Some(Identifier::Long) => true,
