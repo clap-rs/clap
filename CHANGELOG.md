@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- `ArgAction::HelpShort` and `ArgAction::HelpLong` for explicitly specifying which style of help to display
+
+### Fixes
+
+- Skip `[OPTIONS]` in usage if a help or version `ArgAction` is used
+
 ## [4.3.13] - 2023-07-17
 
 ## [4.3.12] - 2023-07-14
