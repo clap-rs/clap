@@ -5,6 +5,21 @@ pub use anstyle::*;
 /// Terminal styling definitions
 ///
 /// See also [`Command::styles`][crate::Command::styles].
+///
+/// # Example
+///
+/// clap v3 styling
+/// ```rust
+/// # #[cfg(feature = "unstable-styles")] {
+/// # use clap_builder as clap;
+/// # use clap::builder::styling::*;
+/// let styles = Styles::styled()
+///     .header(AnsiColor::Yellow.on_default())
+///     .usage(AnsiColor::Green.on_default())
+///     .literal(AnsiColor::Green.on_default())
+///     .placeholder(AnsiColor::Green.on_default());
+/// # }
+/// ```
 #[derive(Clone, Debug)]
 #[allow(missing_copy_implementations)] // Large enough type that I want an explicit `clone()` for now
 pub struct Styles {
