@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't assert when stateful value parsers fail on defaults (e.g. checking if a path exists)
+
 ## [4.3.15] - 2023-07-18
 
 ### Features
