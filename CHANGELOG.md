@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(unstable-styles)* Re-export `anstyle`
+
+### Documentation
+
+- *(unstable-styles)* Provide more examples
+
 ## [4.3.14] - 2023-07-17
 
 ### Features
