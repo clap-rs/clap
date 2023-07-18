@@ -793,38 +793,6 @@ fn required_args_with_default_values() {
     assert!(m.contains_id("arg"));
 }
 
-#[cfg(debug_assertions)]
-#[test]
-#[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_value=\"value\" failed validation: error: invalid value 'value' for '[arg]'"]
-fn default_values_are_possible_values() {
-    use clap::{Arg, Command};
-
-    let _ = Command::new("test")
-        .arg(
-            Arg::new("arg")
-                .value_parser(["one", "two"])
-                .default_value("value"),
-        )
-        .try_get_matches();
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: invalid value 'one' for '[arg]"]
-fn invalid_default_values() {
-    use clap::{Arg, Command};
-
-    let _ = Command::new("test")
-        .arg(
-            Arg::new("arg")
-                .value_parser(clap::value_parser!(u32))
-                .default_value("one"),
-        )
-        .try_get_matches();
-}
-
 #[test]
 fn valid_delimited_default_values() {
     use clap::{Arg, Command};
@@ -835,23 +803,6 @@ fn valid_delimited_default_values() {
                 .value_parser(clap::value_parser!(u32))
                 .value_delimiter(',')
                 .default_value("1,2,3"),
-        )
-        .debug_assert();
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_value=\"one\" failed validation: error: invalid value 'one' for '[arg]"]
-fn invalid_delimited_default_values() {
-    use clap::{Arg, Command};
-
-    Command::new("test")
-        .arg(
-            Arg::new("arg")
-                .value_parser(clap::value_parser!(u32))
-                .value_delimiter(',')
-                .default_value("one,two"),
         )
         .debug_assert();
 }

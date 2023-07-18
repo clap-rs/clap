@@ -258,38 +258,6 @@ fn delimited_missing_value() {
     );
 }
 
-#[cfg(debug_assertions)]
-#[test]
-#[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: invalid value 'value' for '[arg]'"]
-fn default_missing_values_are_possible_values() {
-    use clap::{Arg, Command};
-
-    let _ = Command::new("test")
-        .arg(
-            Arg::new("arg")
-                .value_parser(["one", "two"])
-                .default_missing_value("value"),
-        )
-        .try_get_matches();
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[cfg(feature = "error-context")]
-#[should_panic = "Argument `arg`'s default_missing_value=\"value\" failed validation: error: invalid value 'value' for '[arg]"]
-fn default_missing_values_are_valid() {
-    use clap::{Arg, Command};
-
-    let _ = Command::new("test")
-        .arg(
-            Arg::new("arg")
-                .value_parser(clap::value_parser!(u32))
-                .default_missing_value("value"),
-        )
-        .try_get_matches();
-}
-
 #[test]
 fn valid_index() {
     let m = Command::new("df")

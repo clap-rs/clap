@@ -1,8 +1,5 @@
 use std::cmp::Ordering;
 
-use clap_lex::OsStrExt as _;
-
-use crate::builder::OsStr;
 use crate::builder::ValueRange;
 use crate::mkeymap::KeyType;
 use crate::util::FlatSet;
@@ -809,20 +806,6 @@ fn assert_arg(arg: &Arg) {
     }
 
     assert_arg_flags(arg);
-
-    assert_defaults(arg, "default_value", arg.default_vals.iter());
-    assert_defaults(
-        arg,
-        "default_missing_value",
-        arg.default_missing_vals.iter(),
-    );
-    assert_defaults(
-        arg,
-        "default_value_if",
-        arg.default_vals_ifs
-            .iter()
-            .filter_map(|(_, _, default)| default.as_ref()),
-    );
 }
 
 fn assert_arg_flags(arg: &Arg) {
@@ -853,38 +836,4 @@ fn assert_arg_flags(arg: &Arg) {
     checker!(is_hide_default_value_set requires is_takes_value_set);
     checker!(is_multiple_values_set requires is_takes_value_set);
     checker!(is_ignore_case_set requires is_takes_value_set);
-}
-
-fn assert_defaults<'d>(
-    arg: &Arg,
-    field: &'static str,
-    defaults: impl IntoIterator<Item = &'d OsStr>,
-) {
-    for default_os in defaults {
-        let value_parser = arg.get_value_parser();
-        let assert_cmd = Command::new("assert");
-        if let Some(val_delim) = arg.get_value_delimiter() {
-            let mut val_delim_buffer = [0; 4];
-            let val_delim = val_delim.encode_utf8(&mut val_delim_buffer);
-            for part in default_os.split(val_delim) {
-                if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), part) {
-                    panic!(
-                        "Argument `{}`'s {}={:?} failed validation: {}",
-                        arg.get_id(),
-                        field,
-                        part.to_string_lossy(),
-                        err
-                    );
-                }
-            }
-        } else if let Err(err) = value_parser.parse_ref(&assert_cmd, Some(arg), default_os) {
-            panic!(
-                "Argument `{}`'s {}={:?} failed validation: {}",
-                arg.get_id(),
-                field,
-                default_os,
-                err
-            );
-        }
-    }
 }
