@@ -7,24 +7,37 @@
 fn ui_tests() {
     let t = trycmd::TestCases::new();
     let features = [
+        // Default
         #[cfg(feature = "std")]
         "std",
+        #[cfg(feature = "color")]
+        "color",
+        #[cfg(feature = "help")]
+        "help",
+        #[cfg(feature = "usage")]
+        "usage",
+        #[cfg(feature = "error-context")]
+        "error-context",
+        #[cfg(feature = "suggestions")]
+        "suggestions",
+        // Optional
         #[cfg(feature = "derive")]
         "derive",
         #[cfg(feature = "cargo")]
         "cargo",
-        #[cfg(feature = "color")]
-        "color",
+        #[cfg(feature = "wrap_help")]
+        "wrap_help",
         #[cfg(feature = "env")]
         "env",
-        #[cfg(feature = "suggestions")]
-        "suggestions",
         #[cfg(feature = "unicode")]
         "unicode",
         #[cfg(feature = "string")]
         "string",
-        #[cfg(feature = "wrap_help")]
-        "wrap_help",
+        // In-work
+        //#[cfg(feature = "unstable-v5")]  // Currently has failures
+        //"unstable-v5",
+        #[cfg(feature = "unstable-styles")]
+        "unstable-styles",
     ]
     .join(" ");
     t.register_bins(trycmd::cargo::compile_examples(["--features", &features]).unwrap());
