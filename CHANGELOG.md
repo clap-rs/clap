@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Address a regression in wrapping `PossibleValue` descriptions in `--help`
+
 ## [4.3.16] - 2023-07-18
 
 ### Fixes
