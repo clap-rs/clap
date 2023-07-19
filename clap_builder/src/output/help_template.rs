@@ -701,32 +701,33 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.writer.push_str("Possible values:");
                 for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
                     let name = pv.get_name();
+
+                    let mut descr = StyledStr::new();
                     let _ = write!(
-                        self.writer,
-                        "\n{:spaces$}- {}{name}{}",
-                        "",
+                        &mut descr,
+                        "{}{name}{}",
                         literal.render(),
                         literal.render_reset()
                     );
                     if let Some(help) = pv.get_help() {
                         debug!("HelpTemplate::help: Possible Value help");
-
                         // To align help messages
-                        let padding = longest - display_width(pv.get_name());
-                        let _ = write!(self.writer, ": {:padding$}", "");
-
-                        let avail_chars = if self.term_w > trailing_indent.len() {
-                            self.term_w - trailing_indent.len()
-                        } else {
-                            usize::MAX
-                        };
-
-                        let mut help = help.clone();
-                        help.replace_newline_var();
-                        help.wrap(avail_chars);
-                        help.indent("", &trailing_indent);
-                        self.writer.push_styled(&help);
+                        let padding = longest - display_width(name);
+                        let _ = write!(&mut descr, ": {:padding$}", "");
+                        descr.push_styled(help);
                     }
+
+                    let avail_chars = if self.term_w > trailing_indent.len() {
+                        self.term_w - trailing_indent.len()
+                    } else {
+                        usize::MAX
+                    };
+                    descr.replace_newline_var();
+                    descr.wrap(avail_chars);
+                    descr.indent("", &trailing_indent);
+
+                    let _ = write!(self.writer, "\n{:spaces$}- ", "",);
+                    self.writer.push_styled(&descr);
                 }
             }
         }
