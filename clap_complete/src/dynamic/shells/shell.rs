@@ -46,3 +46,36 @@ impl ValueEnum for Shell {
         })
     }
 }
+
+impl Shell {
+    fn completer(&self) -> &dyn crate::dynamic::Completer {
+        match self {
+            Self::Bash => &super::Bash,
+        }
+    }
+}
+
+impl crate::dynamic::Completer for Shell {
+    fn file_name(&self, name: &str) -> String {
+        self.completer().file_name(name)
+    }
+    fn write_registration(
+        &self,
+        name: &str,
+        bin: &str,
+        completer: &str,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        self.completer()
+            .write_registration(name, bin, completer, buf)
+    }
+    fn write_complete(
+        &self,
+        cmd: &mut clap::Command,
+        args: Vec<std::ffi::OsString>,
+        current_dir: Option<&std::path::Path>,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        self.completer().write_complete(cmd, args, current_dir, buf)
+    }
+}
