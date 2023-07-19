@@ -23,37 +23,6 @@ pub struct CompleteArgs {
     #[arg(long, required = true)]
     register: Option<std::path::PathBuf>,
 
-    #[arg(
-        long,
-        required = true,
-        value_name = "COMP_CWORD",
-        hide_short_help = true,
-        group = "complete"
-    )]
-    index: Option<usize>,
-
-    #[arg(long, hide_short_help = true, group = "complete")]
-    ifs: Option<String>,
-
-    #[arg(
-        long = "type",
-        required = true,
-        hide_short_help = true,
-        group = "complete"
-    )]
-    comp_type: Option<CompType>,
-
-    #[arg(long, hide_short_help = true, group = "complete")]
-    space: bool,
-
-    #[arg(
-        long,
-        conflicts_with = "space",
-        hide_short_help = true,
-        group = "complete"
-    )]
-    no_space: bool,
-
     #[arg(raw = true, hide_short_help = true, group = "complete")]
     comp_words: Vec<OsString>,
 }
@@ -83,17 +52,20 @@ impl CompleteCommand {
                 std::fs::write(out_path, buf)?;
             }
         } else {
-            let index = args.index.unwrap_or_default();
-            let _comp_type = args.comp_type.unwrap_or_default();
-            let _space = match (args.space, args.no_space) {
-                (true, false) => Some(true),
-                (false, true) => Some(false),
-                (true, true) => {
-                    unreachable!("`--space` and `--no-space` set, clap should prevent this")
-                }
-                (false, false) => None,
-            }
-            .unwrap();
+            let index: usize = std::env::var("_CLAP_COMPLETE_INDEX")
+                .ok()
+                .and_then(|i| i.parse().ok())
+                .unwrap_or_default();
+            let _comp_type: CompType = std::env::var("_CLAP_COMPLETE_COMP_TYPE")
+                .ok()
+                .and_then(|i| i.parse().ok())
+                .unwrap_or_default();
+            let _space: Option<bool> = std::env::var("_CLAP_COMPLETE_SPACE")
+                .ok()
+                .and_then(|i| i.parse().ok());
+            let ifs: Option<String> = std::env::var("_CLAP_COMPLETE_IFS")
+                .ok()
+                .and_then(|i| i.parse().ok());
             let current_dir = std::env::current_dir().ok();
             let completions =
                 super::complete(cmd, args.comp_words.clone(), index, current_dir.as_deref())?;
@@ -101,7 +73,7 @@ impl CompleteCommand {
             let mut buf = Vec::new();
             for (i, completion) in completions.iter().enumerate() {
                 if i != 0 {
-                    write!(&mut buf, "{}", args.ifs.as_deref().unwrap_or("\n"))?;
+                    write!(&mut buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
                 }
                 write!(&mut buf, "{}", completion.to_string_lossy())?;
             }
@@ -165,17 +137,15 @@ pub fn register(
 
     let script = r#"
 _clap_complete_NAME() {
-    local IFS=$'\013'
-    local SUPPRESS_SPACE=0
+    export _CLAP_COMPLETE_INDEX=${COMP_CWORD}
+    export _CLAP_COMPLETE_COMP_TYPE=${COMP_TYPE}
     if compopt +o nospace 2> /dev/null; then
-        SUPPRESS_SPACE=1
-    fi
-    if [[ ${SUPPRESS_SPACE} == 1 ]]; then
-        SPACE_ARG="--no-space"
+        export _CLAP_COMPLETE_SPACE=false
     else
-        SPACE_ARG="--space"
+        export _CLAP_COMPLETE_SPACE=true
     fi
-    COMPREPLY=( $("COMPLETER" complete --index ${COMP_CWORD} --type ${COMP_TYPE} ${SPACE_ARG} --ifs="$IFS" -- "${COMP_WORDS[@]}") )
+    export _CLAP_COMPLETE_IFS=$'\013'
+    COMPREPLY=( $("COMPLETER" complete -- "${COMP_WORDS[@]}") )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
@@ -184,11 +154,11 @@ _clap_complete_NAME() {
 }
 complete OPTIONS -F _clap_complete_NAME EXECUTABLES
 "#
-        .replace("NAME", &escaped_name)
-        .replace("EXECUTABLES", &executables)
-        .replace("OPTIONS", options)
-        .replace("COMPLETER", &completer)
-        .replace("UPPER", &upper_name);
+    .replace("NAME", &escaped_name)
+    .replace("EXECUTABLES", &executables)
+    .replace("OPTIONS", options)
+    .replace("COMPLETER", &completer)
+    .replace("UPPER", &upper_name);
 
     writeln!(buf, "{script}")?;
     Ok(())
@@ -268,6 +238,20 @@ impl clap::ValueEnum for CompType {
                 )
             }
         }
+    }
+}
+
+impl std::str::FromStr for CompType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use clap::ValueEnum as _;
+        for variant in Self::value_variants() {
+            if variant.to_possible_value().unwrap().matches(s, false) {
+                return Ok(*variant);
+            }
+        }
+        Err(format!("invalid variant: {s}"))
     }
 }
 
