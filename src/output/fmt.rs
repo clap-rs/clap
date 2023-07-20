@@ -1,5 +1,7 @@
 use crate::util::color::ColorChoice;
 
+use is_terminal::IsTerminal;
+
 use std::{
     fmt::{self, Display, Formatter},
     io::{self, Write},
@@ -149,10 +151,8 @@ impl Default for Style {
 
 #[cfg(feature = "color")]
 fn is_a_tty(stream: Stream) -> bool {
-    let stream = match stream {
-        Stream::Stdout => atty::Stream::Stdout,
-        Stream::Stderr => atty::Stream::Stderr,
-    };
-
-    atty::is(stream)
+    match stream {
+        Stream::Stdout => io::stdout().is_terminal(),
+        Stream::Stderr => io::stderr().is_terminal(),
+    }
 }

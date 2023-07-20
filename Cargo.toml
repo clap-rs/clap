@@ -64,7 +64,7 @@ unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
-color = ["atty", "termcolor"]
+color = ["is-terminal", "termcolor"]
 suggestions = ["strsim"]
 
 # Optional
@@ -95,7 +95,7 @@ unicase = { version = "2.6", optional = true }
 indexmap = "1.0"
 strsim = { version = "0.10",  optional = true }
 yaml-rust = { version = "0.4.1",  optional = true }
-atty = { version = "0.2",  optional = true }
+is-terminal = { version = "0.4.9",  optional = true }
 termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.2.1", optional = true }
 regex = { version = "1.0", optional = true }
