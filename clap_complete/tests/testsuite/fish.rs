@@ -119,3 +119,31 @@ fn subcommand_last() {
         name,
     );
 }
+
+#[test]
+#[cfg(unix)]
+fn register_completion() {
+    if !common::has_command("fish") {
+        return;
+    }
+
+    common::register_example("test", completest::Shell::Fish);
+}
+
+#[test]
+#[cfg(unix)]
+fn complete() {
+    if !common::has_command("fish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let runtime = common::load_runtime("test", completest::Shell::Fish);
+
+    let input = "test \t";
+    let expected = r#"% test
+action  help  (Print this message or the help of the given subcommand(s))  last    quote
+alias   hint                                                               pacman  value"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
+}

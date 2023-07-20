@@ -157,9 +157,9 @@ fn complete() {
     let runtime = common::load_runtime("test", completest::Shell::Bash);
 
     let input = "test \t\t";
-    let expected = r#"% 
--h          --global    --help      action      value       last        hint        
--V          --generate  --version   quote       pacman      alias       help        "#;
+    let expected = r#"%
+-h          --global    --help      action      value       last        hint
+-V          --generate  --version   quote       pacman      alias       help"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

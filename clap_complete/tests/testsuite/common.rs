@@ -333,6 +333,10 @@ pub fn has_command(command: &str) -> bool {
     if cfg!(target_os = "macos") && stdout.starts_with("GNU bash, version 3") {
         return false;
     }
+    if cfg!(target_os = "macos") && command == "zsh" {
+        // HACK: At least on CI, the prompt override is not working
+        return false;
+    }
 
     true
 }
@@ -409,7 +413,12 @@ impl completest::Runtime for ScratchRuntime {
     }
 
     fn complete(&self, input: &str, term: &completest::Term) -> std::io::Result<String> {
-        self.runtime.complete(input, term)
+        let output = self.runtime.complete(input, term)?;
+        // HACK: elvish prints and clears this message when a completer takes too long which is
+        // dependent on a lot of factors, making this show up or no sometimes (especially if we
+        // aren't clearing the screen properly for fish)
+        let output = output.replace("\n COMPLETING argument\n", "\n");
+        Ok(output)
     }
 }
 

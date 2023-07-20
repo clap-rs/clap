@@ -119,3 +119,31 @@ fn subcommand_last() {
         name,
     );
 }
+
+#[test]
+#[cfg(unix)]
+fn register_completion() {
+    if !common::has_command("zsh") {
+        return;
+    }
+
+    common::register_example("test", completest::Shell::Zsh);
+}
+
+#[test]
+#[cfg(unix)]
+fn complete() {
+    if !common::has_command("zsh") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let runtime = common::load_runtime("test", completest::Shell::Zsh);
+
+    let input = "test \t";
+    let expected = r#"% test
+help                                             -- Print this message or the help of the given subcommand(s)
+pacman  action  alias  value  quote  hint  last  --"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
+}

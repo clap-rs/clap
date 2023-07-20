@@ -119,3 +119,43 @@ fn subcommand_last() {
         name,
     );
 }
+
+#[test]
+#[cfg(unix)]
+fn register_completion() {
+    if !common::has_command("elvish") {
+        return;
+    }
+
+    common::register_example("test", completest::Shell::Elvish);
+}
+
+#[test]
+#[cfg(unix)]
+fn complete() {
+    if !common::has_command("elvish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let runtime = common::load_runtime("test", completest::Shell::Elvish);
+
+    let input = "test \t";
+    let expected = r#"% test --generate
+--generate     generate
+--global       everywhere
+--help         Print help
+--version      Print version
+-V             Print version
+-h             Print help
+action         action
+alias          alias
+help           Print this message or the help of the given subcommand(s)
+hint           hint
+last           last
+pacman         pacman
+quote          quote
+value          value"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
+}
