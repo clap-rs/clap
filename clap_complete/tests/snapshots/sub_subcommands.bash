@@ -233,4 +233,4 @@ _my-app() {
     esac
 }
 
-complete -F _my-app -o bashdefault -o default my-app
+complete -F _my-app -o nosort -o bashdefault -o default my-app
