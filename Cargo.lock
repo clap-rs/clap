@@ -646,9 +646,9 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "completest"
-version = "0.0.2"
+version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf3a6911a195bda4c8bd5dd36360da54081f542c5c64858b27d4de0456996eed"
+checksum = "6feacc4465b103a9c3ee1ca2de3fc8336822145bed52ede7cd80f9b32a1ab329"
 dependencies = [
  "ptyprocess",
  "vt100",

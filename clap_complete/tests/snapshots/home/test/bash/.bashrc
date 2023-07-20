@@ -1,3 +1,5 @@
+PS1='% '
+. /etc/bash_completion
 _test() {
     local i cur prev opts cmd
     COMPREPLY=()
@@ -904,3 +906,4 @@ _test() {
 }
 
 complete -F _test -o nosort -o bashdefault -o default test
+

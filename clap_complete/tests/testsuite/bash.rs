@@ -138,17 +138,13 @@ fn subcommand_last() {
 
 #[test]
 #[cfg(unix)]
-fn complete() {
+fn register_completion() {
     if !has_command("bash") {
         return;
     }
 
     let shell = "bash";
-
-    let home = std::path::Path::new(env!("CARGO_TARGET_TMPDIR"))
-        .join(format!("clap_complete_{shell}_home"));
-    let _ = std::fs::remove_dir_all(&home);
-
+    let home = std::path::Path::new("tests/snapshots/home/test/bash").to_owned();
     let bin_path = snapbox::cmd::compile_example("test", []).unwrap();
     let bin_root = bin_path.parent().unwrap().to_owned();
 
@@ -163,20 +159,32 @@ fn complete() {
     );
     let registration = std::str::from_utf8(&registration.stdout).unwrap();
     assert!(!registration.is_empty());
-    snapbox::Assert::new()
-        .action_env("SNAPSHOTS")
-        .normalize_paths(false)
-        .matches_path(format!("tests/snapshots/test.{shell}"), registration);
 
-    let term = completest::Term::new();
     let runtime = completest::BashRuntime::new(bin_root, home).unwrap();
 
     runtime.register("test", registration).unwrap();
+}
 
+#[test]
+#[cfg(unix)]
+fn complete() {
+    if !has_command("bash") {
+        return;
+    }
+
+    let shell = "bash";
+    let home = std::path::PathBuf::from(format!("tests/snapshots/home/test/{shell}"));
+    let bin_path = snapbox::cmd::compile_example("test", []).unwrap();
+    let bin_root = bin_path.parent().unwrap().to_owned();
+
+    let term = completest::Term::new();
+    let runtime = completest::BashRuntime::with_home(bin_root, home);
+
+    let input = "test \t\t";
     let expected = r#"% 
 -h          --global    --help      action      value       last        hint        
 -V          --generate  --version   quote       pacman      alias       help        "#;
-    let actual = runtime.complete("test \t\t", &term).unwrap();
+    let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }
 
