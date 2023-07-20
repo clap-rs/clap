@@ -1,12 +1,12 @@
-mod common;
+use crate::common;
 
 #[test]
 fn basic() {
     let name = "my-app";
     let cmd = common::basic_command(name);
     common::assert_matches_path(
-        "tests/snapshots/basic.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/basic.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -17,8 +17,8 @@ fn feature_sample() {
     let name = "my-app";
     let cmd = common::feature_sample_command(name);
     common::assert_matches_path(
-        "tests/snapshots/feature_sample.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/feature_sample.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -29,8 +29,8 @@ fn special_commands() {
     let name = "my-app";
     let cmd = common::special_commands_command(name);
     common::assert_matches_path(
-        "tests/snapshots/special_commands.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/special_commands.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -41,8 +41,8 @@ fn quoting() {
     let name = "my-app";
     let cmd = common::quoting_command(name);
     common::assert_matches_path(
-        "tests/snapshots/quoting.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/quoting.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -53,8 +53,8 @@ fn aliases() {
     let name = "my-app";
     let cmd = common::aliases_command(name);
     common::assert_matches_path(
-        "tests/snapshots/aliases.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/aliases.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -65,8 +65,8 @@ fn sub_subcommands() {
     let name = "my-app";
     let cmd = common::sub_subcommands_command(name);
     common::assert_matches_path(
-        "tests/snapshots/sub_subcommands.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/sub_subcommands.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -77,8 +77,8 @@ fn value_hint() {
     let name = "my-app";
     let cmd = common::value_hint_command(name);
     common::assert_matches_path(
-        "tests/snapshots/value_hint.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/value_hint.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -89,8 +89,8 @@ fn value_terminator() {
     let name = "my-app";
     let cmd = common::value_terminator_command(name);
     common::assert_matches_path(
-        "tests/snapshots/value_terminator.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/value_terminator.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -101,8 +101,8 @@ fn two_multi_valued_arguments() {
     let name = "my-app";
     let cmd = common::two_multi_valued_arguments_command(name);
     common::assert_matches_path(
-        "tests/snapshots/two_multi_valued_arguments.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/two_multi_valued_arguments.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
@@ -113,8 +113,8 @@ fn subcommand_last() {
     let name = "my-app";
     let cmd = common::subcommand_last(name);
     common::assert_matches_path(
-        "tests/snapshots/subcommand_last.elvish",
-        clap_complete::shells::Elvish,
+        "tests/snapshots/subcommand_last.zsh",
+        clap_complete::shells::Zsh,
         cmd,
         name,
     );
