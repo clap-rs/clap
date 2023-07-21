@@ -154,7 +154,7 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let runtime = common::load_runtime("test", completest::Shell::Bash);
+    let mut runtime = common::load_runtime("test", completest::Shell::Bash);
 
     let input = "test \t\t";
     let expected = r#"%

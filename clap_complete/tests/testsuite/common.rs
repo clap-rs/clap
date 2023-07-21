@@ -365,7 +365,7 @@ pub fn register_example(name: &str, shell: completest::Shell) {
     let registration = std::str::from_utf8(&registration.stdout).unwrap();
     assert!(!registration.is_empty());
 
-    let runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
+    let mut runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
 
     runtime.register(name, registration).unwrap();
 
@@ -408,11 +408,11 @@ impl completest::Runtime for ScratchRuntime {
         self.runtime.home()
     }
 
-    fn register(&self, name: &str, content: &str) -> std::io::Result<()> {
+    fn register(&mut self, name: &str, content: &str) -> std::io::Result<()> {
         self.runtime.register(name, content)
     }
 
-    fn complete(&self, input: &str, term: &completest::Term) -> std::io::Result<String> {
+    fn complete(&mut self, input: &str, term: &completest::Term) -> std::io::Result<String> {
         let output = self.runtime.complete(input, term)?;
         // HACK: elvish prints and clears this message when a completer takes too long which is
         // dependent on a lot of factors, making this show up or no sometimes (especially if we
