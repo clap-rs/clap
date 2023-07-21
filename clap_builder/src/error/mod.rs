@@ -446,6 +446,7 @@ impl<F: ErrorFormatter> Error<F> {
         subcmd: String,
         did_you_mean: Vec<String>,
         name: String,
+        suggested_trailing_arg: bool,
         usage: Option<StyledStr>,
     ) -> Self {
         use std::fmt::Write as _;
@@ -456,15 +457,19 @@ impl<F: ErrorFormatter> Error<F> {
 
         #[cfg(feature = "error-context")]
         {
-            let mut styled_suggestion = StyledStr::new();
-            let _ = write!(
-                styled_suggestion,
-                "to pass '{}{subcmd}{}' as a value, use '{}{name} -- {subcmd}{}'",
-                invalid.render(),
-                invalid.render_reset(),
-                valid.render(),
-                valid.render_reset()
-            );
+            let mut suggestions = vec![];
+            if suggested_trailing_arg {
+                let mut styled_suggestion = StyledStr::new();
+                let _ = write!(
+                    styled_suggestion,
+                    "to pass '{}{subcmd}{}' as a value, use '{}{name} -- {subcmd}{}'",
+                    invalid.render(),
+                    invalid.render_reset(),
+                    valid.render(),
+                    valid.render_reset()
+                );
+                suggestions.push(styled_suggestion);
+            }
 
             err = err.extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
@@ -474,7 +479,7 @@ impl<F: ErrorFormatter> Error<F> {
                 ),
                 (
                     ContextKind::Suggested,
-                    ContextValue::StyledStrs(vec![styled_suggestion]),
+                    ContextValue::StyledStrs(suggestions),
                 ),
             ]);
             if let Some(usage) = usage {

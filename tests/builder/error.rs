@@ -187,3 +187,25 @@ For more information, try '--help'.
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
+
+#[test]
+#[cfg(feature = "error-context")]
+#[cfg(feature = "suggestions")]
+fn cant_use_trailing_subcommand() {
+    let cmd = Command::new("test").subcommand(Command::new("bar"));
+
+    let res = cmd.try_get_matches_from(["test", "baz"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::InvalidSubcommand;
+    static MESSAGE: &str = "\
+error: unrecognized subcommand 'baz'
+
+  tip: a similar subcommand exists: 'bar'
+
+Usage: test [COMMAND]
+
+For more information, try '--help'.
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
