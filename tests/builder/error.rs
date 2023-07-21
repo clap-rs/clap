@@ -202,7 +202,6 @@ fn cant_use_trailing_subcommand() {
 error: unrecognized subcommand 'baz'
 
   tip: a similar subcommand exists: 'bar'
-  tip: to pass 'baz' as a value, use 'test -- baz'
 
 Usage: test [COMMAND]
 

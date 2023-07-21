@@ -103,7 +103,6 @@ fn subcmd_did_you_mean_output() {
 error: unrecognized subcommand 'subcm'
 
   tip: a similar subcommand exists: 'subcmd'
-  tip: to pass 'subcm' as a value, use 'dym -- subcm'
 
 Usage: dym [COMMAND]
 
@@ -123,7 +122,6 @@ fn subcmd_did_you_mean_output_ambiguous() {
 error: unrecognized subcommand 'te'
 
   tip: some similar subcommands exist: 'test', 'temp'
-  tip: to pass 'te' as a value, use 'dym -- te'
 
 Usage: dym [COMMAND]
 
@@ -504,7 +502,6 @@ For more information, try 'help'.
 error: unrecognized subcommand 'baz'
 
   tip: a similar subcommand exists: 'bar'
-  tip: to pass 'baz' as a value, use ' -- baz'
 
 Usage: <COMMAND>
 

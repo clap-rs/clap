@@ -474,6 +474,10 @@ impl<'cmd> Parser<'cmd> {
             }
         }
 
+        let suggested_trailing_arg = !trailing_values
+            && self.cmd.has_positionals()
+            && (arg_os.is_long() || arg_os.is_short());
+
         if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
             let candidates = suggestions::did_you_mean(
                 &arg_os.display().to_string(),
@@ -489,6 +493,7 @@ impl<'cmd> Parser<'cmd> {
                         .get_bin_name()
                         .unwrap_or_else(|| self.cmd.get_name())
                         .to_owned(),
+                    suggested_trailing_arg,
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 );
             }
@@ -505,9 +510,6 @@ impl<'cmd> Parser<'cmd> {
             }
         }
 
-        let suggested_trailing_arg = !trailing_values
-            && self.cmd.has_positionals()
-            && (arg_os.is_long() || arg_os.is_short());
         ClapError::unknown_argument(
             self.cmd,
             arg_os.display().to_string(),
