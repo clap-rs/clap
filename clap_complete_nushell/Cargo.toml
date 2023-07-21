@@ -35,11 +35,6 @@ clap = { path = "../", version = "4.0.0", default-features = false, features = [
 clap_complete = { path = "../clap_complete", version = "4.0.0" }
 
 [dev-dependencies]
-snapbox = { version = "0.4.11", features = ["diff"] }
+snapbox = { version = "0.4.11", features = ["diff", "examples", "path"] }
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
-nu-cli = "0.78.0"
-nu-command = "0.78.0"
-nu-parser = "0.78.0"
-nu-protocol = "0.78.0"
-nu-test-support = "0.78.0"
-reedline = "0.18.0"
+completest = { version = "0.0.16", features = ["nu"] }

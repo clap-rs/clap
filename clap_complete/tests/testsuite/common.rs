@@ -296,6 +296,96 @@ pub fn assert_matches_path(
         .matches_path(expected_path, buf);
 }
 
+pub fn register_example(name: &str, shell: completest::Shell) {
+    let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
+    let scratch_path = scratch.path().unwrap();
+
+    let shell_name = shell.name();
+    let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/snapshots/home")
+        .join(name)
+        .join(shell_name);
+    println!("Compiling");
+    let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
+    let bin_path =
+        snapbox::cmd::compile_example(name, ["--manifest-path", manifest_path.to_str().unwrap()])
+            .unwrap();
+    println!("Compiled");
+    let bin_root = bin_path.parent().unwrap().to_owned();
+
+    let registration = std::process::Command::new(&bin_path)
+        .arg(format!("--generate={shell_name}"))
+        .output()
+        .unwrap();
+    assert!(
+        registration.status.success(),
+        "{}",
+        String::from_utf8_lossy(&registration.stderr)
+    );
+    let registration = std::str::from_utf8(&registration.stdout).unwrap();
+    assert!(!registration.is_empty());
+
+    let mut runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
+
+    runtime.register(name, registration).unwrap();
+
+    snapbox::assert_subset_eq(home, scratch_path);
+
+    scratch.close().unwrap();
+}
+
+pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest::Runtime> {
+    let shell_name = shell.name();
+    let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/snapshots/home")
+        .join(name)
+        .join(shell_name);
+    let scratch = snapbox::path::PathFixture::mutable_temp()
+        .unwrap()
+        .with_template(&home)
+        .unwrap();
+    let home = scratch.path().unwrap().to_owned();
+    println!("Compiling");
+    let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
+    let bin_path =
+        snapbox::cmd::compile_example(name, ["--manifest-path", manifest_path.to_str().unwrap()])
+            .unwrap();
+    println!("Compiled");
+    let bin_root = bin_path.parent().unwrap().to_owned();
+
+    let runtime = shell.with_home(bin_root, home).unwrap();
+
+    Box::new(ScratchRuntime {
+        _scratch: scratch,
+        runtime,
+    })
+}
+
+#[derive(Debug)]
+struct ScratchRuntime {
+    _scratch: snapbox::path::PathFixture,
+    runtime: Box<dyn completest::Runtime>,
+}
+
+impl completest::Runtime for ScratchRuntime {
+    fn home(&self) -> &std::path::Path {
+        self.runtime.home()
+    }
+
+    fn register(&mut self, name: &str, content: &str) -> std::io::Result<()> {
+        self.runtime.register(name, content)
+    }
+
+    fn complete(&mut self, input: &str, term: &completest::Term) -> std::io::Result<String> {
+        let output = self.runtime.complete(input, term)?;
+        // HACK: elvish prints and clears this message when a completer takes too long which is
+        // dependent on a lot of factors, making this show up or no sometimes (especially if we
+        // aren't clearing the screen properly for fish)
+        let output = output.replace("\nCOMPLETING argument\n", "\n");
+        Ok(output)
+    }
+}
+
 pub fn has_command(command: &str) -> bool {
     let output = match std::process::Command::new(command)
         .arg("--version")
@@ -339,87 +429,6 @@ pub fn has_command(command: &str) -> bool {
     }
 
     true
-}
-
-#[cfg(unix)]
-pub fn register_example(name: &str, shell: completest::Shell) {
-    let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
-    let scratch_path = scratch.path().unwrap();
-
-    let shell_name = shell.name();
-    let home = std::path::Path::new("tests/snapshots/home")
-        .join(name)
-        .join(shell_name);
-    let bin_path = snapbox::cmd::compile_example(name, []).unwrap();
-    let bin_root = bin_path.parent().unwrap().to_owned();
-
-    let registration = std::process::Command::new(&bin_path)
-        .arg(format!("--generate={shell_name}"))
-        .output()
-        .unwrap();
-    assert!(
-        registration.status.success(),
-        "{}",
-        String::from_utf8_lossy(&registration.stderr)
-    );
-    let registration = std::str::from_utf8(&registration.stdout).unwrap();
-    assert!(!registration.is_empty());
-
-    let mut runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
-
-    runtime.register(name, registration).unwrap();
-
-    snapbox::assert_subset_eq(home, scratch_path);
-
-    scratch.close().unwrap();
-}
-
-#[cfg(unix)]
-pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest::Runtime> {
-    let shell_name = shell.name();
-    let home = std::path::Path::new("tests/snapshots/home")
-        .join(name)
-        .join(shell_name);
-    let scratch = snapbox::path::PathFixture::mutable_temp()
-        .unwrap()
-        .with_template(&home)
-        .unwrap();
-    let home = scratch.path().unwrap().to_owned();
-    let bin_path = snapbox::cmd::compile_example(name, []).unwrap();
-    let bin_root = bin_path.parent().unwrap().to_owned();
-
-    let runtime = shell.with_home(bin_root, home);
-
-    Box::new(ScratchRuntime {
-        _scratch: scratch,
-        runtime,
-    })
-}
-
-#[cfg(unix)]
-struct ScratchRuntime {
-    _scratch: snapbox::path::PathFixture,
-    runtime: Box<dyn completest::Runtime>,
-}
-
-#[cfg(unix)]
-impl completest::Runtime for ScratchRuntime {
-    fn home(&self) -> &std::path::Path {
-        self.runtime.home()
-    }
-
-    fn register(&mut self, name: &str, content: &str) -> std::io::Result<()> {
-        self.runtime.register(name, content)
-    }
-
-    fn complete(&mut self, input: &str, term: &completest::Term) -> std::io::Result<String> {
-        let output = self.runtime.complete(input, term)?;
-        // HACK: elvish prints and clears this message when a completer takes too long which is
-        // dependent on a lot of factors, making this show up or no sometimes (especially if we
-        // aren't clearing the screen properly for fish)
-        let output = output.replace("\nCOMPLETING argument\n", "\n");
-        Ok(output)
-    }
 }
 
 /// Whether or not this running in a Continuous Integration environment.

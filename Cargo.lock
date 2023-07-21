@@ -570,12 +570,7 @@ version = "4.3.1"
 dependencies = [
  "clap 4.3.19",
  "clap_complete",
- "nu-cli",
- "nu-command",
- "nu-parser",
- "nu-protocol",
- "nu-test-support",
- "reedline",
+ "completest",
  "snapbox",
 ]
 
@@ -646,11 +641,18 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "completest"
-version = "0.0.14"
+version = "0.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa515ddcd88ba6e25ed72581b38284255c9126ff2ca4fd81525f72a59187a985"
+checksum = "426bfb709a07e01f5ee02dfccf42a73ef64a03ca6295a82e5c1c211a302a770e"
 dependencies = [
+ "dunce",
+ "nu-cli",
+ "nu-command",
+ "nu-parser",
+ "nu-protocol",
+ "nu-test-support",
  "ptyprocess",
+ "reedline",
  "vt100",
 ]
 

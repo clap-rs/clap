@@ -43,7 +43,7 @@ unicode-xid = { version = "0.2.2", optional = true }
 snapbox = { version = "0.4.11", features = ["diff", "path", "examples"] }
 # Cutting out `filesystem` feature
 trycmd = { version = "0.14.16", default-features = false, features = ["color-auto", "diff", "examples"] }
-completest = "0.0.14"
+completest = "0.0.16"
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "derive", "help"] }
 
 [[example]]
