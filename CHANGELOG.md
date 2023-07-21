@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parse)* Suggest `--` in fewer places where it won't work
+
 ## [4.3.17] - 2023-07-19
 
 ### Fixes
