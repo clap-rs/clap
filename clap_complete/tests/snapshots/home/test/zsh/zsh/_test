@@ -1,0 +1,701 @@
+#compdef test
+
+autoload -U is-at-least
+
+_test() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'--generate=[generate]: :(bash elvish fish powershell zsh)' \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_test_commands" \
+"*::: :->test" \
+&& ret=0
+    case $state in
+    (test)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-command-$line[1]:"
+        case $line[1] in
+            (action)
+_arguments "${_arguments_options[@]}" \
+'--set=[value]: : ' \
+'--choice=[enum]: :(first second)' \
+'--set-true[bool]' \
+'*--count[number]' \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(quote)
+_arguments "${_arguments_options[@]}" \
+'--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
+'--double-quotes[Can be "always", "auto", or "never"]' \
+'--backticks[For more information see \`echo test\`]' \
+'--backslash[Avoid '\''\\n'\'']' \
+'--brackets[List packages \[filter\]]' \
+'--expansions[Execute the shell command with \$SHELL]' \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_test__quote_commands" \
+"*::: :->quote" \
+&& ret=0
+
+    case $state in
+    (quote)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-quote-command-$line[1]:"
+        case $line[1] in
+            (cmd-single-quotes)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(cmd-double-quotes)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(cmd-backticks)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(cmd-backslash)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(cmd-brackets)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(cmd-expansions)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+":: :_test__quote__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-quote-help-command-$line[1]:"
+        case $line[1] in
+            (cmd-single-quotes)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-double-quotes)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-backticks)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-backslash)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-brackets)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-expansions)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(value)
+_arguments "${_arguments_options[@]}" \
+'--delim=[]: : ' \
+'--tuple=[]: : : : ' \
+'--require-eq=[]: : ' \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'*;::term:' \
+&& ret=0
+;;
+(pacman)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_test__pacman_commands" \
+"*::: :->pacman" \
+&& ret=0
+
+    case $state in
+    (pacman)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-pacman-command-$line[1]:"
+        case $line[1] in
+            (one)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(two)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+":: :_test__pacman__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-pacman-help-command-$line[1]:"
+        case $line[1] in
+            (one)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(two)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(last)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::first:' \
+'::free:' \
+&& ret=0
+;;
+(alias)
+_arguments "${_arguments_options[@]}" \
+'-o+[cmd option]: : ' \
+'-O+[cmd option]: : ' \
+'--option=[cmd option]: : ' \
+'--opt=[cmd option]: : ' \
+'-f[cmd flag]' \
+'-F[cmd flag]' \
+'--flag[cmd flag]' \
+'--flg[cmd flag]' \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::positional:' \
+&& ret=0
+;;
+(hint)
+_arguments "${_arguments_options[@]}" \
+'--choice=[]: :(bash fish zsh)' \
+'--unknown=[]: : ' \
+'--other=[]: :( )' \
+'-p+[]: :_files' \
+'--path=[]: :_files' \
+'-f+[]: :_files' \
+'--file=[]: :_files' \
+'-d+[]: :_files -/' \
+'--dir=[]: :_files -/' \
+'-e+[]: :_absolute_command_paths' \
+'--exe=[]: :_absolute_command_paths' \
+'--cmd-name=[]: :_command_names -e' \
+'-c+[]: :_cmdstring' \
+'--cmd=[]: :_cmdstring' \
+'-u+[]: :_users' \
+'--user=[]: :_users' \
+'-H+[]: :_hosts' \
+'--host=[]: :_hosts' \
+'--url=[]: :_urls' \
+'--email=[]: :_email_addresses' \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'*::command_with_args:_cmdambivalent' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+":: :_test__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-help-command-$line[1]:"
+        case $line[1] in
+            (action)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(quote)
+_arguments "${_arguments_options[@]}" \
+":: :_test__help__quote_commands" \
+"*::: :->quote" \
+&& ret=0
+
+    case $state in
+    (quote)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-help-quote-command-$line[1]:"
+        case $line[1] in
+            (cmd-single-quotes)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-double-quotes)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-backticks)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-backslash)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-brackets)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(cmd-expansions)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(value)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(pacman)
+_arguments "${_arguments_options[@]}" \
+":: :_test__help__pacman_commands" \
+"*::: :->pacman" \
+&& ret=0
+
+    case $state in
+    (pacman)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:test-help-pacman-command-$line[1]:"
+        case $line[1] in
+            (one)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(two)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(last)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(alias)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(hint)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_test_commands] )) ||
+_test_commands() {
+    local commands; commands=(
+'action:' \
+'quote:' \
+'value:' \
+'pacman:' \
+'last:' \
+'alias:' \
+'hint:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'test commands' commands "$@"
+}
+(( $+functions[_test__action_commands] )) ||
+_test__action_commands() {
+    local commands; commands=()
+    _describe -t commands 'test action commands' commands "$@"
+}
+(( $+functions[_test__help__action_commands] )) ||
+_test__help__action_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help action commands' commands "$@"
+}
+(( $+functions[_test__alias_commands] )) ||
+_test__alias_commands() {
+    local commands; commands=()
+    _describe -t commands 'test alias commands' commands "$@"
+}
+(( $+functions[_test__help__alias_commands] )) ||
+_test__help__alias_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help alias commands' commands "$@"
+}
+(( $+functions[_test__help__quote__cmd-backslash_commands] )) ||
+_test__help__quote__cmd-backslash_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help quote cmd-backslash commands' commands "$@"
+}
+(( $+functions[_test__quote__cmd-backslash_commands] )) ||
+_test__quote__cmd-backslash_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote cmd-backslash commands' commands "$@"
+}
+(( $+functions[_test__quote__help__cmd-backslash_commands] )) ||
+_test__quote__help__cmd-backslash_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help cmd-backslash commands' commands "$@"
+}
+(( $+functions[_test__help__quote__cmd-backticks_commands] )) ||
+_test__help__quote__cmd-backticks_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help quote cmd-backticks commands' commands "$@"
+}
+(( $+functions[_test__quote__cmd-backticks_commands] )) ||
+_test__quote__cmd-backticks_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote cmd-backticks commands' commands "$@"
+}
+(( $+functions[_test__quote__help__cmd-backticks_commands] )) ||
+_test__quote__help__cmd-backticks_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help cmd-backticks commands' commands "$@"
+}
+(( $+functions[_test__help__quote__cmd-brackets_commands] )) ||
+_test__help__quote__cmd-brackets_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help quote cmd-brackets commands' commands "$@"
+}
+(( $+functions[_test__quote__cmd-brackets_commands] )) ||
+_test__quote__cmd-brackets_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote cmd-brackets commands' commands "$@"
+}
+(( $+functions[_test__quote__help__cmd-brackets_commands] )) ||
+_test__quote__help__cmd-brackets_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help cmd-brackets commands' commands "$@"
+}
+(( $+functions[_test__help__quote__cmd-double-quotes_commands] )) ||
+_test__help__quote__cmd-double-quotes_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help quote cmd-double-quotes commands' commands "$@"
+}
+(( $+functions[_test__quote__cmd-double-quotes_commands] )) ||
+_test__quote__cmd-double-quotes_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote cmd-double-quotes commands' commands "$@"
+}
+(( $+functions[_test__quote__help__cmd-double-quotes_commands] )) ||
+_test__quote__help__cmd-double-quotes_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help cmd-double-quotes commands' commands "$@"
+}
+(( $+functions[_test__help__quote__cmd-expansions_commands] )) ||
+_test__help__quote__cmd-expansions_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help quote cmd-expansions commands' commands "$@"
+}
+(( $+functions[_test__quote__cmd-expansions_commands] )) ||
+_test__quote__cmd-expansions_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote cmd-expansions commands' commands "$@"
+}
+(( $+functions[_test__quote__help__cmd-expansions_commands] )) ||
+_test__quote__help__cmd-expansions_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help cmd-expansions commands' commands "$@"
+}
+(( $+functions[_test__help__quote__cmd-single-quotes_commands] )) ||
+_test__help__quote__cmd-single-quotes_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help quote cmd-single-quotes commands' commands "$@"
+}
+(( $+functions[_test__quote__cmd-single-quotes_commands] )) ||
+_test__quote__cmd-single-quotes_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote cmd-single-quotes commands' commands "$@"
+}
+(( $+functions[_test__quote__help__cmd-single-quotes_commands] )) ||
+_test__quote__help__cmd-single-quotes_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help cmd-single-quotes commands' commands "$@"
+}
+(( $+functions[_test__help_commands] )) ||
+_test__help_commands() {
+    local commands; commands=(
+'action:' \
+'quote:' \
+'value:' \
+'pacman:' \
+'last:' \
+'alias:' \
+'hint:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'test help commands' commands "$@"
+}
+(( $+functions[_test__help__help_commands] )) ||
+_test__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help help commands' commands "$@"
+}
+(( $+functions[_test__pacman__help_commands] )) ||
+_test__pacman__help_commands() {
+    local commands; commands=(
+'one:' \
+'two:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'test pacman help commands' commands "$@"
+}
+(( $+functions[_test__pacman__help__help_commands] )) ||
+_test__pacman__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'test pacman help help commands' commands "$@"
+}
+(( $+functions[_test__quote__help_commands] )) ||
+_test__quote__help_commands() {
+    local commands; commands=(
+'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
+'cmd-double-quotes:Can be "always", "auto", or "never"' \
+'cmd-backticks:For more information see \`echo test\`' \
+'cmd-backslash:Avoid '\''\\n'\''' \
+'cmd-brackets:List packages \[filter\]' \
+'cmd-expansions:Execute the shell command with \$SHELL' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'test quote help commands' commands "$@"
+}
+(( $+functions[_test__quote__help__help_commands] )) ||
+_test__quote__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'test quote help help commands' commands "$@"
+}
+(( $+functions[_test__help__hint_commands] )) ||
+_test__help__hint_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help hint commands' commands "$@"
+}
+(( $+functions[_test__hint_commands] )) ||
+_test__hint_commands() {
+    local commands; commands=()
+    _describe -t commands 'test hint commands' commands "$@"
+}
+(( $+functions[_test__help__last_commands] )) ||
+_test__help__last_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help last commands' commands "$@"
+}
+(( $+functions[_test__last_commands] )) ||
+_test__last_commands() {
+    local commands; commands=()
+    _describe -t commands 'test last commands' commands "$@"
+}
+(( $+functions[_test__help__pacman__one_commands] )) ||
+_test__help__pacman__one_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help pacman one commands' commands "$@"
+}
+(( $+functions[_test__pacman__help__one_commands] )) ||
+_test__pacman__help__one_commands() {
+    local commands; commands=()
+    _describe -t commands 'test pacman help one commands' commands "$@"
+}
+(( $+functions[_test__pacman__one_commands] )) ||
+_test__pacman__one_commands() {
+    local commands; commands=()
+    _describe -t commands 'test pacman one commands' commands "$@"
+}
+(( $+functions[_test__help__pacman_commands] )) ||
+_test__help__pacman_commands() {
+    local commands; commands=(
+'one:' \
+'two:' \
+    )
+    _describe -t commands 'test help pacman commands' commands "$@"
+}
+(( $+functions[_test__pacman_commands] )) ||
+_test__pacman_commands() {
+    local commands; commands=(
+'one:' \
+'two:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'test pacman commands' commands "$@"
+}
+(( $+functions[_test__help__quote_commands] )) ||
+_test__help__quote_commands() {
+    local commands; commands=(
+'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
+'cmd-double-quotes:Can be "always", "auto", or "never"' \
+'cmd-backticks:For more information see \`echo test\`' \
+'cmd-backslash:Avoid '\''\\n'\''' \
+'cmd-brackets:List packages \[filter\]' \
+'cmd-expansions:Execute the shell command with \$SHELL' \
+    )
+    _describe -t commands 'test help quote commands' commands "$@"
+}
+(( $+functions[_test__quote_commands] )) ||
+_test__quote_commands() {
+    local commands; commands=(
+'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
+'cmd-double-quotes:Can be "always", "auto", or "never"' \
+'cmd-backticks:For more information see \`echo test\`' \
+'cmd-backslash:Avoid '\''\\n'\''' \
+'cmd-brackets:List packages \[filter\]' \
+'cmd-expansions:Execute the shell command with \$SHELL' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'test quote commands' commands "$@"
+}
+(( $+functions[_test__help__pacman__two_commands] )) ||
+_test__help__pacman__two_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help pacman two commands' commands "$@"
+}
+(( $+functions[_test__pacman__help__two_commands] )) ||
+_test__pacman__help__two_commands() {
+    local commands; commands=()
+    _describe -t commands 'test pacman help two commands' commands "$@"
+}
+(( $+functions[_test__pacman__two_commands] )) ||
+_test__pacman__two_commands() {
+    local commands; commands=()
+    _describe -t commands 'test pacman two commands' commands "$@"
+}
+(( $+functions[_test__help__value_commands] )) ||
+_test__help__value_commands() {
+    local commands; commands=()
+    _describe -t commands 'test help value commands' commands "$@"
+}
+(( $+functions[_test__value_commands] )) ||
+_test__value_commands() {
+    local commands; commands=()
+    _describe -t commands 'test value commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_test" ]; then
+    _test "$@"
+else
+    compdef _test test
+fi

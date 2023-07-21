@@ -295,3 +295,137 @@ pub fn assert_matches_path(
         .normalize_paths(false)
         .matches_path(expected_path, buf);
 }
+
+pub fn has_command(command: &str) -> bool {
+    let output = match std::process::Command::new(command)
+        .arg("--version")
+        .output()
+    {
+        Ok(output) => output,
+        Err(e) => {
+            // CI is expected to support all of the commands
+            if is_ci() && cfg!(linux) {
+                panic!(
+                    "expected command `{}` to be somewhere in PATH: {}",
+                    command, e
+                );
+            }
+            return false;
+        }
+    };
+    if !output.status.success() {
+        panic!(
+            "expected command `{}` to be runnable, got error {}:\n\
+            stderr:{}\n\
+            stdout:{}\n",
+            command,
+            output.status,
+            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stdout)
+        );
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!(
+        "$ {command} --version
+{}",
+        stdout
+    );
+    if cfg!(target_os = "macos") && stdout.starts_with("GNU bash, version 3") {
+        return false;
+    }
+    if cfg!(target_os = "macos") && command == "zsh" {
+        // HACK: At least on CI, the prompt override is not working
+        return false;
+    }
+
+    true
+}
+
+#[cfg(unix)]
+pub fn register_example(name: &str, shell: completest::Shell) {
+    let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
+    let scratch_path = scratch.path().unwrap();
+
+    let shell_name = shell.name();
+    let home = std::path::Path::new("tests/snapshots/home")
+        .join(name)
+        .join(shell_name);
+    let bin_path = snapbox::cmd::compile_example(name, []).unwrap();
+    let bin_root = bin_path.parent().unwrap().to_owned();
+
+    let registration = std::process::Command::new(&bin_path)
+        .arg(format!("--generate={shell_name}"))
+        .output()
+        .unwrap();
+    assert!(
+        registration.status.success(),
+        "{}",
+        String::from_utf8_lossy(&registration.stderr)
+    );
+    let registration = std::str::from_utf8(&registration.stdout).unwrap();
+    assert!(!registration.is_empty());
+
+    let runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
+
+    runtime.register(name, registration).unwrap();
+
+    snapbox::assert_subset_eq(&home, scratch_path);
+
+    scratch.close().unwrap();
+}
+
+#[cfg(unix)]
+pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest::Runtime> {
+    let shell_name = shell.name();
+    let home = std::path::Path::new("tests/snapshots/home")
+        .join(name)
+        .join(shell_name);
+    let scratch = snapbox::path::PathFixture::mutable_temp()
+        .unwrap()
+        .with_template(&home)
+        .unwrap();
+    let home = scratch.path().unwrap().to_owned();
+    let bin_path = snapbox::cmd::compile_example(name, []).unwrap();
+    let bin_root = bin_path.parent().unwrap().to_owned();
+
+    let runtime = shell.with_home(bin_root, home);
+
+    Box::new(ScratchRuntime {
+        _scratch: scratch,
+        runtime,
+    })
+}
+
+#[cfg(unix)]
+struct ScratchRuntime {
+    _scratch: snapbox::path::PathFixture,
+    runtime: Box<dyn completest::Runtime>,
+}
+
+#[cfg(unix)]
+impl completest::Runtime for ScratchRuntime {
+    fn home(&self) -> &std::path::Path {
+        self.runtime.home()
+    }
+
+    fn register(&self, name: &str, content: &str) -> std::io::Result<()> {
+        self.runtime.register(name, content)
+    }
+
+    fn complete(&self, input: &str, term: &completest::Term) -> std::io::Result<String> {
+        let output = self.runtime.complete(input, term)?;
+        // HACK: elvish prints and clears this message when a completer takes too long which is
+        // dependent on a lot of factors, making this show up or no sometimes (especially if we
+        // aren't clearing the screen properly for fish)
+        let output = output.replace("\n COMPLETING argument\n", "\n");
+        Ok(output)
+    }
+}
+
+/// Whether or not this running in a Continuous Integration environment.
+fn is_ci() -> bool {
+    // Consider using `tracked_env` instead of option_env! when it is stabilized.
+    // `tracked_env` will handle changes, but not require rebuilding the macro
+    // itself like option_env does.
+    option_env!("CI").is_some() || option_env!("TF_BUILD").is_some()
+}

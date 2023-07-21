@@ -1,4 +1,4 @@
-mod common;
+use crate::common;
 
 #[test]
 fn basic() {
@@ -134,4 +134,32 @@ fn subcommand_last() {
         cmd,
         name,
     );
+}
+
+#[test]
+#[cfg(unix)]
+fn register_completion() {
+    if !common::has_command("bash") {
+        return;
+    }
+
+    common::register_example("test", completest::Shell::Bash);
+}
+
+#[test]
+#[cfg(unix)]
+fn complete() {
+    if !common::has_command("bash") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let runtime = common::load_runtime("test", completest::Shell::Bash);
+
+    let input = "test \t\t";
+    let expected = r#"%
+-h          --global    --help      action      value       last        hint
+-V          --generate  --version   quote       pacman      alias       help"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
 }

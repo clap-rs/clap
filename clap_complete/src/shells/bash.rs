@@ -58,7 +58,7 @@ impl Generator for Bash {
     esac
 }}
 
-complete -F _{name} -o bashdefault -o default {name}
+complete -F _{name} -o nosort -o bashdefault -o default {name}
 ",
                 name = bin_name,
                 cmd = bin_name.replace('-', "__"),
