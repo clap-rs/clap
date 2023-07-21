@@ -1391,20 +1391,13 @@ fn all_multiple_value_terminator() {
     let m = m.unwrap();
 
     assert!(m.contains_id("files"));
-    assert!(m.contains_id("other"));
+    assert!(!m.contains_id("other"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
         ["value".to_owned()],
-    );
-    assert_eq!(
-        m.get_many::<String>("other")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        [";".to_owned()],
     );
 }
 
