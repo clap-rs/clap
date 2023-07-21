@@ -138,7 +138,7 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let runtime = common::load_runtime("test", completest::Shell::Zsh);
+    let mut runtime = common::load_runtime("test", completest::Shell::Zsh);
 
     let input = "test \t";
     let expected = r#"% test
