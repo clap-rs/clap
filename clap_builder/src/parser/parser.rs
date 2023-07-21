@@ -302,6 +302,13 @@ impl<'cmd> Parser<'cmd> {
                         .map(|p_name| !p_name.is_last_set())
                         .unwrap_or_default();
 
+                let is_terminated = self
+                    .cmd
+                    .get_keymap()
+                    .get(&pos_counter)
+                    .map(|a| a.get_value_terminator().is_some())
+                    .unwrap_or_default();
+
                 let missing_pos = self.cmd.is_allow_missing_positional_set()
                     && is_second_to_last
                     && !trailing_values;
@@ -309,7 +316,7 @@ impl<'cmd> Parser<'cmd> {
                 debug!("Parser::get_matches_with: Positional counter...{pos_counter}");
                 debug!("Parser::get_matches_with: Low index multiples...{low_index_mults:?}");
 
-                if low_index_mults || missing_pos {
+                if (low_index_mults || missing_pos) && !is_terminated {
                     let skip_current = if let Some(n) = raw_args.peek(&args_cursor) {
                         if let Some(arg) = self
                             .cmd
