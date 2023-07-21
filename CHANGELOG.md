@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.3.19] - 2023-07-21
+
 ### Fixes
 
 - *(parse)* Respect `value_terminator` even in the presence of later multiple-value positional arguments
@@ -4381,7 +4383,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.18...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.19...HEAD
+[4.3.19]: https://github.com/clap-rs/clap/compare/v4.3.18...v4.3.19
 [4.3.18]: https://github.com/clap-rs/clap/compare/v4.3.17...v4.3.18
 [4.3.17]: https://github.com/clap-rs/clap/compare/v4.3.16...v4.3.17
 [4.3.16]: https://github.com/clap-rs/clap/compare/v4.3.15...v4.3.16
