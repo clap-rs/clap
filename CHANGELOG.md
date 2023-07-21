@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parse)* Respect `value_terminator` even in the presence of later multiple-value positional arguments
+
 ## [4.3.18] - 2023-07-21
 
 ### Fixes
