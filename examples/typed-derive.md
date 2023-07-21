@@ -12,7 +12,7 @@ Options:
       --sleep <SLEEP>          Allow human-readable durations
   -D <DEFINES>                 Hand-written parser for tuples
       --port <PORT>            Support for discrete numbers [default: 22] [possible values: 22, 80]
-      --log-level <LOG_LEVEL>  Support enums from a foreign crate that don't implement `ValueEnum` [default: info] [possible values: info, debug, info, warn, error]
+      --log-level <LOG_LEVEL>  Support enums from a foreign crate that don't implement `ValueEnum` [default: info] [possible values: trace, debug, info, warn, error]
   -h, --help                   Print help
 
 ```
@@ -117,14 +117,14 @@ Args { optimization: None, include: None, bind: None, sleep: None, defines: [], 
 $ typed-derive --log-level
 ? failed
 error: a value is required for '--log-level <LOG_LEVEL>' but none was supplied
-  [possible values: info, debug, info, warn, error]
+  [possible values: trace, debug, info, warn, error]
 
 For more information, try '--help'.
 
 $ typed-derive --log-level critical
 ? failed
 error: invalid value 'critical' for '--log-level <LOG_LEVEL>'
-  [possible values: info, debug, info, warn, error]
+  [possible values: trace, debug, info, warn, error]
 
 For more information, try '--help'.
 

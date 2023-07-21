@@ -38,7 +38,7 @@ struct Args {
     #[arg(
         long,
         default_value_t = foreign_crate::LogLevel::Info,
-        value_parser = clap::builder::PossibleValuesParser::new(["info", "debug", "info", "warn", "error"])
+        value_parser = clap::builder::PossibleValuesParser::new(["trace", "debug", "info", "warn", "error"])
             .map(|s| s.parse::<foreign_crate::LogLevel>().unwrap()),
     )]
     log_level: foreign_crate::LogLevel,
