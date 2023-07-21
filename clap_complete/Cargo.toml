@@ -40,7 +40,7 @@ shlex = { version = "1.1.0", optional = true }
 unicode-xid = { version = "0.2.2", optional = true }
 
 [dev-dependencies]
-snapbox = { version = "0.4.11", features = ["diff", "examples"] }
+snapbox = { version = "0.4.11", features = ["diff", "path", "examples"] }
 # Cutting out `filesystem` feature
 trycmd = { version = "0.14.16", default-features = false, features = ["color-auto", "diff", "examples"] }
 completest = "0.0.4"
