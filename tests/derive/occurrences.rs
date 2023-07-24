@@ -13,7 +13,7 @@ fn test_vec_of_vec() {
         Opt {
             points: vec![vec![1, 2], vec![0, 0]]
         },
-        Opt::try_parse_from(&["test", "-p", "1", "2", "-p", "0", "0"]).unwrap()
+        Opt::try_parse_from(["test", "-p", "1", "2", "-p", "0", "0"]).unwrap()
     );
 }
 
@@ -47,7 +47,7 @@ fn test_vec_vec_empty() {
 
     assert_eq!(
         Opt { points: vec![] },
-        Opt::try_parse_from(&["test"]).unwrap()
+        Opt::try_parse_from(["test"]).unwrap()
     );
 }
 
@@ -63,7 +63,7 @@ fn test_option_vec_vec() {
         Opt {
             points: Some(vec![vec![1, 2], vec![3, 4]])
         },
-        Opt::try_parse_from(&["test", "-p", "1", "2", "-p", "3", "4"]).unwrap()
+        Opt::try_parse_from(["test", "-p", "1", "2", "-p", "3", "4"]).unwrap()
     );
 }
 
@@ -75,8 +75,5 @@ fn test_option_vec_vec_empty() {
         points: Option<Vec<Vec<i32>>>,
     }
 
-    assert_eq!(
-        Opt { points: None },
-        Opt::try_parse_from(&["test"]).unwrap()
-    );
+    assert_eq!(Opt { points: None }, Opt::try_parse_from(["test"]).unwrap());
 }

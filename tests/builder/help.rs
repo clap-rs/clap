@@ -441,7 +441,7 @@ Options:
 }
 
 #[test]
-#[cfg(all(feature = "wrap_help"))]
+#[cfg(feature = "wrap_help")]
 fn possible_value_wrapped_help() {
     static WRAPPED_HELP: &str = "\
 Usage: test [OPTIONS]

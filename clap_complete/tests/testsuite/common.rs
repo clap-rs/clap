@@ -369,7 +369,7 @@ pub fn register_example(name: &str, shell: completest::Shell) {
 
     runtime.register(name, registration).unwrap();
 
-    snapbox::assert_subset_eq(&home, scratch_path);
+    snapbox::assert_subset_eq(home, scratch_path);
 
     scratch.close().unwrap();
 }
