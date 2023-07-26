@@ -70,3 +70,5 @@ jobs:
     - name: Test (ultra-minimal)
       if: matrix.build == 'minimal'
       run: make test-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Test dynamic completions
+      run: cargo test -p clap_complete -F unstable-dynamic
