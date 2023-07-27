@@ -417,7 +417,7 @@ impl completest::Runtime for ScratchRuntime {
         // HACK: elvish prints and clears this message when a completer takes too long which is
         // dependent on a lot of factors, making this show up or no sometimes (especially if we
         // aren't clearing the screen properly for fish)
-        let output = output.replace("\n COMPLETING argument\n", "\n");
+        let output = output.replace("\nCOMPLETING argument\n", "\n");
         Ok(output)
     }
 }
