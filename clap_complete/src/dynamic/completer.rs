@@ -241,7 +241,7 @@ fn complete_path(
         .flatten()
         .filter_map(Result::ok)
     {
-        let raw_file_name = OsString::from(entry.file_name());
+        let raw_file_name = entry.file_name();
         if !raw_file_name.starts_with(&prefix) {
             continue;
         }
