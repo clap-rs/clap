@@ -123,10 +123,6 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    if !common::has_command("elvish") {
-        return;
-    }
-
     common::register_example("static", "test", completest::Shell::Elvish);
 }
 
