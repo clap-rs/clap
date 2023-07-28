@@ -1,8 +1,8 @@
-#compdef test
+#compdef exhaustive
 
 autoload -U is-at-least
 
-_test() {
+_exhaustive() {
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -21,14 +21,14 @@ _test() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_test_commands" \
-"*::: :->test" \
+":: :_exhaustive_commands" \
+"*::: :->exhaustive" \
 && ret=0
     case $state in
-    (test)
+    (exhaustive)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-command-$line[1]:"
         case $line[1] in
             (action)
 _arguments "${_arguments_options[@]}" \
@@ -56,7 +56,7 @@ _arguments "${_arguments_options[@]}" \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_test__quote_commands" \
+":: :_exhaustive__quote_commands" \
 "*::: :->quote" \
 && ret=0
 
@@ -64,7 +64,7 @@ _arguments "${_arguments_options[@]}" \
     (quote)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-quote-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-quote-command-$line[1]:"
         case $line[1] in
             (cmd-single-quotes)
 _arguments "${_arguments_options[@]}" \
@@ -122,7 +122,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-":: :_test__quote__help_commands" \
+":: :_exhaustive__quote__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -130,7 +130,7 @@ _arguments "${_arguments_options[@]}" \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-quote-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-quote-help-command-$line[1]:"
         case $line[1] in
             (cmd-single-quotes)
 _arguments "${_arguments_options[@]}" \
@@ -188,7 +188,7 @@ _arguments "${_arguments_options[@]}" \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_test__pacman_commands" \
+":: :_exhaustive__pacman_commands" \
 "*::: :->pacman" \
 && ret=0
 
@@ -196,7 +196,7 @@ _arguments "${_arguments_options[@]}" \
     (pacman)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-pacman-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-pacman-command-$line[1]:"
         case $line[1] in
             (one)
 _arguments "${_arguments_options[@]}" \
@@ -218,7 +218,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-":: :_test__pacman__help_commands" \
+":: :_exhaustive__pacman__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -226,7 +226,7 @@ _arguments "${_arguments_options[@]}" \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-pacman-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-pacman-help-command-$line[1]:"
         case $line[1] in
             (one)
 _arguments "${_arguments_options[@]}" \
@@ -321,7 +321,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-":: :_test__help_commands" \
+":: :_exhaustive__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -329,7 +329,7 @@ _arguments "${_arguments_options[@]}" \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-help-command-$line[1]:"
         case $line[1] in
             (action)
 _arguments "${_arguments_options[@]}" \
@@ -337,7 +337,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (quote)
 _arguments "${_arguments_options[@]}" \
-":: :_test__help__quote_commands" \
+":: :_exhaustive__help__quote_commands" \
 "*::: :->quote" \
 && ret=0
 
@@ -345,7 +345,7 @@ _arguments "${_arguments_options[@]}" \
     (quote)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-help-quote-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-help-quote-command-$line[1]:"
         case $line[1] in
             (cmd-single-quotes)
 _arguments "${_arguments_options[@]}" \
@@ -381,7 +381,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (pacman)
 _arguments "${_arguments_options[@]}" \
-":: :_test__help__pacman_commands" \
+":: :_exhaustive__help__pacman_commands" \
 "*::: :->pacman" \
 && ret=0
 
@@ -389,7 +389,7 @@ _arguments "${_arguments_options[@]}" \
     (pacman)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:test-help-pacman-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:exhaustive-help-pacman-command-$line[1]:"
         case $line[1] in
             (one)
 _arguments "${_arguments_options[@]}" \
@@ -432,8 +432,8 @@ esac
 esac
 }
 
-(( $+functions[_test_commands] )) ||
-_test_commands() {
+(( $+functions[_exhaustive_commands] )) ||
+_exhaustive_commands() {
     local commands; commands=(
 'action:' \
 'quote:' \
@@ -445,130 +445,130 @@ _test_commands() {
 'complete:Register shell completions for this program' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'test commands' commands "$@"
+    _describe -t commands 'exhaustive commands' commands "$@"
 }
-(( $+functions[_test__action_commands] )) ||
-_test__action_commands() {
+(( $+functions[_exhaustive__action_commands] )) ||
+_exhaustive__action_commands() {
     local commands; commands=()
-    _describe -t commands 'test action commands' commands "$@"
+    _describe -t commands 'exhaustive action commands' commands "$@"
 }
-(( $+functions[_test__help__action_commands] )) ||
-_test__help__action_commands() {
+(( $+functions[_exhaustive__help__action_commands] )) ||
+_exhaustive__help__action_commands() {
     local commands; commands=()
-    _describe -t commands 'test help action commands' commands "$@"
+    _describe -t commands 'exhaustive help action commands' commands "$@"
 }
-(( $+functions[_test__alias_commands] )) ||
-_test__alias_commands() {
+(( $+functions[_exhaustive__alias_commands] )) ||
+_exhaustive__alias_commands() {
     local commands; commands=()
-    _describe -t commands 'test alias commands' commands "$@"
+    _describe -t commands 'exhaustive alias commands' commands "$@"
 }
-(( $+functions[_test__help__alias_commands] )) ||
-_test__help__alias_commands() {
+(( $+functions[_exhaustive__help__alias_commands] )) ||
+_exhaustive__help__alias_commands() {
     local commands; commands=()
-    _describe -t commands 'test help alias commands' commands "$@"
+    _describe -t commands 'exhaustive help alias commands' commands "$@"
 }
-(( $+functions[_test__help__quote__cmd-backslash_commands] )) ||
-_test__help__quote__cmd-backslash_commands() {
+(( $+functions[_exhaustive__help__quote__cmd-backslash_commands] )) ||
+_exhaustive__help__quote__cmd-backslash_commands() {
     local commands; commands=()
-    _describe -t commands 'test help quote cmd-backslash commands' commands "$@"
+    _describe -t commands 'exhaustive help quote cmd-backslash commands' commands "$@"
 }
-(( $+functions[_test__quote__cmd-backslash_commands] )) ||
-_test__quote__cmd-backslash_commands() {
+(( $+functions[_exhaustive__quote__cmd-backslash_commands] )) ||
+_exhaustive__quote__cmd-backslash_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote cmd-backslash commands' commands "$@"
+    _describe -t commands 'exhaustive quote cmd-backslash commands' commands "$@"
 }
-(( $+functions[_test__quote__help__cmd-backslash_commands] )) ||
-_test__quote__help__cmd-backslash_commands() {
+(( $+functions[_exhaustive__quote__help__cmd-backslash_commands] )) ||
+_exhaustive__quote__help__cmd-backslash_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help cmd-backslash commands' commands "$@"
+    _describe -t commands 'exhaustive quote help cmd-backslash commands' commands "$@"
 }
-(( $+functions[_test__help__quote__cmd-backticks_commands] )) ||
-_test__help__quote__cmd-backticks_commands() {
+(( $+functions[_exhaustive__help__quote__cmd-backticks_commands] )) ||
+_exhaustive__help__quote__cmd-backticks_commands() {
     local commands; commands=()
-    _describe -t commands 'test help quote cmd-backticks commands' commands "$@"
+    _describe -t commands 'exhaustive help quote cmd-backticks commands' commands "$@"
 }
-(( $+functions[_test__quote__cmd-backticks_commands] )) ||
-_test__quote__cmd-backticks_commands() {
+(( $+functions[_exhaustive__quote__cmd-backticks_commands] )) ||
+_exhaustive__quote__cmd-backticks_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote cmd-backticks commands' commands "$@"
+    _describe -t commands 'exhaustive quote cmd-backticks commands' commands "$@"
 }
-(( $+functions[_test__quote__help__cmd-backticks_commands] )) ||
-_test__quote__help__cmd-backticks_commands() {
+(( $+functions[_exhaustive__quote__help__cmd-backticks_commands] )) ||
+_exhaustive__quote__help__cmd-backticks_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help cmd-backticks commands' commands "$@"
+    _describe -t commands 'exhaustive quote help cmd-backticks commands' commands "$@"
 }
-(( $+functions[_test__help__quote__cmd-brackets_commands] )) ||
-_test__help__quote__cmd-brackets_commands() {
+(( $+functions[_exhaustive__help__quote__cmd-brackets_commands] )) ||
+_exhaustive__help__quote__cmd-brackets_commands() {
     local commands; commands=()
-    _describe -t commands 'test help quote cmd-brackets commands' commands "$@"
+    _describe -t commands 'exhaustive help quote cmd-brackets commands' commands "$@"
 }
-(( $+functions[_test__quote__cmd-brackets_commands] )) ||
-_test__quote__cmd-brackets_commands() {
+(( $+functions[_exhaustive__quote__cmd-brackets_commands] )) ||
+_exhaustive__quote__cmd-brackets_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote cmd-brackets commands' commands "$@"
+    _describe -t commands 'exhaustive quote cmd-brackets commands' commands "$@"
 }
-(( $+functions[_test__quote__help__cmd-brackets_commands] )) ||
-_test__quote__help__cmd-brackets_commands() {
+(( $+functions[_exhaustive__quote__help__cmd-brackets_commands] )) ||
+_exhaustive__quote__help__cmd-brackets_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help cmd-brackets commands' commands "$@"
+    _describe -t commands 'exhaustive quote help cmd-brackets commands' commands "$@"
 }
-(( $+functions[_test__help__quote__cmd-double-quotes_commands] )) ||
-_test__help__quote__cmd-double-quotes_commands() {
+(( $+functions[_exhaustive__help__quote__cmd-double-quotes_commands] )) ||
+_exhaustive__help__quote__cmd-double-quotes_commands() {
     local commands; commands=()
-    _describe -t commands 'test help quote cmd-double-quotes commands' commands "$@"
+    _describe -t commands 'exhaustive help quote cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_test__quote__cmd-double-quotes_commands] )) ||
-_test__quote__cmd-double-quotes_commands() {
+(( $+functions[_exhaustive__quote__cmd-double-quotes_commands] )) ||
+_exhaustive__quote__cmd-double-quotes_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote cmd-double-quotes commands' commands "$@"
+    _describe -t commands 'exhaustive quote cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_test__quote__help__cmd-double-quotes_commands] )) ||
-_test__quote__help__cmd-double-quotes_commands() {
+(( $+functions[_exhaustive__quote__help__cmd-double-quotes_commands] )) ||
+_exhaustive__quote__help__cmd-double-quotes_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help cmd-double-quotes commands' commands "$@"
+    _describe -t commands 'exhaustive quote help cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_test__help__quote__cmd-expansions_commands] )) ||
-_test__help__quote__cmd-expansions_commands() {
+(( $+functions[_exhaustive__help__quote__cmd-expansions_commands] )) ||
+_exhaustive__help__quote__cmd-expansions_commands() {
     local commands; commands=()
-    _describe -t commands 'test help quote cmd-expansions commands' commands "$@"
+    _describe -t commands 'exhaustive help quote cmd-expansions commands' commands "$@"
 }
-(( $+functions[_test__quote__cmd-expansions_commands] )) ||
-_test__quote__cmd-expansions_commands() {
+(( $+functions[_exhaustive__quote__cmd-expansions_commands] )) ||
+_exhaustive__quote__cmd-expansions_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote cmd-expansions commands' commands "$@"
+    _describe -t commands 'exhaustive quote cmd-expansions commands' commands "$@"
 }
-(( $+functions[_test__quote__help__cmd-expansions_commands] )) ||
-_test__quote__help__cmd-expansions_commands() {
+(( $+functions[_exhaustive__quote__help__cmd-expansions_commands] )) ||
+_exhaustive__quote__help__cmd-expansions_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help cmd-expansions commands' commands "$@"
+    _describe -t commands 'exhaustive quote help cmd-expansions commands' commands "$@"
 }
-(( $+functions[_test__help__quote__cmd-single-quotes_commands] )) ||
-_test__help__quote__cmd-single-quotes_commands() {
+(( $+functions[_exhaustive__help__quote__cmd-single-quotes_commands] )) ||
+_exhaustive__help__quote__cmd-single-quotes_commands() {
     local commands; commands=()
-    _describe -t commands 'test help quote cmd-single-quotes commands' commands "$@"
+    _describe -t commands 'exhaustive help quote cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_test__quote__cmd-single-quotes_commands] )) ||
-_test__quote__cmd-single-quotes_commands() {
+(( $+functions[_exhaustive__quote__cmd-single-quotes_commands] )) ||
+_exhaustive__quote__cmd-single-quotes_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote cmd-single-quotes commands' commands "$@"
+    _describe -t commands 'exhaustive quote cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_test__quote__help__cmd-single-quotes_commands] )) ||
-_test__quote__help__cmd-single-quotes_commands() {
+(( $+functions[_exhaustive__quote__help__cmd-single-quotes_commands] )) ||
+_exhaustive__quote__help__cmd-single-quotes_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help cmd-single-quotes commands' commands "$@"
+    _describe -t commands 'exhaustive quote help cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_test__complete_commands] )) ||
-_test__complete_commands() {
+(( $+functions[_exhaustive__complete_commands] )) ||
+_exhaustive__complete_commands() {
     local commands; commands=()
-    _describe -t commands 'test complete commands' commands "$@"
+    _describe -t commands 'exhaustive complete commands' commands "$@"
 }
-(( $+functions[_test__help__complete_commands] )) ||
-_test__help__complete_commands() {
+(( $+functions[_exhaustive__help__complete_commands] )) ||
+_exhaustive__help__complete_commands() {
     local commands; commands=()
-    _describe -t commands 'test help complete commands' commands "$@"
+    _describe -t commands 'exhaustive help complete commands' commands "$@"
 }
-(( $+functions[_test__help_commands] )) ||
-_test__help_commands() {
+(( $+functions[_exhaustive__help_commands] )) ||
+_exhaustive__help_commands() {
     local commands; commands=(
 'action:' \
 'quote:' \
@@ -580,29 +580,29 @@ _test__help_commands() {
 'complete:Register shell completions for this program' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'test help commands' commands "$@"
+    _describe -t commands 'exhaustive help commands' commands "$@"
 }
-(( $+functions[_test__help__help_commands] )) ||
-_test__help__help_commands() {
+(( $+functions[_exhaustive__help__help_commands] )) ||
+_exhaustive__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'test help help commands' commands "$@"
+    _describe -t commands 'exhaustive help help commands' commands "$@"
 }
-(( $+functions[_test__pacman__help_commands] )) ||
-_test__pacman__help_commands() {
+(( $+functions[_exhaustive__pacman__help_commands] )) ||
+_exhaustive__pacman__help_commands() {
     local commands; commands=(
 'one:' \
 'two:' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'test pacman help commands' commands "$@"
+    _describe -t commands 'exhaustive pacman help commands' commands "$@"
 }
-(( $+functions[_test__pacman__help__help_commands] )) ||
-_test__pacman__help__help_commands() {
+(( $+functions[_exhaustive__pacman__help__help_commands] )) ||
+_exhaustive__pacman__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'test pacman help help commands' commands "$@"
+    _describe -t commands 'exhaustive pacman help help commands' commands "$@"
 }
-(( $+functions[_test__quote__help_commands] )) ||
-_test__quote__help_commands() {
+(( $+functions[_exhaustive__quote__help_commands] )) ||
+_exhaustive__quote__help_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
 'cmd-double-quotes:Can be "always", "auto", or "never"' \
@@ -612,67 +612,67 @@ _test__quote__help_commands() {
 'cmd-expansions:Execute the shell command with \$SHELL' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'test quote help commands' commands "$@"
+    _describe -t commands 'exhaustive quote help commands' commands "$@"
 }
-(( $+functions[_test__quote__help__help_commands] )) ||
-_test__quote__help__help_commands() {
+(( $+functions[_exhaustive__quote__help__help_commands] )) ||
+_exhaustive__quote__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'test quote help help commands' commands "$@"
+    _describe -t commands 'exhaustive quote help help commands' commands "$@"
 }
-(( $+functions[_test__help__hint_commands] )) ||
-_test__help__hint_commands() {
+(( $+functions[_exhaustive__help__hint_commands] )) ||
+_exhaustive__help__hint_commands() {
     local commands; commands=()
-    _describe -t commands 'test help hint commands' commands "$@"
+    _describe -t commands 'exhaustive help hint commands' commands "$@"
 }
-(( $+functions[_test__hint_commands] )) ||
-_test__hint_commands() {
+(( $+functions[_exhaustive__hint_commands] )) ||
+_exhaustive__hint_commands() {
     local commands; commands=()
-    _describe -t commands 'test hint commands' commands "$@"
+    _describe -t commands 'exhaustive hint commands' commands "$@"
 }
-(( $+functions[_test__help__last_commands] )) ||
-_test__help__last_commands() {
+(( $+functions[_exhaustive__help__last_commands] )) ||
+_exhaustive__help__last_commands() {
     local commands; commands=()
-    _describe -t commands 'test help last commands' commands "$@"
+    _describe -t commands 'exhaustive help last commands' commands "$@"
 }
-(( $+functions[_test__last_commands] )) ||
-_test__last_commands() {
+(( $+functions[_exhaustive__last_commands] )) ||
+_exhaustive__last_commands() {
     local commands; commands=()
-    _describe -t commands 'test last commands' commands "$@"
+    _describe -t commands 'exhaustive last commands' commands "$@"
 }
-(( $+functions[_test__help__pacman__one_commands] )) ||
-_test__help__pacman__one_commands() {
+(( $+functions[_exhaustive__help__pacman__one_commands] )) ||
+_exhaustive__help__pacman__one_commands() {
     local commands; commands=()
-    _describe -t commands 'test help pacman one commands' commands "$@"
+    _describe -t commands 'exhaustive help pacman one commands' commands "$@"
 }
-(( $+functions[_test__pacman__help__one_commands] )) ||
-_test__pacman__help__one_commands() {
+(( $+functions[_exhaustive__pacman__help__one_commands] )) ||
+_exhaustive__pacman__help__one_commands() {
     local commands; commands=()
-    _describe -t commands 'test pacman help one commands' commands "$@"
+    _describe -t commands 'exhaustive pacman help one commands' commands "$@"
 }
-(( $+functions[_test__pacman__one_commands] )) ||
-_test__pacman__one_commands() {
+(( $+functions[_exhaustive__pacman__one_commands] )) ||
+_exhaustive__pacman__one_commands() {
     local commands; commands=()
-    _describe -t commands 'test pacman one commands' commands "$@"
+    _describe -t commands 'exhaustive pacman one commands' commands "$@"
 }
-(( $+functions[_test__help__pacman_commands] )) ||
-_test__help__pacman_commands() {
+(( $+functions[_exhaustive__help__pacman_commands] )) ||
+_exhaustive__help__pacman_commands() {
     local commands; commands=(
 'one:' \
 'two:' \
     )
-    _describe -t commands 'test help pacman commands' commands "$@"
+    _describe -t commands 'exhaustive help pacman commands' commands "$@"
 }
-(( $+functions[_test__pacman_commands] )) ||
-_test__pacman_commands() {
+(( $+functions[_exhaustive__pacman_commands] )) ||
+_exhaustive__pacman_commands() {
     local commands; commands=(
 'one:' \
 'two:' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'test pacman commands' commands "$@"
+    _describe -t commands 'exhaustive pacman commands' commands "$@"
 }
-(( $+functions[_test__help__quote_commands] )) ||
-_test__help__quote_commands() {
+(( $+functions[_exhaustive__help__quote_commands] )) ||
+_exhaustive__help__quote_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
 'cmd-double-quotes:Can be "always", "auto", or "never"' \
@@ -681,10 +681,10 @@ _test__help__quote_commands() {
 'cmd-brackets:List packages \[filter\]' \
 'cmd-expansions:Execute the shell command with \$SHELL' \
     )
-    _describe -t commands 'test help quote commands' commands "$@"
+    _describe -t commands 'exhaustive help quote commands' commands "$@"
 }
-(( $+functions[_test__quote_commands] )) ||
-_test__quote_commands() {
+(( $+functions[_exhaustive__quote_commands] )) ||
+_exhaustive__quote_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
 'cmd-double-quotes:Can be "always", "auto", or "never"' \
@@ -694,36 +694,36 @@ _test__quote_commands() {
 'cmd-expansions:Execute the shell command with \$SHELL' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'test quote commands' commands "$@"
+    _describe -t commands 'exhaustive quote commands' commands "$@"
 }
-(( $+functions[_test__help__pacman__two_commands] )) ||
-_test__help__pacman__two_commands() {
+(( $+functions[_exhaustive__help__pacman__two_commands] )) ||
+_exhaustive__help__pacman__two_commands() {
     local commands; commands=()
-    _describe -t commands 'test help pacman two commands' commands "$@"
+    _describe -t commands 'exhaustive help pacman two commands' commands "$@"
 }
-(( $+functions[_test__pacman__help__two_commands] )) ||
-_test__pacman__help__two_commands() {
+(( $+functions[_exhaustive__pacman__help__two_commands] )) ||
+_exhaustive__pacman__help__two_commands() {
     local commands; commands=()
-    _describe -t commands 'test pacman help two commands' commands "$@"
+    _describe -t commands 'exhaustive pacman help two commands' commands "$@"
 }
-(( $+functions[_test__pacman__two_commands] )) ||
-_test__pacman__two_commands() {
+(( $+functions[_exhaustive__pacman__two_commands] )) ||
+_exhaustive__pacman__two_commands() {
     local commands; commands=()
-    _describe -t commands 'test pacman two commands' commands "$@"
+    _describe -t commands 'exhaustive pacman two commands' commands "$@"
 }
-(( $+functions[_test__help__value_commands] )) ||
-_test__help__value_commands() {
+(( $+functions[_exhaustive__help__value_commands] )) ||
+_exhaustive__help__value_commands() {
     local commands; commands=()
-    _describe -t commands 'test help value commands' commands "$@"
+    _describe -t commands 'exhaustive help value commands' commands "$@"
 }
-(( $+functions[_test__value_commands] )) ||
-_test__value_commands() {
+(( $+functions[_exhaustive__value_commands] )) ||
+_exhaustive__value_commands() {
     local commands; commands=()
-    _describe -t commands 'test value commands' commands "$@"
+    _describe -t commands 'exhaustive value commands' commands "$@"
 }
 
-if [ "$funcstack[1]" = "_test" ]; then
-    _test "$@"
+if [ "$funcstack[1]" = "_exhaustive" ]; then
+    _exhaustive "$@"
 else
-    compdef _test test
+    compdef _exhaustive exhaustive
 fi

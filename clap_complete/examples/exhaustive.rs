@@ -27,7 +27,7 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
 }
 
 fn cli() -> clap::Command {
-    let cli = clap::Command::new("test")
+    let cli = clap::Command::new("exhaustive")
         .version("3.0")
         .propagate_version(true)
         .args([
