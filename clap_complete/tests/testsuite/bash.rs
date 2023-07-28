@@ -156,8 +156,8 @@ fn complete() {
 
     let input = "test \t\t";
     let expected = r#"%
--h          --global    --help      action      value       last        hint
--V          --generate  --version   quote       pacman      alias       help"#;
+-h          --global    --help      action      value       last        hint        help
+-V          --generate  --version   quote       pacman      alias       complete"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

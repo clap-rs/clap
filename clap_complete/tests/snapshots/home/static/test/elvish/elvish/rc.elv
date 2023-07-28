@@ -33,6 +33,7 @@ set edit:completion:arg-completer[test] = {|@words|
             cand last 'last'
             cand alias 'alias'
             cand hint 'hint'
+            cand complete 'Register shell completions for this program'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'test;action'= {
@@ -225,6 +226,15 @@ set edit:completion:arg-completer[test] = {|@words|
             cand -V 'Print version'
             cand --version 'Print version'
         }
+        &'test;complete'= {
+            cand --shell 'Specify shell to complete for'
+            cand --register 'Path to write completion-registration to'
+            cand --global 'everywhere'
+            cand -h 'Print help (see more with ''--help'')'
+            cand --help 'Print help (see more with ''--help'')'
+            cand -V 'Print version'
+            cand --version 'Print version'
+        }
         &'test;help'= {
             cand action 'action'
             cand quote 'quote'
@@ -233,6 +243,7 @@ set edit:completion:arg-completer[test] = {|@words|
             cand last 'last'
             cand alias 'alias'
             cand hint 'hint'
+            cand complete 'Register shell completions for this program'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'test;help;action'= {
@@ -272,6 +283,8 @@ set edit:completion:arg-completer[test] = {|@words|
         &'test;help;alias'= {
         }
         &'test;help;hint'= {
+        }
+        &'test;help;complete'= {
         }
         &'test;help;help'= {
         }

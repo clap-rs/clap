@@ -1,3 +1,5 @@
+#[cfg(feature = "unstable-dynamic")]
+use clap::{FromArgMatches, Subcommand};
 use clap_complete::{generate, Generator, Shell};
 
 fn main() {
@@ -6,9 +8,18 @@ fn main() {
         let mut cmd = cli();
         eprintln!("Generating completion file for {generator}...");
         print_completions(*generator, &mut cmd);
-    } else {
-        println!("{:?}", matches);
+        return;
     }
+
+    #[cfg(feature = "unstable-dynamic")]
+    if let Ok(completions) =
+        clap_complete::dynamic::shells::CompleteCommand::from_arg_matches(&matches)
+    {
+        completions.complete(&mut cli());
+        return;
+    };
+
+    println!("{:?}", matches);
 }
 
 fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
@@ -16,7 +27,7 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
 }
 
 fn cli() -> clap::Command {
-    clap::Command::new("test")
+    let cli = clap::Command::new("test")
         .version("3.0")
         .propagate_version(true)
         .args([
@@ -27,6 +38,7 @@ fn cli() -> clap::Command {
                 .help("everywhere"),
             clap::Arg::new("generate")
                 .long("generate")
+                .value_name("SHELL")
                 .value_parser(clap::value_parser!(Shell))
                 .help("generate"),
         ])
@@ -173,5 +185,8 @@ fn cli() -> clap::Command {
                     .long("email")
                     .value_hint(clap::ValueHint::EmailAddress),
             ]),
-        ])
+        ]);
+    #[cfg(feature = "unstable-dynamic")]
+    let cli = clap_complete::dynamic::shells::CompleteCommand::augment_subcommands(cli);
+    cli
 }

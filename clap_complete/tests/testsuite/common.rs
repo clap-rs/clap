@@ -308,9 +308,17 @@ pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
         .join(shell_name);
     println!("Compiling");
     let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
-    let bin_path =
-        snapbox::cmd::compile_example(name, ["--manifest-path", manifest_path.to_str().unwrap()])
-            .unwrap();
+    let bin_path = snapbox::cmd::compile_example(
+        name,
+        [
+            "--manifest-path",
+            manifest_path.to_str().unwrap(),
+            // Unconditionally include to avoid completion file tests failing based on the how
+            // `cargo test` is invoked
+            "--features=unstable-dynamic",
+        ],
+    )
+    .unwrap();
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 
@@ -353,9 +361,17 @@ pub fn load_runtime(
     let home = scratch.path().unwrap().to_owned();
     println!("Compiling");
     let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
-    let bin_path =
-        snapbox::cmd::compile_example(name, ["--manifest-path", manifest_path.to_str().unwrap()])
-            .unwrap();
+    let bin_path = snapbox::cmd::compile_example(
+        name,
+        [
+            "--manifest-path",
+            manifest_path.to_str().unwrap(),
+            // Unconditionally include to avoid completion file tests failing based on the how
+            // `cargo test` is invoked
+            "--features=unstable-dynamic",
+        ],
+    )
+    .unwrap();
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 

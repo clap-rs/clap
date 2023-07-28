@@ -20,6 +20,9 @@ _test() {
             test,alias)
                 cmd="test__alias"
                 ;;
+            test,complete)
+                cmd="test__complete"
+                ;;
             test,help)
                 cmd="test__help"
                 ;;
@@ -43,6 +46,9 @@ _test() {
                 ;;
             test__help,alias)
                 cmd="test__help__alias"
+                ;;
+            test__help,complete)
+                cmd="test__help__complete"
                 ;;
             test__help,help)
                 cmd="test__help__help"
@@ -153,7 +159,7 @@ _test() {
 
     case "${cmd}" in
         test)
-            opts="-h -V --global --generate --help --version action quote value pacman last alias hint help"
+            opts="-h -V --global --generate --help --version action quote value pacman last alias hint complete help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -222,8 +228,30 @@ _test() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
+        test__complete)
+            opts="-h -V --shell --register --global --help --version [COMP_WORDS]..."
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                --shell)
+                    COMPREPLY=($(compgen -W "bash" -- "${cur}"))
+                    return 0
+                    ;;
+                --register)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
         test__help)
-            opts="action quote value pacman last alias hint help"
+            opts="action quote value pacman last alias hint complete help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -251,6 +279,20 @@ _test() {
             return 0
             ;;
         test__help__alias)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        test__help__complete)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
