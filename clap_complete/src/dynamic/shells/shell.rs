@@ -10,6 +10,8 @@ use clap::ValueEnum;
 pub enum Shell {
     /// Bourne Again SHell (bash)
     Bash,
+    /// Friendly Interactive SHell (fish)
+    Fish,
 }
 
 impl Display for Shell {
@@ -37,12 +39,13 @@ impl FromStr for Shell {
 // Hand-rolled so it can work even when `derive` feature is disabled
 impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
-        &[Shell::Bash]
+        &[Shell::Bash, Shell::Fish]
     }
 
     fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
         Some(match self {
             Shell::Bash => PossibleValue::new("bash"),
+            Shell::Fish => PossibleValue::new("fish"),
         })
     }
 }
@@ -51,6 +54,7 @@ impl Shell {
     fn completer(&self) -> &dyn crate::dynamic::Completer {
         match self {
             Self::Bash => &super::Bash,
+            Self::Fish => &super::Fish,
         }
     }
 }
