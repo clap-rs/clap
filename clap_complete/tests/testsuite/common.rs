@@ -296,27 +296,43 @@ pub fn assert_matches_path(
         .matches_path(expected_path, buf);
 }
 
-pub fn register_example(name: &str, shell: completest::Shell) {
+pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
     let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
     let scratch_path = scratch.path().unwrap();
 
     let shell_name = shell.name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
+        .join(context)
         .join(name)
         .join(shell_name);
     println!("Compiling");
     let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
-    let bin_path =
-        snapbox::cmd::compile_example(name, ["--manifest-path", manifest_path.to_str().unwrap()])
-            .unwrap();
+    let bin_path = snapbox::cmd::compile_example(
+        name,
+        [
+            "--manifest-path",
+            manifest_path.to_str().unwrap(),
+            // Unconditionally include to avoid completion file tests failing based on the how
+            // `cargo test` is invoked
+            "--features=unstable-dynamic",
+        ],
+    )
+    .unwrap();
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 
-    let registration = std::process::Command::new(&bin_path)
-        .arg(format!("--generate={shell_name}"))
-        .output()
-        .unwrap();
+    let mut registration = std::process::Command::new(&bin_path);
+    match context {
+        "static" => registration.args([format!("--generate={shell_name}")]),
+        "dynamic" => registration.args([
+            "complete".to_owned(),
+            "--register=-".to_owned(),
+            format!("--shell={shell_name}"),
+        ]),
+        _ => unreachable!("unsupported context {}", context),
+    };
+    let registration = registration.output().unwrap();
     assert!(
         registration.status.success(),
         "{}",
@@ -334,10 +350,15 @@ pub fn register_example(name: &str, shell: completest::Shell) {
     scratch.close().unwrap();
 }
 
-pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest::Runtime> {
+pub fn load_runtime(
+    context: &str,
+    name: &str,
+    shell: completest::Shell,
+) -> Box<dyn completest::Runtime> {
     let shell_name = shell.name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
+        .join(context)
         .join(name)
         .join(shell_name);
     let scratch = snapbox::path::PathFixture::mutable_temp()
@@ -347,9 +368,17 @@ pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest:
     let home = scratch.path().unwrap().to_owned();
     println!("Compiling");
     let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
-    let bin_path =
-        snapbox::cmd::compile_example(name, ["--manifest-path", manifest_path.to_str().unwrap()])
-            .unwrap();
+    let bin_path = snapbox::cmd::compile_example(
+        name,
+        [
+            "--manifest-path",
+            manifest_path.to_str().unwrap(),
+            // Unconditionally include to avoid completion file tests failing based on the how
+            // `cargo test` is invoked
+            "--features=unstable-dynamic",
+        ],
+    )
+    .unwrap();
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 

@@ -141,11 +141,7 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    if !common::has_command("bash") {
-        return;
-    }
-
-    common::register_example("test", completest::Shell::Bash);
+    common::register_example("static", "exhaustive", completest::Shell::Bash);
 }
 
 #[test]
@@ -156,12 +152,18 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Bash);
+    let mut runtime = common::load_runtime("static", "exhaustive", completest::Shell::Bash);
 
-    let input = "test \t\t";
+    let input = "exhaustive \t\t";
     let expected = r#"%
--h          --global    --help      action      value       last        hint
--V          --generate  --version   quote       pacman      alias       help"#;
+-h          --global    --help      action      value       last        hint        help
+-V          --generate  --version   quote       pacman      alias       complete"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
+}
+
+#[test]
+#[cfg(unix)]
+fn register_dynamic_completion() {
+    common::register_example("dynamic", "exhaustive", completest::Shell::Bash);
 }

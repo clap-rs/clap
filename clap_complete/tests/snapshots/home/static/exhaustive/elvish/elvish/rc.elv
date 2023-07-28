@@ -4,14 +4,14 @@ set edit:prompt = (constantly "% ")
 use builtin;
 use str;
 
-set edit:completion:arg-completer[test] = {|@words|
+set edit:completion:arg-completer[exhaustive] = {|@words|
     fn spaces {|n|
         builtin:repeat $n ' ' | str:join ''
     }
     fn cand {|text desc|
         edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
-    var command = 'test'
+    var command = 'exhaustive'
     for word $words[1..-1] {
         if (str:has-prefix $word '-') {
             break
@@ -19,7 +19,7 @@ set edit:completion:arg-completer[test] = {|@words|
         set command = $command';'$word
     }
     var completions = [
-        &'test'= {
+        &'exhaustive'= {
             cand --generate 'generate'
             cand --global 'everywhere'
             cand -h 'Print help'
@@ -33,9 +33,10 @@ set edit:completion:arg-completer[test] = {|@words|
             cand last 'last'
             cand alias 'alias'
             cand hint 'hint'
+            cand complete 'Register shell completions for this program'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'test;action'= {
+        &'exhaustive;action'= {
             cand --set 'value'
             cand --choice 'enum'
             cand --set-true 'bool'
@@ -46,7 +47,7 @@ set edit:completion:arg-completer[test] = {|@words|
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote'= {
+        &'exhaustive;quote'= {
             cand --single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand --double-quotes 'Can be "always", "auto", or "never"'
             cand --backticks 'For more information see `echo test`'
@@ -66,49 +67,49 @@ set edit:completion:arg-completer[test] = {|@words|
             cand cmd-expansions 'Execute the shell command with $SHELL'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'test;quote;cmd-single-quotes'= {
+        &'exhaustive;quote;cmd-single-quotes'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote;cmd-double-quotes'= {
+        &'exhaustive;quote;cmd-double-quotes'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote;cmd-backticks'= {
+        &'exhaustive;quote;cmd-backticks'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote;cmd-backslash'= {
+        &'exhaustive;quote;cmd-backslash'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote;cmd-brackets'= {
+        &'exhaustive;quote;cmd-brackets'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote;cmd-expansions'= {
+        &'exhaustive;quote;cmd-expansions'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;quote;help'= {
+        &'exhaustive;quote;help'= {
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand cmd-double-quotes 'Can be "always", "auto", or "never"'
             cand cmd-backticks 'For more information see `echo test`'
@@ -117,21 +118,21 @@ set edit:completion:arg-completer[test] = {|@words|
             cand cmd-expansions 'Execute the shell command with $SHELL'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'test;quote;help;cmd-single-quotes'= {
+        &'exhaustive;quote;help;cmd-single-quotes'= {
         }
-        &'test;quote;help;cmd-double-quotes'= {
+        &'exhaustive;quote;help;cmd-double-quotes'= {
         }
-        &'test;quote;help;cmd-backticks'= {
+        &'exhaustive;quote;help;cmd-backticks'= {
         }
-        &'test;quote;help;cmd-backslash'= {
+        &'exhaustive;quote;help;cmd-backslash'= {
         }
-        &'test;quote;help;cmd-brackets'= {
+        &'exhaustive;quote;help;cmd-brackets'= {
         }
-        &'test;quote;help;cmd-expansions'= {
+        &'exhaustive;quote;help;cmd-expansions'= {
         }
-        &'test;quote;help;help'= {
+        &'exhaustive;quote;help;help'= {
         }
-        &'test;value'= {
+        &'exhaustive;value'= {
             cand --delim 'delim'
             cand --tuple 'tuple'
             cand --require-eq 'require-eq'
@@ -141,7 +142,7 @@ set edit:completion:arg-completer[test] = {|@words|
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;pacman'= {
+        &'exhaustive;pacman'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
@@ -151,39 +152,39 @@ set edit:completion:arg-completer[test] = {|@words|
             cand two 'two'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'test;pacman;one'= {
+        &'exhaustive;pacman;one'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;pacman;two'= {
+        &'exhaustive;pacman;two'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;pacman;help'= {
+        &'exhaustive;pacman;help'= {
             cand one 'one'
             cand two 'two'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'test;pacman;help;one'= {
+        &'exhaustive;pacman;help;one'= {
         }
-        &'test;pacman;help;two'= {
+        &'exhaustive;pacman;help;two'= {
         }
-        &'test;pacman;help;help'= {
+        &'exhaustive;pacman;help;help'= {
         }
-        &'test;last'= {
+        &'exhaustive;last'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;alias'= {
+        &'exhaustive;alias'= {
             cand -o 'cmd option'
             cand -O 'cmd option'
             cand --option 'cmd option'
@@ -198,7 +199,7 @@ set edit:completion:arg-completer[test] = {|@words|
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;hint'= {
+        &'exhaustive;hint'= {
             cand --choice 'choice'
             cand --unknown 'unknown'
             cand --other 'other'
@@ -225,7 +226,16 @@ set edit:completion:arg-completer[test] = {|@words|
             cand -V 'Print version'
             cand --version 'Print version'
         }
-        &'test;help'= {
+        &'exhaustive;complete'= {
+            cand --shell 'Specify shell to complete for'
+            cand --register 'Path to write completion-registration to'
+            cand --global 'everywhere'
+            cand -h 'Print help (see more with ''--help'')'
+            cand --help 'Print help (see more with ''--help'')'
+            cand -V 'Print version'
+            cand --version 'Print version'
+        }
+        &'exhaustive;help'= {
             cand action 'action'
             cand quote 'quote'
             cand value 'value'
@@ -233,11 +243,12 @@ set edit:completion:arg-completer[test] = {|@words|
             cand last 'last'
             cand alias 'alias'
             cand hint 'hint'
+            cand complete 'Register shell completions for this program'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'test;help;action'= {
+        &'exhaustive;help;action'= {
         }
-        &'test;help;quote'= {
+        &'exhaustive;help;quote'= {
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand cmd-double-quotes 'Can be "always", "auto", or "never"'
             cand cmd-backticks 'For more information see `echo test`'
@@ -245,35 +256,37 @@ set edit:completion:arg-completer[test] = {|@words|
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
         }
-        &'test;help;quote;cmd-single-quotes'= {
+        &'exhaustive;help;quote;cmd-single-quotes'= {
         }
-        &'test;help;quote;cmd-double-quotes'= {
+        &'exhaustive;help;quote;cmd-double-quotes'= {
         }
-        &'test;help;quote;cmd-backticks'= {
+        &'exhaustive;help;quote;cmd-backticks'= {
         }
-        &'test;help;quote;cmd-backslash'= {
+        &'exhaustive;help;quote;cmd-backslash'= {
         }
-        &'test;help;quote;cmd-brackets'= {
+        &'exhaustive;help;quote;cmd-brackets'= {
         }
-        &'test;help;quote;cmd-expansions'= {
+        &'exhaustive;help;quote;cmd-expansions'= {
         }
-        &'test;help;value'= {
+        &'exhaustive;help;value'= {
         }
-        &'test;help;pacman'= {
+        &'exhaustive;help;pacman'= {
             cand one 'one'
             cand two 'two'
         }
-        &'test;help;pacman;one'= {
+        &'exhaustive;help;pacman;one'= {
         }
-        &'test;help;pacman;two'= {
+        &'exhaustive;help;pacman;two'= {
         }
-        &'test;help;last'= {
+        &'exhaustive;help;last'= {
         }
-        &'test;help;alias'= {
+        &'exhaustive;help;alias'= {
         }
-        &'test;help;hint'= {
+        &'exhaustive;help;hint'= {
         }
-        &'test;help;help'= {
+        &'exhaustive;help;complete'= {
+        }
+        &'exhaustive;help;help'= {
         }
     ]
     $completions[$command]

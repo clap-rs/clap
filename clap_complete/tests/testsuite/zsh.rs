@@ -123,11 +123,7 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    if !common::has_command("zsh") {
-        return;
-    }
-
-    common::register_example("test", completest::Shell::Zsh);
+    common::register_example("static", "exhaustive", completest::Shell::Zsh);
 }
 
 #[test]
@@ -138,12 +134,13 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Zsh);
+    let mut runtime = common::load_runtime("static", "exhaustive", completest::Shell::Zsh);
 
-    let input = "test \t";
-    let expected = r#"% test
-help                                             -- Print this message or the help of the given subcommand(s)
-pacman  action  alias  value  quote  hint  last  --"#;
+    let input = "exhaustive \t";
+    let expected = r#"% exhaustive
+complete                                           -- Register shell completions for this program
+help                                               -- Print this message or the help of the given subcommand(s)
+pacman    action  alias  value  quote  hint  last  --"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

@@ -27,6 +27,7 @@ impl crate::dynamic::Completer for Bash {
 
         let script = r#"
 _clap_complete_NAME() {
+    export IFS=$'\013'
     export _CLAP_COMPLETE_INDEX=${COMP_CWORD}
     export _CLAP_COMPLETE_COMP_TYPE=${COMP_TYPE}
     if compopt +o nospace 2> /dev/null; then
@@ -34,7 +35,6 @@ _clap_complete_NAME() {
     else
         export _CLAP_COMPLETE_SPACE=true
     fi
-    export _CLAP_COMPLETE_IFS=$'\013'
     COMPREPLY=( $("COMPLETER" complete --shell bash -- "${COMP_WORDS[@]}") )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
@@ -70,9 +70,7 @@ complete -o nospace -o bashdefault -F _clap_complete_NAME BIN
         let _space: Option<bool> = std::env::var("_CLAP_COMPLETE_SPACE")
             .ok()
             .and_then(|i| i.parse().ok());
-        let ifs: Option<String> = std::env::var("_CLAP_COMPLETE_IFS")
-            .ok()
-            .and_then(|i| i.parse().ok());
+        let ifs: Option<String> = std::env::var("IFS").ok().and_then(|i| i.parse().ok());
         let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
 
         for (i, completion) in completions.iter().enumerate() {

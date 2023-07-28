@@ -2,7 +2,7 @@
 
 #[test]
 fn suggest_subcommand_subset() {
-    let name = "test";
+    let name = "exhaustive";
     let mut cmd = clap::Command::new(name)
         .subcommand(clap::Command::new("hello-world"))
         .subcommand(clap::Command::new("hello-moon"))
@@ -27,7 +27,7 @@ fn suggest_subcommand_subset() {
 
 #[test]
 fn suggest_long_flag_subset() {
-    let name = "test";
+    let name = "exhaustive";
     let mut cmd = clap::Command::new(name)
         .arg(
             clap::Arg::new("hello-world")
@@ -64,7 +64,7 @@ fn suggest_long_flag_subset() {
 
 #[test]
 fn suggest_possible_value_subset() {
-    let name = "test";
+    let name = "exhaustive";
     let mut cmd = clap::Command::new(name).arg(clap::Arg::new("hello-world").value_parser([
         "hello-world",
         "hello-moon",
@@ -90,7 +90,7 @@ fn suggest_possible_value_subset() {
 
 #[test]
 fn suggest_additional_short_flags() {
-    let name = "test";
+    let name = "exhaustive";
     let mut cmd = clap::Command::new(name)
         .arg(
             clap::Arg::new("a")

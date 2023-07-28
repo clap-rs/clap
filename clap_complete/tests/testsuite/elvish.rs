@@ -123,11 +123,7 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    if !common::has_command("elvish") {
-        return;
-    }
-
-    common::register_example("test", completest::Shell::Elvish);
+    common::register_example("static", "exhaustive", completest::Shell::Elvish);
 }
 
 #[test]
@@ -138,10 +134,10 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Elvish);
+    let mut runtime = common::load_runtime("static", "exhaustive", completest::Shell::Elvish);
 
-    let input = "test \t";
-    let expected = r#"% test --generate
+    let input = "exhaustive \t";
+    let expected = r#"% exhaustive --generate
 --generate     generate
 --global       everywhere
 --help         Print help
@@ -150,6 +146,7 @@ fn complete() {
 -h             Print help
 action         action
 alias          alias
+complete       Register shell completions for this program
 help           Print this message or the help of the given subcommand(s)
 hint           hint
 last           last
