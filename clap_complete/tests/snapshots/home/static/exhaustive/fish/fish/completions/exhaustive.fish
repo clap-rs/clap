@@ -104,7 +104,7 @@ complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l email -r -f
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l shell -d 'Specify shell to complete for' -r -f -a "{bash	}"
+complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l shell -d 'Specify shell to complete for' -r -f -a "{bash	,fish	}"
 complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l register -d 'Path to write completion-registration to' -r -F
 complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_seen_subcommand_from complete" -s h -l help -d 'Print help (see more with \'--help\')'

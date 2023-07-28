@@ -143,3 +143,28 @@ alias   help  (Print this message or the help of the given subcommand(s))  last 
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }
+
+#[cfg(feature = "unstable-dynamic")]
+#[test]
+fn register_dynamic() {
+    common::register_example("dynamic", "exhaustive", completest::Shell::Fish);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic() {
+    if !common::has_command("fish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime("dynamic", "exhaustive", completest::Shell::Fish);
+
+    let input = "exhaustive \t";
+    let expected = r#"% exhaustive
+action    help  pacman  -h          --global
+alias     hint  quote   -V          --help
+complete  last  value   --generate  --version"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
+}

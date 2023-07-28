@@ -1,9 +1,11 @@
 //! Shell support
 
 mod bash;
+mod fish;
 mod shell;
 
 pub use bash::*;
+pub use fish::*;
 pub use shell::*;
 
 use std::ffi::OsString;

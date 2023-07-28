@@ -309,7 +309,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (complete)
 _arguments "${_arguments_options[@]}" \
-'--shell=[Specify shell to complete for]:SHELL:(bash)' \
+'--shell=[Specify shell to complete for]:SHELL:(bash fish)' \
 '--register=[Path to write completion-registration to]:REGISTER:_files' \
 '--global[everywhere]' \
 '-h[Print help (see more with '\''--help'\'')]' \
