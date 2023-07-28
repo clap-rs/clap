@@ -133,12 +133,17 @@ fn complete_arg(
         }
 
         if arg.is_empty() || arg.is_stdio() || arg.is_short() {
+            let dash_or_arg = if arg.is_empty() {
+                "-".into()
+            } else {
+                arg.to_value_os().to_string_lossy()
+            };
             // HACK: Assuming knowledge of is_stdio
             completions.extend(
                 crate::generator::utils::shorts_and_visible_aliases(cmd)
                     .into_iter()
                     // HACK: Need better `OsStr` manipulation
-                    .map(|f| format!("{}{}", arg.to_value_os().to_string_lossy(), f).into()),
+                    .map(|f| format!("{}{}", dash_or_arg, f).into()),
             );
         }
     }
