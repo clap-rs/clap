@@ -270,7 +270,7 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<OsString> {
         value
     );
 
-    let mut scs = crate::generator::utils::all_subcommands(cmd)
+    let mut scs = crate::generator::utils::subcommands(cmd)
         .into_iter()
         .filter(|x| x.0.starts_with(value))
         .map(|x| OsString::from(&x.0))
