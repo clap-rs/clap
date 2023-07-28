@@ -26,6 +26,7 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
     generate(gen, cmd, cmd.get_name().to_string(), &mut std::io::stdout());
 }
 
+#[allow(clippy::let_and_return)]
 fn cli() -> clap::Command {
     let cli = clap::Command::new("exhaustive")
         .version("3.0")
