@@ -127,7 +127,7 @@ fn register_completion() {
         return;
     }
 
-    common::register_example("test", completest::Shell::Zsh);
+    common::register_example("static", "test", completest::Shell::Zsh);
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Zsh);
+    let mut runtime = common::load_runtime("static", "test", completest::Shell::Zsh);
 
     let input = "test \t";
     let expected = r#"% test

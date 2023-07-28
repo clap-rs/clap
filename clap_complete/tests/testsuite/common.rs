@@ -296,13 +296,14 @@ pub fn assert_matches_path(
         .matches_path(expected_path, buf);
 }
 
-pub fn register_example(name: &str, shell: completest::Shell) {
+pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
     let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
     let scratch_path = scratch.path().unwrap();
 
     let shell_name = shell.name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
+        .join(context)
         .join(name)
         .join(shell_name);
     println!("Compiling");
@@ -334,10 +335,15 @@ pub fn register_example(name: &str, shell: completest::Shell) {
     scratch.close().unwrap();
 }
 
-pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest::Runtime> {
+pub fn load_runtime(
+    context: &str,
+    name: &str,
+    shell: completest::Shell,
+) -> Box<dyn completest::Runtime> {
     let shell_name = shell.name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
+        .join(context)
         .join(name)
         .join(shell_name);
     let scratch = snapbox::path::PathFixture::mutable_temp()

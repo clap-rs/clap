@@ -145,7 +145,7 @@ fn register_completion() {
         return;
     }
 
-    common::register_example("test", completest::Shell::Bash);
+    common::register_example("static", "test", completest::Shell::Bash);
 }
 
 #[test]
@@ -156,7 +156,7 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Bash);
+    let mut runtime = common::load_runtime("static", "test", completest::Shell::Bash);
 
     let input = "test \t\t";
     let expected = r#"%
