@@ -322,10 +322,17 @@ pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 
-    let registration = std::process::Command::new(&bin_path)
-        .arg(format!("--generate={shell_name}"))
-        .output()
-        .unwrap();
+    let mut registration = std::process::Command::new(&bin_path);
+    match context {
+        "static" => registration.args([format!("--generate={shell_name}")]),
+        "dynamic" => registration.args([
+            "complete".to_owned(),
+            "--register=-".to_owned(),
+            format!("--shell={shell_name}"),
+        ]),
+        _ => unreachable!("unsupported context {}", context),
+    };
+    let registration = registration.output().unwrap();
     assert!(
         registration.status.success(),
         "{}",

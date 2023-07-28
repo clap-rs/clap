@@ -161,3 +161,9 @@ fn complete() {
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }
+
+#[test]
+#[cfg(unix)]
+fn register_dynamic_completion() {
+    common::register_example("dynamic", "test", completest::Shell::Bash);
+}
