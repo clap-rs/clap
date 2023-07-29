@@ -123,6 +123,15 @@ impl MKeyMap {
         self.args.iter_mut()
     }
 
+    /// Mutate every argument.
+    pub(crate) fn mut_args<F>(&mut self, f: F)
+    where
+        F: FnMut(Arg) -> Arg,
+    {
+        let mut args = std::mem::take(&mut self.args);
+        self.args.extend(args.drain(..).map(f));
+    }
+
     /// We need a lazy build here since some we may change args after creating
     /// the map, you can checkout who uses `args_mut`.
     pub(crate) fn _build(&mut self) {
