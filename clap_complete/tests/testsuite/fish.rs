@@ -162,9 +162,8 @@ fn complete_dynamic() {
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive
-action    help  pacman  -h          --global
-alias     hint  quote   -V          --help
-complete  last  value   --generate  --version"#;
+action  complete  hint  pacman  value
+alias   help      last  quote"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

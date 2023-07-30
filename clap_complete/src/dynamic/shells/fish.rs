@@ -1,3 +1,5 @@
+use crate::dynamic::ShowOptions;
+
 /// Fish completions
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
@@ -28,7 +30,8 @@ impl crate::dynamic::Completer for Fish {
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let index = args.len() - 1;
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions =
+            crate::dynamic::complete(cmd, args, index, current_dir, ShowOptions::ExactDash)?;
 
         for completion in completions {
             writeln!(buf, "{}", completion.to_string_lossy())?;

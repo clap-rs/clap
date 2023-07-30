@@ -1,34 +1,50 @@
 #![cfg(feature = "unstable-dynamic")]
 
-#[test]
-fn suggest_subcommand_subset() {
-    let name = "exhaustive";
-    let mut cmd = clap::Command::new(name)
-        .subcommand(clap::Command::new("hello-world"))
-        .subcommand(clap::Command::new("hello-moon"))
-        .subcommand(clap::Command::new("goodbye-world"));
+use std::{ffi::OsString, iter};
 
-    let args = [name, "he"];
-    let arg_index = 1;
-    let args = IntoIterator::into_iter(args)
-        .map(std::ffi::OsString::from)
-        .collect::<Vec<_>>();
+use clap_complete::dynamic::ShowOptions;
+
+fn assert_complete<'a>(
+    cmd: &mut clap::Command,
+    args: impl IntoIterator<Item = &'a str>,
+    expected: impl AsRef<[&'a str]>,
+    options: ShowOptions,
+) {
+    let args: Vec<_> = iter::once(OsString::from(cmd.get_name()))
+        .chain(args.into_iter().map(OsString::from))
+        .collect();
+    let arg_index = args.len() - 1;
     let current_dir = None;
 
     let completions =
-        clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
+        clap_complete::dynamic::complete(cmd, args, arg_index, current_dir, options).unwrap();
+
     let completions = completions
         .into_iter()
         .map(|s| s.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
-    assert_eq!(completions, ["hello-moon", "hello-world", "help"]);
+    assert_eq!(completions, expected.as_ref());
+}
+
+#[test]
+fn suggest_subcommand_subset() {
+    let mut cmd = clap::Command::new("exhaustive")
+        .subcommand(clap::Command::new("hello-world"))
+        .subcommand(clap::Command::new("hello-moon"))
+        .subcommand(clap::Command::new("goodbye-world"));
+
+    assert_complete(
+        &mut cmd,
+        ["he"],
+        ["hello-moon", "hello-world", "help"],
+        ShowOptions::Always,
+    );
 }
 
 #[test]
 fn suggest_long_flag_subset() {
-    let name = "exhaustive";
-    let mut cmd = clap::Command::new(name)
+    let mut cmd = clap::Command::new("exhaustive")
         .arg(
             clap::Arg::new("hello-world")
                 .long("hello-world")
@@ -45,53 +61,34 @@ fn suggest_long_flag_subset() {
                 .action(clap::ArgAction::Count),
         );
 
-    let args = [name, "--he"];
-    let arg_index = 1;
-    let args = IntoIterator::into_iter(args)
-        .map(std::ffi::OsString::from)
-        .collect::<Vec<_>>();
-    let current_dir = None;
-
-    let completions =
-        clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
-    let completions = completions
-        .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
-        .collect::<Vec<_>>();
-
-    assert_eq!(completions, ["--hello-world", "--hello-moon", "--help"]);
+    assert_complete(
+        &mut cmd,
+        ["--he"],
+        ["--hello-world", "--hello-moon", "--help"],
+        ShowOptions::Always,
+    );
 }
 
 #[test]
 fn suggest_possible_value_subset() {
-    let name = "exhaustive";
-    let mut cmd = clap::Command::new(name).arg(clap::Arg::new("hello-world").value_parser([
-        "hello-world",
-        "hello-moon",
-        "goodbye-world",
-    ]));
+    let mut cmd =
+        clap::Command::new("exhaustive").arg(clap::Arg::new("hello-world").value_parser([
+            "hello-world",
+            "hello-moon",
+            "goodbye-world",
+        ]));
 
-    let args = [name, "hello"];
-    let arg_index = 1;
-    let args = IntoIterator::into_iter(args)
-        .map(std::ffi::OsString::from)
-        .collect::<Vec<_>>();
-    let current_dir = None;
-
-    let completions =
-        clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
-    let completions = completions
-        .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
-        .collect::<Vec<_>>();
-
-    assert_eq!(completions, ["hello-world", "hello-moon"]);
+    assert_complete(
+        &mut cmd,
+        ["hello"],
+        ["hello-world", "hello-moon"],
+        ShowOptions::Always,
+    );
 }
 
 #[test]
 fn suggest_additional_short_flags() {
-    let name = "exhaustive";
-    let mut cmd = clap::Command::new(name)
+    let mut cmd = clap::Command::new("exhaustive")
         .arg(
             clap::Arg::new("a")
                 .short('a')
@@ -107,20 +104,35 @@ fn suggest_additional_short_flags() {
                 .short('c')
                 .action(clap::ArgAction::Count),
         );
+    assert_complete(
+        &mut cmd,
+        ["-a"],
+        ["-aa", "-ab", "-ac", "-ah"],
+        ShowOptions::Always,
+    );
+}
 
-    let args = [name, "-a"];
-    let arg_index = 1;
-    let args = IntoIterator::into_iter(args)
-        .map(std::ffi::OsString::from)
-        .collect::<Vec<_>>();
-    let current_dir = None;
+#[test]
+fn suggest_flags_only_on_dash() {
+    let mut cmd = clap::Command::new("exhaustive")
+        .arg(clap::Arg::new("a").short('a'))
+        .arg(clap::Arg::new("b").long("b"));
 
-    let completions =
-        clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
-    let completions = completions
-        .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
-        .collect::<Vec<_>>();
+    assert_complete(&mut cmd, [""], [], ShowOptions::ExactDash);
+    assert_complete(&mut cmd, ["-"], ["-a", "-h"], ShowOptions::ExactDash);
+    assert_complete(&mut cmd, ["--"], ["--b", "--help"], ShowOptions::ExactDash);
 
-    assert_eq!(completions, ["-aa", "-ab", "-ac", "-ah"]);
+    assert_complete(
+        &mut cmd,
+        ["-"],
+        ["--b", "--help", "-a", "-h"],
+        ShowOptions::MinOneDash,
+    );
+
+    assert_complete(
+        &mut cmd,
+        [""],
+        ["--b", "--help", "-a", "-h"],
+        ShowOptions::Always,
+    );
 }

@@ -1,5 +1,7 @@
 use unicode_xid::UnicodeXID as _;
 
+use crate::dynamic::ShowOptions;
+
 /// Bash completions
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
@@ -71,7 +73,8 @@ complete -o nospace -o bashdefault -F _clap_complete_NAME BIN
             .ok()
             .and_then(|i| i.parse().ok());
         let ifs: Option<String> = std::env::var("IFS").ok().and_then(|i| i.parse().ok());
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions =
+            crate::dynamic::complete(cmd, args, index, current_dir, ShowOptions::Always)?;
 
         for (i, completion) in completions.iter().enumerate() {
             if i != 0 {

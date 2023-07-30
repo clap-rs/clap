@@ -3,6 +3,18 @@ use std::ffi::OsString;
 
 use clap_lex::OsStrExt as _;
 
+/// Specifies the number of dashes an argument must already
+/// contain to complete short and long options.
+#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
+pub enum ShowOptions {
+    /// One `-` for short, two `--` for long options.
+    ExactDash,
+    /// At least one `-` to show options.
+    MinOneDash,
+    /// Always complete options.
+    Always,
+}
+
 /// Shell-specific completions
 pub trait Completer {
     /// The recommended file name for the registration code
@@ -31,6 +43,7 @@ pub fn complete(
     args: Vec<std::ffi::OsString>,
     arg_index: usize,
     current_dir: Option<&std::path::Path>,
+    show_options: ShowOptions,
 ) -> Result<Vec<std::ffi::OsString>, std::io::Error> {
     cmd.build();
 
@@ -54,7 +67,14 @@ pub fn complete(
     let mut is_escaped = false;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
-            return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
+            return complete_arg(
+                &arg,
+                current_cmd,
+                current_dir,
+                pos_index,
+                is_escaped,
+                show_options,
+            );
         }
 
         debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
@@ -90,6 +110,7 @@ fn complete_arg(
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
     is_escaped: bool,
+    show_options: ShowOptions,
 ) -> Result<Vec<std::ffi::OsString>, std::io::Error> {
     debug!(
         "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
@@ -123,7 +144,10 @@ fn complete_arg(
                     );
                 }
             }
-        } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
+        } else if arg.is_escape()
+            || (show_options >= ShowOptions::MinOneDash && arg.is_stdio())
+            || (show_options == ShowOptions::Always && arg.is_empty())
+        {
             // HACK: Assuming knowledge of is_escape / is_stdio
             completions.extend(
                 crate::generator::utils::longs_and_visible_aliases(cmd)
@@ -132,7 +156,10 @@ fn complete_arg(
             );
         }
 
-        if arg.is_empty() || arg.is_stdio() || arg.is_short() {
+        if arg.is_stdio()
+            || arg.is_short()
+            || (arg.is_empty() && show_options == ShowOptions::Always)
+        {
             let dash_or_arg = if arg.is_empty() {
                 "-".into()
             } else {
