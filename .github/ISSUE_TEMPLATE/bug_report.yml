@@ -19,7 +19,7 @@ body:
   - type: input
     attributes:
       label: Clap Version
-      description: Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
+      description: Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep -C1 clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
     validations:
       required: true
   - type: textarea
