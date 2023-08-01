@@ -641,9 +641,9 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "completest"
-version = "0.0.16"
+version = "0.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "426bfb709a07e01f5ee02dfccf42a73ef64a03ca6295a82e5c1c211a302a770e"
+checksum = "f6d97526563bd6d2752d2eab68eaa2ac4d1365641892abff715949d69fbcc6c7"
 dependencies = [
  "dunce",
  "nu-cli",
