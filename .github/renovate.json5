@@ -1,6 +1,6 @@
 {
   schedule: [
-    'before 3am on the first day of the month',
+    'before 5am on the first day of the month',
   ],
   semanticCommits: 'enabled',
   configMigration: true,
