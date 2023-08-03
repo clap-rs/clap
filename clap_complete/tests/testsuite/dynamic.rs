@@ -19,7 +19,7 @@ fn suggest_subcommand_subset() {
         clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
     let completions = completions
         .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
+        .map(|s| s.0.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
     assert_eq!(completions, ["hello-moon", "hello-world", "help"]);
@@ -56,7 +56,7 @@ fn suggest_long_flag_subset() {
         clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
     let completions = completions
         .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
+        .map(|s| s.0.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
     assert_eq!(completions, ["--hello-world", "--hello-moon", "--help"]);
@@ -82,7 +82,7 @@ fn suggest_possible_value_subset() {
         clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
     let completions = completions
         .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
+        .map(|s| s.0.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
     assert_eq!(completions, ["hello-world", "hello-moon"]);
@@ -119,7 +119,7 @@ fn suggest_additional_short_flags() {
         clap_complete::dynamic::complete(&mut cmd, args, arg_index, current_dir).unwrap();
     let completions = completions
         .into_iter()
-        .map(|s| s.to_string_lossy().into_owned())
+        .map(|s| s.0.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
     assert_eq!(completions, ["-aa", "-ab", "-ac", "-ah"]);

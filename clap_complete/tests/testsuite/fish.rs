@@ -162,9 +162,11 @@ fn complete_dynamic() {
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive
-action    help  pacman  -h          --global
-alias     hint  quote   -V          --help
-complete  last  value   --generate  --version"#;
+action                                                             last              -V         (Print version)
+alias                                                              pacman            --generate      (generate)
+complete            (Register shell completions for this program)  quote             --global      (everywhere)
+help  (Print this message or the help of the given subcommand(s))  value             --help        (Print help)
+hint                                                               -h  (Print help)  --version  (Print version)"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }
