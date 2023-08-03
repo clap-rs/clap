@@ -1287,7 +1287,7 @@ impl<'cmd> Parser<'cmd> {
                     .filter(|pv| !pv.is_hide_set())
                     .map(|n| n.get_name().to_owned())
                     .collect::<Vec<_>>(),
-                arg.to_string(),
+                Some(arg),
             ));
         } else if let Some(expected) = expected.num_values() {
             if expected != actual {

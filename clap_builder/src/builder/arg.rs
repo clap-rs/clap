@@ -869,6 +869,14 @@ impl Arg {
         self.settings.unset(setting);
         self
     }
+
+    /// Display a potential argument. This matches up with the
+    /// [`crate::builder::TypedValueParser::parse_ref`] `arg` type and is used in the
+    /// [`crate::Error`] constructor methods.
+    pub(crate) fn display(arg: Option<&Arg>) -> String {
+        arg.map(ToString::to_string)
+            .unwrap_or_else(|| "...".to_owned())
+    }
 }
 
 /// # Value Handling

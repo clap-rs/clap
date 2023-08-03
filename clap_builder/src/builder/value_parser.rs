@@ -854,9 +854,6 @@ where
             )
         }));
         let value = ok!((self)(value).map_err(|e| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(arg, value.to_owned(), e.into()).with_cmd(cmd)
         }));
         Ok(value)
@@ -986,12 +983,7 @@ impl TypedValueParser for PathBufValueParser {
         value: std::ffi::OsString,
     ) -> Result<Self::Value, crate::Error> {
         if value.is_empty() {
-            return Err(crate::Error::empty_value(
-                cmd,
-                &[],
-                arg.map(ToString::to_string)
-                    .unwrap_or_else(|| "...".to_owned()),
-            ));
+            return Err(crate::Error::empty_value(cmd, &[], arg));
         }
         Ok(Self::Value::from(value))
     }
@@ -1078,8 +1070,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
                 cmd,
                 value.to_string_lossy().into_owned(),
                 &possible_vals(),
-                arg.map(ToString::to_string)
-                    .unwrap_or_else(|| "...".to_owned()),
+                arg,
             )
         }));
         let value = ok!(E::value_variants()
@@ -1094,8 +1085,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
                 cmd,
                 value.to_owned(),
                 &possible_vals(),
-                arg.map(ToString::to_string)
-                    .unwrap_or_else(|| "...".to_owned()),
+                arg,
             )
             }))
             .clone();
@@ -1204,13 +1194,7 @@ impl TypedValueParser for PossibleValuesParser {
                 .map(|v| v.get_name().to_owned())
                 .collect::<Vec<_>>();
 
-            Err(crate::Error::invalid_value(
-                cmd,
-                value,
-                &possible_vals,
-                arg.map(ToString::to_string)
-                    .unwrap_or_else(|| "...".to_owned()),
-            ))
+            Err(crate::Error::invalid_value(cmd, value, &possible_vals, arg))
         }
     }
 
@@ -1379,9 +1363,6 @@ where
             )
         }));
         let value = ok!(value.parse::<i64>().map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
@@ -1390,9 +1371,6 @@ where
             .with_cmd(cmd)
         }));
         if !self.bounds.contains(&value) {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             return Err(crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
@@ -1403,9 +1381,6 @@ where
 
         let value: Result<Self::Value, _> = value.try_into();
         let value = ok!(value.map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
@@ -1579,9 +1554,6 @@ where
             )
         }));
         let value = ok!(value.parse::<u64>().map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
@@ -1590,9 +1562,6 @@ where
             .with_cmd(cmd)
         }));
         if !self.bounds.contains(&value) {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             return Err(crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
@@ -1603,9 +1572,6 @@ where
 
         let value: Result<Self::Value, _> = value.try_into();
         let value = ok!(value.map_err(|err| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(
                 arg,
                 raw_value.to_string_lossy().into_owned(),
@@ -1677,8 +1643,7 @@ impl TypedValueParser for BoolValueParser {
                 cmd,
                 value.to_string_lossy().into_owned(),
                 &possible_vals,
-                arg.map(ToString::to_string)
-                    .unwrap_or_else(|| "...".to_owned()),
+                arg,
             ));
         };
         Ok(value)
@@ -1871,9 +1836,6 @@ impl TypedValueParser for BoolishValueParser {
             )
         }));
         let value = ok!(crate::util::str_to_bool(value).ok_or_else(|| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(arg, value.to_owned(), "value was not a boolean".into())
                 .with_cmd(cmd)
         }));
@@ -1948,12 +1910,7 @@ impl TypedValueParser for NonEmptyStringValueParser {
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, crate::Error> {
         if value.is_empty() {
-            return Err(crate::Error::empty_value(
-                cmd,
-                &[],
-                arg.map(ToString::to_string)
-                    .unwrap_or_else(|| "...".to_owned()),
-            ));
+            return Err(crate::Error::empty_value(cmd, &[], arg));
         }
         let value = ok!(value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
@@ -2070,9 +2027,6 @@ where
     ) -> Result<Self::Value, crate::Error> {
         let mid_value = ok!(self.parser.parse_ref(cmd, arg, value));
         let value = ok!((self.func)(mid_value).map_err(|e| {
-            let arg = arg
-                .map(|a| a.to_string())
-                .unwrap_or_else(|| "...".to_owned());
             crate::Error::value_validation(arg, value.to_string_lossy().into_owned(), e.into())
                 .with_cmd(cmd)
         }));

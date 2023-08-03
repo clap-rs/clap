@@ -47,7 +47,7 @@ impl<'cmd> Validator<'cmd> {
                         .filter(|pv| !pv.is_hide_set())
                         .map(|n| n.get_name().to_owned())
                         .collect::<Vec<_>>(),
-                    o.to_string(),
+                    Some(o),
                 ));
             }
         }

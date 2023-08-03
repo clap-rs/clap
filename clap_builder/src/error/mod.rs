@@ -391,7 +391,15 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
-    pub(crate) fn empty_value(cmd: &Command, good_vals: &[String], arg: String) -> Self {
+    /// Create an error for an invalid empty value.
+    ///
+    /// # Arguments
+    ///
+    /// * `cmd`: The command which failed to validate.
+    /// * `good_vals`: If non-empty, a list of valid values for the given argument, used for
+    ///   generating suggestions.
+    /// * `arg`: The argument which failed to validate, if any.
+    pub fn empty_value(cmd: &Command, good_vals: &[String], arg: Option<&crate::Arg>) -> Self {
         Self::invalid_value(cmd, "".to_owned(), good_vals, arg)
     }
 
@@ -411,12 +419,22 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
-    pub(crate) fn invalid_value(
+    /// Create an error for an invalid value.
+    ///
+    /// # Arguments
+    ///
+    /// * `cmd`: The command which failed to validate.
+    /// * `bad_val`: The invalid value.
+    /// * `good_vals`: If non-empty, a list of valid values for the given argument, used for
+    ///   generating suggestions.
+    /// * `arg`: The argument which failed to validate, if any.
+    pub fn invalid_value(
         cmd: &Command,
         bad_val: String,
         good_vals: &[String],
-        arg: String,
+        arg: Option<&crate::Arg>,
     ) -> Self {
+        let arg = crate::Arg::display(arg);
         let suggestion = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
         let mut err = Self::new(ErrorKind::InvalidValue).with_cmd(cmd);
 
@@ -629,11 +647,19 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
-    pub(crate) fn value_validation(
-        arg: String,
+    /// Create a value validation error.
+    ///
+    /// # Arguments
+    ///
+    /// * `arg`: The argument which failed to validate, if any.
+    /// * `val`: The invalid value.
+    /// * `err`: The error message.
+    pub fn value_validation(
+        arg: Option<&crate::Arg>,
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
+        let arg = crate::Arg::display(arg);
         let mut err = Self::new(ErrorKind::ValueValidation).set_source(err);
 
         #[cfg(feature = "error-context")]
