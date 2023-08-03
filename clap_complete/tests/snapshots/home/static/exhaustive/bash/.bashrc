@@ -92,6 +92,9 @@ _exhaustive() {
             exhaustive__help__quote,cmd-single-quotes)
                 cmd="exhaustive__help__quote__cmd__single__quotes"
                 ;;
+            exhaustive__help__quote,escape-help)
+                cmd="exhaustive__help__quote__escape__help"
+                ;;
             exhaustive__pacman,help)
                 cmd="exhaustive__pacman__help"
                 ;;
@@ -128,6 +131,9 @@ _exhaustive() {
             exhaustive__quote,cmd-single-quotes)
                 cmd="exhaustive__quote__cmd__single__quotes"
                 ;;
+            exhaustive__quote,escape-help)
+                cmd="exhaustive__quote__escape__help"
+                ;;
             exhaustive__quote,help)
                 cmd="exhaustive__quote__help"
                 ;;
@@ -148,6 +154,9 @@ _exhaustive() {
                 ;;
             exhaustive__quote__help,cmd-single-quotes)
                 cmd="exhaustive__quote__help__cmd__single__quotes"
+                ;;
+            exhaustive__quote__help,escape-help)
+                cmd="exhaustive__quote__help__escape__help"
                 ;;
             exhaustive__quote__help,help)
                 cmd="exhaustive__quote__help__help"
@@ -391,7 +400,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__help__quote)
-            opts="cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions"
+            opts="cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -475,6 +484,20 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__help__quote__cmd__single__quotes)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__help__quote__escape__help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -709,7 +732,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote)
-            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --global --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
+            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --global --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -806,8 +829,22 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
+        exhaustive__quote__escape__help)
+            opts="-h -V --global --help --version"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
         exhaustive__quote__help)
-            opts="cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
+            opts="cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -891,6 +928,20 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__help__cmd__single__quotes)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__quote__help__escape__help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

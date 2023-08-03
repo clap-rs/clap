@@ -100,6 +100,7 @@ fn cli() -> clap::Command {
                     clap::Command::new("cmd-brackets").about("List packages [filter]"),
                     clap::Command::new("cmd-expansions")
                         .about("Execute the shell command with $SHELL"),
+                    clap::Command::new("escape-help").about("\\tab\t\"'\nNew Line"),
                 ]),
             clap::Command::new("value").args([
                 clap::Arg::new("delim").long("delim").value_delimiter(','),

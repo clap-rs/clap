@@ -169,4 +169,28 @@ help  (Print this message or the help of the given subcommand(s))  value        
 hint                                                               -h  (Print help)  --version  (Print version)"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
+
+    let input = "exhaustive quote \t";
+    let expected = r#"% exhaustive quote
+cmd-backslash                                        (Avoid '\n')
+cmd-backticks              (For more information see `echo test`)
+cmd-brackets                             (List packages [filter])
+cmd-double-quotes           (Can be "always", "auto", or "never")
+cmd-expansions            (Execute the shell command with $SHELL)
+cmd-single-quotes           (Can be 'always', 'auto', or 'never')
+escape-help                                             (\tab "')
+help  (Print this message or the help of the given subcommand(s))
+-h                                                   (Print help)
+-V                                                (Print version)
+--backslash                                          (Avoid '\n')
+--backticks                (For more information see `echo test`)
+--brackets                               (List packages [filter])
+--double-quotes             (Can be "always", "auto", or "never")
+--expansions              (Execute the shell command with $SHELL)
+--global                                             (everywhere)
+--help                                               (Print help)
+--single-quotes             (Can be 'always', 'auto', or 'never')
+--version                                         (Print version)"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
 }

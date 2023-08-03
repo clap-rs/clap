@@ -33,7 +33,11 @@ impl crate::dynamic::Completer for Fish {
         for (completion, help) in completions {
             write!(buf, "{}", completion.to_string_lossy())?;
             if let Some(help) = help {
-                write!(buf, "\t{}", help.to_string().lines().next().unwrap_or_default())?;
+                write!(
+                    buf,
+                    "\t{}",
+                    help.to_string().lines().next().unwrap_or_default()
+                )?;
             }
             writeln!(buf)?;
         }

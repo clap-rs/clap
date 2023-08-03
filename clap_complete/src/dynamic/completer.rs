@@ -339,4 +339,3 @@ fn subcommands(p: &clap::Command) -> Vec<(String, Option<StyledStr>)> {
         .map(|sc| (sc.get_name().to_string(), sc.get_about().cloned()))
         .collect()
 }
-
