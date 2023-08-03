@@ -209,3 +209,61 @@ For more information, try '--help'.
 ";
     assert_error(err, expected_kind, MESSAGE, true);
 }
+
+fn make_arg() -> Arg {
+    Arg::new("duration").long("duration").num_args(1)
+}
+
+fn make_command() -> Command {
+    Command::new("My Program").arg(make_arg())
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn test_empty_value() {
+    let cmd = make_command();
+    let arg = make_arg();
+    assert_eq!(
+        Error::<clap::error::RichFormatter>::empty_value(&cmd, &["5sec".to_owned()], Some(&arg))
+            .to_string(),
+        "error: a value is required for '--duration <duration>' but none was supplied\n  \
+        [possible values: 5sec]\n\n\
+        For more information, try '--help'.\n"
+    );
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn test_invalid_value() {
+    let cmd = make_command();
+    let arg = make_arg();
+    assert_eq!(
+        Error::<clap::error::RichFormatter>::invalid_value(
+            &cmd,
+            "0.5sec".to_owned(),
+            &[],
+            Some(&arg)
+        )
+        .to_string(),
+        "error: invalid value '0.5sec' for '--duration <duration>'\n\n\
+        For more information, try '--help'.\n"
+    );
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn test_value_validation() {
+    let cmd = make_command();
+    let arg = make_arg();
+    assert_eq!(
+        Error::<clap::error::RichFormatter>::value_validation(
+            Some(&arg),
+            "0.5sec".to_string(),
+            "Decimals are not supported in durations".into()
+        )
+        .with_cmd(&cmd)
+        .to_string(),
+        "error: invalid value '0.5sec' for '--duration <duration>': Decimals are not supported in durations\n\n\
+        For more information, try '--help'.\n"
+    );
+}
