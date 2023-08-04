@@ -82,7 +82,12 @@ impl<F: ErrorFormatter> Error<F> {
     /// This is for you need to pass the error up to
     /// a place that has access to the `Command` at which point you can call [`Error::format`].
     ///
-    /// Prefer [`Command::error`] for generating errors.
+    /// If you have access to an `&mut Command`, prefer [`Command::error`] for generating errors.
+    /// Otherwise, prefer [`Error::new`] in combination with [`Error::set_source`] for generating
+    /// errors.
+    ///
+    /// Note that any context added to this error with [`Error::insert`] will not be displayed when
+    /// the error is printed.
     ///
     /// [`Command::error`]: crate::Command::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
@@ -105,6 +110,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// See also
     /// - [`Error::insert`]
     /// - [`Error::with_cmd`]
+    /// - [`Error::set_source`]
     ///
     /// # Example
     ///
@@ -299,7 +305,47 @@ impl<F: ErrorFormatter> Error<F> {
         self
     }
 
-    pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
+    /// Set the error's source, shown when the error is printed.
+    ///
+    /// Unlike a message passed in with [`Error::raw`], a source error will not hide
+    /// added [`Error::context`]. Note how the provided context in the example below is only
+    /// displayed for the error created with [`Error::new`]:
+    ///
+    /// ```
+    /// # use clap_builder as clap;
+    /// # use clap::Command;
+    /// # use clap::Error;
+    /// # use clap::error::ErrorKind;
+    /// fn add_context(mut err: Error) -> Error {
+    /// #   #[cfg(feature = "error-context")] {
+    /// #   use clap::error::ContextKind;
+    /// #   use clap::error::ContextValue;
+    ///     err.insert(ContextKind::InvalidArg, ContextValue::String("--duration".into()));
+    ///     err.insert(ContextKind::InvalidValue, ContextValue::String("0.5sec".into()));
+    /// #   }
+    ///     err.with_cmd(&Command::new("my-command"))
+    /// }
+    ///
+    /// let err = Error::raw(
+    ///     ErrorKind::ValueValidation,
+    ///     "Decimals are not supported in durations"
+    /// );
+    /// assert_eq!(
+    ///     add_context(err).to_string(),
+    ///     "error: Decimals are not supported in durations"
+    /// );
+    ///
+    /// let mut err = Error::new(ErrorKind::ValueValidation)
+    ///     .set_source("Decimals are not supported in durations".into());
+    /// # #[cfg(feature = "error-context")]
+    /// assert_eq!(
+    ///     add_context(err).to_string(),
+    ///     "error: invalid value '0.5sec' for '--duration': \
+    ///     Decimals are not supported in durations\n\n\
+    ///     For more information, try '--help'.\n"
+    /// );
+    /// ```
+    pub fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
         self.inner.source = Some(source);
         self
     }
