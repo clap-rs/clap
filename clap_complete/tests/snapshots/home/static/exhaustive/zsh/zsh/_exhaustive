@@ -120,6 +120,15 @@ _arguments "${_arguments_options[@]}" \
 '--version[Print version]' \
 && ret=0
 ;;
+(escape-help)
+_arguments "${_arguments_options[@]}" \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
 (help)
 _arguments "${_arguments_options[@]}" \
 ":: :_exhaustive__quote__help_commands" \
@@ -153,6 +162,10 @@ _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (cmd-expansions)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(escape-help)
 _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
@@ -371,6 +384,10 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
+(escape-help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
         esac
     ;;
 esac
@@ -567,6 +584,21 @@ _exhaustive__help__complete_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help complete commands' commands "$@"
 }
+(( $+functions[_exhaustive__help__quote__escape-help_commands] )) ||
+_exhaustive__help__quote__escape-help_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive help quote escape-help commands' commands "$@"
+}
+(( $+functions[_exhaustive__quote__escape-help_commands] )) ||
+_exhaustive__quote__escape-help_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive quote escape-help commands' commands "$@"
+}
+(( $+functions[_exhaustive__quote__help__escape-help_commands] )) ||
+_exhaustive__quote__help__escape-help_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive quote help escape-help commands' commands "$@"
+}
 (( $+functions[_exhaustive__help_commands] )) ||
 _exhaustive__help_commands() {
     local commands; commands=(
@@ -610,6 +642,8 @@ _exhaustive__quote__help_commands() {
 'cmd-backslash:Avoid '\''\\n'\''' \
 'cmd-brackets:List packages \[filter\]' \
 'cmd-expansions:Execute the shell command with \$SHELL' \
+'escape-help:\\tab	"'\''
+New Line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'exhaustive quote help commands' commands "$@"
@@ -680,6 +714,8 @@ _exhaustive__help__quote_commands() {
 'cmd-backslash:Avoid '\''\\n'\''' \
 'cmd-brackets:List packages \[filter\]' \
 'cmd-expansions:Execute the shell command with \$SHELL' \
+'escape-help:\\tab	"'\''
+New Line' \
     )
     _describe -t commands 'exhaustive help quote commands' commands "$@"
 }
@@ -692,6 +728,8 @@ _exhaustive__quote_commands() {
 'cmd-backslash:Avoid '\''\\n'\''' \
 'cmd-brackets:List packages \[filter\]' \
 'cmd-expansions:Execute the shell command with \$SHELL' \
+'escape-help:\\tab	"'\''
+New Line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'exhaustive quote commands' commands "$@"

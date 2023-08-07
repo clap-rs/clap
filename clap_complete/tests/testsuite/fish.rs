@@ -162,9 +162,35 @@ fn complete_dynamic() {
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive
-action    help  pacman  -h          --global
-alias     hint  quote   -V          --help
-complete  last  value   --generate  --version"#;
+action                                                             last              -V         (Print version)
+alias                                                              pacman            --generate      (generate)
+complete            (Register shell completions for this program)  quote             --global      (everywhere)
+help  (Print this message or the help of the given subcommand(s))  value             --help        (Print help)
+hint                                                               -h  (Print help)  --version  (Print version)"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
+
+    let input = "exhaustive quote \t";
+    let expected = r#"% exhaustive quote
+cmd-backslash                                        (Avoid '\n')
+cmd-backticks              (For more information see `echo test`)
+cmd-brackets                             (List packages [filter])
+cmd-double-quotes           (Can be "always", "auto", or "never")
+cmd-expansions            (Execute the shell command with $SHELL)
+cmd-single-quotes           (Can be 'always', 'auto', or 'never')
+escape-help                                             (\tab "')
+help  (Print this message or the help of the given subcommand(s))
+-h                                                   (Print help)
+-V                                                (Print version)
+--backslash                                          (Avoid '\n')
+--backticks                (For more information see `echo test`)
+--brackets                               (List packages [filter])
+--double-quotes             (Can be "always", "auto", or "never")
+--expansions              (Execute the shell command with $SHELL)
+--global                                             (everywhere)
+--help                                               (Print help)
+--single-quotes             (Can be 'always', 'auto', or 'never')
+--version                                         (Print version)"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

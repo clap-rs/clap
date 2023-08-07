@@ -65,6 +65,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand cmd-backslash 'Avoid ''\n'''
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
+            cand escape-help '\tab	"''
+New Line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'exhaustive;quote;cmd-single-quotes'= {
@@ -109,6 +111,13 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand -V 'Print version'
             cand --version 'Print version'
         }
+        &'exhaustive;quote;escape-help'= {
+            cand --global 'everywhere'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
+        }
         &'exhaustive;quote;help'= {
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand cmd-double-quotes 'Can be "always", "auto", or "never"'
@@ -116,6 +125,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand cmd-backslash 'Avoid ''\n'''
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
+            cand escape-help '\tab	"''
+New Line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'exhaustive;quote;help;cmd-single-quotes'= {
@@ -129,6 +140,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
         &'exhaustive;quote;help;cmd-brackets'= {
         }
         &'exhaustive;quote;help;cmd-expansions'= {
+        }
+        &'exhaustive;quote;help;escape-help'= {
         }
         &'exhaustive;quote;help;help'= {
         }
@@ -255,6 +268,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand cmd-backslash 'Avoid ''\n'''
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
+            cand escape-help '\tab	"''
+New Line'
         }
         &'exhaustive;help;quote;cmd-single-quotes'= {
         }
@@ -267,6 +282,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
         &'exhaustive;help;quote;cmd-brackets'= {
         }
         &'exhaustive;help;quote;cmd-expansions'= {
+        }
+        &'exhaustive;help;quote;escape-help'= {
         }
         &'exhaustive;help;value'= {
         }
