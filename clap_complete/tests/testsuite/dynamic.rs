@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use clap::Command;
+use clap::{builder::PossibleValue, Command};
 
 macro_rules! complete {
     ($cmd:expr, $input:expr$(, current_dir = $current_dir:expr)? $(,)?) => {
@@ -61,13 +61,13 @@ fn suggest_long_flag_subset() {
 fn suggest_possible_value_subset() {
     let name = "exhaustive";
     let mut cmd = Command::new(name).arg(clap::Arg::new("hello-world").value_parser([
-        "hello-world",
-        "hello-moon",
-        "goodbye-world",
+        PossibleValue::new("hello-world").help("Say hello to the world"),
+        "hello-moon".into(),
+        "goodbye-world".into(),
     ]));
 
     snapbox::assert_eq(
-        "hello-world
+        "hello-world\tSay hello to the world
 hello-moon",
         complete!(cmd, "hello"),
     );
