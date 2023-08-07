@@ -65,6 +65,18 @@ jobs:
       run: cargo check --workspace --all-targets --all-features
     - name: No-default features
       run: cargo check --workspace --all-targets --no-default-features
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: "Is lockfile updated?"
+      run: cargo fetch --locked
   docs:
     name: Docs
     runs-on: ubuntu-latest
