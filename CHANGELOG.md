@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Expose `TryMapValueParser` so the type can be named
+- `Command::mut_args` for modifying all arguments en masse
+
 ## [4.3.19] - 2023-07-21
 
 ### Fixes
