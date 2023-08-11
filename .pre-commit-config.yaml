@@ -5,7 +5,7 @@ exclude: |
   )$
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
     - id: check-yaml
       stages: [commit]
@@ -20,12 +20,12 @@ repos:
     - id: detect-private-key
       stages: [commit]
   - repo: https://github.com/crate-ci/typos
-    rev: v1.11.1
+    rev: v1.16.3
     hooks:
     - id: typos
       stages: [commit]
   - repo: https://github.com/crate-ci/committed
-    rev: v1.0.4
+    rev: v1.0.20
     hooks:
     - id: committed
       stages: [commit-msg]

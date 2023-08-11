@@ -72,3 +72,27 @@ jobs:
       run: make test-minimal ARGS='--manifest-path Cargo.toml'
     - name: Test dynamic completions
       run: cargo test -p clap_complete -F unstable-dynamic
+  latest:
+    name: "Check latest dependencies"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: Update dependencues
+      run: cargo update
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (benches)
+      run: make test-${{matrix.features}} ARGS='--workspace --benches'
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Test dynamic completions
+      run: cargo test -p clap_complete -F unstable-dynamic
