@@ -219,7 +219,10 @@ fn unknown_argument_option() {
         Arg::new("current-dir-unknown")
             .long("cwd")
             .aliases(["current-dir", "directory", "working-directory", "root"])
-            .value_parser(clap::builder::UnknownArgumentValueParser::suggest("-C"))
+            .value_parser(
+                clap::builder::UnknownArgumentValueParser::suggest_arg("-C")
+                    .and_suggest("not much else to say"),
+            )
             .hide(true),
     ]);
     let res = cmd.try_get_matches_from(["test", "--cwd", ".."]);
@@ -229,7 +232,8 @@ fn unknown_argument_option() {
     static MESSAGE: &str = "\
 error: unexpected argument '--cwd <current-dir-unknown>' found
 
-  tip: a similar argument exists: '---C'
+  tip: a similar argument exists: '-C'
+  tip: not much else to say
 
 Usage: test [OPTIONS]
 
@@ -247,9 +251,10 @@ fn unknown_argument_flag() {
         Arg::new("libtest-ignore")
             .long("ignored")
             .action(ArgAction::SetTrue)
-            .value_parser(clap::builder::UnknownArgumentValueParser::suggest(
-                "-- --ignored",
-            ))
+            .value_parser(
+                clap::builder::UnknownArgumentValueParser::suggest_arg("-- --ignored")
+                    .and_suggest("not much else to say"),
+            )
             .hide(true),
     ]);
     let res = cmd.try_get_matches_from(["test", "--ignored"]);
@@ -259,7 +264,8 @@ fn unknown_argument_flag() {
     static MESSAGE: &str = "\
 error: unexpected argument '--ignored' found
 
-  tip: a similar argument exists: '---- --ignored'
+  tip: a similar argument exists: '-- --ignored'
+  tip: not much else to say
 
 Usage: test [OPTIONS]
 

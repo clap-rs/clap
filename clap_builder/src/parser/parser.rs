@@ -1521,6 +1521,7 @@ impl<'cmd> Parser<'cmd> {
                 self.start_custom_arg(matcher, arg, ValueSource::CommandLine);
             }
         }
+        let did_you_mean = did_you_mean.map(|(arg, cmd)| (format!("--{arg}"), cmd));
 
         let required = self.cmd.required_graph();
         let used: Vec<Id> = matcher

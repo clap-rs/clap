@@ -2,6 +2,7 @@ use std::convert::TryInto;
 use std::ops::RangeBounds;
 
 use crate::builder::Str;
+use crate::builder::StyledStr;
 use crate::util::AnyValue;
 use crate::util::AnyValueId;
 
@@ -2104,7 +2105,7 @@ where
 ///         Arg::new("current-dir-unknown")
 ///             .long("cwd")
 ///             .aliases(["current-dir", "directory", "working-directory", "root"])
-///             .value_parser(clap::builder::UnknownArgumentValueParser::suggest("-C"))
+///             .value_parser(clap::builder::UnknownArgumentValueParser::suggest_arg("-C"))
 ///             .hide(true),
 ///     ]);
 ///
@@ -2122,13 +2123,31 @@ where
 /// ```
 #[derive(Clone, Debug)]
 pub struct UnknownArgumentValueParser {
-    arg: Str,
+    arg: Option<Str>,
+    suggestions: Vec<StyledStr>,
 }
 
 impl UnknownArgumentValueParser {
     /// Suggest an alternative argument
-    pub fn suggest(arg: impl Into<Str>) -> Self {
-        Self { arg: arg.into() }
+    pub fn suggest_arg(arg: impl Into<Str>) -> Self {
+        Self {
+            arg: Some(arg.into()),
+            suggestions: Default::default(),
+        }
+    }
+
+    /// Provide a general suggestion
+    pub fn suggest(text: impl Into<StyledStr>) -> Self {
+        Self {
+            arg: Default::default(),
+            suggestions: vec![text.into()],
+        }
+    }
+
+    /// Extend the suggestions
+    pub fn and_suggest(mut self, text: impl Into<StyledStr>) -> Self {
+        self.suggestions.push(text.into());
+        self
     }
 }
 
@@ -2145,13 +2164,26 @@ impl TypedValueParser for UnknownArgumentValueParser {
             Some(arg) => arg.to_string(),
             None => "..".to_owned(),
         };
-        Err(crate::Error::unknown_argument(
+        let err = crate::Error::unknown_argument(
             cmd,
             arg,
-            Some((self.arg.as_str().to_owned(), None)),
+            self.arg.as_ref().map(|s| (s.as_str().to_owned(), None)),
             false,
             crate::output::Usage::new(cmd).create_usage_with_title(&[]),
-        ))
+        );
+        #[cfg(feature = "error-context")]
+        let err = {
+            debug_assert_eq!(
+                err.get(crate::error::ContextKind::Suggested),
+                None,
+                "Assuming `Error::unknown_argument` doesn't apply any `Suggested` so we can without caution"
+            );
+            err.insert_context_unchecked(
+                crate::error::ContextKind::Suggested,
+                crate::error::ContextValue::StyledStrs(self.suggestions.clone()),
+            )
+        };
+        Err(err)
     }
 }
 
