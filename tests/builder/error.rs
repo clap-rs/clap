@@ -1,6 +1,6 @@
 use super::utils;
 
-use clap::{arg, error::Error, error::ErrorKind, value_parser, Arg, Command};
+use clap::{arg, builder::ArgAction, error::Error, error::ErrorKind, value_parser, Arg, Command};
 
 #[track_caller]
 fn assert_error<F: clap::error::ErrorFormatter>(
@@ -204,6 +204,64 @@ error: unrecognized subcommand 'baz'
   tip: a similar subcommand exists: 'bar'
 
 Usage: test [COMMAND]
+
+For more information, try '--help'.
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+#[cfg(feature = "suggestions")]
+fn unknown_argument_option() {
+    let cmd = Command::new("test").args([
+        Arg::new("current-dir").short('C'),
+        Arg::new("current-dir-unknown")
+            .long("cwd")
+            .aliases(["current-dir", "directory", "working-directory", "root"])
+            .value_parser(clap::builder::UnknownArgumentValueParser::suggest("-C"))
+            .hide(true),
+    ]);
+    let res = cmd.try_get_matches_from(["test", "--cwd", ".."]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: unexpected argument '--cwd <current-dir-unknown>' found
+
+  tip: a similar argument exists: '---C'
+
+Usage: test [OPTIONS]
+
+For more information, try '--help'.
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+#[cfg(feature = "suggestions")]
+fn unknown_argument_flag() {
+    let cmd = Command::new("test").args([
+        Arg::new("ignore-rust-version").long("ignore-rust-version"),
+        Arg::new("libtest-ignore")
+            .long("ignored")
+            .action(ArgAction::SetTrue)
+            .value_parser(clap::builder::UnknownArgumentValueParser::suggest(
+                "-- --ignored",
+            ))
+            .hide(true),
+    ]);
+    let res = cmd.try_get_matches_from(["test", "--ignored"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: unexpected argument '--ignored' found
+
+  tip: a similar argument exists: '---- --ignored'
+
+Usage: test [OPTIONS]
 
 For more information, try '--help'.
 ";

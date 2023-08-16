@@ -1,6 +1,7 @@
 use std::convert::TryInto;
 use std::ops::RangeBounds;
 
+use crate::builder::Str;
 use crate::util::AnyValue;
 use crate::util::AnyValueId;
 
@@ -2083,6 +2084,74 @@ where
         &self,
     ) -> Option<Box<dyn Iterator<Item = crate::builder::PossibleValue> + '_>> {
         self.parser.possible_values()
+    }
+}
+
+/// When encountered, report [ErrorKind::UnknownArgument][crate::error::ErrorKind::UnknownArgument]
+///
+/// Useful to help users migrate, either from old versions or similar tools.
+///
+/// # Examples
+///
+/// ```rust
+/// # use clap_builder as clap;
+/// # use clap::Command;
+/// # use clap::Arg;
+/// let cmd = Command::new("mycmd")
+///     .args([
+///         Arg::new("current-dir")
+///             .short('C'),
+///         Arg::new("current-dir-unknown")
+///             .long("cwd")
+///             .aliases(["current-dir", "directory", "working-directory", "root"])
+///             .value_parser(clap::builder::UnknownArgumentValueParser::suggest("-C"))
+///             .hide(true),
+///     ]);
+///
+/// // Use a supported version of the argument
+/// let matches = cmd.clone().try_get_matches_from(["mycmd", "-C", ".."]).unwrap();
+/// assert!(matches.contains_id("current-dir"));
+/// assert_eq!(
+///     matches.get_many::<String>("current-dir").unwrap_or_default().map(|v| v.as_str()).collect::<Vec<_>>(),
+///     vec![".."]
+/// );
+///
+/// // Use one of the invalid versions
+/// let err = cmd.try_get_matches_from(["mycmd", "--cwd", ".."]).unwrap_err();
+/// assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
+/// ```
+#[derive(Clone, Debug)]
+pub struct UnknownArgumentValueParser {
+    arg: Str,
+}
+
+impl UnknownArgumentValueParser {
+    /// Suggest an alternative argument
+    pub fn suggest(arg: impl Into<Str>) -> Self {
+        Self { arg: arg.into() }
+    }
+}
+
+impl TypedValueParser for UnknownArgumentValueParser {
+    type Value = String;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        _value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        let arg = match arg {
+            Some(arg) => arg.to_string(),
+            None => "..".to_owned(),
+        };
+        Err(crate::Error::unknown_argument(
+            cmd,
+            arg,
+            Some((self.arg.as_str().to_owned(), None)),
+            false,
+            crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+        ))
     }
 }
 
