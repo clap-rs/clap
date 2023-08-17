@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `UnknownArgumentValueParser` for injecting errors for improving the experience with errors
+
 ## [4.3.21] - 2023-08-08
 
 ### Features
