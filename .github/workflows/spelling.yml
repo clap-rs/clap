@@ -19,3 +19,5 @@ jobs:
       uses: actions/checkout@v3
     - name: Spell Check Repo
       uses: crate-ci/typos@master
+      with:
+        config: typos.toml
