@@ -59,6 +59,7 @@ pub use value_parser::RangedU64ValueParser;
 pub use value_parser::StringValueParser;
 pub use value_parser::TryMapValueParser;
 pub use value_parser::TypedValueParser;
+pub use value_parser::UnknownArgumentValueParser;
 pub use value_parser::ValueParser;
 pub use value_parser::ValueParserFactory;
 pub use value_parser::_AnonymousValueParser;

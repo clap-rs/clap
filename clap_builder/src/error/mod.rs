@@ -718,7 +718,7 @@ impl<F: ErrorFormatter> Error<F> {
                     let mut styled_suggestion = StyledStr::new();
                     let _ = write!(
                         styled_suggestion,
-                        "'{}{sub} --{flag}{}' exists",
+                        "'{}{sub} {flag}{}' exists",
                         valid.render(),
                         valid.render_reset()
                     );
@@ -727,7 +727,7 @@ impl<F: ErrorFormatter> Error<F> {
                 Some((flag, None)) => {
                     err = err.insert_context_unchecked(
                         ContextKind::SuggestedArg,
-                        ContextValue::String(format!("--{flag}")),
+                        ContextValue::String(flag),
                     );
                 }
                 None => {}
