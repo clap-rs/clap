@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.3.22] - 2023-08-17
+
 ### Features
 
 - Add `UnknownArgumentValueParser` for injecting errors for improving the experience with errors
@@ -4399,7 +4401,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.21...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.22...HEAD
+[4.3.22]: https://github.com/clap-rs/clap/compare/v4.3.21...v4.3.22
 [4.3.21]: https://github.com/clap-rs/clap/compare/v4.3.20...v4.3.21
 [4.3.20]: https://github.com/clap-rs/clap/compare/v4.3.19...v4.3.20
 [4.3.19]: https://github.com/clap-rs/clap/compare/v4.3.18...v4.3.19
