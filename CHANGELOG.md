@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Fixed `UnknownArgumentValueParser` to not error on flag's absence
+
 ## [4.3.22] - 2023-08-17
 
 ### Features
