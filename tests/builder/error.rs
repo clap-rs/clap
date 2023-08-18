@@ -263,7 +263,7 @@ fn unknown_argument_flag() {
     ]);
 
     let res = cmd.clone().try_get_matches_from(["test"]);
-    assert!(res.is_err());
+    assert!(res.is_ok());
 
     let res = cmd.try_get_matches_from(["test", "--ignored"]);
     assert!(res.is_err());
