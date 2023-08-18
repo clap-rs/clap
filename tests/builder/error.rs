@@ -225,6 +225,10 @@ fn unknown_argument_option() {
             )
             .hide(true),
     ]);
+
+    let res = cmd.clone().try_get_matches_from(["test"]);
+    assert!(res.is_ok());
+
     let res = cmd.try_get_matches_from(["test", "--cwd", ".."]);
     assert!(res.is_err());
     let err = res.unwrap_err();
@@ -257,6 +261,10 @@ fn unknown_argument_flag() {
             )
             .hide(true),
     ]);
+
+    let res = cmd.clone().try_get_matches_from(["test"]);
+    assert!(res.is_ok());
+
     let res = cmd.try_get_matches_from(["test", "--ignored"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
