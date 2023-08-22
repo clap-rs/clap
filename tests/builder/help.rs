@@ -1333,6 +1333,23 @@ Options:
     utils::assert_output(cmd, "ctest --help", ISSUE_777, false);
 }
 
+#[test]
+fn dont_strip_padding_issue_5083() {
+    let cmd = Command::new("test")
+        .help_template("{subcommands}")
+        .subcommands([
+            Command::new("one"),
+            Command::new("two"),
+            Command::new("three"),
+        ]);
+    static EXPECTED: &str = "one    
+  two    
+  three  
+  help   Print this message or the help of the given subcommand(s)
+";
+    utils::assert_output(cmd, "test --help", EXPECTED, false);
+}
+
 static OVERRIDE_HELP_SHORT: &str = "\
 Usage: test
 
