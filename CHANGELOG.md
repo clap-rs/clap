@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Ensure column padding is preserved in `--help` with custom templates
+
 ## [4.3.23] - 2023-08-18
 
 ### Fixes
