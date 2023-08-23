@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "usage"), allow(dead_code))]
+
 /// Terminal-styling container
 ///
 /// Styling may be encoded as [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code)
@@ -45,6 +47,19 @@ impl StyledStr {
 
     pub(crate) fn trim(&mut self) {
         self.0 = self.0.trim().to_owned()
+    }
+
+    pub(crate) fn trim_start_lines(&mut self) {
+        if let Some(pos) = self.0.find('\n') {
+            let (leading, help) = self.0.split_at(pos + 1);
+            if leading.trim().is_empty() {
+                self.0 = help.to_owned()
+            }
+        }
+    }
+
+    pub(crate) fn trim_end(&mut self) {
+        self.0 = self.0.trim_end().to_owned()
     }
 
     #[cfg(feature = "help")]

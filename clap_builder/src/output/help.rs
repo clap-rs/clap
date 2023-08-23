@@ -30,8 +30,10 @@ pub(crate) fn write_help(writer: &mut StyledStr, cmd: &Command, usage: &Usage<'_
         }
     }
 
-    // Remove any extra lines caused by book keeping
-    writer.trim();
+    // Remove any lines from unused sections
+    writer.trim_start_lines();
+    // Remove any whitespace caused by book keeping
+    writer.trim_end();
     // Ensure there is still a trailing newline
     writer.push_str("\n");
 }
