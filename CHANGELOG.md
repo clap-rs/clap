@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.4.0] - 2023-08-24
+
 ### Compatibility
 
 - Update MSRV to 1.70.0
@@ -4417,7 +4419,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.3.24...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.4.0...HEAD
+[4.4.0]: https://github.com/clap-rs/clap/compare/v4.3.24...v4.4.0
 [4.3.24]: https://github.com/clap-rs/clap/compare/v4.3.23...v4.3.24
 [4.3.23]: https://github.com/clap-rs/clap/compare/v4.3.22...v4.3.23
 [4.3.22]: https://github.com/clap-rs/clap/compare/v4.3.21...v4.3.22
