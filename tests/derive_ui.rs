@@ -6,7 +6,7 @@
 // option. This file may not be copied, modified, or distributed
 
 #[cfg(feature = "derive")]
-#[rustversion::attr(any(not(stable), before(1.64), since(1.65)), ignore)] // MSRV
+#[rustversion::attr(any(not(stable), before(1.70), since(1.71)), ignore)] // MSRV
 #[test]
 fn ui() {
     let t = trybuild::TestCases::new();
