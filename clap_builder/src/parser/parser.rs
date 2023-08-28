@@ -1503,13 +1503,21 @@ impl<'cmd> Parser<'cmd> {
     ) -> ClapError {
         debug!("Parser::did_you_mean_error: arg={arg}");
         // Didn't match a flag or option
-        let longs = self
-            .cmd
-            .get_keymap()
+        let keymap = self.cmd.get_keymap();
+        let longs = keymap
             .keys()
-            .filter_map(|x| match x {
-                KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
-                _ => None,
+            .filter_map(|key| {
+                let arg = keymap.get(key)?;
+                match (key, arg) {
+                    (KeyType::Long(l), arg) => {
+                        if arg.is_didyoumean_set() {
+                            Some(l.to_string_lossy().into_owned())
+                        } else {
+                            None
+                        }
+                    }
+                    (_, _) => None,
+                }
             })
             .collect::<Vec<_>>();
         debug!("Parser::did_you_mean_error: longs={longs:?}");

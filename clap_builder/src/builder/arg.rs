@@ -2349,6 +2349,46 @@ impl Arg {
         }
     }
 
+    /// Do not include the argument in didyoumean suggestions.
+    ///
+    /// # Examples
+    ///
+    /// Setting `ExcludeDidYouMean` will not consider the argument
+    /// when making suggestions for mistyped arguments.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .didyoumean(false)
+    ///     .get_matches_from(vec![
+    ///         "prog", "--conf"
+    ///     ]);
+    /// # }
+    /// ```
+    ///
+    /// The above example will not display the usual `a similar argument  ...`
+    /// message
+    ///
+    /// ```text
+    /// error: unexpected argument '--conf' found
+    ///
+    /// Usage: prog [OPTIONS]
+    ///
+    /// For more information, try '--help'.
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn didyoumean(self, yes: bool) -> Self {
+        if yes {
+            self.unset_setting(ArgSettings::ExcludeDidYouMean)
+        } else {
+            self.setting(ArgSettings::ExcludeDidYouMean)
+        }
+    }
+
     /// Do not display the [possible values][crate::builder::ValueParser::possible_values] in the help message.
     ///
     /// This is useful for args with many values, or ones which are explained elsewhere in the
@@ -4151,6 +4191,11 @@ impl Arg {
     #[cfg(feature = "env")]
     pub fn is_hide_env_set(&self) -> bool {
         self.is_set(ArgSettings::HideEnv)
+    }
+
+    /// dont did you mean
+    pub fn is_didyoumean_set(&self) -> bool {
+        !self.is_set(ArgSettings::ExcludeDidYouMean)
     }
 
     /// Report whether [`Arg::hide_env_values`] is set

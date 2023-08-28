@@ -61,6 +61,7 @@ pub(crate) enum ArgSettings {
     HiddenShortHelp,
     HiddenLongHelp,
     Exclusive,
+    ExcludeDidYouMean,
 }
 
 impl ArgSettings {

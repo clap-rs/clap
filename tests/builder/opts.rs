@@ -459,6 +459,22 @@ For more information, try '--help'.
 }
 
 #[test]
+#[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
+fn did_you_mean_disabled() {
+    static DYM: &str = "\
+error: unexpected argument '--conf' found
+
+Usage: clap-test [OPTIONS]
+
+For more information, try '--help'.
+";
+
+    let c = Command::new("clap-test").arg(Arg::new("cfg").long("config").didyoumean(false));
+    utils::assert_output(c, "clap-test --conf", DYM, true);
+}
+
+#[test]
 fn issue_1047_min_zero_vals_default_val() {
     let m = Command::new("foo")
         .arg(
