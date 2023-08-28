@@ -23,10 +23,7 @@ mod debug_asserts;
 #[cfg(test)]
 mod tests;
 
-#[cfg(feature = "unstable-styles")]
 pub mod styling;
-#[cfg(not(feature = "unstable-styles"))]
-pub(crate) mod styling;
 
 pub use self::str::Str;
 pub use action::ArgAction;
@@ -40,7 +37,6 @@ pub use range::ValueRange;
 pub use resettable::IntoResettable;
 pub use resettable::Resettable;
 pub use styled_str::StyledStr;
-#[cfg(feature = "unstable-styles")]
 pub use styling::Styles;
 pub use value_hint::ValueHint;
 pub use value_parser::_AutoValueParser;
@@ -69,5 +65,3 @@ pub(crate) use self::str::Inner as StrInner;
 pub(crate) use action::CountType;
 pub(crate) use arg_settings::{ArgFlags, ArgSettings};
 pub(crate) use command::AppTag;
-#[cfg(not(feature = "unstable-styles"))]
-pub(crate) use styling::Styles;

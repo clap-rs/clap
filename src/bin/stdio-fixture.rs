@@ -12,7 +12,7 @@ fn main() {
                 .action(clap::ArgAction::SetTrue)
                 .long_help("more log"),
         );
-    #[cfg(feature = "unstable-styles")]
+    #[cfg(feature = "color")]
     {
         use clap::builder::styling;
         let styles = styling::Styles::styled()

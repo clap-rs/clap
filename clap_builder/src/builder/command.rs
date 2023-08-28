@@ -1170,7 +1170,6 @@ impl Command {
     #[cfg(feature = "color")]
     #[inline]
     #[must_use]
-    #[cfg(feature = "unstable-styles")]
     pub fn styles(mut self, styles: Styles) -> Self {
         self.app_ext.set(styles);
         self
