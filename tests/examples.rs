@@ -36,8 +36,6 @@ fn example_tests() {
         // In-work
         //#[cfg(feature = "unstable-v5")]  // Currently has failures
         //"unstable-v5",
-        #[cfg(feature = "unstable-styles")]
-        "unstable-styles",
     ]
     .join(" ");
     t.register_bins(trycmd::cargo::compile_examples(["--features", &features]).unwrap());

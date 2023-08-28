@@ -26,4 +26,3 @@
 //! **Warning:** These may contain breaking changes between minor releases.
 //!
 //! * **unstable-v5**: Preview features which will be stable on the v5.0 release
-//! * **unstable-styles**: Custom theming support for clap
