@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Stabilize `Command::styles`
+
 ## [4.4.0] - 2023-08-24
 
 ### Compatibility
