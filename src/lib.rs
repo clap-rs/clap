@@ -111,10 +111,3 @@ pub mod _faq;
 pub mod _features;
 #[cfg(feature = "unstable-doc")]
 pub mod _tutorial;
-
-#[doc(hidden)]
-#[cfg(feature = "derive")]
-pub mod __derive_refs {
-    #[doc(hidden)]
-    pub use once_cell;
-}
