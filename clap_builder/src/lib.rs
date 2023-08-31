@@ -48,13 +48,6 @@ pub type Error = crate::error::Error<crate::error::DefaultFormatter>;
 
 pub use crate::derive::{Args, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 
-#[doc(hidden)]
-pub mod __macro_refs {
-    #[cfg(feature = "cargo")]
-    #[doc(hidden)]
-    pub use once_cell;
-}
-
 #[macro_use]
 #[allow(missing_docs)]
 mod macros;

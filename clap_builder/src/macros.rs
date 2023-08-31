@@ -44,9 +44,9 @@ macro_rules! crate_authors {
     ($sep:expr) => {{
         static authors: &str = env!("CARGO_PKG_AUTHORS");
         if authors.contains(':') {
-            static CACHED: clap::__macro_refs::once_cell::sync::Lazy<String> =
-                clap::__macro_refs::once_cell::sync::Lazy::new(|| authors.replace(':', $sep));
-            let s: &'static str = &*CACHED;
+            static CACHED: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+            let s = CACHED.get_or_init(|| authors.replace(':', $sep));
+            let s: &'static str = &*s;
             s
         } else {
             authors
