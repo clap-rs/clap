@@ -1,4 +1,4 @@
-//! This module contains traits that are usable with the `#[derive(...)].`
+//! This module contains traits that are usable with the `#[derive(...)]`
 //! macros in `clap_derive`.
 
 use crate::builder::PossibleValue;
