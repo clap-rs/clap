@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Improve build times by removing `once_cell` dependency
+
 ## [4.4.1] - 2023-08-28
 
 ### Features
