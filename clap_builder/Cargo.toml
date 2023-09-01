@@ -68,12 +68,12 @@ backtrace = { version = "0.3.67", optional = true }
 unicode-width = { version = "0.1.9", optional = true }
 
 [dev-dependencies]
-trybuild = "1.0.82"
+trybuild = "1.0.83"
 rustversion = "1.0.14"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.14.16", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.14.17", default-features = false, features = ["color-auto", "diff", "examples"] }
 humantime = "2.1.0"
-snapbox = "0.4.11"
+snapbox = "0.4.12"
 shlex = "1.1.0"
 static_assertions = "1.1.0"
 unic-emoji-char = "0.9.0"
