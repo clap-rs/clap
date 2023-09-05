@@ -74,7 +74,15 @@ jobs:
       run: cargo test -p clap_complete -F unstable-dynamic
   latest:
     name: "Check latest dependencies"
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build: [stable]
+        include:
+        - build: stable
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
