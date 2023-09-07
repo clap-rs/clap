@@ -48,6 +48,7 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --version 'Print version'
         }
         &'exhaustive;quote'= {
+            cand --choice 'choice'
             cand --single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand --double-quotes 'Can be "always", "auto", or "never"'
             cand --backticks 'For more information see `echo test`'
@@ -55,8 +56,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --brackets 'List packages [filter]'
             cand --expansions 'Execute the shell command with $SHELL'
             cand --global 'everywhere'
-            cand -h 'Print help'
-            cand --help 'Print help'
+            cand -h 'Print help (see more with ''--help'')'
+            cand --help 'Print help (see more with ''--help'')'
             cand -V 'Print version'
             cand --version 'Print version'
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''

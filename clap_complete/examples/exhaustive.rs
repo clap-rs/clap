@@ -1,3 +1,4 @@
+use clap::builder::PossibleValue;
 #[cfg(feature = "unstable-dynamic")]
 use clap::{FromArgMatches, Subcommand};
 use clap_complete::{generate, Generator, Shell};
@@ -88,6 +89,14 @@ fn cli() -> clap::Command {
                         .long("expansions")
                         .action(clap::ArgAction::SetTrue)
                         .help("Execute the shell command with $SHELL"),
+                    clap::Arg::new("choice")
+                        .long("choice")
+                        .action(clap::ArgAction::Set)
+                        .value_parser(clap::builder::PossibleValuesParser::new([
+                            PossibleValue::new("bash").help("bash (shell)"),
+                            PossibleValue::new("fish").help("fish shell"),
+                            PossibleValue::new("zsh").help("zsh shell"),
+                        ])),
                 ])
                 .subcommands([
                     clap::Command::new("cmd-single-quotes")

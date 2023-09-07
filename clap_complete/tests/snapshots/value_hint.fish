@@ -1,4 +1,4 @@
-complete -c my-app -l choice -r -f -a "{bash	,fish	,zsh	}"
+complete -c my-app -l choice -r -f -a "{bash	'',fish	'',zsh	''}"
 complete -c my-app -l unknown -r
 complete -c my-app -l other -r -f
 complete -c my-app -s p -l path -r -F

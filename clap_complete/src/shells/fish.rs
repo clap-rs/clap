@@ -168,10 +168,12 @@ fn value_completion(option: &Arg) -> String {
                 .filter_map(|value| if value.is_hide_set() {
                     None
                 } else {
+                    // The help text after \t is wrapped in '' to make sure that the it is taken literally
+                    // and there is no command substitution or variable expansion resulting in unexpected errors
                     Some(format!(
-                        "{}\t{}",
+                        "{}\t'{}'",
                         escape_string(value.get_name(), true).as_str(),
-                        escape_string(&value.get_help().unwrap_or_default().to_string(), true)
+                        escape_string(&value.get_help().unwrap_or_default().to_string(), false)
                     ))
                 })
                 .collect::<Vec<_>>()
