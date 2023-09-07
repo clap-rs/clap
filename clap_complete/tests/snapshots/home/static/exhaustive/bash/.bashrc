@@ -732,12 +732,16 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote)
-            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --global --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help"
+            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --choice --global --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
+                --choice)
+                    COMPREPLY=($(compgen -W "bash fish zsh" -- "${cur}"))
+                    return 0
+                    ;;
                 *)
                     COMPREPLY=()
                     ;;

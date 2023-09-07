@@ -142,6 +142,12 @@ action  complete            (Register shell completions for this program)  hint 
 alias   help  (Print this message or the help of the given subcommand(s))  last  quote"#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
+
+    let input = "exhaustive quote --choice \t";
+    let actual = runtime.complete(input, &term).unwrap();
+    let expected_substring = r#"% exhaustive quote --choice
+Command 'shell' not found, did you mean:"#;
+    assert!(actual.as_str().contains(expected_substring));
 }
 
 #[cfg(all(unix, feature = "unstable-dynamic"))]
