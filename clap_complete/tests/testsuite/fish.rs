@@ -145,9 +145,9 @@ alias   help  (Print this message or the help of the given subcommand(s))  last 
 
     let input = "exhaustive quote --choice \t";
     let actual = runtime.complete(input, &term).unwrap();
-    let expected_substring = r#"% exhaustive quote --choice
-Command 'shell' not found, did you mean:"#;
-    assert!(actual.as_str().contains(expected_substring));
+    let expected = r#"% exhaustive quote --choice
+bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)"#;
+    snapbox::assert_eq(expected, actual);
 }
 
 #[cfg(all(unix, feature = "unstable-dynamic"))]

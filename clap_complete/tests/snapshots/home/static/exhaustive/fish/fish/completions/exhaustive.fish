@@ -1,4 +1,4 @@
-complete -c exhaustive -n "__fish_use_subcommand" -l generate -d 'generate' -r -f -a "{bash	,elvish	,fish	,powershell	,zsh	}"
+complete -c exhaustive -n "__fish_use_subcommand" -l generate -d 'generate' -r -f -a "{bash	'',elvish	'',fish	'',powershell	'',zsh	''}"
 complete -c exhaustive -n "__fish_use_subcommand" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_use_subcommand" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_use_subcommand" -s V -l version -d 'Print version'
@@ -12,13 +12,13 @@ complete -c exhaustive -n "__fish_use_subcommand" -f -a "hint"
 complete -c exhaustive -n "__fish_use_subcommand" -f -a "complete" -d 'Register shell completions for this program'
 complete -c exhaustive -n "__fish_use_subcommand" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c exhaustive -n "__fish_seen_subcommand_from action" -l set -d 'value' -r
-complete -c exhaustive -n "__fish_seen_subcommand_from action" -l choice -d 'enum' -r -f -a "{first	,second	}"
+complete -c exhaustive -n "__fish_seen_subcommand_from action" -l choice -d 'enum' -r -f -a "{first	'',second	''}"
 complete -c exhaustive -n "__fish_seen_subcommand_from action" -l set-true -d 'bool'
 complete -c exhaustive -n "__fish_seen_subcommand_from action" -l count -d 'number'
 complete -c exhaustive -n "__fish_seen_subcommand_from action" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_seen_subcommand_from action" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_seen_subcommand_from action" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_seen_subcommand_from quote; and not __fish_seen_subcommand_from cmd-single-quotes; and not __fish_seen_subcommand_from cmd-double-quotes; and not __fish_seen_subcommand_from cmd-backticks; and not __fish_seen_subcommand_from cmd-backslash; and not __fish_seen_subcommand_from cmd-brackets; and not __fish_seen_subcommand_from cmd-expansions; and not __fish_seen_subcommand_from escape-help; and not __fish_seen_subcommand_from help" -l choice -r -f -a "{bash	bash (shell),fish	fish shell,zsh	zsh shell}"
+complete -c exhaustive -n "__fish_seen_subcommand_from quote; and not __fish_seen_subcommand_from cmd-single-quotes; and not __fish_seen_subcommand_from cmd-double-quotes; and not __fish_seen_subcommand_from cmd-backticks; and not __fish_seen_subcommand_from cmd-backslash; and not __fish_seen_subcommand_from cmd-brackets; and not __fish_seen_subcommand_from cmd-expansions; and not __fish_seen_subcommand_from escape-help; and not __fish_seen_subcommand_from help" -l choice -r -f -a "{bash	'bash (shell)',fish	'fish shell',zsh	'zsh shell'}"
 complete -c exhaustive -n "__fish_seen_subcommand_from quote; and not __fish_seen_subcommand_from cmd-single-quotes; and not __fish_seen_subcommand_from cmd-double-quotes; and not __fish_seen_subcommand_from cmd-backticks; and not __fish_seen_subcommand_from cmd-backslash; and not __fish_seen_subcommand_from cmd-brackets; and not __fish_seen_subcommand_from cmd-expansions; and not __fish_seen_subcommand_from escape-help; and not __fish_seen_subcommand_from help" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
 complete -c exhaustive -n "__fish_seen_subcommand_from quote; and not __fish_seen_subcommand_from cmd-single-quotes; and not __fish_seen_subcommand_from cmd-double-quotes; and not __fish_seen_subcommand_from cmd-backticks; and not __fish_seen_subcommand_from cmd-backslash; and not __fish_seen_subcommand_from cmd-brackets; and not __fish_seen_subcommand_from cmd-expansions; and not __fish_seen_subcommand_from escape-help; and not __fish_seen_subcommand_from help" -l double-quotes -d 'Can be "always", "auto", or "never"'
 complete -c exhaustive -n "__fish_seen_subcommand_from quote; and not __fish_seen_subcommand_from cmd-single-quotes; and not __fish_seen_subcommand_from cmd-double-quotes; and not __fish_seen_subcommand_from cmd-backticks; and not __fish_seen_subcommand_from cmd-backslash; and not __fish_seen_subcommand_from cmd-brackets; and not __fish_seen_subcommand_from cmd-expansions; and not __fish_seen_subcommand_from escape-help; and not __fish_seen_subcommand_from help" -l backticks -d 'For more information see `echo test`'
@@ -96,7 +96,7 @@ complete -c exhaustive -n "__fish_seen_subcommand_from alias" -s f -s F -l flag 
 complete -c exhaustive -n "__fish_seen_subcommand_from alias" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_seen_subcommand_from alias" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_seen_subcommand_from alias" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l choice -r -f -a "{bash	,fish	,zsh	}"
+complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l choice -r -f -a "{bash	'',fish	'',zsh	''}"
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l unknown -r
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l other -r -f
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -s p -l path -r -F
@@ -112,7 +112,7 @@ complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l email -r -f
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_seen_subcommand_from hint" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l shell -d 'Specify shell to complete for' -r -f -a "{bash	,fish	}"
+complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l shell -d 'Specify shell to complete for' -r -f -a "{bash	'',fish	''}"
 complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l register -d 'Path to write completion-registration to' -r -F
 complete -c exhaustive -n "__fish_seen_subcommand_from complete" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_seen_subcommand_from complete" -s h -l help -d 'Print help (see more with \'--help\')'
