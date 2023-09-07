@@ -7,11 +7,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(fish)* Properly escape `()` in descriptions
+
 ## [4.4.0] - 2023-08-24
 
 ### Compatibility
 
 - Update MSRV to 1.70.0
+
+### Features
+
+- *(unstable)* Fish dynamic completion support
+
+### Fixes
+
+- *(unstable)* Manual control over sort order
+- *(unstable)* Don't recursively report subcommands
+- *(unstable)* Get bash support working again
+- *(unstable)* Ensure shorts keep their leading `-`
 
 ## [4.3.2] - 2023-07-05
 
