@@ -42,7 +42,7 @@ impl Generator for Nushell {
         }
 
         completions.push_str("}\n\n");
-        completions.push_str("use completions *\n");
+        completions.push_str("export use completions *\n");
 
         buf.write_all(completions.as_bytes())
             .expect("Failed to write to generated file")
