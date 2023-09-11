@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.4.1] - 2023-09-11
+
 ### Features
 
 - Allow completions to be used with `use` and `overlay use`
@@ -24,7 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.3.0] - 2023-05-24
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.4.0...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.4.1...HEAD
+[4.4.1]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.4.0...clap_complete_nushell-v4.4.1
 [4.4.0]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.3.2...clap_complete_nushell-v4.4.0
 [4.3.2]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.3.1...clap_complete_nushell-v4.3.2
 [4.3.1]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.3.0...clap_complete_nushell-v4.3.1
