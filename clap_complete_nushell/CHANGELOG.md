@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Allow completions to be used with `use` and `overlay use`
+
 ## [4.4.0] - 2023-08-24
 
 ### Compatibility
