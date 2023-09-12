@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- *(derive)* Clarify use of attributes within the tutorial
+- Split sections in the builder and derive tutorials into separate modules
+
 ## [4.4.2] - 2023-08-31
 
 ### Performance
