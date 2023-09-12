@@ -165,7 +165,7 @@
 //!
 //! For example, if you have arguments of specific values you want to test for, you can derive
 //! [`ValueEnum`][super#valueenum-attributes]
-//! (any [`PossibleValue`] builder function can be used as variant attributes).
+//! (any [`PossibleValue`] builder function can be used as a `#[value]` attribute on enum variants).
 //!
 //! This allows you specify the valid values for that argument. If the user does not use one of
 //! those specific values, they will receive a graceful exit with error message informing them
