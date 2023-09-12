@@ -6,8 +6,8 @@
 //! > **Command Line Argument Parser for Rust**
 //!
 //! Quick Links:
-//! - Derive [tutorial][_derive::_tutorial] and [reference][_derive]
-//! - Builder [tutorial][_tutorial] and [reference](index.html)
+//! - Derive [tutorial][_derive::_tutorial::chapter_0] and [reference][_derive]
+//! - Builder [tutorial][_tutorial::chapter_0] and [reference](index.html)
 //! - [Cookbook][_cookbook]
 //! - [FAQ][_faq]
 //! - [Discussions](https://github.com/clap-rs/clap/discussions)
