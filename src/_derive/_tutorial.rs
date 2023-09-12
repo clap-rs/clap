@@ -55,14 +55,14 @@
 //!
 #![doc = include_str!("../../examples/tutorial_derive/02_apps.md")]
 //!
-//! You can use [`#[command(author, version, about)]` attribute defaults][super#command-attributes] to fill these fields in from your `Cargo.toml` file.
+//! You can use [`#[command(author, version, about)]` attribute defaults][super#command-attributes] on the struct to fill these fields in from your `Cargo.toml` file.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.rs")]
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.md")]
 //!
-//! You can use attributes to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute, like [`Command::next_line_help`].
+//! You can use `#[command]` attributes on the struct to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute, like [`Command::next_line_help`].
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_app_settings.rs")]
@@ -70,6 +70,8 @@
 #![doc = include_str!("../../examples/tutorial_derive/02_app_settings.md")]
 //!
 //! ## Adding Arguments
+//!
+//! Arguments are inferred from the fields of your struct.
 //!
 //! ### Positionals
 //!
@@ -94,9 +96,9 @@
 //! - They can be optional
 //! - Intent is clearer
 //!
-//! The [`#[arg(short = 'n')]`][Arg::short] and [`#[arg(long = "name")]`][Arg::long] attributes that define
-//! the flags are [`Arg`][crate::Args] methods that are derived from the field name when no value
-//! is specified ([`#[arg(short)]` and `#[arg(long)]`][super#arg-attributes]).
+//! To specify the flags for an argument, you can use [`#[arg(short = 'n')]`][Arg::short] and/or
+//! [`#[arg(long = "name")]`][Arg::long] attributes on a field.  When no value is given (e.g.
+//! `#[arg(short)]`), the flag is inferred from the field's name.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_02_option.rs")]
@@ -128,11 +130,14 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_count.md")]
 //!
+//! This also shows that any[`Arg`][crate::Args] method may be used as an attribute.
+//!
 //! ### Subcommands
 //!
-//! Subcommands are derived with `#[derive(Subcommand)]` and be added via [`#[command(subcommand)]` attribute][super#command-attributes]. Each
-//! instance of a [Subcommand][crate::Subcommand] can have its own version, author(s), Args, and even its own
-//! subcommands.
+//! Subcommands are derived with `#[derive(Subcommand)]` and be added via
+//! [`#[command(subcommand)]` attribute][super#command-attributes] on the field using that type.
+//! Each instance of a [Subcommand][crate::Subcommand] can have its own version, author(s), Args,
+//! and even its own subcommands.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/03_04_subcommands.rs")]
