@@ -40,34 +40,34 @@
 //! ```
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/01_quick.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/01_quick.rs")]
 //! ```
 //!
-#![doc = include_str!("../../examples/tutorial_derive/01_quick.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/01_quick.md")]
 //!
 //! ## Configuring the Parser
 //!
 //! You use derive [`Parser`][crate::Parser] to start building a parser.
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/02_apps.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/02_apps.rs")]
 //! ```
 //!
-#![doc = include_str!("../../examples/tutorial_derive/02_apps.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/02_apps.md")]
 //!
 //! You can use [`#[command(author, version, about)]` attribute defaults][super#command-attributes] on the struct to fill these fields in from your `Cargo.toml` file.
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/02_crate.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/02_crate.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/02_crate.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/02_crate.md")]
 //!
 //! You can use `#[command]` attributes on the struct to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute, like [`Command::next_line_help`].
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/02_app_settings.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/02_app_settings.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/02_app_settings.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/02_app_settings.md")]
 //!
 //! ## Adding Arguments
 //!
@@ -78,16 +78,16 @@
 //! You can have users specify values by their position on the command-line:
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_03_positional.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_03_positional.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_03_positional.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_03_positional.md")]
 //!
 //! Note that the [default `ArgAction` is `Set`][super#arg-types].  To
 //! accept multiple values, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_03_positional_mult.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_03_positional_mult.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_03_positional_mult.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_03_positional_mult.md")]
 //!
 //! ### Options
 //!
@@ -101,34 +101,34 @@
 //! `#[arg(short)]`), the flag is inferred from the field's name.
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_02_option.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_02_option.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_02_option.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_02_option.md")]
 //!
 //! Note that the [default `ArgAction` is `Set`][super#arg-types].  To
 //! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_02_option_mult.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_02_option_mult.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_02_option_mult.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_02_option_mult.md")]
 //!
 //! ### Flags
 //!
 //! Flags can also be switches that can be on/off:
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_01_flag_bool.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_01_flag_bool.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_01_flag_bool.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_01_flag_bool.md")]
 //!
 //! Note that the [default `ArgAction` for a `bool` field is
 //! `SetTrue`][super#arg-types].  To accept multiple flags, override the [action][Arg::action] with
 //! [`Count`][crate::ArgAction::Count]:
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_01_flag_count.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_01_flag_count.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_01_flag_count.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_01_flag_count.md")]
 //!
 //! This also shows that any[`Arg`][crate::Args] method may be used as an attribute.
 //!
@@ -140,15 +140,15 @@
 //! and even its own subcommands.
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_04_subcommands.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_04_subcommands.rs")]
 //! ```
 //! We used a struct-variant to define the `add` subcommand.
 //! Alternatively, you can use a struct for your subcommand's arguments:
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_04_subcommands_alt.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_04_subcommands_alt.rs")]
 //! ```
 //!
-#![doc = include_str!("../../examples/tutorial_derive/03_04_subcommands.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_04_subcommands.md")]
 //!
 //! ### Defaults
 //!
@@ -157,9 +157,9 @@
 //! set [`#[arg(default_value_t)]`][super#arg-attributes].
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_05_default_values.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/03_05_default_values.md")]
 //!
 //! ## Validation
 //!
@@ -177,25 +177,25 @@
 //! of the mistake, and what the possible valid values are
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/04_01_enum.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_01_enum.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/04_01_enum.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_01_enum.md")]
 //!
 //! ### Validated values
 //!
 //! More generally, you can validate and parse into any data type with [`Arg::value_parser`].
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/04_02_parse.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_02_parse.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/04_02_parse.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_02_parse.md")]
 //!
 //! A [custom parser][TypedValueParser] can be used to improve the error messages or provide additional validation:
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/04_02_validate.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_02_validate.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/04_02_validate.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_02_validate.md")]
 //!
 //! See [`Arg::value_parser`][crate::Arg::value_parser] for more details.
 //!
@@ -216,18 +216,18 @@
 //! [`ArgGroup::id`][crate::ArgGroup::id] being the struct's name.
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/04_03_relations.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_03_relations.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/04_03_relations.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_03_relations.md")]
 //!
 //! ### Custom Validation
 //!
 //! As a last resort, you can create custom errors with the basics of clap's formatting.
 //!
 //! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/04_04_custom.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_04_custom.rs")]
 //! ```
-#![doc = include_str!("../../examples/tutorial_derive/04_04_custom.md")]
+#![doc = include_str!("../../../examples/tutorial_derive/04_04_custom.md")]
 //!
 //! ## Testing
 //!
@@ -235,7 +235,7 @@
 //! subcommand, you should have a test that calls
 //! [`Command::debug_assert`][crate::Command::debug_assert]:
 //! ```rust,no_run
-#![doc = include_str!("../../examples/tutorial_derive/05_01_assert.rs")]
+#![doc = include_str!("../../../examples/tutorial_derive/05_01_assert.rs")]
 //! ```
 //!
 //! ## Next Steps

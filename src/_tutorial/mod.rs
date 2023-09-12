@@ -39,36 +39,36 @@
 //! ```
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/01_quick.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/01_quick.rs")]
 //! ```
 //!
-#![doc = include_str!("../examples/tutorial_builder/01_quick.md")]
+#![doc = include_str!("../../examples/tutorial_builder/01_quick.md")]
 //!
 //! ## Configuring the Parser
 //!
 //! You use [`Command`][crate::Command] to start building a parser.
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/02_apps.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/02_apps.rs")]
 //! ```
 //!
-#![doc = include_str!("../examples/tutorial_builder/02_apps.md")]
+#![doc = include_str!("../../examples/tutorial_builder/02_apps.md")]
 //!
 //! You can use [`command!()`][crate::command!] to fill these fields in from your `Cargo.toml`
 //! file.  **This requires the [`cargo` feature flag][crate::_features].**
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/02_crate.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/02_crate.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/02_crate.md")]
+#![doc = include_str!("../../examples/tutorial_builder/02_crate.md")]
 //!
 //! You can use [`Command`][crate::Command] methods to change the application level behavior of
 //! clap, like [`Command::next_line_help`].
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/02_app_settings.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/02_app_settings.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/02_app_settings.md")]
+#![doc = include_str!("../../examples/tutorial_builder/02_app_settings.md")]
 //!
 //! ## Adding Arguments
 //!
@@ -77,16 +77,16 @@
 //! You can have users specify values by their position on the command-line:
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_03_positional.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_03_positional.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_03_positional.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_03_positional.md")]
 //!
 //! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple values, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append]:
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_03_positional_mult.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_03_positional_mult.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_03_positional_mult.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_03_positional_mult.md")]
 //!
 //! ### Options
 //!
@@ -96,32 +96,32 @@
 //! - Intent is clearer
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_02_option.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_02_option.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_02_option.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_02_option.md")]
 //!
 //! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append]:
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_02_option_mult.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_02_option_mult.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_02_option_mult.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_02_option_mult.md")]
 //!
 //! ### Flags
 //!
 //! Flags can also be switches that can be on/off:
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_01_flag_bool.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_01_flag_bool.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_01_flag_bool.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_01_flag_bool.md")]
 //!
 //! To accept multiple flags, use [`Count`][crate::ArgAction::Count]:
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_01_flag_count.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_01_flag_count.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_01_flag_count.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_01_flag_count.md")]
 //!
 //! ### Subcommands
 //!
@@ -130,9 +130,9 @@
 //! own version, author(s), Args, and even its own subcommands.
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_04_subcommands.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_04_subcommands.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_04_subcommands.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_04_subcommands.md")]
 //!
 //! ### Defaults
 //!
@@ -141,9 +141,9 @@
 //! [`Arg::default_value`][crate::Arg::default_value].
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_05_default_values.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/03_05_default_values.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/03_05_default_values.md")]
+#![doc = include_str!("../../examples/tutorial_builder/03_05_default_values.md")]
 //!
 //! ## Validation
 //!
@@ -160,34 +160,34 @@
 //! of the mistake, and what the possible valid values are
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/04_01_possible.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/04_01_possible.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/04_01_possible.md")]
+#![doc = include_str!("../../examples/tutorial_builder/04_01_possible.md")]
 //!
 //! When enabling the [`derive` feature][crate::_features], you can use
 //! [`ValueEnum`][crate::ValueEnum] to take care of the boiler plate for you, giving the same
 //! results.
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/04_01_enum.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/04_01_enum.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/04_01_enum.md")]
+#![doc = include_str!("../../examples/tutorial_builder/04_01_enum.md")]
 //!
 //! ### Validated values
 //!
 //! More generally, you can validate and parse into any data type with [`Arg::value_parser`].
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/04_02_parse.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/04_02_parse.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/04_02_parse.md")]
+#![doc = include_str!("../../examples/tutorial_builder/04_02_parse.md")]
 //!
 //! A [custom parser][TypedValueParser] can be used to improve the error messages or provide additional validation:
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/04_02_validate.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/04_02_validate.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/04_02_validate.md")]
+#![doc = include_str!("../../examples/tutorial_builder/04_02_validate.md")]
 //!
 //! See [`Arg::value_parser`][crate::Arg::value_parser] for more details.
 //!
@@ -205,18 +205,18 @@
 //! they conflict with each other.
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/04_03_relations.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/04_03_relations.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/04_03_relations.md")]
+#![doc = include_str!("../../examples/tutorial_builder/04_03_relations.md")]
 //!
 //! ### Custom Validation
 //!
 //! As a last resort, you can create custom errors with the basics of clap's formatting.
 //!
 //! ```rust
-#![doc = include_str!("../examples/tutorial_builder/04_04_custom.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/04_04_custom.rs")]
 //! ```
-#![doc = include_str!("../examples/tutorial_builder/04_04_custom.md")]
+#![doc = include_str!("../../examples/tutorial_builder/04_04_custom.md")]
 //!
 //! ## Testing
 //!
@@ -224,7 +224,7 @@
 //! subcommand, you should have a test that calls
 //! [`Command::debug_assert`][crate::Command::debug_assert]:
 //! ```rust,no_run
-#![doc = include_str!("../examples/tutorial_builder/05_01_assert.rs")]
+#![doc = include_str!("../../examples/tutorial_builder/05_01_assert.rs")]
 //! ```
 //!
 //! ## Next Steps
