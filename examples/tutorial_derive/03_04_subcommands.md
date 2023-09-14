@@ -30,7 +30,7 @@ $ 03_04_subcommands_derive add bob
 ```
 
 When specifying commands with `command: Commands`, they are required.
-Alternatively, you could do `commaand: Option<Commands>` to make it optional.
+Alternatively, you could do `command: Option<Commands>` to make it optional.
 ```console
 $ 03_04_subcommands_derive
 ? failed
