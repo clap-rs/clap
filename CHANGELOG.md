@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Internal
+
+- Update `terminal_size` to 0.3
+
 ## [4.4.3] - 2023-09-12
 
 ### Documentation
