@@ -527,7 +527,7 @@ dependencies = [
  "snapbox",
  "static_assertions",
  "strsim",
- "terminal_size 0.2.3",
+ "terminal_size 0.3.0",
  "trybuild",
  "trycmd",
  "unic-emoji-char",
@@ -2051,7 +2051,7 @@ dependencies = [
  "sha2",
  "sysinfo",
  "tabled",
- "terminal_size 0.2.3",
+ "terminal_size 0.2.6",
  "titlecase",
  "toml",
  "umask",
@@ -2097,7 +2097,7 @@ dependencies = [
  "nu-utils",
  "ratatui",
  "strip-ansi-escapes",
- "terminal_size 0.2.3",
+ "terminal_size 0.2.6",
 ]
 
 [[package]]
@@ -3438,12 +3438,22 @@ dependencies = [
 
 [[package]]
 name = "terminal_size"
-version = "0.2.3"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb20089a8ba2b69debd491f8d2d023761cbf196e999218c591fa1e7e15a21907"
+checksum = "8e6bf6f19e9f8ed8d4048dc22981458ebcf406d67e94cd422e5ecd73d63b3237"
 dependencies = [
- "rustix 0.36.4",
- "windows-sys 0.42.0",
+ "rustix 0.37.7",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "terminal_size"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21bebf2b7c9e0a515f6e0f8c51dc0f8e4696391e6f1ff30379559f8365fb0df7"
+dependencies = [
+ "rustix 0.38.8",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
