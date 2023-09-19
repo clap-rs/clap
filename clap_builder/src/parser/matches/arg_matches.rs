@@ -237,7 +237,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If the argument definition and access mismatch. To handle this case programmatically, see
+    /// If the argument definition and access mismatch (debug builds). To handle this case programmatically, see
     /// [`ArgMatches::try_get_occurrences`].
     ///
     /// # Examples
@@ -490,7 +490,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is not a valid argument or group name.  To handle this case programmatically, see
+    /// If `id` is not a valid argument or group name (debug builds).  To handle this case programmatically, see
     /// [`ArgMatches::try_contains_id`].
     ///
     /// # Examples
@@ -570,7 +570,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is not a valid argument or group id.
+    /// If `id` is not a valid argument or group id (debug builds).
     ///
     /// # Examples
     ///
@@ -617,7 +617,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is not a valid argument or group id.
+    /// If `id` is not a valid argument or group id (debug builds).
     ///
     /// # Examples
     ///
@@ -765,7 +765,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is not a valid argument or group id.
+    /// If `id` is not a valid argument or group id (debug builds).
     ///
     /// # Examples
     ///
@@ -969,7 +969,7 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// If `id` is not a valid subcommand.
+    /// If `id` is not a valid subcommand (debug builds).
     ///
     /// # Examples
     ///

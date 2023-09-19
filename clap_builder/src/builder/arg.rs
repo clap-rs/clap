@@ -470,7 +470,7 @@ impl Arg {
     ///
     /// [`Command`] will [`panic!`] if indexes are skipped (such as defining `index(1)` and `index(3)`
     /// but not `index(2)`, or a positional argument is defined as multiple and is not the highest
-    /// index
+    /// index (debug builds)
     ///
     /// # Examples
     ///

@@ -553,7 +553,7 @@ impl Command {
     ///
     /// # Panics
     ///
-    /// If contradictory arguments or settings exist.
+    /// If contradictory arguments or settings exist (debug builds).
     ///
     /// # Examples
     ///
@@ -577,7 +577,7 @@ impl Command {
     ///
     /// # Panics
     ///
-    /// If contradictory arguments or settings exist.
+    /// If contradictory arguments or settings exist (debug builds).
     ///
     /// # Examples
     ///
@@ -605,7 +605,7 @@ impl Command {
     ///
     /// # Panics
     ///
-    /// If contradictory arguments or settings exist.
+    /// If contradictory arguments or settings exist (debug builds).
     ///
     /// # Examples
     ///
@@ -638,7 +638,7 @@ impl Command {
     ///
     /// # Panics
     ///
-    /// If contradictory arguments or settings exist.
+    /// If contradictory arguments or settings exist (debug builds).
     ///
     /// # Examples
     ///
@@ -677,7 +677,7 @@ impl Command {
     ///
     /// # Panics
     ///
-    /// If contradictory arguments or settings exist.
+    /// If contradictory arguments or settings exist (debug builds).
     ///
     /// # Examples
     ///
@@ -723,7 +723,7 @@ impl Command {
     ///
     /// # Panics
     ///
-    /// If contradictory arguments or settings exist.
+    /// If contradictory arguments or settings exist (debug builds).
     ///
     /// # Examples
     ///
@@ -1414,6 +1414,7 @@ impl Command {
     ///
     /// # Panics
     ///
+    /// On debug builds:
     /// ```rust,no_run
     /// # use clap_builder as clap;
     /// # use clap::{Command, Arg};

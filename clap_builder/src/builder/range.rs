@@ -22,7 +22,7 @@ impl ValueRange {
     ///
     /// # Panics
     ///
-    /// If the end is less than the start
+    /// If the end is less than the start (debug builds)
     ///
     /// # Examples
     ///
