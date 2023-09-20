@@ -12,6 +12,7 @@
         '^rust-toolchain\\.toml$',
         'Cargo.toml$',
         'clippy.toml$',
+        '^Makefile$',
         '\\.clippy.toml$',
         '^\\.github/workflows/ci.yml$',
         '^\\.github/workflows/rust-next.yml$',
