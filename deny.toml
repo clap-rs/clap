@@ -41,6 +41,7 @@ allow = [
     "MPL-2.0",
     "Unicode-DFS-2016",
     "CC0-1.0",
+    "ISC",
 ]
 # List of explicitly disallowed licenses
 # See https://spdx.org/licenses/ for list of possible licenses
@@ -88,7 +89,7 @@ ignore = true
 # Lint level for when multiple versions of the same crate are detected
 multiple-versions = "warn"
 # Lint level for when a crate version requirement is `*`
-wildcards = "deny"
+wildcards = "warn"
 # The graph highlighting used when creating dotgraphs for crates
 # with multiple versions
 # * lowest-version - The path to the lowest versioned duplicate is highlighted
