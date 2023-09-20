@@ -36,6 +36,7 @@
       ],
       minimumReleaseAge: '252 days',  // 6 releases * 6 weeks per release * 7 days per week
       internalChecksFilter: 'strict',
+      "extractVersion": "^(?<version>v\\d+\\.\\d+)",  // Drop the patch version
     },
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
