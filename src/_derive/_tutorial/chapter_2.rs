@@ -18,7 +18,7 @@
 #![doc = include_str!("../../../examples/tutorial_derive/03_03_positional.md")]
 //!
 //! Note that the [default `ArgAction` is `Set`][super#arg-types].  To
-//! accept multiple values, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
+//! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
 //! ```rust
 #![doc = include_str!("../../../examples/tutorial_derive/03_03_positional_mult.rs")]
 //! ```
@@ -39,13 +39,6 @@
 #![doc = include_str!("../../../examples/tutorial_derive/03_02_option.rs")]
 //! ```
 #![doc = include_str!("../../../examples/tutorial_derive/03_02_option.md")]
-//!
-//! Note that the [default `ArgAction` is `Set`][super#arg-types].  To
-//! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append] via `Vec`:
-//! ```rust
-#![doc = include_str!("../../../examples/tutorial_derive/03_02_option_mult.rs")]
-//! ```
-#![doc = include_str!("../../../examples/tutorial_derive/03_02_option_mult.md")]
 //!
 //! ### Flags
 //!
