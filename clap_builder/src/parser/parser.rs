@@ -573,28 +573,29 @@ impl<'cmd> Parser<'cmd> {
     fn possible_long_flag_subcommand(&self, arg: &str) -> Option<&str> {
         debug!("Parser::possible_long_flag_subcommand: arg={arg:?}");
         if self.cmd.is_infer_subcommands_set() {
-            let options = self
-                .cmd
-                .get_subcommands()
-                .fold(Vec::new(), |mut options, sc| {
-                    if let Some(long) = sc.get_long_flag() {
-                        if long.starts_with(arg) {
-                            options.push(long);
-                        }
-                        options.extend(sc.get_all_aliases().filter(|alias| alias.starts_with(arg)))
+            let mut iter = self.cmd.get_subcommands().filter_map(|sc| {
+                sc.get_long_flag().and_then(|long| {
+                    if long.starts_with(arg) {
+                        Some(sc.get_name())
+                    } else {
+                        sc.get_all_long_flag_aliases().find_map(|alias| {
+                            if alias.starts_with(arg) {
+                                Some(sc.get_name())
+                            } else {
+                                None
+                            }
+                        })
                     }
-                    options
-                });
-            if options.len() == 1 {
-                return Some(options[0]);
-            }
+                })
+            });
 
-            for sc in options {
-                if sc == arg {
-                    return Some(sc);
+            if let name @ Some(_) = iter.next() {
+                if iter.next().is_none() {
+                    return name;
                 }
             }
-        } else if let Some(sc_name) = self.cmd.find_long_subcmd(arg) {
+        }
+        if let Some(sc_name) = self.cmd.find_long_subcmd(arg) {
             return Some(sc_name);
         }
         None

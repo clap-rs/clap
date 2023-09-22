@@ -264,7 +264,6 @@ fn infer_subcommands_pass_conflicting_aliases() {
 }
 
 #[test]
-#[should_panic(expected = "internal error")]
 fn infer_long_flag_pass_conflicting_aliases() {
     let m = Command::new("prog")
         .infer_subcommands(true)
@@ -273,12 +272,12 @@ fn infer_long_flag_pass_conflicting_aliases() {
                 .long_flag("test")
                 .long_flag_aliases(["testa", "t", "testb"]),
         )
-        .try_get_matches_from(vec!["prog", "--te"]);
-    assert!(m.is_err(), "{:#?}", m.unwrap());
+        .try_get_matches_from(vec!["prog", "--te"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("c"));
 }
 
 #[test]
-#[should_panic(expected = "internal error")]
 fn infer_long_flag() {
     let m = Command::new("prog")
         .infer_subcommands(true)
