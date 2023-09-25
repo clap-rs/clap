@@ -113,7 +113,10 @@ fn suggest_subcommand_positional() {
 
     snapbox::assert_eq(
         "--help\tPrint help (see more with '--help')
--h\tPrint help (see more with '--help')",
+-h\tPrint help (see more with '--help')
+hello-world\tSay hello to the world
+hello-moon
+goodbye-world",
         complete!(cmd, "hello-world [TAB]"),
     );
 }
