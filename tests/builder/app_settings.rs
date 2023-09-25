@@ -1,8 +1,8 @@
 use std::ffi::OsString;
 
-use super::utils;
-
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
+
+use super::utils;
 
 static ALLOW_EXT_SC: &str = "\
 Usage: clap-test [COMMAND]
@@ -251,6 +251,51 @@ fn infer_subcommands_pass_exact_match() {
         .try_get_matches_from(vec!["prog", "test"])
         .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn infer_subcommands_pass_conflicting_aliases() {
+    let m = Command::new("prog")
+        .infer_subcommands(true)
+        .subcommand(Command::new("test").aliases(["testa", "t", "testb"]))
+        .try_get_matches_from(vec!["prog", "te"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn infer_long_flag_pass_conflicting_aliases() {
+    let m = Command::new("prog")
+        .infer_subcommands(true)
+        .subcommand(
+            Command::new("c")
+                .long_flag("test")
+                .long_flag_aliases(["testa", "t", "testb"]),
+        )
+        .try_get_matches_from(vec!["prog", "--te"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("c"));
+}
+
+#[test]
+fn infer_long_flag() {
+    let m = Command::new("prog")
+        .infer_subcommands(true)
+        .subcommand(Command::new("test").long_flag("testa"))
+        .try_get_matches_from(vec!["prog", "--te"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn infer_subcommands_long_flag_fail_with_args2() {
+    let m = Command::new("prog")
+        .infer_subcommands(true)
+        .subcommand(Command::new("a").long_flag("test"))
+        .subcommand(Command::new("b").long_flag("temp"))
+        .try_get_matches_from(vec!["prog", "--te"]);
+    assert!(m.is_err(), "{:#?}", m.unwrap());
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[cfg(feature = "suggestions")]

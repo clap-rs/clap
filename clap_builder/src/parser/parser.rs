@@ -544,19 +544,24 @@ impl<'cmd> Parser<'cmd> {
             if self.cmd.is_infer_subcommands_set() {
                 // For subcommand `test`, we accepts it's prefix: `t`, `te`,
                 // `tes` and `test`.
-                let v = self
-                    .cmd
-                    .all_subcommand_names()
-                    .filter(|s| s.starts_with(arg))
-                    .collect::<Vec<_>>();
+                let mut iter = self.cmd.get_subcommands().filter_map(|s| {
+                    if s.get_name().starts_with(arg) {
+                        return Some(s.get_name());
+                    }
 
-                if v.len() == 1 {
-                    return Some(v[0]);
+                    // Use find here instead of chaining the iterator because we want to accept
+                    // conflicts in aliases.
+                    s.get_all_aliases().find(|s| s.starts_with(arg))
+                });
+
+                if let name @ Some(_) = iter.next() {
+                    if iter.next().is_none() {
+                        return name;
+                    }
                 }
-
-                // If there is any ambiguity, fallback to non-infer subcommand
-                // search.
             }
+            // Don't use an else here because we want inference to support exact matching even if
+            // there are conflicts.
             if let Some(sc) = self.cmd.find_subcommand(arg) {
                 return Some(sc.get_name());
             }
@@ -568,28 +573,29 @@ impl<'cmd> Parser<'cmd> {
     fn possible_long_flag_subcommand(&self, arg: &str) -> Option<&str> {
         debug!("Parser::possible_long_flag_subcommand: arg={arg:?}");
         if self.cmd.is_infer_subcommands_set() {
-            let options = self
-                .cmd
-                .get_subcommands()
-                .fold(Vec::new(), |mut options, sc| {
-                    if let Some(long) = sc.get_long_flag() {
-                        if long.starts_with(arg) {
-                            options.push(long);
-                        }
-                        options.extend(sc.get_all_aliases().filter(|alias| alias.starts_with(arg)))
+            let mut iter = self.cmd.get_subcommands().filter_map(|sc| {
+                sc.get_long_flag().and_then(|long| {
+                    if long.starts_with(arg) {
+                        Some(sc.get_name())
+                    } else {
+                        sc.get_all_long_flag_aliases().find_map(|alias| {
+                            if alias.starts_with(arg) {
+                                Some(sc.get_name())
+                            } else {
+                                None
+                            }
+                        })
                     }
-                    options
-                });
-            if options.len() == 1 {
-                return Some(options[0]);
-            }
+                })
+            });
 
-            for sc in options {
-                if sc == arg {
-                    return Some(sc);
+            if let name @ Some(_) = iter.next() {
+                if iter.next().is_none() {
+                    return name;
                 }
             }
-        } else if let Some(sc_name) = self.cmd.find_long_subcmd(arg) {
+        }
+        if let Some(sc_name) = self.cmd.find_long_subcmd(arg) {
             return Some(sc_name);
         }
         None
