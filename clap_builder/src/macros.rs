@@ -125,16 +125,17 @@ macro_rules! command {
         $crate::command!($crate::crate_name!())
     }};
     ($name:expr) => {{
-        let mut cmd = $crate::Command::new($name).version($crate::crate_version!());
+        let mut cmd = $crate::Command::new($name);
+        cmd.version($crate::crate_version!());
 
         let author = $crate::crate_authors!();
         if !author.is_empty() {
-            cmd = cmd.author(author)
+            cmd.author(author)
         }
 
         let about = $crate::crate_description!();
         if !about.is_empty() {
-            cmd = cmd.about(about)
+            cmd.about(about)
         }
 
         cmd
@@ -196,19 +197,17 @@ macro_rules! arg_impl {
         debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
-        let mut arg = $arg;
         let long = $crate::arg_impl! { @string $long };
-        if arg.get_id() == "" {
-            arg = arg.id(long);
+        if $arg.get_id() == "" {
+            $arg.id(long);
         }
         let action = $crate::ArgAction::SetTrue;
-        let arg = arg
+        $arg
             .long(long)
             .action(action);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -219,19 +218,17 @@ macro_rules! arg_impl {
         debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
-        let mut arg = $arg;
         let long = $crate::arg_impl! { @string $long };
-        if arg.get_id() == "" {
-            arg = arg.id(long);
+        if $arg.get_id() == "" {
+            $arg.id(long);
         }
         let action = $crate::ArgAction::SetTrue;
-        let arg = arg
+        $arg
             .long(long)
             .action(action);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -244,13 +241,12 @@ macro_rules! arg_impl {
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
         let action = $crate::ArgAction::SetTrue;
-        let arg = $arg
+        $arg
             .short($crate::arg_impl! { @char $short })
             .action(action);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -263,13 +259,12 @@ macro_rules! arg_impl {
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
 
         let action = $crate::ArgAction::SetTrue;
-        let arg = $arg
+        $arg
             .short($crate::arg_impl! { @char $short })
             .action(action);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -280,23 +275,20 @@ macro_rules! arg_impl {
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
         debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
-        let mut arg = $arg;
-
-        if arg.get_long().is_none() && arg.get_short().is_none() {
-            arg = arg.required(true);
+        if $arg.get_long().is_none() && $arg.get_short().is_none() {
+            $arg.required(true);
         }
 
         let value_name = $crate::arg_impl! { @string $value_name };
-        if arg.get_id() == "" {
-            arg = arg.id(value_name);
+        if $arg.get_id() == "" {
+            $arg.id(value_name);
         }
-        let arg = arg
+        $arg
             .value_name(value_name)
             .action($crate::ArgAction::Set);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -307,23 +299,20 @@ macro_rules! arg_impl {
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
         debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
-        let mut arg = $arg;
-
         if arg.get_long().is_none() && arg.get_short().is_none() {
-            arg = arg.required(true);
+            $arg.required(true);
         }
 
         let value_name = $crate::arg_impl! { @string $value_name };
-        if arg.get_id() == "" {
-            arg = arg.id(value_name);
+        if $arg.get_id() == "" {
+            $arg.id(value_name);
         }
-        let arg = arg
+        $arg
             .value_name(value_name)
             .action($crate::ArgAction::Set);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -334,25 +323,22 @@ macro_rules! arg_impl {
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
         debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
-        let mut arg = $arg;
-
-        if arg.get_long().is_none() && arg.get_short().is_none() {
-            arg = arg.required(false);
+        if $arg.get_long().is_none() && $arg.get_short().is_none() {
+            $arg.required(false);
         } else {
-            arg = arg.num_args(0..=1);
+            $arg.num_args(0..=1);
         }
 
         let value_name = $crate::arg_impl! { @string $value_name };
-        if arg.get_id() == "" {
-            arg = arg.id(value_name);
+        if $arg.get_id() == "" {
+            $arg.id(value_name);
         }
-        let arg = arg
+        $arg
             .value_name(value_name)
             .action($crate::ArgAction::Set);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -363,25 +349,22 @@ macro_rules! arg_impl {
         debug_assert!(!matches!($arg.get_action(), $crate::ArgAction::Append), "Flags should precede `...`");
         debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
 
-        let mut arg = $arg;
-
-        if arg.get_long().is_none() && arg.get_short().is_none() {
-            arg = arg.required(false);
+        if $arg.get_long().is_none() && $arg.get_short().is_none() {
+            $arg.required(false);
         } else {
-            arg = arg.num_args(0..=1);
+            $arg.num_args(0..=1);
         }
 
         let value_name = $crate::arg_impl! { @string $value_name };
-        if arg.get_id() == "" {
-            arg = arg.id(value_name);
+        if $arg.get_id() == "" {
+            $arg.id(value_name);
         }
-        let arg = arg
+        $arg
             .value_name(value_name)
             .action($crate::ArgAction::Set);
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        arg
     }};
     (
         @arg
@@ -389,7 +372,7 @@ macro_rules! arg_impl {
         ...
         $($tail:tt)*
     ) => {{
-        let arg = match $arg.get_action() {
+        match $arg.get_action() {
             $crate::ArgAction::Set => {
                 if $arg.get_long().is_none() && $arg.get_short().is_none() {
                     $arg.num_args(1..)
@@ -405,24 +388,22 @@ macro_rules! arg_impl {
             action => {
                 panic!("Unexpected action {action:?}")
             }
+        }
+        $crate::arg_impl! {
+            @arg ($arg) $($tail)*
         };
-        let arg = $crate::arg_impl! {
-            @arg (arg) $($tail)*
-        };
-        arg
     }};
     (
         @arg
         ($arg:expr)
         $help:literal
     ) => {{
-        $arg.help($help)
+        $arg.help($help);
     }};
     (
         @arg
         ($arg:expr)
     ) => {{
-        $arg
     }};
 }
 
@@ -515,15 +496,15 @@ macro_rules! arg_impl {
 #[macro_export]
 macro_rules! arg {
     ( $name:ident: $($tail:tt)+ ) => {{
-        let arg = $crate::Arg::new($crate::arg_impl! { @string $name });
-        let arg = $crate::arg_impl! {
+        let mut arg = $crate::Arg::new($crate::arg_impl! { @string $name });
+        $crate::arg_impl! {
             @arg (arg) $($tail)+
         };
         arg
     }};
     ( $($tail:tt)+ ) => {{
-        let arg = $crate::Arg::default();
-        let arg = $crate::arg_impl! {
+        let mut arg = $crate::Arg::default();
+        $crate::arg_impl! {
             @arg (arg) $($tail)+
         };
         debug_assert_ne!(arg.get_id(), "", "Without a value or long flag, the `name:` prefix is required");

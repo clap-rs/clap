@@ -219,13 +219,13 @@ pub trait Args: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`CommandFactory`].
-    fn augment_args(cmd: Command) -> Command;
+    fn augment_args(cmd: &mut Command) -> &mut Command;
     /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[command(flatten)]`
     ///
     /// See also [`CommandFactory`].
-    fn augment_args_for_update(cmd: Command) -> Command;
+    fn augment_args_for_update(cmd: &mut Command) -> &mut Command;
 }
 
 /// Parse a sub-command into a user-defined enum.
@@ -242,13 +242,13 @@ pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self`.
     ///
     /// See also [`CommandFactory`].
-    fn augment_subcommands(cmd: Command) -> Command;
+    fn augment_subcommands(cmd: &mut Command) -> &mut Command;
     /// Append to [`Command`] so it can update `self`.
     ///
     /// This is used to implement `#[command(flatten)]`
     ///
     /// See also [`CommandFactory`].
-    fn augment_subcommands_for_update(cmd: Command) -> Command;
+    fn augment_subcommands_for_update(cmd: &mut Command) -> &mut Command;
     /// Test whether `Self` can parse a specific subcommand
     fn has_subcommand(name: &str) -> bool;
 }
@@ -335,19 +335,19 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
 }
 
 impl<T: Args> Args for Box<T> {
-    fn augment_args(cmd: Command) -> Command {
+    fn augment_args(cmd: &mut Command) -> &mut Command {
         <T as Args>::augment_args(cmd)
     }
-    fn augment_args_for_update(cmd: Command) -> Command {
+    fn augment_args_for_update(cmd: &mut Command) -> &mut Command {
         <T as Args>::augment_args_for_update(cmd)
     }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn augment_subcommands(cmd: Command) -> Command {
+    fn augment_subcommands(cmd: &mut Command) -> &mut Command {
         <T as Subcommand>::augment_subcommands(cmd)
     }
-    fn augment_subcommands_for_update(cmd: Command) -> Command {
+    fn augment_subcommands_for_update(cmd: &mut Command) -> &mut Command {
         <T as Subcommand>::augment_subcommands_for_update(cmd)
     }
     fn has_subcommand(name: &str) -> bool {

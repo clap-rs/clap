@@ -212,8 +212,8 @@ pub fn gen_augment(
                 };
 
                 Some(quote! {
-                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
-                    let #app_var = #app_var
+                    <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
+                    #app_var
                         #implicit_methods
                         #override_methods;
                 })
@@ -228,17 +228,17 @@ pub fn gen_augment(
                 let next_display_order = item.next_display_order();
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
-                        let #app_var = #app_var
+                        #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
+                        <#inner_type as clap::Args>::augment_args_for_update(#app_var);
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
-                        let #app_var = #app_var
+                        #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
+                        <#inner_type as clap::Args>::augment_args(#app_var);
                     })
                 }
             }
@@ -343,17 +343,18 @@ pub fn gen_augment(
                 };
 
                 Some(quote_spanned! { field.span()=>
-                    let #app_var = #app_var.arg({
+                    #app_var.arg({
                         #deprecations
 
+                        let mut arg = clap::Arg::new(#id);
                         #[allow(deprecated)]
-                        let arg = clap::Arg::new(#id)
+                        arg.
                             #implicit_methods;
 
-                        let arg = arg
+                        arg
                             #explicit_methods;
 
-                        let arg = arg
+                        arg
                             #override_methods;
 
                         arg
@@ -420,7 +421,7 @@ pub fn gen_augment(
     };
     Ok(quote! {{
         #deprecations
-        let #app_var = #app_var
+        #app_var
             #initial_app_methods
             #group_app_methods
             ;

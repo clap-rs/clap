@@ -174,7 +174,7 @@ fn gen_augment(
                 })?;
                 let subcommand = quote_spanned! { kind.span()=>
                     #deprecations
-                    let #app_var = #app_var
+                    #app_var
                         .external_subcommand_value_parser(clap::value_parser!(#subty));
                 };
                 Some(subcommand)
@@ -193,18 +193,18 @@ fn gen_augment(
                     let subcommand = if override_required {
                         quote! {
                             #deprecations
-                            let #app_var = #app_var
+                            #app_var
                                 #next_help_heading
                                 #next_display_order;
-                            let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
+                            <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
                         }
                     } else {
                         quote! {
                             #deprecations
-                            let #app_var = #app_var
+                            #app_var
                                 #next_help_heading
                                 #next_display_order;
-                            let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
+                            <#ty as clap::Subcommand>::augment_subcommands(#app_var);
                         }
                     };
                     Some(subcommand)
@@ -260,14 +260,14 @@ fn gen_augment(
                     quote!()
                 };
                 let subcommand = quote! {
-                    let #app_var = #app_var.subcommand({
+                    #app_var.subcommand({
                         #deprecations;
-                        let #subcommand_var = clap::Command::new(#name);
-                        let #subcommand_var = #subcommand_var
+                        let mut #subcommand_var = clap::Command::new(#name);
+                        #subcommand_var
                             .subcommand_required(true)
                             .arg_required_else_help(true);
-                        let #subcommand_var = #subcommand_var #initial_app_methods;
-                        let #subcommand_var = #arg_block;
+                        #subcommand_var #initial_app_methods;
+                        #arg_block;
                         #subcommand_var #final_from_attrs #override_methods
                     });
                 };
@@ -327,9 +327,9 @@ fn gen_augment(
                 };
                 let name = item.cased_name();
                 let subcommand = quote! {
-                    let #app_var = #app_var.subcommand({
+                    #app_var.subcommand({
                         #deprecations
-                        let #subcommand_var = clap::Command::new(#name);
+                        let mut #subcommand_var = clap::Command::new(#name);
                         #sub_augment
                     });
                 };
@@ -348,7 +348,7 @@ fn gen_augment(
     let final_app_methods = parent_item.final_top_level_methods();
     Ok(quote! {
         #deprecations;
-        let #app_var = #app_var #initial_app_methods;
+        #app_var #initial_app_methods;
         #( #subcommands )*;
         #app_var #final_app_methods
     })

@@ -141,16 +141,6 @@ impl MKeyMap {
             append_keys(&mut self.keys, arg, i);
         }
     }
-
-    /// Remove an arg in the graph by Id, usually used by `mut_arg`. Return
-    /// `Some(arg)` if removed.
-    pub(crate) fn remove_by_name(&mut self, name: &str) -> Option<Arg> {
-        self.args
-            .iter()
-            .position(|arg| arg.id == name)
-            // since it's a cold function, using this wouldn't hurt much
-            .map(|i| self.args.remove(i))
-    }
 }
 
 impl Index<&'_ KeyType> for MKeyMap {

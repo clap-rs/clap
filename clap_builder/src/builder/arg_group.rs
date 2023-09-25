@@ -110,7 +110,9 @@ impl ArgGroup {
     /// # ;
     /// ```
     pub fn new(id: impl Into<Id>) -> Self {
-        ArgGroup::default().id(id)
+        let mut group = ArgGroup::default();
+        group.id(id);
+        group
     }
 
     /// Sets the group name.
@@ -123,8 +125,7 @@ impl ArgGroup {
     /// ArgGroup::default().id("config")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn id(mut self, id: impl Into<Id>) -> Self {
+    pub fn id(&mut self, id: impl Into<Id>) -> &mut Self {
         self.id = id.into();
         self
     }
@@ -153,8 +154,7 @@ impl ArgGroup {
     /// assert!(m.contains_id("flag"));
     /// ```
     /// [argument]: crate::Arg
-    #[must_use]
-    pub fn arg(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+    pub fn arg(&mut self, arg_id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(arg_id) = arg_id.into_resettable().into_option() {
             self.args.push(arg_id);
         } else {
@@ -186,10 +186,9 @@ impl ArgGroup {
     /// assert!(m.contains_id("flag"));
     /// ```
     /// [arguments]: crate::Arg
-    #[must_use]
-    pub fn args(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn args(&mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> &mut Self {
         for n in ns {
-            self = self.arg(n);
+            self.arg(n);
         }
         self
     }
@@ -260,8 +259,7 @@ impl ArgGroup {
     ///
     /// [`Arg`]: crate::Arg
     #[inline]
-    #[must_use]
-    pub fn multiple(mut self, yes: bool) -> Self {
+    pub fn multiple(&mut self, yes: bool) -> &mut Self {
         self.multiple = yes;
         self
     }
@@ -323,8 +321,7 @@ impl ArgGroup {
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
     /// [`Command`]: crate::Command
     #[inline]
-    #[must_use]
-    pub fn required(mut self, yes: bool) -> Self {
+    pub fn required(&mut self, yes: bool) -> &mut Self {
         self.required = yes;
         self
     }
@@ -364,8 +361,7 @@ impl ArgGroup {
     /// ```
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires()
-    #[must_use]
-    pub fn requires(mut self, id: impl IntoResettable<Id>) -> Self {
+    pub fn requires(&mut self, id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(id) = id.into_resettable().into_option() {
             self.requires.push(id);
         } else {
@@ -412,10 +408,9 @@ impl ArgGroup {
     /// ```
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires_ifs()
-    #[must_use]
-    pub fn requires_all(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn requires_all(&mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> &mut Self {
         for n in ns {
-            self = self.requires(n);
+            self.requires(n);
         }
         self
     }
@@ -453,8 +448,7 @@ impl ArgGroup {
     /// assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
     /// ```
     /// [argument exclusion rules]: crate::Arg::conflicts_with()
-    #[must_use]
-    pub fn conflicts_with(mut self, id: impl IntoResettable<Id>) -> Self {
+    pub fn conflicts_with(&mut self, id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(id) = id.into_resettable().into_option() {
             self.conflicts.push(id);
         } else {
@@ -500,10 +494,9 @@ impl ArgGroup {
     /// ```
     ///
     /// [argument exclusion rules]: crate::Arg::conflicts_with_all()
-    #[must_use]
-    pub fn conflicts_with_all(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn conflicts_with_all(&mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> &mut Self {
         for n in ns {
-            self = self.conflicts_with(n);
+            self.conflicts_with(n);
         }
         self
     }
@@ -521,6 +514,12 @@ impl ArgGroup {
     #[inline]
     pub fn is_required_set(&self) -> bool {
         self.required
+    }
+}
+
+impl From<&'_ mut ArgGroup> for ArgGroup {
+    fn from(g: &mut ArgGroup) -> Self {
+        g.clone()
     }
 }
 

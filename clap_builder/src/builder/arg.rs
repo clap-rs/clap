@@ -109,14 +109,15 @@ impl Arg {
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     pub fn new(id: impl Into<Id>) -> Self {
-        Arg::default().id(id)
+        let mut arg = Arg::default();
+        arg.id(id);
+        arg
     }
 
     /// Set the identifier used for referencing this argument in the clap API.
     ///
     /// See [`Arg::new`] for more details.
-    #[must_use]
-    pub fn id(mut self, id: impl Into<Id>) -> Self {
+    pub fn id(&mut self, id: impl Into<Id>) -> &mut Self {
         self.id = id.into();
         self
     }
@@ -167,8 +168,7 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("host").map(String::as_str), Some("wikipedia.org"));
     /// ```
     #[inline]
-    #[must_use]
-    pub fn short(mut self, s: impl IntoResettable<char>) -> Self {
+    pub fn short(&mut self, s: impl IntoResettable<char>) -> &mut Self {
         if let Some(s) = s.into_resettable().into_option() {
             debug_assert!(s != '-', "short option name cannot be `-`");
             self.short = Some(s);
@@ -209,8 +209,7 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("cfg").map(String::as_str), Some("file.toml"));
     /// ```
     #[inline]
-    #[must_use]
-    pub fn long(mut self, l: impl IntoResettable<Str>) -> Self {
+    pub fn long(&mut self, l: impl IntoResettable<Str>) -> &mut Self {
         self.long = l.into_resettable().into_option();
         self
     }
@@ -235,8 +234,7 @@ impl Arg {
     ///         ]);
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
-    #[must_use]
-    pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.aliases.push((name, false));
         } else {
@@ -265,8 +263,7 @@ impl Arg {
     ///         ]);
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
     /// ```
-    #[must_use]
-    pub fn short_alias(mut self, name: impl IntoResettable<char>) -> Self {
+    pub fn short_alias(&mut self, name: impl IntoResettable<char>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_aliases.push((name, false));
@@ -298,8 +295,7 @@ impl Arg {
     ///             ]);
     /// assert_eq!(m.get_flag("test"), true);
     /// ```
-    #[must_use]
-    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn aliases(&mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> &mut Self {
         self.aliases
             .extend(names.into_iter().map(|x| (x.into(), false)));
         self
@@ -327,8 +323,7 @@ impl Arg {
     ///             ]);
     /// assert_eq!(m.get_flag("test"), true);
     /// ```
-    #[must_use]
-    pub fn short_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
+    pub fn short_aliases(&mut self, names: impl IntoIterator<Item = char>) -> &mut Self {
         for s in names {
             debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_aliases.push((s, false));
@@ -356,8 +351,7 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
     /// [`Command::alias`]: Arg::alias()
-    #[must_use]
-    pub fn visible_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn visible_alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.aliases.push((name, true));
         } else {
@@ -385,8 +379,7 @@ impl Arg {
     ///         ]);
     /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
     /// ```
-    #[must_use]
-    pub fn visible_short_alias(mut self, name: impl IntoResettable<char>) -> Self {
+    pub fn visible_short_alias(&mut self, name: impl IntoResettable<char>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_aliases.push((name, true));
@@ -416,8 +409,10 @@ impl Arg {
     /// assert_eq!(m.get_flag("test"), true);
     /// ```
     /// [`Command::aliases`]: Arg::aliases()
-    #[must_use]
-    pub fn visible_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn visible_aliases(
+        &mut self,
+        names: impl IntoIterator<Item = impl Into<Str>>,
+    ) -> &mut Self {
         self.aliases
             .extend(names.into_iter().map(|n| (n.into(), true)));
         self
@@ -442,8 +437,7 @@ impl Arg {
     ///         ]);
     /// assert_eq!(m.get_flag("test"), true);
     /// ```
-    #[must_use]
-    pub fn visible_short_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
+    pub fn visible_short_aliases(&mut self, names: impl IntoIterator<Item = char>) -> &mut Self {
         for n in names {
             debug_assert!(n != '-', "short alias name cannot be `-`");
             self.short_aliases.push((n, true));
@@ -504,8 +498,7 @@ impl Arg {
     /// [`Arg::num_args(true)`]: Arg::num_args()
     /// [`Command`]: crate::Command
     #[inline]
-    #[must_use]
-    pub fn index(mut self, idx: impl IntoResettable<usize>) -> Self {
+    pub fn index(&mut self, idx: impl IntoResettable<usize>) -> &mut Self {
         self.index = idx.into_resettable().into_option();
         self
     }
@@ -534,7 +527,7 @@ impl Arg {
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
     /// [`Arg::num_args(..)`]: crate::Arg::num_args()
-    pub fn trailing_var_arg(self, yes: bool) -> Self {
+    pub fn trailing_var_arg(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::TrailingVarArg)
         } else {
@@ -622,8 +615,7 @@ impl Arg {
     /// [index]: Arg::index()
     /// [`UnknownArgument`]: crate::error::ErrorKind::UnknownArgument
     #[inline]
-    #[must_use]
-    pub fn last(self, yes: bool) -> Self {
+    pub fn last(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::Last)
         } else {
@@ -688,8 +680,7 @@ impl Arg {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     #[inline]
-    #[must_use]
-    pub fn required(self, yes: bool) -> Self {
+    pub fn required(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::Required)
         } else {
@@ -754,8 +745,7 @@ impl Arg {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
-    #[must_use]
-    pub fn requires(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+    pub fn requires(&mut self, arg_id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(arg_id) = arg_id.into_resettable().into_option() {
             self.requires.push((ArgPredicate::IsPresent, arg_id));
         } else {
@@ -798,8 +788,7 @@ impl Arg {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
     /// ```
     #[inline]
-    #[must_use]
-    pub fn exclusive(self, yes: bool) -> Self {
+    pub fn exclusive(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::Exclusive)
         } else {
@@ -842,8 +831,7 @@ impl Arg {
     ///
     /// [`Subcommand`]: crate::Subcommand
     #[inline]
-    #[must_use]
-    pub fn global(self, yes: bool) -> Self {
+    pub fn global(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::Global)
         } else {
@@ -857,15 +845,13 @@ impl Arg {
     }
 
     #[inline]
-    #[must_use]
-    pub(crate) fn setting(mut self, setting: ArgSettings) -> Self {
+    pub(crate) fn setting(&mut self, setting: ArgSettings) -> &mut Self {
         self.settings.set(setting);
         self
     }
 
     #[inline]
-    #[must_use]
-    pub(crate) fn unset_setting(mut self, setting: ArgSettings) -> Self {
+    pub(crate) fn unset_setting(&mut self, setting: ArgSettings) -> &mut Self {
         self.settings.unset(setting);
         self
     }
@@ -903,8 +889,7 @@ impl Arg {
     /// );
     /// ```
     #[inline]
-    #[must_use]
-    pub fn action(mut self, action: impl IntoResettable<ArgAction>) -> Self {
+    pub fn action(&mut self, action: impl IntoResettable<ArgAction>) -> &mut Self {
         self.action = action.into_resettable().into_option();
         self
     }
@@ -966,7 +951,7 @@ impl Arg {
     ///     .expect("required");
     /// assert_eq!(port, 3001);
     /// ```
-    pub fn value_parser(mut self, parser: impl IntoResettable<super::ValueParser>) -> Self {
+    pub fn value_parser(&mut self, parser: impl IntoResettable<super::ValueParser>) -> &mut Self {
         self.value_parser = parser.into_resettable().into_option();
         self
     }
@@ -1122,8 +1107,7 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
     /// ```
     #[inline]
-    #[must_use]
-    pub fn num_args(mut self, qty: impl IntoResettable<ValueRange>) -> Self {
+    pub fn num_args(&mut self, qty: impl IntoResettable<ValueRange>) -> &mut Self {
         self.num_vals = qty.into_resettable().into_option();
         self
     }
@@ -1133,7 +1117,7 @@ impl Arg {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::num_args`")
     )]
-    pub fn number_of_values(self, qty: usize) -> Self {
+    pub fn number_of_values(&mut self, qty: usize) -> &mut Self {
         self.num_args(qty)
     }
 
@@ -1186,8 +1170,7 @@ impl Arg {
     /// [positional]: Arg::index()
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
-    #[must_use]
-    pub fn value_name(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn value_name(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.value_names([name])
         } else {
@@ -1252,8 +1235,7 @@ impl Arg {
     /// [`Arg::num_args`]: Arg::num_args()
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::num_args(1..)`]: Arg::num_args()
-    #[must_use]
-    pub fn value_names(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn value_names(&mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> &mut Self {
         self.val_names = names.into_iter().map(|s| s.into()).collect();
         self
     }
@@ -1289,8 +1271,7 @@ impl Arg {
     ///             .value_hint(ValueHint::CommandWithArguments)
     ///     );
     /// ```
-    #[must_use]
-    pub fn value_hint(mut self, value_hint: impl IntoResettable<ValueHint>) -> Self {
+    pub fn value_hint(&mut self, value_hint: impl IntoResettable<ValueHint>) -> &mut Self {
         self.value_hint = value_hint.into_resettable().into_option();
         self
     }
@@ -1346,8 +1327,7 @@ impl Arg {
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     #[inline]
-    #[must_use]
-    pub fn ignore_case(self, yes: bool) -> Self {
+    pub fn ignore_case(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::IgnoreCase)
         } else {
@@ -1410,8 +1390,7 @@ impl Arg {
     /// ```
     /// [`Arg::num_args(1)`]: Arg::num_args()
     #[inline]
-    #[must_use]
-    pub fn allow_hyphen_values(self, yes: bool) -> Self {
+    pub fn allow_hyphen_values(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::AllowHyphenValues)
         } else {
@@ -1441,7 +1420,7 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
     /// ```
     #[inline]
-    pub fn allow_negative_numbers(self, yes: bool) -> Self {
+    pub fn allow_negative_numbers(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::AllowNegativeNumbers)
         } else {
@@ -1494,8 +1473,7 @@ impl Arg {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::NoEquals);
     /// ```
     #[inline]
-    #[must_use]
-    pub fn require_equals(self, yes: bool) -> Self {
+    pub fn require_equals(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::RequireEquals)
         } else {
@@ -1508,7 +1486,7 @@ impl Arg {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::value_delimiter`")
     )]
-    pub fn use_value_delimiter(mut self, yes: bool) -> Self {
+    pub fn use_value_delimiter(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.val_delim.get_or_insert(',');
         } else {
@@ -1544,8 +1522,7 @@ impl Arg {
     /// [`Arg::value_delimiter(',')`]: Arg::value_delimiter()
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     #[inline]
-    #[must_use]
-    pub fn value_delimiter(mut self, d: impl IntoResettable<char>) -> Self {
+    pub fn value_delimiter(&mut self, d: impl IntoResettable<char>) -> &mut Self {
         self.val_delim = d.into_resettable().into_option();
         self
     }
@@ -1599,8 +1576,7 @@ impl Arg {
     /// [`num_args(1..)`]: Arg::num_args()
     /// [`num_args`]: Arg::num_args()
     #[inline]
-    #[must_use]
-    pub fn value_terminator(mut self, term: impl IntoResettable<Str>) -> Self {
+    pub fn value_terminator(&mut self, term: impl IntoResettable<Str>) -> &mut Self {
         self.terminator = term.into_resettable().into_option();
         self
     }
@@ -1628,8 +1604,7 @@ impl Arg {
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
     #[inline]
-    #[must_use]
-    pub fn raw(mut self, yes: bool) -> Self {
+    pub fn raw(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.num_vals.get_or_insert_with(|| (1..).into());
         }
@@ -1693,8 +1668,7 @@ impl Arg {
     /// [`ArgMatches::contains_id`]: crate::ArgMatches::contains_id()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
-    #[must_use]
-    pub fn default_value(mut self, val: impl IntoResettable<OsStr>) -> Self {
+    pub fn default_value(&mut self, val: impl IntoResettable<OsStr>) -> &mut Self {
         if let Some(val) = val.into_resettable().into_option() {
             self.default_values([val])
         } else {
@@ -1704,13 +1678,12 @@ impl Arg {
     }
 
     #[inline]
-    #[must_use]
     #[doc(hidden)]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::default_value`")
     )]
-    pub fn default_value_os(self, val: impl Into<OsStr>) -> Self {
+    pub fn default_value_os(&mut self, val: impl Into<OsStr>) -> &mut Self {
         self.default_values([val])
     }
 
@@ -1720,20 +1693,24 @@ impl Arg {
     ///
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
-    #[must_use]
-    pub fn default_values(mut self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+    pub fn default_values(
+        &mut self,
+        vals: impl IntoIterator<Item = impl Into<OsStr>>,
+    ) -> &mut Self {
         self.default_vals = vals.into_iter().map(|s| s.into()).collect();
         self
     }
 
     #[inline]
-    #[must_use]
     #[doc(hidden)]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::default_values`")
     )]
-    pub fn default_values_os(self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+    pub fn default_values_os(
+        &mut self,
+        vals: impl IntoIterator<Item = impl Into<OsStr>>,
+    ) -> &mut Self {
         self.default_values(vals)
     }
 
@@ -1831,8 +1808,7 @@ impl Arg {
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
-    #[must_use]
-    pub fn default_missing_value(mut self, val: impl IntoResettable<OsStr>) -> Self {
+    pub fn default_missing_value(&mut self, val: impl IntoResettable<OsStr>) -> &mut Self {
         if let Some(val) = val.into_resettable().into_option() {
             self.default_missing_values_os([val])
         } else {
@@ -1848,8 +1824,7 @@ impl Arg {
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
-    #[must_use]
-    pub fn default_missing_value_os(self, val: impl Into<OsStr>) -> Self {
+    pub fn default_missing_value_os(&mut self, val: impl Into<OsStr>) -> &mut Self {
         self.default_missing_values_os([val])
     }
 
@@ -1859,8 +1834,10 @@ impl Arg {
     ///
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     #[inline]
-    #[must_use]
-    pub fn default_missing_values(self, vals: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+    pub fn default_missing_values(
+        &mut self,
+        vals: impl IntoIterator<Item = impl Into<OsStr>>,
+    ) -> &mut Self {
         self.default_missing_values_os(vals)
     }
 
@@ -1871,11 +1848,10 @@ impl Arg {
     /// [`Arg::default_missing_values`]: Arg::default_missing_values()
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
-    #[must_use]
     pub fn default_missing_values_os(
-        mut self,
+        &mut self,
         vals: impl IntoIterator<Item = impl Into<OsStr>>,
-    ) -> Self {
+    ) -> &mut Self {
         self.default_missing_vals = vals.into_iter().map(|s| s.into()).collect();
         self
     }
@@ -2034,8 +2010,7 @@ impl Arg {
     /// [`Arg::value_delimiter(',')`]: Arg::value_delimiter()
     #[cfg(feature = "env")]
     #[inline]
-    #[must_use]
-    pub fn env(mut self, name: impl IntoResettable<OsStr>) -> Self {
+    pub fn env(&mut self, name: impl IntoResettable<OsStr>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             let value = env::var_os(&name);
             self.env = Some((name, value));
@@ -2051,7 +2026,7 @@ impl Arg {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::env`")
     )]
-    pub fn env_os(self, name: impl Into<OsStr>) -> Self {
+    pub fn env_os(&mut self, name: impl Into<OsStr>) -> &mut Self {
         self.env(name)
     }
 }
@@ -2103,8 +2078,7 @@ impl Arg {
     /// ```
     /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
-    #[must_use]
-    pub fn help(mut self, h: impl IntoResettable<StyledStr>) -> Self {
+    pub fn help(&mut self, h: impl IntoResettable<StyledStr>) -> &mut Self {
         self.help = h.into_resettable().into_option();
         self
     }
@@ -2167,8 +2141,7 @@ impl Arg {
     /// ```
     /// [`Arg::help`]: Arg::help()
     #[inline]
-    #[must_use]
-    pub fn long_help(mut self, h: impl IntoResettable<StyledStr>) -> Self {
+    pub fn long_help(&mut self, h: impl IntoResettable<StyledStr>) -> &mut Self {
         self.long_help = h.into_resettable().into_option();
         self
     }
@@ -2234,8 +2207,7 @@ impl Arg {
     /// [positional arguments]: Arg::index()
     /// [index]: Arg::index()
     #[inline]
-    #[must_use]
-    pub fn display_order(mut self, ord: impl IntoResettable<usize>) -> Self {
+    pub fn display_order(&mut self, ord: impl IntoResettable<usize>) -> &mut Self {
         self.disp_ord = ord.into_resettable().into_option();
         self
     }
@@ -2244,8 +2216,7 @@ impl Arg {
     ///
     /// [current]: crate::Command::next_help_heading
     #[inline]
-    #[must_use]
-    pub fn help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+    pub fn help_heading(&mut self, heading: impl IntoResettable<Str>) -> &mut Self {
         self.help_heading = Some(heading.into_resettable().into_option());
         self
     }
@@ -2296,8 +2267,7 @@ impl Arg {
     ///         on a line after the option
     /// ```
     #[inline]
-    #[must_use]
-    pub fn next_line_help(self, yes: bool) -> Self {
+    pub fn next_line_help(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::NextLineHelp)
         } else {
@@ -2340,8 +2310,7 @@ impl Arg {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    #[must_use]
-    pub fn hide(self, yes: bool) -> Self {
+    pub fn hide(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::Hidden)
         } else {
@@ -2374,8 +2343,7 @@ impl Arg {
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
     /// the help text would be omitted.
     #[inline]
-    #[must_use]
-    pub fn hide_possible_values(self, yes: bool) -> Self {
+    pub fn hide_possible_values(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::HidePossibleValues)
         } else {
@@ -2406,8 +2374,7 @@ impl Arg {
     /// If we were to run the above program with `--help` the `[default: localhost]` portion of
     /// the help text would be omitted.
     #[inline]
-    #[must_use]
-    pub fn hide_default_value(self, yes: bool) -> Self {
+    pub fn hide_default_value(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::HideDefaultValue)
         } else {
@@ -2436,8 +2403,7 @@ impl Arg {
     /// text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
-    #[must_use]
-    pub fn hide_env(self, yes: bool) -> Self {
+    pub fn hide_env(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::HideEnv)
         } else {
@@ -2467,8 +2433,7 @@ impl Arg {
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
-    #[must_use]
-    pub fn hide_env_values(self, yes: bool) -> Self {
+    pub fn hide_env_values(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::HideEnvValues)
         } else {
@@ -2551,8 +2516,7 @@ impl Arg {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    #[must_use]
-    pub fn hide_short_help(self, yes: bool) -> Self {
+    pub fn hide_short_help(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::HiddenShortHelp)
         } else {
@@ -2628,8 +2592,7 @@ impl Arg {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    #[must_use]
-    pub fn hide_long_help(self, yes: bool) -> Self {
+    pub fn hide_long_help(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(ArgSettings::HiddenLongHelp)
         } else {
@@ -2676,8 +2639,7 @@ impl Arg {
     /// ```
     ///
     /// [`ArgGroup`]: crate::ArgGroup
-    #[must_use]
-    pub fn group(mut self, group_id: impl IntoResettable<Id>) -> Self {
+    pub fn group(&mut self, group_id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(group_id) = group_id.into_resettable().into_option() {
             self.groups.push(group_id);
         } else {
@@ -2723,8 +2685,7 @@ impl Arg {
     /// ```
     ///
     /// [`ArgGroup`]: crate::ArgGroup
-    #[must_use]
-    pub fn groups(mut self, group_ids: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn groups(&mut self, group_ids: impl IntoIterator<Item = impl Into<Id>>) -> &mut Self {
         self.groups.extend(group_ids.into_iter().map(Into::into));
         self
     }
@@ -2844,13 +2805,12 @@ impl Arg {
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value`]: Arg::default_value()
-    #[must_use]
     pub fn default_value_if(
-        mut self,
+        &mut self,
         arg_id: impl Into<Id>,
         predicate: impl Into<ArgPredicate>,
         default: impl IntoResettable<OsStr>,
-    ) -> Self {
+    ) -> &mut Self {
         self.default_vals_ifs.push((
             arg_id.into(),
             predicate.into(),
@@ -2859,18 +2819,17 @@ impl Arg {
         self
     }
 
-    #[must_use]
     #[doc(hidden)]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::default_value_if`")
     )]
     pub fn default_value_if_os(
-        self,
+        &mut self,
         arg_id: impl Into<Id>,
         predicate: impl Into<ArgPredicate>,
         default: impl IntoResettable<OsStr>,
-    ) -> Self {
+    ) -> &mut Self {
         self.default_value_if(arg_id, predicate, default)
     }
 
@@ -2960,9 +2919,8 @@ impl Arg {
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
-    #[must_use]
     pub fn default_value_ifs(
-        mut self,
+        &mut self,
         ifs: impl IntoIterator<
             Item = (
                 impl Into<Id>,
@@ -2970,21 +2928,20 @@ impl Arg {
                 impl IntoResettable<OsStr>,
             ),
         >,
-    ) -> Self {
+    ) -> &mut Self {
         for (arg, predicate, default) in ifs {
-            self = self.default_value_if(arg, predicate, default);
+            self.default_value_if(arg, predicate, default);
         }
         self
     }
 
-    #[must_use]
     #[doc(hidden)]
     #[cfg_attr(
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::default_value_ifs`")
     )]
     pub fn default_value_ifs_os(
-        self,
+        &mut self,
         ifs: impl IntoIterator<
             Item = (
                 impl Into<Id>,
@@ -2992,7 +2949,7 @@ impl Arg {
                 impl IntoResettable<OsStr>,
             ),
         >,
-    ) -> Self {
+    ) -> &mut Self {
         self.default_value_ifs(ifs)
     }
 
@@ -3052,8 +3009,7 @@ impl Arg {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
-    #[must_use]
-    pub fn required_unless_present(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+    pub fn required_unless_present(&mut self, arg_id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(arg_id) = arg_id.into_resettable().into_option() {
             self.r_unless.push(arg_id);
         } else {
@@ -3132,11 +3088,10 @@ impl Arg {
     /// [required]: Arg::required()
     /// [`Arg::required_unless_present_any`]: Arg::required_unless_present_any()
     /// [`Arg::required_unless_present_all(names)`]: Arg::required_unless_present_all()
-    #[must_use]
     pub fn required_unless_present_all(
-        mut self,
+        &mut self,
         names: impl IntoIterator<Item = impl Into<Id>>,
-    ) -> Self {
+    ) -> &mut Self {
         self.r_unless_all.extend(names.into_iter().map(Into::into));
         self
     }
@@ -3213,11 +3168,10 @@ impl Arg {
     /// [required]: Arg::required()
     /// [`Arg::required_unless_present_any(names)`]: Arg::required_unless_present_any()
     /// [`Arg::required_unless_present_all`]: Arg::required_unless_present_all()
-    #[must_use]
     pub fn required_unless_present_any(
-        mut self,
+        &mut self,
         names: impl IntoIterator<Item = impl Into<Id>>,
-    ) -> Self {
+    ) -> &mut Self {
         self.r_unless.extend(names.into_iter().map(Into::into));
         self
     }
@@ -3303,8 +3257,7 @@ impl Arg {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
-    #[must_use]
-    pub fn required_if_eq(mut self, arg_id: impl Into<Id>, val: impl Into<OsStr>) -> Self {
+    pub fn required_if_eq(&mut self, arg_id: impl Into<Id>, val: impl Into<OsStr>) -> &mut Self {
         self.r_ifs.push((arg_id.into(), val.into()));
         self
     }
@@ -3385,11 +3338,10 @@ impl Arg {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
-    #[must_use]
     pub fn required_if_eq_any(
-        mut self,
+        &mut self,
         ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsStr>)>,
-    ) -> Self {
+    ) -> &mut Self {
         self.r_ifs
             .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
         self
@@ -3469,11 +3421,10 @@ impl Arg {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
-    #[must_use]
     pub fn required_if_eq_all(
-        mut self,
+        &mut self,
         ifs: impl IntoIterator<Item = (impl Into<Id>, impl Into<OsStr>)>,
-    ) -> Self {
+    ) -> &mut Self {
         self.r_ifs_all
             .extend(ifs.into_iter().map(|(id, val)| (id.into(), val.into())));
         self
@@ -3537,8 +3488,11 @@ impl Arg {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
-    #[must_use]
-    pub fn requires_if(mut self, val: impl Into<ArgPredicate>, arg_id: impl Into<Id>) -> Self {
+    pub fn requires_if(
+        &mut self,
+        val: impl Into<ArgPredicate>,
+        arg_id: impl Into<Id>,
+    ) -> &mut Self {
         self.requires.push((val.into(), arg_id.into()));
         self
     }
@@ -3616,11 +3570,10 @@ impl Arg {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
-    #[must_use]
     pub fn requires_ifs(
-        mut self,
+        &mut self,
         ifs: impl IntoIterator<Item = (impl Into<ArgPredicate>, impl Into<Id>)>,
-    ) -> Self {
+    ) -> &mut Self {
         self.requires
             .extend(ifs.into_iter().map(|(val, arg)| (val.into(), arg.into())));
         self
@@ -3631,7 +3584,7 @@ impl Arg {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::requires_ifs`")
     )]
-    pub fn requires_all(self, ids: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn requires_all(&mut self, ids: impl IntoIterator<Item = impl Into<Id>>) -> &mut Self {
         self.requires_ifs(ids.into_iter().map(|id| (ArgPredicate::IsPresent, id)))
     }
 
@@ -3683,8 +3636,7 @@ impl Arg {
     ///
     /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
-    #[must_use]
-    pub fn conflicts_with(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+    pub fn conflicts_with(&mut self, arg_id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(arg_id) = arg_id.into_resettable().into_option() {
             self.blacklist.push(arg_id);
         } else {
@@ -3739,8 +3691,10 @@ impl Arg {
     /// ```
     /// [`Arg::conflicts_with`]: Arg::conflicts_with()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
-    #[must_use]
-    pub fn conflicts_with_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn conflicts_with_all(
+        &mut self,
+        names: impl IntoIterator<Item = impl Into<Id>>,
+    ) -> &mut Self {
         self.blacklist.extend(names.into_iter().map(Into::into));
         self
     }
@@ -3776,8 +3730,7 @@ impl Arg {
     ///                                 // was never used because it was overridden with color
     /// assert!(!m.get_flag("flag"));
     /// ```
-    #[must_use]
-    pub fn overrides_with(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+    pub fn overrides_with(&mut self, arg_id: impl IntoResettable<Id>) -> &mut Self {
         if let Some(arg_id) = arg_id.into_resettable().into_option() {
             self.overrides.push(arg_id);
         } else {
@@ -3817,8 +3770,10 @@ impl Arg {
     /// assert!(!m.get_flag("debug"));
     /// assert!(!m.get_flag("flag"));
     /// ```
-    #[must_use]
-    pub fn overrides_with_all(mut self, names: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn overrides_with_all(
+        &mut self,
+        names: impl IntoIterator<Item = impl Into<Id>>,
+    ) -> &mut Self {
         self.overrides.extend(names.into_iter().map(Into::into));
         self
     }
@@ -4400,6 +4355,12 @@ impl Arg {
     #[cfg(feature = "help")]
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
+    }
+}
+
+impl From<&'_ mut Arg> for Arg {
+    fn from(a: &mut Arg) -> Self {
+        a.clone()
     }
 }
 

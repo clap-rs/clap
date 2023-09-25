@@ -1824,7 +1824,11 @@ impl FalseyValueParser {
             .iter()
             .chain(crate::util::FALSE_LITERALS.iter())
             .copied()
-            .map(|l| crate::builder::PossibleValue::new(l).hide(l != "true" && l != "false"))
+            .map(|l| {
+                let mut value = crate::builder::PossibleValue::new(l);
+                value.hide(l != "true" && l != "false");
+                value
+            })
     }
 }
 
@@ -1923,7 +1927,11 @@ impl BoolishValueParser {
             .iter()
             .chain(crate::util::FALSE_LITERALS.iter())
             .copied()
-            .map(|l| crate::builder::PossibleValue::new(l).hide(l != "true" && l != "false"))
+            .map(|l| {
+                let mut value = crate::builder::PossibleValue::new(l);
+                value.hide(l != "true" && l != "false");
+                value
+            })
     }
 }
 

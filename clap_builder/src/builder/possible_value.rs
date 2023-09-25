@@ -81,8 +81,7 @@ impl PossibleValue {
     /// # ;
     /// ```
     #[inline]
-    #[must_use]
-    pub fn help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+    pub fn help(&mut self, help: impl IntoResettable<StyledStr>) -> &mut Self {
         self.help = help.into_resettable().into_option();
         self
     }
@@ -103,8 +102,7 @@ impl PossibleValue {
     /// ```
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     #[inline]
-    #[must_use]
-    pub fn hide(mut self, yes: bool) -> Self {
+    pub fn hide(&mut self, yes: bool) -> &mut Self {
         self.hide = yes;
         self
     }
@@ -120,8 +118,7 @@ impl PossibleValue {
     ///     .alias("not-fast")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.aliases.push(name);
         } else {
@@ -141,8 +138,7 @@ impl PossibleValue {
     ///     .aliases(["not-fast", "snake-like"])
     /// # ;
     /// ```
-    #[must_use]
-    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn aliases(&mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> &mut Self {
         self.aliases.extend(names.into_iter().map(|a| a.into()));
         self
     }

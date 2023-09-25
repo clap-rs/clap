@@ -164,8 +164,7 @@ impl Command {
     /// # ;
     /// ```
     /// [argument]: Arg
-    #[must_use]
-    pub fn arg(mut self, a: impl Into<Arg>) -> Self {
+    pub fn arg(&mut self, a: impl Into<Arg>) -> &mut Self {
         let arg = a.into();
         self.arg_internal(arg);
         self
@@ -200,10 +199,9 @@ impl Command {
     /// # ;
     /// ```
     /// [arguments]: Arg
-    #[must_use]
-    pub fn args(mut self, args: impl IntoIterator<Item = impl Into<Arg>>) -> Self {
+    pub fn args(&mut self, args: impl IntoIterator<Item = impl Into<Arg>>) -> &mut Self {
         for arg in args {
-            self = self.arg(arg);
+            self.arg(arg);
         }
         self
     }
@@ -236,19 +234,19 @@ impl Command {
     /// let res = cmd.try_get_matches_from_mut(vec!["foo", "-B"]);
     /// assert!(res.is_ok());
     /// ```
-    #[must_use]
     #[cfg_attr(debug_assertions, track_caller)]
-    pub fn mut_arg<F>(mut self, arg_id: impl AsRef<str>, f: F) -> Self
+    pub fn mut_arg<F>(&mut self, arg_id: impl AsRef<str>, f: F) -> &mut Self
     where
-        F: FnOnce(Arg) -> Arg,
+        F: FnOnce(&mut Arg) -> &mut Arg,
     {
         let id = arg_id.as_ref();
         let a = self
             .args
-            .remove_by_name(id)
+            .args_mut()
+            .find(|a| a.get_id() == id)
             .unwrap_or_else(|| panic!("Argument `{id}` is undefined"));
 
-        self.args.push(f(a));
+        f(a);
         self
     }
 
@@ -288,9 +286,8 @@ impl Command {
     /// let res = cmd.try_get_matches_from_mut(vec!["foo", "--prefix-bar"]);
     /// assert!(res.is_ok());
     /// ```
-    #[must_use]
     #[cfg_attr(debug_assertions, track_caller)]
-    pub fn mut_args<F>(mut self, f: F) -> Self
+    pub fn mut_args<F>(&mut self, f: F) -> &mut Self
     where
         F: FnMut(Arg) -> Arg,
     {
@@ -326,21 +323,16 @@ impl Command {
     /// let res = cmd.try_get_matches_from_mut(vec!["foo", "bar"]);
     /// assert!(res.is_ok());
     /// ```
-    #[must_use]
-    pub fn mut_subcommand<F>(mut self, name: impl AsRef<str>, f: F) -> Self
+    pub fn mut_subcommand<F>(&mut self, name: impl AsRef<str>, f: F) -> &mut Self
     where
-        F: FnOnce(Self) -> Self,
+        F: FnOnce(&mut Self) -> &mut Self,
     {
         let name = name.as_ref();
-        let pos = self.subcommands.iter().position(|s| s.name == name);
-
-        let subcmd = if let Some(idx) = pos {
-            self.subcommands.remove(idx)
+        if let Some(subcmd) = self.subcommands.iter_mut().find(|s| s.name == name) {
+            f(subcmd);
         } else {
             panic!("Command `{name}` is undefined")
-        };
-
-        self.subcommands.push(f(subcmd));
+        }
         self
     }
 
@@ -377,8 +369,7 @@ impl Command {
     /// # ;
     /// ```
     #[inline]
-    #[must_use]
-    pub fn group(mut self, group: impl Into<ArgGroup>) -> Self {
+    pub fn group(&mut self, group: impl Into<ArgGroup>) -> &mut Self {
         self.groups.push(group.into());
         self
     }
@@ -406,10 +397,9 @@ impl Command {
     ///     ])
     /// # ;
     /// ```
-    #[must_use]
-    pub fn groups(mut self, groups: impl IntoIterator<Item = impl Into<ArgGroup>>) -> Self {
+    pub fn groups(&mut self, groups: impl IntoIterator<Item = impl Into<ArgGroup>>) -> &mut Self {
         for g in groups.into_iter() {
-            self = self.group(g.into());
+            self.group(g.into());
         }
         self
     }
@@ -436,13 +426,12 @@ impl Command {
     /// # ;
     /// ```
     #[inline]
-    #[must_use]
-    pub fn subcommand(self, subcmd: impl Into<Command>) -> Self {
+    pub fn subcommand(&mut self, subcmd: impl Into<Command>) -> &mut Self {
         let subcmd = subcmd.into();
         self.subcommand_internal(subcmd)
     }
 
-    fn subcommand_internal(mut self, mut subcmd: Self) -> Self {
+    fn subcommand_internal(&mut self, mut subcmd: Self) -> &mut Self {
         if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
             let current = *current_disp_ord;
             subcmd.disp_ord.get_or_insert(current);
@@ -467,10 +456,9 @@ impl Command {
     /// # ;
     /// ```
     /// [`IntoIterator`]: std::iter::IntoIterator
-    #[must_use]
-    pub fn subcommands(mut self, subcmds: impl IntoIterator<Item = impl Into<Self>>) -> Self {
+    pub fn subcommands(&mut self, subcmds: impl IntoIterator<Item = impl Into<Self>>) -> &mut Self {
         for subcmd in subcmds {
-            self = self.subcommand(subcmd);
+            self.subcommand(subcmd);
         }
         self
     }
@@ -494,7 +482,7 @@ impl Command {
     ///     )
     /// # ;
     /// ```
-    pub fn defer(mut self, deferred: fn(Command) -> Command) -> Self {
+    pub fn defer(&mut self, deferred: fn(Command) -> Command) -> &mut Self {
         self.deferred = Some(deferred);
         self
     }
@@ -1027,7 +1015,7 @@ impl Command {
     /// ```
     /// [`try_get_matches_from_mut`]: crate::Command::try_get_matches_from_mut()
     #[inline]
-    pub fn no_binary_name(self, yes: bool) -> Self {
+    pub fn no_binary_name(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::NoBinaryName)
         } else {
@@ -1059,7 +1047,7 @@ impl Command {
     /// assert_eq!(m.get_one::<String>("stuff"), None);
     /// ```
     #[inline]
-    pub fn ignore_errors(self, yes: bool) -> Self {
+    pub fn ignore_errors(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::IgnoreErrors)
         } else {
@@ -1079,7 +1067,7 @@ impl Command {
     ///
     /// [`Arg::overrides_with("foo")`]: crate::Arg::overrides_with()
     #[inline]
-    pub fn args_override_self(self, yes: bool) -> Self {
+    pub fn args_override_self(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::AllArgsOverrideSelf)
         } else {
@@ -1108,7 +1096,7 @@ impl Command {
     ///
     /// [`Arg::value_delimiter(None)`]: crate::Arg::value_delimiter()
     #[inline]
-    pub fn dont_delimit_trailing_values(self, yes: bool) -> Self {
+    pub fn dont_delimit_trailing_values(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::DontDelimitTrailingValues)
         } else {
@@ -1134,8 +1122,7 @@ impl Command {
     /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
     #[cfg(feature = "color")]
     #[inline]
-    #[must_use]
-    pub fn color(self, color: ColorChoice) -> Self {
+    pub fn color(&mut self, color: ColorChoice) -> &mut Self {
         let cmd = self
             .unset_global_setting(AppSettings::ColorAuto)
             .unset_global_setting(AppSettings::ColorAlways)
@@ -1169,8 +1156,7 @@ impl Command {
     /// ```
     #[cfg(feature = "color")]
     #[inline]
-    #[must_use]
-    pub fn styles(mut self, styles: Styles) -> Self {
+    pub fn styles(&mut self, styles: Styles) -> &mut Self {
         self.app_ext.set(styles);
         self
     }
@@ -1199,9 +1185,8 @@ impl Command {
     /// # ;
     /// ```
     #[inline]
-    #[must_use]
     #[cfg(any(not(feature = "unstable-v5"), feature = "wrap_help"))]
-    pub fn term_width(mut self, width: usize) -> Self {
+    pub fn term_width(&mut self, width: usize) -> &mut Self {
         self.app_ext.set(TermWidth(width));
         self
     }
@@ -1229,9 +1214,8 @@ impl Command {
     /// # ;
     /// ```
     #[inline]
-    #[must_use]
     #[cfg(any(not(feature = "unstable-v5"), feature = "wrap_help"))]
-    pub fn max_term_width(mut self, width: usize) -> Self {
+    pub fn max_term_width(&mut self, width: usize) -> &mut Self {
         self.app_ext.set(MaxTermWidth(width));
         self
     }
@@ -1252,7 +1236,7 @@ impl Command {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     #[inline]
-    pub fn disable_version_flag(self, yes: bool) -> Self {
+    pub fn disable_version_flag(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::DisableVersionFlag)
         } else {
@@ -1282,7 +1266,7 @@ impl Command {
     ///
     /// [`subcommands`]: crate::Command::subcommand()
     #[inline]
-    pub fn propagate_version(self, yes: bool) -> Self {
+    pub fn propagate_version(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::PropagateVersion)
         } else {
@@ -1304,7 +1288,7 @@ impl Command {
     ///     .get_matches();
     /// ```
     #[inline]
-    pub fn next_line_help(self, yes: bool) -> Self {
+    pub fn next_line_help(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::NextLineHelp)
         } else {
@@ -1330,7 +1314,7 @@ impl Command {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     #[inline]
-    pub fn disable_help_flag(self, yes: bool) -> Self {
+    pub fn disable_help_flag(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::DisableHelpFlag)
         } else {
@@ -1361,7 +1345,7 @@ impl Command {
     ///
     /// [`subcommand`]: crate::Command::subcommand()
     #[inline]
-    pub fn disable_help_subcommand(self, yes: bool) -> Self {
+    pub fn disable_help_subcommand(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::DisableHelpSubcommand)
         } else {
@@ -1383,7 +1367,7 @@ impl Command {
     ///     .get_matches();
     /// ```
     #[inline]
-    pub fn disable_colored_help(self, yes: bool) -> Self {
+    pub fn disable_colored_help(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::DisableColoredHelp)
         } else {
@@ -1429,7 +1413,7 @@ impl Command {
     /// #   .get_matches();
     ///```
     #[inline]
-    pub fn help_expected(self, yes: bool) -> Self {
+    pub fn help_expected(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::HelpExpected)
         } else {
@@ -1442,7 +1426,7 @@ impl Command {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "This is now the default")
     )]
-    pub fn dont_collapse_args_in_usage(self, _yes: bool) -> Self {
+    pub fn dont_collapse_args_in_usage(&mut self, _yes: bool) -> &mut Self {
         self
     }
 
@@ -1455,7 +1439,7 @@ impl Command {
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     #[inline]
-    pub fn hide_possible_values(self, yes: bool) -> Self {
+    pub fn hide_possible_values(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::HidePossibleValues)
         } else {
@@ -1476,7 +1460,7 @@ impl Command {
     ///
     /// [aliases]: crate::Command::aliases()
     #[inline]
-    pub fn infer_long_args(self, yes: bool) -> Self {
+    pub fn infer_long_args(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::InferLongArgs)
         } else {
@@ -1518,7 +1502,7 @@ impl Command {
     /// [positional/free arguments]: crate::Arg::index()
     /// [aliases]: crate::Command::aliases()
     #[inline]
-    pub fn infer_subcommands(self, yes: bool) -> Self {
+    pub fn infer_subcommands(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.global_setting(AppSettings::InferSubcommands)
         } else {
@@ -1543,8 +1527,7 @@ impl Command {
     ///
     /// // continued logic goes here, such as `cmd.get_matches()` etc.
     /// ```
-    #[must_use]
-    pub fn name(mut self, name: impl Into<Str>) -> Self {
+    pub fn name(&mut self, name: impl Into<Str>) -> &mut Self {
         self.name = name.into();
         self
     }
@@ -1570,8 +1553,7 @@ impl Command {
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn bin_name(mut self, name: impl IntoResettable<String>) -> Self {
+    pub fn bin_name(&mut self, name: impl IntoResettable<String>) -> &mut Self {
         self.bin_name = name.into_resettable().into_option();
         self
     }
@@ -1587,8 +1569,7 @@ impl Command {
     ///      .display_name("my_program")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn display_name(mut self, name: impl IntoResettable<String>) -> Self {
+    pub fn display_name(&mut self, name: impl IntoResettable<String>) -> &mut Self {
         self.display_name = name.into_resettable().into_option();
         self
     }
@@ -1611,8 +1592,7 @@ impl Command {
     ///      .author("Me, me@mymain.com")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn author(mut self, author: impl IntoResettable<Str>) -> Self {
+    pub fn author(&mut self, author: impl IntoResettable<Str>) -> &mut Self {
         self.author = author.into_resettable().into_option();
         self
     }
@@ -1635,8 +1615,7 @@ impl Command {
     ///     .about("Does really amazing things for great people")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn about(mut self, about: impl IntoResettable<StyledStr>) -> Self {
+    pub fn about(&mut self, about: impl IntoResettable<StyledStr>) -> &mut Self {
         self.about = about.into_resettable().into_option();
         self
     }
@@ -1661,8 +1640,7 @@ impl Command {
     /// # ;
     /// ```
     /// [`Command::about`]: Command::about()
-    #[must_use]
-    pub fn long_about(mut self, long_about: impl IntoResettable<StyledStr>) -> Self {
+    pub fn long_about(&mut self, long_about: impl IntoResettable<StyledStr>) -> &mut Self {
         self.long_about = long_about.into_resettable().into_option();
         self
     }
@@ -1684,8 +1662,7 @@ impl Command {
     /// # ;
     /// ```
     ///
-    #[must_use]
-    pub fn after_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+    pub fn after_help(&mut self, help: impl IntoResettable<StyledStr>) -> &mut Self {
         self.after_help = help.into_resettable().into_option();
         self
     }
@@ -1707,8 +1684,7 @@ impl Command {
     ///                      like, for real, be careful with this!")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn after_long_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+    pub fn after_long_help(&mut self, help: impl IntoResettable<StyledStr>) -> &mut Self {
         self.after_long_help = help.into_resettable().into_option();
         self
     }
@@ -1728,8 +1704,7 @@ impl Command {
     ///     .before_help("Some info I'd like to appear before the help info")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn before_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+    pub fn before_help(&mut self, help: impl IntoResettable<StyledStr>) -> &mut Self {
         self.before_help = help.into_resettable().into_option();
         self
     }
@@ -1749,8 +1724,7 @@ impl Command {
     ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn before_long_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+    pub fn before_long_help(&mut self, help: impl IntoResettable<StyledStr>) -> &mut Self {
         self.before_long_help = help.into_resettable().into_option();
         self
     }
@@ -1772,8 +1746,7 @@ impl Command {
     ///     .version("v0.1.24")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn version(mut self, ver: impl IntoResettable<Str>) -> Self {
+    pub fn version(&mut self, ver: impl IntoResettable<Str>) -> &mut Self {
         self.version = ver.into_resettable().into_option();
         self
     }
@@ -1800,8 +1773,7 @@ impl Command {
     ///  binary: myprog")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn long_version(mut self, ver: impl IntoResettable<Str>) -> Self {
+    pub fn long_version(&mut self, ver: impl IntoResettable<Str>) -> &mut Self {
         self.long_version = ver.into_resettable().into_option();
         self
     }
@@ -1845,8 +1817,7 @@ impl Command {
     /// ```
     ///
     /// [`ArgMatches::usage`]: ArgMatches::usage()
-    #[must_use]
-    pub fn override_usage(mut self, usage: impl IntoResettable<StyledStr>) -> Self {
+    pub fn override_usage(&mut self, usage: impl IntoResettable<StyledStr>) -> &mut Self {
         self.usage_str = usage.into_resettable().into_option();
         self
     }
@@ -1883,8 +1854,7 @@ impl Command {
     ///            work             Do some work")
     /// # ;
     /// ```
-    #[must_use]
-    pub fn override_help(mut self, help: impl IntoResettable<StyledStr>) -> Self {
+    pub fn override_help(&mut self, help: impl IntoResettable<StyledStr>) -> &mut Self {
         self.help_str = help.into_resettable().into_option();
         self
     }
@@ -1954,38 +1924,33 @@ impl Command {
     /// [`Command::after_long_help`]: Command::after_long_help()
     /// [`Command::before_help`]: Command::before_help()
     /// [`Command::before_long_help`]: Command::before_long_help()
-    #[must_use]
     #[cfg(feature = "help")]
-    pub fn help_template(mut self, s: impl IntoResettable<StyledStr>) -> Self {
+    pub fn help_template(&mut self, s: impl IntoResettable<StyledStr>) -> &mut Self {
         self.template = s.into_resettable().into_option();
         self
     }
 
     #[inline]
-    #[must_use]
-    pub(crate) fn setting(mut self, setting: AppSettings) -> Self {
+    pub(crate) fn setting(&mut self, setting: AppSettings) -> &mut Self {
         self.settings.set(setting);
         self
     }
 
     #[inline]
-    #[must_use]
-    pub(crate) fn unset_setting(mut self, setting: AppSettings) -> Self {
+    pub(crate) fn unset_setting(&mut self, setting: AppSettings) -> &mut Self {
         self.settings.unset(setting);
         self
     }
 
     #[inline]
-    #[must_use]
-    pub(crate) fn global_setting(mut self, setting: AppSettings) -> Self {
+    pub(crate) fn global_setting(&mut self, setting: AppSettings) -> &mut Self {
         self.settings.set(setting);
         self.g_settings.set(setting);
         self
     }
 
     #[inline]
-    #[must_use]
-    pub(crate) fn unset_global_setting(mut self, setting: AppSettings) -> Self {
+    pub(crate) fn unset_global_setting(&mut self, setting: AppSettings) -> &mut Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
         self
@@ -2003,8 +1968,7 @@ impl Command {
     /// [`Command::arg`]: Command::arg()
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
     #[inline]
-    #[must_use]
-    pub fn next_help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+    pub fn next_help_heading(&mut self, heading: impl IntoResettable<Str>) -> &mut Self {
         self.current_help_heading = heading.into_resettable().into_option();
         self
     }
@@ -2013,8 +1977,7 @@ impl Command {
     ///
     /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
     #[inline]
-    #[must_use]
-    pub fn next_display_order(mut self, disp_ord: impl IntoResettable<usize>) -> Self {
+    pub fn next_display_order(&mut self, disp_ord: impl IntoResettable<usize>) -> &mut Self {
         self.current_disp_ord = disp_ord.into_resettable().into_option();
         self
     }
@@ -2035,7 +1998,7 @@ impl Command {
     /// [`subcommands`]: crate::Command::subcommand()
     /// [`Arg::default_value`]: crate::Arg::default_value()
     #[inline]
-    pub fn arg_required_else_help(self, yes: bool) -> Self {
+    pub fn arg_required_else_help(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::ArgRequiredElseHelp)
         } else {
@@ -2048,7 +2011,7 @@ impl Command {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::allow_hyphen_values`")
     )]
-    pub fn allow_hyphen_values(self, yes: bool) -> Self {
+    pub fn allow_hyphen_values(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::AllowHyphenValues)
         } else {
@@ -2061,7 +2024,7 @@ impl Command {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::allow_negative_numbers`")
     )]
-    pub fn allow_negative_numbers(self, yes: bool) -> Self {
+    pub fn allow_negative_numbers(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::AllowNegativeNumbers)
         } else {
@@ -2074,7 +2037,7 @@ impl Command {
         feature = "deprecated",
         deprecated(since = "4.0.0", note = "Replaced with `Arg::trailing_var_arg`")
     )]
-    pub fn trailing_var_arg(self, yes: bool) -> Self {
+    pub fn trailing_var_arg(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::TrailingVarArg)
         } else {
@@ -2194,7 +2157,7 @@ impl Command {
     ///
     /// [required]: crate::Arg::required()
     #[inline]
-    pub fn allow_missing_positional(self, yes: bool) -> Self {
+    pub fn allow_missing_positional(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::AllowMissingPositional)
         } else {
@@ -2231,8 +2194,7 @@ impl Command {
     /// assert!(sync_matches.get_flag("search"));
     /// ```
     /// [`Arg::short`]: Arg::short()
-    #[must_use]
-    pub fn short_flag(mut self, short: impl IntoResettable<char>) -> Self {
+    pub fn short_flag(&mut self, short: impl IntoResettable<char>) -> &mut Self {
         self.short_flag = short.into_resettable().into_option();
         self
     }
@@ -2270,8 +2232,7 @@ impl Command {
     /// ```
     ///
     /// [`Arg::long`]: Arg::long()
-    #[must_use]
-    pub fn long_flag(mut self, long: impl Into<Str>) -> Self {
+    pub fn long_flag(&mut self, long: impl Into<Str>) -> &mut Self {
         self.long_flag = Some(long.into());
         self
     }
@@ -2302,8 +2263,7 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::visible_alias`]: Command::visible_alias()
-    #[must_use]
-    pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.aliases.push((name, false));
         } else {
@@ -2329,8 +2289,7 @@ impl Command {
     ///             .get_matches_from(vec!["myprog", "-d"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    #[must_use]
-    pub fn short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
+    pub fn short_flag_alias(&mut self, name: impl IntoResettable<char>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((name, false));
@@ -2357,8 +2316,7 @@ impl Command {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    #[must_use]
-    pub fn long_flag_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn long_flag_alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.long_flag_aliases.push((name, false));
         } else {
@@ -2396,8 +2354,7 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::visible_aliases`]: Command::visible_aliases()
-    #[must_use]
-    pub fn aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn aliases(&mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> &mut Self {
         self.aliases
             .extend(names.into_iter().map(|n| (n.into(), false)));
         self
@@ -2423,8 +2380,7 @@ impl Command {
     ///     .get_matches_from(vec!["myprog", "-a"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    #[must_use]
-    pub fn short_flag_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
+    pub fn short_flag_aliases(&mut self, names: impl IntoIterator<Item = char>) -> &mut Self {
         for s in names {
             debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((s, false));
@@ -2452,10 +2408,12 @@ impl Command {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    #[must_use]
-    pub fn long_flag_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn long_flag_aliases(
+        &mut self,
+        names: impl IntoIterator<Item = impl Into<Str>>,
+    ) -> &mut Self {
         for s in names {
-            self = self.long_flag_alias(s)
+            self.long_flag_alias(s);
         }
         self
     }
@@ -2488,8 +2446,7 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::alias`]: Command::alias()
-    #[must_use]
-    pub fn visible_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn visible_alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.aliases.push((name, true));
         } else {
@@ -2518,8 +2475,7 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::short_flag_alias`]: Command::short_flag_alias()
-    #[must_use]
-    pub fn visible_short_flag_alias(mut self, name: impl IntoResettable<char>) -> Self {
+    pub fn visible_short_flag_alias(&mut self, name: impl IntoResettable<char>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             debug_assert!(name != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((name, true));
@@ -2549,8 +2505,7 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::long_flag_alias`]: Command::long_flag_alias()
-    #[must_use]
-    pub fn visible_long_flag_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+    pub fn visible_long_flag_alias(&mut self, name: impl IntoResettable<Str>) -> &mut Self {
         if let Some(name) = name.into_resettable().into_option() {
             self.long_flag_aliases.push((name, true));
         } else {
@@ -2587,8 +2542,10 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::alias`]: Command::alias()
-    #[must_use]
-    pub fn visible_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+    pub fn visible_aliases(
+        &mut self,
+        names: impl IntoIterator<Item = impl Into<Str>>,
+    ) -> &mut Self {
         self.aliases
             .extend(names.into_iter().map(|n| (n.into(), true)));
         self
@@ -2610,8 +2567,10 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::short_flag_aliases`]: Command::short_flag_aliases()
-    #[must_use]
-    pub fn visible_short_flag_aliases(mut self, names: impl IntoIterator<Item = char>) -> Self {
+    pub fn visible_short_flag_aliases(
+        &mut self,
+        names: impl IntoIterator<Item = char>,
+    ) -> &mut Self {
         for s in names {
             debug_assert!(s != '-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((s, true));
@@ -2635,13 +2594,12 @@ impl Command {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`Command::long_flag_aliases`]: Command::long_flag_aliases()
-    #[must_use]
     pub fn visible_long_flag_aliases(
-        mut self,
+        &mut self,
         names: impl IntoIterator<Item = impl Into<Str>>,
-    ) -> Self {
+    ) -> &mut Self {
         for s in names {
-            self = self.visible_long_flag_alias(s);
+            self.visible_long_flag_alias(s);
         }
         self
     }
@@ -2692,8 +2650,7 @@ impl Command {
     ///     -V, --version    Print version
     /// ```
     #[inline]
-    #[must_use]
-    pub fn display_order(mut self, ord: impl IntoResettable<usize>) -> Self {
+    pub fn display_order(&mut self, ord: impl IntoResettable<usize>) -> &mut Self {
         self.disp_ord = ord.into_resettable().into_option();
         self
     }
@@ -2714,7 +2671,7 @@ impl Command {
     ///
     /// [`subcommand`]: crate::Command::subcommand()
     #[inline]
-    pub fn hide(self, yes: bool) -> Self {
+    pub fn hide(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::Hidden)
         } else {
@@ -2741,7 +2698,7 @@ impl Command {
     /// ```
     ///
     /// [`subcommand`]: crate::Command::subcommand()
-    pub fn subcommand_required(self, yes: bool) -> Self {
+    pub fn subcommand_required(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::SubcommandRequired)
         } else {
@@ -2789,7 +2746,7 @@ impl Command {
     /// [`subcommand`]: crate::Command::subcommand()
     /// [`ArgMatches`]: crate::ArgMatches
     /// [`ErrorKind::UnknownArgument`]: crate::error::ErrorKind::UnknownArgument
-    pub fn allow_external_subcommands(self, yes: bool) -> Self {
+    pub fn allow_external_subcommands(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::AllowExternalSubcommands)
         } else {
@@ -2857,9 +2814,9 @@ impl Command {
     ///
     /// [`subcommands`]: crate::Command::subcommand()
     pub fn external_subcommand_value_parser(
-        mut self,
+        &mut self,
         parser: impl IntoResettable<super::ValueParser>,
-    ) -> Self {
+    ) -> &mut Self {
         self.external_value_parser = parser.into_resettable().into_option();
         self
     }
@@ -2887,7 +2844,7 @@ impl Command {
     /// ```
     ///
     /// [`subcommands`]: crate::Command::subcommand()
-    pub fn args_conflicts_with_subcommands(self, yes: bool) -> Self {
+    pub fn args_conflicts_with_subcommands(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::ArgsNegateSubcommands)
         } else {
@@ -2947,7 +2904,7 @@ impl Command {
     /// );
     /// assert!(matches.subcommand_matches("sub").is_some());
     /// ```
-    pub fn subcommand_precedence_over_arg(self, yes: bool) -> Self {
+    pub fn subcommand_precedence_over_arg(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::SubcommandPrecedenceOverArg)
         } else {
@@ -3002,7 +2959,7 @@ impl Command {
     ///
     /// [`Arg::required(true)`]: crate::Arg::required()
     /// [`subcommands`]: crate::Command::subcommand()
-    pub fn subcommand_negates_reqs(self, yes: bool) -> Self {
+    pub fn subcommand_negates_reqs(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::SubcommandsNegateReqs)
         } else {
@@ -3128,7 +3085,7 @@ impl Command {
     /// [`Command::subcommand_value_name`]: crate::Command::subcommand_value_name
     /// [`Command::subcommand_help_heading`]: crate::Command::subcommand_help_heading
     #[inline]
-    pub fn multicall(self, yes: bool) -> Self {
+    pub fn multicall(&mut self, yes: bool) -> &mut Self {
         if yes {
             self.setting(AppSettings::Multicall)
         } else {
@@ -3196,8 +3153,7 @@ impl Command {
     ///     -h, --help       Print help
     ///     -V, --version    Print version
     /// ```
-    #[must_use]
-    pub fn subcommand_value_name(mut self, value_name: impl IntoResettable<Str>) -> Self {
+    pub fn subcommand_value_name(&mut self, value_name: impl IntoResettable<Str>) -> &mut Self {
         self.subcommand_value_name = value_name.into_resettable().into_option();
         self
     }
@@ -3262,8 +3218,7 @@ impl Command {
     ///     -h, --help       Print help
     ///     -V, --version    Print version
     /// ```
-    #[must_use]
-    pub fn subcommand_help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+    pub fn subcommand_help_heading(&mut self, heading: impl IntoResettable<Str>) -> &mut Self {
         self.subcommand_heading = heading.into_resettable().into_option();
         self
     }
@@ -4301,16 +4256,13 @@ impl Command {
 
         if !self.is_disable_help_flag_set() {
             debug!("Command::_check_help_and_version: Building default --help");
-            let mut arg = Arg::new(Id::HELP)
-                .short('h')
-                .long("help")
-                .action(ArgAction::Help);
+            let mut arg = Arg::new(Id::HELP);
+            arg.short('h').long("help").action(ArgAction::Help);
             if self.long_help_exists {
-                arg = arg
-                    .help("Print help (see more with '--help')")
+                arg.help("Print help (see more with '--help')")
                     .long_help("Print help (see a summary with '-h')");
             } else {
-                arg = arg.help("Print help");
+                arg.help("Print help");
             }
             // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
             // `next_display_order`
@@ -4318,8 +4270,8 @@ impl Command {
         }
         if !self.is_disable_version_flag_set() {
             debug!("Command::_check_help_and_version: Building default --version");
-            let arg = Arg::new(Id::VERSION)
-                .short('V')
+            let mut arg = Arg::new(Id::VERSION);
+            arg.short('V')
                 .long("version")
                 .action(ArgAction::Version)
                 .help("Print version");
@@ -4334,27 +4286,33 @@ impl Command {
 
             let mut help_subcmd = if expand_help_tree {
                 // Slow code path to recursively clone all other subcommand subtrees under help
-                let help_subcmd = Command::new("help")
+                let mut help_subcmd = Command::new("help");
+                help_subcmd
                     .about(help_about)
                     .global_setting(AppSettings::DisableHelpSubcommand)
                     .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
 
-                let mut help_help_subcmd = Command::new("help").about(help_about);
+                let mut help_help_subcmd = Command::new("help");
+                help_help_subcmd.about(help_about);
                 help_help_subcmd.version = None;
                 help_help_subcmd.long_version = None;
-                help_help_subcmd = help_help_subcmd
+                help_help_subcmd
                     .setting(AppSettings::DisableHelpFlag)
                     .setting(AppSettings::DisableVersionFlag);
 
-                help_subcmd.subcommand(help_help_subcmd)
+                help_subcmd.subcommand(help_help_subcmd);
+                help_subcmd
             } else {
-                Command::new("help").about(help_about).arg(
-                    Arg::new("subcommand")
-                        .action(ArgAction::Append)
+                let mut help_subcmd = Command::new("help");
+                help_subcmd.about(help_about).arg({
+                    let mut sub = Arg::new("subcommand");
+                    sub.action(ArgAction::Append)
                         .num_args(..)
                         .value_name("COMMAND")
-                        .help("Print help for the subcommand(s)"),
-                )
+                        .help("Print help for the subcommand(s)");
+                    sub
+                });
+                help_subcmd
             };
             self._propagate_subcommand(&mut help_subcmd);
 
@@ -4362,7 +4320,7 @@ impl Command {
             // advertise it to the user
             help_subcmd.version = None;
             help_subcmd.long_version = None;
-            help_subcmd = help_subcmd
+            help_subcmd
                 .setting(AppSettings::DisableHelpFlag)
                 .setting(AppSettings::DisableVersionFlag)
                 .unset_global_setting(AppSettings::PropagateVersion);
@@ -4372,13 +4330,13 @@ impl Command {
     }
 
     fn _copy_subtree_for_help(&self) -> Command {
-        let mut cmd = Command::new(self.name.clone())
-            .hide(self.is_hide_set())
+        let mut cmd = Command::new(self.name.clone());
+        cmd.hide(self.is_hide_set())
             .global_setting(AppSettings::DisableHelpFlag)
             .global_setting(AppSettings::DisableVersionFlag)
             .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
         if self.get_about().is_some() {
-            cmd = cmd.about(self.get_about().unwrap().clone());
+            cmd.about(self.get_about().unwrap().clone());
         }
         cmd
     }
@@ -4732,6 +4690,12 @@ impl Index<&'_ Id> for Command {
 
     fn index(&self, key: &Id) -> &Self::Output {
         self.find(key).expect(INTERNAL_ERROR_MSG)
+    }
+}
+
+impl From<&'_ mut Command> for Command {
+    fn from(cmd: &'_ mut Command) -> Self {
+        cmd.clone()
     }
 }
 
