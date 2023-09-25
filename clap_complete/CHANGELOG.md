@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(unstable)* Complete positionals in subcommands
+
 ## [4.4.1] - 2023-09-07
 
 ### Fixes
