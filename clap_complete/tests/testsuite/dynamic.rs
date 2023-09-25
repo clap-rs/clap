@@ -101,6 +101,23 @@ fn suggest_additional_short_flags() {
     );
 }
 
+#[test]
+fn suggest_subcommand_positional() {
+    let mut cmd = Command::new("exhaustive").subcommand(Command::new("hello-world").arg(
+        clap::Arg::new("hello-world").value_parser([
+            PossibleValue::new("hello-world").help("Say hello to the world"),
+            "hello-moon".into(),
+            "goodbye-world".into(),
+        ]),
+    ));
+
+    snapbox::assert_eq(
+        "--help\tPrint help (see more with '--help')
+-h\tPrint help (see more with '--help')",
+        complete!(cmd, "hello-world [TAB]"),
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
