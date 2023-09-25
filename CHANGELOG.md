@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parser)* When inferring subcommand `name` or `long_flag`, allow ambiguous-looking matches that unambiguously map back to the same command
+- *(parser)* When inferring subcommand `long_flag`, don't panic
+- *(assert)* Clarify what action is causing a positional that doesn't set values which is especially useful for derive users
+
 ## [4.4.4] - 2023-09-18
 
 ### Internal
