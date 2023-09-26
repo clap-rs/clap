@@ -5,7 +5,7 @@
   semanticCommits: 'enabled',
   configMigration: true,
   dependencyDashboard: true,
-  regexManagers: [
+  customManagers: [
     {
       customType: 'regex',
       fileMatch: [
@@ -38,7 +38,7 @@
       ],
       minimumReleaseAge: '252 days',  // 6 releases * 6 weeks per release * 7 days per week
       internalChecksFilter: 'strict',
-      "extractVersion": "^(?<version>\\d+\\.\\d+)",  // Drop the patch version
+      extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
       schedule: [
         '* * * * *',
       ],
