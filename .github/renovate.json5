@@ -5,7 +5,7 @@
   semanticCommits: 'enabled',
   configMigration: true,
   dependencyDashboard: true,
-  regexManagers: [
+  customManagers: [
     {
       customType: 'regex',
       fileMatch: [
