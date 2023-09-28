@@ -108,9 +108,9 @@ clap_derive = { path = "./clap_derive", version = "=4.4.2", optional = true }
 trybuild = "1.0.83"
 rustversion = "1.0.14"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.14.17", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.14.18", default-features = false, features = ["color-auto", "diff", "examples"] }
 humantime = "2.1.0"
-snapbox = "0.4.12"
+snapbox = "0.4.13"
 shlex = "1.1.0"
 static_assertions = "1.1.0"
 unic-emoji-char = "0.9.0"
