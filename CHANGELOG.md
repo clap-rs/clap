@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Internal
+
+- Upgrade `anstream`
+
 ## [4.4.5] - 2023-09-25
 
 ### Fixes
