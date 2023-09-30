@@ -331,6 +331,11 @@ path = "examples/tutorial_derive/04_02_parse.rs"
 required-features = ["derive"]
 
 [[example]]
+name = "04_02_01_parse_from_str"
+path = "examples/tutorial_derive/04_02_01_parse_from_str.rs"
+required-features = ["derive"]
+
+[[example]]
 name = "04_02_validate_derive"
 path = "examples/tutorial_derive/04_02_validate.rs"
 required-features = ["derive"]
