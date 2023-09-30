@@ -68,7 +68,7 @@ struct ErrorInner {
     #[cfg(feature = "error-context")]
     context: FlatMap<ContextKind, ContextValue>,
     message: Option<Message>,
-    source: Option<Box<dyn error::Error + Send + Sync>>,
+    source: Option<Box<dyn error::Error>>,
     help_flag: Option<&'static str>,
     styles: Styles,
     color_when: ColorChoice,
@@ -299,7 +299,7 @@ impl<F: ErrorFormatter> Error<F> {
         self
     }
 
-    pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
+    pub(crate) fn set_source(mut self, source: Box<dyn error::Error>) -> Self {
         self.inner.source = Some(source);
         self
     }
@@ -632,7 +632,7 @@ impl<F: ErrorFormatter> Error<F> {
     pub(crate) fn value_validation(
         arg: String,
         val: String,
-        err: Box<dyn error::Error + Send + Sync>,
+        err: Box<dyn error::Error>,
     ) -> Self {
         let mut err = Self::new(ErrorKind::ValueValidation).set_source(err);
 
@@ -919,5 +919,5 @@ impl Display for Backtrace {
 
 #[test]
 fn check_auto_traits() {
-    static_assertions::assert_impl_all!(Error: Send, Sync, Unpin);
+    static_assertions::assert_impl_all!(Error: Unpin);
 }

@@ -908,7 +908,7 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
 impl<F, T, E> TypedValueParser for F
 where
     F: Fn(&str) -> Result<T, E> + Clone + Send + Sync + 'static,
-    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+    E: Into<Box<dyn std::error::Error>>,
     T: Send + Sync + Clone,
 {
     type Value = T;
@@ -2576,7 +2576,7 @@ pub mod via_prelude {
     impl<Parse> _ValueParserViaParse for _AutoValueParser<Parse>
     where
         Parse: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
-        <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+        <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error>>,
     {
         fn value_parser(&self) -> _AnonymousValueParser {
             let func: fn(&str) -> Result<Parse, <Parse as std::str::FromStr>::Err> =
@@ -2688,7 +2688,7 @@ mod private {
     impl<Parse> _ValueParserViaParseSealed for _AutoValueParser<Parse>
     where
         Parse: std::str::FromStr + std::any::Any + Send + Sync + 'static,
-        <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+        <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error>>,
     {
     }
 }
