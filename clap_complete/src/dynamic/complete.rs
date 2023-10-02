@@ -4,28 +4,6 @@ use std::ffi::OsString;
 use clap::builder::StyledStr;
 use clap_lex::OsStrExt as _;
 
-/// Shell-specific completions
-pub trait Completer {
-    /// The recommended file name for the registration code
-    fn file_name(&self, name: &str) -> String;
-    /// Register for completions
-    fn write_registration(
-        &self,
-        name: &str,
-        bin: &str,
-        completer: &str,
-        buf: &mut dyn std::io::Write,
-    ) -> Result<(), std::io::Error>;
-    /// Complete the command
-    fn write_complete(
-        &self,
-        cmd: &mut clap::Command,
-        args: Vec<std::ffi::OsString>,
-        current_dir: Option<&std::path::Path>,
-        buf: &mut dyn std::io::Write,
-    ) -> Result<(), std::io::Error>;
-}
-
 /// Complete the command specified
 pub fn complete(
     cmd: &mut clap::Command,

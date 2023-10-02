@@ -2,16 +2,10 @@
 
 mod bash;
 mod fish;
-mod shell;
 
-pub use bash::*;
-pub use fish::*;
-pub use shell::*;
-
-use std::ffi::OsString;
 use std::io::Write as _;
 
-use crate::dynamic::Completer as _;
+use crate::dynamic::Registrar;
 
 #[derive(clap::Subcommand)]
 #[allow(missing_docs)]
@@ -20,24 +14,43 @@ pub enum CompleteCommand {
     /// Register shell completions for this program
     #[command(hide = true)]
     Complete(CompleteArgs),
+    /// Generate shell completions for this program
+    Generate(GenerateArgs),
+}
+
+#[allow(missing_docs)]
+#[derive(clap::Args, Clone, Debug)]
+pub struct CompleteArgs {
+    #[command(subcommand)]
+    command: CompleteShellCommands,
+}
+
+#[derive(clap::Subcommand)]
+#[allow(missing_docs)]
+#[derive(Clone, Debug)]
+pub enum CompleteShellCommands {
+    Bash(bash::complete::BashCompleteArgs),
+    Fish(fish::complete::FishCompleteArgs),
+}
+
+#[derive(clap::Subcommand)]
+#[allow(missing_docs)]
+#[derive(Clone, Debug)]
+pub enum GenerateShellCommands {
+    Bash(bash::generate::BashGenerateArgs),
+    Fish(fish::generate::FishGenerateArgs),
 }
 
 #[derive(clap::Args)]
-#[command(arg_required_else_help = true)]
-#[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
-pub struct CompleteArgs {
-    /// Specify shell to complete for
-    #[arg(long)]
-    shell: Shell,
+pub struct GenerateArgs {
+    /// Path to write completion-registration to.
+    #[arg(long, short = 'o', default_value = "-")]
+    output: std::path::PathBuf,
 
-    /// Path to write completion-registration to
-    #[arg(long, required = true)]
-    register: Option<std::path::PathBuf>,
-
-    #[arg(raw = true, hide_short_help = true, group = "complete")]
-    comp_words: Vec<OsString>,
+    #[command(subcommand)]
+    command: GenerateShellCommands,
 }
 
 impl CompleteCommand {
@@ -49,34 +62,42 @@ impl CompleteCommand {
 
     /// Process the completion request
     pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
-        debug!("CompleteCommand::try_complete: {self:?}");
-        let CompleteCommand::Complete(args) = self;
-        if let Some(out_path) = args.register.as_deref() {
-            let mut buf = Vec::new();
-            let name = cmd.get_name();
-            let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
-            args.shell.write_registration(name, bin, bin, &mut buf)?;
-            if out_path == std::path::Path::new("-") {
-                std::io::stdout().write_all(&buf)?;
-            } else if out_path.is_dir() {
-                let out_path = out_path.join(args.shell.file_name(name));
-                std::fs::write(out_path, buf)?;
-            } else {
-                std::fs::write(out_path, buf)?;
+        debug!("CompleteCommand::try_run: {self:?}");
+        match self {
+            CompleteCommand::Complete(args) => match args.command {
+                CompleteShellCommands::Bash(ref args) => args.try_complete(cmd),
+                CompleteShellCommands::Fish(ref args) => args.try_complete(cmd),
+            },
+            CompleteCommand::Generate(args) => {
+                let mut buf = Vec::new();
+                let name = cmd.get_name();
+                let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+
+                if args.output.is_dir() {
+                    return Err(clap::error::Error::raw(
+                        clap::error::ErrorKind::InvalidValue,
+                        "output is a directory",
+                    ));
+                }
+
+                match args.command {
+                    GenerateShellCommands::Bash(ref args) => {
+                        // TODO Figure out what to pass for complter, just assuming bin now.
+                        args.write_registration(name, bin, bin, &mut buf)?
+                    }
+                    GenerateShellCommands::Fish(ref args) => {
+                        args.write_registration(name, bin, bin, &mut buf)?
+                    }
+                }
+
+                if args.output == std::path::Path::new("-") {
+                    std::io::stdout().write_all(&buf)?;
+                } else {
+                    std::fs::write(args.output.as_path(), buf)?;
+                }
+
+                Ok(())
             }
-        } else {
-            let current_dir = std::env::current_dir().ok();
-
-            let mut buf = Vec::new();
-            args.shell.write_complete(
-                cmd,
-                args.comp_words.clone(),
-                current_dir.as_deref(),
-                &mut buf,
-            )?;
-            std::io::stdout().write_all(&buf)?;
         }
-
-        Ok(())
     }
 }

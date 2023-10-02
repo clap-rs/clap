@@ -1,7 +1,8 @@
 //! Complete commands within shells
 
-mod completer;
+mod complete;
+mod registrar;
 
 pub mod shells;
 
-pub use completer::*;
+pub use registrar::*;
