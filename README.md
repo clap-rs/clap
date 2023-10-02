@@ -4,7 +4,7 @@
 
 [![Documentation](https://img.shields.io/badge/docs-master-blue.svg)][Documentation]
 ![License](https://img.shields.io/crates/l/PROJECT.svg)
-[![Crates Status](https://img.shields.io/crates/v/PROJECT.svg)](https://crates.io/crates/PROJECT)
+[![Crates Status](https://img.shields.io/crates/v/PROJECT.svg)][Crates.io]
 
 ## License
 
