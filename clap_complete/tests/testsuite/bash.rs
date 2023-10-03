@@ -99,14 +99,14 @@ fn value_terminator() {
 #[cfg(feature = "unstable-dynamic")]
 #[test]
 fn register_minimal() {
-    use clap_complete::dynamic::Registrar;
+    use clap_complete::dynamic::registrar::Registrar;
 
     let name = "my-app";
     let bin = name;
     let completer = name;
 
     let mut buf = Vec::new();
-    clap_complete::dynamic::shells::Bash
+    clap_complete::dynamic::shells::bash::generate::BashGenerateArgs::new()
         .write_registration(name, bin, completer, &mut buf)
         .unwrap();
     snapbox::Assert::new()

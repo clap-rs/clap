@@ -1,3 +1,4 @@
+//! General completion logic for all shells.
 use std::ffi::OsStr;
 use std::ffi::OsString;
 

@@ -1,6 +1,5 @@
 //! Complete commands within shells
 
-mod complete;
-mod registrar;
-
+pub mod complete;
+pub mod registrar;
 pub mod shells;

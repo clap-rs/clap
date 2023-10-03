@@ -2,10 +2,16 @@ use unicode_xid::UnicodeXID;
 
 use crate::dynamic::registrar::Registrar;
 
-#[derive(clap::Args)]
-#[allow(missing_docs)]
-#[derive(Clone, Debug)]
+/// Bash autocomplete file generation.
+#[derive(clap::Args, Clone, Debug)]
 pub struct BashGenerateArgs {}
+
+impl BashGenerateArgs {
+    #[cfg(test)]
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl Registrar for BashGenerateArgs {
     fn file_name(&self, name: &str) -> String {

@@ -1,3 +1,5 @@
+//! Register shell autocomplete file trait.
+
 /// Register shell autocomplete file.
 pub trait Registrar {
     /// The recommended file name for the registration code

@@ -142,7 +142,7 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         arg_index = args.len() - 1;
     }
 
-    clap_complete::dynamic::complete(cmd, args, arg_index, current_dir)
+    clap_complete::dynamic::complete::complete(cmd, args, arg_index, current_dir)
         .unwrap()
         .into_iter()
         .map(|(compl, help)| {

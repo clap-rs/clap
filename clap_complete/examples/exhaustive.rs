@@ -14,7 +14,7 @@ fn main() {
 
     #[cfg(feature = "unstable-dynamic")]
     if let Ok(completions) =
-        clap_complete::dynamic::shells::CompleteCommand::from_arg_matches(&matches)
+        clap_complete::dynamic::shells::command::CompleteCommand::from_arg_matches(&matches)
     {
         completions.complete(&mut cli());
         return;
@@ -198,6 +198,6 @@ fn cli() -> clap::Command {
             ]),
         ]);
     #[cfg(feature = "unstable-dynamic")]
-    let cli = clap_complete::dynamic::shells::CompleteCommand::augment_subcommands(cli);
+    let cli = clap_complete::dynamic::shells::command::CompleteCommand::augment_subcommands(cli);
     cli
 }
