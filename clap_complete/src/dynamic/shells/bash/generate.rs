@@ -1,13 +1,11 @@
-use crate::dynamic::{shells::bash::behavior::Behavior, Registrar};
 use unicode_xid::UnicodeXID;
+
+use crate::dynamic::registrar::Registrar;
 
 #[derive(clap::Args)]
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
-pub struct BashGenerateArgs {
-    #[arg(long)]
-    behavior: Behavior,
-}
+pub struct BashGenerateArgs {}
 
 impl Registrar for BashGenerateArgs {
     fn file_name(&self, name: &str) -> String {
@@ -17,7 +15,7 @@ impl Registrar for BashGenerateArgs {
     fn write_registration(
         &self,
         name: &str,
-        bin: &str,
+        _bin: &str,
         completer: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
@@ -28,20 +26,6 @@ impl Registrar for BashGenerateArgs {
         );
         let mut upper_name = escaped_name.clone();
         upper_name.make_ascii_uppercase();
-
-        // This allows you to specify multiple executables where this autocomplete
-        // needs to be applied. Can potentially be expanded and generalised.
-        let executables = vec![bin]
-            .into_iter()
-            .map(|s| shlex::quote(s.as_ref()).into_owned())
-            .collect::<Vec<_>>()
-            .join(" ");
-
-        let options = match &self.behavior {
-            Behavior::Minimal => "-o nospace -o bashdefault",
-            Behavior::Readline => "-o nospace -o default -o bashdefault",
-            Behavior::Custom(c) => c.as_str(),
-        };
 
         let completer = shlex::quote(completer);
 
@@ -65,11 +49,9 @@ _clap_complete_NAME() {
         compopt -o nospace
     fi
 }
-complete OPTIONS -F _clap_complete_NAME BIN
+complete -o nosort -o noquote -o nospace -F _clap_complete_NAME BIN
 "#
         .replace("NAME", &escaped_name)
-        .replace("EXECUTABLE", &executables)
-        .replace("OPTIONS", &options)
         .replace("COMPLETER", &completer)
         .replace("UPPER", &upper_name);
 

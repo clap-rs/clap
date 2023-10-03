@@ -6,7 +6,7 @@ use crate::dynamic::complete::complete;
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
 pub struct FishCompleteArgs {
-    // TODO Add clap stuff for --
+    #[arg(raw = true, hide_short_help = true)]
     args: Vec<OsString>,
 }
 

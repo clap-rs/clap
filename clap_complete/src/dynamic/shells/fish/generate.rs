@@ -1,4 +1,4 @@
-use crate::dynamic::Registrar;
+use crate::dynamic::registrar::Registrar;
 
 #[derive(clap::Args)]
 #[allow(missing_docs)]
