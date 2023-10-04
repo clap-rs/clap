@@ -1244,12 +1244,41 @@ impl Command {
     /// # use clap_builder as clap;
     /// # use clap::{Command, error::ErrorKind};
     /// let res = Command::new("myprog")
+    ///     .version("1.0.0")
     ///     .disable_version_flag(true)
     ///     .try_get_matches_from(vec![
+    ///         "myprog", "--version"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// You can create a custom version flag with [`ArgAction::Version`]
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction, error::ErrorKind};
+    /// let mut cmd = Command::new("myprog")
+    ///     .version("1.0.0")
+    ///     // Remove the `-V` short flag
+    ///     .disable_version_flag(true)
+    ///     .arg(
+    ///         Arg::new("version")
+    ///             .long("version")
+    ///             .action(ArgAction::Version)
+    ///             .help("Print version")
+    ///     );
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec![
     ///         "myprog", "-V"
     ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec![
+    ///         "myprog", "--version"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::DisplayVersion);
     /// ```
     #[inline]
     pub fn disable_version_flag(self, yes: bool) -> Self {
@@ -1328,6 +1357,35 @@ impl Command {
     ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// You can create a custom version flag with [`ArgAction::Help`], [`ArgAction::HelpShort`], or
+    /// [`ArgAction::HelpLong`]
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction, error::ErrorKind};
+    /// let mut cmd = Command::new("myprog")
+    ///     // Change help short flag to `?`
+    ///     .disable_help_flag(true)
+    ///     .arg(
+    ///         Arg::new("help")
+    ///             .short('?')
+    ///             .long("help")
+    ///             .action(ArgAction::Help)
+    ///             .help("Print help")
+    ///     );
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec![
+    ///         "myprog", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec![
+    ///         "myprog", "-?"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::DisplayHelp);
     /// ```
     #[inline]
     pub fn disable_help_flag(self, yes: bool) -> Self {
