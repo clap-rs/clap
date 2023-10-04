@@ -1358,6 +1358,35 @@ impl Command {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
+    ///
+    /// You can create a custom version flag with [`ArgAction::Help`], [`ArgAction::HelpShort`], or
+    /// [`ArgAction::HelpLong`]
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction, error::ErrorKind};
+    /// let mut cmd = Command::new("myprog")
+    ///     // Change help short flag to `?`
+    ///     .disable_help_flag(true)
+    ///     .arg(
+    ///         Arg::new("help")
+    ///             .short('?')
+    ///             .long("help")
+    ///             .action(ArgAction::Help)
+    ///             .help("Print help")
+    ///     );
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec![
+    ///         "myprog", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    ///
+    /// let res = cmd.try_get_matches_from_mut(vec![
+    ///         "myprog", "-?"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::DisplayHelp);
+    /// ```
     #[inline]
     pub fn disable_help_flag(self, yes: bool) -> Self {
         if yes {
