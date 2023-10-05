@@ -129,7 +129,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: 1.70.0  # MSRV
+        toolchain: "1.70"  # MSRV
     - uses: Swatinem/rust-cache@v2
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
@@ -185,7 +185,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: 1.70.0  # MSRV
+        toolchain: "1.70"  # MSRV
         components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Lint (ultra-minimal)
