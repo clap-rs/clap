@@ -70,12 +70,22 @@ fn append_value_completion_and_help(
 
     if let Some(help) = arg.get_help() {
         let indent: usize = 30;
-        let width = match s.lines().last() {
-            Some(line) => indent.saturating_sub(line.len()),
-            None => 0,
+        let (first_padding, rest_padding) = if let Some(line) = s.lines().last() {
+            let first = indent.saturating_sub(line.len());
+            let rest = line.len() + first;
+            (first, rest)
+        } else {
+            (0, 0)
         };
 
-        s.push_str(format!("{:>width$}# {}", ' ', help).as_str());
+        let help = help.to_string();
+        for (i, line) in help.lines().enumerate() {
+            if i == 0 {
+                s.push_str(format!("{:>first_padding$}# {line}", ' ').as_str());
+            } else {
+                s.push_str(format!("\n{:>rest_padding$}# {line}", ' ').as_str());
+            }
+        }
     }
 
     s.push('\n');
@@ -180,7 +190,10 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
     }
 
     if let Some(about) = cmd.get_about() {
-        completions.push_str(format!("  # {about}\n").as_str());
+        let about = about.to_string();
+        for line in about.lines() {
+            completions.push_str(format!("  # {line}\n").as_str())
+        }
     }
 
     if is_subcommand {
