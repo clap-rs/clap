@@ -486,10 +486,8 @@ dependencies = [
  "rustversion",
  "shlex",
  "snapbox",
- "static_assertions",
  "trybuild",
  "trycmd",
- "unic-emoji-char",
 ]
 
 [[package]]
@@ -521,15 +519,9 @@ dependencies = [
  "backtrace",
  "clap_lex 0.5.1",
  "color-print",
- "humantime",
- "rustversion",
- "shlex",
- "snapbox",
  "static_assertions",
  "strsim",
  "terminal_size 0.3.0",
- "trybuild",
- "trycmd",
  "unic-emoji-char",
  "unicase",
  "unicode-width",
