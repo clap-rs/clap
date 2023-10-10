@@ -97,6 +97,10 @@ fn cli() -> clap::Command {
                             PossibleValue::new("fish").help("fish shell"),
                             PossibleValue::new("zsh").help("zsh shell"),
                         ])),
+                    clap::Arg::new("multi-line")
+                        .long("multi-line")
+                        .action(clap::ArgAction::SetTrue)
+                        .help("This is a long description\nwhich goes over 2 lines and ends with a dot."),
                 ])
                 .subcommands([
                     clap::Command::new("cmd-single-quotes")

@@ -68,6 +68,10 @@ fn cli() -> clap::Command {
                         .long("expansions")
                         .action(clap::ArgAction::SetTrue)
                         .help("Execute the shell command with $SHELL"),
+                    clap::Arg::new("multi-line")
+                        .long("multi-line")
+                        .action(clap::ArgAction::SetTrue)
+                        .help("This is a long description\nwhich goes over 2 lines and ends with a dot."),
                 ])
                 .subcommands([
                     clap::Command::new("cmd-single-quotes")

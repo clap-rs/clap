@@ -28,6 +28,8 @@ module completions {
     --backslash               # Avoid '\n'
     --brackets                # List packages [filter]
     --expansions              # Execute the shell command with $SHELL
+    --multi-line              # This is a long description
+which goes over 2 lines and ends with a dot.
     --global                  # everywhere
     --help(-h)                # Print help
     --version(-V)             # Print version

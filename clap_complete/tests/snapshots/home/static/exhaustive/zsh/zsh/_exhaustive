@@ -54,6 +54,8 @@ zsh\:"zsh shell"))' \
 '--backslash[Avoid '\''\\n'\'']' \
 '--brackets[List packages \[filter\]]' \
 '--expansions[Execute the shell command with \$SHELL]' \
+'--multi-line[This is a long description
+which goes over 2 lines and ends with a dot.]' \
 '--global[everywhere]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \

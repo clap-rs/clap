@@ -55,6 +55,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --backslash 'Avoid ''\n'''
             cand --brackets 'List packages [filter]'
             cand --expansions 'Execute the shell command with $SHELL'
+            cand --multi-line 'This is a long description
+which goes over 2 lines and ends with a dot.'
             cand --global 'everywhere'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
