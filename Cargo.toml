@@ -112,8 +112,6 @@ trycmd = { version = "0.14.18", default-features = false, features = ["color-aut
 humantime = "2.1.0"
 snapbox = "0.4.13"
 shlex = "1.2.0"
-static_assertions = "1.1.0"
-unic-emoji-char = "0.9.0"
 
 [[example]]
 name = "demo"
