@@ -84,6 +84,7 @@ pub fn gen_for_enum(
             clippy::cargo,
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
+            clippy::redundant_locals,
         )]
         #[automatically_derived]
         impl #impl_generics clap::FromArgMatches for #item_name #ty_generics #where_clause {
@@ -117,6 +118,7 @@ pub fn gen_for_enum(
             clippy::cargo,
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
+            clippy::redundant_locals,
         )]
         #[automatically_derived]
         impl #impl_generics clap::Subcommand for #item_name #ty_generics #where_clause {
