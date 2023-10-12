@@ -89,6 +89,7 @@ fn gen_for_struct(
         #[automatically_derived]
         #[allow(
             unused_qualifications,
+            clippy::redundant_locals,
         )]
         impl #impl_generics clap::Parser for #item_name #ty_generics #where_clause {}
 

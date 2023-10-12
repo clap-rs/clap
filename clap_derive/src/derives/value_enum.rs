@@ -69,6 +69,7 @@ pub fn gen_for_enum(
             clippy::cargo,
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
+            clippy::redundant_locals,
         )]
         #[automatically_derived]
         impl clap::ValueEnum for #item_name {

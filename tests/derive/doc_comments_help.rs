@@ -153,7 +153,7 @@ fn verbatim_doc_comment() {
     }
 
     let help = utils::get_long_help::<SeeFigure1>();
-    let sample = r#"
+    let sample = r"
                    ()
                    |
               (   ()   )
@@ -168,7 +168,7 @@ fn verbatim_doc_comment() {
       ((     ||
        \\    ||
      ( ()    ||
-      (      () ) )"#;
+      (      () ) )";
 
     assert!(help.contains(sample))
 }

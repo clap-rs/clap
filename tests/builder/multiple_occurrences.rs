@@ -71,18 +71,12 @@ fn multiple_occurrences_of_flags_large_quantity() {
     let cmd = Command::new("mo_flags_large_qty")
         .arg(arg!(-m --multflag "allowed multiple flag").action(ArgAction::Count));
 
-    let args: Vec<&str> = vec![""]
-        .into_iter()
-        .chain(vec!["-m"; 200].into_iter())
-        .collect();
+    let args: Vec<&str> = vec![""].into_iter().chain(vec!["-m"; 200]).collect();
     let m = cmd.clone().try_get_matches_from(args).unwrap();
     assert!(m.contains_id("multflag"));
     assert_eq!(m.get_one::<u8>("multflag").copied(), Some(200));
 
-    let args: Vec<&str> = vec![""]
-        .into_iter()
-        .chain(vec!["-m"; 500].into_iter())
-        .collect();
+    let args: Vec<&str> = vec![""].into_iter().chain(vec!["-m"; 500]).collect();
     let m = cmd.try_get_matches_from(args).unwrap();
     assert!(m.contains_id("multflag"));
     assert_eq!(m.get_one::<u8>("multflag").copied(), Some(u8::MAX));
