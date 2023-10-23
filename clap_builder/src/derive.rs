@@ -62,6 +62,30 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
         }
     }
 
+    /// Parse from a string, return Err on error.
+    fn try_parse_from_string<S>(string: S) -> Result<Self, Error>
+    where
+        S: AsRef<str>,
+    {
+        let argv0 = std::iter::once("");
+        let itr = string.as_ref().split_whitespace();
+        let itr = argv0.chain(itr);
+
+        Self::try_parse_from(itr)
+    }
+
+    /// Parse from a string, exit on error.
+    fn parse_from_string<S>(string: S) -> Self
+    where
+        S: AsRef<str>,
+    {
+        let argv0 = std::iter::once("");
+        let itr = string.as_ref().split_whitespace();
+        let itr = argv0.chain(itr);
+
+        Self::parse_from(itr)
+    }
+
     /// Parse from iterator, return Err on error.
     fn try_parse_from<I, T>(itr: I) -> Result<Self, Error>
     where
