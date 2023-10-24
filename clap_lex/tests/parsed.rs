@@ -120,12 +120,14 @@ fn to_short() {
 
 #[test]
 fn is_negative_number() {
-    let raw = clap_lex::RawArgs::new(["bin", "-10.0"]);
-    let mut cursor = raw.cursor();
-    assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
-    let next = raw.next(&mut cursor).unwrap();
+    for number in ["-10.0", "-1", "-100", "-3.5", "-1e10", "-1.3e10"] {
+        let raw = clap_lex::RawArgs::new(["bin", number]);
+        let mut cursor = raw.cursor();
+        assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
+        let next = raw.next(&mut cursor).unwrap();
 
-    assert!(next.is_number());
+        assert!(next.is_negative_number());
+    }
 }
 
 #[test]
@@ -135,17 +137,22 @@ fn is_positive_number() {
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
 
-    assert!(next.is_number());
+    assert!(!next.is_negative_number());
 }
 
 #[test]
 fn is_not_number() {
-    let raw = clap_lex::RawArgs::new(["bin", "--10.0"]);
-    let mut cursor = raw.cursor();
-    assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
-    let next = raw.next(&mut cursor).unwrap();
+    for number in ["--10.0", "-..", "-2..", "-e", "-1e", "-1e10.2", "-.2"] {
+        let raw = clap_lex::RawArgs::new(["bin", number]);
+        let mut cursor = raw.cursor();
+        assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
+        let next = raw.next(&mut cursor).unwrap();
 
-    assert!(!next.is_number());
+        assert!(
+            !next.is_negative_number(),
+            "`{number}` is mistakenly classified as a number"
+        );
+    }
 }
 
 #[test]

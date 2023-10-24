@@ -151,23 +151,23 @@ fn is_exhausted_empty() {
 }
 
 #[test]
-fn is_number() {
+fn is_negative_number() {
     let raw = clap_lex::RawArgs::new(["bin", "-1.0"]);
     let mut cursor = raw.cursor();
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
     let shorts = next.to_short().unwrap();
 
-    assert!(shorts.is_number());
+    assert!(shorts.is_negative_number());
 }
 
 #[test]
-fn is_not_number() {
+fn is_not_negaitve_number() {
     let raw = clap_lex::RawArgs::new(["bin", "-hello"]);
     let mut cursor = raw.cursor();
     assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
     let next = raw.next(&mut cursor).unwrap();
     let shorts = next.to_short().unwrap();
 
-    assert!(!shorts.is_number());
+    assert!(!shorts.is_negative_number());
 }
