@@ -27,7 +27,7 @@ include = [
 
 [package]
 name = "clap"
-version = "4.4.6"
+version = "4.4.7"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
@@ -101,8 +101,8 @@ unstable-styles = ["clap_builder/unstable-styles"]
 bench = false
 
 [dependencies]
-clap_builder = { path = "./clap_builder", version = "=4.4.6", default-features = false }
-clap_derive = { path = "./clap_derive", version = "=4.4.2", optional = true }
+clap_builder = { path = "./clap_builder", version = "=4.4.7", default-features = false }
+clap_derive = { path = "./clap_derive", version = "=4.4.7", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.85"
