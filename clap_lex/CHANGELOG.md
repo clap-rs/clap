@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking Change
+
+- Renamed `is_number` to more focused `is_negative_number`
+
+### Performance
+
+- Reduced code size
+
 ## [0.5.1] - 2023-08-24
 
 ### Compatibility
