@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     - id: check-yaml
       stages: [commit]
@@ -15,7 +15,7 @@ repos:
     - id: detect-private-key
       stages: [commit]
   - repo: https://github.com/crate-ci/typos
-    rev: v1.16.3
+    rev: v1.16.20
     hooks:
     - id: typos
       stages: [commit]
