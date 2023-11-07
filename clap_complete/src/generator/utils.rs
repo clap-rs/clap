@@ -109,7 +109,7 @@ pub fn longs_and_visible_aliases(p: &Command) -> Vec<String> {
         .collect()
 }
 
-/// Gets all the flags of a [`clap::Command`](Command).
+/// Gets all the flags of a [`clap::Command`].
 /// Includes `help` and `version` depending on the [`clap::Command`] settings.
 pub fn flags(p: &Command) -> Vec<Arg> {
     debug!("flags: name={}", p.get_name());

@@ -1070,7 +1070,7 @@ impl Command {
     /// Replace prior occurrences of arguments rather than error
     ///
     /// For any argument that would conflict with itself by default (e.g.
-    /// [`ArgAction::Set`][ArgAction::Set], it will now override itself.
+    /// [`ArgAction::Set`], it will now override itself.
     ///
     /// This is the equivalent to saying the `foo` arg using [`Arg::overrides_with("foo")`] for all
     /// defined arguments.
