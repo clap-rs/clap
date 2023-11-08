@@ -62,11 +62,15 @@ impl<'cmd> Usage<'cmd> {
         } else {
             #[cfg(feature = "usage")]
             {
+                let mut styled = StyledStr::new();
                 if used.is_empty() {
-                    Some(self.create_help_usage(true))
+                    self.write_help_usage(&mut styled, true);
                 } else {
-                    Some(self.create_smart_usage(used))
+                    self.write_smart_usage(&mut styled, used);
                 }
+                styled.trim();
+                debug!("Usage::create_usage_no_title: usage={styled}");
+                Some(styled)
             }
 
             #[cfg(not(feature = "usage"))]
@@ -80,12 +84,11 @@ impl<'cmd> Usage<'cmd> {
 #[cfg(feature = "usage")]
 impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
-    fn create_help_usage(&self, incl_reqs: bool) -> StyledStr {
+    fn write_help_usage(&self, styled: &mut StyledStr, incl_reqs: bool) {
         debug!("Usage::create_help_usage; incl_reqs={incl_reqs:?}");
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
-        let mut styled = StyledStr::new();
 
         let name = self
             .cmd
@@ -111,7 +114,7 @@ impl<'cmd> Usage<'cmd> {
             );
         }
 
-        self.write_args(&[], !incl_reqs, &mut styled);
+        self.write_args(&[], !incl_reqs, styled);
 
         // incl_reqs is only false when this function is called recursively
         if self.cmd.has_visible_subcommands() && incl_reqs
@@ -134,7 +137,7 @@ impl<'cmd> Usage<'cmd> {
                         literal.render_reset()
                     );
                 } else {
-                    styled.push_styled(&self.create_help_usage(false));
+                    self.write_help_usage(styled, false);
                 }
                 let _ = write!(
                     styled,
@@ -158,19 +161,15 @@ impl<'cmd> Usage<'cmd> {
                 );
             }
         }
-        styled.trim();
-        debug!("Usage::create_help_usage: usage={styled}");
-        styled
     }
 
     // Creates a context aware usage string, or "smart usage" from currently used
     // args, and requirements
-    fn create_smart_usage(&self, used: &[Id]) -> StyledStr {
+    fn write_smart_usage(&self, styled: &mut StyledStr, used: &[Id]) {
         debug!("Usage::create_smart_usage");
         use std::fmt::Write;
         let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
-        let mut styled = StyledStr::new();
 
         let bin_name = self
             .cmd
@@ -184,7 +183,7 @@ impl<'cmd> Usage<'cmd> {
             literal.render_reset()
         );
 
-        self.write_args(used, false, &mut styled);
+        self.write_args(used, false, styled);
 
         if self.cmd.is_subcommand_required_set() {
             let value_name = self
@@ -198,7 +197,6 @@ impl<'cmd> Usage<'cmd> {
                 placeholder.render_reset()
             );
         }
-        styled
     }
 
     // Determines if we need the `[OPTIONS]` tag in the usage string
