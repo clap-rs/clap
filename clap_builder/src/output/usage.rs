@@ -68,7 +68,7 @@ impl<'cmd> Usage<'cmd> {
                 } else {
                     self.write_smart_usage(&mut styled, used);
                 }
-                styled.trim();
+                styled.trim_end();
                 debug!("Usage::create_usage_no_title: usage={styled}");
                 Some(styled)
             }
@@ -99,7 +99,7 @@ impl<'cmd> Usage<'cmd> {
             // the trim won't properly remove a leading space due to the formatting
             let _ = write!(
                 styled,
-                "{}{name}{}",
+                "{}{name}{} ",
                 literal.render(),
                 literal.render_reset()
             );
@@ -108,7 +108,7 @@ impl<'cmd> Usage<'cmd> {
         if self.needs_options_tag() {
             let _ = write!(
                 styled,
-                "{} [OPTIONS]{}",
+                "{}[OPTIONS]{} ",
                 placeholder.render(),
                 placeholder.render_reset()
             );
@@ -127,12 +127,13 @@ impl<'cmd> Usage<'cmd> {
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
+                styled.trim_end();
                 let _ = write!(styled, "{}", USAGE_SEP);
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
                     // Short-circuit full usage creation since no args will be relevant
                     let _ = write!(
                         styled,
-                        "{}{name}{}",
+                        "{}{name}{} ",
                         literal.render(),
                         literal.render_reset()
                     );
@@ -141,21 +142,21 @@ impl<'cmd> Usage<'cmd> {
                 }
                 let _ = write!(
                     styled,
-                    " {}<{value_name}>{}",
+                    "{}<{value_name}>{}",
                     placeholder.render(),
                     placeholder.render_reset()
                 );
             } else if self.cmd.is_subcommand_required_set() {
                 let _ = write!(
                     styled,
-                    " {}<{value_name}>{}",
+                    "{}<{value_name}>{}",
                     placeholder.render(),
                     placeholder.render_reset()
                 );
             } else {
                 let _ = write!(
                     styled,
-                    " {}[{value_name}]{}",
+                    "{}[{value_name}]{}",
                     placeholder.render(),
                     placeholder.render_reset()
                 );
@@ -178,7 +179,7 @@ impl<'cmd> Usage<'cmd> {
             .unwrap_or_else(|| self.cmd.get_name());
         let _ = write!(
             styled,
-            "{}{bin_name}{}",
+            "{}{bin_name}{} ",
             literal.render(),
             literal.render_reset()
         );
@@ -192,7 +193,7 @@ impl<'cmd> Usage<'cmd> {
                 .unwrap_or(DEFAULT_SUB_VALUE_NAME);
             let _ = write!(
                 styled,
-                " {}<{value_name}>{}",
+                "{}<{value_name}>{}",
                 placeholder.render(),
                 placeholder.render_reset()
             );
@@ -252,8 +253,8 @@ impl<'cmd> Usage<'cmd> {
     // Returns the required args in usage string form by fully unrolling all groups
     pub(crate) fn write_args(&self, incls: &[Id], force_optional: bool, styled: &mut StyledStr) {
         for required in self.get_args(incls, force_optional) {
-            styled.push_str(" ");
             styled.push_styled(&required);
+            styled.push_str(" ");
         }
     }
 
