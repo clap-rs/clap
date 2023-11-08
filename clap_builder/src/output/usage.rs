@@ -14,6 +14,7 @@ use crate::util::FlatSet;
 use crate::util::Id;
 
 static DEFAULT_SUB_VALUE_NAME: &str = "COMMAND";
+const USAGE_SEP: &str = "\n       ";
 
 pub(crate) struct Usage<'cmd> {
     cmd: &'cmd Command,
@@ -123,7 +124,7 @@ impl<'cmd> Usage<'cmd> {
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
-                let _ = write!(styled, "\n       ");
+                let _ = write!(styled, "{}", USAGE_SEP);
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
                     // Short-circuit full usage creation since no args will be relevant
                     let _ = write!(
