@@ -40,8 +40,6 @@ impl<'cmd> Usage<'cmd> {
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
     pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_with_title");
-        let usage = some!(self.create_usage_no_title(used));
-
         use std::fmt::Write as _;
         let mut styled = StyledStr::new();
         let _ = write!(
@@ -50,32 +48,49 @@ impl<'cmd> Usage<'cmd> {
             self.styles.get_usage().render(),
             self.styles.get_usage().render_reset()
         );
-        styled.push_styled(&usage);
+        if self.write_usage_no_title(&mut styled, used) {
+            styled.trim_end();
+        } else {
+            return None;
+        }
+        debug!("Usage::create_usage_with_title: usage={styled}");
         Some(styled)
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_no_title");
+
+        let mut styled = StyledStr::new();
+        if self.write_usage_no_title(&mut styled, used) {
+            styled.trim_end();
+            debug!("Usage::create_usage_no_title: usage={styled}");
+            Some(styled)
+        } else {
+            None
+        }
+    }
+
+    // Creates a usage string (*without title*) if one was not provided by the user manually.
+    fn write_usage_no_title(&self, styled: &mut StyledStr, used: &[Id]) -> bool {
+        debug!("Usage::create_usage_no_title");
         if let Some(u) = self.cmd.get_override_usage() {
-            Some(u.clone())
+            styled.push_styled(u);
+            true
         } else {
             #[cfg(feature = "usage")]
             {
-                let mut styled = StyledStr::new();
                 if used.is_empty() {
-                    self.write_help_usage(&mut styled, true);
+                    self.write_help_usage(styled, true);
                 } else {
-                    self.write_smart_usage(&mut styled, used);
+                    self.write_smart_usage(styled, used);
                 }
-                styled.trim_end();
-                debug!("Usage::create_usage_no_title: usage={styled}");
-                Some(styled)
+                true
             }
 
             #[cfg(not(feature = "usage"))]
             {
-                None
+                false
             }
         }
     }
