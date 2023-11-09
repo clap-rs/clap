@@ -135,7 +135,7 @@ impl<'cmd> Usage<'cmd> {
         let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
 
-        let bin_name = self.get_name();
+        let bin_name = self.cmd.get_usage_name_fallback();
         if !bin_name.is_empty() {
             // the trim won't properly remove a leading space due to the formatting
             let _ = write!(
@@ -176,7 +176,7 @@ impl<'cmd> Usage<'cmd> {
                 styled.trim_end();
                 let _ = write!(styled, "{}", USAGE_SEP);
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
-                    let bin_name = self.get_name();
+                    let bin_name = self.cmd.get_usage_name_fallback();
                     // Short-circuit full usage creation since no args will be relevant
                     let _ = write!(
                         styled,
@@ -209,12 +209,6 @@ impl<'cmd> Usage<'cmd> {
                 );
             }
         }
-    }
-
-    fn get_name(&self) -> &str {
-        self.cmd
-            .get_usage_name()
-            .unwrap_or_else(|| self.cmd.get_bin_name_fallback())
     }
 
     // Determines if we need the `[OPTIONS]` tag in the usage string
