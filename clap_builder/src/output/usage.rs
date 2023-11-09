@@ -102,35 +102,15 @@ impl<'cmd> Usage<'cmd> {
     fn write_help_usage(&self, styled: &mut StyledStr, incl_reqs: bool) {
         debug!("Usage::create_help_usage; incl_reqs={incl_reqs:?}");
         use std::fmt::Write as _;
-        let literal = &self.styles.get_literal();
-        let placeholder = &self.styles.get_placeholder();
 
-        let bin_name = self.get_name();
-        if !bin_name.is_empty() {
-            // the trim won't properly remove a leading space due to the formatting
-            let _ = write!(
-                styled,
-                "{}{bin_name}{} ",
-                literal.render(),
-                literal.render_reset()
-            );
-        }
-
-        if self.needs_options_tag() {
-            let _ = write!(
-                styled,
-                "{}[OPTIONS]{} ",
-                placeholder.render(),
-                placeholder.render_reset()
-            );
-        }
-
-        self.write_args(styled, &[], !incl_reqs);
+        self.write_arg_usage(styled, incl_reqs);
 
         // incl_reqs is only false when this function is called recursively
         if (self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
             && incl_reqs
         {
+            let literal = &self.styles.get_literal();
+            let placeholder = &self.styles.get_placeholder();
             let value_name = self
                 .cmd
                 .get_subcommand_value_name()
@@ -141,6 +121,7 @@ impl<'cmd> Usage<'cmd> {
                 styled.trim_end();
                 let _ = write!(styled, "{}", USAGE_SEP);
                 if self.cmd.is_args_conflicts_with_subcommands_set() {
+                    let bin_name = self.get_name();
                     // Short-circuit full usage creation since no args will be relevant
                     let _ = write!(
                         styled,
@@ -205,6 +186,35 @@ impl<'cmd> Usage<'cmd> {
                 placeholder.render_reset()
             );
         }
+    }
+
+    fn write_arg_usage(&self, styled: &mut StyledStr, incl_reqs: bool) {
+        debug!("Usage::write_arg_usage; incl_reqs={incl_reqs:?}");
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
+        let placeholder = &self.styles.get_placeholder();
+
+        let bin_name = self.get_name();
+        if !bin_name.is_empty() {
+            // the trim won't properly remove a leading space due to the formatting
+            let _ = write!(
+                styled,
+                "{}{bin_name}{} ",
+                literal.render(),
+                literal.render_reset()
+            );
+        }
+
+        if self.needs_options_tag() {
+            let _ = write!(
+                styled,
+                "{}[OPTIONS]{} ",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
+        }
+
+        self.write_args(styled, &[], !incl_reqs);
     }
 
     fn get_name(&self) -> &str {
