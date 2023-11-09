@@ -103,7 +103,7 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::create_help_usage; incl_reqs={incl_reqs:?}");
         use std::fmt::Write as _;
 
-        self.write_arg_usage(styled, incl_reqs);
+        self.write_arg_usage(styled, &[], incl_reqs);
 
         // incl_reqs is only false when this function is called recursively
         if (self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
@@ -161,18 +161,9 @@ impl<'cmd> Usage<'cmd> {
     fn write_smart_usage(&self, styled: &mut StyledStr, used: &[Id]) {
         debug!("Usage::create_smart_usage");
         use std::fmt::Write;
-        let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
 
-        let bin_name = self.get_name();
-        let _ = write!(
-            styled,
-            "{}{bin_name}{} ",
-            literal.render(),
-            literal.render_reset()
-        );
-
-        self.write_args(styled, used, false);
+        self.write_arg_usage(styled, used, true);
 
         if self.cmd.is_subcommand_required_set() {
             let value_name = self
@@ -188,7 +179,7 @@ impl<'cmd> Usage<'cmd> {
         }
     }
 
-    fn write_arg_usage(&self, styled: &mut StyledStr, incl_reqs: bool) {
+    fn write_arg_usage(&self, styled: &mut StyledStr, used: &[Id], incl_reqs: bool) {
         debug!("Usage::write_arg_usage; incl_reqs={incl_reqs:?}");
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
@@ -205,7 +196,7 @@ impl<'cmd> Usage<'cmd> {
             );
         }
 
-        if self.needs_options_tag() {
+        if used.is_empty() && self.needs_options_tag() {
             let _ = write!(
                 styled,
                 "{}[OPTIONS]{} ",
@@ -214,7 +205,7 @@ impl<'cmd> Usage<'cmd> {
             );
         }
 
-        self.write_args(styled, &[], !incl_reqs);
+        self.write_args(styled, used, !incl_reqs);
     }
 
     fn get_name(&self) -> &str {
