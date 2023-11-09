@@ -81,7 +81,7 @@ impl<'cmd> Usage<'cmd> {
             #[cfg(feature = "usage")]
             {
                 if used.is_empty() {
-                    self.write_help_usage(styled, true);
+                    self.write_help_usage(styled);
                 } else {
                     self.write_smart_usage(styled, used);
                 }
@@ -99,16 +99,14 @@ impl<'cmd> Usage<'cmd> {
 #[cfg(feature = "usage")]
 impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
-    fn write_help_usage(&self, styled: &mut StyledStr, incl_reqs: bool) {
-        debug!("Usage::create_help_usage; incl_reqs={incl_reqs:?}");
+    fn write_help_usage(&self, styled: &mut StyledStr) {
+        debug!("Usage::write_help_usage");
         use std::fmt::Write as _;
 
-        self.write_arg_usage(styled, &[], incl_reqs);
+        self.write_arg_usage(styled, &[], true);
 
         // incl_reqs is only false when this function is called recursively
-        if (self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
-            && incl_reqs
-        {
+        if self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set() {
             let literal = &self.styles.get_literal();
             let placeholder = &self.styles.get_placeholder();
             let value_name = self
@@ -130,7 +128,7 @@ impl<'cmd> Usage<'cmd> {
                         literal.render_reset()
                     );
                 } else {
-                    self.write_help_usage(styled, false);
+                    self.write_arg_usage(styled, &[], false);
                 }
                 let _ = write!(
                     styled,
