@@ -3347,6 +3347,12 @@ impl Command {
         self.bin_name.as_deref()
     }
 
+    /// Get the name of the binary.
+    #[inline]
+    pub(crate) fn get_bin_name_fallback(&self) -> &str {
+        self.bin_name.as_deref().unwrap_or_else(|| self.get_name())
+    }
+
     /// Set binary name. Uses `&mut self` instead of `self`.
     pub fn set_bin_name(&mut self, name: impl Into<String>) {
         self.bin_name = Some(name.into());

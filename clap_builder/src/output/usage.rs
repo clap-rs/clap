@@ -214,8 +214,7 @@ impl<'cmd> Usage<'cmd> {
     fn get_name(&self) -> &str {
         self.cmd
             .get_usage_name()
-            .or_else(|| self.cmd.get_bin_name())
-            .unwrap_or_else(|| self.cmd.get_name())
+            .unwrap_or_else(|| self.cmd.get_bin_name_fallback())
     }
 
     // Determines if we need the `[OPTIONS]` tag in the usage string
