@@ -73,7 +73,10 @@ Default subcommand:
 ```console
 $ git-derive stash -h
 Usage: git-derive[EXE] stash [OPTIONS]
-       git-derive[EXE] stash <COMMAND>
+       git-derive[EXE] stash push [OPTIONS]
+       git-derive[EXE] stash pop [STASH]
+       git-derive[EXE] stash apply [STASH]
+       git-derive[EXE] stash help [COMMAND]...
 
 Commands:
   push   

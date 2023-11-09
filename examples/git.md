@@ -71,7 +71,10 @@ Default subcommand:
 ```console
 $ git stash -h
 Usage: git[EXE] stash [OPTIONS]
-       git[EXE] stash <COMMAND>
+       git[EXE] stash push [OPTIONS]
+       git[EXE] stash pop [STASH]
+       git[EXE] stash apply [STASH]
+       git[EXE] stash help [COMMAND]...
 
 Commands:
   push   

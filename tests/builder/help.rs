@@ -2952,7 +2952,9 @@ fn display_name_subcommand_explicit() {
 #[test]
 fn flatten_basic() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -2976,7 +2978,9 @@ Options:
 #[test]
 fn flatten_short_help() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3006,7 +3010,9 @@ Options:
 #[test]
 fn flatten_long_help() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3039,7 +3045,9 @@ Options:
 #[test]
 fn flatten_help_cmd() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3072,7 +3080,9 @@ Options:
 #[test]
 fn flatten_with_global() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3096,7 +3106,9 @@ Options:
 #[test]
 fn flatten_arg_required() {
     static EXPECTED: &str = "\
-Usage: parent --parent <parent> [COMMAND]
+Usage: parent --parent <parent>
+       parent --parent <parent> test --child <child>
+       parent --parent <parent> help [COMMAND]...
 
 Commands:
   test  some
@@ -3120,7 +3132,9 @@ Options:
 #[test]
 fn flatten_with_external_subcommand() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3160,7 +3174,8 @@ Options:
 #[test]
 fn flatten_with_subcommand_required() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] <COMMAND>
+Usage: parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3186,7 +3201,8 @@ Options:
 fn flatten_with_args_conflicts_with_subcommands() {
     static EXPECTED: &str = "\
 Usage: parent [OPTIONS]
-       parent <COMMAND>
+       parent test [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   test  some
@@ -3212,7 +3228,19 @@ Options:
 #[test]
 fn flatten_recursive() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent child1 [OPTIONS]
+       parent child1 grandchild1 [OPTIONS]
+       parent child1 grandchild1 greatgrandchild1 [OPTIONS]
+       parent child1 grandchild1 greatgrandchild2 [OPTIONS]
+       parent child1 grandchild1 greatgrandchild3 [OPTIONS]
+       parent child1 grandchild1 help [COMMAND]
+       parent child1 grandchild2 [OPTIONS]
+       parent child1 grandchild3 [OPTIONS]
+       parent child1 help [COMMAND]
+       parent child2 [OPTIONS]
+       parent child3 [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   child1  some 1
@@ -3280,7 +3308,11 @@ Options:
 #[test]
 fn flatten_not_recursive() {
     static EXPECTED: &str = "\
-Usage: parent [OPTIONS] [COMMAND]
+Usage: parent [OPTIONS]
+       parent child1 [OPTIONS] [COMMAND]
+       parent child2 [OPTIONS]
+       parent child3 [OPTIONS]
+       parent help [COMMAND]...
 
 Commands:
   child1  some 1
