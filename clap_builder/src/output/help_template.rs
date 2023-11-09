@@ -525,7 +525,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 };
                 let args = subcommand
                     .get_arguments()
-                    .filter(|arg| should_show_arg(self.use_long, arg))
+                    .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
                     .collect::<Vec<_>>();
                 sub_help.write_args(&args, heading, option_sort_key);
             }

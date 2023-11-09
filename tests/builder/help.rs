@@ -3109,9 +3109,8 @@ Options:
   -h, --help             Print help
 
 parent test:
-      --child <child>    
-      --parent <parent>  
-  -h, --help             Print help
+      --child <child>  
+  -h, --help           Print help
 
 parent help:
   [COMMAND]...  Print help for the subcommand(s)
