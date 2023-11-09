@@ -479,7 +479,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         if flatten {
             let mut cmd = self.cmd.clone();
             cmd.build();
-            self.write_flat_subcommands(&cmd, first);
+            self.write_flat_subcommands(&cmd, &mut first);
         }
     }
 
@@ -881,10 +881,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 /// Subcommand handling
 impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
-    fn write_flat_subcommands(&mut self, cmd: &Command, mut first: bool) {
+    fn write_flat_subcommands(&mut self, cmd: &Command, first: &mut bool) {
         debug!(
-            "HelpTemplate::write_flat_subcommands, cmd={}, first={first}",
-            cmd.get_name()
+            "HelpTemplate::write_flat_subcommands, cmd={}, first={}",
+            cmd.get_name(),
+            *first
         );
         use std::fmt::Write as _;
         let header = &self.styles.get_header();
@@ -902,10 +903,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
         for (_, _, subcommand) in ord_v {
-            if !first {
+            if !*first {
                 self.writer.push_str("\n\n");
             }
-            first = false;
+            *first = false;
 
             let heading = subcommand.get_usage_name_fallback();
             let about = cmd
@@ -937,6 +938,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
                 .collect::<Vec<_>>();
             sub_help.write_args(&args, heading, option_sort_key);
+            if subcommand.is_flatten_help_set() {
+                sub_help.write_flat_subcommands(subcommand, first);
+            }
         }
     }
 
