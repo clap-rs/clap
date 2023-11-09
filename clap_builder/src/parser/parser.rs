@@ -501,10 +501,7 @@ impl<'cmd> Parser<'cmd> {
                     self.cmd,
                     arg_os.display().to_string(),
                     candidates,
-                    self.cmd
-                        .get_bin_name()
-                        .unwrap_or_else(|| self.cmd.get_name())
-                        .to_owned(),
+                    self.cmd.get_bin_name_fallback().to_owned(),
                     suggested_trailing_arg,
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 );

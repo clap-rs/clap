@@ -3335,6 +3335,20 @@ impl Command {
         self.usage_name.as_deref()
     }
 
+    #[inline]
+    #[cfg(feature = "usage")]
+    pub(crate) fn get_usage_name_fallback(&self) -> &str {
+        self.get_usage_name()
+            .unwrap_or_else(|| self.get_bin_name_fallback())
+    }
+
+    #[inline]
+    #[cfg(not(feature = "usage"))]
+    #[allow(dead_code)]
+    pub(crate) fn get_usage_name_fallback(&self) -> &str {
+        self.get_bin_name_fallback()
+    }
+
     /// Get the name of the binary.
     #[inline]
     pub fn get_display_name(&self) -> Option<&str> {
@@ -3345,6 +3359,12 @@ impl Command {
     #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
         self.bin_name.as_deref()
+    }
+
+    /// Get the name of the binary.
+    #[inline]
+    pub(crate) fn get_bin_name_fallback(&self) -> &str {
+        self.bin_name.as_deref().unwrap_or_else(|| self.get_name())
     }
 
     /// Set binary name. Uses `&mut self` instead of `self`.
