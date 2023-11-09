@@ -78,15 +78,24 @@ Usage: git-derive[EXE] stash [OPTIONS]
        git-derive[EXE] stash apply [STASH]
        git-derive[EXE] stash help [COMMAND]...
 
-Commands:
-  push   
-  pop    
-  apply  
-  help   Print this message or the help of the given subcommand(s)
-
 Options:
   -m, --message <MESSAGE>  
   -h, --help               Print help
+
+git-derive[EXE] stash push:
+  -m, --message <MESSAGE>  
+  -h, --help               Print help
+
+git-derive[EXE] stash pop:
+  -h, --help   Print help
+  [STASH]  
+
+git-derive[EXE] stash apply:
+  -h, --help   Print help
+  [STASH]  
+
+git-derive[EXE] stash help:
+  [COMMAND]...  Print help for the subcommand(s)
 
 $ git-derive stash push -h
 Usage: git-derive[EXE] stash push [OPTIONS]

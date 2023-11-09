@@ -393,9 +393,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             .filter_map(|arg| arg.get_help_heading())
             .collect::<FlatSet<_>>();
 
+        let flatten = self.cmd.is_flatten_help_set();
+
         let mut first = true;
 
-        if subcmds {
+        if subcmds && !flatten {
             if !first {
                 self.writer.push_str("\n\n");
             }
@@ -472,6 +474,60 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     );
                     self.write_args(&args, heading, option_sort_key);
                 }
+            }
+        }
+        if flatten {
+            let mut cmd = self.cmd.clone();
+            cmd.build();
+
+            let mut ord_v = Vec::new();
+            for subcommand in cmd
+                .get_subcommands()
+                .filter(|subcommand| should_show_subcommand(subcommand))
+            {
+                ord_v.push((
+                    subcommand.get_display_order(),
+                    subcommand.get_name(),
+                    subcommand,
+                ));
+            }
+            ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+            for (_, _, subcommand) in ord_v {
+                if !first {
+                    self.writer.push_str("\n\n");
+                }
+                first = false;
+
+                let heading = subcommand.get_usage_name_fallback();
+                let about = cmd
+                    .get_about()
+                    .or_else(|| cmd.get_long_about())
+                    .unwrap_or_default();
+
+                let _ = write!(
+                    self.writer,
+                    "{}{heading}:{}\n",
+                    header.render(),
+                    header.render_reset()
+                );
+                if !about.is_empty() {
+                    let _ = write!(self.writer, "{about}\n",);
+                }
+
+                let mut sub_help = HelpTemplate {
+                    writer: self.writer,
+                    cmd: subcommand,
+                    styles: self.styles,
+                    usage: self.usage,
+                    next_line_help: false,
+                    term_w: self.term_w,
+                    use_long: false,
+                };
+                let args = subcommand
+                    .get_arguments()
+                    .filter(|arg| should_show_arg(self.use_long, arg))
+                    .collect::<Vec<_>>();
+                sub_help.write_args(&args, heading, option_sort_key);
             }
         }
     }

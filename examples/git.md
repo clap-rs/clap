@@ -76,15 +76,24 @@ Usage: git[EXE] stash [OPTIONS]
        git[EXE] stash apply [STASH]
        git[EXE] stash help [COMMAND]...
 
-Commands:
-  push   
-  pop    
-  apply  
-  help   Print this message or the help of the given subcommand(s)
-
 Options:
   -m, --message <MESSAGE>  
   -h, --help               Print help
+
+git[EXE] stash push:
+  -m, --message <MESSAGE>  
+  -h, --help               Print help
+
+git[EXE] stash pop:
+  -h, --help   Print help
+  [STASH]  
+
+git[EXE] stash apply:
+  -h, --help   Print help
+  [STASH]  
+
+git[EXE] stash help:
+  [COMMAND]...  Print help for the subcommand(s)
 
 $ git stash push -h
 Usage: git[EXE] stash push [OPTIONS]

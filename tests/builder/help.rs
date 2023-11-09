@@ -2956,13 +2956,16 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent test:
+      --child <child>  
+  -h, --help           Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -2982,13 +2985,16 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  foo
   -h, --help             Print help (see more with '--help')
+
+parent test:
+      --child <child>  foo
+  -h, --help           Print help (see more with '--help')
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3014,16 +3020,19 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>
           bar
 
   -h, --help
           Print help (see a summary with '-h')
+
+parent test:
+      --child <child>  foo
+  -h, --help           Print help (see more with '--help')
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3049,16 +3058,19 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>
           bar
 
   -h, --help
           Print help (see a summary with '-h')
+
+parent test:
+      --child <child>  foo
+  -h, --help           Print help (see more with '--help')
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3084,13 +3096,17 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent test:
+      --child <child>    
+      --parent <parent>  
+  -h, --help             Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3110,13 +3126,16 @@ Usage: parent --parent <parent>
        parent --parent <parent> test --child <child>
        parent --parent <parent> help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent --parent <parent> test:
+      --child <child>  
+  -h, --help           Print help
+
+parent --parent <parent> help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3136,13 +3155,16 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent test:
+      --child <child>  
+  -h, --help           Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3177,13 +3199,16 @@ fn flatten_with_subcommand_required() {
 Usage: parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent test:
+      --child <child>  
+  -h, --help           Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3204,13 +3229,16 @@ Usage: parent [OPTIONS]
        parent test [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  test  some
-  help  Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent test:
+      --child <child>  
+  -h, --help           Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3242,15 +3270,24 @@ Usage: parent [OPTIONS]
        parent child3 [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  child1  some 1
-  child2  some 2
-  child3  some 3
-  help    Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent child1:
+      --child1 <child>  
+  -h, --help            Print help
+
+parent child2:
+      --child2 <child>  
+  -h, --help            Print help
+
+parent child3:
+      --child3 <child>  
+  -h, --help            Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3314,15 +3351,24 @@ Usage: parent [OPTIONS]
        parent child3 [OPTIONS]
        parent help [COMMAND]...
 
-Commands:
-  child1  some 1
-  child2  some 2
-  child3  some 3
-  help    Print this message or the help of the given subcommand(s)
-
 Options:
       --parent <parent>  
   -h, --help             Print help
+
+parent child1:
+      --child1 <child>  
+  -h, --help            Print help
+
+parent child2:
+      --child2 <child>  
+  -h, --help            Print help
+
+parent child3:
+      --child3 <child>  
+  -h, --help            Print help
+
+parent help:
+  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
