@@ -479,56 +479,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         if flatten {
             let mut cmd = self.cmd.clone();
             cmd.build();
-
-            let mut ord_v = Vec::new();
-            for subcommand in cmd
-                .get_subcommands()
-                .filter(|subcommand| should_show_subcommand(subcommand))
-            {
-                ord_v.push((
-                    subcommand.get_display_order(),
-                    subcommand.get_name(),
-                    subcommand,
-                ));
-            }
-            ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
-            for (_, _, subcommand) in ord_v {
-                if !first {
-                    self.writer.push_str("\n\n");
-                }
-                first = false;
-
-                let heading = subcommand.get_usage_name_fallback();
-                let about = cmd
-                    .get_about()
-                    .or_else(|| cmd.get_long_about())
-                    .unwrap_or_default();
-
-                let _ = write!(
-                    self.writer,
-                    "{}{heading}:{}\n",
-                    header.render(),
-                    header.render_reset()
-                );
-                if !about.is_empty() {
-                    let _ = write!(self.writer, "{about}\n",);
-                }
-
-                let mut sub_help = HelpTemplate {
-                    writer: self.writer,
-                    cmd: subcommand,
-                    styles: self.styles,
-                    usage: self.usage,
-                    next_line_help: self.next_line_help,
-                    term_w: self.term_w,
-                    use_long: self.use_long,
-                };
-                let args = subcommand
-                    .get_arguments()
-                    .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
-                    .collect::<Vec<_>>();
-                sub_help.write_args(&args, heading, option_sort_key);
-            }
+            self.write_flat_subcommands(&cmd, first);
         }
     }
 
@@ -929,6 +880,66 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
 /// Subcommand handling
 impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
+    /// Writes help for subcommands of a Parser Object to the wrapped stream.
+    fn write_flat_subcommands(&mut self, cmd: &Command, mut first: bool) {
+        debug!(
+            "HelpTemplate::write_flat_subcommands, cmd={}, first={first}",
+            cmd.get_name()
+        );
+        use std::fmt::Write as _;
+        let header = &self.styles.get_header();
+
+        let mut ord_v = Vec::new();
+        for subcommand in cmd
+            .get_subcommands()
+            .filter(|subcommand| should_show_subcommand(subcommand))
+        {
+            ord_v.push((
+                subcommand.get_display_order(),
+                subcommand.get_name(),
+                subcommand,
+            ));
+        }
+        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+        for (_, _, subcommand) in ord_v {
+            if !first {
+                self.writer.push_str("\n\n");
+            }
+            first = false;
+
+            let heading = subcommand.get_usage_name_fallback();
+            let about = cmd
+                .get_about()
+                .or_else(|| cmd.get_long_about())
+                .unwrap_or_default();
+
+            let _ = write!(
+                self.writer,
+                "{}{heading}:{}\n",
+                header.render(),
+                header.render_reset()
+            );
+            if !about.is_empty() {
+                let _ = write!(self.writer, "{about}\n",);
+            }
+
+            let mut sub_help = HelpTemplate {
+                writer: self.writer,
+                cmd: subcommand,
+                styles: self.styles,
+                usage: self.usage,
+                next_line_help: self.next_line_help,
+                term_w: self.term_w,
+                use_long: self.use_long,
+            };
+            let args = subcommand
+                .get_arguments()
+                .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
+                .collect::<Vec<_>>();
+            sub_help.write_args(&args, heading, option_sort_key);
+        }
+    }
+
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, cmd: &Command) {
         debug!("HelpTemplate::write_subcommands");
