@@ -267,14 +267,7 @@ impl<'cmd> Usage<'cmd> {
 
     // Returns the required args in usage string form by fully unrolling all groups
     pub(crate) fn write_args(&self, styled: &mut StyledStr, incls: &[Id], force_optional: bool) {
-        for required in self.get_args(incls, force_optional) {
-            styled.push_styled(&required);
-            styled.push_str(" ");
-        }
-    }
-
-    pub(crate) fn get_args(&self, incls: &[Id], force_optional: bool) -> Vec<StyledStr> {
-        debug!("Usage::get_args: incls={incls:?}",);
+        debug!("Usage::write_args: incls={incls:?}",);
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
 
@@ -381,17 +374,20 @@ impl<'cmd> Usage<'cmd> {
             }
         }
 
-        let mut ret_val = Vec::new();
         if !force_optional {
-            ret_val.extend(required_opts);
-            ret_val.extend(required_groups);
+            for arg in required_opts {
+                styled.push_styled(&arg);
+                styled.push_str(" ");
+            }
+            for arg in required_groups {
+                styled.push_styled(&arg);
+                styled.push_str(" ");
+            }
         }
-        for pos in required_positionals.into_iter().flatten() {
-            ret_val.push(pos);
+        for arg in required_positionals.into_iter().flatten() {
+            styled.push_styled(&arg);
+            styled.push_str(" ");
         }
-
-        debug!("Usage::get_args: ret_val={ret_val:?}");
-        ret_val
     }
 
     pub(crate) fn get_required_usage_from(
