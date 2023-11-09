@@ -2948,3 +2948,382 @@ fn display_name_subcommand_explicit() {
         Some("child.display")
     );
 }
+
+#[test]
+fn flatten_basic() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .arg(Arg::new("child").long("child")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_short_help() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  foo
+  -h, --help             Print help (see more with '--help')
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(
+            Arg::new("parent")
+                .long("parent")
+                .help("foo")
+                .long_help("bar"),
+        )
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .long_about("long some")
+                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_long_help() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>
+          bar
+
+  -h, --help
+          Print help (see a summary with '-h')
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(
+            Arg::new("parent")
+                .long("parent")
+                .help("foo")
+                .long_help("bar"),
+        )
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .long_about("long some")
+                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
+        );
+    utils::assert_output(cmd, "parent --help", EXPECTED, false);
+}
+
+#[test]
+fn flatten_help_cmd() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>
+          bar
+
+  -h, --help
+          Print help (see a summary with '-h')
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(
+            Arg::new("parent")
+                .long("parent")
+                .help("foo")
+                .long_help("bar"),
+        )
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .long_about("long some")
+                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
+        );
+    utils::assert_output(cmd, "parent help", EXPECTED, false);
+}
+
+#[test]
+fn flatten_with_global() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(Arg::new("parent").long("parent").global(true))
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .arg(Arg::new("child").long("child")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_arg_required() {
+    static EXPECTED: &str = "\
+Usage: parent --parent <parent> [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(Arg::new("parent").long("parent").required(true))
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .arg(Arg::new("child").long("child").required(true)),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_with_external_subcommand() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .allow_external_subcommands(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .arg(Arg::new("child").long("child")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_without_subcommands() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS]
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(Arg::new("parent").long("parent"));
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_with_subcommand_required() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] <COMMAND>
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .subcommand_required(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .arg(Arg::new("child").long("child")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_with_args_conflicts_with_subcommands() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS]
+       parent <COMMAND>
+
+Commands:
+  test  some
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .subcommand_required(true)
+        .args_conflicts_with_subcommands(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("some")
+                .arg(Arg::new("child").long("child")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_recursive() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  child1  some 1
+  child2  some 2
+  child3  some 3
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("child1")
+                .flatten_help(true)
+                .about("some 1")
+                .arg(Arg::new("child").long("child1"))
+                .subcommand(
+                    Command::new("grandchild1")
+                        .flatten_help(true)
+                        .about("some 1")
+                        .arg(Arg::new("grandchild").long("grandchild1"))
+                        .subcommand(
+                            Command::new("greatgrandchild1")
+                                .about("some 1")
+                                .arg(Arg::new("greatgrandchild").long("greatgrandchild1")),
+                        )
+                        .subcommand(
+                            Command::new("greatgrandchild2")
+                                .about("some 2")
+                                .arg(Arg::new("greatgrandchild").long("greatgrandchild2")),
+                        )
+                        .subcommand(
+                            Command::new("greatgrandchild3")
+                                .about("some 3")
+                                .arg(Arg::new("greatgrandchild").long("greatgrandchild3")),
+                        ),
+                )
+                .subcommand(
+                    Command::new("grandchild2")
+                        .about("some 2")
+                        .arg(Arg::new("grandchild").long("grandchild2")),
+                )
+                .subcommand(
+                    Command::new("grandchild3")
+                        .about("some 3")
+                        .arg(Arg::new("grandchild").long("grandchild3")),
+                ),
+        )
+        .subcommand(
+            Command::new("child2")
+                .about("some 2")
+                .arg(Arg::new("child").long("child2")),
+        )
+        .subcommand(
+            Command::new("child3")
+                .about("some 3")
+                .arg(Arg::new("child").long("child3")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_not_recursive() {
+    static EXPECTED: &str = "\
+Usage: parent [OPTIONS] [COMMAND]
+
+Commands:
+  child1  some 1
+  child2  some 2
+  child3  some 3
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("child1")
+                .about("some 1")
+                .arg(Arg::new("child").long("child1"))
+                .subcommand(
+                    Command::new("grandchild1")
+                        .about("some 1")
+                        .arg(Arg::new("grandchild").long("grandchild1")),
+                )
+                .subcommand(
+                    Command::new("grandchild2")
+                        .about("some 2")
+                        .arg(Arg::new("grandchild").long("grandchild2")),
+                )
+                .subcommand(
+                    Command::new("grandchild3")
+                        .about("some 3")
+                        .arg(Arg::new("grandchild").long("grandchild3")),
+                ),
+        )
+        .subcommand(
+            Command::new("child2")
+                .about("some 2")
+                .arg(Arg::new("child").long("child2")),
+        )
+        .subcommand(
+            Command::new("child3")
+                .about("some 3")
+                .arg(Arg::new("child").long("child3")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
