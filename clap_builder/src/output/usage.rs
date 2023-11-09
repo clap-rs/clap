@@ -105,16 +105,12 @@ impl<'cmd> Usage<'cmd> {
         let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
 
-        let name = self
-            .cmd
-            .get_usage_name()
-            .or_else(|| self.cmd.get_bin_name())
-            .unwrap_or_else(|| self.cmd.get_name());
-        if !name.is_empty() {
+        let bin_name = self.get_name();
+        if !bin_name.is_empty() {
             // the trim won't properly remove a leading space due to the formatting
             let _ = write!(
                 styled,
-                "{}{name}{} ",
+                "{}{bin_name}{} ",
                 literal.render(),
                 literal.render_reset()
             );
@@ -148,7 +144,7 @@ impl<'cmd> Usage<'cmd> {
                     // Short-circuit full usage creation since no args will be relevant
                     let _ = write!(
                         styled,
-                        "{}{name}{} ",
+                        "{}{bin_name}{} ",
                         literal.render(),
                         literal.render_reset()
                     );
@@ -187,11 +183,7 @@ impl<'cmd> Usage<'cmd> {
         let literal = &self.styles.get_literal();
         let placeholder = &self.styles.get_placeholder();
 
-        let bin_name = self
-            .cmd
-            .get_usage_name()
-            .or_else(|| self.cmd.get_bin_name())
-            .unwrap_or_else(|| self.cmd.get_name());
+        let bin_name = self.get_name();
         let _ = write!(
             styled,
             "{}{bin_name}{} ",
@@ -213,6 +205,13 @@ impl<'cmd> Usage<'cmd> {
                 placeholder.render_reset()
             );
         }
+    }
+
+    fn get_name(&self) -> &str {
+        self.cmd
+            .get_usage_name()
+            .or_else(|| self.cmd.get_bin_name())
+            .unwrap_or_else(|| self.cmd.get_name())
     }
 
     // Determines if we need the `[OPTIONS]` tag in the usage string
