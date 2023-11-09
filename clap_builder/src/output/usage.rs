@@ -129,7 +129,7 @@ impl<'cmd> Usage<'cmd> {
             );
         }
 
-        self.write_args(&[], !incl_reqs, styled);
+        self.write_args(styled, &[], !incl_reqs);
 
         // incl_reqs is only false when this function is called recursively
         if self.cmd.has_visible_subcommands() && incl_reqs
@@ -199,7 +199,7 @@ impl<'cmd> Usage<'cmd> {
             literal.render_reset()
         );
 
-        self.write_args(used, false, styled);
+        self.write_args(styled, used, false);
 
         if self.cmd.is_subcommand_required_set() {
             let value_name = self
@@ -266,7 +266,7 @@ impl<'cmd> Usage<'cmd> {
     }
 
     // Returns the required args in usage string form by fully unrolling all groups
-    pub(crate) fn write_args(&self, incls: &[Id], force_optional: bool, styled: &mut StyledStr) {
+    pub(crate) fn write_args(&self, styled: &mut StyledStr, incls: &[Id], force_optional: bool) {
         for required in self.get_args(incls, force_optional) {
             styled.push_styled(&required);
             styled.push_str(" ");
