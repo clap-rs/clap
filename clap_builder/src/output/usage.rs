@@ -132,8 +132,8 @@ impl<'cmd> Usage<'cmd> {
         self.write_args(styled, &[], !incl_reqs);
 
         // incl_reqs is only false when this function is called recursively
-        if self.cmd.has_visible_subcommands() && incl_reqs
-            || self.cmd.is_allow_external_subcommands_set()
+        if (self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set())
+            && incl_reqs
         {
             let value_name = self
                 .cmd
