@@ -101,57 +101,9 @@ impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
     fn write_help_usage(&self, styled: &mut StyledStr) {
         debug!("Usage::write_help_usage");
-        use std::fmt::Write as _;
 
         self.write_arg_usage(styled, &[], true);
-
-        // incl_reqs is only false when this function is called recursively
-        if self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set() {
-            let literal = &self.styles.get_literal();
-            let placeholder = &self.styles.get_placeholder();
-            let value_name = self
-                .cmd
-                .get_subcommand_value_name()
-                .unwrap_or(DEFAULT_SUB_VALUE_NAME);
-            if self.cmd.is_subcommand_negates_reqs_set()
-                || self.cmd.is_args_conflicts_with_subcommands_set()
-            {
-                styled.trim_end();
-                let _ = write!(styled, "{}", USAGE_SEP);
-                if self.cmd.is_args_conflicts_with_subcommands_set() {
-                    let bin_name = self.get_name();
-                    // Short-circuit full usage creation since no args will be relevant
-                    let _ = write!(
-                        styled,
-                        "{}{bin_name}{} ",
-                        literal.render(),
-                        literal.render_reset()
-                    );
-                } else {
-                    self.write_arg_usage(styled, &[], false);
-                }
-                let _ = write!(
-                    styled,
-                    "{}<{value_name}>{}",
-                    placeholder.render(),
-                    placeholder.render_reset()
-                );
-            } else if self.cmd.is_subcommand_required_set() {
-                let _ = write!(
-                    styled,
-                    "{}<{value_name}>{}",
-                    placeholder.render(),
-                    placeholder.render_reset()
-                );
-            } else {
-                let _ = write!(
-                    styled,
-                    "{}[{value_name}]{}",
-                    placeholder.render(),
-                    placeholder.render_reset()
-                );
-            }
-        }
+        self.write_subcommand_usage(styled);
     }
 
     // Creates a context aware usage string, or "smart usage" from currently used
@@ -204,6 +156,59 @@ impl<'cmd> Usage<'cmd> {
         }
 
         self.write_args(styled, used, !incl_reqs);
+    }
+
+    fn write_subcommand_usage(&self, styled: &mut StyledStr) {
+        debug!("Usage::write_subcommand_usage");
+        use std::fmt::Write as _;
+
+        // incl_reqs is only false when this function is called recursively
+        if self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set() {
+            let literal = &self.styles.get_literal();
+            let placeholder = &self.styles.get_placeholder();
+            let value_name = self
+                .cmd
+                .get_subcommand_value_name()
+                .unwrap_or(DEFAULT_SUB_VALUE_NAME);
+            if self.cmd.is_subcommand_negates_reqs_set()
+                || self.cmd.is_args_conflicts_with_subcommands_set()
+            {
+                styled.trim_end();
+                let _ = write!(styled, "{}", USAGE_SEP);
+                if self.cmd.is_args_conflicts_with_subcommands_set() {
+                    let bin_name = self.get_name();
+                    // Short-circuit full usage creation since no args will be relevant
+                    let _ = write!(
+                        styled,
+                        "{}{bin_name}{} ",
+                        literal.render(),
+                        literal.render_reset()
+                    );
+                } else {
+                    self.write_arg_usage(styled, &[], false);
+                }
+                let _ = write!(
+                    styled,
+                    "{}<{value_name}>{}",
+                    placeholder.render(),
+                    placeholder.render_reset()
+                );
+            } else if self.cmd.is_subcommand_required_set() {
+                let _ = write!(
+                    styled,
+                    "{}<{value_name}>{}",
+                    placeholder.render(),
+                    placeholder.render_reset()
+                );
+            } else {
+                let _ = write!(
+                    styled,
+                    "{}[{value_name}]{}",
+                    placeholder.render(),
+                    placeholder.render_reset()
+                );
+            }
+        }
     }
 
     fn get_name(&self) -> &str {
