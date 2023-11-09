@@ -519,9 +519,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     cmd: subcommand,
                     styles: self.styles,
                     usage: self.usage,
-                    next_line_help: false,
+                    next_line_help: self.next_line_help,
                     term_w: self.term_w,
-                    use_long: false,
+                    use_long: self.use_long,
                 };
                 let args = subcommand
                     .get_arguments()

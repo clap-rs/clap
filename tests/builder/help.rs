@@ -3028,11 +3028,15 @@ Options:
           Print help (see a summary with '-h')
 
 parent test:
-      --child <child>  foo
-  -h, --help           Print help (see more with '--help')
+      --child <child>
+          bar
+
+  -h, --help
+          Print help (see a summary with '-h')
 
 parent help:
-  [COMMAND]...  Print help for the subcommand(s)
+  [COMMAND]...
+          Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
@@ -3066,11 +3070,15 @@ Options:
           Print help (see a summary with '-h')
 
 parent test:
-      --child <child>  foo
-  -h, --help           Print help (see more with '--help')
+      --child <child>
+          bar
+
+  -h, --help
+          Print help (see a summary with '-h')
 
 parent help:
-  [COMMAND]...  Print help for the subcommand(s)
+  [COMMAND]...
+          Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
