@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `Command::flatten_help` to allow `git stash -h` like help for subcommands
+
 ## [4.4.7] - 2023-10-24
 
 ### Performance
