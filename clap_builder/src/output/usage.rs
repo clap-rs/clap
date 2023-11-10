@@ -101,9 +101,29 @@ impl<'cmd> Usage<'cmd> {
     // Creates a usage string for display in help messages (i.e. not for errors)
     fn write_help_usage(&self, styled: &mut StyledStr) {
         debug!("Usage::write_help_usage");
+        use std::fmt::Write;
 
-        self.write_arg_usage(styled, &[], true);
-        self.write_subcommand_usage(styled);
+        if self.cmd.is_flatten_help_set() {
+            if !self.cmd.is_subcommand_required_set()
+                || self.cmd.is_args_conflicts_with_subcommands_set()
+            {
+                self.write_arg_usage(styled, &[], true);
+                styled.trim_end();
+                let _ = write!(styled, "{}", USAGE_SEP);
+            }
+            let mut cmd = self.cmd.clone();
+            cmd.build();
+            for (i, sub) in cmd.get_subcommands().enumerate() {
+                if i != 0 {
+                    styled.trim_end();
+                    let _ = write!(styled, "{}", USAGE_SEP);
+                }
+                Usage::new(sub).write_usage_no_title(styled, &[]);
+            }
+        } else {
+            self.write_arg_usage(styled, &[], true);
+            self.write_subcommand_usage(styled);
+        }
     }
 
     // Creates a context aware usage string, or "smart usage" from currently used

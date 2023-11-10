@@ -2049,6 +2049,21 @@ impl Command {
         self
     }
 
+    /// Flatten subcommand help into the current command's help
+    ///
+    /// This shows a summary of subcommands within the usage and help for the current command, similar to
+    /// `git stash --help` showing information on `push`, `pop`, etc.
+    /// To see more information, a user can still pass `--help` to the individual subcommands.
+    #[inline]
+    #[must_use]
+    pub fn flatten_help(self, yes: bool) -> Self {
+        if yes {
+            self.setting(AppSettings::FlattenHelp)
+        } else {
+            self.unset_setting(AppSettings::FlattenHelp)
+        }
+    }
+
     /// Set the default section heading for future args.
     ///
     /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
@@ -3428,6 +3443,12 @@ impl Command {
     #[inline]
     pub fn get_long_about(&self) -> Option<&StyledStr> {
         self.long_about.as_ref()
+    }
+
+    /// Get the custom section heading specified via [`Command::flatten_help`].
+    #[inline]
+    pub fn is_flatten_help_set(&self) -> bool {
+        self.is_set(AppSettings::FlattenHelp)
     }
 
     /// Get the custom section heading specified via [`Command::next_help_heading`].
