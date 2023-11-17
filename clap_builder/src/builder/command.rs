@@ -1359,7 +1359,7 @@ impl Command {
     /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     ///
-    /// You can create a custom version flag with [`ArgAction::Help`], [`ArgAction::HelpShort`], or
+    /// You can create a custom help flag with [`ArgAction::Help`], [`ArgAction::HelpShort`], or
     /// [`ArgAction::HelpLong`]
     /// ```rust
     /// # use clap_builder as clap;
