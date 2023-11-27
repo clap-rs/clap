@@ -103,7 +103,7 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::write_help_usage");
         use std::fmt::Write;
 
-        if self.cmd.is_flatten_help_set() {
+        if self.cmd.has_visible_subcommands() && self.cmd.is_flatten_help_set() {
             if !self.cmd.is_subcommand_required_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {

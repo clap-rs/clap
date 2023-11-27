@@ -476,7 +476,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 }
             }
         }
-        if flatten {
+        if subcmds && flatten {
             let mut cmd = self.cmd.clone();
             cmd.build();
             self.write_flat_subcommands(&cmd, &mut first);

@@ -3314,15 +3314,10 @@ fn flatten_single_hidden_command() {
 parent command
 
 Usage: parent [OPTIONS]
-       parent help [COMMAND]...
 
 Options:
       --parent <parent>  
   -h, --help             Print help
-
-parent help:
-Print this message or the help of the given subcommand(s)
-  [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
         .flatten_help(true)
