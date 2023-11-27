@@ -113,7 +113,11 @@ impl<'cmd> Usage<'cmd> {
             }
             let mut cmd = self.cmd.clone();
             cmd.build();
-            for (i, sub) in cmd.get_subcommands().enumerate() {
+            for (i, sub) in cmd
+                .get_subcommands()
+                .filter(|c| !c.is_hide_set())
+                .enumerate()
+            {
                 if i != 0 {
                     styled.trim_end();
                     let _ = write!(styled, "{}", USAGE_SEP);

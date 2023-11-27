@@ -3314,7 +3314,6 @@ fn flatten_single_hidden_command() {
 parent command
 
 Usage: parent [OPTIONS]
-       parent child1 [OPTIONS]
        parent help [COMMAND]...
 
 Options:
@@ -3346,7 +3345,6 @@ parent command
 Usage: parent [OPTIONS]
        parent child1 [OPTIONS]
        parent child2 [OPTIONS]
-       parent child3 [OPTIONS]
        parent help [COMMAND]...
 
 Options:
@@ -3406,7 +3404,6 @@ Usage: parent [OPTIONS]
        parent child1 grandchild3 [OPTIONS]
        parent child1 help [COMMAND]
        parent child2 [OPTIONS]
-       parent child3 [OPTIONS] [COMMAND]
        parent help [COMMAND]...
 
 Options:
