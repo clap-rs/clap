@@ -3309,6 +3309,81 @@ Print this message or the help of the given subcommand(s)
 }
 
 #[test]
+fn flatten_single_hidden_command() {
+    static EXPECTED: &str = "\
+parent command
+
+Usage: parent [OPTIONS]
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("child1")
+                .hide(true)
+                .about("child1 command")
+                .arg(Arg::new("child").long("child1")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
+fn flatten_hidden_command() {
+    static EXPECTED: &str = "\
+parent command
+
+Usage: parent [OPTIONS]
+       parent child1 [OPTIONS]
+       parent child2 [OPTIONS]
+       parent help [COMMAND]...
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+
+parent child1:
+child1 command
+      --child1 <child>  
+  -h, --help            Print help
+
+parent child2:
+child2 command
+      --child2 <child>  
+  -h, --help            Print help
+
+parent help:
+Print this message or the help of the given subcommand(s)
+  [COMMAND]...  Print help for the subcommand(s)
+";
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("child1")
+                .about("child1 command")
+                .arg(Arg::new("child").long("child1")),
+        )
+        .subcommand(
+            Command::new("child2")
+                .about("child2 command")
+                .arg(Arg::new("child").long("child2")),
+        )
+        .subcommand(
+            Command::new("child3")
+                .hide(true)
+                .about("child3 command")
+                .arg(Arg::new("child").long("child3")),
+        );
+    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+}
+
+#[test]
 fn flatten_recursive() {
     static EXPECTED: &str = "\
 parent command
@@ -3324,7 +3399,6 @@ Usage: parent [OPTIONS]
        parent child1 grandchild3 [OPTIONS]
        parent child1 help [COMMAND]
        parent child2 [OPTIONS]
-       parent child3 [OPTIONS]
        parent help [COMMAND]...
 
 Options:
@@ -3379,11 +3453,6 @@ child2 command
       --child2 <child>  
   -h, --help            Print help
 
-parent child3:
-child3 command
-      --child3 <child>  
-  -h, --help            Print help
-
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
@@ -3436,8 +3505,40 @@ Print this message or the help of the given subcommand(s)
         )
         .subcommand(
             Command::new("child3")
+                .hide(true)
                 .about("child3 command")
-                .arg(Arg::new("child").long("child3")),
+                .arg(Arg::new("child").long("child3"))
+                .subcommand(
+                    Command::new("grandchild1")
+                        .flatten_help(true)
+                        .about("grandchild1 command")
+                        .arg(Arg::new("grandchild").long("grandchild1"))
+                        .subcommand(
+                            Command::new("greatgrandchild1")
+                                .about("greatgrandchild1 command")
+                                .arg(Arg::new("greatgrandchild").long("greatgrandchild1")),
+                        )
+                        .subcommand(
+                            Command::new("greatgrandchild2")
+                                .about("greatgrandchild2 command")
+                                .arg(Arg::new("greatgrandchild").long("greatgrandchild2")),
+                        )
+                        .subcommand(
+                            Command::new("greatgrandchild3")
+                                .about("greatgrandchild3 command")
+                                .arg(Arg::new("greatgrandchild").long("greatgrandchild3")),
+                        ),
+                )
+                .subcommand(
+                    Command::new("grandchild2")
+                        .about("grandchild2 command")
+                        .arg(Arg::new("grandchild").long("grandchild2")),
+                )
+                .subcommand(
+                    Command::new("grandchild3")
+                        .about("grandchild3 command")
+                        .arg(Arg::new("grandchild").long("grandchild3")),
+                ),
         );
     utils::assert_output(cmd, "parent -h", EXPECTED, false);
 }

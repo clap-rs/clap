@@ -103,7 +103,7 @@ impl<'cmd> Usage<'cmd> {
         debug!("Usage::write_help_usage");
         use std::fmt::Write;
 
-        if self.cmd.is_flatten_help_set() {
+        if self.cmd.has_visible_subcommands() && self.cmd.is_flatten_help_set() {
             if !self.cmd.is_subcommand_required_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
@@ -113,7 +113,11 @@ impl<'cmd> Usage<'cmd> {
             }
             let mut cmd = self.cmd.clone();
             cmd.build();
-            for (i, sub) in cmd.get_subcommands().enumerate() {
+            for (i, sub) in cmd
+                .get_subcommands()
+                .filter(|c| !c.is_hide_set())
+                .enumerate()
+            {
                 if i != 0 {
                     styled.trim_end();
                     let _ = write!(styled, "{}", USAGE_SEP);
