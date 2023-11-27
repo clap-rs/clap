@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Show correct `Command::about` under flattened headings
+- *(help)* Respect `hide` when flattening subcommands
+
 ## [4.4.8] - 2023-11-10
 
 ### Features
