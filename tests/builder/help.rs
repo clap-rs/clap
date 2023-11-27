@@ -2963,12 +2963,12 @@ Options:
   -h, --help             Print help
 
 parent test:
-parent command
+test command
       --child <child>  
   -h, --help           Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -2997,12 +2997,12 @@ Options:
   -h, --help             Print help (see more with '--help')
 
 parent test:
-parent command
+test command
       --child <child>  foo
   -h, --help           Print help (see more with '--help')
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3040,7 +3040,7 @@ Options:
           Print help (see a summary with '-h')
 
 parent test:
-parent command
+test command
       --child <child>
           bar
 
@@ -3048,7 +3048,7 @@ parent command
           Print help (see a summary with '-h')
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...
           Print help for the subcommand(s)
 ";
@@ -3087,7 +3087,7 @@ Options:
           Print help (see a summary with '-h')
 
 parent test:
-parent command
+test command
       --child <child>
           bar
 
@@ -3095,7 +3095,7 @@ parent command
           Print help (see a summary with '-h')
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...
           Print help for the subcommand(s)
 ";
@@ -3131,12 +3131,12 @@ Options:
   -h, --help             Print help
 
 parent test:
-parent command
+test command
       --child <child>  
   -h, --help           Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3165,12 +3165,12 @@ Options:
   -h, --help             Print help
 
 parent --parent <parent> test:
-parent command
+test command
       --child <child>  
   -h, --help           Print help
 
 parent --parent <parent> help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3199,12 +3199,12 @@ Options:
   -h, --help             Print help
 
 parent test:
-parent command
+test command
       --child <child>  
   -h, --help           Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3251,12 +3251,12 @@ Options:
   -h, --help             Print help
 
 parent test:
-parent command
+test command
       --child <child>  
   -h, --help           Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3286,12 +3286,12 @@ Options:
   -h, --help             Print help
 
 parent test:
-parent command
+test command
       --child <child>  
   -h, --help           Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3332,60 +3332,60 @@ Options:
   -h, --help             Print help
 
 parent child1:
-parent command
+child1 command
       --child1 <child>  
   -h, --help            Print help
 
 parent child1 grandchild1:
-child1 command
+grandchild1 command
       --grandchild1 <grandchild>  
   -h, --help                      Print help
 
 parent child1 grandchild1 greatgrandchild1:
-grandchild1 command
+greatgrandchild1 command
       --greatgrandchild1 <greatgrandchild>  
   -h, --help                                Print help
 
 parent child1 grandchild1 greatgrandchild2:
-grandchild1 command
+greatgrandchild2 command
       --greatgrandchild2 <greatgrandchild>  
   -h, --help                                Print help
 
 parent child1 grandchild1 greatgrandchild3:
-grandchild1 command
+greatgrandchild3 command
       --greatgrandchild3 <greatgrandchild>  
   -h, --help                                Print help
 
 parent child1 grandchild1 help:
-grandchild1 command
+Print this message or the help of the given subcommand(s)
 
 
 parent child1 grandchild2:
-child1 command
+grandchild2 command
       --grandchild2 <grandchild>  
   -h, --help                      Print help
 
 parent child1 grandchild3:
-child1 command
+grandchild3 command
       --grandchild3 <grandchild>  
   -h, --help                      Print help
 
 parent child1 help:
-child1 command
+Print this message or the help of the given subcommand(s)
 
 
 parent child2:
-parent command
+child2 command
       --child2 <child>  
   -h, --help            Print help
 
 parent child3:
-parent command
+child3 command
       --child3 <child>  
   -h, --help            Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")
@@ -3458,22 +3458,22 @@ Options:
   -h, --help             Print help
 
 parent child1:
-parent command
+child1 command
       --child1 <child>  
   -h, --help            Print help
 
 parent child2:
-parent command
+child2 command
       --child2 <child>  
   -h, --help            Print help
 
 parent child3:
-parent command
+child3 command
       --child3 <child>  
   -h, --help            Print help
 
 parent help:
-parent command
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 ";
     let cmd = Command::new("parent")

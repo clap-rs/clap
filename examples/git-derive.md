@@ -95,6 +95,7 @@ git-derive[EXE] stash apply:
   [STASH]  
 
 git-derive[EXE] stash help:
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 
 $ git-derive stash push -h
