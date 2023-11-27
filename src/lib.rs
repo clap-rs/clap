@@ -11,6 +11,8 @@
 //! - [Cookbook][_cookbook]
 //! - [FAQ][_faq]
 //! - [Discussions](https://github.com/clap-rs/clap/discussions)
+//! - [CHANGELOG](https://github.com/clap-rs/clap/blob/v4.4.9/CHANGELOG.md) (includes major version migration
+//!   guides)
 //!
 //! ## Aspirations
 //!
