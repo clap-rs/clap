@@ -909,9 +909,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             *first = false;
 
             let heading = subcommand.get_usage_name_fallback();
-            let about = cmd
+            let about = subcommand
                 .get_about()
-                .or_else(|| cmd.get_long_about())
+                .or_else(|| subcommand.get_long_about())
                 .unwrap_or_default();
 
             let _ = write!(

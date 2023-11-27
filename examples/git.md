@@ -93,6 +93,7 @@ git[EXE] stash apply:
   [STASH]  
 
 git[EXE] stash help:
+Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
 
 $ git stash push -h
