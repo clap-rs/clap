@@ -189,6 +189,9 @@
 //!   [`Subcommand`][crate::Subcommand])
 //!   - When `Option<T>`, the subcommand becomes optional
 //!
+//! See [Configuring the Parser][_tutorial::chapter_1] and
+//! [Subcommands][_tutorial::chapter_2#subcommands] from the tutorial.
+//!
 //! ### ArgGroup Attributes
 //!
 //! These correspond to the [`ArgGroup`][crate::ArgGroup] which is implicitly created for each
@@ -206,6 +209,8 @@
 //! Note:
 //! - For `struct`s, [`multiple = true`][crate::ArgGroup::multiple] is implied
 //! - `enum` support is tracked at [#2621](https://github.com/clap-rs/clap/issues/2621)
+//!
+//! See [Argument Relations][_tutorial::chapter_3#argument-relations] from the tutorial.
 //!
 //! ### Arg Attributes
 //!
@@ -256,11 +261,16 @@
 //!   - Requires field arg to be of type `Vec<T>` and `T` to implement `std::convert::Into<OsString>` or `#[arg(value_enum)]`
 //!   - `<expr>` must implement `IntoIterator<T>`
 //!
+//! See [Adding Arguments][_tutorial::chapter_2] and [Validation][_tutorial::chapter_3] from the
+//! tutorial.
+//!
 //! ### ValueEnum Attributes
 //!
 //! - `rename_all = <string_literal>`: Override default field / variant name case conversion for [`PossibleValue::new`][crate::builder::PossibleValue]
 //!   - When not present: `"kebab-case"`
 //!   - Available values: `"camelCase"`, `"kebab-case"`, `"PascalCase"`, `"SCREAMING_SNAKE_CASE"`, `"snake_case"`, `"lower"`, `"UPPER"`, `"verbatim"`
+//!
+//! See [Enumerated values][_tutorial::chapter_3#enumerated-values] from the tutorial.
 //!
 //! ### Possible Value Attributes
 //!
