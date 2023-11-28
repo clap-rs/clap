@@ -62,6 +62,7 @@ pre-release-replacements = [
   {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/clap-rs/clap/compare/{{tag_name}}...HEAD", exactly=1},
   {file="CITATION.cff", search="^date-released: ....-..-..", replace="date-released: {{date}}"},
   {file="CITATION.cff", search="^version: .+\\..+\\..+", replace="version: {{version}}"},
+  {file="src/lib.rs", search="blob/v.+\\..+\\..+/CHANGELOG.md", replace="blob/v{{version}}/CHANGELOG.md", exactly=1},
 ]
 
 [features]
