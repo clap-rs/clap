@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Link out to changelog
+- Cross link derive's attribute reference to derive tutorial
+
 ## [4.4.9] - 2023-11-27
 
 ### Fixes
