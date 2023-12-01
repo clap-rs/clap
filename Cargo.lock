@@ -535,8 +535,8 @@ dependencies = [
  "backtrace",
  "clap_lex 0.6.0",
  "color-print",
+ "rapidfuzz",
  "static_assertions",
- "strsim",
  "terminal_size 0.3.0",
  "unic-emoji-char",
  "unicase",
@@ -2721,6 +2721,12 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom",
 ]
+
+[[package]]
+name = "rapidfuzz"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "270e04e5ea61d40841942bb15e451c29ee1618637bcf97fc7ede5dd4a9b1601b"
 
 [[package]]
 name = "rayon"

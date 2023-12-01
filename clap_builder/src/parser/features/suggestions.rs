@@ -13,13 +13,18 @@ where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
 {
+    use rapidfuzz::distance::jaro;
+    let scorer = jaro::BatchComparator::new(v.chars());
+    // Confidence of 0.7 so that bar -> baz is suggested
+    let args = jaro::Args::default().score_cutoff(0.7);
+
     let mut candidates: Vec<(f64, String)> = possible_values
         .into_iter()
-        // GH #4660: using `jaro` because `jaro_winkler` implementation in `strsim-rs` is wrong
-        // causing strings with common prefix >=10 to be considered perfectly similar
-        .map(|pv| (strsim::jaro(v, pv.as_ref()), pv.as_ref().to_owned()))
-        // Confidence of 0.7 so that bar -> baz is suggested
-        .filter(|(confidence, _)| *confidence > 0.7)
+        .filter_map(|pv| {
+            scorer
+                .similarity_with_args(pv.as_ref().chars(), &args)
+                .map(|score| (score, pv.as_ref().to_owned()))
+        })
         .collect();
     candidates.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(Ordering::Equal));
     candidates.into_iter().map(|(_, pv)| pv).collect()
