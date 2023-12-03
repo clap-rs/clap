@@ -171,6 +171,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
         let compopt = match o.get_value_hint() {
             ValueHint::FilePath => Some("compopt -o filenames"),
             ValueHint::DirPath => Some("compopt -o plusdirs"),
+            ValueHint::Other => Some("compopt -o nospace"),
             _ => None,
         };
 

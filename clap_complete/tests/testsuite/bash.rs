@@ -210,7 +210,7 @@ fn complete() {
     }
 
     let input = "exhaustive hint --other \t";
-    let expected = "exhaustive hint --other         % exhaustive hint --other  ";
+    let expected = "exhaustive hint --other         % exhaustive hint --other ";
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

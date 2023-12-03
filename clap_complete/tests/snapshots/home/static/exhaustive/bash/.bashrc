@@ -542,6 +542,9 @@ _exhaustive() {
                     ;;
                 --other)
                     COMPREPLY=("${cur}")
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o nospace
+                    fi
                     return 0
                     ;;
                 --path)
