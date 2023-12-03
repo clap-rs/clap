@@ -200,8 +200,8 @@ fn complete() {
         );
         let actual = runtime.complete(input.as_str(), &term).unwrap();
         assert!(
-            actual.contains("a_file")
-                && actual.contains("b_file")
+            !actual.contains("a_file")
+                && !actual.contains("b_file")
                 && actual.contains("c_dir")
                 && actual.contains("d_dir"),
             "Actual output:\n{}",

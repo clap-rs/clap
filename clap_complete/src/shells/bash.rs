@@ -170,6 +170,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
     for o in p.get_opts() {
         let compopt = match o.get_value_hint() {
             ValueHint::FilePath => Some("compopt -o filenames"),
+            ValueHint::DirPath => Some("compopt -o plusdirs"),
             _ => None,
         };
 
@@ -229,6 +230,8 @@ fn vals_for(o: &Arg) -> String {
                 .collect::<Vec<_>>()
                 .join(" ")
         )
+    } else if o.get_value_hint() == ValueHint::DirPath {
+        String::from("") // should be empty to avoid duplicate candidates
     } else if o.get_value_hint() == ValueHint::Other {
         String::from("\"${cur}\"")
     } else {
