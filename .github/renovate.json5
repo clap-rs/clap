@@ -31,24 +31,18 @@
     {
       commitMessageTopic: 'MSRV',
       matchManagers: [
-        'regex',
+        'custom.regex',
       ],
       matchPackageNames: [
         'rust',
       ],
-      minimumReleaseAge: '252 days',  // 6 releases * 6 weeks per release * 7 days per week
+      minimumReleaseAge: '252 days',
       internalChecksFilter: 'strict',
-      extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
+      extractVersion: '^(?<version>\\d+\\.\\d+)',
       schedule: [
         '* * * * *',
       ],
     },
-    // Goals:
-    // - Keep version reqs low, ignoring compatible normal/build dependencies
-    // - Take advantage of latest dev-dependencies
-    // - Rollup safe upgrades to reduce CI runner load
-    // - Help keep number of versions down by always using latest breaking change
-    // - Have lockfile and manifest in-sync
     {
       matchManagers: [
         'cargo',
