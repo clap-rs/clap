@@ -29,7 +29,7 @@
     {
       commitMessageTopic: 'MSRV',
       matchManagers: [
-        'regex',
+        'custom.regex',
       ],
       matchPackageNames: [
         'rust',
