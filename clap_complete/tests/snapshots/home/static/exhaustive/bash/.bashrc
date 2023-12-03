@@ -554,10 +554,16 @@ _exhaustive() {
                     ;;
                 --file)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -f)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --dir)

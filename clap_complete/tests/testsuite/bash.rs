@@ -164,7 +164,7 @@ fn complete() {
 
     // Issue 5239 (https://github.com/clap-rs/clap/issues/5239)
     let input = "exhaustive hint --file test\t";
-    let expected = "exhaustive hint --file test     % exhaustive hint --file tests ";
+    let expected = "exhaustive hint --file test     % exhaustive hint --file tests/";
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 
