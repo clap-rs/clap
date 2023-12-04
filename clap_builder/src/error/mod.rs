@@ -201,6 +201,13 @@ impl<F: ErrorFormatter> Error<F> {
         self.inner.context.insert(kind, value)
     }
 
+    /// Remove a piece of context
+    #[inline(never)]
+    #[cfg(feature = "error-context")]
+    pub fn remove(&mut self, kind: ContextKind) -> Option<ContextValue> {
+        self.inner.context.remove(&kind)
+    }
+
     /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
