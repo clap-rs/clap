@@ -31,7 +31,7 @@ bench = false
 [dependencies]
 syn = { version = "2.0.8", features = ["full"] }
 quote = "1.0.9"
-proc-macro2 = "1.0.42"
+proc-macro2 = "1.0.69"
 heck = "0.4.0"
 
 [features]
