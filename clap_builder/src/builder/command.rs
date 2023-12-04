@@ -298,6 +298,45 @@ impl Command {
         self
     }
 
+    /// Allows one to mutate an [`ArgGroup`] after it's been added to a [`Command`].
+    ///
+    /// # Panics
+    ///
+    /// If the argument is undefined
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, arg, ArgGroup};
+    ///
+    /// Command::new("foo")
+    ///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+    ///     .arg(arg!(--major "auto increase major"))
+    ///     .arg(arg!(--minor "auto increase minor"))
+    ///     .arg(arg!(--patch "auto increase patch"))
+    ///     .group(ArgGroup::new("vers")
+    ///          .args(["set-ver", "major", "minor","patch"])
+    ///          .required(true))
+    ///     .mut_group("vers", |a| a.required(false));
+    /// ```
+    #[must_use]
+    #[cfg_attr(debug_assertions, track_caller)]
+    pub fn mut_group<F>(mut self, arg_id: impl AsRef<str>, f: F) -> Self
+    where
+        F: FnOnce(ArgGroup) -> ArgGroup,
+    {
+        let id = arg_id.as_ref();
+        let index = self
+            .groups
+            .iter()
+            .position(|g| g.get_id() == id)
+            .unwrap_or_else(|| panic!("Group `{id}` is undefined"));
+        let a = self.groups.remove(index);
+
+        self.groups.push(f(a));
+        self
+    }
     /// Allows one to mutate a [`Command`] after it's been added as a subcommand.
     ///
     /// This can be useful for modifying auto-generated arguments of nested subcommands with
