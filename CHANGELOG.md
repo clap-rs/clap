@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `Command::mut_group`
+
 ## [4.4.10] - 2023-11-28
 
 ### Documentation
