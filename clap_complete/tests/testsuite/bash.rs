@@ -161,6 +161,58 @@ fn complete() {
 -V          --generate  --version   quote       pacman      alias       complete    "#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
+
+    // Issue 5239 (https://github.com/clap-rs/clap/issues/5239)
+    let input = "exhaustive hint --file test\t";
+    let expected = "exhaustive hint --file test     % exhaustive hint --file tests ";
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
+
+    {
+        use std::fs::File;
+        use std::path::Path;
+
+        let testdir = snapbox::path::PathFixture::mutable_temp().unwrap();
+        let testdir_path = testdir.path().unwrap();
+
+        File::create(Path::new(testdir_path).join("a_file")).unwrap();
+        File::create(Path::new(testdir_path).join("b_file")).unwrap();
+        std::fs::create_dir(Path::new(testdir_path).join("c_dir")).unwrap();
+        std::fs::create_dir(Path::new(testdir_path).join("d_dir")).unwrap();
+
+        let input = format!(
+            "exhaustive hint --file {}/\t\t",
+            testdir_path.to_string_lossy()
+        );
+        let actual = runtime.complete(input.as_str(), &term).unwrap();
+        assert!(
+            actual.contains("a_file")
+                && actual.contains("b_file")
+                && actual.contains("c_dir")
+                && actual.contains("d_dir"),
+            "Actual output:\n{}",
+            actual
+        );
+
+        let input = format!(
+            "exhaustive hint --dir {}/\t\t",
+            testdir_path.to_string_lossy()
+        );
+        let actual = runtime.complete(input.as_str(), &term).unwrap();
+        assert!(
+            actual.contains("a_file")
+                && actual.contains("b_file")
+                && actual.contains("c_dir")
+                && actual.contains("d_dir"),
+            "Actual output:\n{}",
+            actual
+        );
+    }
+
+    let input = "exhaustive hint --other \t";
+    let expected = "exhaustive hint --other         % exhaustive hint --other  ";
+    let actual = runtime.complete(input, &term).unwrap();
+    snapbox::assert_eq(expected, actual);
 }
 
 #[test]
