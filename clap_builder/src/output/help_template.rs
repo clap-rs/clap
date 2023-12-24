@@ -684,57 +684,56 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         let help_is_empty = help.is_empty();
         self.writer.push_styled(&help);
         if let Some(arg) = arg {
-            const DASH_SPACE: usize = "- ".len();
-            let possible_vals = arg.get_possible_values();
-            if !possible_vals.is_empty()
-                && !arg.is_hide_possible_values_set()
-                && self.use_long_pv(arg)
-            {
-                debug!("HelpTemplate::help: Found possible vals...{possible_vals:?}");
-                let longest = possible_vals
-                    .iter()
-                    .filter(|f| !f.is_hide_set())
-                    .map(|f| display_width(f.get_name()))
-                    .max()
-                    .expect("Only called with possible value");
+            if !arg.is_hide_possible_values_set() && self.use_long_pv(arg) {
+                const DASH_SPACE: usize = "- ".len();
+                let possible_vals = arg.get_possible_values();
+                if !possible_vals.is_empty() {
+                    debug!("HelpTemplate::help: Found possible vals...{possible_vals:?}");
+                    let longest = possible_vals
+                        .iter()
+                        .filter(|f| !f.is_hide_set())
+                        .map(|f| display_width(f.get_name()))
+                        .max()
+                        .expect("Only called with possible value");
 
-                let spaces = spaces + TAB_WIDTH - DASH_SPACE;
-                let trailing_indent = spaces + DASH_SPACE;
-                let trailing_indent = self.get_spaces(trailing_indent);
+                    let spaces = spaces + TAB_WIDTH - DASH_SPACE;
+                    let trailing_indent = spaces + DASH_SPACE;
+                    let trailing_indent = self.get_spaces(trailing_indent);
 
-                if !help_is_empty {
-                    let _ = write!(self.writer, "\n\n{:spaces$}", "");
-                }
-                self.writer.push_str("Possible values:");
-                for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
-                    let name = pv.get_name();
-
-                    let mut descr = StyledStr::new();
-                    let _ = write!(
-                        &mut descr,
-                        "{}{name}{}",
-                        literal.render(),
-                        literal.render_reset()
-                    );
-                    if let Some(help) = pv.get_help() {
-                        debug!("HelpTemplate::help: Possible Value help");
-                        // To align help messages
-                        let padding = longest - display_width(name);
-                        let _ = write!(&mut descr, ": {:padding$}", "");
-                        descr.push_styled(help);
+                    if !help_is_empty {
+                        let _ = write!(self.writer, "\n\n{:spaces$}", "");
                     }
+                    self.writer.push_str("Possible values:");
+                    for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
+                        let name = pv.get_name();
 
-                    let avail_chars = if self.term_w > trailing_indent.len() {
-                        self.term_w - trailing_indent.len()
-                    } else {
-                        usize::MAX
-                    };
-                    descr.replace_newline_var();
-                    descr.wrap(avail_chars);
-                    descr.indent("", &trailing_indent);
+                        let mut descr = StyledStr::new();
+                        let _ = write!(
+                            &mut descr,
+                            "{}{name}{}",
+                            literal.render(),
+                            literal.render_reset()
+                        );
+                        if let Some(help) = pv.get_help() {
+                            debug!("HelpTemplate::help: Possible Value help");
+                            // To align help messages
+                            let padding = longest - display_width(name);
+                            let _ = write!(&mut descr, ": {:padding$}", "");
+                            descr.push_styled(help);
+                        }
 
-                    let _ = write!(self.writer, "\n{:spaces$}- ", "",);
-                    self.writer.push_styled(&descr);
+                        let avail_chars = if self.term_w > trailing_indent.len() {
+                            self.term_w - trailing_indent.len()
+                        } else {
+                            usize::MAX
+                        };
+                        descr.replace_newline_var();
+                        descr.wrap(avail_chars);
+                        descr.indent("", &trailing_indent);
+
+                        let _ = write!(self.writer, "\n{:spaces$}- ", "",);
+                        self.writer.push_styled(&descr);
+                    }
                 }
             }
         }
@@ -844,17 +843,19 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             spec_vals.push(format!("[short aliases: {als}]"));
         }
 
-        let possible_vals = a.get_possible_values();
-        if !possible_vals.is_empty() && !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
-            debug!("HelpTemplate::spec_vals: Found possible vals...{possible_vals:?}");
+        if !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
+            let possible_vals = a.get_possible_values();
+            if !possible_vals.is_empty() {
+                debug!("HelpTemplate::spec_vals: Found possible vals...{possible_vals:?}");
 
-            let pvs = possible_vals
-                .iter()
-                .filter_map(PossibleValue::get_visible_quoted_name)
-                .collect::<Vec<_>>()
-                .join(", ");
+                let pvs = possible_vals
+                    .iter()
+                    .filter_map(PossibleValue::get_visible_quoted_name)
+                    .collect::<Vec<_>>()
+                    .join(", ");
 
-            spec_vals.push(format!("[possible values: {pvs}]"));
+                spec_vals.push(format!("[possible values: {pvs}]"));
+            }
         }
         let connector = if self.use_long { "\n" } else { " " };
         spec_vals.join(connector)

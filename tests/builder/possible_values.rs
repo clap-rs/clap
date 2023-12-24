@@ -472,3 +472,145 @@ fn ignore_case_multiple_fail() {
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
+
+#[cfg(feature = "string")]
+mod expensive {
+    use std::sync::{Arc, Mutex};
+
+    use clap::{Arg, Command};
+    use clap_builder::builder::{PossibleValue, PossibleValuesParser, TypedValueParser};
+
+    #[cfg(feature = "error-context")]
+    use super::utils;
+
+    #[derive(Clone)]
+    struct ExpensiveValues {
+        iterated: Arc<Mutex<bool>>,
+    }
+
+    impl ExpensiveValues {
+        pub fn new() -> Self {
+            ExpensiveValues {
+                iterated: Arc::new(Mutex::new(false)),
+            }
+        }
+    }
+
+    impl IntoIterator for ExpensiveValues {
+        type Item = String;
+
+        type IntoIter = ExpensiveValuesIntoIterator;
+
+        fn into_iter(self) -> Self::IntoIter {
+            ExpensiveValuesIntoIterator { me: self, index: 0 }
+        }
+    }
+
+    struct ExpensiveValuesIntoIterator {
+        me: ExpensiveValues,
+        index: usize,
+    }
+
+    impl Iterator for ExpensiveValuesIntoIterator {
+        type Item = String;
+        fn next(&mut self) -> Option<String> {
+            let mut guard = self
+                .me
+                .iterated
+                .lock()
+                .expect("not working across multiple threads");
+
+            *guard = true;
+            self.index += 1;
+
+            if self.index < 3 {
+                Some(format!("expensive-value-{}", self.index))
+            } else {
+                None
+            }
+        }
+    }
+
+    impl TypedValueParser for ExpensiveValues {
+        type Value = String;
+
+        fn parse_ref(
+            &self,
+            _cmd: &clap_builder::Command,
+            _arg: Option<&clap_builder::Arg>,
+            _value: &std::ffi::OsStr,
+        ) -> Result<Self::Value, clap_builder::Error> {
+            todo!()
+        }
+
+        fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {
+            Some(Box::new(self.clone().into_iter().map(PossibleValue::from)))
+        }
+    }
+
+    #[test]
+    fn no_iterate_when_hidden() {
+        static PV_EXPECTED: &str = "\
+Usage: clap-test [some-cheap-option] [some-expensive-option]
+
+Arguments:
+  [some-cheap-option]      cheap [possible values: some, cheap, values]
+  [some-expensive-option]  expensive
+
+Options:
+  -h, --help  Print help
+";
+        let expensive = ExpensiveValues::new();
+        utils::assert_output(
+            Command::new("test")
+                .arg(
+                    Arg::new("some-cheap-option")
+                        .help("cheap")
+                        .value_parser(PossibleValuesParser::new(["some", "cheap", "values"])),
+                )
+                .arg(
+                    Arg::new("some-expensive-option")
+                        .help("expensive")
+                        .hide_possible_values(true)
+                        .value_parser(expensive.clone()),
+                ),
+            "clap-test -h",
+            PV_EXPECTED,
+            false,
+        );
+        assert_eq!(*expensive.iterated.lock().unwrap(), false);
+    }
+
+    #[test]
+    fn iterate_when_displayed() {
+        static PV_EXPECTED: &str = "\
+Usage: clap-test [some-cheap-option] [some-expensive-option]
+
+Arguments:
+  [some-cheap-option]      cheap [possible values: some, cheap, values]
+  [some-expensive-option]  expensive [possible values: expensive-value-1, expensive-value-2]
+
+Options:
+  -h, --help  Print help
+";
+        let expensive = ExpensiveValues::new();
+        utils::assert_output(
+            Command::new("test")
+                .arg(
+                    Arg::new("some-cheap-option")
+                        .help("cheap")
+                        .value_parser(PossibleValuesParser::new(["some", "cheap", "values"])),
+                )
+                .arg(
+                    Arg::new("some-expensive-option")
+                        .help("expensive")
+                        .hide_possible_values(false)
+                        .value_parser(expensive.clone()),
+                ),
+            "clap-test -h",
+            PV_EXPECTED,
+            false,
+        );
+        assert_eq!(*expensive.iterated.lock().unwrap(), true);
+    }
+}
