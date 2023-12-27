@@ -16,7 +16,9 @@ rust-version.workspace = true
 include.workspace = true
 
 [package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
+features = ["unstable-doc"]
+rustdoc-args = ["--cfg", "docsrs", "--generate-link-to-definition"]
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]
 
 [package.metadata.release]
 pre-release-replacements = [
@@ -52,5 +54,6 @@ required-features = ["unstable-dynamic"]
 
 [features]
 default = []
+unstable-doc = ["unstable-dynamic"] # for docs.rs
 unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:unicode-xid", "clap/derive", "dep:is_executable", "dep:pathdiff"]
 debug = ["clap/debug"]
