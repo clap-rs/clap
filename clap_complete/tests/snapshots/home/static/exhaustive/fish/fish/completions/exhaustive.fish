@@ -1,6 +1,6 @@
 complete -c exhaustive -n "__fish_use_subcommand" -l generate -d 'generate' -r -f -a "{bash	'',elvish	'',fish	'',powershell	'',zsh	''}"
 complete -c exhaustive -n "__fish_use_subcommand" -l global -d 'everywhere'
-complete -c exhaustive -n "__fish_use_subcommand" -s h -l help -d 'Print help'
+complete -c exhaustive -n "__fish_use_subcommand" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c exhaustive -n "__fish_use_subcommand" -s V -l version -d 'Print version'
 complete -c exhaustive -n "__fish_use_subcommand" -f -a "action"
 complete -c exhaustive -n "__fish_use_subcommand" -f -a "quote"
