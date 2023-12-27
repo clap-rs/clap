@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- *(unstable)* Include / expand `dynamic` on docs.rs
+
 ## [4.4.4] - 2023-10-24
 
 ## [4.4.3] - 2023-09-28
