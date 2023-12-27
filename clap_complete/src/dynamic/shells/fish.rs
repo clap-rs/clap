@@ -1,4 +1,4 @@
-/// Fish completions
+/// Completion support for Fish
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 

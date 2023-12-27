@@ -1,6 +1,6 @@
 use unicode_xid::UnicodeXID as _;
 
-/// Bash completions
+/// Completion support for Bash
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 

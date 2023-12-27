@@ -4,7 +4,7 @@ use std::str::FromStr;
 use clap::builder::PossibleValue;
 use clap::ValueEnum;
 
-/// Shell with auto-generated completion script available.
+/// Completion support for built-in shells
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
 pub enum Shell {

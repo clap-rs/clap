@@ -16,7 +16,7 @@ pub trait Completer {
         completer: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error>;
-    /// Complete the command
+    /// Complete the given command
     fn write_complete(
         &self,
         cmd: &mut clap::Command,
@@ -26,7 +26,7 @@ pub trait Completer {
     ) -> Result<(), std::io::Error>;
 }
 
-/// Complete the command specified
+/// Complete the given command
 pub fn complete(
     cmd: &mut clap::Command,
     args: Vec<std::ffi::OsString>,
