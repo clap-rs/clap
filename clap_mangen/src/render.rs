@@ -305,11 +305,15 @@ fn option_default_values(opt: &clap::Arg) -> Option<String> {
 }
 
 fn get_possible_values(arg: &clap::Arg) -> Option<(Vec<String>, bool)> {
+    if arg.is_hide_possible_values_set() {
+        return None;
+    }
+
     let possibles = &arg.get_possible_values();
     let possibles: Vec<&clap::builder::PossibleValue> =
         possibles.iter().filter(|pos| !pos.is_hide_set()).collect();
 
-    if !(possibles.is_empty() || arg.is_hide_possible_values_set()) {
+    if !possibles.is_empty() {
         return Some(format_possible_values(&possibles));
     }
     None
