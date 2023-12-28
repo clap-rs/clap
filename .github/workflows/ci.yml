@@ -84,7 +84,7 @@ jobs:
         build: [msrv, wasm, wasm-wasi, debug, release]
         include:
           - build: msrv
-            rust: 1.70.0  # MSRV
+            rust: 1.75  # MSRV
             target: x86_64-unknown-linux-gnu
             features: full
           - build: wasm
@@ -129,7 +129,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.70"  # MSRV
+        toolchain: "1.75"  # MSRV
     - uses: Swatinem/rust-cache@v2
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
@@ -154,7 +154,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: 1.70.0  # MSRV
+        toolchain: 1.75  # MSRV
     - uses: Swatinem/rust-cache@v2
     - name: Check documentation
       env:
@@ -185,7 +185,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.70"  # MSRV
+        toolchain: "1.75"  # MSRV
         components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Lint (ultra-minimal)
