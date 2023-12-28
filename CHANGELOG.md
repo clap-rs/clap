@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Only ask `TypedValueParser` for possible values if needed
+
 ## [4.4.11] - 2023-12-04
 
 ### Features

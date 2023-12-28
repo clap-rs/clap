@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Only ask `TypedValueParser` for possible values if needed
+
 ## [0.2.15] - 2023-10-24
 
 ## [0.2.14] - 2023-09-18
