@@ -31,7 +31,7 @@ jobs:
         build: [linux, windows, mac, minimal, default, next]
         include:
         - build: linux
-          os: ubuntu-latest
+          os: buildjet-8vcpu-ubuntu-2204
           rust: "stable"
           features: "full"
         - build: windows
