@@ -106,12 +106,12 @@ clap_builder = { path = "./clap_builder", version = "=4.4.12", default-features 
 clap_derive = { path = "./clap_derive", version = "=4.4.7", optional = true }
 
 [dev-dependencies]
-trybuild = "1.0.85"
+trybuild = "1.0.86"
 rustversion = "1.0.14"
 # Cutting out `filesystem` feature
 trycmd = { version = "0.14.19", default-features = false, features = ["color-auto", "diff", "examples"] }
 humantime = "2.1.0"
-snapbox = "0.4.14"
+snapbox = "0.4.15"
 shlex = "1.2.0"
 
 [[example]]
