@@ -58,7 +58,11 @@ impl Generator for Bash {
     esac
 }}
 
-complete -F _{name} -o nosort -o bashdefault -o default {name}
+if [[ \"${{BASH_VERSINFO[0]}}\" -eq 4 && \"${{BASH_VERSINFO[1]}}\" -ge 4 || \"${{BASH_VERSINFO[0]}}\" -gt 4 ]]; then
+    complete -F _{name} -o nosort -o bashdefault -o default {name}
+else
+    complete -F _{name} -o bashdefault -o default {name}
+fi
 ",
                 name = bin_name,
                 cmd = bin_name.replace('-', "__"),
