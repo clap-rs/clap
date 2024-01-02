@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Work with older Bash versions, particularly for MacOS
+
 ## [4.4.5] - 2023-12-27
 
 ### Documentation
