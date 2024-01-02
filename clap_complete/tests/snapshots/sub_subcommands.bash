@@ -233,4 +233,8 @@ _my-app() {
     esac
 }
 
-complete -F _my-app -o nosort -o bashdefault -o default my-app
+if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
+    complete -F _my-app -o nosort -o bashdefault -o default my-app
+else
+    complete -F _my-app -o bashdefault -o default my-app
+fi
