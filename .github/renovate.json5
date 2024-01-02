@@ -3,6 +3,7 @@
     'before 5am on the first day of the month',
   ],
   semanticCommits: 'enabled',
+  commitMessageLowerCase: 'never',
   configMigration: true,
   dependencyDashboard: true,
   customManagers: [
