@@ -41,7 +41,7 @@ jobs:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
     - name: Build
-      run: cargo test --no-run --workspace --all-features
+      run: cargo test --workspace --no-run
     - name: Default features
       run: cargo test --workspace
     - name: All features
