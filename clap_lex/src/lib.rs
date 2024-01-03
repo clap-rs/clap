@@ -463,7 +463,8 @@ fn split_nonutf8_once(b: &OsStr) -> (&str, Option<&OsStr>) {
     match b.try_str() {
         Ok(s) => (s, None),
         Err(err) => {
-            // SAFETY: `char_indices` ensures `index` is at a valid UTF-8 boundary
+            // SAFETY: `err.valid_up_to()`, which came from str::from_utf8(), is guaranteed
+            // to be a valid UTF8 boundary
             let (valid, after_valid) = unsafe { ext::split_at(b, err.valid_up_to()) };
             let valid = valid.try_str().unwrap();
             (valid, Some(after_valid))
