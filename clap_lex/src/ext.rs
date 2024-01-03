@@ -2,6 +2,9 @@ use std::ffi::OsStr;
 
 pub trait OsStrExt: private::Sealed {
     /// Converts to a string slice.
+    ///
+    /// The Utf8Error is guaranteed to have a valid UTF8 boundary
+    /// in its `valid_up_to()`
     fn try_str(&self) -> Result<&str, std::str::Utf8Error>;
     /// Returns `true` if the given pattern matches a sub-slice of
     /// this string slice.
