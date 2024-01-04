@@ -37,8 +37,8 @@
 //! - Clearer endorsement of `structopt`
 //!
 //! See also
-//! - [`clap` v3 CHANGELOG](../CHANGELOG.md#300---2021-12-31)
-//! - [`structopt` migration guide](../CHANGELOG.md#migrate-structopt)
+//! - [`clap` v3 CHANGELOG](https://github.com/clap-rs/clap/blob/v3-master/CHANGELOG.md#300---2021-12-31)
+//! - [`structopt` migration guide](https://github.com/clap-rs/clap/blob/v3-master/CHANGELOG.md#migrate-structopt)
 //!
 //! #### What are some reasons to use `clap`? (The Pitch)
 //!
