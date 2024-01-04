@@ -41,7 +41,8 @@ fn suggest_long_flag_subset() {
         .arg(
             clap::Arg::new("hello-moon")
                 .long("hello-moon")
-                .action(clap::ArgAction::Count),
+                .action(clap::ArgAction::Count)
+                .hide(true),
         )
         .arg(
             clap::Arg::new("goodbye-world")
@@ -54,6 +55,14 @@ fn suggest_long_flag_subset() {
 --hello-moon
 --help\tPrint help",
         complete!(cmd, "--he"),
+    );
+
+    snapbox::assert_eq(
+        "--hello-world
+--goodbye-world
+--help\tPrint help
+-h\tPrint help",
+        complete!(cmd, " "),
     );
 }
 

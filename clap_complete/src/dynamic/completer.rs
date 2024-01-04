@@ -118,7 +118,10 @@ fn complete_arg(
                     }
                 } else {
                     completions.extend(longs_and_visible_aliases(cmd).into_iter().filter_map(
-                        |(f, help)| f.starts_with(flag).then(|| (format!("--{f}").into(), help)),
+                        |(f, a)| {
+                            f.starts_with(flag)
+                                .then(|| (format!("--{f}").into(), a.get_help().cloned()))
+                        },
                     ));
                 }
             }
@@ -127,7 +130,8 @@ fn complete_arg(
             completions.extend(
                 longs_and_visible_aliases(cmd)
                     .into_iter()
-                    .map(|(f, help)| (format!("--{f}").into(), help)),
+                    .filter(|(_, a)| !a.is_hide_set())
+                    .map(|(f, a)| (format!("--{f}").into(), a.get_help().cloned())),
             );
         }
 
@@ -292,16 +296,13 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Optio
 
 /// Gets all the long options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `help` and `version` depending on the [`clap::Command`] settings.
-fn longs_and_visible_aliases(p: &clap::Command) -> Vec<(String, Option<StyledStr>)> {
+fn longs_and_visible_aliases(p: &clap::Command) -> Vec<(String, &clap::Arg)> {
     debug!("longs: name={}", p.get_name());
 
     p.get_arguments()
         .filter_map(|a| {
-            a.get_long_and_visible_aliases().map(|longs| {
-                longs
-                    .into_iter()
-                    .map(|s| (s.to_string(), a.get_help().cloned()))
-            })
+            a.get_long_and_visible_aliases()
+                .map(move |longs| longs.into_iter().map(move |s| (s.to_string(), a)))
         })
         .flatten()
         .collect()
@@ -313,6 +314,7 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<(char, Option<StyledStr>
     debug!("shorts: name={}", p.get_name());
 
     p.get_arguments()
+        .filter(|a| !a.is_hide_set())
         .filter_map(|a| {
             a.get_short_and_visible_aliases()
                 .map(|shorts| shorts.into_iter().map(|s| (s, a.get_help().cloned())))

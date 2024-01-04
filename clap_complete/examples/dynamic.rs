@@ -11,6 +11,13 @@ fn command() -> clap::Command {
                 .value_hint(clap::ValueHint::FilePath),
         )
         .arg(
+            clap::Arg::new("output")
+                .long("output")
+                .short('o')
+                .hide(true)
+                .value_hint(clap::ValueHint::FilePath),
+        )
+        .arg(
             clap::Arg::new("format")
                 .long("format")
                 .short('F')
