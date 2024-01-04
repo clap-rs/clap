@@ -171,11 +171,16 @@ fn complete_arg_value(
 
     if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
-            values.extend(possible_values.into_iter().filter_map(|p| {
-                let name = p.get_name();
-                name.starts_with(value)
-                    .then(|| (name.into(), p.get_help().cloned()))
-            }));
+            values.extend(
+                possible_values
+                    .into_iter()
+                    .filter(|p| value != "" || !p.is_hide_set())
+                    .filter_map(|p| {
+                        let name = p.get_name();
+                        name.starts_with(value)
+                            .then(|| (name.into(), p.get_help().cloned()))
+                    }),
+            );
         }
     } else {
         let value_os = match value {

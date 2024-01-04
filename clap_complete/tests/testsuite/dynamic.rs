@@ -62,7 +62,7 @@ fn suggest_possible_value_subset() {
     let name = "exhaustive";
     let mut cmd = Command::new(name).arg(clap::Arg::new("hello-world").value_parser([
         PossibleValue::new("hello-world").help("Say hello to the world"),
-        "hello-moon".into(),
+        PossibleValue::new("hello-moon").hide(true),
         "goodbye-world".into(),
     ]));
 
@@ -70,6 +70,14 @@ fn suggest_possible_value_subset() {
         "hello-world\tSay hello to the world
 hello-moon",
         complete!(cmd, "hello"),
+    );
+
+    snapbox::assert_eq(
+        "--help\tPrint help (see more with '--help')
+-h\tPrint help (see more with '--help')
+hello-world\tSay hello to the world
+goodbye-world",
+        complete!(cmd, " "),
     );
 }
 
