@@ -19,7 +19,7 @@ macro_rules! complete {
 fn suggest_subcommand_subset() {
     let mut cmd = Command::new("exhaustive")
         .subcommand(Command::new("hello-world"))
-        .subcommand(Command::new("hello-moon"))
+        .subcommand(Command::new("hello-moon").hide(true))
         .subcommand(Command::new("goodbye-world"));
 
     snapbox::assert_eq(
@@ -27,6 +27,15 @@ fn suggest_subcommand_subset() {
 hello-world
 help\tPrint this message or the help of the given subcommand(s)",
         complete!(cmd, "he"),
+    );
+
+    snapbox::assert_eq(
+        "--help\tPrint help
+-h\tPrint help
+goodbye-world
+hello-world
+help\tPrint this message or the help of the given subcommand(s)",
+        complete!(cmd, " "),
     );
 }
 

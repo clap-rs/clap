@@ -4,6 +4,11 @@ use clap::Subcommand;
 
 fn command() -> clap::Command {
     let cmd = clap::Command::new("dynamic")
+        .subcommand(
+            clap::Command::new("hidden")
+                .about("Hidden subcommand")
+                .hide(true),
+        )
         .arg(
             clap::Arg::new("input")
                 .long("input")

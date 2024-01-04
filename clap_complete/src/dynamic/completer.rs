@@ -286,8 +286,8 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Optio
 
     let mut scs = subcommands(cmd)
         .into_iter()
-        .filter(|x| x.0.starts_with(value))
-        .map(|x| (OsString::from(&x.0), x.1))
+        .filter(|(n, sc)| n.starts_with(value) && (value != "" || !sc.is_hide_set()))
+        .map(|(n, sc)| (OsString::from(&n), sc.get_about().cloned()))
         .collect::<Vec<_>>();
     scs.sort();
     scs.dedup();
@@ -338,11 +338,11 @@ fn possible_values(a: &clap::Arg) -> Option<Vec<clap::builder::PossibleValue>> {
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-fn subcommands(p: &clap::Command) -> Vec<(String, Option<StyledStr>)> {
+fn subcommands(p: &clap::Command) -> Vec<(String, &clap::Command)> {
     debug!("subcommands: name={}", p.get_name());
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
     p.get_subcommands()
-        .map(|sc| (sc.get_name().to_string(), sc.get_about().cloned()))
+        .map(|sc| (sc.get_name().to_string(), sc))
         .collect()
 }
