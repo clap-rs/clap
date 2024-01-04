@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Fix link to structopt migration guide
+
 ## [4.4.12] - 2023-12-28
 
 ### Performance
