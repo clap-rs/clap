@@ -4078,7 +4078,9 @@ impl Arg {
     }
 
     pub(crate) fn is_takes_value_set(&self) -> bool {
-        self.get_action().takes_values()
+        self.get_num_args()
+            .unwrap_or_else(|| 1.into())
+            .takes_values()
     }
 
     /// Report whether [`Arg::allow_hyphen_values`] is set

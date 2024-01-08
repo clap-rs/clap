@@ -11,15 +11,13 @@ Options:
   -V, --version  Print version
 
 TESTS:
-      --empty [<empty>]  File is empty and is either a regular file or a directory [default: false]
-                         [possible values: true, false]
-      --name <name>      Base of file name (the path with the leading directories removed) matches
-                         shell pattern pattern
+      --empty        File is empty and is either a regular file or a directory
+      --name <name>  Base of file name (the path with the leading directories removed) matches shell
+                     pattern pattern
 
 OPERATORS:
-  -o, --or [<or>]    expr2 is not evaluate if exp1 is true [default: false] [possible values: true,
-                     false]
-  -a, --and [<and>]  Same as `expr1 expr1` [default: false] [possible values: true, false]
+  -o, --or   expr2 is not evaluate if exp1 is true
+  -a, --and  Same as `expr1 expr1`
 
 $ find --empty -o --name .keep
 [

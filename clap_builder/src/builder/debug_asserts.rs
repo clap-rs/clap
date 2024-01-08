@@ -704,13 +704,14 @@ fn assert_arg(arg: &Arg) {
         arg.get_id(),
     );
 
-    assert_eq!(
-        arg.get_action().takes_values(),
-        arg.is_takes_value_set(),
-        "Argument `{}`'s selected action {:?} contradicts `takes_value`",
-        arg.get_id(),
-        arg.get_action()
-    );
+    if arg.is_takes_value_set() {
+        assert!(
+            arg.get_action().takes_values(),
+            "Argument `{}`'s selected action {:?} contradicts `takes_value`",
+            arg.get_id(),
+            arg.get_action()
+        );
+    }
     if let Some(action_type_id) = arg.get_action().value_type_id() {
         assert_eq!(
             action_type_id,
