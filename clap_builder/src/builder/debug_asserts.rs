@@ -775,13 +775,6 @@ fn assert_arg(arg: &Arg) {
     }
 
     assert_eq!(
-        num_vals.takes_values(),
-        arg.is_takes_value_set(),
-        "Argument {}: mismatch between `num_args` ({}) and `takes_value`",
-        arg.get_id(),
-        num_vals,
-    );
-    assert_eq!(
         num_vals.is_multiple(),
         arg.is_multiple_values_set(),
         "Argument {}: mismatch between `num_args` ({}) and `multiple_values`",
