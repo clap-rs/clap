@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Fix `find` cookbook entry to allow repeats of flags/options
+
+### Features
+
+- Allow `num_args(0)` on options which allows making them emulate being a flag for position-tracking flags
+
 ## [4.4.13] - 2024-01-04
 
 ### Documentation
