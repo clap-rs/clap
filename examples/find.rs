@@ -13,12 +13,8 @@ fn cli() -> Command {
         .group(ArgGroup::new("tests").multiple(true))
         .next_help_heading("TESTS")
         .args([
-            Arg::new("empty")
+            position_sensitive_flag(Arg::new("empty"))
                 .long("empty")
-                .num_args(0)
-                .value_parser(value_parser!(bool))
-                .default_missing_value("true")
-                .default_value("false")
                 .action(ArgAction::Append)
                 .help("File is empty and is either a regular file or a directory")
                 .group("tests"),
@@ -31,27 +27,28 @@ fn cli() -> Command {
         .group(ArgGroup::new("operators").multiple(true))
         .next_help_heading("OPERATORS")
         .args([
-            Arg::new("or")
+            position_sensitive_flag(Arg::new("or"))
                 .short('o')
                 .long("or")
-                .num_args(0)
-                .value_parser(value_parser!(bool))
-                .default_missing_value("true")
-                .default_value("false")
                 .action(ArgAction::Append)
                 .help("expr2 is not evaluate if exp1 is true")
                 .group("operators"),
-            Arg::new("and")
+            position_sensitive_flag(Arg::new("and"))
                 .short('a')
                 .long("and")
-                .num_args(0)
-                .value_parser(value_parser!(bool))
-                .default_missing_value("true")
-                .default_value("false")
                 .action(ArgAction::Append)
                 .help("Same as `expr1 expr1`")
                 .group("operators"),
         ])
+}
+
+fn position_sensitive_flag(arg: Arg) -> Arg {
+    // Flags don't track the position of each occurrence, so we need to emulate flags with
+    // value-less options to get the same result
+    arg.num_args(0)
+        .value_parser(value_parser!(bool))
+        .default_missing_value("true")
+        .default_value("false")
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
