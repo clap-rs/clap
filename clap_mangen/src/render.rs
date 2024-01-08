@@ -99,7 +99,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             (None, None) => vec![],
         };
 
-        if opt.get_action().takes_values() {
+        if opt.get_num_args().expect("built").takes_values() {
             if let Some(value) = &opt.get_value_names() {
                 header.push(roman("="));
                 header.push(italic(value.join(" ")));
@@ -288,7 +288,7 @@ fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
 }
 
 fn option_default_values(opt: &clap::Arg) -> Option<String> {
-    if opt.is_hide_default_value_set() || !opt.get_action().takes_values() {
+    if opt.is_hide_default_value_set() || !opt.get_num_args().expect("built").takes_values() {
         return None;
     } else if !opt.get_default_values().is_empty() {
         let values = opt
