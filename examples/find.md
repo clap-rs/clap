@@ -11,13 +11,15 @@ Options:
   -V, --version  Print version
 
 TESTS:
-      --empty        File is empty and is either a regular file or a directory
-      --name <NAME>  Base of file name (the path with the leading directories removed) matches shell
-                     pattern pattern
+      --empty [<empty>]  File is empty and is either a regular file or a directory [default: false]
+                         [possible values: true, false]
+      --name <name>      Base of file name (the path with the leading directories removed) matches
+                         shell pattern pattern
 
 OPERATORS:
-  -o, --or   expr2 is not evaluate if exp1 is true
-  -a, --and  Same as `expr1 expr1`
+  -o, --or [<or>]    expr2 is not evaluate if exp1 is true [default: false] [possible values: true,
+                     false]
+  -a, --and [<and>]  Same as `expr1 expr1` [default: false] [possible values: true, false]
 
 $ find --empty -o --name .keep
 [
@@ -42,12 +44,38 @@ $ find --empty -o --name .keep
 ]
 
 $ find --empty -o --name .keep -o --name foo
-? 2
-error: the argument '--or' cannot be used multiple times
-
-Usage: find [OPTIONS]
-
-For more information, try '--help'.
+[
+    (
+        "empty",
+        Bool(
+            true,
+        ),
+    ),
+    (
+        "or",
+        Bool(
+            true,
+        ),
+    ),
+    (
+        "name",
+        String(
+            ".keep",
+        ),
+    ),
+    (
+        "or",
+        Bool(
+            true,
+        ),
+    ),
+    (
+        "name",
+        String(
+            "foo",
+        ),
+    ),
+]
 
 ```
 
