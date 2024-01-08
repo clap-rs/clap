@@ -41,5 +41,13 @@ $ find --empty -o --name .keep
     ),
 ]
 
+$ find --empty -o --name .keep -o --name foo
+? 2
+error: the argument '--or' cannot be used multiple times
+
+Usage: find [OPTIONS]
+
+For more information, try '--help'.
+
 ```
 
