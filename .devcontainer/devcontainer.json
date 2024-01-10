@@ -1,0 +1,22 @@
+{
+	"name": "Rust",
+	"image": "mcr.microsoft.com/devcontainers/rust:1-1-bullseye",
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/apt-packages": {
+			"packages": "curl,ca-certificates,wget,net-tools,bash-completion"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mhutchie.git-graph",
+				"rust-lang.rust-analyzer",
+				"mutantdino.resourcemonitor",
+				"GitHub.vscode-pull-request-github",
+				"GitHub.vscode-github-actions",
+				"bierner.markdown-preview-github-styles",
+				"me-dutour-mathieu.vscode-github-actions"
+			]
+		}
+	}
+}
