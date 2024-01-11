@@ -727,25 +727,41 @@ For more information, try '--help'.
 #[test]
 #[cfg(feature = "error-context")]
 fn flag_conflicts_with_subcommand_long_flag() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub' cannot be used with '--hello'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
         .arg(arg!(--hello))
         .subcommand(Command::new("sub").long_flag("sub"));
 
-    let res = cmd.try_get_matches_from(vec!["", "--hello", "--sub"]);
-    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
+    utils::assert_output(cmd, "test --hello --sub", CONFLICT_ERR, true);
 }
 
 #[test]
 #[cfg(feature = "error-context")]
 fn flag_conflicts_with_subcommand_short_flag() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub' cannot be used with '--hello'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
         .arg(arg!(--hello))
         .subcommand(Command::new("sub").short_flag('s'));
 
-    let res = cmd.try_get_matches_from(vec!["", "--hello", "-s"]);
-    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
+    utils::assert_output(cmd, "test --hello -s", CONFLICT_ERR, true);
 }
 
 #[test]

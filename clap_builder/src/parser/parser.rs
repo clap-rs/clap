@@ -454,6 +454,17 @@ impl<'cmd> Parser<'cmd> {
         }
 
         if let Some(ref pos_sc_name) = subcmd_name {
+            if self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found {
+                return Err(ClapError::subcommand_conflict(
+                    self.cmd,
+                    pos_sc_name.clone(),
+                    matcher
+                        .arg_ids()
+                        .map(|id| self.cmd.find(id).unwrap().to_string())
+                        .collect(),
+                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                ));
+            }
             let sc_name = self
                 .cmd
                 .find_subcommand(pos_sc_name)
