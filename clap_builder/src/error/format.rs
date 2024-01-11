@@ -146,12 +146,10 @@ fn write_dynamic_context(
 
     match error.kind() {
         ErrorKind::ArgumentConflict => {
-            let invalid_arg = error.get(ContextKind::InvalidArg);
-            let prior_arg = error.get(ContextKind::PriorArg);
-            if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
-                (invalid_arg, prior_arg)
-            {
-                if ContextValue::String(invalid_arg.clone()) == *prior_arg {
+            let mut prior_arg = error.get(ContextKind::PriorArg);
+            if let Some(ContextValue::String(invalid_arg)) = error.get(ContextKind::InvalidArg) {
+                if Some(&ContextValue::String(invalid_arg.clone())) == prior_arg {
+                    prior_arg = None;
                     let _ = write!(
                         styled,
                         "the argument '{}{invalid_arg}{}' cannot be used multiple times",
@@ -165,36 +163,48 @@ fn write_dynamic_context(
                         invalid.render(),
                         invalid.render_reset()
                     );
+                }
+            } else if let Some(ContextValue::String(invalid_arg)) =
+                error.get(ContextKind::InvalidSubcommand)
+            {
+                let _ = write!(
+                    styled,
+                    "the subcommand '{}{invalid_arg}{}' cannot be used with",
+                    invalid.render(),
+                    invalid.render_reset()
+                );
+            } else {
+                styled.push_str(error.kind().as_str().unwrap());
+            }
 
-                    match prior_arg {
-                        ContextValue::Strings(values) => {
-                            styled.push_str(":");
-                            for v in values {
-                                let _ = write!(
-                                    styled,
-                                    "\n{TAB}{}{v}{}",
-                                    invalid.render(),
-                                    invalid.render_reset()
-                                );
-                            }
-                        }
-                        ContextValue::String(value) => {
+            if let Some(prior_arg) = prior_arg {
+                match prior_arg {
+                    ContextValue::Strings(values) => {
+                        styled.push_str(":");
+                        for v in values {
                             let _ = write!(
                                 styled,
-                                " '{}{value}{}'",
+                                "\n{TAB}{}{v}{}",
                                 invalid.render(),
                                 invalid.render_reset()
                             );
                         }
-                        _ => {
-                            styled.push_str(" one or more of the other specified arguments");
-                        }
+                    }
+                    ContextValue::String(value) => {
+                        let _ = write!(
+                            styled,
+                            " '{}{value}{}'",
+                            invalid.render(),
+                            invalid.render_reset()
+                        );
+                    }
+                    _ => {
+                        styled.push_str(" one or more of the other specified arguments");
                     }
                 }
-                true
-            } else {
-                false
             }
+
+            true
         }
         ErrorKind::NoEquals => {
             let invalid_arg = error.get(ContextKind::InvalidArg);

@@ -685,6 +685,145 @@ fn exclusive_with_required() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
+fn option_conflicts_with_subcommand() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub1' cannot be used with '--place <place id>'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(-p --place <"place id"> "Place ID to open"))
+        .subcommand(Command::new("sub1"));
+
+    utils::assert_output(cmd, "test --place id sub1", CONFLICT_ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn positional_conflicts_with_subcommand() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub1' cannot be used with '<arg1>'
+
+Usage: test <arg1>
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(<arg1> "some arg"))
+        .subcommand(Command::new("sub1"));
+
+    utils::assert_output(cmd, "test value1 sub1", CONFLICT_ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn flag_conflicts_with_subcommand_long_flag() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub' cannot be used with '--hello'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(--hello))
+        .subcommand(Command::new("sub").long_flag("sub"));
+
+    utils::assert_output(cmd, "test --hello --sub", CONFLICT_ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn flag_conflicts_with_subcommand_short_flag() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub' cannot be used with '--hello'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(--hello))
+        .subcommand(Command::new("sub").short_flag('s'));
+
+    utils::assert_output(cmd, "test --hello -s", CONFLICT_ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn positional_conflicts_with_subcommand_precedent() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub' cannot be used with '<arg1>'
+
+Usage: test <arg1>
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand_precedence_over_arg(true)
+        .arg(arg!(<arg1> "some arg"))
+        .subcommand(Command::new("sub"));
+
+    utils::assert_output(cmd, "test hello sub", CONFLICT_ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn flag_conflicts_with_subcommand_precedent() {
+    static CONFLICT_ERR: &str = "\
+error: the subcommand 'sub' cannot be used with '--hello'
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand_precedence_over_arg(true)
+        .arg(arg!(--hello))
+        .subcommand(Command::new("sub"));
+
+    utils::assert_output(cmd, "test --hello sub", CONFLICT_ERR, true);
+}
+
+#[test]
+fn subcommand_conflict_negates_required() {
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand(Command::new("config"))
+        .arg(arg!(-p --place <"place id"> "Place ID to open").required(true));
+
+    let result = cmd.try_get_matches_from(["test", "config"]);
+    assert!(
+        result.is_ok(),
+        "args_conflicts_with_subcommands should ignore required: {}",
+        result.unwrap_err()
+    );
+    let m = result.unwrap();
+    assert_eq!(m.subcommand_name().unwrap(), "config");
+}
+
+#[test]
 fn args_negate_subcommands_one_level() {
     let res = Command::new("disablehelp")
         .args_conflicts_with_subcommands(true)
@@ -728,43 +867,4 @@ fn args_negate_subcommands_two_levels() {
             .map(|v| v.as_str()),
         Some("sub2")
     );
-}
-
-#[test]
-#[cfg(feature = "error-context")]
-fn subcommand_conflict_error_message() {
-    static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub1' found
-
-Usage: test [OPTIONS]
-       test <COMMAND>
-
-For more information, try '--help'.
-";
-
-    let cmd = Command::new("test")
-        .args_conflicts_with_subcommands(true)
-        .arg(arg!(-p --place <"place id"> "Place ID to open"))
-        .subcommand(
-            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
-        );
-
-    utils::assert_output(cmd, "test --place id sub1", CONFLICT_ERR, true);
-}
-
-#[test]
-fn subcommand_conflict_negates_required() {
-    let cmd = Command::new("test")
-        .args_conflicts_with_subcommands(true)
-        .subcommand(Command::new("config"))
-        .arg(arg!(-p --place <"place id"> "Place ID to open").required(true));
-
-    let result = cmd.try_get_matches_from(["test", "config"]);
-    assert!(
-        result.is_ok(),
-        "args_conflicts_with_subcommands should ignore required: {}",
-        result.unwrap_err()
-    );
-    let m = result.unwrap();
-    assert_eq!(m.subcommand_name().unwrap(), "config");
 }

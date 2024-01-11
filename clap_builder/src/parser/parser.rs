@@ -444,11 +444,27 @@ impl<'cmd> Parser<'cmd> {
             } else {
                 // Start error processing
                 let _ = self.resolve_pending(matcher);
-                return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
+                return Err(self.match_arg_error(
+                    &arg_os,
+                    valid_arg_found,
+                    trailing_values,
+                    matcher,
+                ));
             }
         }
 
         if let Some(ref pos_sc_name) = subcmd_name {
+            if self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found {
+                return Err(ClapError::subcommand_conflict(
+                    self.cmd,
+                    pos_sc_name.clone(),
+                    matcher
+                        .arg_ids()
+                        .map(|id| self.cmd.find(id).unwrap().to_string())
+                        .collect(),
+                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                ));
+            }
             let sc_name = self
                 .cmd
                 .find_subcommand(pos_sc_name)
@@ -470,6 +486,7 @@ impl<'cmd> Parser<'cmd> {
         arg_os: &clap_lex::ParsedArg<'_>,
         valid_arg_found: bool,
         trailing_values: bool,
+        matcher: &ArgMatcher,
     ) -> ClapError {
         // If argument follows a `--`
         if trailing_values {
@@ -490,7 +507,19 @@ impl<'cmd> Parser<'cmd> {
             && self.cmd.has_positionals()
             && (arg_os.is_long() || arg_os.is_short());
 
-        if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
+        if self.cmd.has_subcommands() {
+            if self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found {
+                return ClapError::subcommand_conflict(
+                    self.cmd,
+                    arg_os.display().to_string(),
+                    matcher
+                        .arg_ids()
+                        .map(|id| self.cmd.find(id).unwrap().to_string())
+                        .collect(),
+                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                );
+            }
+
             let candidates = suggestions::did_you_mean(
                 &arg_os.display().to_string(),
                 self.cmd.all_subcommand_names(),
@@ -508,9 +537,7 @@ impl<'cmd> Parser<'cmd> {
             }
 
             // If the argument must be a subcommand.
-            if self.cmd.has_subcommands()
-                && (!self.cmd.has_positionals() || self.cmd.is_infer_subcommands_set())
-            {
+            if !self.cmd.has_positionals() || self.cmd.is_infer_subcommands_set() {
                 return ClapError::unrecognized_subcommand(
                     self.cmd,
                     arg_os.display().to_string(),
