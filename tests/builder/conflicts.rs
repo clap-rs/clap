@@ -749,6 +749,48 @@ fn flag_conflicts_with_subcommand_short_flag() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
+fn positional_conflicts_with_subcommand_precedent() {
+    static CONFLICT_ERR: &str = "\
+error: unexpected argument 'sub' found
+
+Usage: test <arg1>
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand_precedence_over_arg(true)
+        .arg(arg!(<arg1> "some arg"))
+        .subcommand(Command::new("sub"));
+
+    utils::assert_output(cmd, "test hello sub", CONFLICT_ERR, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn flag_conflicts_with_subcommand_precedent() {
+    static CONFLICT_ERR: &str = "\
+error: unexpected argument 'sub' found
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand_precedence_over_arg(true)
+        .arg(arg!(--hello))
+        .subcommand(Command::new("sub"));
+
+    utils::assert_output(cmd, "test --hello sub", CONFLICT_ERR, true);
+}
+
+#[test]
 fn subcommand_conflict_negates_required() {
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
