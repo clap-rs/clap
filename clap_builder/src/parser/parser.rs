@@ -444,7 +444,12 @@ impl<'cmd> Parser<'cmd> {
             } else {
                 // Start error processing
                 let _ = self.resolve_pending(matcher);
-                return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
+                return Err(self.match_arg_error(
+                    &arg_os,
+                    valid_arg_found,
+                    trailing_values,
+                    matcher,
+                ));
             }
         }
 
@@ -470,6 +475,7 @@ impl<'cmd> Parser<'cmd> {
         arg_os: &clap_lex::ParsedArg<'_>,
         valid_arg_found: bool,
         trailing_values: bool,
+        matcher: &ArgMatcher,
     ) -> ClapError {
         // If argument follows a `--`
         if trailing_values {
@@ -492,11 +498,13 @@ impl<'cmd> Parser<'cmd> {
 
         if self.cmd.has_subcommands() {
             if self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found {
-                return ClapError::unknown_argument(
+                return ClapError::subcommand_conflict(
                     self.cmd,
                     arg_os.display().to_string(),
-                    None,
-                    suggested_trailing_arg,
+                    matcher
+                        .arg_ids()
+                        .map(|id| self.cmd.find(id).unwrap().to_string())
+                        .collect(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 );
             }

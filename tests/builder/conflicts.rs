@@ -688,7 +688,7 @@ fn exclusive_with_required() {
 #[cfg(feature = "error-context")]
 fn option_conflicts_with_subcommand() {
     static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub1' found
+error: the subcommand 'sub1' cannot be used with '--place <place id>'
 
 Usage: test [OPTIONS]
        test <COMMAND>
@@ -708,7 +708,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn positional_conflicts_with_subcommand() {
     static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub1' found
+error: the subcommand 'sub1' cannot be used with '<arg1>'
 
 Usage: test <arg1>
        test <COMMAND>
@@ -752,7 +752,7 @@ fn flag_conflicts_with_subcommand_short_flag() {
 #[cfg(feature = "error-context")]
 fn positional_conflicts_with_subcommand_precedent() {
     static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub' found
+error: the subcommand 'sub' cannot be used with '<arg1>'
 
 Usage: test <arg1>
        test <COMMAND>
@@ -773,7 +773,7 @@ For more information, try '--help'.
 #[cfg(feature = "error-context")]
 fn flag_conflicts_with_subcommand_precedent() {
     static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub' found
+error: the subcommand 'sub' cannot be used with '--hello'
 
 Usage: test [OPTIONS]
        test <COMMAND>

@@ -164,6 +164,15 @@ fn write_dynamic_context(
                         invalid.render_reset()
                     );
                 }
+            } else if let Some(ContextValue::String(invalid_arg)) =
+                error.get(ContextKind::InvalidSubcommand)
+            {
+                let _ = write!(
+                    styled,
+                    "the subcommand '{}{invalid_arg}{}' cannot be used with",
+                    invalid.render(),
+                    invalid.render_reset()
+                );
             } else {
                 styled.push_str(error.kind().as_str().unwrap());
             }
