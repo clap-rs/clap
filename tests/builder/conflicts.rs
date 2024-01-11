@@ -705,6 +705,26 @@ For more information, try '--help'.
 }
 
 #[test]
+#[cfg(feature = "error-context")]
+fn positional_conflicts_with_subcommand() {
+    static CONFLICT_ERR: &str = "\
+error: unexpected argument 'sub1' found
+
+Usage: test <arg1>
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(<arg1> "some arg"))
+        .subcommand(Command::new("sub1"));
+
+    utils::assert_output(cmd, "test value1 sub1", CONFLICT_ERR, true);
+}
+
+#[test]
 fn subcommand_conflict_negates_required() {
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
