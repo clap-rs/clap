@@ -685,6 +685,45 @@ fn exclusive_with_required() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
+fn subcommand_conflict_error_message() {
+    static CONFLICT_ERR: &str = "\
+error: unexpected argument 'sub1' found
+
+Usage: test [OPTIONS]
+       test <COMMAND>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(-p --place <"place id"> "Place ID to open"))
+        .subcommand(
+            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
+        );
+
+    utils::assert_output(cmd, "test --place id sub1", CONFLICT_ERR, true);
+}
+
+#[test]
+fn subcommand_conflict_negates_required() {
+    let cmd = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .subcommand(Command::new("config"))
+        .arg(arg!(-p --place <"place id"> "Place ID to open").required(true));
+
+    let result = cmd.try_get_matches_from(["test", "config"]);
+    assert!(
+        result.is_ok(),
+        "args_conflicts_with_subcommands should ignore required: {}",
+        result.unwrap_err()
+    );
+    let m = result.unwrap();
+    assert_eq!(m.subcommand_name().unwrap(), "config");
+}
+
+#[test]
 fn args_negate_subcommands_one_level() {
     let res = Command::new("disablehelp")
         .args_conflicts_with_subcommands(true)
@@ -728,43 +767,4 @@ fn args_negate_subcommands_two_levels() {
             .map(|v| v.as_str()),
         Some("sub2")
     );
-}
-
-#[test]
-#[cfg(feature = "error-context")]
-fn subcommand_conflict_error_message() {
-    static CONFLICT_ERR: &str = "\
-error: unexpected argument 'sub1' found
-
-Usage: test [OPTIONS]
-       test <COMMAND>
-
-For more information, try '--help'.
-";
-
-    let cmd = Command::new("test")
-        .args_conflicts_with_subcommands(true)
-        .arg(arg!(-p --place <"place id"> "Place ID to open"))
-        .subcommand(
-            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
-        );
-
-    utils::assert_output(cmd, "test --place id sub1", CONFLICT_ERR, true);
-}
-
-#[test]
-fn subcommand_conflict_negates_required() {
-    let cmd = Command::new("test")
-        .args_conflicts_with_subcommands(true)
-        .subcommand(Command::new("config"))
-        .arg(arg!(-p --place <"place id"> "Place ID to open").required(true));
-
-    let result = cmd.try_get_matches_from(["test", "config"]);
-    assert!(
-        result.is_ok(),
-        "args_conflicts_with_subcommands should ignore required: {}",
-        result.unwrap_err()
-    );
-    let m = result.unwrap();
-    assert_eq!(m.subcommand_name().unwrap(), "config");
 }
