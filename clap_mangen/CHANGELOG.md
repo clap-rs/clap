@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.17] - 2024-01-11
+
 ### Fixes
 
 - Correctly show help for fake flags
@@ -106,7 +108,8 @@ MSRV changed to 1.64.0
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.16...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.17...HEAD
+[0.2.17]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.16...clap_mangen-v0.2.17
 [0.2.16]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.15...clap_mangen-v0.2.16
 [0.2.15]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.14...clap_mangen-v0.2.15
 [0.2.14]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.13...clap_mangen-v0.2.14
