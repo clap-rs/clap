@@ -699,9 +699,7 @@ For more information, try '--help'.
     let cmd = Command::new("test")
         .args_conflicts_with_subcommands(true)
         .arg(arg!(-p --place <"place id"> "Place ID to open"))
-        .subcommand(
-            Command::new("sub1").subcommand(Command::new("sub2").subcommand(Command::new("sub3"))),
-        );
+        .subcommand(Command::new("sub1"));
 
     utils::assert_output(cmd, "test --place id sub1", CONFLICT_ERR, true);
 }
