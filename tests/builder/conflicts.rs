@@ -686,7 +686,7 @@ fn exclusive_with_required() {
 
 #[test]
 #[cfg(feature = "error-context")]
-fn subcommand_conflict_error_message() {
+fn option_conflicts_with_subcommand() {
     static CONFLICT_ERR: &str = "\
 error: unexpected argument 'sub1' found
 
