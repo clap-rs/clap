@@ -490,7 +490,17 @@ impl<'cmd> Parser<'cmd> {
             && self.cmd.has_positionals()
             && (arg_os.is_long() || arg_os.is_short());
 
-        if !(self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found) {
+        if self.cmd.has_subcommands() {
+            if self.cmd.is_args_conflicts_with_subcommands_set() && valid_arg_found {
+                return ClapError::unknown_argument(
+                    self.cmd,
+                    arg_os.display().to_string(),
+                    None,
+                    suggested_trailing_arg,
+                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                );
+            }
+
             let candidates = suggestions::did_you_mean(
                 &arg_os.display().to_string(),
                 self.cmd.all_subcommand_names(),
@@ -508,9 +518,7 @@ impl<'cmd> Parser<'cmd> {
             }
 
             // If the argument must be a subcommand.
-            if self.cmd.has_subcommands()
-                && (!self.cmd.has_positionals() || self.cmd.is_infer_subcommands_set())
-            {
+            if !self.cmd.has_positionals() || self.cmd.is_infer_subcommands_set() {
                 return ClapError::unrecognized_subcommand(
                     self.cmd,
                     arg_os.display().to_string(),
