@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Improve error for `args_conflicts_with_subcommands`
+- Ensure we error for `args_conflicts_with_subcommands` when using subcommand short and long flags
+
 ## [4.4.14] - 2024-01-08
 
 ### Documentation

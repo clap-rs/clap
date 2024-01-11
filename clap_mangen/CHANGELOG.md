@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Correctly show help for fake flags
+
 ## [0.2.16] - 2023-12-28
 
 ### Performance
