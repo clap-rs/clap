@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Ensure invalid escape sequences in user-defined strings are correctly stripped when terminal doesn't support color
+
 ## [4.4.15] - 2024-01-11
 
 ### Fixes
