@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.4.16] - 2024-01-12
+
 ### Fixes
 
 - Ensure invalid escape sequences in user-defined strings are correctly stripped when terminal doesn't support color
@@ -4523,7 +4525,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.4.15...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.4.16...HEAD
+[4.4.16]: https://github.com/clap-rs/clap/compare/v4.4.15...v4.4.16
 [4.4.15]: https://github.com/clap-rs/clap/compare/v4.4.14...v4.4.15
 [4.4.14]: https://github.com/clap-rs/clap/compare/v4.4.13...v4.4.14
 [4.4.13]: https://github.com/clap-rs/clap/compare/v4.4.12...v4.4.13
