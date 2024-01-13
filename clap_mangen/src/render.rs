@@ -9,9 +9,10 @@ pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
 }
 
 pub(crate) fn about(roff: &mut Roff, cmd: &clap::Command) {
+    let name = cmd.get_display_name().unwrap_or_else(|| cmd.get_name()).to_string();
     let s = match cmd.get_about().or_else(|| cmd.get_long_about()) {
-        Some(about) => format!("{} - {}", cmd.get_name(), about),
-        None => cmd.get_name().to_string(),
+        Some(about) => format!("{} - {}", name, about),
+        None => name,
     };
     roff.text([roman(s)]);
 }
@@ -29,7 +30,8 @@ pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
 }
 
 pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
-    let mut line = vec![bold(cmd.get_name()), roman(" ")];
+    let name = cmd.clone().render_usage().to_string();
+    let mut line = vec![bold(name), roman(" ")];
 
     for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
         let (lhs, rhs) = option_markers(opt);
