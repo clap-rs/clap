@@ -514,7 +514,7 @@ impl<'cmd> Parser<'cmd> {
                     arg_os.display().to_string(),
                     matcher
                         .arg_ids()
-                        .map(|id| self.cmd.find(id).unwrap().to_string())
+                        .filter_map(|id| self.cmd.find(id).map(|a| a.to_string()))
                         .collect(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 );
