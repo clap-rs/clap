@@ -156,9 +156,9 @@ fn complete() {
         common::load_runtime::<completest_pty::BashRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t\t";
-    let expected = r#"%
--h          --global    --help      action      value       last        hint        help
--V          --generate  --version   quote       pacman      alias       complete"#;
+    let expected = r#"% 
+-h          --global    --help      action      value       last        hint        help        
+-V          --generate  --version   quote       pacman      alias       complete    "#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }
