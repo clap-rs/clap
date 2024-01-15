@@ -505,6 +505,7 @@ dependencies = [
  "clap 4.4.17",
  "clap_lex 0.6.0",
  "completest",
+ "completest-pty",
  "is_executable",
  "pathdiff",
  "shlex",
@@ -529,6 +530,7 @@ dependencies = [
  "clap 4.4.17",
  "clap_complete",
  "completest",
+ "completest-nu",
  "snapbox",
 ]
 
@@ -599,10 +601,17 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "completest"
-version = "0.2.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab8199863e4b9c23d9668cddbcd0c977cad43dc70d921118e31aa3f1f312ef4b"
+checksum = "8229e041ca8f8130ad7f0ce1afb9cfdb3033de7fd548e6422dbb2f4f12184f41"
+
+[[package]]
+name = "completest-nu"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9432569c7de3f7aed70f775c455b3d49328449edc0d3655920189cc269f7f93b"
 dependencies = [
+ "completest",
  "dunce",
  "nu-cli",
  "nu-cmd-lang",
@@ -610,8 +619,17 @@ dependencies = [
  "nu-parser",
  "nu-protocol",
  "nu-test-support",
- "ptyprocess",
  "reedline",
+]
+
+[[package]]
+name = "completest-pty"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c3a1a4d91c06d649d8b3db8d1ff8712623c7a5642d7aad74bb122522ac9e055"
+dependencies = [
+ "completest",
+ "ptyprocess",
  "vt100",
 ]
 

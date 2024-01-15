@@ -2,13 +2,13 @@ mod common;
 
 #[test]
 fn register_completion() {
-    common::register_example("test", completest::Shell::Nu);
+    common::register_example::<completest_nu::NuRuntimeBuilder>("static", "test");
 }
 
 #[test]
 fn completion() {
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Nu);
+    let mut runtime = common::load_runtime::<completest_nu::NuRuntimeBuilder>("static", "test");
 
     let input = "test -\t";
     let expected = r#"% test -
@@ -41,7 +41,7 @@ fn completion() {
 #[test]
 fn completion_value_hint() {
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("test", completest::Shell::Nu);
+    let mut runtime = common::load_runtime::<completest_nu::NuRuntimeBuilder>("static", "test");
 
     let input = "test hint -\t";
     let expected = r#"% test hint -

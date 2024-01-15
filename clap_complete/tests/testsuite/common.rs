@@ -296,11 +296,13 @@ pub fn assert_matches_path(
         .matches_path(expected_path, buf);
 }
 
-pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
+pub fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {
+    use completest::Runtime as _;
+
     let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
     let scratch_path = scratch.path().unwrap();
 
-    let shell_name = shell.name();
+    let shell_name = R::name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
         .join(context)
@@ -341,7 +343,7 @@ pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
     let registration = std::str::from_utf8(&registration.stdout).unwrap();
     assert!(!registration.is_empty());
 
-    let mut runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
+    let mut runtime = R::new(bin_root, scratch_path.to_owned()).unwrap();
 
     runtime.register(name, registration).unwrap();
 
@@ -350,12 +352,14 @@ pub fn register_example(context: &str, name: &str, shell: completest::Shell) {
     scratch.close().unwrap();
 }
 
-pub fn load_runtime(
+pub fn load_runtime<R: completest::RuntimeBuilder>(
     context: &str,
     name: &str,
-    shell: completest::Shell,
-) -> Box<dyn completest::Runtime> {
-    let shell_name = shell.name();
+) -> Box<dyn completest::Runtime>
+where
+    <R as completest::RuntimeBuilder>::Runtime: 'static,
+{
+    let shell_name = R::name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
         .join(context)
@@ -382,11 +386,11 @@ pub fn load_runtime(
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 
-    let runtime = shell.with_home(bin_root, home).unwrap();
+    let runtime = R::with_home(bin_root, home).unwrap();
 
     Box::new(ScratchRuntime {
         _scratch: scratch,
-        runtime,
+        runtime: Box::new(runtime),
     })
 }
 
