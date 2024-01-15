@@ -19,6 +19,7 @@ use crate::dynamic::Completer as _;
 #[derive(clap::Subcommand)]
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
+#[command(about = None, long_about = None)]
 pub enum CompleteCommand {
     /// Register shell completions for this program
     #[command(hide = true)]
@@ -31,6 +32,7 @@ pub enum CompleteCommand {
 #[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
+#[command(about = None, long_about = None)]
 pub struct CompleteArgs {
     /// Specify shell to complete for
     #[arg(long)]
