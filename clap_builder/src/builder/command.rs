@@ -588,7 +588,7 @@ impl Command {
         Error::raw(kind, message).format(self)
     }
 
-    /// Parse [`env::args_os`], exiting on failure.
+    /// Parse [`env::args_os`], [exiting][Error::exit] on failure.
     ///
     /// # Panics
     ///
@@ -610,7 +610,7 @@ impl Command {
         self.get_matches_from(env::args_os())
     }
 
-    /// Parse [`env::args_os`], exiting on failure.
+    /// Parse [`env::args_os`], [exiting][Error::exit] on failure.
     ///
     /// Like [`Command::get_matches`] but doesn't consume the `Command`.
     ///
@@ -670,7 +670,7 @@ impl Command {
         self.try_get_matches_from(env::args_os())
     }
 
-    /// Parse the specified arguments, exiting on failure.
+    /// Parse the specified arguments, [exiting][Error::exit] on failure.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
     /// [`Command::no_binary_name`] is used.
