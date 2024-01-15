@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Fix `panic!` when mixing `args_conflicts_with_subcommands` with `ArgGroup` (which is implicit with `derive`) introduced in 4.4.15
+
 ## [4.4.16] - 2024-01-12
 
 ### Fixes
