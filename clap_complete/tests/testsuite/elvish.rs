@@ -139,21 +139,22 @@ fn complete() {
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive --generate
---generate     generate
---global       everywhere
---help         Print help
---version      Print version
--V             Print version
--h             Print help
-action         action
-alias          alias
-complete       Register shell completions for this program
+ COMPLETING argument  
+--generate     generate                                                 
+--global       everywhere                                               
+--help         Print help                                               
+--version      Print version                                            
+-V             Print version                                            
+-h             Print help                                               
+action         action                                                   
+alias          alias                                                    
+complete       Register shell completions for this program              
 help           Print this message or the help of the given subcommand(s)
-hint           hint
-last           last
-pacman         pacman
-quote          quote
-value          value"#;
+hint           hint                                                     
+last           last                                                     
+pacman         pacman                                                   
+quote          quote                                                    
+value          value                                                    "#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 }

@@ -138,15 +138,15 @@ fn complete() {
         common::load_runtime::<completest_pty::FishRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t";
-    let expected = r#"% exhaustive
+    let expected = r#"% exhaustive 
 action  complete            (Register shell completions for this program)  hint  pacman  value
-alias   help  (Print this message or the help of the given subcommand(s))  last  quote"#;
+alias   help  (Print this message or the help of the given subcommand(s))  last  quote   "#;
     let actual = runtime.complete(input, &term).unwrap();
     snapbox::assert_eq(expected, actual);
 
     let input = "exhaustive quote --choice \t";
     let actual = runtime.complete(input, &term).unwrap();
-    let expected = r#"% exhaustive quote --choice
+    let expected = r#"% exhaustive quote --choice 
 bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)"#;
     snapbox::assert_eq(expected, actual);
 }
