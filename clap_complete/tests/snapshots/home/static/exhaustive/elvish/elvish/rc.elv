@@ -22,8 +22,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
         &'exhaustive'= {
             cand --generate 'generate'
             cand --global 'everywhere'
-            cand -h 'Print help (see more with ''--help'')'
-            cand --help 'Print help (see more with ''--help'')'
+            cand -h 'Print help'
+            cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
             cand action 'action'
