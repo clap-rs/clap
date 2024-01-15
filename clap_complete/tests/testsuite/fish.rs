@@ -123,7 +123,7 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    common::register_example("static", "exhaustive", completest::Shell::Fish);
+    common::register_example::<completest_pty::FishRuntimeBuilder>("static", "exhaustive");
 }
 
 #[test]
@@ -134,7 +134,8 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("static", "exhaustive", completest::Shell::Fish);
+    let mut runtime =
+        common::load_runtime::<completest_pty::FishRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive
@@ -153,7 +154,7 @@ bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)"#;
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 #[test]
 fn register_dynamic() {
-    common::register_example("dynamic", "exhaustive", completest::Shell::Fish);
+    common::register_example::<completest_pty::FishRuntimeBuilder>("dynamic", "exhaustive");
 }
 
 #[test]
@@ -164,7 +165,8 @@ fn complete_dynamic() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("dynamic", "exhaustive", completest::Shell::Fish);
+    let mut runtime =
+        common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic", "exhaustive");
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive

@@ -258,13 +258,16 @@ pub fn assert_matches_path(
         .matches_path(expected_path, buf);
 }
 
-pub fn register_example(name: &str, shell: completest::Shell) {
+pub fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {
+    use completest::Runtime as _;
+
     let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
     let scratch_path = scratch.path().unwrap();
 
-    let shell_name = shell.name();
+    let shell_name = R::name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
+        .join(context)
         .join(name)
         .join(shell_name);
     println!("Compiling");
@@ -275,10 +278,17 @@ pub fn register_example(name: &str, shell: completest::Shell) {
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 
-    let registration = std::process::Command::new(&bin_path)
-        .arg(format!("--generate={shell_name}"))
-        .output()
-        .unwrap();
+    let mut registration = std::process::Command::new(&bin_path);
+    match context {
+        "static" => registration.args([format!("--generate={shell_name}")]),
+        "dynamic" => registration.args([
+            "complete".to_owned(),
+            "--register=-".to_owned(),
+            format!("--shell={shell_name}"),
+        ]),
+        _ => unreachable!("unsupported context {}", context),
+    };
+    let registration = registration.output().unwrap();
     assert!(
         registration.status.success(),
         "{}",
@@ -287,7 +297,7 @@ pub fn register_example(name: &str, shell: completest::Shell) {
     let registration = std::str::from_utf8(&registration.stdout).unwrap();
     assert!(!registration.is_empty());
 
-    let mut runtime = shell.init(bin_root, scratch_path.to_owned()).unwrap();
+    let mut runtime = R::new(bin_root, scratch_path.to_owned()).unwrap();
 
     runtime.register(name, registration).unwrap();
 
@@ -296,14 +306,23 @@ pub fn register_example(name: &str, shell: completest::Shell) {
     scratch.close().unwrap();
 }
 
-pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest::Runtime> {
-    let shell_name = shell.name();
+pub fn load_runtime<R: completest::RuntimeBuilder>(
+    context: &str,
+    name: &str,
+) -> Box<dyn completest::Runtime>
+where
+    <R as completest::RuntimeBuilder>::Runtime: 'static,
+{
+    let shell_name = R::name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
+        .join(context)
         .join(name)
         .join(shell_name);
-    std::fs::create_dir_all(&home).unwrap();
-    let scratch = snapbox::path::PathFixture::immutable(&home);
+    let scratch = snapbox::path::PathFixture::mutable_temp()
+        .unwrap()
+        .with_template(&home)
+        .unwrap();
     let home = scratch.path().unwrap().to_owned();
     println!("Compiling");
     let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
@@ -313,11 +332,11 @@ pub fn load_runtime(name: &str, shell: completest::Shell) -> Box<dyn completest:
     println!("Compiled");
     let bin_root = bin_path.parent().unwrap().to_owned();
 
-    let runtime = shell.with_home(bin_root, home).unwrap();
+    let runtime = R::with_home(bin_root, home).unwrap();
 
     Box::new(ScratchRuntime {
         _scratch: scratch,
-        runtime,
+        runtime: Box::new(runtime),
     })
 }
 
@@ -344,4 +363,57 @@ impl completest::Runtime for ScratchRuntime {
         let output = output.replace("\nCOMPLETING argument\n", "\n");
         Ok(output)
     }
+}
+
+pub fn has_command(command: &str) -> bool {
+    let output = match std::process::Command::new(command)
+        .arg("--version")
+        .output()
+    {
+        Ok(output) => output,
+        Err(e) => {
+            // CI is expected to support all of the commands
+            if is_ci() && cfg!(linux) {
+                panic!(
+                    "expected command `{}` to be somewhere in PATH: {}",
+                    command, e
+                );
+            }
+            return false;
+        }
+    };
+    if !output.status.success() {
+        panic!(
+            "expected command `{}` to be runnable, got error {}:\n\
+            stderr:{}\n\
+            stdout:{}\n",
+            command,
+            output.status,
+            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stdout)
+        );
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!(
+        "$ {command} --version
+{}",
+        stdout
+    );
+    if cfg!(target_os = "macos") && stdout.starts_with("GNU bash, version 3") {
+        return false;
+    }
+    if cfg!(target_os = "macos") && command == "zsh" {
+        // HACK: At least on CI, the prompt override is not working
+        return false;
+    }
+
+    true
+}
+
+/// Whether or not this running in a Continuous Integration environment.
+fn is_ci() -> bool {
+    // Consider using `tracked_env` instead of option_env! when it is stabilized.
+    // `tracked_env` will handle changes, but not require rebuilding the macro
+    // itself like option_env does.
+    option_env!("CI").is_some() || option_env!("TF_BUILD").is_some()
 }

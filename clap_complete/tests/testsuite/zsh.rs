@@ -123,7 +123,7 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    common::register_example("static", "exhaustive", completest::Shell::Zsh);
+    common::register_example::<completest_pty::ZshRuntimeBuilder>("static", "exhaustive");
 }
 
 #[test]
@@ -134,7 +134,8 @@ fn complete() {
     }
 
     let term = completest::Term::new();
-    let mut runtime = common::load_runtime("static", "exhaustive", completest::Shell::Zsh);
+    let mut runtime =
+        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t";
     let expected = r#"% exhaustive
