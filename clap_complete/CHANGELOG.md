@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fices
+
+- *(unstable)* Don't have dynamic completions pollute the parent command's help output
+
 ## [4.4.6] - 2024-01-02
 
 ### Fixes
