@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* When lacking `usage` feature, ensure the list of required arguments is unique
+
 ## [4.4.17] - 2024-01-15
 
 ### Fixes
