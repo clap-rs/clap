@@ -429,6 +429,8 @@ impl<'cmd> Validator<'cmd> {
                             "".to_owned()
                         }
                     })
+                    .collect::<FlatSet<_>>()
+                    .into_iter()
                     .collect::<Vec<_>>()
             }
         };
