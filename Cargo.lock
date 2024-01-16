@@ -439,8 +439,17 @@ dependencies = [
 [[package]]
 name = "clap"
 version = "4.4.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80932e03c33999b9235edb8655bc9df3204adc9887c2f95b50cb1deb9fd54253"
 dependencies = [
  "clap_builder 4.4.17",
+]
+
+[[package]]
+name = "clap"
+version = "4.4.18"
+dependencies = [
+ "clap_builder 4.4.18",
  "clap_derive",
  "humantime",
  "rustversion",
@@ -451,38 +460,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "clap"
-version = "4.4.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80932e03c33999b9235edb8655bc9df3204adc9887c2f95b50cb1deb9fd54253"
-dependencies = [
- "clap_builder 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.4.18",
  "criterion",
  "lazy_static",
-]
-
-[[package]]
-name = "clap_builder"
-version = "4.4.17"
-dependencies = [
- "anstream",
- "anstyle",
- "backtrace",
- "clap_lex 0.6.0",
- "color-print",
- "static_assertions",
- "strsim",
- "terminal_size 0.3.0",
- "unic-emoji-char",
- "unicase",
- "unicode-width",
 ]
 
 [[package]]
@@ -499,10 +482,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_builder"
+version = "4.4.18"
+dependencies = [
+ "anstream",
+ "anstyle",
+ "backtrace",
+ "clap_lex 0.6.0",
+ "color-print",
+ "static_assertions",
+ "strsim",
+ "terminal_size 0.3.0",
+ "unic-emoji-char",
+ "unicase",
+ "unicode-width",
+]
+
+[[package]]
 name = "clap_complete"
 version = "4.4.7"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.4.18",
  "clap_lex 0.6.0",
  "completest",
  "completest-pty",
@@ -518,7 +518,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.4.2"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.4.18",
  "clap_complete",
  "snapbox",
 ]
@@ -527,7 +527,7 @@ dependencies = [
 name = "clap_complete_nushell"
 version = "4.4.2"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.4.18",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -558,7 +558,7 @@ checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 name = "clap_mangen"
 version = "0.2.17"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.4.18",
  "roff",
  "snapbox",
 ]
@@ -718,7 +718,7 @@ dependencies = [
  "anes",
  "cast",
  "ciborium",
- "clap 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 4.4.17",
  "criterion-plot",
  "is-terminal",
  "itertools 0.10.5",
@@ -3666,7 +3666,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c8e090cfcfa51cb224d247e05938d25718a7203c6f8c0f0de7b3b031d99dcea"
 dependencies = [
- "clap 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 4.4.17",
  "filetime",
  "indicatif",
  "libc",
@@ -3682,7 +3682,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcbf657c9e738d16ebc5c161a611ff25327c1fb599645afb2831062efb23c851"
 dependencies = [
- "clap 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 4.4.17",
  "uucore",
 ]
 
@@ -3692,7 +3692,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "154531208d9ec160629bf9545a56ad9df38e964e547e0a17ee9d75aeec9831cb"
 dependencies = [
- "clap 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 4.4.17",
  "rand",
  "tempfile",
  "uucore",
@@ -3704,7 +3704,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70589dc3b41f34cbfe1fb22b8f20fcac233fa4565409905f12dd06780b18374d"
 dependencies = [
- "clap 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 4.4.17",
  "libc",
  "uucore",
  "windows-sys 0.48.0",
@@ -3716,7 +3716,7 @@ version = "0.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4bea3522caab8af3fe1de1f27d9691e4ea159efe4d86d4e176306792163936a6"
 dependencies = [
- "clap 4.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 4.4.17",
  "dunce",
  "glob",
  "libc",
