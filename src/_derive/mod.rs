@@ -148,6 +148,7 @@
 //! - `author [= <expr>]`: [`Command::author`][crate::Command::author]
 //!   - When not present: no author set
 //!   - Without `<expr>`: defaults to [crate `authors`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-authors-field)
+//!   - **NOTE:** A custom [`help_template`][crate::Command::help_template] is needed for author to show up.
 //! - `about [= <expr>]`: [`Command::about`][crate::Command::about]
 //!   - When not present: [Doc comment summary](#doc-comments)
 //!   - Without `<expr>`: [crate `description`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-description-field) ([`Parser`][crate::Parser] container)

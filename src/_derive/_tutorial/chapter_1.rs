@@ -8,7 +8,7 @@
 //!
 #![doc = include_str!("../../../examples/tutorial_derive/02_apps.md")]
 //!
-//! You can use [`#[command(author, version, about)]` attribute defaults][super#command-attributes] on the struct to fill these fields in from your `Cargo.toml` file.
+//! You can use [`#[command(version, about)]` attribute defaults][super#command-attributes] on the struct to fill these fields in from your `Cargo.toml` file.
 //!
 //! ```rust
 #![doc = include_str!("../../../examples/tutorial_derive/02_crate.rs")]

@@ -1,7 +1,7 @@
 use clap::{Args, Parser};
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(version, about, long_about = None)]
 struct Cli {
     #[command(flatten)]
     vers: Vers,
