@@ -6,7 +6,6 @@ fn main() {
         .version("5.2.1")
         .subcommand_required(true)
         .arg_required_else_help(true)
-        .author("Pacman Development Team")
         // Query subcommand
         //
         // Only a few of its arguments are implemented below.

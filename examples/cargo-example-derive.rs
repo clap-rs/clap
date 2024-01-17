@@ -8,7 +8,7 @@ enum CargoCli {
 }
 
 #[derive(clap::Args)]
-#[command(author, version, about, long_about = None)]
+#[command(version, about, long_about = None)]
 struct ExampleDeriveArgs {
     #[arg(long)]
     manifest_path: Option<std::path::PathBuf>,

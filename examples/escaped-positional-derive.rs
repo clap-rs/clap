@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser)] // requires `derive` feature
-#[command(author, version, about, long_about = None)]
+#[command(version, about, long_about = None)]
 struct Cli {
     #[arg(short = 'f')]
     eff: bool,
