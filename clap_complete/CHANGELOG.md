@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* be consistent in identifiers when custom bin names are used
+
 ## [4.4.7] - 2024-01-15
 
-### Fices
+### Fixes
 
 - *(unstable)* Don't have dynamic completions pollute the parent command's help output
 
