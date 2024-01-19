@@ -12,17 +12,17 @@ _bin-name() {
             ",$1")
                 cmd="bin__name"
                 ;;
-            my__app,help)
-                cmd="my__app__help"
+            bin__name,help)
+                cmd="bin__name__help"
                 ;;
-            my__app,test)
-                cmd="my__app__test"
+            bin__name,test)
+                cmd="bin__name__test"
                 ;;
-            my__app__help,help)
-                cmd="my__app__help__help"
+            bin__name__help,help)
+                cmd="bin__name__help__help"
                 ;;
-            my__app__help,test)
-                cmd="my__app__help__test"
+            bin__name__help,test)
+                cmd="bin__name__help__test"
                 ;;
             *)
                 ;;

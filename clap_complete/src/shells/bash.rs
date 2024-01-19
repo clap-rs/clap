@@ -18,6 +18,8 @@ impl Generator for Bash {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
+        let fn_name = bin_name.replace('-', "__");
+
         w!(
             buf,
             format!(
@@ -65,10 +67,10 @@ else
 fi
 ",
                 name = bin_name,
-                cmd = bin_name.replace('-', "__"),
+                cmd = fn_name,
                 name_opts = all_options_for_path(cmd, bin_name),
                 name_opts_details = option_details_for_path(cmd, bin_name),
-                subcmds = all_subcommands(cmd),
+                subcmds = all_subcommands(cmd, &fn_name),
                 subcmd_details = subcommand_details(cmd)
             )
             .as_bytes()
@@ -76,7 +78,7 @@ fi
     }
 }
 
-fn all_subcommands(cmd: &Command) -> String {
+fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
     debug!("all_subcommands");
 
     fn add_command(
@@ -106,9 +108,8 @@ fn all_subcommands(cmd: &Command) -> String {
         }
     }
     let mut subcmds = vec![];
-    let fn_name = cmd.get_name().replace('-', "__");
     for subcmd in cmd.get_subcommands() {
-        add_command(&fn_name, subcmd, &mut subcmds);
+        add_command(parent_fn_name, subcmd, &mut subcmds);
     }
     subcmds.sort();
 
