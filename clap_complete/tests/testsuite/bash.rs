@@ -73,6 +73,19 @@ fn sub_subcommands() {
 }
 
 #[test]
+fn custom_bin_name() {
+    let name = "my-app";
+    let bin_name = "bin-name";
+    let cmd = common::basic_command(name);
+    common::assert_matches_path(
+        "tests/snapshots/custom_bin_name.bash",
+        clap_complete::shells::Bash,
+        cmd,
+        bin_name,
+    );
+}
+
+#[test]
 fn value_hint() {
     let name = "my-app";
     let cmd = common::value_hint_command(name);
