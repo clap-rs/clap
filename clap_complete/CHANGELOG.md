@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.4.8] - 2024-01-19
+
 ### Fixes
 
 - *(bash)* be consistent in identifiers when custom bin names are used
@@ -208,7 +210,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.4.7...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.4.8...HEAD
+[4.4.8]: https://github.com/clap-rs/clap/compare/clap_complete-v4.4.7...clap_complete-v4.4.8
 [4.4.7]: https://github.com/clap-rs/clap/compare/clap_complete-v4.4.6...clap_complete-v4.4.7
 [4.4.6]: https://github.com/clap-rs/clap/compare/clap_complete-v4.4.5...clap_complete-v4.4.6
 [4.4.5]: https://github.com/clap-rs/clap/compare/clap_complete-v4.4.4...clap_complete-v4.4.5
