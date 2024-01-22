@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(bash)* Add support file `ValueHint::FilePath`
+- *(bash)* Add support file `ValueHint::DirPath`
+- *(bash)* Don't add space for `ValueHint::Other`
+
 ## [4.4.8] - 2024-01-19
 
 ### Fixes
