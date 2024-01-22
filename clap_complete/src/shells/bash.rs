@@ -169,29 +169,50 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
     let mut opts = vec![String::new()];
 
     for o in p.get_opts() {
+        let compopt = match o.get_value_hint() {
+            ValueHint::FilePath => Some("compopt -o filenames"),
+            ValueHint::DirPath => Some("compopt -o plusdirs"),
+            ValueHint::Other => Some("compopt -o nospace"),
+            _ => None,
+        };
+
         if let Some(longs) = o.get_long_and_visible_aliases() {
             opts.extend(longs.iter().map(|long| {
-                format!(
-                    "--{})
-                    COMPREPLY=({})
-                    return 0
-                    ;;",
-                    long,
-                    vals_for(o)
-                )
+                let mut v = vec![
+                    format!("--{})", long),
+                    format!("COMPREPLY=({})", vals_for(o)),
+                ];
+
+                if let Some(copt) = compopt {
+                    v.extend([
+                        r#"if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then"#.to_string(),
+                        format!("    {}", copt),
+                        "fi".to_string(),
+                    ]);
+                }
+
+                v.extend(["return 0", ";;"].iter().map(|s| s.to_string()));
+                v.join("\n                    ")
             }));
         }
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
             opts.extend(shorts.iter().map(|short| {
-                format!(
-                    "-{})
-                    COMPREPLY=({})
-                    return 0
-                    ;;",
-                    short,
-                    vals_for(o)
-                )
+                let mut v = vec![
+                    format!("-{})", short),
+                    format!("COMPREPLY=({})", vals_for(o)),
+                ];
+
+                if let Some(copt) = compopt {
+                    v.extend([
+                        r#"if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then"#.to_string(),
+                        format!("    {}", copt),
+                        "fi".to_string(),
+                    ]);
+                }
+
+                v.extend(["return 0", ";;"].iter().map(|s| s.to_string()));
+                v.join("\n                    ")
             }));
         }
     }
@@ -211,6 +232,8 @@ fn vals_for(o: &Arg) -> String {
                 .collect::<Vec<_>>()
                 .join(" ")
         )
+    } else if o.get_value_hint() == ValueHint::DirPath {
+        String::from("") // should be empty to avoid duplicate candidates
     } else if o.get_value_hint() == ValueHint::Other {
         String::from("\"${cur}\"")
     } else {
