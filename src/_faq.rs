@@ -31,7 +31,7 @@
 //!
 //! The benefits of integrating `structopt` and `clap` are:
 //! - Easier cross-linking in documentation
-//! - [Documentation parity](../examples)
+//! - Documentation parity
 //! - Tighter design feedback loop, ensuring all new features are designed with
 //!   derives in mind and easier to change `clap` in response to `structopt` bugs.
 //! - Clearer endorsement of `structopt`
