@@ -23,7 +23,7 @@ pub struct EchoArgs {
         long = "text",
         visible_alias = "text",
         help = "The text to be echoed",
-        help_heading = "Echo",
+        help_heading = "Echo"
     )]
     text: String,
 }
