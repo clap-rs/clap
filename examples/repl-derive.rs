@@ -28,8 +28,7 @@ fn main() -> Result<(), String> {
 
 fn respond(line: &str) -> Result<bool, String> {
     let args = shlex::split(line).ok_or("error: Invalid quoting")?;
-    let cli = Cli::try_parse_from(args)
-        .map_err(|e| e.to_string())?;
+    let cli = Cli::try_parse_from(args).map_err(|e| e.to_string())?;
     match cli.command {
         Commands::Ping => {
             write!(std::io::stdout(), "Pong").map_err(|e| e.to_string())?;
