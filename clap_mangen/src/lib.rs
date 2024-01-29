@@ -27,7 +27,10 @@ impl Man {
     /// Create a new manual page.
     pub fn new(mut cmd: clap::Command) -> Self {
         cmd.build();
-        let title = cmd.get_name().to_owned();
+        let title = cmd
+            .get_display_name()
+            .unwrap_or_else(|| cmd.get_name())
+            .to_owned();
         let section = "1".to_owned();
         let date = "".to_owned();
         let source = format!(
