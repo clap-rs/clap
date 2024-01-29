@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Print full subcommand name in title (ie include parent commands)
+- Print full subcommand in usage (ie include parent commands
+
 ## [0.2.17] - 2024-01-11
 
 ### Fixes
