@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.18] - 2024-01-29
+
 ### Fixes
 
 - Print full subcommand name in title (ie include parent commands)
@@ -113,7 +115,8 @@ MSRV changed to 1.64.0
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.17...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.18...HEAD
+[0.2.18]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.17...clap_mangen-v0.2.18
 [0.2.17]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.16...clap_mangen-v0.2.17
 [0.2.16]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.15...clap_mangen-v0.2.16
 [0.2.15]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.14...clap_mangen-v0.2.15
