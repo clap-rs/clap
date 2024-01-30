@@ -110,10 +110,10 @@ impl Man {
     }
 
     /// [Renders](Man::render) the manual page and writes it to a file
-    pub fn generate_to<Dir>(&self, out_dir: Dir) -> Result<std::path::PathBuf, std::io::Error>
-    where
-        Dir: AsRef<std::path::Path>,
-    {
+    pub fn generate_to(
+        &self,
+        out_dir: impl AsRef<std::path::Path>,
+    ) -> Result<std::path::PathBuf, std::io::Error> {
         let filepath = out_dir.as_ref().join(self.get_filename());
         let mut file = std::fs::File::create(&filepath)?;
         self.render(&mut file)?;
@@ -123,10 +123,10 @@ impl Man {
 }
 
 /// Generate manual page files for the command with all subcommands
-pub fn generate_to<Dir>(cmd: clap::Command, out_dir: Dir) -> Result<(), std::io::Error>
-where
-    Dir: AsRef<std::path::Path>,
-{
+pub fn generate_to(
+    cmd: clap::Command,
+    out_dir: impl AsRef<std::path::Path>,
+) -> Result<(), std::io::Error> {
     fn generate(cmd: clap::Command, out_dir: &std::path::Path) -> Result<(), std::io::Error> {
         for cmd in cmd.get_subcommands().cloned() {
             generate(cmd, out_dir)?;
