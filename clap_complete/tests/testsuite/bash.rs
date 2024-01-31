@@ -238,7 +238,7 @@ fn complete() {
             testdir_path.to_string_lossy()
         );
         let expected = r#"% 
-foo      bar.txt  baz      qux.txt  "#;
+foo bar.txt   baz^Iqux.txt  "#;
         let actual = runtime.complete(input.as_str(), &term).unwrap();
         snapbox::assert_eq(expected, actual);
     }
