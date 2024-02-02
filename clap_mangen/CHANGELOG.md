@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Support generating files for man pages
+
 ## [0.2.18] - 2024-01-29
 
 ### Fixes
