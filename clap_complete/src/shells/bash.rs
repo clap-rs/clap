@@ -178,10 +178,23 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
 
         if let Some(longs) = o.get_long_and_visible_aliases() {
             opts.extend(longs.iter().map(|long| {
-                let mut v = vec![
-                    format!("--{})", long),
-                    format!("COMPREPLY=({})", vals_for(o)),
-                ];
+                let mut v = vec![format!("--{})", long)];
+
+                if o.get_value_hint() == ValueHint::FilePath {
+                    v.extend([
+                        "local oldifs".to_string(),
+                        "if [[ -v IFS ]]; then".to_string(),
+                        r#"    oldifs="$IFS""#.to_string(),
+                        "fi".to_string(),
+                        r#"IFS=$'\n'"#.to_string(),
+                        format!("COMPREPLY=({})", vals_for(o)),
+                        "if [[ -v oldifs ]]; then".to_string(),
+                        r#"    IFS="$oldifs""#.to_string(),
+                        "fi".to_string(),
+                    ]);
+                } else {
+                    v.push(format!("COMPREPLY=({})", vals_for(o)));
+                }
 
                 if let Some(copt) = compopt {
                     v.extend([
@@ -198,10 +211,23 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
             opts.extend(shorts.iter().map(|short| {
-                let mut v = vec![
-                    format!("-{})", short),
-                    format!("COMPREPLY=({})", vals_for(o)),
-                ];
+                let mut v = vec![format!("-{})", short)];
+
+                if o.get_value_hint() == ValueHint::FilePath {
+                    v.extend([
+                        "local oldifs".to_string(),
+                        "if [[ -v IFS ]]; then".to_string(),
+                        r#"    oldifs="$IFS""#.to_string(),
+                        "fi".to_string(),
+                        r#"IFS=$'\n'"#.to_string(),
+                        format!("COMPREPLY=({})", vals_for(o)),
+                        "if [[ -v oldifs ]]; then".to_string(),
+                        r#"    IFS="$oldifs""#.to_string(),
+                        "fi".to_string(),
+                    ]);
+                } else {
+                    v.push(format!("COMPREPLY=({})", vals_for(o)));
+                }
 
                 if let Some(copt) = compopt {
                     v.extend([

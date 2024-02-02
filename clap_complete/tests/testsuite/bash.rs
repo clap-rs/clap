@@ -222,6 +222,27 @@ fn complete() {
         );
     }
 
+    // Issue 5313 (https://github.com/clap-rs/clap/issues/5313)
+    {
+        use std::fs::File;
+        use std::path::Path;
+
+        let testdir = snapbox::path::PathFixture::mutable_temp().unwrap();
+        let testdir_path = testdir.path().unwrap();
+
+        File::create(Path::new(testdir_path).join("foo bar.txt")).unwrap();
+        File::create(Path::new(testdir_path).join("baz\tqux.txt")).unwrap();
+
+        let input = format!(
+            "exhaustive hint --file {}/\t\t",
+            testdir_path.to_string_lossy()
+        );
+        let expected = r#"% 
+foo bar.txt   baz^Iqux.txt  "#;
+        let actual = runtime.complete(input.as_str(), &term).unwrap();
+        snapbox::assert_eq(expected, actual);
+    }
+
     let input = "exhaustive hint --other \t";
     let expected = "exhaustive hint --other         % exhaustive hint --other ";
     let actual = runtime.complete(input, &term).unwrap();

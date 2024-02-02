@@ -556,14 +556,30 @@ _exhaustive() {
                     return 0
                     ;;
                 --file)
+                    local oldifs
+                    if [[ -v IFS ]]; then
+                        oldifs="$IFS"
+                    fi
+                    IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ -v oldifs ]]; then
+                        IFS="$oldifs"
+                    fi
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o filenames
                     fi
                     return 0
                     ;;
                 -f)
+                    local oldifs
+                    if [[ -v IFS ]]; then
+                        oldifs="$IFS"
+                    fi
+                    IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ -v oldifs ]]; then
+                        IFS="$oldifs"
+                    fi
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o filenames
                     fi
