@@ -2,10 +2,12 @@
 
 mod bash;
 mod fish;
+mod powershell;
 mod shell;
 
 pub use bash::*;
 pub use fish::*;
+pub use powershell::*;
 pub use shell::*;
 
 use std::ffi::OsString;
