@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Allow completing filenames with spaces
+
 ## [4.4.9] - 2024-01-22
 
 ### Features
