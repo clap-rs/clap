@@ -144,3 +144,22 @@ jobs:
         wait-for-processing: true
     - name: Report status
       run: cargo clippy --workspace --all-features --all-targets -- -D warnings --allow deprecated
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: "1.75"  # STABLE
+    - uses: Swatinem/rust-cache@v2
+    - name: Install cargo-tarpaulin
+      run: cargo install cargo-tarpaulin
+    - name: Gather coverage
+      run: cargo tarpaulin --output-dir coverage --out lcov
+    - name: Publish to Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
