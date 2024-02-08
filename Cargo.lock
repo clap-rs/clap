@@ -517,7 +517,7 @@ version = "0.7.0"
 
 [[package]]
 name = "clap_mangen"
-version = "0.2.19"
+version = "0.2.20"
 dependencies = [
  "clap 4.5.0",
  "roff",
