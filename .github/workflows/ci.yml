@@ -153,7 +153,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.75"  # STABLE
+        toolchain: stable
     - uses: Swatinem/rust-cache@v2
     - name: Install cargo-tarpaulin
       run: cargo install cargo-tarpaulin
