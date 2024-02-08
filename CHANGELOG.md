@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- Update MSRV to 1.74
+
 ## [4.4.18] - 2024-01-16
 
 ### Fixes
@@ -140,9 +144,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [4.4.0] - 2023-08-24
 
-### Compatibility
+### compatibility
 
-- Update MSRV to 1.70.0
+- update msrv to 1.70.0
 
 ## [4.3.24] - 2023-08-23
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- Update MSRV to 1.74
+
+### Fixes
+
+- Improve `unsafe` code by using new `OsStr` API
+
 ## [0.6.0] - 2023-10-24
 
 ### Breaking Change
