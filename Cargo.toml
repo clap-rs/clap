@@ -14,7 +14,7 @@ members = [
 [workspace.package]
 license = "MIT OR Apache-2.0"
 edition = "2021"
-rust-version = "1.70.0"  # MSRV
+rust-version = "1.74"  # MSRV
 include = [
   "build.rs",
   "src/**/*",

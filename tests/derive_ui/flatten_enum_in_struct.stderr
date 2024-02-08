@@ -1,9 +1,9 @@
 error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
- --> tests/derive_ui/flatten_enum_in_struct.rs:3:15
+ --> tests/derive_ui/flatten_enum_in_struct.rs:4:10
   |
-3 |     #[command(flatten)]
-  |               ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+4 |     sub: SubCmd,
+  |          ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
   |
   = help: the following other types implement trait `clap::Args`:
-            Box<T>
             Opt
+            Box<T>
