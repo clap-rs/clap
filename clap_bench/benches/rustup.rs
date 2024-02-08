@@ -2,23 +2,25 @@
 //
 // CLI used is from rustup 408ed84f0e50511ed44a405dd91365e5da588790
 
-use clap::{Arg, ArgAction, ArgGroup, Command};
-use criterion::{criterion_group, criterion_main, Criterion};
+use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 
-pub fn build_rustup(c: &mut Criterion) {
-    c.bench_function("build_rustup", |b| b.iter(build_cli));
+#[divan::bench]
+fn build() -> Command {
+    build_cli()
 }
 
-pub fn parse_rustup(c: &mut Criterion) {
-    c.bench_function("parse_rustup", |b| {
-        b.iter(|| build_cli().get_matches_from(vec![""]))
-    });
-}
+mod startup {
+    use super::*;
 
-pub fn parse_rustup_with_sc(c: &mut Criterion) {
-    c.bench_function("parse_rustup_with_sc", |b| {
-        b.iter(|| build_cli().get_matches_from(vec!["rustup override add stable"]))
-    });
+    #[divan::bench]
+    fn empty() -> ArgMatches {
+        build_cli().get_matches_from([""])
+    }
+
+    #[divan::bench]
+    fn sc() -> ArgMatches {
+        build_cli().get_matches_from(["rustup override add stable"])
+    }
 }
 
 fn build_cli() -> Command {
@@ -435,6 +437,6 @@ default browser.
 By default, it opens the documentation index. Use the various flags to
 open specific pieces of documentation.";
 
-criterion_group!(benches, build_rustup, parse_rustup, parse_rustup_with_sc);
-
-criterion_main!(benches);
+fn main() {
+    divan::main();
+}
