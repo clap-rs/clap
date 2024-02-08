@@ -437,7 +437,7 @@ checksum = "d6c0db58c659eef1c73e444d298c27322a1b52f6927d2ad470c0c0f96fa7b8fa"
 dependencies = [
  "anstream",
  "anstyle",
- "clap_lex 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap_lex 0.6.0",
  "strsim 0.10.0",
  "terminal_size 0.3.0",
 ]
@@ -449,7 +449,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "backtrace",
- "clap_lex 0.6.0",
+ "clap_lex 0.7.0",
  "color-print",
  "static_assertions",
  "strsim 0.11.0",
@@ -464,7 +464,7 @@ name = "clap_complete"
 version = "4.4.10"
 dependencies = [
  "clap 4.4.18",
- "clap_lex 0.6.0",
+ "clap_lex 0.7.0",
  "completest",
  "completest-pty",
  "is_executable",
@@ -508,12 +508,12 @@ dependencies = [
 [[package]]
 name = "clap_lex"
 version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 
 [[package]]
 name = "clap_lex"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
+version = "0.7.0"
 
 [[package]]
 name = "clap_mangen"
