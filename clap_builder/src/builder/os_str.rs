@@ -64,16 +64,6 @@ impl From<Str> for OsStr {
     }
 }
 
-#[cfg(feature = "perf")]
-impl From<&'_ Str> for OsStr {
-    fn from(id: &'_ Str) -> Self {
-        match id.clone().into_inner() {
-            crate::builder::StrInner::Static(s) => Self::from_static_ref(std::ffi::OsStr::new(s)),
-            crate::builder::StrInner::Owned(s) => Self::from_ref(std::ffi::OsStr::new(s.as_ref())),
-        }
-    }
-}
-
 impl From<&'_ Str> for OsStr {
     fn from(id: &'_ Str) -> Self {
         id.clone().into()
