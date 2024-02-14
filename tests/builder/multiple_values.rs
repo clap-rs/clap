@@ -427,14 +427,16 @@ fn optional_value() {
     assert_eq!(m.get_one::<String>("port").unwrap(), "42");
 
     let help = cmd.render_help().to_string();
-    const HELP: &str = "\
-Usage: test [OPTIONS]
+    snapbox::assert_eq(
+        snapbox::str![[r#"
+            Usage: test [OPTIONS]
 
-Options:
-  -p [<NUM>]      
-  -h, --help      Print help
-";
-    snapbox::assert_eq(HELP, help);
+            Options:
+              -p [<NUM>]      
+              -h, --help      Print help
+        "#]],
+        help,
+    );
 }
 
 #[test]

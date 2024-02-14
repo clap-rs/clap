@@ -272,13 +272,14 @@ pub fn env_value_command(name: &'static str) -> clap::Command {
     )
 }
 
-pub fn assert_matches_path(expected_path: impl AsRef<std::path::Path>, cmd: clap::Command) {
+pub fn assert_matches(expected: impl Into<snapbox::Data>, cmd: clap::Command) {
     let mut buf = vec![];
     clap_mangen::Man::new(cmd).render(&mut buf).unwrap();
 
     snapbox::Assert::new()
-        .action_env("SNAPSHOTS")
-        .matches_path(expected_path, buf);
+        .action_env(snapbox::DEFAULT_ACTION_ENV)
+        .normalize_paths(false)
+        .matches(expected, buf);
 }
 
 pub fn possible_values_command(name: &'static str) -> clap::Command {

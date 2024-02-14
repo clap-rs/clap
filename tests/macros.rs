@@ -301,14 +301,16 @@ mod arg {
 
         let mut help = Vec::new();
         cmd.write_help(&mut help).unwrap();
-        const HELP: &str = "\
+        snapbox::assert_eq(
+            snapbox::str![["\
 Usage: test [OPTIONS]
 
 Options:
   -p [<NUM>]      
   -h, --help      Print help information
-";
-        snapbox::assert_eq(HELP, help);
+"]],
+            help,
+        );
     }
 }
 

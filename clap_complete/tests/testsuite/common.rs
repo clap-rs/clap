@@ -281,8 +281,8 @@ pub fn subcommand_last(name: &'static str) -> clap::Command {
         .subcommands([clap::Command::new("foo"), clap::Command::new("bar")])
 }
 
-pub fn assert_matches_path(
-    expected_path: impl AsRef<std::path::Path>,
+pub fn assert_matches(
+    expected: impl Into<snapbox::Data>,
     gen: impl clap_complete::Generator,
     mut cmd: clap::Command,
     name: &'static str,
@@ -291,9 +291,9 @@ pub fn assert_matches_path(
     clap_complete::generate(gen, &mut cmd, name, &mut buf);
 
     snapbox::Assert::new()
-        .action_env("SNAPSHOTS")
+        .action_env(snapbox::DEFAULT_ACTION_ENV)
         .normalize_paths(false)
-        .matches_path(expected_path, buf);
+        .matches(expected, buf);
 }
 
 pub fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {

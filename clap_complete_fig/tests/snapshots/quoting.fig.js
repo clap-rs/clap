@@ -14,7 +14,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "cmd-double-quotes",
-      description: "Can be /"always/", /"auto/", or /"never/"",
+      description: "Can be \"always\", \"auto\", or \"never\"",
       options: [
         {
           name: ["-h", "--help"],
@@ -34,7 +34,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "cmd-backslash",
-      description: "Avoid '//n'",
+      description: "Avoid '\\n'",
       options: [
         {
           name: ["-h", "--help"],
@@ -72,7 +72,7 @@ const completion: Fig.Spec = {
         },
         {
           name: "cmd-double-quotes",
-          description: "Can be /"always/", /"auto/", or /"never/"",
+          description: "Can be \"always\", \"auto\", or \"never\"",
         },
         {
           name: "cmd-backticks",
@@ -80,7 +80,7 @@ const completion: Fig.Spec = {
         },
         {
           name: "cmd-backslash",
-          description: "Avoid '//n'",
+          description: "Avoid '\\n'",
         },
         {
           name: "cmd-brackets",
@@ -104,7 +104,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--double-quotes",
-      description: "Can be /"always/", /"auto/", or /"never/"",
+      description: "Can be \"always\", \"auto\", or \"never\"",
     },
     {
       name: "--backticks",
@@ -112,7 +112,7 @@ const completion: Fig.Spec = {
     },
     {
       name: "--backslash",
-      description: "Avoid '//n'",
+      description: "Avoid '\\n'",
     },
     {
       name: "--brackets",

@@ -23,9 +23,11 @@ fn suggest_subcommand_subset() {
         .subcommand(Command::new("goodbye-world"));
 
     snapbox::assert_eq(
-        "hello-moon
+        snapbox::str![
+            "hello-moon
 hello-world
-help\tPrint this message or the help of the given subcommand(s)",
+help\tPrint this message or the help of the given subcommand(s)"
+        ],
         complete!(cmd, "he"),
     );
 }
@@ -50,9 +52,11 @@ fn suggest_long_flag_subset() {
         );
 
     snapbox::assert_eq(
-        "--hello-world
+        snapbox::str![
+            "--hello-world
 --hello-moon
---help\tPrint help",
+--help\tPrint help"
+        ],
         complete!(cmd, "--he"),
     );
 }
@@ -67,8 +71,10 @@ fn suggest_possible_value_subset() {
     ]));
 
     snapbox::assert_eq(
-        "hello-world\tSay hello to the world
-hello-moon",
+        snapbox::str![
+            "hello-world\tSay hello to the world
+hello-moon"
+        ],
         complete!(cmd, "hello"),
     );
 }
@@ -93,10 +99,12 @@ fn suggest_additional_short_flags() {
         );
 
     snapbox::assert_eq(
-        "-aa
+        snapbox::str![
+            "-aa
 -ab
 -ac
--ah\tPrint help",
+-ah\tPrint help"
+        ],
         complete!(cmd, "-a"),
     );
 }
@@ -112,11 +120,13 @@ fn suggest_subcommand_positional() {
     ));
 
     snapbox::assert_eq(
-        "--help\tPrint help (see more with '--help')
+        snapbox::str![
+            "--help\tPrint help (see more with '--help')
 -h\tPrint help (see more with '--help')
 hello-world\tSay hello to the world
 hello-moon
-goodbye-world",
+goodbye-world"
+        ],
         complete!(cmd, "hello-world [TAB]"),
     );
 }
