@@ -21,7 +21,25 @@
         'MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
         '(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?MSRV',
       ],
-      depNameTemplate: 'rust',
+      depNameTemplate: 'MSRV',
+      packageNameTemplate: 'rust-lang/rust',
+      datasourceTemplate: 'github-releases',
+    },
+    {
+      customType: 'regex',
+      fileMatch: [
+        '^rust-toolchain\\.toml$',
+        'Cargo.toml$',
+        'clippy.toml$',
+        '\\.clippy.toml$',
+        '^\\.github/workflows/ci.yml$',
+        '^\\.github/workflows/rust-next.yml$',
+      ],
+      matchStrings: [
+        'STABLE.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
+        '(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?STABLE',
+      ],
+      depNameTemplate: 'STABLE',
       packageNameTemplate: 'rust-lang/rust',
       datasourceTemplate: 'github-releases',
     },
@@ -33,7 +51,7 @@
         'custom.regex',
       ],
       matchPackageNames: [
-        'rust',
+        'MSRV',
       ],
       minimumReleaseAge: '336 days',  // 8 releases * 6 weeks per release * 7 days per week
       internalChecksFilter: 'strict',
@@ -41,6 +59,21 @@
       schedule: [
         '* * * * *',
       ],
+      groupName: 'rust-version',
+    },
+    {
+      commitMessageTopic: 'STABLE',
+      matchManagers: [
+        'custom.regex',
+      ],
+      matchPackageNames: [
+        'STABLE',
+      ],
+      extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
+      schedule: [
+        '* * * * *',
+      ],
+      groupName: 'rust-version',
     },
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
