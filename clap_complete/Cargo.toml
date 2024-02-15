@@ -42,9 +42,9 @@ shlex = { version = "1.1.0", optional = true }
 unicode-xid = { version = "0.2.2", optional = true }
 
 [dev-dependencies]
-snapbox = { version = "0.4.16", features = ["diff", "path", "examples"] }
+snapbox = { version = "0.5.0", features = ["diff", "path", "examples"] }
 # Cutting out `filesystem` feature
-trycmd = { version = "0.14.20", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.15.0", default-features = false, features = ["color-auto", "diff", "examples"] }
 completest = "0.4.0"
 completest-pty = "0.5.0"
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "derive", "help"] }

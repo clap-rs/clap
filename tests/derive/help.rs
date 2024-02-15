@@ -230,18 +230,6 @@ For more information, try '--help'.
 
 #[test]
 fn derive_order_next_order() {
-    static HELP: &str = "\
-Usage: test [OPTIONS]
-
-Options:
-      --flag-b               first flag
-      --option-b <OPTION_B>  first option
-  -h, --help                 Print help
-  -V, --version              Print version
-      --flag-a               second flag
-      --option-a <OPTION_A>  second option
-";
-
     #[derive(Parser, Debug)]
     #[command(name = "test", version = "1.2")]
     struct Args {
@@ -277,23 +265,24 @@ Options:
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    snapbox::assert_eq(HELP, help);
+    snapbox::assert_eq(
+        snapbox::str![[r#"
+            Usage: test [OPTIONS]
+
+            Options:
+                  --flag-b               first flag
+                  --option-b <OPTION_B>  first option
+              -h, --help                 Print help
+              -V, --version              Print version
+                  --flag-a               second flag
+                  --option-a <OPTION_A>  second option
+        "#]],
+        help,
+    );
 }
 
 #[test]
 fn derive_order_next_order_flatten() {
-    static HELP: &str = "\
-Usage: test [OPTIONS]
-
-Options:
-      --flag-b               first flag
-      --option-b <OPTION_B>  first option
-  -h, --help                 Print help
-  -V, --version              Print version
-      --flag-a               second flag
-      --option-a <OPTION_A>  second option
-";
-
     #[derive(Parser, Debug)]
     #[command(name = "test", version = "1.2")]
     struct Args {
@@ -329,7 +318,20 @@ Options:
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    snapbox::assert_eq(HELP, help);
+    snapbox::assert_eq(
+        snapbox::str![[r#"
+            Usage: test [OPTIONS]
+
+            Options:
+                  --flag-b               first flag
+                  --option-b <OPTION_B>  first option
+              -h, --help                 Print help
+              -V, --version              Print version
+                  --flag-a               second flag
+                  --option-a <OPTION_A>  second option
+        "#]],
+        help,
+    );
 }
 
 #[test]
