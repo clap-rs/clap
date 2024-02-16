@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Correctly handle completion descriptions with newlines
+
 ## [4.5.0] - 2024-02-08
 
 ### Compatibility
