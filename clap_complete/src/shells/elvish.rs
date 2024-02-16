@@ -57,9 +57,9 @@ fn escape_string(string: &str) -> String {
     string.replace('\'', "''")
 }
 
-fn get_tooltip<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
+fn escape_help<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
     match help {
-        Some(help) => escape_string(&help.to_string()),
+        Some(help) => escape_string(&help.to_string().replace('\n', " ")),
         _ => data.to_string(),
     }
 }
@@ -78,7 +78,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
     for option in p.get_opts() {
         if let Some(shorts) = option.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_help(), shorts[0]);
+            let tooltip = escape_help(option.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
                 completions.push_str(format!("-{short} '{tooltip}'").as_str());
@@ -86,7 +86,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
         }
 
         if let Some(longs) = option.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_help(), longs[0]);
+            let tooltip = escape_help(option.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
                 completions.push_str(format!("--{long} '{tooltip}'").as_str());
@@ -96,7 +96,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
     for flag in utils::flags(p) {
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_help(), shorts[0]);
+            let tooltip = escape_help(flag.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
                 completions.push_str(format!("-{short} '{tooltip}'").as_str());
@@ -104,7 +104,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
         }
 
         if let Some(longs) = flag.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_help(), longs[0]);
+            let tooltip = escape_help(flag.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
                 completions.push_str(format!("--{long} '{tooltip}'").as_str());
@@ -114,7 +114,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
     for subcommand in p.get_subcommands() {
         let data = &subcommand.get_name();
-        let tooltip = get_tooltip(subcommand.get_about(), data);
+        let tooltip = escape_help(subcommand.get_about(), data);
 
         completions.push_str(&preamble);
         completions.push_str(format!("{data} '{tooltip}'").as_str());

@@ -6,7 +6,7 @@ module completions {
     --help(-h)                # Print help
   ]
 
-  # Subcommand
+  # Subcommand with a second line
   export extern "my-app test" [
     -d
     -c
@@ -17,7 +17,7 @@ module completions {
   export extern "my-app help" [
   ]
 
-  # Subcommand
+  # Subcommand with a second line
   export extern "my-app help test" [
   ]
 

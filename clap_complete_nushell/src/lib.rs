@@ -19,6 +19,7 @@
 #![warn(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
 #![forbid(unsafe_code)]
 
+use clap::builder::StyledStr;
 use clap::{builder::PossibleValue, Arg, ArgAction, Command};
 use clap_complete::Generator;
 
@@ -75,7 +76,7 @@ fn append_value_completion_and_help(
             None => 0,
         };
 
-        s.push_str(format!("{:>width$}# {}", ' ', help).as_str());
+        s.push_str(format!("{:>width$}# {}", ' ', single_line_styled_str(help)).as_str());
     }
 
     s.push('\n');
@@ -180,6 +181,7 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
     }
 
     if let Some(about) = cmd.get_about() {
+        let about = single_line_styled_str(about);
         completions.push_str(format!("  # {about}\n").as_str());
     }
 
@@ -200,4 +202,8 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
             generate_completion(completions, sub, true);
         }
     }
+}
+
+fn single_line_styled_str(text: &StyledStr) -> String {
+    text.to_string().replace('\n', " ")
 }

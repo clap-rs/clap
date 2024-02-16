@@ -18,7 +18,7 @@ pub fn basic_command(name: &'static str) -> Command {
         )
         .subcommand(
             Command::new("test")
-                .about("Subcommand")
+                .about("Subcommand\nwith a second line")
                 .arg(Arg::new("debug").short('d').action(ArgAction::Count)),
         )
 }
@@ -36,7 +36,7 @@ pub fn feature_sample_command(name: &'static str) -> Command {
         .arg(
             Arg::new("config")
                 .action(ArgAction::Count)
-                .help("some config file")
+                .help("some config file\nwith another line")
                 .short('c')
                 .visible_short_alias('C')
                 .long("config")

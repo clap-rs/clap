@@ -15,11 +15,13 @@ pub fn basic_command(name: &'static str) -> clap::Command {
                 .action(clap::ArgAction::SetTrue),
         )
         .subcommand(
-            clap::Command::new("test").about("Subcommand").arg(
-                clap::Arg::new("debug")
-                    .short('d')
-                    .action(clap::ArgAction::Count),
-            ),
+            clap::Command::new("test")
+                .about("Subcommand\nwith a second line")
+                .arg(
+                    clap::Arg::new("debug")
+                        .short('d')
+                        .action(clap::ArgAction::Count),
+                ),
         )
 }
 

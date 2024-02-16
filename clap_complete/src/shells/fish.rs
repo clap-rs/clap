@@ -36,6 +36,10 @@ fn escape_string(string: &str, escape_comma: bool) -> String {
     }
 }
 
+fn escape_help(help: &clap::builder::StyledStr) -> String {
+    escape_string(&help.to_string().replace('\n', " "), false)
+}
+
 fn gen_fish_inner(
     root_command: &str,
     parent_commands: &[&str],
@@ -98,8 +102,7 @@ fn gen_fish_inner(
         }
 
         if let Some(data) = option.get_help() {
-            template
-                .push_str(format!(" -d '{}'", escape_string(&data.to_string(), false)).as_str());
+            template.push_str(&format!(" -d '{}'", escape_help(data)));
         }
 
         template.push_str(value_completion(option).as_str());
@@ -124,8 +127,7 @@ fn gen_fish_inner(
         }
 
         if let Some(data) = flag.get_help() {
-            template
-                .push_str(format!(" -d '{}'", escape_string(&data.to_string(), false)).as_str());
+            template.push_str(&format!(" -d '{}'", escape_help(data)));
         }
 
         buffer.push_str(template.as_str());
@@ -139,7 +141,7 @@ fn gen_fish_inner(
         template.push_str(format!(" -a \"{}\"", &subcommand.get_name()).as_str());
 
         if let Some(data) = subcommand.get_about() {
-            template.push_str(format!(" -d '{}'", escape_string(&data.to_string(), false)).as_str())
+            template.push_str(format!(" -d '{}'", escape_help(data)).as_str())
         }
 
         buffer.push_str(template.as_str());
@@ -173,7 +175,7 @@ fn value_completion(option: &Arg) -> String {
                     Some(format!(
                         "{}\t'{}'",
                         escape_string(value.get_name(), true).as_str(),
-                        escape_string(&value.get_help().unwrap_or_default().to_string(), false)
+                        escape_help(value.get_help().unwrap_or_default())
                     ))
                 })
                 .collect::<Vec<_>>()
