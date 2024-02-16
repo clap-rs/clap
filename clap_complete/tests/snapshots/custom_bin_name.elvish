@@ -22,7 +22,8 @@ set edit:completion:arg-completer[bin-name] = {|@words|
             cand -v 'v'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand test 'Subcommand'
+            cand test 'Subcommand
+with a second line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'bin-name;test'= {
@@ -32,7 +33,8 @@ set edit:completion:arg-completer[bin-name] = {|@words|
             cand --help 'Print help'
         }
         &'bin-name;help'= {
-            cand test 'Subcommand'
+            cand test 'Subcommand
+with a second line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'bin-name;help;test'= {

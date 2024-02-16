@@ -4,7 +4,7 @@ const completion: Fig.Spec = {
   subcommands: [
     {
       name: "test",
-      description: "Subcommand",
+      description: "Subcommand with a second line",
       options: [
         {
           name: "-d",
@@ -25,7 +25,7 @@ const completion: Fig.Spec = {
       subcommands: [
         {
           name: "test",
-          description: "Subcommand",
+          description: "Subcommand with a second line",
         },
         {
           name: "help",

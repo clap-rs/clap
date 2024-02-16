@@ -22,7 +22,8 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand -v 'v'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand test 'Subcommand'
+            cand test 'Subcommand
+with a second line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;test'= {
@@ -32,7 +33,8 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --help 'Print help'
         }
         &'my-app;help'= {
-            cand test 'Subcommand'
+            cand test 'Subcommand
+with a second line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;help;test'= {

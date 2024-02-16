@@ -7,6 +7,7 @@ module completions {
   ]
 
   # Subcommand
+with a second line
   export extern "my-app test" [
     -d
     -c
@@ -18,6 +19,7 @@ module completions {
   ]
 
   # Subcommand
+with a second line
   export extern "my-app help test" [
   ]
 

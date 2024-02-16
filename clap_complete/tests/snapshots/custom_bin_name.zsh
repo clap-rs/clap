@@ -68,7 +68,8 @@ esac
 (( $+functions[_bin-name_commands] )) ||
 _bin-name_commands() {
     local commands; commands=(
-'test:Subcommand' \
+'test:Subcommand
+with a second line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'bin-name commands' commands "$@"
@@ -76,7 +77,8 @@ _bin-name_commands() {
 (( $+functions[_bin-name__help_commands] )) ||
 _bin-name__help_commands() {
     local commands; commands=(
-'test:Subcommand' \
+'test:Subcommand
+with a second line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'bin-name help commands' commands "$@"

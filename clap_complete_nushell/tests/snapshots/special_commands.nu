@@ -8,8 +8,11 @@ module completions {
   export extern my-app [
     file?: string             # some input file
     --config(-c)              # some config file
+with another line
     --conf                    # some config file
+with another line
     -C                        # some config file
+with another line
     choice?: string@"nu-complete my-app choice"
     --help(-h)                # Print help
     --version(-V)             # Print version
