@@ -461,7 +461,7 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.0"
+version = "4.5.1"
 dependencies = [
  "clap 4.5.1",
  "clap_lex 0.7.0",
@@ -486,7 +486,7 @@ dependencies = [
 
 [[package]]
 name = "clap_complete_nushell"
-version = "4.5.0"
+version = "4.5.1"
 dependencies = [
  "clap 4.5.1",
  "clap_complete",
