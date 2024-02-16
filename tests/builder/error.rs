@@ -152,6 +152,29 @@ For more information, try '--help'.
 
 #[test]
 #[cfg(feature = "error-context")]
+fn suggest_trailing_last() {
+    let cmd = Command::new("cargo")
+        .arg(arg!([TESTNAME]).last(true))
+        .arg(arg!(--"ignore-rust-version"));
+
+    let res = cmd.try_get_matches_from(["cargo", "--ignored"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    static MESSAGE: &str = "\
+error: unexpected argument '--ignored' found
+
+  tip: a similar argument exists: '--ignore-rust-version'
+
+Usage: cargo --ignore-rust-version [-- <TESTNAME>]
+
+For more information, try '--help'.
+";
+    assert_error(err, expected_kind, MESSAGE, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
 fn trailing_already_in_use() {
     let cmd = Command::new("rg").arg(arg!([PATTERN]));
 
