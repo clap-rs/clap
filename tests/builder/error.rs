@@ -165,6 +165,7 @@ fn suggest_trailing_last() {
 error: unexpected argument '--ignored' found
 
   tip: a similar argument exists: '--ignore-rust-version'
+  tip: to pass '--ignored' as a value, use '-- --ignored'
 
 Usage: cargo --ignore-rust-version [-- <TESTNAME>]
 

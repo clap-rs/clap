@@ -1570,10 +1570,16 @@ impl<'cmd> Parser<'cmd> {
             .collect();
 
         // `did_you_mean` is a lot more likely and should cause us to skip the `--` suggestion
+        // with the one exception being that the CLI is trying to capture arguments
         //
         // In theory, this is only called for `--long`s, so we don't need to check
-        let suggested_trailing_arg =
-            did_you_mean.is_none() && !trailing_values && self.cmd.has_positionals();
+        let suggested_trailing_arg = (did_you_mean.is_none()
+            || self
+                .cmd
+                .get_positionals()
+                .any(|arg| arg.is_last_set() || arg.is_trailing_var_arg_set()))
+            && !trailing_values
+            && self.cmd.has_positionals();
         ClapError::unknown_argument(
             self.cmd,
             format!("--{arg}"),
