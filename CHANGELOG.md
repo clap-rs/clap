@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* Include suggestion to add `--` even if there is a "did you mean" so long as `last` or `trailing_var_arg` is used
+
 ## [4.5.0] - 2024-02-08
 
 ### Compatibility
