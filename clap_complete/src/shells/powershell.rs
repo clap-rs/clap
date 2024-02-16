@@ -62,9 +62,9 @@ fn escape_string(string: &str) -> String {
     string.replace('\'', "''")
 }
 
-fn get_tooltip<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
+fn escape_help<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
     match help {
-        Some(help) => escape_string(&help.to_string()),
+        Some(help) => escape_string(&help.to_string().replace('\n', " ")),
         _ => data.to_string(),
     }
 }
@@ -91,7 +91,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
 
     for subcommand in p.get_subcommands() {
         let data = &subcommand.get_name();
-        let tooltip = get_tooltip(subcommand.get_about(), data);
+        let tooltip = escape_help(subcommand.get_about(), data);
 
         completions.push_str(&preamble);
         completions.push_str(
@@ -120,7 +120,7 @@ fn generate_aliases(completions: &mut String, preamble: &String, arg: &Arg) {
     use std::fmt::Write as _;
 
     if let Some(aliases) = arg.get_short_and_visible_aliases() {
-        let tooltip = get_tooltip(arg.get_help(), aliases[0]);
+        let tooltip = escape_help(arg.get_help(), aliases[0]);
         for alias in aliases {
             let _ = write!(
                 completions,
@@ -131,7 +131,7 @@ fn generate_aliases(completions: &mut String, preamble: &String, arg: &Arg) {
         }
     }
     if let Some(aliases) = arg.get_long_and_visible_aliases() {
-        let tooltip = get_tooltip(arg.get_help(), aliases[0]);
+        let tooltip = escape_help(arg.get_help(), aliases[0]);
         for alias in aliases {
             let _ = write!(
                 completions,

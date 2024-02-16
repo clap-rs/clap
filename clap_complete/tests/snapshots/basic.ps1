@@ -25,8 +25,7 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
             [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'v')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
-            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Subcommand
-with a second line')
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Subcommand with a second line')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
         }
@@ -38,8 +37,7 @@ with a second line')
             break
         }
         'my-app;help' {
-            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Subcommand
-with a second line')
+            [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Subcommand with a second line')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
         }

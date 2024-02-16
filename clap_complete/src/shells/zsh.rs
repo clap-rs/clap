@@ -429,6 +429,7 @@ fn escape_help(string: &str) -> String {
         .replace(':', "\\:")
         .replace('$', "\\$")
         .replace('`', "\\`")
+        .replace('\n', " ")
 }
 
 /// Escape value string inside single quotes and parentheses

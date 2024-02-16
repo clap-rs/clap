@@ -68,8 +68,7 @@ esac
 (( $+functions[_my-app_commands] )) ||
 _my-app_commands() {
     local commands; commands=(
-'test:Subcommand
-with a second line' \
+'test:Subcommand with a second line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app commands' commands "$@"
@@ -77,8 +76,7 @@ with a second line' \
 (( $+functions[_my-app__help_commands] )) ||
 _my-app__help_commands() {
     local commands; commands=(
-'test:Subcommand
-with a second line' \
+'test:Subcommand with a second line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app help commands' commands "$@"

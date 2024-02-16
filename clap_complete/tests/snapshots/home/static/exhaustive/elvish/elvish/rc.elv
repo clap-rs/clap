@@ -66,8 +66,7 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand cmd-backslash 'Avoid ''\n'''
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
-            cand escape-help '\tab	"''
-New Line'
+            cand escape-help '\tab	"'' New Line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'exhaustive;quote;cmd-single-quotes'= {
@@ -126,8 +125,7 @@ New Line'
             cand cmd-backslash 'Avoid ''\n'''
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
-            cand escape-help '\tab	"''
-New Line'
+            cand escape-help '\tab	"'' New Line'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'exhaustive;quote;help;cmd-single-quotes'= {
@@ -269,8 +267,7 @@ New Line'
             cand cmd-backslash 'Avoid ''\n'''
             cand cmd-brackets 'List packages [filter]'
             cand cmd-expansions 'Execute the shell command with $SHELL'
-            cand escape-help '\tab	"''
-New Line'
+            cand escape-help '\tab	"'' New Line'
         }
         &'exhaustive;help;quote;cmd-single-quotes'= {
         }
