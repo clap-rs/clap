@@ -65,11 +65,11 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Default features
-      run: cargo hack check --rust-version --ignore-private --workspace --all-targets
+      run: cargo hack check --locked --rust-version --ignore-private --workspace --all-targets
     - name: All features
-      run: cargo hack check --rust-version --ignore-private --workspace --all-targets --all-features
+      run: cargo hack check --locked --rust-version --ignore-private --workspace --all-targets --all-features
     - name: No-default features
-      run: cargo hack check --rust-version --ignore-private --workspace --all-targets --no-default-features
+      run: cargo hack check --locked --rust-version --ignore-private --workspace --all-targets --no-default-features
   lockfile:
     runs-on: ubuntu-latest
     steps:
