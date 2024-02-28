@@ -6,3 +6,4 @@ mod fish;
 mod general;
 mod powershell;
 mod zsh;
+mod clink;
