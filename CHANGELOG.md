@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(macros)* Silence a warning
+
 ## [4.5.1] - 2024-02-16
 
 ### Fixes
