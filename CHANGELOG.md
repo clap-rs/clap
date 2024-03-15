@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Internal
+
+- *(derive)* Update `heck`
+
 ## [4.5.2] - 2024-03-06
 
 ### Fixes
