@@ -59,10 +59,9 @@
       schedule: [
         '* * * * *',
       ],
-      groupName: 'rust-version',
     },
     {
-      commitMessageTopic: 'STABLE',
+      commitMessageTopic: 'Rust Stable',
       matchManagers: [
         'custom.regex',
       ],
@@ -73,7 +72,6 @@
       schedule: [
         '* * * * *',
       ],
-      groupName: 'rust-version',
     },
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
