@@ -21,3 +21,4 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 ### Related Projects
 
 - [clap_complete_fig](https://crates.io/crates/clap_complete_fig) for [fig](https://fig.io/) shell completion support
+- [clap_complete_nushell](https://crates.io/crates/clap_complete_nushell) for [nushell](https://www.nushell.sh/) shell completion support
