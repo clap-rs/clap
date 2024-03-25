@@ -974,8 +974,8 @@ impl Item {
         quote!( #(#doc_comment)* #(#methods)* )
     }
 
-    pub fn group_id(&self) -> TokenStream {
-        self.group_id.clone().raw()
+    pub fn group_id(&self) -> &Name {
+        &self.group_id
     }
 
     pub fn group_methods(&self) -> TokenStream {
@@ -998,8 +998,8 @@ impl Item {
         quote!( #(#next_help_heading)* )
     }
 
-    pub fn id(&self) -> TokenStream {
-        self.name.clone().raw()
+    pub fn id(&self) -> &Name {
+        &self.name
     }
 
     pub fn cased_name(&self) -> TokenStream {
@@ -1410,16 +1410,6 @@ pub enum Name {
 }
 
 impl Name {
-    pub fn raw(self) -> TokenStream {
-        match self {
-            Name::Assigned(tokens) => tokens,
-            Name::Derived(ident) => {
-                let s = ident.unraw().to_string();
-                quote_spanned!(ident.span()=> #s)
-            }
-        }
-    }
-
     pub fn translate(self, style: CasingStyle) -> TokenStream {
         use CasingStyle::*;
 
@@ -1462,6 +1452,18 @@ impl Name {
 
                 let s = s.chars().next().unwrap();
                 quote_spanned!(ident.span()=> #s)
+            }
+        }
+    }
+}
+
+impl ToTokens for Name {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Name::Assigned(t) => t.to_tokens(tokens),
+            Name::Derived(ident) => {
+                let s = ident.unraw().to_string();
+                quote_spanned!(ident.span()=> #s).to_tokens(tokens)
             }
         }
     }
