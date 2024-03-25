@@ -20,12 +20,12 @@ include = [
 missing_docs = "warn"
 rust_2018_idioms = "warn"
 unreachable_pub = "warn"
-unsafe-op-in-unsafe-fn = "warn"
+unsafe_op_in_unsafe_fn = "warn"
 unsafe_code = "warn"
-unused-crate-dependencies = "warn"
-unused-lifetimes = "warn"
-unused-macro-rules = "warn"
-unused-qualifications = "warn"
+unused_crate_dependencies = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
+unused_qualifications = "warn"
 
 [workspace.lints.clippy]
 bool_assert_comparison = "allow"
