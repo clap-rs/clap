@@ -125,19 +125,19 @@ fn test_bool() {
     assert_eq!(result.unwrap_err().kind(), ErrorKind::NoEquals);
 }
 
-fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
-    u64::from_str_radix(input, 16)
-}
-
-#[derive(Parser, PartialEq, Debug)]
-struct HexOpt {
-    #[arg(short, value_parser = parse_hex)]
-    number: u64,
-}
-
 #[test]
 #[cfg(feature = "error-context")]
 fn test_parse_hex_function_path() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct HexOpt {
+        #[arg(short, value_parser = parse_hex)]
+        number: u64,
+    }
+
+    fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
+        u64::from_str_radix(input, 16)
+    }
+
     assert_eq!(
         HexOpt { number: 5 },
         HexOpt::try_parse_from(["test", "-n", "5"]).unwrap()
