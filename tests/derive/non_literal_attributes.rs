@@ -156,3 +156,20 @@ fn test_parse_hex_function_path() {
         err
     );
 }
+
+#[test]
+#[cfg(feature = "error-context")]
+fn test_const_name() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(id = NAME, short, long)]
+        number: u64,
+    }
+
+    const NAME: &str = "fun";
+
+    assert_eq!(
+        Opt { number: 5 },
+        Opt::try_parse_from(["test", "-f", "5"]).unwrap()
+    );
+}
