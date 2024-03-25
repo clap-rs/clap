@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Allow non-literal `#[arg(id)]` attributes again
+
 ## [4.5.3] - 2024-03-15
 
 ### Internal
