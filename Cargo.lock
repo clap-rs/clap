@@ -408,7 +408,7 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.3"
+version = "4.5.4"
 dependencies = [
  "clap_builder 4.5.2",
  "clap_derive",
@@ -424,7 +424,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.5.3",
+ "clap 4.5.4",
  "divan",
  "lazy_static",
 ]
@@ -463,7 +463,7 @@ dependencies = [
 name = "clap_complete"
 version = "4.5.1"
 dependencies = [
- "clap 4.5.3",
+ "clap 4.5.4",
  "clap_lex 0.7.0",
  "completest",
  "completest-pty",
@@ -479,7 +479,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.5.0"
 dependencies = [
- "clap 4.5.3",
+ "clap 4.5.4",
  "clap_complete",
  "snapbox",
 ]
@@ -488,7 +488,7 @@ dependencies = [
 name = "clap_complete_nushell"
 version = "4.5.1"
 dependencies = [
- "clap 4.5.3",
+ "clap 4.5.4",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -497,7 +497,7 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.3"
+version = "4.5.4"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -519,7 +519,7 @@ version = "0.7.0"
 name = "clap_mangen"
 version = "0.2.20"
 dependencies = [
- "clap 4.5.3",
+ "clap 4.5.4",
  "roff",
  "snapbox",
 ]
