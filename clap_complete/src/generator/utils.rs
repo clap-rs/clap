@@ -49,6 +49,10 @@ pub fn subcommands(p: &Command) -> Vec<(String, String)> {
         );
 
         subcmds.push((sc.get_name().to_string(), sc_bin_name.to_string()));
+
+        for a in sc.get_visible_aliases() {
+            subcmds.push((a.to_string(), sc_bin_name.to_string()));
+        }
     }
 
     subcmds
