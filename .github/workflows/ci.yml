@@ -91,7 +91,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
+        toolchain: "1.76"  # STABLE
     - uses: Swatinem/rust-cache@v2
     - name: Check documentation
       env:
@@ -106,9 +106,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        # Not MSRV because its harder to jump between versions and people are
-        # more likely to have stable
-        toolchain: stable
+        toolchain: "1.76"  # STABLE
         components: rustfmt
     - uses: Swatinem/rust-cache@v2
     - name: Check formatting
