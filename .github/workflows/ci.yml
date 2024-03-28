@@ -81,7 +81,7 @@ jobs:
         toolchain: stable
     - uses: Swatinem/rust-cache@v2
     - name: "Is lockfile updated?"
-      run: cargo fetch --locked
+      run: cargo update --workspace --locked
   docs:
     name: Docs
     runs-on: ubuntu-latest
