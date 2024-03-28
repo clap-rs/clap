@@ -1,0 +1,1 @@
+automod::dir!("tests/testsuite");

@@ -17,6 +17,7 @@ include = [
 ]
 
 [workspace.dependencies]
+automod = "1.0.14"
 
 [workspace.lints.rust]
 missing_docs = "warn"
@@ -129,6 +130,7 @@ default = []
 [dependencies]
 
 [dev-dependencies]
+automod.workspace = true
 
 [lints]
 workspace = true
