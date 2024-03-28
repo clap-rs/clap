@@ -44,14 +44,11 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
     - name: Build
       run: cargo test --workspace --no-run
-    - name: Default features
-      run: cargo test --workspace
-    - name: All features
-      run: cargo test --workspace --all-features
-    - name: No-default features
-      run: cargo test --workspace --no-default-features
+    - name: Test
+      run: cargo hack test --feature-powerset --workspace
   msrv:
     name: "Check MSRV"
     runs-on: ubuntu-latest
@@ -65,11 +62,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Default features
-      run: cargo hack check --locked --rust-version --ignore-private --workspace --all-targets
-    - name: All features
-      run: cargo hack check --locked --rust-version --ignore-private --workspace --all-targets --all-features
-    - name: No-default features
-      run: cargo hack check --locked --rust-version --ignore-private --workspace --all-targets --no-default-features
+      run: cargo hack check --feature-powerset --locked --rust-version --ignore-private --workspace --all-targets
   lockfile:
     runs-on: ubuntu-latest
     steps:

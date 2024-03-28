@@ -36,14 +36,11 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
     - name: Build
       run: cargo test --workspace --no-run
-    - name: Default features
-      run: cargo test --workspace
-    - name: All features
-      run: cargo test --workspace --all-features
-    - name: No-default features
-      run: cargo test --workspace --no-default-features
+    - name: Test
+      run: cargo hack test --feature-powerset --workspace
   latest:
     name: "Check latest dependencies"
     runs-on: ubuntu-latest
@@ -55,13 +52,10 @@ jobs:
       with:
         toolchain: stable
     - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
     - name: Update dependencues
       run: cargo update
     - name: Build
       run: cargo test --workspace --no-run
-    - name: Default features
-      run: cargo test --workspace
-    - name: All features
-      run: cargo test --workspace --all-features
-    - name: No-default features
-      run: cargo test --workspace --no-default-features
+    - name: Test
+      run: cargo hack test --feature-powerset --workspace
