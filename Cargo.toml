@@ -16,6 +16,8 @@ include = [
   "examples/**/*"
 ]
 
+[workspace.dependencies]
+
 [workspace.lints.rust]
 missing_docs = "warn"
 rust_2018_idioms = "warn"
