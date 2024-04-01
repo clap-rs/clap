@@ -16,9 +16,6 @@ include = [
   "examples/**/*"
 ]
 
-[workspace.dependencies]
-automod = "1.0.14"
-
 [workspace.lints.rust]
 missing_docs = "warn"
 rust_2018_idioms = "warn"
@@ -124,7 +121,7 @@ default = []
 [dependencies]
 
 [dev-dependencies]
-automod.workspace = true
+automod = "1.0.14"
 
 [lints]
 workspace = true
