@@ -23,11 +23,13 @@ jobs:
     permissions:
       contents: none
     name: CI
-    needs: [test, msrv, docs, rustfmt, clippy]
+    needs: [test, msrv, lockfile, docs, rustfmt, clippy]
     runs-on: ubuntu-latest
+    if: "always()"
     steps:
-      - name: Done
-        run: exit 0
+      - name: Failed
+        run: exit 1
+        if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')"
   test:
     name: Test
     strategy:
