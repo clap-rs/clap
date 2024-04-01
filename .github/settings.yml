@@ -54,6 +54,6 @@ labels:
 #       required_status_checks:
 #         # Required. Require branches to be up to date before merging.
 #         strict: false
-#         contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
+#         contexts: ["CI", "Spell Check with Typos"]
 #       enforce_admins: false
 #       restrictions: null
