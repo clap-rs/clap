@@ -183,12 +183,12 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
                 if o.get_value_hint() == ValueHint::FilePath {
                     v.extend([
                         "local oldifs".to_string(),
-                        "if [[ -v IFS ]]; then".to_string(),
+                        r#"if [ -n "${IFS+x}" ]; then"#.to_string(),
                         r#"    oldifs="$IFS""#.to_string(),
                         "fi".to_string(),
                         r#"IFS=$'\n'"#.to_string(),
                         format!("COMPREPLY=({})", vals_for(o)),
-                        "if [[ -v oldifs ]]; then".to_string(),
+                        r#"if [ -n "${oldifs+x}" ]; then"#.to_string(),
                         r#"    IFS="$oldifs""#.to_string(),
                         "fi".to_string(),
                     ]);
@@ -216,12 +216,12 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
                 if o.get_value_hint() == ValueHint::FilePath {
                     v.extend([
                         "local oldifs".to_string(),
-                        "if [[ -v IFS ]]; then".to_string(),
+                        r#"if [ -n "${IFS+x}" ]; then"#.to_string(),
                         r#"    oldifs="$IFS""#.to_string(),
                         "fi".to_string(),
                         r#"IFS=$'\n'"#.to_string(),
                         format!("COMPREPLY=({})", vals_for(o)),
-                        "if [[ -v oldifs ]]; then".to_string(),
+                        r#"if [ -n "${oldifs+x}" ]; then"#.to_string(),
                         r#"    IFS="$oldifs""#.to_string(),
                         "fi".to_string(),
                     ]);
