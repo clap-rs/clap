@@ -554,15 +554,39 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
 
-        if let Some(s) = arg.get_short() {
+        if
+            arg.get_short().is_none()
+            && arg.get_visible_short_aliases().is_none()
+            && arg.get_long().is_some()
+        {
+            self.writer.push_str("    ");
+            return;
+        }
+
+        let mut first = true;
+        for s in arg.get_short().iter().chain(arg.get_visible_short_aliases().iter().flatten()) {
+            if !first {
+                let _ = write!(
+                    self.writer,
+                    ", ",
+                );
+            }
             let _ = write!(
                 self.writer,
                 "{}-{s}{}",
                 literal.render(),
                 literal.render_reset()
             );
-        } else if arg.get_long().is_some() {
-            self.writer.push_str("    ");
+            first = false;
+        }
+        
+        if arg.get_long().is_some() {
+            if first {
+                // We've printed nothing so add some spacing for the long arg
+                self.writer.push_str("    ");
+            } else {
+                self.writer.push_str(", ");
+            }
         }
     }
 
@@ -572,9 +596,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
 
-        if let Some(long) = arg.get_long() {
-            if arg.get_short().is_some() {
-                self.writer.push_str(", ");
+        let mut first = true;
+        for long in arg.get_long().iter().chain(arg.get_visible_aliases().iter().flatten()) {
+            if !first {
+                let _ = write!(
+                    self.writer,
+                    ", ",
+                );
             }
             let _ = write!(
                 self.writer,
@@ -582,6 +610,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 literal.render(),
                 literal.render_reset()
             );
+            first = false;
         }
     }
 
@@ -814,33 +843,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 .join(" ");
 
             spec_vals.push(format!("[default: {pvs}]"));
-        }
-
-        let als = a
-            .aliases
-            .iter()
-            .filter(|&als| als.1) // visible
-            .map(|als| als.0.as_str()) // name
-            .collect::<Vec<_>>()
-            .join(", ");
-        if !als.is_empty() {
-            debug!("HelpTemplate::spec_vals: Found aliases...{:?}", a.aliases);
-            spec_vals.push(format!("[aliases: {als}]"));
-        }
-
-        let als = a
-            .short_aliases
-            .iter()
-            .filter(|&als| als.1) // visible
-            .map(|&als| als.0.to_string()) // name
-            .collect::<Vec<_>>()
-            .join(", ");
-        if !als.is_empty() {
-            debug!(
-                "HelpTemplate::spec_vals: Found short aliases...{:?}",
-                a.short_aliases
-            );
-            spec_vals.push(format!("[short aliases: {als}]"));
         }
 
         if !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
