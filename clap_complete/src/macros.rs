@@ -2,7 +2,13 @@ macro_rules! w {
     ($buf:expr, $to_w:expr) => {
         match $buf.write_all($to_w) {
             Ok(..) => (),
-            Err(..) => panic!("Failed to write to generated file"),
+            Err(err) if err.kind() == std::io::ErrorKind::BrokenPipe => {
+                // Is there a better exit code for this?
+                std::process::exit(1);
+            }
+            Err(err) => {
+                panic!("Failed to write to generated file: {0}", err);
+            }
         }
     };
 }
