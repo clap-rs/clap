@@ -15,16 +15,10 @@ name: []
 $ 03_02_option_mult_derive --name bob
 name: ["bob"]
 
-$ 03_02_option_mult_derive --name=bob
-name: ["bob"]
+$ 03_02_option_mult_derive --name bob --name john
+name: ["bob", "john"]
 
-$ 03_02_option_mult_derive -n bob
-name: ["bob"]
-
-$ 03_02_option_mult_derive -n=bob
-name: ["bob"]
-
-$ 03_02_option_mult_derive -nbob
-name: ["bob"]
+$ 03_02_option_mult_derive --name bob --name=john -n tom -n=chris -nsteve
+name: ["bob", "john", "tom", "chris", "steve"]
 
 ```
