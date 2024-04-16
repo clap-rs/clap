@@ -280,7 +280,7 @@ impl ArgGroup {
     ///
     /// assert!(group.is_multiple());
     /// ```
-    pub fn is_multiple(&mut self) -> bool {
+    pub fn is_multiple(&self) -> bool {
         self.multiple
     }
 
