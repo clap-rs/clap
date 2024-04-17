@@ -72,6 +72,7 @@
       schedule: [
         '* * * * *',
       ],
+      automerge: true,
     },
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
