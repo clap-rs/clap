@@ -36,7 +36,7 @@ fn main() {
     // Note, only flags can have multiple occurrences
     match matches
         .get_one::<u8>("debug")
-        .expect("Count's are defaulted")
+        .expect("Counts are defaulted")
     {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
