@@ -360,7 +360,7 @@ impl Item {
                         .ty()
                         .cloned()
                         .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
-                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.clone().span());
+                    let kind = Sp::new(Kind::FromGlobal(ty), attr.name.span());
                     Some(kind)
                 }
                 Some(MagicAttrName::Subcommand) if attr.value.is_none() => {
@@ -373,7 +373,7 @@ impl Item {
                         .ty()
                         .cloned()
                         .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
-                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.clone().span());
+                    let kind = Sp::new(Kind::Subcommand(ty), attr.name.span());
                     Some(kind)
                 }
                 Some(MagicAttrName::ExternalSubcommand) if attr.value.is_none() => {
@@ -381,7 +381,7 @@ impl Item {
                         let expr = attr.value_or_abort()?;
                         abort!(expr, "attribute `{}` does not accept a value", attr.name);
                     }
-                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.clone().span());
+                    let kind = Sp::new(Kind::ExternalSubcommand, attr.name.span());
                     Some(kind)
                 }
                 Some(MagicAttrName::Flatten) if attr.value.is_none() => {
@@ -394,15 +394,12 @@ impl Item {
                         .ty()
                         .cloned()
                         .unwrap_or_else(|| Sp::new(Ty::Other, self.kind.span()));
-                    let kind = Sp::new(Kind::Flatten(ty), attr.name.clone().span());
+                    let kind = Sp::new(Kind::Flatten(ty), attr.name.span());
                     Some(kind)
                 }
                 Some(MagicAttrName::Skip) if actual_attr_kind != AttrKind::Group => {
                     let expr = attr.value.clone();
-                    let kind = Sp::new(
-                        Kind::Skip(expr, self.kind.attr_kind()),
-                        attr.name.clone().span(),
-                    );
+                    let kind = Sp::new(Kind::Skip(expr, self.kind.attr_kind()), attr.name.span());
                     Some(kind)
                 }
                 _ => None,
@@ -574,7 +571,7 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
                             let s = DEFAULT_VALUE.get_or_init(|| {
                                 let val: #ty = #val;
@@ -584,7 +581,7 @@ impl Item {
                             s
                         })
                     } else {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
                             let s = DEFAULT_VALUE.get_or_init(|| {
                                 let val: #ty = #val;
@@ -595,7 +592,7 @@ impl Item {
                         })
                     };
 
-                    let raw_ident = Ident::new("default_value", attr.name.clone().span());
+                    let raw_ident = Ident::new("default_value", attr.name.span());
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
@@ -632,7 +629,7 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
                                 where
@@ -653,7 +650,7 @@ impl Item {
                             }
                         })
                     } else {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=String>
                                 where
@@ -672,7 +669,7 @@ impl Item {
                     };
 
                     self.methods.push(Method::new(
-                        Ident::new("default_values", attr.name.clone().span()),
+                        Ident::new("default_values", attr.name.span()),
                         val,
                     ));
                 }
@@ -702,7 +699,7 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
                             let s = DEFAULT_VALUE.get_or_init(|| {
                                 let val: #ty = #val;
@@ -712,7 +709,7 @@ impl Item {
                             s
                         })
                     } else {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             static DEFAULT_VALUE: ::std::sync::OnceLock<::std::ffi::OsString> = ::std::sync::OnceLock::new();
                             let s = DEFAULT_VALUE.get_or_init(|| {
                                 let val: #ty = #val;
@@ -723,7 +720,7 @@ impl Item {
                         })
                     };
 
-                    let raw_ident = Ident::new("default_value", attr.name.clone().span());
+                    let raw_ident = Ident::new("default_value", attr.name.span());
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
@@ -760,7 +757,7 @@ impl Item {
                         .iter()
                         .any(|a| a.magic == Some(MagicAttrName::ValueEnum))
                     {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=::std::ffi::OsString>
                                 where
@@ -781,7 +778,7 @@ impl Item {
                             }
                         })
                     } else {
-                        quote_spanned!(attr.name.clone().span()=> {
+                        quote_spanned!(attr.name.span()=> {
                             {
                                 fn iter_to_vals<T>(iterable: impl IntoIterator<Item = T>) -> impl Iterator<Item=::std::ffi::OsString>
                                 where
@@ -800,7 +797,7 @@ impl Item {
                     };
 
                     self.methods.push(Method::new(
-                        Ident::new("default_values", attr.name.clone().span()),
+                        Ident::new("default_values", attr.name.span()),
                         val,
                     ));
                 }
