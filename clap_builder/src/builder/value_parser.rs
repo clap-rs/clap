@@ -1913,7 +1913,7 @@ impl Default for FalseyValueParser {
 pub struct BoolishValueParser {}
 
 impl BoolishValueParser {
-    /// Parse bool-like string values, everything else is `true`
+    /// Parse bool-like string values, everything else is an error.
     pub fn new() -> Self {
         Self {}
     }
