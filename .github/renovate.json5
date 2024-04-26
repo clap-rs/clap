@@ -18,24 +18,6 @@
         '^\\.github/workflows/rust-next.yml$',
       ],
       matchStrings: [
-        'MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
-        '(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?MSRV',
-      ],
-      depNameTemplate: 'MSRV',
-      packageNameTemplate: 'rust-lang/rust',
-      datasourceTemplate: 'github-releases',
-    },
-    {
-      customType: 'regex',
-      fileMatch: [
-        '^rust-toolchain\\.toml$',
-        'Cargo.toml$',
-        'clippy.toml$',
-        '\\.clippy.toml$',
-        '^\\.github/workflows/ci.yml$',
-        '^\\.github/workflows/rust-next.yml$',
-      ],
-      matchStrings: [
         'STABLE.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
         '(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?STABLE',
       ],
@@ -45,21 +27,6 @@
     },
   ],
   packageRules: [
-    {
-      commitMessageTopic: 'MSRV',
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchPackageNames: [
-        'MSRV',
-      ],
-      minimumReleaseAge: '336 days',  // 8 releases * 6 weeks per release * 7 days per week
-      internalChecksFilter: 'strict',
-      extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
-      schedule: [
-        '* * * * *',
-      ],
-    },
     {
       commitMessageTopic: 'Rust Stable',
       matchManagers: [
