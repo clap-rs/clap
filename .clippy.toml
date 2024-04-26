@@ -1,4 +1,3 @@
-warn-on-all-wildcard-imports = true
 allow-print-in-tests = true
 allow-expect-in-tests = true
 allow-unwrap-in-tests = true
