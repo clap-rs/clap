@@ -170,6 +170,31 @@ _my-app__help__help_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help help commands' commands "$@"
 }
+(( $+functions[_my-app__help__some_cmd_commands] )) ||
+_my-app__help__some_cmd_commands() {
+    local commands; commands=(
+'sub_cmd:sub-subcommand' \
+    )
+    _describe -t commands 'my-app help some_cmd commands' commands "$@"
+}
+(( $+functions[_my-app__help__some_cmd__sub_cmd_commands] )) ||
+_my-app__help__some_cmd__sub_cmd_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help some_cmd sub_cmd commands' commands "$@"
+}
+(( $+functions[_my-app__help__test_commands] )) ||
+_my-app__help__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help test commands' commands "$@"
+}
+(( $+functions[_my-app__some_cmd_commands] )) ||
+_my-app__some_cmd_commands() {
+    local commands; commands=(
+'sub_cmd:sub-subcommand' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'my-app some_cmd commands' commands "$@"
+}
 (( $+functions[_my-app__some_cmd__help_commands] )) ||
 _my-app__some_cmd__help_commands() {
     local commands; commands=(
@@ -183,26 +208,6 @@ _my-app__some_cmd__help__help_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some_cmd help help commands' commands "$@"
 }
-(( $+functions[_my-app__help__some_cmd_commands] )) ||
-_my-app__help__some_cmd_commands() {
-    local commands; commands=(
-'sub_cmd:sub-subcommand' \
-    )
-    _describe -t commands 'my-app help some_cmd commands' commands "$@"
-}
-(( $+functions[_my-app__some_cmd_commands] )) ||
-_my-app__some_cmd_commands() {
-    local commands; commands=(
-'sub_cmd:sub-subcommand' \
-'help:Print this message or the help of the given subcommand(s)' \
-    )
-    _describe -t commands 'my-app some_cmd commands' commands "$@"
-}
-(( $+functions[_my-app__help__some_cmd__sub_cmd_commands] )) ||
-_my-app__help__some_cmd__sub_cmd_commands() {
-    local commands; commands=()
-    _describe -t commands 'my-app help some_cmd sub_cmd commands' commands "$@"
-}
 (( $+functions[_my-app__some_cmd__help__sub_cmd_commands] )) ||
 _my-app__some_cmd__help__sub_cmd_commands() {
     local commands; commands=()
@@ -212,11 +217,6 @@ _my-app__some_cmd__help__sub_cmd_commands() {
 _my-app__some_cmd__sub_cmd_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some_cmd sub_cmd commands' commands "$@"
-}
-(( $+functions[_my-app__help__test_commands] )) ||
-_my-app__help__test_commands() {
-    local commands; commands=()
-    _describe -t commands 'my-app help test commands' commands "$@"
 }
 (( $+functions[_my-app__test_commands] )) ||
 _my-app__test_commands() {
