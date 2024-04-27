@@ -3438,6 +3438,13 @@ impl Command {
         &self.name
     }
 
+    /// Get all known names of the cmd (i.e. primary name and visible aliases).
+    pub fn get_name_and_visible_aliases(&self) -> Vec<&str> {
+        let mut names = vec![self.name.as_str()];
+        names.extend(self.get_visible_aliases());
+        names
+    }
+
     /// Get the version of the cmd.
     #[inline]
     pub fn get_version(&self) -> Option<&str> {

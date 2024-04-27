@@ -97,6 +97,60 @@ esac
     ;;
 esac
 ;;
+(some_cmd_alias)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_my-app__some_cmd_commands" \
+"*::: :->some_cmd" \
+&& ret=0
+
+    case $state in
+    (some_cmd)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my-app-some_cmd-command-$line[1]:"
+        case $line[1] in
+            (sub_cmd)
+_arguments "${_arguments_options[@]}" \
+'--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
+Second\ to\ trigger\ display\ of\ options\:""))' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+":: :_my-app__some_cmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my-app-some_cmd-help-command-$line[1]:"
+        case $line[1] in
+            (sub_cmd)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
 (help)
 _arguments "${_arguments_options[@]}" \
 ":: :_my-app__help_commands" \

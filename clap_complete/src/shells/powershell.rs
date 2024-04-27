@@ -72,10 +72,13 @@ fn escape_help<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
 fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     debug!("generate_inner");
 
-    let command_name = if previous_command_name.is_empty() {
-        p.get_bin_name().expect(INTERNAL_ERROR_MSG).to_string()
+    let command_names = if previous_command_name.is_empty() {
+        vec![p.get_bin_name().expect(INTERNAL_ERROR_MSG).to_string()]
     } else {
-        format!("{};{}", previous_command_name, &p.get_name())
+        p.get_name_and_visible_aliases()
+            .into_iter()
+            .map(|name| format!("{};{}", previous_command_name, name))
+            .collect()
     };
 
     let mut completions = String::new();
@@ -90,27 +93,31 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     }
 
     for subcommand in p.get_subcommands() {
-        let data = &subcommand.get_name();
-        let tooltip = escape_help(subcommand.get_about(), data);
-
-        completions.push_str(&preamble);
-        completions.push_str(
-            format!("'{data}', '{data}', [CompletionResultType]::ParameterValue, '{tooltip}')")
-                .as_str(),
-        );
+        for name in subcommand.get_name_and_visible_aliases() {
+            let tooltip = escape_help(subcommand.get_about(), name);
+            completions.push_str(&preamble);
+            completions.push_str(&format!(
+                "'{name}', '{name}', [CompletionResultType]::ParameterValue, '{tooltip}')"
+            ));
+        }
     }
 
-    let mut subcommands_cases = format!(
-        r"
+    let mut subcommands_cases = String::new();
+    for command_name in &command_names {
+        subcommands_cases.push_str(&format!(
+            r"
         '{}' {{{}
             break
         }}",
-        &command_name, completions
-    );
+            command_name, completions
+        ));
+    }
 
     for subcommand in p.get_subcommands() {
-        let subcommand_subcommands_cases = generate_inner(subcommand, &command_name);
-        subcommands_cases.push_str(&subcommand_subcommands_cases);
+        for command_name in &command_names {
+            let subcommand_subcommands_cases = generate_inner(subcommand, command_name);
+            subcommands_cases.push_str(&subcommand_subcommands_cases);
+        }
     }
 
     subcommands_cases
