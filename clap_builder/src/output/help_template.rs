@@ -8,12 +8,12 @@ use std::borrow::Cow;
 use std::cmp;
 use std::usize;
 
+use crate::builder::{Arg, Command};
 // Internal
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::builder::Styles;
-use crate::builder::{Arg, Command};
 use crate::output::display_width;
 use crate::output::wrap;
 use crate::output::Usage;
@@ -689,10 +689,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 let possible_vals = arg.get_possible_values();
                 if !possible_vals.is_empty() {
                     debug!("HelpTemplate::help: Found possible vals...{possible_vals:?}");
+
                     let longest = possible_vals
                         .iter()
                         .filter(|f| !f.is_hide_set())
-                        .map(|f| display_width(f.get_name()))
+                        .map(|f| display_width(f.render_help_prefix_long(literal).as_str()))
                         .max()
                         .expect("Only called with possible value");
 
@@ -705,19 +706,15 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     }
                     self.writer.push_str("Possible values:");
                     for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
-                        let name = pv.get_name();
+                        let prefix = pv.render_help_prefix_long(literal);
 
                         let mut descr = StyledStr::new();
-                        let _ = write!(
-                            &mut descr,
-                            "{}{name}{}",
-                            literal.render(),
-                            literal.render_reset()
-                        );
+
+                        let _ = write!(&mut descr, "{prefix}",);
                         if let Some(help) = pv.get_help() {
                             debug!("HelpTemplate::help: Possible Value help");
                             // To align help messages
-                            let padding = longest - display_width(name);
+                            let padding = longest - display_width(prefix.as_str());
                             let _ = write!(&mut descr, ": {:padding$}", "");
                             descr.push_styled(help);
                         }
@@ -850,7 +847,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
                 let pvs = possible_vals
                     .iter()
-                    .filter_map(PossibleValue::get_visible_quoted_name)
+                    .filter(|v| !v.is_hide_set())
+                    .flat_map(|v| {
+                        std::iter::once(v.get_name())
+                            .chain(v.get_visible_aliases().iter().map(|s| s.as_str()))
+                    })
                     .collect::<Vec<_>>()
                     .join(", ");
 
