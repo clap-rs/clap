@@ -218,7 +218,7 @@
 //! These correspond to a [`Arg`][crate::Arg].
 //!
 //! **Raw attributes:**  Any [`Arg` method][crate::Arg] can also be used as an attribute, see [Terminology](#terminology) for syntax.
-//! - e.g. `#[arg(max_values(3))]` would translate to `arg.max_values(3)`
+//! - e.g. `#[arg(num_args(..=3))]` would translate to `arg.num_args(..=3)`
 //!
 //! **Magic attributes**:
 //! - `id = <expr>`: [`Arg::id`][crate::Arg::id]
