@@ -70,4 +70,4 @@ unicode-width = { version = "0.1.9", optional = true }
 [dev-dependencies]
 static_assertions = "1.1.0"
 unic-emoji-char = "0.9.0"
-color-print = "0.3.5"
+color-print = "0.3.6"
