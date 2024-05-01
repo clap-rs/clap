@@ -107,9 +107,9 @@ clap_derive = { path = "./clap_derive", version = "=4.5.4", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.91"
-rustversion = "1.0.14"
+rustversion = "1.0.15"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.15.0", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.15.1", default-features = false, features = ["color-auto", "diff", "examples"] }
 humantime = "2.1.0"
 snapbox = "0.5.9"
 shlex = "1.3.0"

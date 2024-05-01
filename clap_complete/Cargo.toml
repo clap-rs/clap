@@ -44,7 +44,7 @@ unicode-xid = { version = "0.2.2", optional = true }
 [dev-dependencies]
 snapbox = { version = "0.5.9", features = ["diff", "path", "examples"] }
 # Cutting out `filesystem` feature
-trycmd = { version = "0.15.0", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.15.1", default-features = false, features = ["color-auto", "diff", "examples"] }
 completest = "0.4.0"
 completest-pty = "0.5.0"
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "derive", "help"] }
