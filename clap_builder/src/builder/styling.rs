@@ -28,6 +28,8 @@ pub struct Styles {
     placeholder: anstyle::Style,
     valid: anstyle::Style,
     invalid: anstyle::Style,
+    inline_context: anstyle::Style,
+    inline_context_value: Option<anstyle::Style>,
 }
 
 impl Styles {
@@ -41,6 +43,8 @@ impl Styles {
             placeholder: anstyle::Style::new(),
             valid: anstyle::Style::new(),
             invalid: anstyle::Style::new(),
+            inline_context: anstyle::Style::new(),
+            inline_context_value: None,
         }
     }
 
@@ -60,6 +64,8 @@ impl Styles {
                     .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Green))),
                 invalid: anstyle::Style::new()
                     .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Yellow))),
+                inline_context: anstyle::Style::new(),
+                inline_context_value: None,
             }
         }
         #[cfg(not(feature = "color"))]
@@ -116,6 +122,20 @@ impl Styles {
         self.invalid = style;
         self
     }
+
+    /// Highlight specified contexts: `[env], [default], [possible values], [aliases] and [short aliases]`
+    #[inline]
+    pub const fn inline_context(mut self, style: anstyle::Style) -> Self {
+        self.inline_context = style;
+        self
+    }
+
+    /// Highlight values within specified contexts: `[env], [default], [possible values], [aliases] and [short aliases]`
+    #[inline]
+    pub const fn inline_context_value(mut self, style: anstyle::Style) -> Self {
+        self.inline_context_value = Some(style);
+        self
+    }
 }
 
 /// Reflection
@@ -160,6 +180,23 @@ impl Styles {
     #[inline(always)]
     pub const fn get_invalid(&self) -> &anstyle::Style {
         &self.invalid
+    }
+
+    /// Highlight specified contexts: `[env], [default], [possible values], [aliases] and [short aliases]`
+    #[inline(always)]
+    pub const fn get_inline_context(&self) -> &anstyle::Style {
+        &self.inline_context
+    }
+
+    /// Highlight values within specified contexts: `[env], [default], [possible values], [aliases] and [short aliases]`
+    ///
+    /// If `inline_context_value` was not set, defaults to `inline_context`
+    #[inline(always)]
+    pub const fn get_inline_context_value(&self) -> &anstyle::Style {
+        match &self.inline_context_value {
+            Some(inline_context_value) => inline_context_value,
+            None => &self.inline_context,
+        }
     }
 }
 

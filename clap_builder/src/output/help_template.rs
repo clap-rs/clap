@@ -639,6 +639,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     ) {
         debug!("HelpTemplate::help");
         use std::fmt::Write as _;
+        let inline_context = &self.styles.get_inline_context();
         let literal = &self.styles.get_literal();
 
         // Is help on next line, if so then indent
@@ -703,7 +704,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     if !help_is_empty {
                         let _ = write!(self.writer, "\n\n{:spaces$}", "");
                     }
-                    self.writer.push_str("Possible values:");
+                    self.writer.push_str(
+                        format!(
+                            "{}Possible values:{}",
+                            inline_context.render(),
+                            inline_context.render_reset(),
+                        )
+                        .as_str(),
+                    );
                     for pv in possible_vals.iter().filter(|pv| !pv.is_hide_set()) {
                         let name = pv.get_name();
 
@@ -770,6 +778,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
     fn spec_vals(&self, a: &Arg) -> String {
         debug!("HelpTemplate::spec_vals: a={a}");
+        let inline_context = &self.styles.get_inline_context();
+        let i_ctx = inline_context.render();
+        let i_ctx_r = inline_context.render_reset();
+        let inline_context_value = &self.styles.get_inline_context_value();
+        let i_ctx_val = inline_context_value.render();
+        let i_ctx_val_r = inline_context_value.render_reset();
+
         let mut spec_vals = Vec::new();
         #[cfg(feature = "env")]
         if let Some(ref env) = a.env {
@@ -789,7 +804,11 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 } else {
                     Default::default()
                 };
-                let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
+                let env_info = format!(
+                    "{i_ctx}[env: {i_ctx_r}{i_ctx_val}{}{}{i_ctx_val_r}{i_ctx}]{i_ctx_r}",
+                    env.0.to_string_lossy(),
+                    env_val,
+                );
                 spec_vals.push(env_info);
             }
         }
@@ -813,34 +832,38 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 .collect::<Vec<_>>()
                 .join(" ");
 
-            spec_vals.push(format!("[default: {pvs}]"));
+            spec_vals.push(format!(
+                "{i_ctx}[default: {i_ctx_r}{i_ctx_val}{pvs}{i_ctx_val_r}{i_ctx}]{i_ctx_r}"
+            ));
         }
 
         let als = a
             .aliases
             .iter()
             .filter(|&als| als.1) // visible
-            .map(|als| als.0.as_str()) // name
+            .map(|als| format!("{i_ctx_val}{}{i_ctx_val_r}", als.0.as_str())) // name
             .collect::<Vec<_>>()
-            .join(", ");
+            .join(format!("{i_ctx}, {i_ctx_r}").as_str());
         if !als.is_empty() {
             debug!("HelpTemplate::spec_vals: Found aliases...{:?}", a.aliases);
-            spec_vals.push(format!("[aliases: {als}]"));
+            spec_vals.push(format!("{i_ctx}[aliases: {i_ctx_r}{als}{i_ctx}]{i_ctx_r}"));
         }
 
         let als = a
             .short_aliases
             .iter()
             .filter(|&als| als.1) // visible
-            .map(|&als| als.0.to_string()) // name
+            .map(|&als| format!("{i_ctx_val}{}{i_ctx_val_r}", als.0)) // name
             .collect::<Vec<_>>()
-            .join(", ");
+            .join(format!("{i_ctx}, {i_ctx_r}").as_str());
         if !als.is_empty() {
             debug!(
                 "HelpTemplate::spec_vals: Found short aliases...{:?}",
                 a.short_aliases
             );
-            spec_vals.push(format!("[short aliases: {als}]"));
+            spec_vals.push(format!(
+                "{i_ctx}[short aliases: {i_ctx_r}{als}{i_ctx}]{i_ctx_r}"
+            ));
         }
 
         if !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
@@ -851,10 +874,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 let pvs = possible_vals
                     .iter()
                     .filter_map(PossibleValue::get_visible_quoted_name)
+                    .map(|pvs| format!("{i_ctx_val}{pvs}{i_ctx_val_r}"))
                     .collect::<Vec<_>>()
-                    .join(", ");
+                    .join(format!("{i_ctx}, {i_ctx_r}").as_str());
 
-                spec_vals.push(format!("[possible values: {pvs}]"));
+                spec_vals.push(format!(
+                    "{i_ctx}[possible values: {i_ctx_r}{pvs}{i_ctx}]{i_ctx_r}"
+                ));
             }
         }
         let connector = if self.use_long { "\n" } else { " " };
@@ -1036,15 +1062,24 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
     fn sc_spec_vals(&self, a: &Command) -> String {
         debug!("HelpTemplate::sc_spec_vals: a={}", a.get_name());
+        let inline_context = &self.styles.get_inline_context();
+        let i_ctx = inline_context.render();
+        let i_ctx_r = inline_context.render_reset();
+        let inline_context_value = &self.styles.get_inline_context_value();
+        let i_ctx_val = inline_context_value.render();
+        let i_ctx_val_r = inline_context_value.render_reset();
+
         let mut spec_vals = vec![];
 
         let mut short_als = a
             .get_visible_short_flag_aliases()
-            .map(|a| format!("-{a}"))
+            .map(|a| format!("{i_ctx_val}-{a}{i_ctx_val_r}",))
             .collect::<Vec<_>>();
-        let als = a.get_visible_aliases().map(|s| s.to_string());
+        let als = a
+            .get_visible_aliases()
+            .map(|s| format!("{i_ctx_val}{s}{i_ctx_val_r}"));
         short_als.extend(als);
-        let all_als = short_als.join(", ");
+        let all_als = short_als.join(format!("{i_ctx}, {i_ctx_r}").as_str());
         if !all_als.is_empty() {
             debug!(
                 "HelpTemplate::spec_vals: Found aliases...{:?}",
@@ -1054,7 +1089,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 "HelpTemplate::spec_vals: Found short flag aliases...{:?}",
                 a.get_all_short_flag_aliases().collect::<Vec<_>>()
             );
-            spec_vals.push(format!("[aliases: {all_als}]"));
+            spec_vals.push(format!(
+                "{i_ctx}[aliases: {i_ctx_r}{all_als}{i_ctx}]{i_ctx_r}"
+            ));
         }
 
         spec_vals.join(" ")
