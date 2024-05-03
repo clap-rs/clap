@@ -22,6 +22,8 @@ pub enum Shell {
     PowerShell,
     /// Z SHell (zsh)
     Zsh,
+    /// Clink
+    Clink,
 }
 
 impl Display for Shell {
@@ -65,6 +67,7 @@ impl ValueEnum for Shell {
             Shell::Fish => PossibleValue::new("fish"),
             Shell::PowerShell => PossibleValue::new("powershell"),
             Shell::Zsh => PossibleValue::new("zsh"),
+            Shell::Clink => PossibleValue::new("clink"),
         })
     }
 }
@@ -77,6 +80,7 @@ impl Generator for Shell {
             Shell::Fish => shells::Fish.file_name(name),
             Shell::PowerShell => shells::PowerShell.file_name(name),
             Shell::Zsh => shells::Zsh.file_name(name),
+            Shell::Clink => shells::Clink.file_name(name),
         }
     }
 
@@ -87,6 +91,7 @@ impl Generator for Shell {
             Shell::Fish => shells::Fish.generate(cmd, buf),
             Shell::PowerShell => shells::PowerShell.generate(cmd, buf),
             Shell::Zsh => shells::Zsh.generate(cmd, buf),
+            Shell::Clink => shells::Clink.generate(cmd, buf),
         }
     }
 }
