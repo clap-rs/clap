@@ -1741,7 +1741,7 @@ impl Arg {
     ///
     /// This configuration option is often used to give the user a shortcut and allow them to
     /// efficiently specify an option argument without requiring an explicitly value. The `--color`
-    /// argument is a common example. By, supplying an default, such as `default_missing_value("always")`,
+    /// argument is a common example. By supplying a default, such as `default_missing_value("always")`,
     /// the user can quickly just add `--color` to the command line to produce the desired color output.
     ///
     /// **NOTE:** using this configuration option requires the use of the
