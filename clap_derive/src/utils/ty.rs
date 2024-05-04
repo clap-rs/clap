@@ -8,7 +8,7 @@ use syn::{
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum Ty {
+pub(crate) enum Ty {
     Unit,
     Vec,
     VecVec,
@@ -20,8 +20,8 @@ pub enum Ty {
 }
 
 impl Ty {
-    pub fn from_syn_ty(ty: &syn::Type) -> Sp<Self> {
-        use self::Ty::*;
+    pub(crate) fn from_syn_ty(ty: &Type) -> Sp<Self> {
+        use self::Ty::{Option, OptionOption, OptionVec, OptionVecVec, Other, Unit, Vec, VecVec};
         let t = |kind| Sp::new(kind, ty.span());
 
         if is_unit_ty(ty) {
@@ -41,7 +41,7 @@ impl Ty {
         }
     }
 
-    pub fn as_str(&self) -> &'static str {
+    pub(crate) fn as_str(&self) -> &'static str {
         match self {
             Self::Unit => "()",
             Self::Vec => "Vec<T>",
@@ -55,7 +55,7 @@ impl Ty {
     }
 }
 
-pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {
+pub(crate) fn inner_type(field_ty: &Type) -> &Type {
     let ty = Ty::from_syn_ty(field_ty);
     match *ty {
         Ty::Vec | Ty::Option => sub_type(field_ty).unwrap_or(field_ty),
@@ -70,12 +70,12 @@ pub fn inner_type(field_ty: &syn::Type) -> &syn::Type {
     }
 }
 
-pub fn sub_type(ty: &syn::Type) -> Option<&syn::Type> {
+pub(crate) fn sub_type(ty: &Type) -> Option<&Type> {
     subty_if(ty, |_| true)
 }
 
-fn only_last_segment(mut ty: &syn::Type) -> Option<&PathSegment> {
-    while let syn::Type::Group(syn::TypeGroup { elem, .. }) = ty {
+fn only_last_segment(mut ty: &Type) -> Option<&PathSegment> {
+    while let Type::Group(syn::TypeGroup { elem, .. }) = ty {
         ty = elem;
     }
     match ty {
@@ -92,7 +92,7 @@ fn only_last_segment(mut ty: &syn::Type) -> Option<&PathSegment> {
     }
 }
 
-fn subty_if<F>(ty: &syn::Type, f: F) -> Option<&syn::Type>
+fn subty_if<F>(ty: &Type, f: F) -> Option<&Type>
 where
     F: FnOnce(&PathSegment) -> bool,
 {
@@ -113,11 +113,11 @@ where
         })
 }
 
-pub fn subty_if_name<'a>(ty: &'a syn::Type, name: &str) -> Option<&'a syn::Type> {
+pub(crate) fn subty_if_name<'a>(ty: &'a Type, name: &str) -> Option<&'a Type> {
     subty_if(ty, |seg| seg.ident == name)
 }
 
-pub fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
+pub(crate) fn is_simple_ty(ty: &Type, name: &str) -> bool {
     only_last_segment(ty)
         .map(|segment| {
             if let PathArguments::None = segment.arguments {
@@ -129,12 +129,12 @@ pub fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn is_generic_ty(ty: &syn::Type, name: &str) -> bool {
+fn is_generic_ty(ty: &Type, name: &str) -> bool {
     subty_if_name(ty, name).is_some()
 }
 
-fn is_unit_ty(ty: &syn::Type) -> bool {
-    if let syn::Type::Tuple(tuple) = ty {
+fn is_unit_ty(ty: &Type) -> bool {
+    if let Type::Tuple(tuple) = ty {
         tuple.elems.is_empty()
     } else {
         false

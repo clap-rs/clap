@@ -101,34 +101,18 @@ repository:
 #    description: "Meta: Request for post-merge review."
 #    color: '#E10C02'
 
-branches:
-  - name: master
-    protection:
-      required_pull_request_reviews: null
-      required_conversation_resolution: true
-      required_status_checks:
-        # Required. Require branches to be up to date before merging.
-        strict: false
-        contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
-      enforce_admins: false
-      restrictions: null
-  - name: v2-master
-    protection:
-      required_pull_request_reviews: null
-      required_conversation_resolution: true
-      required_status_checks:
-        # Required. Require branches to be up to date before merging.
-        strict: false
-        contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
-      enforce_admins: false
-      restrictions: null
-  - name: v3-master
-    protection:
-      required_pull_request_reviews: null
-      required_conversation_resolution: true
-      required_status_checks:
-        # Required. Require branches to be up to date before merging.
-        strict: false
-        contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
-      enforce_admins: false
-      restrictions: null
+# This serves more as documentation.
+# Branch protection API was replaced by rulesets but settings isn't updated.
+# See https://github.com/repository-settings/app/issues/825
+#
+# branches:
+#   - name: master
+#     protection:
+#       required_pull_request_reviews: null
+#       required_conversation_resolution: true
+#       required_status_checks:
+#         # Required. Require branches to be up to date before merging.
+#         strict: false
+#         contexts: ["CI", "Spell Check with Typos"]
+#       enforce_admins: false
+#       restrictions: null

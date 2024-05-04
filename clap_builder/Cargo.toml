@@ -71,3 +71,6 @@ unicode-width = { version = "0.1.9", optional = true }
 static_assertions = "1.1.0"
 unic-emoji-char = "0.9.0"
 color-print = "0.3.6"
+
+[lints]
+workspace = true

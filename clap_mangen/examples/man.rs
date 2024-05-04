@@ -4,7 +4,7 @@ use std::io;
 
 // Run this example as `cargo run --example man | man -l -`.
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> Result<(), io::Error> {
     let cmd = Command::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>:Ola Nordmann <old@nordmann.no>")

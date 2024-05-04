@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use clap::*;
+use clap::{Arg, ArgAction, Command, ValueHint};
 
 use crate::generator::{utils, Generator};
 use crate::INTERNAL_ERROR_MSG;
@@ -356,7 +356,7 @@ fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
 
 // Uses either `possible_vals` or `value_hint` to give hints about possible argument values
 fn value_completion(arg: &Arg) -> Option<String> {
-    if let Some(values) = crate::generator::utils::possible_values(arg) {
+    if let Some(values) = utils::possible_values(arg) {
         if values
             .iter()
             .any(|value| !value.is_hide_set() && value.get_help().is_some())
@@ -678,7 +678,7 @@ mod tests {
         assert_eq!(
             escape_value(raw_string),
             "\\\\\\ \\[foo\\]\\(\\)\\ \\`bar\\ https\\://\\$PATH"
-        )
+        );
     }
 
     #[test]
@@ -687,6 +687,6 @@ mod tests {
         assert_eq!(
             escape_help(raw_string),
             "\\\\ \\[foo\\]() \\`bar https\\://\\$PATH"
-        )
+        );
     }
 }

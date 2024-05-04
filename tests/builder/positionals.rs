@@ -20,7 +20,7 @@ fn issue_946() {
     let r = Command::new("compiletest")
         .arg(arg!(--exact    "filters match exactly").action(ArgAction::SetTrue))
         .arg(
-            clap::Arg::new("filter")
+            Arg::new("filter")
                 .index(1)
                 .action(ArgAction::Set)
                 .allow_hyphen_values(true)
@@ -334,15 +334,15 @@ fn positional_arg_with_short() {
 
 #[test]
 fn ignore_hyphen_values_on_last() {
-    let cmd = clap::Command::new("foo")
+    let cmd = Command::new("foo")
         .arg(
-            clap::Arg::new("cmd")
+            Arg::new("cmd")
                 .num_args(1..)
                 .last(true)
                 .allow_hyphen_values(true),
         )
         .arg(
-            clap::Arg::new("name")
+            Arg::new("name")
                 .long("name")
                 .short('n')
                 .action(ArgAction::Set)

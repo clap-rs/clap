@@ -15,7 +15,7 @@ use syn::{spanned::Spanned, Data, DeriveInput, Fields, Ident, Variant};
 
 use crate::item::{Item, Kind, Name};
 
-pub fn derive_value_enum(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
+pub(crate) fn derive_value_enum(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
 
     match input.data {
@@ -34,7 +34,7 @@ pub fn derive_value_enum(input: &DeriveInput) -> Result<TokenStream, syn::Error>
     }
 }
 
-pub fn gen_for_enum(
+pub(crate) fn gen_for_enum(
     item: &Item,
     item_name: &Ident,
     variants: &[(&Variant, Item)],

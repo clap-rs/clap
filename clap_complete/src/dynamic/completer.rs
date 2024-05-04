@@ -20,7 +20,7 @@ pub trait Completer {
     fn write_complete(
         &self,
         cmd: &mut clap::Command,
-        args: Vec<std::ffi::OsString>,
+        args: Vec<OsString>,
         current_dir: Option<&std::path::Path>,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error>;
@@ -29,10 +29,10 @@ pub trait Completer {
 /// Complete the given command
 pub fn complete(
     cmd: &mut clap::Command,
-    args: Vec<std::ffi::OsString>,
+    args: Vec<OsString>,
     arg_index: usize,
     current_dir: Option<&std::path::Path>,
-) -> Result<Vec<(std::ffi::OsString, Option<StyledStr>)>, std::io::Error> {
+) -> Result<Vec<(OsString, Option<StyledStr>)>, std::io::Error> {
     cmd.build();
 
     let raw_args = clap_lex::RawArgs::new(args);
@@ -91,7 +91,7 @@ fn complete_arg(
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
     is_escaped: bool,
-) -> Result<Vec<(std::ffi::OsString, Option<StyledStr>)>, std::io::Error> {
+) -> Result<Vec<(OsString, Option<StyledStr>)>, std::io::Error> {
     debug!(
         "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
         arg,
@@ -114,7 +114,7 @@ fn complete_arg(
                                     // HACK: Need better `OsStr` manipulation
                                     (format!("--{}={}", flag, os.to_string_lossy()).into(), help)
                                 }),
-                        )
+                        );
                     }
                 } else {
                     completions.extend(longs_and_visible_aliases(cmd).into_iter().filter_map(

@@ -545,7 +545,7 @@ fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &
 struct Escape<'s>(&'s str);
 
 impl<'s> std::fmt::Display for Escape<'s> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.0.contains(char::is_whitespace) {
             std::fmt::Debug::fmt(self.0, f)
         } else {

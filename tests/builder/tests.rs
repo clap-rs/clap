@@ -86,7 +86,7 @@ positional present with value: value
 subcmd NOT present
 ";
 
-pub fn check_complex_output(args: &str, out: &str) {
+pub(crate) fn check_complex_output(args: &str, out: &str) {
     let mut w = vec![];
     let matches = utils::complex_app()
         .try_get_matches_from(args.split(' ').collect::<Vec<_>>())

@@ -174,7 +174,7 @@ impl From<std::ops::RangeToInclusive<usize>> for ValueRange {
 }
 
 impl std::fmt::Display for ValueRange {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         ok!(self.start_inclusive.fmt(f));
         if !self.is_fixed() {
             ok!("..=".fmt(f));
@@ -185,7 +185,7 @@ impl std::fmt::Display for ValueRange {
 }
 
 impl std::fmt::Debug for ValueRange {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{self}")
     }
 }

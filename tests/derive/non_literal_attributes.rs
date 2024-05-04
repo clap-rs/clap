@@ -16,7 +16,7 @@ use clap::error::ErrorKind;
 use clap::Parser;
 use std::num::ParseIntError;
 
-pub const DISPLAY_ORDER: usize = 2;
+pub(crate) const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
 #[derive(Parser, Debug, PartialEq, Eq)]

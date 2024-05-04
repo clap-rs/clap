@@ -221,7 +221,7 @@ impl ArgMatches {
     pub fn get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
-    ) -> Option<ValuesRef<T>> {
+    ) -> Option<ValuesRef<'_, T>> {
         MatchesError::unwrap(id, self.try_get_many(id))
     }
 
@@ -259,7 +259,7 @@ impl ArgMatches {
     pub fn get_occurrences<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
-    ) -> Option<OccurrencesRef<T>> {
+    ) -> Option<OccurrencesRef<'_, T>> {
         MatchesError::unwrap(id, self.try_get_occurrences(id))
     }
 
@@ -1077,7 +1077,7 @@ impl ArgMatches {
     pub fn try_get_many<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
-    ) -> Result<Option<ValuesRef<T>>, MatchesError> {
+    ) -> Result<Option<ValuesRef<'_, T>>, MatchesError> {
         let arg = match ok!(self.try_get_arg_t::<T>(id)) {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1096,7 +1096,7 @@ impl ArgMatches {
     pub fn try_get_occurrences<T: Any + Clone + Send + Sync + 'static>(
         &self,
         id: &str,
-    ) -> Result<Option<OccurrencesRef<T>>, MatchesError> {
+    ) -> Result<Option<OccurrencesRef<'_, T>>, MatchesError> {
         let arg = match ok!(self.try_get_arg_t::<T>(id)) {
             Some(arg) => arg,
             None => return Ok(None),
@@ -1348,7 +1348,7 @@ pub(crate) struct SubCommand {
 /// ```
 #[derive(Clone, Debug)]
 pub struct IdsRef<'a> {
-    iter: std::slice::Iter<'a, Id>,
+    iter: Iter<'a, Id>,
 }
 
 impl<'a> Iterator for IdsRef<'a> {
@@ -1585,7 +1585,7 @@ impl Default for RawValues<'_> {
 
 #[derive(Clone, Debug)]
 #[deprecated(since = "4.1.0", note = "Use Occurrences instead")]
-pub struct GroupedValues<'a> {
+pub(crate) struct GroupedValues<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Iter<'a, Vec<AnyValue>>, fn(&Vec<AnyValue>) -> Vec<&str>>,
     len: usize,
@@ -1926,13 +1926,13 @@ mod tests {
 
     #[test]
     fn test_default_raw_values() {
-        let mut values: RawValues = Default::default();
+        let mut values: RawValues<'_> = Default::default();
         assert_eq!(values.next(), None);
     }
 
     #[test]
     fn test_default_indices() {
-        let mut indices: Indices = Indices::default();
+        let mut indices: Indices<'_> = Indices::default();
         assert_eq!(indices.next(), None);
     }
 
@@ -1972,7 +1972,7 @@ mod tests {
             )
             .try_get_matches_from(["test", "one"])
             .unwrap()
-            .get_many::<std::ffi::OsString>("POTATO")
+            .get_many::<OsString>("POTATO")
             .expect("present")
             .count();
         assert_eq!(l, 1);

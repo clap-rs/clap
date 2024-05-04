@@ -35,3 +35,6 @@ name = "rustup"
 [[bench]]
 harness = false
 name = "ripgrep"
+
+[lints]
+workspace = true

@@ -49,11 +49,6 @@ impl Extensions {
 
 /// Supports conversion to `Any`. Traits to be extended by `impl_downcast!` must extend `Extension`.
 pub(crate) trait Extension: std::fmt::Debug + Send + Sync + 'static {
-    /// Convert `Box<dyn Trait>` (where `Trait: Extension`) to `Box<dyn Any>`.
-    ///
-    /// `Box<dyn Any>` can /// then be further `downcast` into
-    /// `Box<ConcreteType>` where `ConcreteType` implements `Trait`.
-    fn into_any(self: Box<Self>) -> Box<dyn std::any::Any>;
     /// Clone `&Box<dyn Trait>` (where `Trait: Extension`) to `Box<dyn Extension>`.
     ///
     /// `Box<dyn Any>` can /// then be further `downcast` into
@@ -75,9 +70,6 @@ impl<T> Extension for T
 where
     T: Clone + std::fmt::Debug + Send + Sync + 'static,
 {
-    fn into_any(self: Box<Self>) -> Box<dyn std::any::Any> {
-        self
-    }
     fn clone_extension(&self) -> Box<dyn Extension> {
         Box::new(self.clone())
     }

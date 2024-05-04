@@ -9,7 +9,7 @@ pub struct Str {
 
 impl Str {
     #[cfg(feature = "string")]
-    pub(crate) fn from_string(name: std::string::String) -> Self {
+    pub(crate) fn from_string(name: String) -> Self {
         Self {
             name: Inner::from_string(name),
         }
@@ -45,15 +45,15 @@ impl From<&'_ Str> for Str {
 }
 
 #[cfg(feature = "string")]
-impl From<std::string::String> for Str {
-    fn from(name: std::string::String) -> Self {
+impl From<String> for Str {
+    fn from(name: String) -> Self {
         Self::from_string(name)
     }
 }
 
 #[cfg(feature = "string")]
-impl From<&'_ std::string::String> for Str {
-    fn from(name: &'_ std::string::String) -> Self {
+impl From<&'_ String> for Str {
+    fn from(name: &'_ String) -> Self {
         Self::from_ref(name.as_str())
     }
 }
@@ -204,13 +204,13 @@ impl PartialEq<Str> for &'_ std::ffi::OsStr {
     }
 }
 
-impl PartialEq<std::string::String> for Str {
+impl PartialEq<String> for Str {
     #[inline]
-    fn eq(&self, other: &std::string::String) -> bool {
+    fn eq(&self, other: &String) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
     }
 }
-impl PartialEq<Str> for std::string::String {
+impl PartialEq<Str> for String {
     #[inline]
     fn eq(&self, other: &Str) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
@@ -226,7 +226,7 @@ pub(crate) mod inner {
     }
 
     impl Inner {
-        pub(crate) fn from_string(name: std::string::String) -> Self {
+        pub(crate) fn from_string(name: String) -> Self {
             Self::Owned(name.into_boxed_str())
         }
 

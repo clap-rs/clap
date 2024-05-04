@@ -48,6 +48,7 @@ trycmd = { version = "0.15.1", default-features = false, features = ["color-auto
 completest = "0.4.0"
 completest-pty = "0.5.0"
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "derive", "help"] }
+automod = "1.0.14"
 
 [[example]]
 name = "dynamic"
@@ -58,3 +59,6 @@ default = []
 unstable-doc = ["unstable-dynamic"] # for docs.rs
 unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:unicode-xid", "clap/derive", "dep:is_executable", "dep:pathdiff"]
 debug = ["clap/debug"]
+
+[lints]
+workspace = true

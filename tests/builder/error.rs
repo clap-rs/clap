@@ -18,7 +18,7 @@ fn assert_error<F: clap::error::ErrorFormatter>(
         err.use_stderr()
     );
     assert_eq!(expected_kind, err.kind());
-    utils::assert_eq(expected_output, actual_output)
+    utils::assert_eq(expected_output, actual_output);
 }
 
 #[test]
@@ -35,7 +35,7 @@ For more information, try '--help'.
                 .short('a')
                 .long("all")
                 .required(true)
-                .action(clap::ArgAction::SetTrue)
+                .action(ArgAction::SetTrue)
                 .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(

@@ -7,14 +7,14 @@
 
 use clap::CommandFactory;
 
-pub const FULL_TEMPLATE: &str = "\
+pub(crate) const FULL_TEMPLATE: &str = "\
 {before-help}{name} {version}
 {author-with-newline}{about-with-newline}
 {usage-heading} {usage}
 
 {all-args}{after-help}";
 
-pub fn get_help<T: CommandFactory>() -> String {
+pub(crate) fn get_help<T: CommandFactory>() -> String {
     let output = <T as CommandFactory>::command().render_help().to_string();
 
     eprintln!("\n%%% HELP %%%:=====\n{output}\n=====\n");
@@ -23,7 +23,7 @@ pub fn get_help<T: CommandFactory>() -> String {
     output
 }
 
-pub fn get_long_help<T: CommandFactory>() -> String {
+pub(crate) fn get_long_help<T: CommandFactory>() -> String {
     let output = <T as CommandFactory>::command()
         .render_long_help()
         .to_string();
@@ -34,7 +34,7 @@ pub fn get_long_help<T: CommandFactory>() -> String {
     output
 }
 
-pub fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> String {
+pub(crate) fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> String {
     let output = <T as CommandFactory>::command()
         .get_subcommands_mut()
         .find(|s| s.get_name() == subcmd)
@@ -49,7 +49,7 @@ pub fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> String {
 }
 
 #[track_caller]
-pub fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expected: &str, stderr: bool) {
+pub(crate) fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expected: &str, stderr: bool) {
     let res = P::try_parse_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
     let actual = err.render().to_string();
@@ -60,5 +60,5 @@ pub fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expected: &s
         stderr,
         err.use_stderr()
     );
-    snapbox::assert_eq(expected, actual)
+    snapbox::assert_eq(expected, actual);
 }

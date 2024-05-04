@@ -190,8 +190,8 @@ fn complete() {
 
         File::create(Path::new(testdir_path).join("a_file")).unwrap();
         File::create(Path::new(testdir_path).join("b_file")).unwrap();
-        std::fs::create_dir(Path::new(testdir_path).join("c_dir")).unwrap();
-        std::fs::create_dir(Path::new(testdir_path).join("d_dir")).unwrap();
+        std::fs::create_dir_all(Path::new(testdir_path).join("c_dir")).unwrap();
+        std::fs::create_dir_all(Path::new(testdir_path).join("d_dir")).unwrap();
 
         let input = format!(
             "exhaustive hint --file {}/\t\t",

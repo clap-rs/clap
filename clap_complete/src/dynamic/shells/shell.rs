@@ -8,9 +8,9 @@ use clap::ValueEnum;
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
 pub enum Shell {
-    /// Bourne Again SHell (bash)
+    /// Bourne Again `SHell` (bash)
     Bash,
-    /// Friendly Interactive SHell (fish)
+    /// Friendly Interactive `SHell` (fish)
     Fish,
 }
 
@@ -42,7 +42,7 @@ impl ValueEnum for Shell {
         &[Shell::Bash, Shell::Fish]
     }
 
-    fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
+    fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
             Shell::Bash => PossibleValue::new("bash"),
             Shell::Fish => PossibleValue::new("fish"),

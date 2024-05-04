@@ -161,6 +161,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
+name = "automod"
+version = "1.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "edf3ee19dbc0a46d740f6f0926bde8c50f02bdbc7b536842da28f6ac56513a8b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -401,6 +412,7 @@ dependencies = [
 name = "clap"
 version = "4.5.4"
 dependencies = [
+ "automod",
  "clap_builder 4.5.2",
  "clap_derive",
  "humantime",
@@ -454,6 +466,7 @@ dependencies = [
 name = "clap_complete"
 version = "4.5.2"
 dependencies = [
+ "automod",
  "clap 4.5.4",
  "clap_lex 0.7.0",
  "completest",
@@ -505,11 +518,15 @@ checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 [[package]]
 name = "clap_lex"
 version = "0.7.0"
+dependencies = [
+ "automod",
+]
 
 [[package]]
 name = "clap_mangen"
 version = "0.2.20"
 dependencies = [
+ "automod",
  "clap 4.5.4",
  "roff",
  "snapbox",

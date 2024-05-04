@@ -47,7 +47,7 @@ fn explicit_version_not_str_lit() {
     #[derive(Parser)]
     #[command(version = VERSION)]
     #[command(help_template = utils::FULL_TEMPLATE)]
-    pub struct Opt {}
+    pub(crate) struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
     assert!(output.contains("custom version"));

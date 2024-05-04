@@ -12,7 +12,7 @@ use std::{
     convert::From,
     error,
     fmt::{self, Debug, Display, Formatter},
-    io::{self},
+    io,
     result::Result as StdResult,
 };
 
@@ -85,7 +85,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// Prefer [`Command::error`] for generating errors.
     ///
     /// [`Command::error`]: crate::Command::error
-    pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
+    pub fn raw(kind: ErrorKind, message: impl Display) -> Self {
         Self::new(kind).set_message(message.to_string())
     }
 
@@ -455,7 +455,7 @@ impl<F: ErrorFormatter> Error<F> {
                 (ContextKind::InvalidValue, ContextValue::String(bad_val)),
                 (
                     ContextKind::ValidValue,
-                    ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+                    ContextValue::Strings(good_vals.iter().map(|s| (*s).clone()).collect()),
                 ),
             ]);
             if let Some(suggestion) = suggestion {
@@ -832,8 +832,8 @@ impl<F: ErrorFormatter> From<fmt::Error> for Error<F> {
     }
 }
 
-impl<F: ErrorFormatter> std::fmt::Debug for Error<F> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+impl<F: ErrorFormatter> Debug for Error<F> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         self.inner.fmt(f)
     }
 }
@@ -846,7 +846,7 @@ impl<F: ErrorFormatter> error::Error for Error<F> {
 }
 
 impl<F: ErrorFormatter> Display for Error<F> {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         // Assuming `self.message` already has a trailing newline, from `try_help` or similar
         ok!(write!(f, "{}", self.formatted()));
         if let Some(backtrace) = self.inner.backtrace.as_ref() {
@@ -884,7 +884,7 @@ impl Message {
         }
     }
 
-    fn formatted(&self, styles: &Styles) -> Cow<StyledStr> {
+    fn formatted(&self, styles: &Styles) -> Cow<'_, StyledStr> {
         match self {
             Message::Raw(s) => {
                 let styled = format::format_error_message(s, styles, None, None);
@@ -921,7 +921,7 @@ impl Backtrace {
 
 #[cfg(feature = "debug")]
 impl Display for Backtrace {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         // `backtrace::Backtrace` uses `Debug` instead of `Display`
         write!(f, "{:?}", self.0)
     }
@@ -940,7 +940,7 @@ impl Backtrace {
 
 #[cfg(not(feature = "debug"))]
 impl Display for Backtrace {
-    fn fmt(&self, _: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, _: &mut Formatter<'_>) -> fmt::Result {
         Ok(())
     }
 }

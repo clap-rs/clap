@@ -114,7 +114,7 @@ impl ArgMatcher {
         self.matches.args.iter()
     }
 
-    pub(crate) fn entry(&mut self, arg: Id) -> crate::util::Entry<Id, MatchedArg> {
+    pub(crate) fn entry(&mut self, arg: Id) -> crate::util::Entry<'_, Id, MatchedArg> {
         self.matches.args.entry(arg)
     }
 
@@ -149,7 +149,7 @@ impl ArgMatcher {
         ma.new_val_group();
     }
 
-    pub(crate) fn start_occurrence_of_external(&mut self, cmd: &crate::Command) {
+    pub(crate) fn start_occurrence_of_external(&mut self, cmd: &Command) {
         let id = Id::from_static_ref(Id::EXTERNAL);
         debug!("ArgMatcher::start_occurrence_of_external: id={id:?}");
         let ma = self.entry(id).or_insert(MatchedArg::new_external(cmd));

@@ -57,7 +57,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         };
 
         if matches!(opt.get_action(), ArgAction::Count) {
-            line.push(roman("..."))
+            line.push(roman("..."));
         }
         line.push(roman(" "));
     }
@@ -165,7 +165,7 @@ pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
             roff.control("RE", []);
         }
 
-        possible_options(roff, pos, arg_help_written)
+        possible_options(roff, pos, arg_help_written);
     }
 }
 
@@ -241,7 +241,7 @@ fn subcommand_markers(cmd: &clap::Command) -> (&'static str, &'static str) {
     markers(cmd.is_subcommand_required_set())
 }
 
-fn option_markers(opt: &clap::Arg) -> (&'static str, &'static str) {
+fn option_markers(opt: &Arg) -> (&'static str, &'static str) {
     markers(opt.is_required_set())
 }
 
@@ -261,7 +261,7 @@ fn long_option(opt: &str) -> Inline {
     bold(format!("--{opt}"))
 }
 
-fn option_help(opt: &clap::Arg) -> Option<&clap::builder::StyledStr> {
+fn option_help(opt: &Arg) -> Option<&clap::builder::StyledStr> {
     if !opt.is_hide_long_help_set() {
         let long_help = opt.get_long_help();
         if long_help.is_some() {
@@ -275,7 +275,7 @@ fn option_help(opt: &clap::Arg) -> Option<&clap::builder::StyledStr> {
     None
 }
 
-fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
+fn option_environment(opt: &Arg) -> Option<Vec<Inline>> {
     if opt.is_hide_env_set() {
         return None;
     } else if let Some(env) = opt.get_env() {
@@ -289,7 +289,7 @@ fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
     None
 }
 
-fn option_default_values(opt: &clap::Arg) -> Option<String> {
+fn option_default_values(opt: &Arg) -> Option<String> {
     if opt.is_hide_default_value_set() || !opt.get_num_args().expect("built").takes_values() {
         return None;
     } else if !opt.get_default_values().is_empty() {
@@ -306,7 +306,7 @@ fn option_default_values(opt: &clap::Arg) -> Option<String> {
     None
 }
 
-fn get_possible_values(arg: &clap::Arg) -> Option<(Vec<String>, bool)> {
+fn get_possible_values(arg: &Arg) -> Option<(Vec<String>, bool)> {
     if arg.is_hide_possible_values_set() {
         return None;
     }

@@ -1,7 +1,9 @@
-// Used to simulate a fairly large number of options/flags and parsing with thousands of positional
-// args
-//
-// CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
+//! Used to simulate a fairly large number of options/flags and parsing with thousands of positional
+//! args
+//!
+//! CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
+
+#![allow(elided_lifetimes_in_paths)] // needed for divan
 
 use std::collections::HashMap;
 
@@ -9,7 +11,7 @@ use clap::{value_parser, Arg, ArgAction, ArgMatches, Command};
 use lazy_static::lazy_static;
 
 mod build {
-    use super::*;
+    use super::{app_long, app_short, Command};
 
     #[divan::bench]
     fn short_help() -> Command {
@@ -23,7 +25,7 @@ mod build {
 }
 
 mod render_help {
-    use super::*;
+    use super::{app_long, app_short, build_help};
 
     #[divan::bench]
     fn short_help(bencher: divan::Bencher) {
@@ -39,7 +41,7 @@ mod render_help {
 }
 
 mod startup {
-    use super::*;
+    use super::{app_short, ArgMatches};
 
     #[divan::bench]
     fn simple() -> ArgMatches {

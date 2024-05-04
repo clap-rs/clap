@@ -1,6 +1,8 @@
-// Used to simulate a fairly large number of subcommands
-//
-// CLI used is from rustup 408ed84f0e50511ed44a405dd91365e5da588790
+//! Used to simulate a fairly large number of subcommands
+//!
+//! CLI used is from rustup 408ed84f0e50511ed44a405dd91365e5da588790
+
+#![allow(elided_lifetimes_in_paths)] // needed for divan
 
 use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 
@@ -10,7 +12,7 @@ fn build() -> Command {
 }
 
 mod startup {
-    use super::*;
+    use super::{build_cli, ArgMatches};
 
     #[divan::bench]
     fn empty() -> ArgMatches {

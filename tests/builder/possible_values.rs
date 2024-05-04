@@ -489,7 +489,7 @@ mod expensive {
     }
 
     impl ExpensiveValues {
-        pub fn new() -> Self {
+        pub(crate) fn new() -> Self {
             ExpensiveValues {
                 iterated: Arc::new(Mutex::new(false)),
             }
@@ -536,11 +536,11 @@ mod expensive {
 
         fn parse_ref(
             &self,
-            _cmd: &clap_builder::Command,
-            _arg: Option<&clap_builder::Arg>,
+            _cmd: &Command,
+            _arg: Option<&Arg>,
             _value: &std::ffi::OsStr,
         ) -> Result<Self::Value, clap_builder::Error> {
-            todo!()
+            unimplemented!()
         }
 
         fn possible_values(&self) -> Option<Box<dyn Iterator<Item = PossibleValue> + '_>> {

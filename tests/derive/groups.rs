@@ -72,16 +72,16 @@ fn skip_group_avoids_duplicate_ids() {
 
     #[derive(clap::Args, Debug)]
     #[group(skip)]
-    pub struct Compose<L: clap::Args, R: clap::Args> {
+    pub(crate) struct Compose<L: Args, R: Args> {
         #[command(flatten)]
-        pub left: L,
+        pub(crate) left: L,
         #[command(flatten)]
-        pub right: R,
+        pub(crate) right: R,
     }
 
     #[derive(clap::Args, Clone, Copy, Debug)]
     #[group(skip)]
-    pub struct Empty;
+    pub(crate) struct Empty;
 
     use clap::CommandFactory;
     Opt::command().debug_assert();
@@ -147,15 +147,15 @@ fn helpful_panic_on_duplicate_groups() {
     }
 
     #[derive(clap::Args, Debug)]
-    pub struct Compose<L: clap::Args, R: clap::Args> {
+    pub(crate) struct Compose<L: clap::Args, R: clap::Args> {
         #[command(flatten)]
-        pub left: L,
+        pub(crate) left: L,
         #[command(flatten)]
-        pub right: R,
+        pub(crate) right: R,
     }
 
     #[derive(clap::Args, Clone, Copy, Debug)]
-    pub struct Empty;
+    pub(crate) struct Empty;
 
     use clap::CommandFactory;
     Opt::command().debug_assert();

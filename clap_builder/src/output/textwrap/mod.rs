@@ -2,7 +2,7 @@
 //!
 //! Benefits of forking:
 //! - Pull in only what we need rather than relying on the compiler to remove what we don't need
-//! - `LineWrapper` is able to incrementally wrap which will help with `StyledStr
+//! - `LineWrapper` is able to incrementally wrap which will help with `StyledStr`
 
 pub(crate) mod core;
 #[cfg(feature = "wrap_help")]

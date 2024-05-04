@@ -16,8 +16,11 @@
 //! ```
 
 #![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
-#![warn(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![forbid(unsafe_code)]
+#![warn(missing_docs)]
+#![warn(clippy::print_stderr)]
+#![warn(clippy::print_stdout)]
 
 use clap::builder::StyledStr;
 use clap::{builder::PossibleValue, Arg, ArgAction, Command};
@@ -46,14 +49,14 @@ impl Generator for Nushell {
         completions.push_str("export use completions *\n");
 
         buf.write_all(completions.as_bytes())
-            .expect("Failed to write to generated file")
+            .expect("Failed to write to generated file");
     }
 }
 
 fn append_value_completion_and_help(
     arg: &Arg,
     name: &str,
-    possible_values: &Vec<PossibleValue>,
+    possible_values: &[PossibleValue],
     s: &mut String,
 ) {
     let takes_values = arg
@@ -65,7 +68,7 @@ fn append_value_completion_and_help(
         s.push_str(": string");
 
         if !possible_values.is_empty() {
-            s.push_str(format!(r#"@"nu-complete {} {}""#, name, arg.get_id()).as_str())
+            s.push_str(format!(r#"@"nu-complete {} {}""#, name, arg.get_id()).as_str());
         }
     }
 

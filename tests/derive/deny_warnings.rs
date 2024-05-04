@@ -60,8 +60,8 @@ fn warning_unused_qualifications() {
 
     #[derive(Args, Clone, Copy, Debug, Default)]
     #[group(skip)]
-    pub struct Compose<L: Args> {
+    pub(crate) struct Compose<L: Args> {
         #[command(flatten)]
-        pub left: L,
+        pub(crate) left: L,
     }
 }

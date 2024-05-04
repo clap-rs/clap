@@ -22,7 +22,7 @@ use syn::{
 use crate::item::{Item, Kind, Name};
 use crate::utils::{inner_type, sub_type, Sp, Ty};
 
-pub fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
+pub(crate) fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
 
     match input.data {
@@ -55,7 +55,7 @@ pub fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     }
 }
 
-pub fn gen_for_struct(
+pub(crate) fn gen_for_struct(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
@@ -166,7 +166,7 @@ pub fn gen_for_struct(
 
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an cmd.
-pub fn gen_augment(
+pub(crate) fn gen_augment(
     fields: &[(&Field, Item)],
     app_var: &Ident,
     parent_item: &Item,
@@ -431,7 +431,7 @@ pub fn gen_augment(
     }})
 }
 
-pub fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Error> {
+pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Error> {
     let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
@@ -542,7 +542,10 @@ pub fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Er
     }})
 }
 
-pub fn gen_updater(fields: &[(&Field, Item)], use_self: bool) -> Result<TokenStream, syn::Error> {
+pub(crate) fn gen_updater(
+    fields: &[(&Field, Item)],
+    use_self: bool,
+) -> Result<TokenStream, syn::Error> {
     let mut genned_fields = Vec::new();
     for (field, item) in fields {
         let field_name = field.ident.as_ref().unwrap();
@@ -750,19 +753,19 @@ fn gen_parsers(
 }
 
 #[cfg(feature = "raw-deprecated")]
-pub fn raw_deprecated() -> TokenStream {
+pub(crate) fn raw_deprecated() -> TokenStream {
     quote! {}
 }
 
 #[cfg(not(feature = "raw-deprecated"))]
-pub fn raw_deprecated() -> TokenStream {
+pub(crate) fn raw_deprecated() -> TokenStream {
     quote! {
         #![allow(deprecated)]  // Assuming any deprecation in here will be related to a deprecation in `Args`
 
     }
 }
 
-pub fn collect_args_fields<'a>(
+pub(crate) fn collect_args_fields<'a>(
     item: &'a Item,
     fields: &'a FieldsNamed,
 ) -> Result<Vec<(&'a Field, Item)>, syn::Error> {

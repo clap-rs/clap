@@ -112,7 +112,7 @@ impl<'cmd> Validator<'cmd> {
         let args_count = matcher
             .args()
             .filter(|(arg_id, matched)| {
-                matched.check_explicit(&crate::builder::ArgPredicate::IsPresent)
+                matched.check_explicit(&ArgPredicate::IsPresent)
                     // Avoid including our own groups by checking none of them.  If a group is present, the
                     // args for the group will be.
                     && self.cmd.find(arg_id).is_some()
@@ -125,15 +125,14 @@ impl<'cmd> Validator<'cmd> {
 
         matcher
             .args()
-            .filter(|(_, matched)| matched.check_explicit(&crate::builder::ArgPredicate::IsPresent))
-            .filter_map(|(id, _)| {
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .find_map(|(id, _)| {
                 debug!("Validator::validate_exclusive:iter:{id:?}");
                 self.cmd
                     .find(id)
                     // Find `arg`s which are exclusive but also appear with other args.
                     .filter(|&arg| arg.is_exclusive_set() && args_count > 1)
             })
-            .next()
             .map(|arg| {
                 // Throw an error for the first conflict found.
                 Err(Error::argument_conflict(

@@ -236,7 +236,7 @@ impl ArgGroup {
     /// // maybe we don't know which of the two flags was used...
     /// assert!(m.contains_id("req_flags"));
     /// ```
-    /// In this next example, we show the default behavior (i.e. `multiple(false)) which will throw
+    /// In this next example, we show the default behavior (i.e. `multiple(false)`) which will throw
     /// an error if more than one of the args in the group was used.
     ///
     /// ```rust
@@ -585,7 +585,7 @@ mod test {
     #[test]
     fn arg_group_send_sync() {
         fn foo<T: Send + Sync>(_: T) {}
-        foo(ArgGroup::new("test"))
+        foo(ArgGroup::new("test"));
     }
 
     #[test]

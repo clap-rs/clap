@@ -3,8 +3,8 @@
 use std::fmt::Write;
 
 // Internal
-use clap::*;
-use clap_complete::*;
+use clap::{builder, Arg, ArgAction, Command, ValueHint};
+use clap_complete::{generator, Generator};
 
 /// Generate fig completion file
 pub struct Fig;

@@ -18,7 +18,7 @@ use syn::{Generics, Ident};
 
 use crate::item::Item;
 
-pub fn gen_for_struct(
+pub(crate) fn gen_for_struct(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
@@ -66,7 +66,7 @@ pub fn gen_for_struct(
     Ok(tokens)
 }
 
-pub fn gen_for_enum(
+pub(crate) fn gen_for_enum(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,

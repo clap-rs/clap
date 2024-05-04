@@ -4,7 +4,7 @@ use proc_macro2::Ident;
 use quote::quote;
 
 #[must_use]
-pub fn parser(name: &Ident) -> proc_macro2::TokenStream {
+pub(crate) fn parser(name: &Ident) -> proc_macro2::TokenStream {
     let into_app = into_app(name);
     quote!(
         #[automatically_derived]
@@ -14,7 +14,7 @@ pub fn parser(name: &Ident) -> proc_macro2::TokenStream {
 }
 
 #[must_use]
-pub fn into_app(name: &Ident) -> proc_macro2::TokenStream {
+pub(crate) fn into_app(name: &Ident) -> proc_macro2::TokenStream {
     quote! {
         #[automatically_derived]
         impl clap::CommandFactory for #name {
@@ -29,7 +29,7 @@ pub fn into_app(name: &Ident) -> proc_macro2::TokenStream {
 }
 
 #[must_use]
-pub fn from_arg_matches(name: &Ident) -> proc_macro2::TokenStream {
+pub(crate) fn from_arg_matches(name: &Ident) -> proc_macro2::TokenStream {
     quote! {
         #[automatically_derived]
         impl clap::FromArgMatches for #name {
@@ -44,7 +44,7 @@ pub fn from_arg_matches(name: &Ident) -> proc_macro2::TokenStream {
 }
 
 #[must_use]
-pub fn subcommand(name: &Ident) -> proc_macro2::TokenStream {
+pub(crate) fn subcommand(name: &Ident) -> proc_macro2::TokenStream {
     let from_arg_matches = from_arg_matches(name);
     quote! {
         #[automatically_derived]
@@ -64,7 +64,7 @@ pub fn subcommand(name: &Ident) -> proc_macro2::TokenStream {
 }
 
 #[must_use]
-pub fn args(name: &Ident) -> proc_macro2::TokenStream {
+pub(crate) fn args(name: &Ident) -> proc_macro2::TokenStream {
     let from_arg_matches = from_arg_matches(name);
     quote! {
         #[automatically_derived]
@@ -81,7 +81,7 @@ pub fn args(name: &Ident) -> proc_macro2::TokenStream {
 }
 
 #[must_use]
-pub fn value_enum(name: &Ident) -> proc_macro2::TokenStream {
+pub(crate) fn value_enum(name: &Ident) -> proc_macro2::TokenStream {
     quote! {
         #[automatically_derived]
         impl clap::ValueEnum for #name {

@@ -4,13 +4,13 @@ use clap::{Args, Parser};
 fn generic_struct_flatten() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        pub answer: isize,
+        pub(crate) answer: isize,
     }
 
     #[derive(Parser, PartialEq, Debug)]
     struct Outer<T: Args> {
         #[command(flatten)]
-        pub inner: T,
+        pub(crate) inner: T,
     }
 
     assert_eq!(
@@ -18,14 +18,14 @@ fn generic_struct_flatten() {
             inner: Inner { answer: 42 }
         },
         Outer::parse_from(["--answer", "42"])
-    )
+    );
 }
 
 #[test]
 fn generic_struct_flatten_w_where_clause() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        pub answer: isize,
+        pub(crate) answer: isize,
     }
 
     #[derive(Parser, PartialEq, Debug)]
@@ -34,7 +34,7 @@ fn generic_struct_flatten_w_where_clause() {
         T: Args,
     {
         #[command(flatten)]
-        pub inner: T,
+        pub(crate) inner: T,
     }
 
     assert_eq!(
@@ -42,14 +42,14 @@ fn generic_struct_flatten_w_where_clause() {
             inner: Inner { answer: 42 }
         },
         Outer::parse_from(["--answer", "42"])
-    )
+    );
 }
 
 #[test]
 fn generic_enum() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        pub answer: isize,
+        pub(crate) answer: isize,
     }
 
     #[derive(Parser, PartialEq, Debug)]
@@ -61,14 +61,14 @@ fn generic_enum() {
     assert_eq!(
         GenericEnum::Start(Inner { answer: 42 }),
         GenericEnum::parse_from(["test", "start", "42"])
-    )
+    );
 }
 
 #[test]
 fn generic_enum_w_where_clause() {
     #[derive(Args, PartialEq, Debug)]
     struct Inner {
-        pub answer: isize,
+        pub(crate) answer: isize,
     }
 
     #[derive(Parser, PartialEq, Debug)]
@@ -83,7 +83,7 @@ fn generic_enum_w_where_clause() {
     assert_eq!(
         GenericEnum::Start(Inner { answer: 42 }),
         GenericEnum::parse_from(["test", "start", "42"])
-    )
+    );
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn generic_w_fromstr_trait_bound() {
     assert_eq!(
         Opt::<isize> { answer: 42 },
         Opt::<isize>::parse_from(["--answer", "42"])
-    )
+    );
 }
 
 #[test]
@@ -122,7 +122,7 @@ fn generic_wo_trait_bound() {
             took: None
         },
         Opt::<Duration>::parse_from(["--answer", "42"])
-    )
+    );
 }
 
 #[test]
@@ -135,11 +135,11 @@ fn generic_where_clause_w_trailing_comma() {
         T: FromStr + Send + Sync + Clone + 'static,
         <T as FromStr>::Err: std::error::Error + Sync + Send + 'static,
     {
-        pub answer: T,
+        pub(crate) answer: T,
     }
 
     assert_eq!(
         Opt::<isize> { answer: 42 },
         Opt::<isize>::parse_from(["--answer", "42"])
-    )
+    );
 }

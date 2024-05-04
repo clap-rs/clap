@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 /// Provide shell with hint on how to complete an argument.
 ///
-/// See [Arg::value_hint][crate::Arg::value_hint] to set this on an argument.
+/// See [`Arg::value_hint`][crate::Arg::value_hint] to set this on an argument.
 ///
 /// See the `clap_complete` crate for completion script generation.
 ///

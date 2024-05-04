@@ -74,7 +74,7 @@ const DEFAULT_NO_ARGS_TEMPLATE: &str = "\
 {usage-heading} {usage}{after-help}\
     ";
 
-/// `clap` HelpTemplate Writer.
+/// Help template writer
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
 pub(crate) struct HelpTemplate<'cmd, 'writer> {
@@ -1031,7 +1031,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             .unwrap_or_default();
 
         self.subcmd(sc_str, next_line_help, longest);
-        self.help(None, about, spec_vals, next_line_help, longest)
+        self.help(None, about, spec_vals, next_line_help, longest);
     }
 
     fn sc_spec_vals(&self, a: &Command) -> String {

@@ -168,7 +168,7 @@ impl PossibleValue {
         self.hide
     }
 
-    /// Report if PossibleValue is not hidden and has a help message
+    /// Report if `PossibleValue` is not hidden and has a help message
     pub(crate) fn should_show_help(&self) -> bool {
         !self.hide && self.help.is_some()
     }

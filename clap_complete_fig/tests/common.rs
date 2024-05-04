@@ -1,4 +1,6 @@
-pub fn basic_command(name: &'static str) -> clap::Command {
+#![allow(dead_code)]
+
+pub(crate) fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
             clap::Arg::new("config")
@@ -23,7 +25,7 @@ pub fn basic_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn feature_sample_command(name: &'static str) -> clap::Command {
+pub(crate) fn feature_sample_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .propagate_version(true)
@@ -53,7 +55,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn special_commands_command(name: &'static str) -> clap::Command {
+pub(crate) fn special_commands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name)
         .subcommand(
             clap::Command::new("some_cmd")
@@ -72,7 +74,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command {
         .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
 }
 
-pub fn quoting_command(name: &'static str) -> clap::Command {
+pub(crate) fn quoting_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .arg(
@@ -122,7 +124,7 @@ pub fn quoting_command(name: &'static str) -> clap::Command {
         ])
 }
 
-pub fn aliases_command(name: &'static str) -> clap::Command {
+pub(crate) fn aliases_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .about("testing bash completions")
@@ -147,7 +149,7 @@ pub fn aliases_command(name: &'static str) -> clap::Command {
         .arg(clap::Arg::new("positional"))
 }
 
-pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
+pub(crate) fn sub_subcommands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name).subcommand(
         clap::Command::new("some_cmd")
             .about("top level subcommand")
@@ -165,7 +167,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
     )
 }
 
-pub fn value_hint_command(name: &'static str) -> clap::Command {
+pub(crate) fn value_hint_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
             clap::Arg::new("choice")
@@ -249,7 +251,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn assert_matches(
+pub(crate) fn assert_matches(
     expected: impl Into<snapbox::Data>,
     gen: impl clap_complete::Generator,
     mut cmd: clap::Command,
