@@ -1638,6 +1638,83 @@ impl Arg {
         }
     }
 
+    /// Requires that options use the `-oval` syntax
+    ///
+    /// i.e. no space between the short option and associated value.
+    ///
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// **NOTE:** Setting this does not affect any long version, but overrides any
+    /// [`Arg::require_equals`] setting for the short version.
+    ///
+    /// # Examples
+    ///
+    /// Setting `require_no_space` requires that the short option has no space between
+    /// it and the associated value.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let res = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .action(ArgAction::Set)
+    ///         .require_no_space(true)
+    ///         .short('c'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-cfile.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// ```
+    ///
+    /// Setting `require_no_space` and having a space will cause an
+    /// error.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
+    /// let res = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .action(ArgAction::Set)
+    ///         .require_no_space(true)
+    ///         .short('c'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-c", "file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::SpaceFound);
+    /// ```
+    ///
+    /// Setting `require_no_space` disables `require_equals` for the short option.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
+    /// let res = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .action(ArgAction::Set)
+    ///         .require_no_space(true)
+    ///         .require_equals(true)
+    ///         .short('c'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-c=file.conf"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// assert_eq!(m.get_one::<String>("cfg").unwrap(), "=file.conf");
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn require_no_space(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::RequireNoSpace)
+        } else {
+            self.unset_setting(ArgSettings::RequireNoSpace)
+        }
+    }
+
     #[doc(hidden)]
     #[cfg_attr(
         feature = "deprecated",
@@ -4537,6 +4614,11 @@ impl Arg {
         self.is_set(ArgSettings::RequireEquals)
     }
 
+    /// Report whether [`Arg::require_no_space`] is set
+    pub fn is_require_no_space_set(&self) -> bool {
+        self.is_set(ArgSettings::RequireNoSpace)
+    }
+
     /// Reports whether [`Arg::exclusive`] is set
     pub fn is_exclusive_set(&self) -> bool {
         self.is_set(ArgSettings::Exclusive)
@@ -4656,7 +4738,11 @@ impl Arg {
         if let Some(l) = self.get_long() {
             let _ = write!(styled, "{literal}--{l}{literal:#}",);
         } else if let Some(s) = self.get_short() {
-            let _ = write!(styled, "{literal}-{s}{literal:#}");
+            let _ = write!(styled, "{}-{s}{}", literal.render(), literal.render_reset());
+            if self.is_require_no_space_set() {
+                styled.push_styled(&self.stylize_arg_no_space_suffix(styles, required));
+                return styled;
+            }
         }
         styled.push_styled(&self.stylize_arg_suffix(styles, required));
         styled
@@ -4695,6 +4781,44 @@ impl Arg {
         }
         if need_closing_bracket {
             let _ = write!(styled, "{placeholder}]{placeholder:#}",);
+        }
+
+        styled
+    }
+
+    pub(crate) fn stylize_arg_no_space_suffix(
+        &self,
+        styles: &Styles,
+        required: Option<bool>,
+    ) -> StyledStr {
+        use std::fmt::Write as _;
+        let placeholder = styles.get_placeholder();
+        let mut styled = StyledStr::new();
+
+        let is_optional_val = self.get_min_vals() == 0;
+        if is_optional_val {
+            let _ = write!(
+                styled,
+                "{}[{}",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
+        }
+        let required = required.unwrap_or_else(|| self.is_required_set());
+        let arg_val = self.render_arg_val(required);
+        let _ = write!(
+            styled,
+            "{}{arg_val}{}",
+            placeholder.render(),
+            placeholder.render_reset()
+        );
+        if is_optional_val {
+            let _ = write!(
+                styled,
+                "{}]{}",
+                placeholder.render(),
+                placeholder.render_reset()
+            );
         }
 
         styled

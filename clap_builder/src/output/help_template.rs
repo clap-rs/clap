@@ -479,13 +479,7 @@ impl HelpTemplate<'_, '_> {
             // args alignment
             should_show_arg(self.use_long, arg)
         }) {
-            let width = display_width(&arg.to_string());
-            let actual_width = if arg.get_long().is_some() {
-                width + SHORT_SIZE
-            } else {
-                width
-            };
-            longest = longest.max(actual_width);
+            longest = longest.max(longest_length(arg, true));
             debug!(
                 "HelpTemplate::write_args: arg={:?} longest={}",
                 arg.get_id(),
@@ -515,9 +509,15 @@ impl HelpTemplate<'_, '_> {
 
         self.writer.push_str(TAB);
         self.short(arg);
+        if arg.is_require_no_space_set() && arg.get_short().is_some() {
+            self.writer
+                .push_styled(&arg.stylize_arg_no_space_suffix(self.styles, None));
+        }
         self.long(arg);
-        self.writer
-            .push_styled(&arg.stylize_arg_suffix(self.styles, None));
+        if arg.get_long().is_some() || !arg.is_require_no_space_set() {
+            self.writer
+                .push_styled(&arg.stylize_arg_suffix(self.styles, None));
+        }
         self.align_to_about(arg, next_line_help, longest);
 
         let about = if self.use_long {
@@ -573,7 +573,7 @@ impl HelpTemplate<'_, '_> {
             debug!("HelpTemplate::align_to_about: printing long help so skip alignment");
             0
         } else if !arg.is_positional() {
-            let self_len = display_width(&arg.to_string()) + SHORT_SIZE;
+            let self_len = longest_length(arg, false) + SHORT_SIZE;
             // Since we're writing spaces from the tab point we first need to know if we
             // had a long and short, or just short
             let padding = if arg.get_long().is_some() {
@@ -587,10 +587,9 @@ impl HelpTemplate<'_, '_> {
             debug!(
                 "HelpTemplate::align_to_about: positional=false arg_len={self_len}, spaces={spcs}"
             );
-
             spcs
         } else {
-            let self_len = display_width(&arg.to_string());
+            let self_len = longest_length(arg, false);
             let padding = TAB_WIDTH;
             let spcs = longest + padding - self_len;
             debug!(
@@ -1143,6 +1142,20 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
 
 fn should_show_subcommand(subcommand: &Command) -> bool {
     !subcommand.is_hide_set()
+}
+
+fn longest_length(arg: &Arg, needs_short: bool) -> usize {
+    let mut len = display_width(&arg.to_string());
+    if arg.is_require_no_space_set() && arg.get_short().is_some() && arg.get_long().is_some() {
+        let l = arg
+            .stylize_arg_no_space_suffix(&Styles::plain(), None)
+            .display_width();
+        len += l;
+    }
+    if arg.get_long().is_some() && needs_short {
+        len += SHORT_SIZE;
+    }
+    len
 }
 
 #[cfg(test)]

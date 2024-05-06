@@ -50,6 +50,7 @@ pub(crate) enum ArgSettings {
     AllowHyphenValues,
     AllowNegativeNumbers,
     RequireEquals,
+    RequireNoSpace,
     Last,
     TrailingVarArg,
     HideDefaultValue,
