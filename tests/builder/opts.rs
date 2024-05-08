@@ -114,6 +114,145 @@ fn require_equals_pass() {
 }
 
 #[test]
+fn require_equals_short_unaffected() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_equals(true)
+                .short('c'),
+        )
+        .try_get_matches_from(vec!["prog", "-c", "file.conf"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+}
+
+#[test]
+fn require_equals_short_min_values_zero() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_equals(true)
+                .num_args(0..)
+                .short('c'),
+        )
+        .arg(Arg::new("cmd"))
+        .try_get_matches_from(vec!["prog", "-c", "cmd"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(m.get_one::<String>("cfg").map(|v| v.as_str()), Some("cmd"));
+    assert_eq!(m.get_one::<String>("cmd"), None);
+}
+
+#[test]
+fn require_no_space_fail() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_no_space(true)
+                .short('c'),
+        )
+        .try_get_matches_from(vec!["prog", "-c", "file.conf"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::SpaceFound);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn require_no_space_fail_message() {
+    static SPACE_FOUND: &str = "error: no space is allowed when assigning values to '-c<cfg>'
+
+Usage: prog [OPTIONS]
+
+For more information, try '--help'.
+";
+    let cmd = Command::new("prog").arg(
+        Arg::new("cfg")
+            .action(ArgAction::Set)
+            .require_no_space(true)
+            .short('c'),
+    );
+    utils::assert_output(cmd, "prog -c file.conf", SPACE_FOUND, true);
+}
+
+#[test]
+fn require_no_space_min_values_zero() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_no_space(true)
+                .num_args(0..)
+                .short('c'),
+        )
+        .arg(Arg::new("cmd"))
+        .try_get_matches_from(vec!["prog", "-c", "cmd"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(m.contains_id("cfg"));
+    assert_eq!(m.get_one::<String>("cmd").map(|v| v.as_str()), Some("cmd"));
+}
+
+#[test]
+fn require_no_space_empty_fail() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_no_space(true)
+                .short('c'),
+        )
+        .try_get_matches_from(vec!["prog", "-c"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::SpaceFound);
+}
+
+#[test]
+fn require_no_space_pass() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_no_space(true)
+                .short('c'),
+        )
+        .try_get_matches_from(vec!["prog", "-cfile.conf"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+}
+
+#[test]
+fn require_no_space_equals_pass() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_no_space(true)
+                .short('c'),
+        )
+        .try_get_matches_from(vec!["prog", "-c=file.conf"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    assert_eq!(
+        res.unwrap().get_one::<String>("cfg").map(|v| v.as_str()),
+        Some("=file.conf")
+    );
+}
+
+#[test]
+fn require_no_space_long_unaffected() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("cfg")
+                .action(ArgAction::Set)
+                .require_no_space(true)
+                .short('c')
+                .long("config"),
+        )
+        .try_get_matches_from(vec!["prog", "--config", "file.conf"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err())
+}
+
+#[test]
 fn stdin_char() {
     let r = Command::new("opts")
         .arg(arg!(f: -f [flag] "some flag"))

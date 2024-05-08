@@ -2004,6 +2004,121 @@ Options:
     utils::assert_output(cmd, "ctest -h", ISSUE_1487, false);
 }
 
+#[test]
+fn help_require_equals() {
+    static REQUIRE_EQUALS: &str = "\
+Usage: myapp [OPTIONS]
+
+Options:
+      --foo=<foo>  
+  -h, --help       Print help
+";
+    let cmd = Command::new("myapp").arg(
+        Arg::new("foo")
+            .long("foo")
+            .require_equals(true)
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(cmd, "myapp -h", REQUIRE_EQUALS, false);
+}
+
+#[test]
+fn help_require_equals_short() {
+    static REQUIRE_EQUALS_SHORT: &str = "\
+Usage: myapp [OPTIONS]
+
+Options:
+  -f <foo>      
+  -h, --help    Print help
+";
+    let cmd = Command::new("myapp").arg(
+        Arg::new("foo")
+            .short('f')
+            .require_equals(true)
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(cmd, "myapp -h", REQUIRE_EQUALS_SHORT, false);
+}
+
+#[test]
+fn help_require_no_space() {
+    static REQUIRE_NO_SPACE: &str = "\
+Usage: myapp [OPTIONS]
+
+Options:
+  -f<foo>      
+  -h, --help   Print help
+";
+    let cmd = Command::new("myapp").arg(
+        Arg::new("foo")
+            .short('f')
+            .require_no_space(true)
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(cmd, "myapp -h", REQUIRE_NO_SPACE, false);
+}
+
+#[test]
+fn help_require_no_space_long() {
+    static REQUIRE_NO_SPACE_LONG: &str = "\
+Usage: myapp [OPTIONS]
+
+Options:
+      --foo <foo>  
+  -h, --help       Print help
+";
+    let cmd = Command::new("myapp").arg(
+        Arg::new("foo")
+            .long("foo")
+            .require_no_space(true)
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(cmd, "myapp -h", REQUIRE_NO_SPACE_LONG, false);
+}
+
+#[test]
+fn help_require_equals_no_space() {
+    static REQUIRE_EQUALS_NO_SPACE: &str = "\
+Usage: myapp [OPTIONS]
+
+Options:
+  -f<foo>, --foo=<foo>  This is foo
+  -h, --help            Print help
+";
+    let cmd = Command::new("myapp").arg(
+        Arg::new("foo")
+            .long("foo")
+            .short('f')
+            .help("This is foo")
+            .require_equals(true)
+            .require_no_space(true)
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(cmd, "myapp -h", REQUIRE_EQUALS_NO_SPACE, false);
+}
+
+#[test]
+fn help_require_equals_no_space_optional() {
+    static REQUIRE_EQUALS_NO_SPACE_OPTIONAL: &str = "\
+Usage: myapp [OPTIONS]
+
+Options:
+  -f[<foo>], --foo[=<foo>]  This is foo
+  -h, --help                Print help
+";
+    let cmd = Command::new("myapp").arg(
+        Arg::new("foo")
+            .long("foo")
+            .short('f')
+            .help("This is foo")
+            .num_args(0..=1)
+            .require_equals(true)
+            .require_no_space(true)
+            .action(ArgAction::Set),
+    );
+    utils::assert_output(cmd, "myapp -h", REQUIRE_EQUALS_NO_SPACE_OPTIONAL, false);
+}
+
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Command::help_expected is enabled for the Command"]

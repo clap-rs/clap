@@ -1063,6 +1063,117 @@ fn issue_1158_app() -> Command {
 
 #[test]
 #[cfg(feature = "error-context")]
+fn require_no_space() {
+    static REQUIRE_NO_SPACE: &str = "\
+error: the following required arguments were not provided:
+  --opt <FILE>
+
+Usage: clap-test --opt <FILE>
+
+For more information, try '--help'.
+";
+    let cmd = Command::new("clap-test").version("v1.4.8").arg(
+        Arg::new("opt")
+            .long("opt")
+            .short('o')
+            .required(true)
+            .require_no_space(true)
+            .value_name("FILE")
+            .help("some"),
+    );
+    utils::assert_output(cmd, "clap-test", REQUIRE_NO_SPACE, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn require_no_space_filtered() {
+    static REQUIRE_NO_SPACE_FILTERED: &str = "\
+error: the following required arguments were not provided:
+  -o<FILE>
+
+Usage: clap-test -o<FILE> -f<FILE>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("clap-test")
+        .version("v1.4.8")
+        .arg(
+            Arg::new("opt")
+                .short('o')
+                .required(true)
+                .require_no_space(true)
+                .value_name("FILE")
+                .help("some"),
+        )
+        .arg(
+            Arg::new("foo")
+                .short('f')
+                .required(true)
+                .require_no_space(true)
+                .value_name("FILE")
+                .help("some other arg"),
+        );
+    utils::assert_output(cmd, "clap-test -fblah", REQUIRE_NO_SPACE_FILTERED, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn require_no_space_filtered_group() {
+    static REQUIRE_NO_SPACE_FILTERED_GROUP: &str = "\
+error: the following required arguments were not provided:
+  -o<FILE>
+
+Usage: clap-test -o<FILE> -f<FILE> <-g<FILE>|-i<FILE>>
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("clap-test")
+        .version("v1.4.8")
+        .arg(
+            Arg::new("opt")
+                .short('o')
+                .required(true)
+                .require_no_space(true)
+                .value_name("FILE")
+                .help("some"),
+        )
+        .arg(
+            Arg::new("foo")
+                .short('f')
+                .required(true)
+                .require_no_space(true)
+                .value_name("FILE")
+                .help("some other arg"),
+        )
+        .arg(
+            Arg::new("g1")
+                .short('g')
+                .require_no_space(true)
+                .value_name("FILE"),
+        )
+        .arg(
+            Arg::new("g2")
+                .short('i')
+                .require_no_space(true)
+                .value_name("FILE"),
+        )
+        .group(
+            ArgGroup::new("test_group")
+                .args(["g1", "g2"])
+                .required(true),
+        );
+    utils::assert_output(
+        cmd,
+        "clap-test -fblah -gblah",
+        REQUIRE_NO_SPACE_FILTERED_GROUP,
+        true,
+    );
+}
+
+#[test]
+#[cfg(feature = "error-context")]
 fn multiple_required_unless_usage_printing() {
     static MULTIPLE_REQUIRED_UNLESS_USAGE: &str = "\
 error: the following required arguments were not provided:
@@ -1155,47 +1266,6 @@ fn issue_1643_args_mutually_require_each_other() {
 
     cmd.try_get_matches_from(["test", "-u", "hello", "-r", "farewell"])
         .unwrap();
-}
-
-#[test]
-fn short_flag_require_equals_with_minvals_zero() {
-    let m = Command::new("foo")
-        .arg(
-            Arg::new("check")
-                .short('c')
-                .num_args(0..)
-                .require_equals(true),
-        )
-        .arg(Arg::new("unique").short('u').action(ArgAction::SetTrue))
-        .try_get_matches_from(["foo", "-cu"])
-        .unwrap();
-    assert!(m.contains_id("check"));
-    assert!(*m.get_one::<bool>("unique").expect("defaulted by clap"));
-}
-
-#[test]
-fn issue_2624() {
-    let matches = Command::new("foo")
-        .arg(
-            Arg::new("check")
-                .short('c')
-                .long("check")
-                .require_equals(true)
-                .num_args(0..)
-                .value_parser(["silent", "quiet", "diagnose-first"]),
-        )
-        .arg(
-            Arg::new("unique")
-                .short('u')
-                .long("unique")
-                .action(ArgAction::SetTrue),
-        )
-        .try_get_matches_from(["foo", "-cu"])
-        .unwrap();
-    assert!(matches.contains_id("check"));
-    assert!(*matches
-        .get_one::<bool>("unique")
-        .expect("defaulted by clap"));
 }
 
 #[test]
