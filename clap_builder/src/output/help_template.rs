@@ -755,7 +755,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             true
         } else {
             // force_next_line
-            let h = arg.get_help().unwrap_or_default();
+            let h = arg
+                .get_help()
+                .or_else(|| arg.get_long_help())
+                .unwrap_or_default();
             let h_w = h.display_width() + display_width(spec_vals);
             let taken = if arg.is_positional() {
                 longest + TAB_WIDTH * 2
@@ -1067,7 +1070,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             true
         } else {
             // force_next_line
-            let h = cmd.get_about().unwrap_or_default();
+            let h = cmd
+                .get_about()
+                .or_else(|| cmd.get_long_about())
+                .unwrap_or_default();
             let h_w = h.display_width() + display_width(spec_vals);
             let taken = longest + TAB_WIDTH * 2;
             self.term_w >= taken
