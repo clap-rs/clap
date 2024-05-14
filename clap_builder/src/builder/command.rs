@@ -4888,11 +4888,13 @@ impl fmt::Display for Command {
 #[allow(dead_code)] // atm dependent on features enabled
 pub(crate) trait AppTag: crate::builder::ext::Extension {}
 
+#[allow(dead_code)] // atm dependent on features enabled
 #[derive(Default, Copy, Clone, Debug)]
 struct TermWidth(usize);
 
 impl AppTag for TermWidth {}
 
+#[allow(dead_code)] // atm dependent on features enabled
 #[derive(Default, Copy, Clone, Debug)]
 struct MaxTermWidth(usize);
 
