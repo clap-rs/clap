@@ -81,7 +81,7 @@ impl PartialEq<char> for KeyType {
 
 impl MKeyMap {
     /// If any arg has corresponding key in this map, we can search the key with
-    /// u64(for positional argument), char(for short flag), &str and OsString
+    /// `u64` (for positional argument), `char` (for short flag), `&str` and `OsString`
     /// (for long flag)
     pub(crate) fn contains<K>(&self, key: K) -> bool
     where
@@ -96,8 +96,8 @@ impl MKeyMap {
     }
 
     /// Find the arg have corresponding key in this map, we can search the key
-    /// with u64(for positional argument), char(for short flag), &str and
-    /// OsString (for long flag)
+    /// with `u64` (for positional argument), `char` (for short flag), `&str` and
+    /// `OsString` (for long flag)
     pub(crate) fn get<K: ?Sized>(&self, key: &K) -> Option<&Arg>
     where
         KeyType: PartialEq<K>,

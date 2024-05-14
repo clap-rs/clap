@@ -14,16 +14,22 @@ env:
   CARGO_TERM_COLOR: always
   CLICOLOR: 1
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   ci:
     permissions:
       contents: none
     name: CI
-    needs: [test, check, docs, rustfmt, clippy, cffconvert]
+    needs: [test, check, lockfile, docs, rustfmt, clippy, cffconvert]
     runs-on: ubuntu-latest
+    if: "always()"
     steps:
-      - name: Done
-        run: exit 0
+      - name: Failed
+        run: exit 1
+        if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')"
   test:
     name: Test
     strategy:
@@ -39,7 +45,7 @@ jobs:
           rust: "stable"
           features: "full"
         - build: mac
-          os: macos-latest
+          os: macos-14
           rust: "stable"
           features: "full"
         - build: minimal
@@ -64,6 +70,7 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
@@ -144,7 +151,7 @@ jobs:
         toolchain: stable
     - uses: Swatinem/rust-cache@v2
     - name: "Is lockfile updated?"
-      run: cargo fetch --locked
+      run: cargo update --workspace --locked
   docs:
     name: Docs
     runs-on: ubuntu-latest
@@ -154,7 +161,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.74"  # MSRV
+        toolchain: "1.76"  # STABLE
     - uses: Swatinem/rust-cache@v2
     - name: Check documentation
       env:
@@ -169,9 +176,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        # Not MSRV because its harder to jump between versions and people are
-        # more likely to have stable
-        toolchain: stable
+        toolchain: "1.76"  # STABLE
         components: rustfmt
     - uses: Swatinem/rust-cache@v2
     - name: Check formatting
@@ -185,7 +190,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.74"  # MSRV
+        toolchain: "1.76"  # STABLE
         components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Lint (ultra-minimal)

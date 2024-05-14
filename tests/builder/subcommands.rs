@@ -617,7 +617,7 @@ fn duplicate_subcommand() {
     Command::new("test")
         .subcommand(Command::new("repeat"))
         .subcommand(Command::new("repeat"))
-        .build()
+        .build();
 }
 
 #[test]
@@ -626,5 +626,5 @@ fn duplicate_subcommand_alias() {
     Command::new("test")
         .subcommand(Command::new("repeat"))
         .subcommand(Command::new("unique").alias("repeat"))
-        .build()
+        .build();
 }

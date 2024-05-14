@@ -26,7 +26,7 @@ use crate::derives::{args, into_app, subcommand};
 use crate::item::Item;
 use crate::item::Name;
 
-pub fn derive_parser(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
+pub(crate) fn derive_parser(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
     let pkg_name = std::env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 

@@ -2360,7 +2360,7 @@ Options:
   -h, --help     Print help
 ";
 
-    let cmd = clap::Command::new("hello")
+    let cmd = Command::new("hello")
         .bin_name("deno")
         .arg(
             Arg::new("option1")
@@ -2646,7 +2646,7 @@ fn too_many_value_names_panics() {
                 .num_args(1)
                 .value_names(["one", "two"]),
         )
-        .debug_assert()
+        .debug_assert();
 }
 
 #[test]
@@ -2756,10 +2756,10 @@ fn disable_help_flag_affects_help_subcommand() {
 
 #[test]
 fn dont_propagate_version_to_help_subcommand() {
-    let cmd = clap::Command::new("example")
+    let cmd = Command::new("example")
         .version("1.0")
         .propagate_version(true)
-        .subcommand(clap::Command::new("subcommand"));
+        .subcommand(Command::new("subcommand"));
 
     utils::assert_output(
         cmd.clone(),
@@ -2780,7 +2780,7 @@ Arguments:
 
 #[test]
 fn help_without_short() {
-    let mut cmd = clap::Command::new("test")
+    let mut cmd = Command::new("test")
         .arg(arg!(-h --hex <NUM>).required(true))
         .arg(arg!(--help).action(ArgAction::Help))
         .disable_help_flag(true);

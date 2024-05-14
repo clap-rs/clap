@@ -579,7 +579,7 @@ fn allow_negative_numbers_fail() {
         )
         .try_get_matches_from(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument)
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]

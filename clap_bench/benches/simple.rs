@@ -1,3 +1,5 @@
+#![allow(elided_lifetimes_in_paths)] // needed for divan
+
 use clap::{arg, ArgMatches, Command};
 
 macro_rules! create_app {
@@ -18,7 +20,7 @@ fn build() -> Command {
 }
 
 mod startup {
-    use super::*;
+    use super::{arg, ArgMatches, Command};
 
     #[divan::bench]
     fn flag() -> ArgMatches {

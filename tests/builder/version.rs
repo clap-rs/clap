@@ -28,7 +28,7 @@ fn version_short_flag_no_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn version_long_flag_no_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]

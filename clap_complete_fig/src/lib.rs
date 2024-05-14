@@ -6,9 +6,11 @@
 //! Generates [Fig](https://github.com/withfig/autocomplete) completions for [`clap`](https://github.com/clap-rs/clap) based CLIs
 
 #![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
-#![warn(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![forbid(unsafe_code)]
-#![allow(clippy::needless_doctest_main)]
+#![warn(missing_docs)]
+#![warn(clippy::print_stderr)]
+#![warn(clippy::print_stdout)]
 
 mod fig;
 pub use fig::Fig;

@@ -12,15 +12,15 @@ use crate::Generator;
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
 pub enum Shell {
-    /// Bourne Again SHell (bash)
+    /// Bourne Again `SHell` (bash)
     Bash,
     /// Elvish shell
     Elvish,
-    /// Friendly Interactive SHell (fish)
+    /// Friendly Interactive `SHell` (fish)
     Fish,
-    /// PowerShell
+    /// `PowerShell`
     PowerShell,
-    /// Z SHell (zsh)
+    /// Z `SHell` (zsh)
     Zsh,
 }
 
@@ -58,7 +58,7 @@ impl ValueEnum for Shell {
         ]
     }
 
-    fn to_possible_value<'a>(&self) -> Option<PossibleValue> {
+    fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
             Shell::Bash => PossibleValue::new("bash"),
             Shell::Elvish => PossibleValue::new("elvish"),
@@ -113,7 +113,7 @@ impl Shell {
     /// from that.
     ///
     /// If SHELL is not set, then on windows, it will default to powershell, and on
-    /// other OSes it will return `None`.
+    /// other operating systems it will return `None`.
     ///
     /// If SHELL is set, but contains a value that doesn't correspond to one of the supported shell
     /// types, then return `None`.

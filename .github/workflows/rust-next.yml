@@ -12,6 +12,10 @@ env:
   CARGO_TERM_COLOR: always
   CLICOLOR: 1
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test
@@ -32,7 +36,7 @@ jobs:
           rust: "beta"
           features: "full"
         - build: mac
-          os: macos-latest
+          os: macos-14
           rust: "beta"
           features: "full"
         - build: nightly
@@ -91,6 +95,7 @@ jobs:
       with:
         toolchain: stable
     - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
     - name: Update dependencues
       run: cargo update
     - name: Build

@@ -25,7 +25,7 @@ impl<T: PartialEq + Eq> FlatSet<T> {
         true
     }
 
-    pub fn contains<Q: ?Sized>(&self, value: &Q) -> bool
+    pub(crate) fn contains<Q: ?Sized>(&self, value: &Q) -> bool
     where
         T: Borrow<Q>,
         Q: Eq,
@@ -38,7 +38,7 @@ impl<T: PartialEq + Eq> FlatSet<T> {
         false
     }
 
-    pub fn retain<F>(&mut self, f: F)
+    pub(crate) fn retain<F>(&mut self, f: F)
     where
         F: FnMut(&T) -> bool,
     {
@@ -53,7 +53,7 @@ impl<T: PartialEq + Eq> FlatSet<T> {
         self.inner.iter()
     }
 
-    pub fn sort_by_key<K, F>(&mut self, f: F)
+    pub(crate) fn sort_by_key<K, F>(&mut self, f: F)
     where
         F: FnMut(&T) -> K,
         K: Ord,

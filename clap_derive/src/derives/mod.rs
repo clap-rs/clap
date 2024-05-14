@@ -17,7 +17,7 @@ mod parser;
 mod subcommand;
 mod value_enum;
 
-pub use self::parser::derive_parser;
-pub use args::derive_args;
-pub use subcommand::derive_subcommand;
-pub use value_enum::derive_value_enum;
+pub(crate) use self::parser::derive_parser;
+pub(crate) use args::derive_args;
+pub(crate) use subcommand::derive_subcommand;
+pub(crate) use value_enum::derive_value_enum;

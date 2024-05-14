@@ -38,7 +38,11 @@ clap = { path = "../", version = "4.0.0", default-features = false, features = [
 [dev-dependencies]
 snapbox = { version = "0.5.9", features = ["diff"] }
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
+automod = "1.0.14"
 
 [features]
 default = []
 debug = ["clap/debug"]
+
+[lints]
+workspace = true

@@ -16,9 +16,9 @@ mod options {
     use clap::Parser;
 
     #[derive(Debug, Parser)]
-    pub struct Options {
+    pub(crate) struct Options {
         #[command(subcommand)]
-        pub subcommand: super::subcommands::SubCommand,
+        pub(crate) subcommand: super::subcommands::SubCommand,
     }
 }
 
@@ -26,7 +26,7 @@ mod subcommands {
     use clap::Subcommand;
 
     #[derive(Debug, Subcommand)]
-    pub enum SubCommand {
+    pub(crate) enum SubCommand {
         /// foo
         Foo {
             /// foo

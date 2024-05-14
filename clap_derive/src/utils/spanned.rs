@@ -6,21 +6,21 @@ use std::ops::{Deref, DerefMut};
 
 /// An entity with a span attached.
 #[derive(Debug, Copy, Clone)]
-pub struct Sp<T> {
+pub(crate) struct Sp<T> {
     val: T,
     span: Span,
 }
 
 impl<T> Sp<T> {
-    pub fn new(val: T, span: Span) -> Self {
+    pub(crate) fn new(val: T, span: Span) -> Self {
         Sp { val, span }
     }
 
-    pub fn get(&self) -> &T {
+    pub(crate) fn get(&self) -> &T {
         &self.val
     }
 
-    pub fn span(&self) -> Span {
+    pub(crate) fn span(&self) -> Span {
         self.span
     }
 }

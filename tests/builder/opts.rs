@@ -626,7 +626,7 @@ fn issue_2022_get_flags_misuse() {
         .next_help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
     let matches = cmd.try_get_matches_from([""]).unwrap();
-    assert!(matches.get_one::<String>("a").map(|v| v.as_str()).is_some())
+    assert!(matches.get_one::<String>("a").map(|v| v.as_str()).is_some());
 }
 
 #[test]

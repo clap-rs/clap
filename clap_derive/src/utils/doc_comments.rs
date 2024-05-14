@@ -5,7 +5,7 @@
 
 use std::iter;
 
-pub fn extract_doc_comment(attrs: &[syn::Attribute]) -> Vec<String> {
+pub(crate) fn extract_doc_comment(attrs: &[syn::Attribute]) -> Vec<String> {
     // multiline comments (`/** ... */`) may have LFs (`\n`) in them,
     // we need to split so we could handle the lines correctly
     //
@@ -49,7 +49,7 @@ pub fn extract_doc_comment(attrs: &[syn::Attribute]) -> Vec<String> {
     lines
 }
 
-pub fn format_doc_comment(
+pub(crate) fn format_doc_comment(
     lines: &[String],
     preprocess: bool,
     force_long: bool,

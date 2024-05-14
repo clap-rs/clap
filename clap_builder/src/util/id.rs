@@ -46,15 +46,15 @@ impl From<&'_ Str> for Id {
 }
 
 #[cfg(feature = "string")]
-impl From<std::string::String> for Id {
-    fn from(name: std::string::String) -> Self {
+impl From<String> for Id {
+    fn from(name: String) -> Self {
         Self(name.into())
     }
 }
 
 #[cfg(feature = "string")]
-impl From<&'_ std::string::String> for Id {
-    fn from(name: &'_ std::string::String) -> Self {
+impl From<&'_ String> for Id {
+    fn from(name: &'_ String) -> Self {
         Self(name.into())
     }
 }
@@ -150,13 +150,13 @@ impl PartialEq<Id> for Str {
     }
 }
 
-impl PartialEq<std::string::String> for Id {
+impl PartialEq<String> for Id {
     #[inline]
-    fn eq(&self, other: &std::string::String) -> bool {
+    fn eq(&self, other: &String) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
     }
 }
-impl PartialEq<Id> for std::string::String {
+impl PartialEq<Id> for String {
     #[inline]
     fn eq(&self, other: &Id) -> bool {
         PartialEq::eq(other, self)

@@ -9,7 +9,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 type Option<T> = std::option::Option<T>;
 
 #[derive(Parser)]
-pub struct Opts {
+pub(crate) struct Opts {
     another_string: String,
     #[command(subcommand)]
     command: Command,

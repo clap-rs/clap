@@ -510,10 +510,10 @@ impl Arg {
         self
     }
 
-    /// This is a "VarArg" and everything that follows should be captured by it, as if the user had
+    /// This is a "var arg" and everything that follows should be captured by it, as if the user had
     /// used a `--`.
     ///
-    /// **NOTE:** To start the trailing "VarArg" on unknown flags (and not just a positional
+    /// **NOTE:** To start the trailing "var arg" on unknown flags (and not just a positional
     /// value), set [`allow_hyphen_values`][Arg::allow_hyphen_values].  Either way, users still
     /// have the option to explicitly escape ambiguous arguments with `--`.
     ///
@@ -875,7 +875,7 @@ impl Arg {
 impl Arg {
     /// Specify how to react to an argument when parsing it.
     ///
-    /// [ArgAction] controls things like
+    /// [`ArgAction`] controls things like
     /// - Overwriting previous values with new ones
     /// - Appending new values to all previous ones
     /// - Counting how many times a flag occurs
@@ -997,7 +997,7 @@ impl Arg {
     /// - It reaches the [`Arg::value_terminator`] if set
     ///
     /// Alternatively,
-    /// - Use a delimiter between values with [Arg::value_delimiter]
+    /// - Use a delimiter between values with [`Arg::value_delimiter`]
     /// - Require a flag occurrence per value with [`ArgAction::Append`]
     /// - Require positional arguments to appear after `--` with [`Arg::last`]
     ///
@@ -1018,7 +1018,7 @@ impl Arg {
     /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
     /// ```
     ///
-    /// Flag/option hybrid (see also [default_missing_value][Arg::default_missing_value])
+    /// Flag/option hybrid (see also [`default_missing_value`][Arg::default_missing_value])
     /// ```rust
     /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, error::ErrorKind, ArgAction};
@@ -3641,8 +3641,8 @@ impl Arg {
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
-    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not
-    /// need to also do B.conflicts_with(A))
+    /// (i.e. if A conflicts with B, defining `A.conflicts_with(B)` is sufficient. You do not
+    /// need to also do `B.conflicts_with(A)`)
     ///
     /// **NOTE:** [`Arg::conflicts_with_all(names)`] allows specifying an argument which conflicts with more than one argument.
     ///
@@ -3701,8 +3701,8 @@ impl Arg {
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
-    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
-    /// need to also do B.conflicts_with(A))
+    /// (i.e. if A conflicts with B, defining `A.conflicts_with(B)` is sufficient. You do not need
+    /// need to also do `B.conflicts_with(A)`)
     ///
     /// **NOTE:** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
     ///
@@ -3992,7 +3992,7 @@ impl Arg {
         self.val_delim
     }
 
-    /// Get the value terminator for this argument. The value_terminator is a value
+    /// Get the value terminator for this argument. The `value_terminator` is a value
     /// that terminates parsing of multi-valued arguments.
     #[inline]
     pub fn get_value_terminator(&self) -> Option<&Str> {
@@ -4094,8 +4094,8 @@ impl Arg {
     }
 
     /// Behavior when parsing the argument
-    pub fn get_action(&self) -> &super::ArgAction {
-        const DEFAULT: super::ArgAction = super::ArgAction::Set;
+    pub fn get_action(&self) -> &ArgAction {
+        const DEFAULT: ArgAction = ArgAction::Set;
         self.action.as_ref().unwrap_or(&DEFAULT)
     }
 
@@ -4202,7 +4202,7 @@ impl Arg {
     pub(crate) fn _build(&mut self) {
         if self.action.is_none() {
             if self.num_vals == Some(ValueRange::EMPTY) {
-                let action = super::ArgAction::SetTrue;
+                let action = ArgAction::SetTrue;
                 self.action = Some(action);
             } else {
                 let action =
@@ -4211,9 +4211,9 @@ impl Arg {
                         //
                         // Bounded values are probably a group and the user should explicitly opt-in to
                         // Append
-                        super::ArgAction::Append
+                        ArgAction::Append
                     } else {
-                        super::ArgAction::Set
+                        ArgAction::Set
                     };
                 self.action = Some(action);
             }
@@ -4432,14 +4432,14 @@ impl Ord for Arg {
 impl Eq for Arg {}
 
 impl Display for Arg {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let plain = Styles::plain();
         self.stylized(&plain, None).fmt(f)
     }
 }
 
 impl fmt::Debug for Arg {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         let mut ds = f.debug_struct("Arg");
 
         #[allow(unused_mut)]
@@ -4519,7 +4519,7 @@ mod test {
             .action(ArgAction::SetTrue);
         f._build();
 
-        assert_eq!(f.to_string(), "--flag")
+        assert_eq!(f.to_string(), "--flag");
     }
 
     #[test]
@@ -4542,7 +4542,7 @@ mod test {
         f.short_aliases = vec![('b', true)];
         f._build();
 
-        assert_eq!(f.to_string(), "-a")
+        assert_eq!(f.to_string(), "-a");
     }
 
     #[test]

@@ -21,7 +21,7 @@ use crate::derives::args::collect_args_fields;
 use crate::item::{Item, Kind, Name};
 use crate::utils::{is_simple_ty, subty_if_name};
 
-pub fn derive_subcommand(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
+pub(crate) fn derive_subcommand(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
 
     match input.data {
@@ -43,7 +43,7 @@ pub fn derive_subcommand(input: &DeriveInput) -> Result<TokenStream, syn::Error>
     }
 }
 
-pub fn gen_for_enum(
+pub(crate) fn gen_for_enum(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
@@ -140,7 +140,7 @@ fn gen_augment(
     parent_item: &Item,
     override_required: bool,
 ) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::*;
+    use syn::Fields::{Named, Unit, Unnamed};
 
     let app_var = Ident::new("__clap_app", Span::call_site());
 
@@ -357,7 +357,7 @@ fn gen_augment(
 }
 
 fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::*;
+    use syn::Fields::Unnamed;
 
     let mut ext_subcmd = false;
 
@@ -421,7 +421,7 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn:
 }
 
 fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::*;
+    use syn::Fields::{Named, Unit, Unnamed};
 
     let subcommand_name_var = format_ident!("__clap_name");
     let sub_arg_matches_var = format_ident!("__clap_arg_matches");
@@ -572,7 +572,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
 }
 
 fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::*;
+    use syn::Fields::{Named, Unit, Unnamed};
 
     let (flatten, variants): (Vec<_>, Vec<_>) = variants
         .iter()

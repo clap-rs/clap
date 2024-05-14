@@ -72,10 +72,10 @@ impl MatchedArg {
     }
 
     pub(crate) fn push_index(&mut self, index: usize) {
-        self.indices.push(index)
+        self.indices.push(index);
     }
 
-    pub(crate) fn vals(&self) -> Iter<Vec<AnyValue>> {
+    pub(crate) fn vals(&self) -> Iter<'_, Vec<AnyValue>> {
         self.vals.iter()
     }
 
@@ -83,7 +83,7 @@ impl MatchedArg {
         self.vals
     }
 
-    pub(crate) fn vals_flatten(&self) -> Flatten<Iter<Vec<AnyValue>>> {
+    pub(crate) fn vals_flatten(&self) -> Flatten<Iter<'_, Vec<AnyValue>>> {
         self.vals.iter().flatten()
     }
 
@@ -91,11 +91,11 @@ impl MatchedArg {
         self.vals.into_iter().flatten()
     }
 
-    pub(crate) fn raw_vals(&self) -> Iter<Vec<OsString>> {
+    pub(crate) fn raw_vals(&self) -> Iter<'_, Vec<OsString>> {
         self.raw_vals.iter()
     }
 
-    pub(crate) fn raw_vals_flatten(&self) -> Flatten<Iter<Vec<OsString>>> {
+    pub(crate) fn raw_vals_flatten(&self) -> Flatten<Iter<'_, Vec<OsString>>> {
         self.raw_vals.iter().flatten()
     }
 
@@ -162,7 +162,7 @@ impl MatchedArg {
         if let Some(existing) = self.source {
             self.source = Some(existing.max(source));
         } else {
-            self.source = Some(source)
+            self.source = Some(source);
         }
     }
 

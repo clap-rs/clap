@@ -1,6 +1,6 @@
 use clap::builder::PossibleValue;
 
-pub fn basic_command(name: &'static str) -> clap::Command {
+pub(crate) fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
             clap::Arg::new("config")
@@ -25,7 +25,7 @@ pub fn basic_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn feature_sample_command(name: &'static str) -> clap::Command {
+pub(crate) fn feature_sample_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .propagate_version(true)
@@ -55,7 +55,7 @@ pub fn feature_sample_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn special_commands_command(name: &'static str) -> clap::Command {
+pub(crate) fn special_commands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name)
         .subcommand(
             clap::Command::new("some_cmd")
@@ -74,7 +74,7 @@ pub fn special_commands_command(name: &'static str) -> clap::Command {
         .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
 }
 
-pub fn quoting_command(name: &'static str) -> clap::Command {
+pub(crate) fn quoting_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .arg(
@@ -124,7 +124,7 @@ pub fn quoting_command(name: &'static str) -> clap::Command {
         ])
 }
 
-pub fn aliases_command(name: &'static str) -> clap::Command {
+pub(crate) fn aliases_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")
         .about("testing bash completions")
@@ -149,7 +149,7 @@ pub fn aliases_command(name: &'static str) -> clap::Command {
         .arg(clap::Arg::new("positional"))
 }
 
-pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
+pub(crate) fn sub_subcommands_command(name: &'static str) -> clap::Command {
     feature_sample_command(name).subcommand(
         clap::Command::new("some_cmd")
             .about("top level subcommand")
@@ -170,7 +170,7 @@ pub fn sub_subcommands_command(name: &'static str) -> clap::Command {
     )
 }
 
-pub fn value_hint_command(name: &'static str) -> clap::Command {
+pub(crate) fn value_hint_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
             clap::Arg::new("choice")
@@ -254,7 +254,7 @@ pub fn value_hint_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn value_terminator_command(name: &'static str) -> clap::Command {
+pub(crate) fn value_terminator_command(name: &'static str) -> clap::Command {
     clap::Command::new(name).arg(
         clap::Arg::new("arguments")
             .help("multi-valued argument with a value terminator")
@@ -263,7 +263,7 @@ pub fn value_terminator_command(name: &'static str) -> clap::Command {
     )
 }
 
-pub fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
+pub(crate) fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
             clap::Arg::new("first")
@@ -277,13 +277,13 @@ pub fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
         )
 }
 
-pub fn subcommand_last(name: &'static str) -> clap::Command {
+pub(crate) fn subcommand_last(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(clap::Arg::new("free").last(true))
         .subcommands([clap::Command::new("foo"), clap::Command::new("bar")])
 }
 
-pub fn assert_matches(
+pub(crate) fn assert_matches(
     expected: impl Into<snapbox::Data>,
     gen: impl clap_complete::Generator,
     mut cmd: clap::Command,
@@ -298,7 +298,7 @@ pub fn assert_matches(
         .matches(expected, buf);
 }
 
-pub fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {
+pub(crate) fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {
     use completest::Runtime as _;
 
     let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
@@ -354,7 +354,7 @@ pub fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str
     scratch.close().unwrap();
 }
 
-pub fn load_runtime<R: completest::RuntimeBuilder>(
+pub(crate) fn load_runtime<R: completest::RuntimeBuilder>(
     context: &str,
     name: &str,
 ) -> Box<dyn completest::Runtime>
@@ -421,7 +421,7 @@ impl completest::Runtime for ScratchRuntime {
     }
 }
 
-pub fn has_command(command: &str) -> bool {
+pub(crate) fn has_command(command: &str) -> bool {
     let output = match std::process::Command::new(command)
         .arg("--version")
         .output()

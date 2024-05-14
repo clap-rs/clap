@@ -40,3 +40,6 @@ debug = []
 unstable-v5 = ["deprecated"]
 deprecated = []
 raw-deprecated = ["deprecated"]
+
+[lints]
+workspace = true

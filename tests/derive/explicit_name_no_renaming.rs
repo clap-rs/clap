@@ -32,5 +32,5 @@ fn explicit_name_no_rename() {
     }
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("<.options>"))
+    assert!(help.contains("<.options>"));
 }

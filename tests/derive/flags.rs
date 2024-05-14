@@ -97,7 +97,7 @@ fn inferred_help() {
         Some("Foo".to_owned()),
         "Incorrect help"
     );
-    assert!(matches!(arg.get_action(), clap::ArgAction::Help));
+    assert!(matches!(arg.get_action(), ArgAction::Help));
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn inferred_version() {
         Some("Foo".to_owned()),
         "Incorrect help"
     );
-    assert!(matches!(arg.get_action(), clap::ArgAction::Version));
+    assert!(matches!(arg.get_action(), ArgAction::Version));
 }
 
 #[test]
@@ -217,13 +217,13 @@ fn ignore_qualified_bool_type() {
     mod inner {
         #[allow(non_camel_case_types)]
         #[derive(PartialEq, Eq, Debug, Clone)]
-        pub struct bool(pub String);
+        pub(crate) struct bool(pub(crate) String);
 
-        impl std::str::FromStr for self::bool {
+        impl std::str::FromStr for bool {
             type Err = String;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
-                Ok(self::bool(s.into()))
+                Ok(bool(s.into()))
             }
         }
     }

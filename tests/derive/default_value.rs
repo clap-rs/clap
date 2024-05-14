@@ -169,7 +169,7 @@ fn detect_os_variant() {
     #![allow(deprecated)]
 
     #[derive(clap::Parser)]
-    pub struct Options {
+    pub(crate) struct Options {
         #[arg(default_value_os = "123")]
         x: String,
     }

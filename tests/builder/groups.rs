@@ -299,7 +299,7 @@ fn group_acts_like_arg() {
     assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
     assert!(m.contains_id("mode"));
-    assert_eq!(m.get_one::<clap::Id>("mode").unwrap(), "debug");
+    assert_eq!(m.get_one::<Id>("mode").unwrap(), "debug");
 }
 
 #[test]

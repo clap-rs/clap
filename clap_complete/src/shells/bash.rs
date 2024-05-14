@@ -1,6 +1,6 @@
 use std::{fmt::Write as _, io::Write};
 
-use clap::*;
+use clap::{Arg, Command, ValueHint};
 
 use crate::generator::{utils, Generator};
 
@@ -204,7 +204,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
                     ]);
                 }
 
-                v.extend(["return 0", ";;"].iter().map(|s| s.to_string()));
+                v.extend(["return 0", ";;"].iter().map(|s| (*s).to_string()));
                 v.join("\n                    ")
             }));
         }
@@ -237,7 +237,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
                     ]);
                 }
 
-                v.extend(["return 0", ";;"].iter().map(|s| s.to_string()));
+                v.extend(["return 0", ";;"].iter().map(|s| (*s).to_string()));
                 v.join("\n                    ")
             }));
         }
@@ -249,7 +249,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
 fn vals_for(o: &Arg) -> String {
     debug!("vals_for: o={}", o.get_id());
 
-    if let Some(vals) = crate::generator::utils::possible_values(o) {
+    if let Some(vals) = utils::possible_values(o) {
         format!(
             "$(compgen -W \"{}\" -- \"${{cur}}\")",
             vals.iter()

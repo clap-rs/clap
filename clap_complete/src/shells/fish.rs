@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use clap::*;
+use clap::{builder, Arg, Command, ValueHint};
 
 use crate::generator::{utils, Generator};
 
@@ -36,7 +36,7 @@ fn escape_string(string: &str, escape_comma: bool) -> String {
     }
 }
 
-fn escape_help(help: &clap::builder::StyledStr) -> String {
+fn escape_help(help: &builder::StyledStr) -> String {
     escape_string(&help.to_string().replace('\n', " "), false)
 }
 
@@ -141,7 +141,7 @@ fn gen_fish_inner(
         template.push_str(format!(" -a \"{}\"", &subcommand.get_name()).as_str());
 
         if let Some(data) = subcommand.get_about() {
-            template.push_str(format!(" -d '{}'", escape_help(data)).as_str())
+            template.push_str(format!(" -d '{}'", escape_help(data)).as_str());
         }
 
         buffer.push_str(template.as_str());
@@ -161,7 +161,7 @@ fn value_completion(option: &Arg) -> String {
         return "".to_string();
     }
 
-    if let Some(data) = crate::generator::utils::possible_values(option) {
+    if let Some(data) = utils::possible_values(option) {
         // We return the possible values with their own empty description e.g. {a\t,b\t}
         // this makes sure that a and b don't get the description of the option or argument
         format!(

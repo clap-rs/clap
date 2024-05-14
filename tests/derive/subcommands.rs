@@ -296,7 +296,7 @@ fn external_subcommand_optional() {
 #[test]
 fn enum_in_enum_subsubcommand() {
     #[derive(Parser, Debug, PartialEq, Eq)]
-    pub enum Opt {
+    pub(crate) enum Opt {
         #[command(alias = "l")]
         List,
         #[command(subcommand, alias = "d")]
@@ -304,7 +304,7 @@ fn enum_in_enum_subsubcommand() {
     }
 
     #[derive(Subcommand, Debug, PartialEq, Eq)]
-    pub enum DaemonCommand {
+    pub(crate) enum DaemonCommand {
         Start,
         Stop,
     }

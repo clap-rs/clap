@@ -1,4 +1,4 @@
-//! Example to test arguments with different ValueHint values.
+//! Example to test arguments with different `ValueHint` values.
 //!
 //! Usage with zsh:
 //! ```console

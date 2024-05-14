@@ -26,5 +26,11 @@ pre-release-replacements = [
   {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=4, prerelease = true},
 ]
 
+[dev-dependencies]
+automod = "1.0.14"
+
 [lib]
 bench = false
+
+[lints]
+workspace = true

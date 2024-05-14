@@ -60,7 +60,7 @@ where
 
 mod foreign_crate {
     #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-    pub enum LogLevel {
+    pub(crate) enum LogLevel {
         Trace,
         Debug,
         Info,

@@ -26,7 +26,7 @@ fn main() {
     // matches just as you would the top level cmd
     match &cli.command {
         Commands::Add(name) => {
-            println!("'myapp add' was used, name is: {:?}", name.name)
+            println!("'myapp add' was used, name is: {:?}", name.name);
         }
     }
 }

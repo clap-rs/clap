@@ -31,7 +31,7 @@ fn global_setting() {
 #[test]
 fn app_send_sync() {
     fn foo<T: Send + Sync>(_: T) {}
-    foo(Command::new("test"))
+    foo(Command::new("test"));
 }
 
 #[test]
@@ -52,5 +52,5 @@ fn issue_2090() {
 #[test]
 fn arg_send_sync() {
     fn foo<T: Send + Sync>(_: T) {}
-    foo(Arg::new("test"))
+    foo(Arg::new("test"));
 }

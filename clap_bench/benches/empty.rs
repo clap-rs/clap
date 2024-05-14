@@ -1,3 +1,5 @@
+#![allow(elided_lifetimes_in_paths)] // needed for divan
+
 use clap::ArgMatches;
 use clap::Command;
 

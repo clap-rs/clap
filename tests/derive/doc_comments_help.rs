@@ -108,7 +108,7 @@ fn top_long_doc_comment_both_help_long_help() {
     }
 
     #[derive(Parser, Debug)]
-    pub enum SubCommand {
+    pub(crate) enum SubCommand {
         /// DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES
         ///
         /// Or something else
@@ -170,7 +170,7 @@ fn verbatim_doc_comment() {
      ( ()    ||
       (      () ) )";
 
-    assert!(help.contains(sample))
+    assert!(help.contains(sample));
 }
 
 #[test]
@@ -238,16 +238,16 @@ fn value_enum_multiline_doc_comment() {
 fn doc_comment_about_handles_both_abouts() {
     /// Opts doc comment summary
     #[derive(Parser, Debug)]
-    pub struct Opts {
+    pub(crate) struct Opts {
         #[command(subcommand)]
-        pub cmd: Sub,
+        pub(crate) cmd: Sub,
     }
 
     /// Sub doc comment summary
     ///
     /// Sub doc comment body
     #[derive(Parser, PartialEq, Eq, Debug)]
-    pub enum Sub {
+    pub(crate) enum Sub {
         Compress { output: String },
     }
 
@@ -264,14 +264,14 @@ fn doc_comment_about_handles_both_abouts() {
 #[test]
 fn respect_subcommand_doc_comment() {
     #[derive(Parser, Debug)]
-    pub enum Cmd {
+    pub(crate) enum Cmd {
         /// For child
         #[command(subcommand)]
         Child(Child),
     }
 
     #[derive(Subcommand, Debug)]
-    pub enum Child {
+    pub(crate) enum Child {
         One,
         Twp,
     }

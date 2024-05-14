@@ -139,7 +139,7 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
     if let Some((prior, after)) = input.split_once("[TAB]") {
         args.extend(prior.split_whitespace().map(From::from));
         if prior.ends_with(char::is_whitespace) {
-            args.push(std::ffi::OsString::default())
+            args.push(std::ffi::OsString::default());
         }
         arg_index = args.len() - 1;
         // HACK: this cannot handle in-word '[TAB]'
@@ -147,7 +147,7 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
     } else {
         args.extend(input.split_whitespace().map(From::from));
         if input.ends_with(char::is_whitespace) {
-            args.push(std::ffi::OsString::default())
+            args.push(std::ffi::OsString::default());
         }
         arg_index = args.len() - 1;
     }
