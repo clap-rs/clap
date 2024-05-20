@@ -1740,7 +1740,8 @@ impl Command {
 
     /// Sets the program's description for the long help (`--help`).
     ///
-    /// Use [`Command::about`] to display the same message for `-h` too.
+    /// If not set, [`Command::about`] will be used for long help in addition to short help
+    /// (`-h`).
     ///
     /// **NOTE:** Only [`Command::about`] (short format) is used in completion
     /// script generation in order to be concise.
@@ -1792,7 +1793,8 @@ impl Command {
     /// This is often used to describe how to use the arguments, caveats to be noted, or license
     /// and contact information.
     ///
-    /// Use [`Command::after_help`] to display the same message for `-h` too.
+    /// If not set, [`Command::after_help`] will be used for long help in addition to short help
+    /// (`-h`).
     ///
     /// # Examples
     ///
@@ -1835,7 +1837,8 @@ impl Command {
     ///
     /// This is often used for header, copyright, or license information.
     ///
-    /// Use [`Command::before_help`] to display the same message for `-h` too.
+    /// If not set, [`Command::before_help`] will be used for long help in addition to short help
+    /// (`-h`).
     ///
     /// # Examples
     ///
