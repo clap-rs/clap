@@ -116,7 +116,13 @@ fn gen_fish_inner(
 
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
             for short in shorts {
-                template.push_str(format!(" -s {short}").as_str());
+				match short {
+					'a'..='z' =>
+						template.push_str(format!(" -s {short}").as_str()),
+					_ => {
+						template.push_str(format!(" -s {}", escape_string(&short.to_string(), false)).as_str());
+					}
+				}
             }
         }
 
