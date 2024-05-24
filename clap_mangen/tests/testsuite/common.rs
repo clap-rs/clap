@@ -1,4 +1,5 @@
 use clap::builder::PossibleValue;
+use snapbox::prelude::*;
 
 pub(crate) fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
@@ -154,9 +155,7 @@ pub(crate) fn sub_subcommands_command(name: &'static str) -> clap::Command {
                     clap::Arg::new("config")
                         .long("config")
                         .action(clap::ArgAction::Set)
-                        .value_parser([PossibleValue::new(
-                            "Lest quotes aren't escaped.",
-                        )])
+                        .value_parser([PossibleValue::new("Lest quotes aren't escaped.")])
                         .help("the other case to test"),
                 ),
             ),
@@ -274,14 +273,14 @@ pub(crate) fn env_value_command(name: &'static str) -> clap::Command {
     )
 }
 
-pub(crate) fn assert_matches(expected: impl Into<snapbox::Data>, cmd: clap::Command) {
+pub(crate) fn assert_matches(expected: impl IntoData, cmd: clap::Command) {
     let mut buf = vec![];
     clap_mangen::Man::new(cmd).render(&mut buf).unwrap();
 
     snapbox::Assert::new()
-        .action_env(snapbox::DEFAULT_ACTION_ENV)
+        .action_env(snapbox::assert::DEFAULT_ACTION_ENV)
         .normalize_paths(false)
-        .matches(expected, buf);
+        .eq(buf, expected);
 }
 
 pub(crate) fn possible_values_command(name: &'static str) -> clap::Command {

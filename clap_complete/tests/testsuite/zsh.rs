@@ -1,3 +1,5 @@
+use snapbox::assert_data_eq;
+
 use crate::common;
 
 #[test]
@@ -158,5 +160,5 @@ help                                               -- Print this message or the 
 pacman    action  alias  value  quote  hint  last  --                                                                 "#
     ];
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }

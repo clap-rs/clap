@@ -1,4 +1,6 @@
 use clap::{error::ErrorKind, Arg, ArgAction, Command};
+use snapbox::assert_data_eq;
+use snapbox::str;
 
 #[test]
 fn option_long() {
@@ -427,16 +429,14 @@ fn optional_value() {
     assert_eq!(m.get_one::<String>("port").unwrap(), "42");
 
     let help = cmd.render_help().to_string();
-    snapbox::assert_eq(
-        snapbox::str![[r#"
-            Usage: test [OPTIONS]
+    assert_data_eq!(help, str![[r#"
+Usage: test [OPTIONS]
 
-            Options:
-              -p [<NUM>]      
-              -h, --help      Print help
-        "#]],
-        help,
-    );
+Options:
+  -p [<NUM>]      
+  -h, --help      Print help
+
+"#]]);
 }
 
 #[test]

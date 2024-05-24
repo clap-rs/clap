@@ -1,4 +1,5 @@
 use crate::common;
+use snapbox::assert_data_eq;
 
 #[test]
 fn basic() {
@@ -155,13 +156,13 @@ fn complete() {
 action  complete            (Register shell completions for this program)  hint  pacman  value
 alias   help  (Print this message or the help of the given subcommand(s))  last  quote   "#;
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 
     let input = "exhaustive quote --choice \t";
     let actual = runtime.complete(input, &term).unwrap();
     let expected = r#"% exhaustive quote --choice 
 bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)"#;
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }
 
 #[cfg(all(unix, feature = "unstable-dynamic"))]
@@ -191,7 +192,7 @@ help  (Print this message or the help of the given subcommand(s))  value        
 hint                                                               -h  (Print help)  --version  (Print version)"#
     ];
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 
     let input = "exhaustive quote \t";
     let expected = snapbox::str![
@@ -217,5 +218,5 @@ help  (Print this message or the help of the given subcommand(s))
 --version                                         (Print version)"#
     ];
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }

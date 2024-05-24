@@ -1,6 +1,8 @@
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
 use super::utils;
+use snapbox::assert_data_eq;
+use snapbox::str;
 
 #[test]
 fn subcommand() {
@@ -485,20 +487,20 @@ fn bad_multicall_command_error() {
 
     let err = cmd.clone().try_get_matches_from(["world"]).unwrap_err();
     assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
-    static HELLO_EXPECTED: &str = "\
+    assert_data_eq!(err.to_string(), str![[r#"
 error: unrecognized subcommand 'world'
 
 Usage: <COMMAND>
 
 For more information, try 'help'.
-";
-    utils::assert_eq(HELLO_EXPECTED, err.to_string());
+
+"#]]);
 
     #[cfg(feature = "suggestions")]
     {
         let err = cmd.clone().try_get_matches_from(["baz"]).unwrap_err();
         assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
-        static BAZ_EXPECTED: &str = "\
+        assert_data_eq!(err.to_string(), str![[r#"
 error: unrecognized subcommand 'baz'
 
   tip: a similar subcommand exists: 'bar'
@@ -506,8 +508,8 @@ error: unrecognized subcommand 'baz'
 Usage: <COMMAND>
 
 For more information, try 'help'.
-";
-        utils::assert_eq(BAZ_EXPECTED, err.to_string());
+
+"#]]);
     }
 
     // Verify whatever we did to get the above to work didn't disable `--help` and `--version`.
@@ -585,16 +587,6 @@ Options:
 
 #[test]
 fn multicall_render_help() {
-    static EXPECTED: &str = "\
-Usage: foo bar [value]
-
-Arguments:
-  [value]  
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-";
     let mut cmd = Command::new("repl")
         .version("1.0.0")
         .propagate_version(true)
@@ -608,7 +600,17 @@ Options:
     let subcmd = subcmd.find_subcommand_mut("bar").unwrap();
 
     let help = subcmd.render_help().to_string();
-    utils::assert_eq(EXPECTED, help);
+    assert_data_eq!(help, str![[r#"
+Usage: foo bar [value]
+
+Arguments:
+  [value]  
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]]);
 }
 
 #[test]
