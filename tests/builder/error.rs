@@ -1,12 +1,11 @@
-use super::utils;
-
 use clap::{arg, builder::ArgAction, error::Error, error::ErrorKind, value_parser, Arg, Command};
+use snapbox::assert_data_eq;
 
 #[track_caller]
 fn assert_error<F: clap::error::ErrorFormatter>(
     err: Error<F>,
     expected_kind: ErrorKind,
-    expected_output: &str,
+    expected_output: impl snapbox::data::IntoData,
     stderr: bool,
 ) {
     let actual_output = err.to_string();
@@ -18,7 +17,7 @@ fn assert_error<F: clap::error::ErrorFormatter>(
         err.use_stderr()
     );
     assert_eq!(expected_kind, err.kind());
-    utils::assert_eq(expected_output, actual_output);
+    assert_data_eq!(actual_output, expected_output);
 }
 
 #[test]

@@ -1,3 +1,5 @@
+use snapbox::assert_data_eq;
+
 use crate::common;
 
 #[test]
@@ -124,7 +126,7 @@ fn register_minimal() {
         .unwrap();
     snapbox::Assert::new()
         .action_env("SNAPSHOTS")
-        .matches(snapbox::file!["../snapshots/register_minimal.bash"], buf);
+        .eq(buf, snapbox::file!["../snapshots/register_minimal.bash"]);
 }
 
 #[test]
@@ -173,19 +175,19 @@ fn complete() {
 -h          --global    --help      action      value       last        hint        help        
 -V          --generate  --version   quote       pacman      alias       complete    "#;
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 
     // Issue 5239 (https://github.com/clap-rs/clap/issues/5239)
     let input = "exhaustive hint --file test\t";
     let expected = "exhaustive hint --file test     % exhaustive hint --file tests/";
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 
     {
         use std::fs::File;
         use std::path::Path;
 
-        let testdir = snapbox::path::PathFixture::mutable_temp().unwrap();
+        let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
         let testdir_path = testdir.path().unwrap();
 
         File::create(Path::new(testdir_path).join("a_file")).unwrap();
@@ -226,7 +228,7 @@ fn complete() {
         use std::fs::File;
         use std::path::Path;
 
-        let testdir = snapbox::path::PathFixture::mutable_temp().unwrap();
+        let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
         let testdir_path = testdir.path().unwrap();
 
         File::create(Path::new(testdir_path).join("foo bar.txt")).unwrap();
@@ -243,7 +245,7 @@ fn complete() {
     let input = "exhaustive hint --other \t";
     let expected = snapbox::str!["exhaustive hint --other         % exhaustive hint --other "];
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }
 
 #[test]

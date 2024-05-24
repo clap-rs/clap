@@ -1,4 +1,6 @@
 use clap::{ArgAction, Args, CommandFactory, Parser, Subcommand};
+use snapbox::assert_data_eq;
+use snapbox::str;
 
 #[test]
 fn arg_help_heading_applied() {
@@ -265,19 +267,20 @@ fn derive_order_next_order() {
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    snapbox::assert_eq(
-        snapbox::str![[r#"
-            Usage: test [OPTIONS]
-
-            Options:
-                  --flag-b               first flag
-                  --option-b <OPTION_B>  first option
-              -h, --help                 Print help
-              -V, --version              Print version
-                  --flag-a               second flag
-                  --option-a <OPTION_A>  second option
-        "#]],
+    assert_data_eq!(
         help,
+        snapbox::str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+      --flag-b               first flag
+      --option-b <OPTION_B>  first option
+  -h, --help                 Print help
+  -V, --version              Print version
+      --flag-a               second flag
+      --option-a <OPTION_A>  second option
+
+"#]],
     );
 }
 
@@ -318,19 +321,20 @@ fn derive_order_next_order_flatten() {
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    snapbox::assert_eq(
-        snapbox::str![[r#"
-            Usage: test [OPTIONS]
-
-            Options:
-                  --flag-b               first flag
-                  --option-b <OPTION_B>  first option
-              -h, --help                 Print help
-              -V, --version              Print version
-                  --flag-a               second flag
-                  --option-a <OPTION_A>  second option
-        "#]],
+    assert_data_eq!(
         help,
+        snapbox::str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+      --flag-b               first flag
+      --option-b <OPTION_B>  first option
+  -h, --help                 Print help
+  -V, --version              Print version
+      --flag-a               second flag
+      --option-a <OPTION_A>  second option
+
+"#]],
     );
 }
 
@@ -382,29 +386,11 @@ Options:
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    snapbox::assert_eq(HELP, help);
+    assert_data_eq!(HELP, help);
 }
 
 #[test]
 fn derive_possible_value_help() {
-    static HELP: &str = "\
-Application help
-
-Usage: clap <ARG>
-
-Arguments:
-  <ARG>
-          Argument help
-
-          Possible values:
-          - foo: Foo help
-          - bar: Bar help
-
-Options:
-  -h, --help
-          Print help (see a summary with '-h')
-";
-
     /// Application help
     #[derive(Parser, PartialEq, Debug)]
     struct Args {
@@ -425,7 +411,27 @@ Options:
     let mut cmd = Args::command();
 
     let help = cmd.render_long_help().to_string();
-    snapbox::assert_eq(HELP, help);
+    assert_data_eq!(
+        help,
+        str![[r#"
+Application help
+
+Usage: clap <ARG>
+
+Arguments:
+  <ARG>
+          Argument help
+
+          Possible values:
+          - foo: Foo help
+          - bar: Bar help
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]]
+    );
 }
 
 #[test]

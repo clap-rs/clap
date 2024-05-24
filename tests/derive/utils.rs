@@ -6,6 +6,7 @@
 #![allow(unused)]
 
 use clap::CommandFactory;
+use snapbox::assert_data_eq;
 
 pub(crate) const FULL_TEMPLATE: &str = "\
 {before-help}{name} {version}
@@ -49,7 +50,11 @@ pub(crate) fn get_subcommand_long_help<T: CommandFactory>(subcmd: &str) -> Strin
 }
 
 #[track_caller]
-pub(crate) fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expected: &str, stderr: bool) {
+pub(crate) fn assert_output<P: clap::Parser + std::fmt::Debug>(
+    args: &str,
+    expected: impl snapbox::IntoData,
+    stderr: bool,
+) {
     let res = P::try_parse_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
     let actual = err.render().to_string();
@@ -60,5 +65,5 @@ pub(crate) fn assert_output<P: clap::Parser + std::fmt::Debug>(args: &str, expec
         stderr,
         err.use_stderr()
     );
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }

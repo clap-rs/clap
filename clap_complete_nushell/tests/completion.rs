@@ -1,5 +1,7 @@
 mod common;
 
+use snapbox::assert_data_eq;
+
 #[test]
 fn register_completion() {
     common::register_example::<completest_nu::NuRuntimeBuilder>("static", "test");
@@ -20,7 +22,7 @@ fn completion() {
 -h    Print help
 "#;
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 
     let input = "test action -\t";
     let expected = r#"% test action -
@@ -35,7 +37,7 @@ fn completion() {
 -h    Print help
 "#;
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }
 
 #[test]
@@ -72,7 +74,7 @@ fn completion_value_hint() {
 -u
 "#;
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 
     let input = "test hint --choice \t";
     let expected = r#"% test hint --choice 
@@ -81,5 +83,5 @@ fish
 zsh
 "#;
     let actual = runtime.complete(input, &term).unwrap();
-    snapbox::assert_eq(expected, actual);
+    assert_data_eq!(actual, expected);
 }

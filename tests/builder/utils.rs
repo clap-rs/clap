@@ -4,6 +4,7 @@ use std::io::{BufRead, Cursor, Write};
 use std::str;
 
 use clap::{arg, Arg, ArgAction, ArgGroup, Command};
+use snapbox::assert_data_eq;
 
 pub(crate) const FULL_TEMPLATE: &str = "\
 {before-help}{name} {version}
@@ -13,18 +14,12 @@ pub(crate) const FULL_TEMPLATE: &str = "\
 {all-args}{after-help}";
 
 #[track_caller]
-pub(crate) fn assert_eq<S, S2>(expected: S, actual: S2)
-where
-    S: AsRef<str>,
-    S2: AsRef<str>,
-{
-    let expected = expected.as_ref();
-    let actual = actual.as_ref();
-    snapbox::assert_eq(expected, actual);
-}
-
-#[track_caller]
-pub(crate) fn assert_output(l: Command, args: &str, expected: &str, stderr: bool) {
+pub(crate) fn assert_output(
+    l: Command,
+    args: &str,
+    expected: impl snapbox::data::IntoData,
+    stderr: bool,
+) {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
@@ -38,7 +33,7 @@ pub(crate) fn assert_output(l: Command, args: &str, expected: &str, stderr: bool
         stderr,
         err.use_stderr()
     );
-    assert_eq(expected, actual);
+    assert_data_eq!(actual, expected.raw());
 }
 
 // Legacy tests from the python script days

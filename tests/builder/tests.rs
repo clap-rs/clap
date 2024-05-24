@@ -4,6 +4,7 @@ use std::io::Write;
 use std::str;
 
 use clap::{Arg, Command};
+use snapbox::assert_data_eq;
 
 static SCF2OP: &str = "flag present 2 times
 option NOT present
@@ -86,7 +87,7 @@ positional present with value: value
 subcmd NOT present
 ";
 
-pub(crate) fn check_complex_output(args: &str, out: &str) {
+pub(crate) fn check_complex_output(args: &str, out: impl snapbox::data::IntoData) {
     let mut w = vec![];
     let matches = utils::complex_app()
         .try_get_matches_from(args.split(' ').collect::<Vec<_>>())
@@ -236,7 +237,7 @@ pub(crate) fn check_complex_output(args: &str, out: &str) {
     }
 
     let res = str::from_utf8(&w).unwrap();
-    snapbox::assert_eq(out, res);
+    assert_data_eq!(res, out);
 }
 
 #[test]

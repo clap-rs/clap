@@ -3,6 +3,7 @@
 use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
+use snapbox::assert_data_eq;
 
 macro_rules! complete {
     ($cmd:expr, $input:expr$(, current_dir = $current_dir:expr)? $(,)?) => {
@@ -22,13 +23,13 @@ fn suggest_subcommand_subset() {
         .subcommand(Command::new("hello-moon"))
         .subcommand(Command::new("goodbye-world"));
 
-    snapbox::assert_eq(
+    assert_data_eq!(
+        complete!(cmd, "he"),
         snapbox::str![
             "hello-moon
 hello-world
 help\tPrint this message or the help of the given subcommand(s)"
         ],
-        complete!(cmd, "he"),
     );
 }
 
@@ -51,13 +52,13 @@ fn suggest_long_flag_subset() {
                 .action(clap::ArgAction::Count),
         );
 
-    snapbox::assert_eq(
+    assert_data_eq!(
+        complete!(cmd, "--he"),
         snapbox::str![
             "--hello-world
 --hello-moon
 --help\tPrint help"
         ],
-        complete!(cmd, "--he"),
     );
 }
 
@@ -70,12 +71,12 @@ fn suggest_possible_value_subset() {
         "goodbye-world".into(),
     ]));
 
-    snapbox::assert_eq(
+    assert_data_eq!(
+        complete!(cmd, "hello"),
         snapbox::str![
             "hello-world\tSay hello to the world
 hello-moon"
         ],
-        complete!(cmd, "hello"),
     );
 }
 
@@ -98,14 +99,14 @@ fn suggest_additional_short_flags() {
                 .action(clap::ArgAction::Count),
         );
 
-    snapbox::assert_eq(
+    assert_data_eq!(
+        complete!(cmd, "-a"),
         snapbox::str![
             "-aa
 -ab
 -ac
 -ah\tPrint help"
         ],
-        complete!(cmd, "-a"),
     );
 }
 
@@ -119,7 +120,8 @@ fn suggest_subcommand_positional() {
         ]),
     ));
 
-    snapbox::assert_eq(
+    assert_data_eq!(
+        complete!(cmd, "hello-world [TAB]"),
         snapbox::str![
             "--help\tPrint help (see more with '--help')
 -h\tPrint help (see more with '--help')
@@ -127,7 +129,6 @@ hello-world\tSay hello to the world
 hello-moon
 goodbye-world"
         ],
-        complete!(cmd, "hello-world [TAB]"),
     );
 }
 

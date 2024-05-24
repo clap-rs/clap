@@ -1,4 +1,5 @@
 use clap::builder::PossibleValue;
+use snapbox::prelude::*;
 
 pub(crate) fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
@@ -284,7 +285,7 @@ pub(crate) fn subcommand_last(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn assert_matches(
-    expected: impl Into<snapbox::Data>,
+    expected: impl IntoData,
     gen: impl clap_complete::Generator,
     mut cmd: clap::Command,
     name: &'static str,
@@ -293,15 +294,15 @@ pub(crate) fn assert_matches(
     clap_complete::generate(gen, &mut cmd, name, &mut buf);
 
     snapbox::Assert::new()
-        .action_env(snapbox::DEFAULT_ACTION_ENV)
+        .action_env(snapbox::assert::DEFAULT_ACTION_ENV)
         .normalize_paths(false)
-        .matches(expected, buf);
+        .eq(buf, expected);
 }
 
 pub(crate) fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {
     use completest::Runtime as _;
 
-    let scratch = snapbox::path::PathFixture::mutable_temp().unwrap();
+    let scratch = snapbox::dir::DirRoot::mutable_temp().unwrap();
     let scratch_path = scratch.path().unwrap();
 
     let shell_name = R::name();
@@ -367,7 +368,7 @@ where
         .join(context)
         .join(name)
         .join(shell_name);
-    let scratch = snapbox::path::PathFixture::mutable_temp()
+    let scratch = snapbox::dir::DirRoot::mutable_temp()
         .unwrap()
         .with_template(&home)
         .unwrap();
@@ -398,7 +399,7 @@ where
 
 #[derive(Debug)]
 struct ScratchRuntime {
-    _scratch: snapbox::path::PathFixture,
+    _scratch: snapbox::dir::DirRoot,
     runtime: Box<dyn completest::Runtime>,
 }
 

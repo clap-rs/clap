@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use snapbox::prelude::*;
+
 pub(crate) fn basic_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
@@ -252,7 +254,7 @@ pub(crate) fn value_hint_command(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn assert_matches(
-    expected: impl Into<snapbox::Data>,
+    expected: impl IntoData,
     gen: impl clap_complete::Generator,
     mut cmd: clap::Command,
     name: &'static str,
@@ -261,7 +263,7 @@ pub(crate) fn assert_matches(
     clap_complete::generate(gen, &mut cmd, name, &mut buf);
 
     snapbox::Assert::new()
-        .action_env(snapbox::DEFAULT_ACTION_ENV)
+        .action_env(snapbox::assert::DEFAULT_ACTION_ENV)
         .normalize_paths(false)
-        .matches(expected, buf);
+        .eq(buf, expected);
 }
