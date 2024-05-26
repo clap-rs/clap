@@ -2,7 +2,8 @@
 name = "clap_lex"
 version = "0.7.0"
 description = "Minimal, flexible command line parser"
-repository = "https://github.com/clap-rs/clap/tree/master/clap_lex"
+homepage = "https://github.com/clap-rs/clap/tree/master/clap_lex"
+repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
 keywords = [
   "argument",

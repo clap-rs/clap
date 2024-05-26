@@ -2,7 +2,8 @@
 name = "clap_derive"
 version = "4.5.4"
 description = "Parse command line argument by defining a struct, derive crate."
-repository = "https://github.com/clap-rs/clap/tree/master/clap_derive"
+homepage = "https://github.com/clap-rs/clap/tree/master/clap_derive"
+repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
 keywords = [
   "clap",

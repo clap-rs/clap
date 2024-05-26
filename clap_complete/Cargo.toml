@@ -2,7 +2,8 @@
 name = "clap_complete"
 version = "4.5.2"
 description = "Generate shell completion scripts for your clap::Command"
-repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
+homepage = "https://github.com/clap-rs/clap/tree/master/clap_complete"
+repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
 keywords = [
   "clap",
