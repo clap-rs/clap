@@ -53,7 +53,7 @@ jobs:
         toolchain: stable
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
-    - name: Update dependencues
+    - name: Update dependencies
       run: cargo update
     - name: Build
       run: cargo test --workspace --no-run
