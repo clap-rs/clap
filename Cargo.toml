@@ -87,6 +87,7 @@ zero_sized_map_values = "warn"
 name = "PROJECT"
 version = "0.0.1"
 description = "DESCRIPTION"
+repository = "REPOSITORY"
 categories = []
 keywords = []
 license.workspace = true
