@@ -2,6 +2,7 @@
 resolver = "2"
 
 [workspace.package]
+repository = "REPOSITORY"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 rust-version = "1.65.0"  # MSRV
@@ -87,9 +88,9 @@ zero_sized_map_values = "warn"
 name = "PROJECT"
 version = "0.0.1"
 description = "DESCRIPTION"
-repository = "REPOSITORY"
 categories = []
 keywords = []
+repository.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
