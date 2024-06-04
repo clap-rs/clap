@@ -12,6 +12,7 @@ members = [
 ]
 
 [workspace.package]
+repository = "https://github.com/clap-rs/clap"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 rust-version = "1.74"  # MSRV
@@ -102,7 +103,6 @@ blocks_in_conditions = "allow"
 name = "clap"
 version = "4.5.4"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
-repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
 keywords = [
   "argument",
@@ -111,6 +111,7 @@ keywords = [
   "parser",
   "parse"
 ]
+repository.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true

@@ -2,7 +2,6 @@
 name = "clap_builder"
 version = "4.5.2"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
-repository = "https://github.com/clap-rs/clap"
 categories = ["command-line-interface"]
 keywords = [
   "argument",
@@ -11,6 +10,7 @@ keywords = [
   "parser",
   "parse"
 ]
+repository.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true

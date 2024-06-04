@@ -2,7 +2,6 @@
 name = "clap_complete"
 version = "4.5.2"
 description = "Generate shell completion scripts for your clap::Command"
-repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
 categories = ["command-line-interface"]
 keywords = [
   "clap",
@@ -10,6 +9,7 @@ keywords = [
   "completion",
   "bash",
 ]
+repository.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
