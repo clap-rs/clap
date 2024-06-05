@@ -140,8 +140,10 @@
 //! - e.g. `#[command(arg_required_else_help(true))]` would translate to `cmd.arg_required_else_help(true)`
 //!
 //! **Magic attributes:**
-//! - `name  = <expr>`: [`Command::name`][crate::Command::name]
+//! - `name = <expr>`: [`Command::name`][crate::Command::name]
 //!   - When not present: [package `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (if on [`Parser`][crate::Parser] container), variant name (if on [`Subcommand`][crate::Subcommand] variant)
+//! - `value_name = <expr>`: [`Arg::value_name`][crate::Arg::value_name]
+//!   - When not present: [package `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field)
 //! - `version [= <expr>]`: [`Command::version`][crate::Command::version]
 //!   - When not present: no version set
 //!   - Without `<expr>`: defaults to [crate `version`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-version-field)
