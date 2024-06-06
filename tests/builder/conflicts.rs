@@ -721,7 +721,7 @@ fn exclusive_with_required_unless_present() {
 
     cmd.clone()
         .try_get_matches_from(["bug", "--exclusive"])
-        .unwrap_err();
+        .unwrap();
 }
 
 #[test]
@@ -761,7 +761,7 @@ fn exclusive_with_required_unless_present_any() {
 
     cmd.clone()
         .try_get_matches_from(["bug", "--exclusive"])
-        .unwrap_err();
+        .unwrap();
 }
 
 #[test]
@@ -801,7 +801,7 @@ fn exclusive_with_required_unless_present_all() {
 
     cmd.clone()
         .try_get_matches_from(["bug", "--exclusive"])
-        .unwrap_err();
+        .unwrap();
 }
 
 #[test]
