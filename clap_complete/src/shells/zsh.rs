@@ -110,12 +110,15 @@ _{bin_name_underscore}_commands() {{
     ret.push(parent_text);
 
     // Next we start looping through all the children, grandchildren, etc.
-    let mut all_subcommands = utils::all_subcommands(p);
+    let mut all_subcommand_bins: Vec<_> = utils::all_subcommands(p)
+        .into_iter()
+        .map(|(_sc_name, bin_name)| bin_name)
+        .collect();
 
-    all_subcommands.sort();
-    all_subcommands.dedup();
+    all_subcommand_bins.sort();
+    all_subcommand_bins.dedup();
 
-    for (_, ref bin_name) in &all_subcommands {
+    for bin_name in &all_subcommand_bins {
         debug!("subcommand_details:iter: bin_name={bin_name}");
 
         ret.push(format!(
