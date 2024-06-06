@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Allow `exclusive` to override `required_unless_present`, `required_unless_present_any`, `required_unless_present_all`
+
 ## [4.5.4] - 2024-03-25
 
 ### Fixes
