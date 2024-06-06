@@ -685,6 +685,126 @@ fn exclusive_with_required() {
 }
 
 #[test]
+fn exclusive_with_required_unless_present() {
+    let cmd = Command::new("bug")
+        .arg(
+            Arg::new("exclusive")
+                .long("exclusive")
+                .action(ArgAction::SetTrue)
+                .exclusive(true),
+        )
+        .arg(
+            Arg::new("required")
+                .long("required")
+                .action(ArgAction::SetTrue)
+                .required_unless_present("alternative"),
+        )
+        .arg(
+            Arg::new("alternative")
+                .long("alternative")
+                .action(ArgAction::SetTrue),
+        );
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--required"])
+        .unwrap();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--alternative"])
+        .unwrap();
+
+    cmd.clone().try_get_matches_from(["bug"]).unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--exclusive", "--required"])
+        .unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--exclusive"])
+        .unwrap();
+}
+
+#[test]
+fn exclusive_with_required_unless_present_any() {
+    let cmd = Command::new("bug")
+        .arg(
+            Arg::new("exclusive")
+                .long("exclusive")
+                .action(ArgAction::SetTrue)
+                .exclusive(true),
+        )
+        .arg(
+            Arg::new("required")
+                .long("required")
+                .action(ArgAction::SetTrue)
+                .required_unless_present_any(["alternative"]),
+        )
+        .arg(
+            Arg::new("alternative")
+                .long("alternative")
+                .action(ArgAction::SetTrue),
+        );
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--required"])
+        .unwrap();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--alternative"])
+        .unwrap();
+
+    cmd.clone().try_get_matches_from(["bug"]).unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--exclusive", "--required"])
+        .unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--exclusive"])
+        .unwrap();
+}
+
+#[test]
+fn exclusive_with_required_unless_present_all() {
+    let cmd = Command::new("bug")
+        .arg(
+            Arg::new("exclusive")
+                .long("exclusive")
+                .action(ArgAction::SetTrue)
+                .exclusive(true),
+        )
+        .arg(
+            Arg::new("required")
+                .long("required")
+                .action(ArgAction::SetTrue)
+                .required_unless_present_all(["alternative"]),
+        )
+        .arg(
+            Arg::new("alternative")
+                .long("alternative")
+                .action(ArgAction::SetTrue),
+        );
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--required"])
+        .unwrap();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--alternative"])
+        .unwrap();
+
+    cmd.clone().try_get_matches_from(["bug"]).unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--exclusive", "--required"])
+        .unwrap_err();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--exclusive"])
+        .unwrap();
+}
+
+#[test]
 #[cfg(feature = "error-context")]
 fn option_conflicts_with_subcommand() {
     static CONFLICT_ERR: &str = "\
