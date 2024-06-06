@@ -401,15 +401,6 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.4.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80932e03c33999b9235edb8655bc9df3204adc9887c2f95b50cb1deb9fd54253"
-dependencies = [
- "clap_builder 4.4.17",
-]
-
-[[package]]
-name = "clap"
 version = "4.5.6"
 dependencies = [
  "automod",
@@ -424,25 +415,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap"
+version = "4.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9689a29b593160de5bc4aacab7b5d54fb52231de70122626c178e6a368994c7"
+dependencies = [
+ "clap_builder 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
  "clap 4.5.6",
  "divan",
  "lazy_static",
-]
-
-[[package]]
-name = "clap_builder"
-version = "4.4.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6c0db58c659eef1c73e444d298c27322a1b52f6927d2ad470c0c0f96fa7b8fa"
-dependencies = [
- "anstream",
- "anstyle",
- "clap_lex 0.6.0",
- "strsim 0.10.0",
- "terminal_size 0.3.0",
 ]
 
 [[package]]
@@ -455,11 +442,24 @@ dependencies = [
  "clap_lex 0.7.1",
  "color-print",
  "static_assertions",
- "strsim 0.11.0",
+ "strsim",
  "terminal_size 0.3.0",
  "unic-emoji-char",
  "unicase",
  "unicode-width",
+]
+
+[[package]]
+name = "clap_builder"
+version = "4.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e5387378c84f6faa26890ebf9f0a92989f8873d4d380467bcd0d8d8620424df"
+dependencies = [
+ "anstream",
+ "anstyle",
+ "clap_lex 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "strsim",
+ "terminal_size 0.3.0",
 ]
 
 [[package]]
@@ -511,16 +511,16 @@ dependencies = [
 
 [[package]]
 name = "clap_lex"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
-
-[[package]]
-name = "clap_lex"
 version = "0.7.1"
 dependencies = [
  "automod",
 ]
+
+[[package]]
+name = "clap_lex"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b82cf0babdbd58558212896d1a4272303a57bdb245c2bf1147185fb45640e70"
 
 [[package]]
 name = "clap_mangen"
@@ -840,7 +840,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0d567df2c9c2870a43f3f2bd65aaeb18dbce1c18f217c3e564b4fbaeb3ee56c"
 dependencies = [
  "cfg-if",
- "clap 4.4.17",
+ "clap 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "condtype",
  "divan-macros",
  "libc",
@@ -3083,12 +3083,6 @@ dependencies = [
 
 [[package]]
 name = "strsim"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
-
-[[package]]
-name = "strsim"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ee073c9e4cd00e28217186dbe12796d692868f432bf2e97ee73bed0c56dfa01"
@@ -3611,7 +3605,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c8e090cfcfa51cb224d247e05938d25718a7203c6f8c0f0de7b3b031d99dcea"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "filetime",
  "indicatif",
  "libc",
@@ -3627,7 +3621,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcbf657c9e738d16ebc5c161a611ff25327c1fb599645afb2831062efb23c851"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "uucore",
 ]
 
@@ -3637,7 +3631,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "154531208d9ec160629bf9545a56ad9df38e964e547e0a17ee9d75aeec9831cb"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand",
  "tempfile",
  "uucore",
@@ -3649,7 +3643,7 @@ version = "0.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70589dc3b41f34cbfe1fb22b8f20fcac233fa4565409905f12dd06780b18374d"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc",
  "uucore",
  "windows-sys 0.48.0",
@@ -3661,7 +3655,7 @@ version = "0.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4bea3522caab8af3fe1de1f27d9691e4ea159efe4d86d4e176306792163936a6"
 dependencies = [
- "clap 4.4.17",
+ "clap 4.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "dunce",
  "glob",
  "libc",
