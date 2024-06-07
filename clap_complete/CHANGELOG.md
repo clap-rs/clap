@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Don't fail or ignore options consumed by `_arguments`
+
 ## [4.5.4] - 2024-06-06
 
 ## [4.5.3] - 2024-06-06
