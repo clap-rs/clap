@@ -14,7 +14,7 @@ _bin-name() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
+    _arguments "${_arguments_options[@]}" : \
 '-c[]' \
 '(-c)-v[]' \
 '-h[Print help]' \
@@ -29,7 +29,7 @@ _bin-name() {
         curcontext="${curcontext%:*:*}:bin-name-command-$line[1]:"
         case $line[1] in
             (test)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '*-d[]' \
 '-c[]' \
 '-h[Print help]' \
@@ -37,7 +37,7 @@ _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 ":: :_bin-name__help_commands" \
 "*::: :->help" \
 && ret=0
@@ -49,11 +49,11 @@ _arguments "${_arguments_options[@]}" \
         curcontext="${curcontext%:*:*}:bin-name-help-command-$line[1]:"
         case $line[1] in
             (test)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
         esac

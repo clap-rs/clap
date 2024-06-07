@@ -14,7 +14,7 @@ _my-app() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
+    _arguments "${_arguments_options[@]}" : \
 '-o+[cmd option]: : ' \
 '-O+[cmd option]: : ' \
 '--option=[cmd option]: : ' \

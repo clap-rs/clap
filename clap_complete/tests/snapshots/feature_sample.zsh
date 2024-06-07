@@ -14,7 +14,7 @@ _my-app() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
+    _arguments "${_arguments_options[@]}" : \
 '*-c[some config file]' \
 '*-C[some config file]' \
 '*--config[some config file]' \
@@ -35,7 +35,7 @@ _my-app() {
         curcontext="${curcontext%:*:*}:my-app-command-$line[3]:"
         case $line[3] in
             (test)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 '--case=[the case to test]: : ' \
 '-h[Print help]' \
 '--help[Print help]' \
@@ -44,7 +44,7 @@ _arguments "${_arguments_options[@]}" \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 ":: :_my-app__help_commands" \
 "*::: :->help" \
 && ret=0
@@ -56,11 +56,11 @@ _arguments "${_arguments_options[@]}" \
         curcontext="${curcontext%:*:*}:my-app-help-command-$line[1]:"
         case $line[1] in
             (test)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
 (help)
-_arguments "${_arguments_options[@]}" \
+_arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
         esac

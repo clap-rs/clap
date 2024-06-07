@@ -322,7 +322,7 @@ fn parser_of<'cmd>(parent: &'cmd Command, bin_name: &str) -> Option<&'cmd Comman
 fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
     debug!("get_args_of");
 
-    let mut segments = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
+    let mut segments = vec![String::from("_arguments \"${_arguments_options[@]}\" : \\")];
     let opts = write_opts_of(parent, p_global);
     let flags = write_flags_of(parent, p_global);
     let positionals = write_positionals_of(parent);
