@@ -86,20 +86,10 @@ _my-app__bar_commands() {
     local commands; commands=()
     _describe -t commands 'my-app bar commands' commands "$@"
 }
-(( $+functions[_my-app__help__bar_commands] )) ||
-_my-app__help__bar_commands() {
-    local commands; commands=()
-    _describe -t commands 'my-app help bar commands' commands "$@"
-}
 (( $+functions[_my-app__foo_commands] )) ||
 _my-app__foo_commands() {
     local commands; commands=()
     _describe -t commands 'my-app foo commands' commands "$@"
-}
-(( $+functions[_my-app__help__foo_commands] )) ||
-_my-app__help__foo_commands() {
-    local commands; commands=()
-    _describe -t commands 'my-app help foo commands' commands "$@"
 }
 (( $+functions[_my-app__help_commands] )) ||
 _my-app__help_commands() {
@@ -109,6 +99,16 @@ _my-app__help_commands() {
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my-app help commands' commands "$@"
+}
+(( $+functions[_my-app__help__bar_commands] )) ||
+_my-app__help__bar_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help bar commands' commands "$@"
+}
+(( $+functions[_my-app__help__foo_commands] )) ||
+_my-app__help__foo_commands() {
+    local commands; commands=()
+    _describe -t commands 'my-app help foo commands' commands "$@"
 }
 (( $+functions[_my-app__help__help_commands] )) ||
 _my-app__help__help_commands() {

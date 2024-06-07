@@ -28,6 +28,7 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand --version 'Print version'
             cand test 'tests things'
             cand some_cmd 'top level subcommand'
+            cand some_cmd_alias 'top level subcommand'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my-app;test'= {
@@ -45,7 +46,22 @@ set edit:completion:arg-completer[my-app] = {|@words|
             cand sub_cmd 'sub-subcommand'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
+        &'my-app;some_cmd_alias'= {
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
+            cand sub_cmd 'sub-subcommand'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
         &'my-app;some_cmd;sub_cmd'= {
+            cand --config 'the other case to test'
+            cand -h 'Print help (see more with ''--help'')'
+            cand --help 'Print help (see more with ''--help'')'
+            cand -V 'Print version'
+            cand --version 'Print version'
+        }
+        &'my-app;some_cmd_alias;sub_cmd'= {
             cand --config 'the other case to test'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
@@ -59,6 +75,14 @@ set edit:completion:arg-completer[my-app] = {|@words|
         &'my-app;some_cmd;help;sub_cmd'= {
         }
         &'my-app;some_cmd;help;help'= {
+        }
+        &'my-app;some_cmd_alias;help'= {
+            cand sub_cmd 'sub-subcommand'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'my-app;some_cmd_alias;help;sub_cmd'= {
+        }
+        &'my-app;some_cmd_alias;help;help'= {
         }
         &'my-app;help'= {
             cand test 'tests things'

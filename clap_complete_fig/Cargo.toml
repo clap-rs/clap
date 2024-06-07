@@ -1,8 +1,7 @@
 [package]
 name = "clap_complete_fig"
-version = "4.5.0"
+version = "4.5.1"
 description = "A generator library used with clap for Fig completion scripts"
-repository = "https://github.com/clap-rs/clap/tree/master/clap_complete_fig"
 categories = ["command-line-interface"]
 keywords = [
   "clap",
@@ -10,6 +9,7 @@ keywords = [
   "completion",
   "fig",
 ]
+repository.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true

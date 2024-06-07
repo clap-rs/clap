@@ -55,7 +55,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-C -c -h -V --conf --config --help --version [file] first second test some_cmd help"
+            opts="-C -c -h -V --conf --config --help --version [file] first second test some_cmd some_cmd_alias help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -127,6 +127,20 @@ _my-app() {
         my__app__help__test)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        my__app__some_cmd)
+            opts="-h -V --help --version sub_cmd help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi

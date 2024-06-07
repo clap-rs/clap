@@ -335,7 +335,7 @@ impl<'cmd> Validator<'cmd> {
                 required = true;
             }
 
-            if required {
+            if !is_exclusive_present && required {
                 missing_required.push(a.get_id().clone());
                 if !a.is_last_set() {
                     highest_index = highest_index.max(a.get_index().unwrap_or(0));

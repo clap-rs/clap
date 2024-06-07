@@ -1,8 +1,7 @@
 [package]
 name = "clap_mangen"
-version = "0.2.20"
+version = "0.2.21"
 description = "A manpage generator for clap"
-repository = "https://github.com/clap-rs/clap/tree/master/clap_mangen"
 categories = ["command-line-interface"]
 keywords = [
   "clap",
@@ -10,6 +9,7 @@ keywords = [
   "generate",
   "manpage",
 ]
+repository.workspace = true
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
