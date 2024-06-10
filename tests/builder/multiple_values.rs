@@ -176,7 +176,17 @@ fn option_exact_less() {
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required for '-o <option> <option> <option>' but 1 was provided
+
+Usage: multiple_values [OPTIONS]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -194,7 +204,17 @@ fn option_exact_more() {
         ]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required for '-o <option> <option> <option>' but 1 was provided
+
+Usage: multiple_values [OPTIONS]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -235,7 +255,17 @@ fn option_min_less() {
         .try_get_matches_from(vec!["", "-o", "val1", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooFewValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::TooFewValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required by '-o <option> <option> <option>...'; only 2 were provided
+
+Usage: multiple_values [OPTIONS]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -356,7 +386,15 @@ fn option_max_zero() {
         .try_get_matches_from(vec!["", "-o"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::InvalidValue);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: a value is required for '-o <option>...' but none was supplied
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -397,8 +435,18 @@ fn option_max_more() {
         .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
+    let err = m.unwrap_err();
     // Can end up being TooManyValues or UnknownArgument
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: unexpected argument 'val4' found
+
+Usage: multiple_values [OPTIONS]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -429,14 +477,17 @@ fn optional_value() {
     assert_eq!(m.get_one::<String>("port").unwrap(), "42");
 
     let help = cmd.render_help().to_string();
-    assert_data_eq!(help, str![[r#"
+    assert_data_eq!(
+        help,
+        str![[r#"
 Usage: test [OPTIONS]
 
 Options:
   -p [<NUM>]      
   -h, --help      Print help
 
-"#]]);
+"#]]
+    );
 }
 
 #[test]
@@ -489,7 +540,17 @@ fn positional_exact_less() {
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required for '[pos] [pos] [pos]' but 2 were provided
+
+Usage: myprog [pos] [pos] [pos]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -499,7 +560,17 @@ fn positional_exact_more() {
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required for '[pos] [pos] [pos]' but 4 were provided
+
+Usage: myprog [pos] [pos] [pos]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -528,7 +599,17 @@ fn positional_min_less() {
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooFewValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::TooFewValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required by '[pos] [pos] [pos]...'; only 2 were provided
+
+Usage: myprog [pos] [pos] [pos]...
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -595,7 +676,17 @@ fn positional_max_more() {
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::TooManyValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: unexpected value 'val4' for '[pos]...' found; no more were expected
+
+Usage: myprog [pos]...
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -1586,22 +1677,42 @@ fn issue_1480_max_values_consumes_extra_arg_1() {
 
 #[test]
 fn issue_1480_max_values_consumes_extra_arg_2() {
-    let res = Command::new("prog")
+    let m = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
         .try_get_matches_from(vec!["prog", "--field", "1", "2"]);
 
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: unexpected argument '2' found
+
+Usage: prog [OPTIONS]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
 fn issue_1480_max_values_consumes_extra_arg_3() {
-    let res = Command::new("prog")
+    let m = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
         .try_get_matches_from(vec!["prog", "--field", "1", "2", "3"]);
 
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: unexpected argument '2' found
+
+Usage: prog [OPTIONS]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
@@ -1728,7 +1839,17 @@ fn issue_2229() {
         ]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
+    #[cfg(feature = "error-context")]
+    assert_data_eq!(err.to_string(), str![[r#"
+error: 3 values required for '[pos] [pos] [pos]' but 6 were provided
+
+Usage: myprog [pos] [pos] [pos]
+
+For more information, try '--help'.
+
+"#]]);
 }
 
 #[test]
