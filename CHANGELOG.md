@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Clean up error message when too few arguments for `num_args`
+
 ## [4.5.6] - 2024-06-06
 
 ## [4.5.5] - 2024-06-06
