@@ -259,7 +259,7 @@ fn option_min_less() {
     assert_eq!(err.kind(), ErrorKind::TooFewValues);
     #[cfg(feature = "error-context")]
     assert_data_eq!(err.to_string(), str![[r#"
-error: 3 more values required by '-o <option> <option> <option>...'; only 2 were provided
+error: 3 values required by '-o <option> <option> <option>...'; only 2 were provided
 
 Usage: multiple_values [OPTIONS]
 
@@ -603,7 +603,7 @@ fn positional_min_less() {
     assert_eq!(err.kind(), ErrorKind::TooFewValues);
     #[cfg(feature = "error-context")]
     assert_data_eq!(err.to_string(), str![[r#"
-error: 3 more values required by '[pos] [pos] [pos]...'; only 2 were provided
+error: 3 values required by '[pos] [pos] [pos]...'; only 2 were provided
 
 Usage: myprog [pos] [pos] [pos]...
 
