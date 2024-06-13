@@ -1,4 +1,4 @@
-# clap_derive
+# `clap_derive`
 
 Macro implementation for clap's derives.
 

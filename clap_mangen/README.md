@@ -1,5 +1,5 @@
 <!-- omit in TOC -->
-# clap_mangen
+# `clap_mangen`
 
 > **Manpage generation for `clap`**
 

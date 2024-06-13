@@ -5,13 +5,6 @@
 // See the [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) files in this repository
 // for more information.
 
-#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
-#![doc = include_str!("../README.md")]
-#![cfg_attr(docsrs, feature(doc_auto_cfg))]
-#![warn(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
-#![forbid(unsafe_code)]
-#![allow(clippy::needless_doctest_main)]
-
 //! ## Quick Start
 //!
 //! - For generating at compile-time, see [`generate_to`]
@@ -56,8 +49,12 @@
 //! }
 //! ```
 
+#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
+#![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![forbid(unsafe_code)]
 #![warn(missing_docs)]
+#![allow(clippy::needless_doctest_main)]
 #![warn(clippy::print_stderr)]
 #![warn(clippy::print_stdout)]
 
