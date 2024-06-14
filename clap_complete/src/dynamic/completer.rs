@@ -145,7 +145,7 @@ pub fn complete(
             } else if arg.is_short() {
                 if let Some(short) = arg.to_short() {
                     let mut short = short.clone();
-                    // HACK: Not consider `-fhg` now. During parsing, we assume that ShortFlags are in the format of `-fbar` or `-f=bar`.
+                    // HACK: During completion parsing, we assume that ShortFlags are in the format of `-fbar` or `-f=bar`.
                     let opt = short.next_flag();
                     state = if let Some(opt) = opt {
                         if let Ok(opt) = opt {
@@ -243,7 +243,7 @@ fn complete_arg(
             );
         } else if arg.is_negative_number() {
         } else if arg.is_short() {
-            // HACK: Assuming knowledge of -f<TAB>` and `-f=<TAB>` to complete the value of `-f`
+            // HACK: Assuming knowledge of -f<TAB>` and `-f=<TAB>` to complete the value of `-f`, and `-f<TAB>` to complete another short flag of cmd.
             if let Some(short) = arg.to_short() {
                 let mut short = short.clone();
                 let opt = short.next_flag();
@@ -274,6 +274,13 @@ fn complete_arg(
                         }
                     }
                 }
+
+                completions.extend(
+                    shorts_and_visible_aliases(cmd)
+                        .into_iter()
+                        .map(|(f, help)| (format!("{}{}", arg.to_value_os().to_string_lossy(), f).into(), help)),
+                );
+
             }
         } else if arg.is_stdio() {
             // HACK: Assuming knowledge of is_stdio
@@ -289,7 +296,18 @@ fn complete_arg(
                     .map(|(f, help)| (format!("-{}", f).into(), help)),
             );
         } else if arg.is_empty() {
-            // NOTE: Do nothing for empty arg.
+            // Complete all the long and short flag of current command.
+            completions.extend(
+                longs_and_visible_aliases(cmd)
+                    .into_iter()
+                    .map(|(f, help)| (format!("--{f}").into(), help)),
+            );
+
+            completions.extend(
+                shorts_and_visible_aliases(cmd)
+                    .into_iter()
+                    .map(|(f, help)| (format!("-{}", f).into(), help)),
+            );
         }
     }
 
