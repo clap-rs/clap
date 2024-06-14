@@ -305,6 +305,11 @@ impl<'s> ParsedArg<'s> {
         self.inner == "--"
     }
 
+    /// Does the argument look like an equal sign (`=`)
+    pub fn is_equal(&self) -> bool {
+        self.inner == "="
+    }
+
     /// Does the argument look like a negative number?
     ///
     /// This won't parse the number in full but attempts to see if this looks
@@ -419,6 +424,13 @@ impl<'s> ShortFlags<'s> {
     /// Ideally call this before doing any iterator
     pub fn is_negative_number(&self) -> bool {
         self.invalid_suffix.is_none() && is_number(self.utf8_prefix.as_str())
+    }
+
+    /// Peek the next short flag
+    /// 
+    /// On error, returns a None
+    pub fn peek_next_flag(&self) -> Option<Result<char, &'s OsStr>> {
+        self.utf8_prefix.clone().next().map(|(_, c)| Ok(c))
     }
 
     /// Advance the iterator, returning the next short flag on success

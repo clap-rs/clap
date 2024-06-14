@@ -26,7 +26,31 @@ pub trait Completer {
     ) -> Result<(), std::io::Error>;
 }
 
-/// Complete the given command
+/// NOTE: borrow the idea from Parser.rs::ParseState to record the state during completion.s
+#[derive(Debug, PartialEq, Eq, Clone)]
+enum CompletionState {
+    /// Completion value done, there is no state to record.
+    ValueDone,
+
+    /// Completing a optional flag
+    Opt(clap::Arg),
+
+    /// Completing a positional argument
+    Pos(usize),
+
+    /// Error during completing parse
+    Unknown,
+}
+
+// TODO: Index the positional argument and support more subcommnad completion. Consider things as follows:
+// 1. `allow_missing_positional`
+// 2. long_flag, short_flag and alias for subcommand
+// 3. `allow_external_subcommands`
+// 4. `args_conflicts_with_subcommands`
+// 5. `subcommand_precedence_over_arg`
+// 6. `multicall`
+
+/// Complete the given command 
 pub fn complete(
     cmd: &mut clap::Command,
     args: Vec<OsString>,
@@ -45,7 +69,7 @@ pub fn complete(
     // As we loop, `cursor` will always be pointing to the next item
     raw_args.next_os(&mut target_cursor);
 
-    // TODO: Multicall support
+    // TODO: Multicall support => We should do something in glue script code.
     if !cmd.is_no_binary_name_set() {
         raw_args.next_os(&mut cursor);
     }
@@ -53,9 +77,24 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
+    let mut state = CompletionState::Unknown;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
-            return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
+            match state {
+                CompletionState::ValueDone | CompletionState::Unknown => {
+                    return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
+                }
+                CompletionState::Opt(opt) => {
+                    return Ok(complete_arg_value(arg.to_value(), &opt, current_dir));
+                }
+                CompletionState::Pos(pos) => {
+                    if let Some(positional) =
+                        cmd.get_positionals().find(|p| p.get_index() == Some(pos))
+                    {
+                        return Ok(complete_arg_value(arg.to_value(), positional, current_dir));
+                    }
+                }
+            }
         }
 
         debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
@@ -63,6 +102,7 @@ pub fn complete(
         if let Ok(value) = arg.to_value() {
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                 current_cmd = next_cmd;
+                state = CompletionState::ValueDone;
                 pos_index = 1;
                 continue;
             }
@@ -70,12 +110,74 @@ pub fn complete(
 
         if is_escaped {
             pos_index += 1;
-        } else if arg.is_escape() {
-            is_escaped = true;
-        } else if let Some(_long) = arg.to_long() {
-        } else if let Some(_short) = arg.to_short() {
+            state = CompletionState::Pos(pos_index);
         } else {
-            pos_index += 1;
+            if arg.is_long() {
+                if let Some((flag, value)) = arg.to_long() {
+                    if let Ok(flag) = flag {
+                        state = if let None = value {
+                            let opt = current_cmd
+                                .get_arguments()
+                                .find(|a| a.get_long() == Some(flag));
+                            if let Some(opt) = opt {
+                                // HACK: Assuming knowledge of `--flag=value` will be split into `--flag` `=` `value` in bash.
+                                // And it will not be split in other shells.
+                                // It will limit the completion for the situation that `=` is a value of an optional flag in other shells.
+                                if let Some(equal) = raw_args.peek(&cursor) {
+                                    if equal.is_equal() {
+                                        raw_args.next(&mut cursor);
+                                    }
+                                }
+                                CompletionState::Opt(opt.clone())
+                            } else {
+                                CompletionState::Unknown
+                            }
+                        } else {
+                            CompletionState::ValueDone
+                        }
+                    }
+                }
+            } else if arg.is_escape() {
+                is_escaped = true;
+                state = CompletionState::Pos(pos_index);
+            } else if arg.is_negative_number() {
+                state = CompletionState::ValueDone;
+            } else if arg.is_short() {
+                if let Some(short) = arg.to_short() {
+                    let mut short = short.clone();
+                    // HACK: Not consider `-fhg` now. During parsing, we assume that ShortFlags are in the format of `-fbar` or `-f=bar`.
+                    let opt = short.next_flag();
+                    state = if let Some(opt) = opt {
+                        if let Ok(opt) = opt {
+                            let opt = current_cmd
+                                .get_arguments()
+                                .find(|a| a.get_short() == Some(opt));
+                            if let Some(opt) = opt {
+                                // HACK: Assuming knowledge of `-f=value` will be split into `-f` `=` `value` in bash.
+                                // And it will not be split in other shells.
+                                // It will limit the completion for the situation that `=` is a value of an optional flag in other shells.
+                                if let Some(equal) = raw_args.peek(&cursor) {
+                                    if equal.is_equal() {
+                                        raw_args.next(&mut cursor);
+                                    }
+                                }
+                                CompletionState::Opt(opt.clone())
+                            } else {
+                                CompletionState::Unknown
+                            }
+                        } else {
+                            CompletionState::Unknown
+                        }
+                    } else {
+                         CompletionState::Unknown
+                    }
+                }
+            } else if arg.is_stdio() {
+            } else if arg.is_empty() {
+            } else {
+                pos_index += 1;
+                state = CompletionState::Pos(pos_index);
+            }
         }
     }
 
@@ -101,49 +203,93 @@ fn complete_arg(
         is_escaped
     );
     let mut completions = Vec::new();
-
     if !is_escaped {
-        if let Some((flag, value)) = arg.to_long() {
-            if let Ok(flag) = flag {
-                if let Some(value) = value {
+        if arg.is_long() {
+            if let Some((flag, value)) = arg.to_long() {
+                if let Ok(flag) = flag {
                     if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
-                        completions.extend(
-                            complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
-                                .into_iter()
-                                .map(|(os, help)| {
-                                    // HACK: Need better `OsStr` manipulation
-                                    (format!("--{}={}", flag, os.to_string_lossy()).into(), help)
-                                }),
-                        );
+                        if let Some(value) = value {
+                            completions.extend(
+                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                                    .into_iter()
+                                    .map(|(os, help)| {
+                                        (
+                                            format!("--{}={}", flag, os.to_string_lossy()).into(),
+                                            help,
+                                        )
+                                    }),
+                            );
+                        }
+                    } else {
+                        if let Some(_) = value {
+                        } else {
+                            completions.extend(
+                                longs_and_visible_aliases(cmd).into_iter().filter_map(
+                                    |(f, help)| {
+                                        f.starts_with(flag).then(|| (format!("--{f}").into(), help))
+                                    },
+                                ),
+                            );
+                        }
                     }
-                } else {
-                    completions.extend(longs_and_visible_aliases(cmd).into_iter().filter_map(
-                        |(f, help)| f.starts_with(flag).then(|| (format!("--{f}").into(), help)),
-                    ));
                 }
             }
-        } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
-            // HACK: Assuming knowledge of is_escape / is_stdio
+        } else if arg.is_escape() {
+            // HACK: Assuming knowledge of is_escape
             completions.extend(
                 longs_and_visible_aliases(cmd)
                     .into_iter()
                     .map(|(f, help)| (format!("--{f}").into(), help)),
             );
-        }
-
-        if arg.is_empty() || arg.is_stdio() || arg.is_short() {
-            let dash_or_arg = if arg.is_empty() {
-                "-".into()
-            } else {
-                arg.to_value_os().to_string_lossy()
-            };
+        } else if arg.is_negative_number() {
+        } else if arg.is_short() {
+            // HACK: Assuming knowledge of -f<TAB>` and `-f=<TAB>` to complete the value of `-f`
+            if let Some(short) = arg.to_short() {
+                let mut short = short.clone();
+                let opt = short.next_flag();
+                if let Some(opt) = opt {
+                    if let Ok(opt) = opt {
+                        if let Some(arg) = cmd.get_arguments().find(|a| a.get_short() == Some(opt))
+                        {
+                            if let Some(equal) = short.peek_next_flag() {
+                                if let Ok(equal) = equal {
+                                    if equal == '=' {
+                                        short.next_flag();
+                                    }
+                                }
+                            }
+                            if let Some(value) = short.next_value_os() {
+                                completions.extend(
+                                    complete_arg_value(
+                                        value.to_str().ok_or(value),
+                                        arg,
+                                        current_dir,
+                                    )
+                                    .into_iter()
+                                    .map(|(f, help)| {
+                                        (format!("-{}{}", opt, f.to_string_lossy()).into(), help)
+                                    }),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        } else if arg.is_stdio() {
             // HACK: Assuming knowledge of is_stdio
+            completions.extend(
+                longs_and_visible_aliases(cmd)
+                    .into_iter()
+                    .map(|(f, help)| (format!("--{f}").into(), help)),
+            );
+            // HACK: Assuming knowledge of is_stdio / is_escape
             completions.extend(
                 shorts_and_visible_aliases(cmd)
                     .into_iter()
-                    // HACK: Need better `OsStr` manipulation
-                    .map(|(f, help)| (format!("{}{}", dash_or_arg, f).into(), help)),
+                    .map(|(f, help)| (format!("-{}", f).into(), help)),
             );
+        } else if arg.is_empty() {
+            // NOTE: Do nothing for empty arg.
         }
     }
 
@@ -268,6 +414,7 @@ fn complete_path(
     completions
 }
 
+// TODO: support more subcommands alias completion.
 fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Option<StyledStr>)> {
     debug!(
         "complete_subcommand: cmd={:?}, value={:?}",
@@ -327,6 +474,7 @@ fn possible_values(a: &clap::Arg) -> Option<Vec<clap::builder::PossibleValue>> {
     }
 }
 
+// TODO: support more subcommands alias completion.
 /// Gets subcommands of [`clap::Command`] in the form of `("name", "bin_name")`.
 ///
 /// Subcommand `rustup toolchain install` would be converted to
