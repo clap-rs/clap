@@ -251,9 +251,11 @@ fn complete_arg(
                     if let Ok(opt) = opt {
                         if let Some(arg) = cmd.get_arguments().find(|a| a.get_short() == Some(opt))
                         {
+                            let mut equal_char = "";
                             if let Some(equal) = short.peek_next_flag() {
                                 if let Ok(equal) = equal {
                                     if equal == '=' {
+                                        equal_char = "=";
                                         short.next_flag();
                                     }
                                 }
@@ -267,7 +269,7 @@ fn complete_arg(
                                     )
                                     .into_iter()
                                     .map(|(f, help)| {
-                                        (format!("-{}{}", opt, f.to_string_lossy()).into(), help)
+                                        (format!("-{}{}{}", opt, equal_char, f.to_string_lossy()).into(), help)
                                     }),
                                 )
                             }
