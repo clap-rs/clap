@@ -53,9 +53,10 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
+    let mut state = ParseState::ValueDone;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
-            return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
+            return complete_arg(&arg, current_cmd, current_dir, pos_index, state);
         }
 
         debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
@@ -64,18 +65,22 @@ pub fn complete(
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                 current_cmd = next_cmd;
                 pos_index = 1;
+                state = ParseState::ValueDone;
                 continue;
             }
         }
 
         if is_escaped {
             pos_index += 1;
+            state = ParseState::Pos(pos_index);
         } else if arg.is_escape() {
             is_escaped = true;
+            state = ParseState::ValueDone;
         } else if let Some(_long) = arg.to_long() {
         } else if let Some(_short) = arg.to_short() {
         } else {
             pos_index += 1;
+            state = ParseState::ValueDone;
         }
     }
 
@@ -85,96 +90,117 @@ pub fn complete(
     ))
 }
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+enum ParseState {
+    /// Parsing a value done, there is no state to record.
+    ValueDone,
+
+    /// Parsing a positional argument after `--`
+    Pos(usize),
+}
+
 fn complete_arg(
     arg: &clap_lex::ParsedArg<'_>,
     cmd: &clap::Command,
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
-    is_escaped: bool,
+    state: ParseState,
 ) -> Result<Vec<CompletionCandidate>, std::io::Error> {
     debug!(
-        "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
+        "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={:?}, state={:?}",
         arg,
         cmd.get_name(),
         current_dir,
         pos_index,
-        is_escaped
+        state
     );
     let mut completions = Vec::<CompletionCandidate>::new();
 
-    if !is_escaped {
-        if let Some((flag, value)) = arg.to_long() {
-            if let Ok(flag) = flag {
-                if let Some(value) = value {
-                    if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
-                        completions.extend(
-                            complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
-                                .into_iter()
-                                .map(|comp| {
-                                    CompletionCandidate::new(format!(
-                                        "--{}={}",
-                                        flag,
-                                        comp.get_content().to_string_lossy()
-                                    ))
-                                    .help(comp.get_help().cloned())
-                                    .visible(comp.is_visible())
-                                }),
-                        );
+    match state {
+        ParseState::ValueDone => {
+            if let Some((flag, value)) = arg.to_long() {
+                if let Ok(flag) = flag {
+                    if let Some(value) = value {
+                        if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag))
+                        {
+                            completions.extend(
+                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                                    .into_iter()
+                                    .map(|comp| {
+                                        CompletionCandidate::new(format!(
+                                            "--{}={}",
+                                            flag,
+                                            comp.get_content().to_string_lossy()
+                                        ))
+                                        .help(comp.get_help().cloned())
+                                        .visible(comp.is_visible())
+                                    }),
+                            );
+                        }
+                    } else {
+                        completions.extend(longs_and_visible_aliases(cmd).into_iter().filter(
+                            |comp| {
+                                comp.get_content()
+                                    .starts_with(format!("--{}", flag).as_str())
+                            },
+                        ));
+
+                        completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
+                            comp.get_content()
+                                .starts_with(format!("--{}", flag).as_str())
+                        }))
                     }
-                } else {
-                    completions.extend(longs_and_visible_aliases(cmd).into_iter().filter(|comp| {
-                        comp.get_content()
-                            .starts_with(format!("--{}", flag).as_str())
-                    }));
-
-                    completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
-                        comp.get_content()
-                            .starts_with(format!("--{}", flag).as_str())
-                    }))
                 }
+            } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
+                // HACK: Assuming knowledge of is_escape / is_stdio
+                completions.extend(longs_and_visible_aliases(cmd));
+
+                completions.extend(hidden_longs_aliases(cmd));
             }
-        } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
-            // HACK: Assuming knowledge of is_escape / is_stdio
-            completions.extend(longs_and_visible_aliases(cmd));
 
-            completions.extend(hidden_longs_aliases(cmd));
+            if arg.is_empty() || arg.is_stdio() || arg.is_short() {
+                let dash_or_arg = if arg.is_empty() {
+                    "-".into()
+                } else {
+                    arg.to_value_os().to_string_lossy()
+                };
+                // HACK: Assuming knowledge of is_stdio
+                completions.extend(
+                    shorts_and_visible_aliases(cmd)
+                        .into_iter()
+                        // HACK: Need better `OsStr` manipulation
+                        .map(|comp| {
+                            CompletionCandidate::new(format!(
+                                "{}{}",
+                                dash_or_arg,
+                                comp.get_content().to_string_lossy()
+                            ))
+                            .help(comp.get_help().cloned())
+                            .visible(true)
+                        }),
+                );
+            }
+
+            if let Some(positional) = cmd
+                .get_positionals()
+                .find(|p| p.get_index() == Some(pos_index))
+            {
+                completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
+            }
+
+            if let Ok(value) = arg.to_value() {
+                completions.extend(complete_subcommand(value, cmd));
+            }
         }
-
-        if arg.is_empty() || arg.is_stdio() || arg.is_short() {
-            let dash_or_arg = if arg.is_empty() {
-                "-".into()
-            } else {
-                arg.to_value_os().to_string_lossy()
-            };
-            // HACK: Assuming knowledge of is_stdio
-            completions.extend(
-                shorts_and_visible_aliases(cmd)
-                    .into_iter()
-                    // HACK: Need better `OsStr` manipulation
-                    .map(|comp| {
-                        CompletionCandidate::new(format!(
-                            "{}{}",
-                            dash_or_arg,
-                            comp.get_content().to_string_lossy()
-                        ))
-                        .help(comp.get_help().cloned())
-                        .visible(true)
-                    }),
-            );
+        ParseState::Pos(_) => {
+            if let Some(positional) = cmd
+                .get_positionals()
+                .find(|p| p.get_index() == Some(pos_index))
+            {
+                completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
+            }
         }
     }
-
-    if let Some(positional) = cmd
-        .get_positionals()
-        .find(|p| p.get_index() == Some(pos_index))
-    {
-        completions.extend(complete_arg_value(arg.to_value(), positional, current_dir).into_iter());
-    }
-
-    if let Ok(value) = arg.to_value() {
-        completions.extend(complete_subcommand(value, cmd));
-    }
-
     if completions.iter().any(|a| a.is_visible()) {
         completions.retain(|a| a.is_visible())
     }
