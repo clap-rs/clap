@@ -53,9 +53,10 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
+    let mut state = ParseState::ValueDone;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
-            return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
+            return complete_arg(&arg, current_cmd, current_dir, pos_index, state);
         }
 
         debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
@@ -64,18 +65,22 @@ pub fn complete(
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                 current_cmd = next_cmd;
                 pos_index = 1;
+                state = ParseState::ValueDone;
                 continue;
             }
         }
 
         if is_escaped {
             pos_index += 1;
+            state = ParseState::Pos(pos_index);
         } else if arg.is_escape() {
             is_escaped = true;
+            state = ParseState::ValueDone;
         } else if let Some(_long) = arg.to_long() {
         } else if let Some(_short) = arg.to_short() {
         } else {
             pos_index += 1;
+            state = ParseState::ValueDone;
         }
     }
 
@@ -85,24 +90,33 @@ pub fn complete(
     ))
 }
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+enum ParseState {
+    /// Parsing a value done, there is no state to record.
+    ValueDone,
+
+    /// Parsing a positional argument after `--`
+    Pos(usize),
+}
+
 fn complete_arg(
     arg: &clap_lex::ParsedArg<'_>,
     cmd: &clap::Command,
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
-    is_escaped: bool,
+    state: ParseState,
 ) -> Result<Vec<(OsString, Option<StyledStr>)>, std::io::Error> {
     debug!(
-        "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
+        "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={:?}, state={:?}",
         arg,
         cmd.get_name(),
         current_dir,
         pos_index,
-        is_escaped
+        state
     );
     let mut completions = Vec::new();
 
-    if !is_escaped {
+    if let ParseState::ValueDone = state {
         if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
                 if let Some(value) = value {
