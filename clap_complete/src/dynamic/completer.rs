@@ -53,6 +53,7 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
+    let mut _state = ParseState::Unknown;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
             return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
@@ -64,18 +65,82 @@ pub fn complete(
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                 current_cmd = next_cmd;
                 pos_index = 1;
+                _state = ParseState::ValueDone;
                 continue;
             }
         }
 
         if is_escaped {
             pos_index += 1;
+            _state = ParseState::Pos(pos_index);
         } else if arg.is_escape() {
             is_escaped = true;
-        } else if let Some(_long) = arg.to_long() {
-        } else if let Some(_short) = arg.to_short() {
+            _state = ParseState::ValueDone;
+        } else if let Some((flag, value)) = arg.to_long() {
+            if let Ok(flag) = flag {
+                _state = if let Some(opt) = current_cmd.get_arguments().find(|a| {
+                    a.get_long_and_visible_aliases()
+                        .map_or(false, |v| v.into_iter().find(|s| *s == flag).is_some())
+                }) {
+                    match opt.get_action() {
+                        clap::ArgAction::Set | clap::ArgAction::Append => {
+                            if value.is_some() {
+                                ParseState::ValueDone
+                            } else {
+                                ParseState::Opt(opt.clone())
+                            }
+                        }
+                        _ => {
+                            if value.is_some() {
+                                ParseState::Unknown
+                            } else {
+                                ParseState::ValueDone
+                            }
+                        }
+                    }
+                } else {
+                    ParseState::Unknown
+                };
+            }
+        } else if let Some(short) = arg.to_short() {
+            let mut short = short.clone();
+            let opt = short.next_flag();
+
+            _state = if let Some(opt) = opt {
+                if let Ok(opt) = opt {
+                    if let Some(opt) = current_cmd.get_arguments().find(|a| {
+                        a.get_short_and_visible_aliases()
+                            .map_or(false, |v| v.into_iter().find(|c| *c == opt).is_some())
+                    }) {
+                        match opt.get_action() {
+                            clap::ArgAction::Set | clap::ArgAction::Append => {
+                                if short.next_value_os().is_some() {
+                                    ParseState::ValueDone
+                                } else {
+                                    ParseState::Opt(opt.clone())
+                                }
+                            }
+                            clap::ArgAction::Count => ParseState::ValueDone,
+                            _ => {
+                                if short.next_value_os().is_some() {
+                                    ParseState::Unknown
+                                } else {
+                                    ParseState::ValueDone
+                                }
+                            }
+                        }
+                    } else {
+                        ParseState::Unknown
+                    }
+                } else {
+                    ParseState::Unknown
+                }
+            } else {
+                ParseState::Unknown
+            }
         } else {
             pos_index += 1;
+            _state = ParseState::Pos(pos_index);
         }
     }
 
@@ -83,6 +148,21 @@ pub fn complete(
         std::io::ErrorKind::Other,
         "no completion generated",
     ))
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+enum ParseState {
+    /// Parsing a value done, there is no state to record.
+    ValueDone,
+
+    /// Parsing a optional flag
+    Opt(clap::Arg),
+
+    /// Parsing a positional argument
+    Pos(usize),
+
+    /// Error during Parsing, unknown state
+    Unknown,
 }
 
 fn complete_arg(
