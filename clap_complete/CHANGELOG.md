@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.6] - 2024-06-19
+
 ## [4.5.5] - 2024-06-07
 
 ### Fixes
@@ -252,7 +254,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.5...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.6...HEAD
+[4.5.6]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.5...clap_complete-v4.5.6
 [4.5.5]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.4...clap_complete-v4.5.5
 [4.5.4]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.3...clap_complete-v4.5.4
 [4.5.3]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.2...clap_complete-v4.5.3
