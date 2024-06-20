@@ -59,7 +59,7 @@ Some practices to avoid breaking changes
       time table and allow us to process feedback from early adopters before
       requiring everyone to process them on the next major version.
   - Please keep API addition and deprecation in separate commits in a PR to make it easier to review
-- Develop the feature behind an `unstable-<name>` feature flag with a stablization tracking issue (e.g. [Multicall Tracking issue](https://github.com/clap-rs/clap/issues/2861))
+- Develop the feature behind an `unstable-<name>` feature flag with a stabilization tracking issue (e.g. [Multicall Tracking issue](https://github.com/clap-rs/clap/issues/2861))
 
 ### Version Support Policy
 
