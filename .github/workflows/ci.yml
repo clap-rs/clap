@@ -34,7 +34,7 @@ jobs:
     name: Test
     strategy:
       matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-14"]
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         rust: ["stable"]
     continue-on-error: ${{ matrix.rust != 'stable' }}
     runs-on: ${{ matrix.os }}
