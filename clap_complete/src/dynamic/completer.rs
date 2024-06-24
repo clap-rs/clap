@@ -118,7 +118,10 @@ fn complete_arg(
                     }
                 } else {
                     completions.extend(longs_and_visible_aliases(cmd).into_iter().filter_map(
-                        |(f, help)| f.starts_with(flag).then(|| (format!("--{f}").into(), help)),
+                        |(f, a)| {
+                            f.starts_with(flag)
+                                .then(|| (format!("--{f}").into(), a.get_help().cloned()))
+                        },
                     ));
                 }
             }
@@ -127,7 +130,8 @@ fn complete_arg(
             completions.extend(
                 longs_and_visible_aliases(cmd)
                     .into_iter()
-                    .map(|(f, help)| (format!("--{f}").into(), help)),
+                    .filter(|(_, a)| !a.is_hide_set())
+                    .map(|(f, a)| (format!("--{f}").into(), a.get_help().cloned())),
             );
         }
 
@@ -171,11 +175,16 @@ fn complete_arg_value(
 
     if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
-            values.extend(possible_values.into_iter().filter_map(|p| {
-                let name = p.get_name();
-                name.starts_with(value)
-                    .then(|| (name.into(), p.get_help().cloned()))
-            }));
+            values.extend(
+                possible_values
+                    .into_iter()
+                    .filter(|p| value != "" || !p.is_hide_set())
+                    .filter_map(|p| {
+                        let name = p.get_name();
+                        name.starts_with(value)
+                            .then(|| (name.into(), p.get_help().cloned()))
+                    }),
+            );
         }
     } else {
         let value_os = match value {
@@ -277,8 +286,8 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Optio
 
     let mut scs = subcommands(cmd)
         .into_iter()
-        .filter(|x| x.0.starts_with(value))
-        .map(|x| (OsString::from(&x.0), x.1))
+        .filter(|(n, sc)| n.starts_with(value) && (value != "" || !sc.is_hide_set()))
+        .map(|(n, sc)| (OsString::from(&n), sc.get_about().cloned()))
         .collect::<Vec<_>>();
     scs.sort();
     scs.dedup();
@@ -287,16 +296,13 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Optio
 
 /// Gets all the long options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `help` and `version` depending on the [`clap::Command`] settings.
-fn longs_and_visible_aliases(p: &clap::Command) -> Vec<(String, Option<StyledStr>)> {
+fn longs_and_visible_aliases(p: &clap::Command) -> Vec<(String, &clap::Arg)> {
     debug!("longs: name={}", p.get_name());
 
     p.get_arguments()
         .filter_map(|a| {
-            a.get_long_and_visible_aliases().map(|longs| {
-                longs
-                    .into_iter()
-                    .map(|s| (s.to_string(), a.get_help().cloned()))
-            })
+            a.get_long_and_visible_aliases()
+                .map(move |longs| longs.into_iter().map(move |s| (s.to_string(), a)))
         })
         .flatten()
         .collect()
@@ -308,6 +314,7 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<(char, Option<StyledStr>
     debug!("shorts: name={}", p.get_name());
 
     p.get_arguments()
+        .filter(|a| !a.is_hide_set())
         .filter_map(|a| {
             a.get_short_and_visible_aliases()
                 .map(|shorts| shorts.into_iter().map(|s| (s, a.get_help().cloned())))
@@ -331,11 +338,11 @@ fn possible_values(a: &clap::Arg) -> Option<Vec<clap::builder::PossibleValue>> {
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-fn subcommands(p: &clap::Command) -> Vec<(String, Option<StyledStr>)> {
+fn subcommands(p: &clap::Command) -> Vec<(String, &clap::Command)> {
     debug!("subcommands: name={}", p.get_name());
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
     p.get_subcommands()
-        .map(|sc| (sc.get_name().to_string(), sc.get_about().cloned()))
+        .map(|sc| (sc.get_name().to_string(), sc))
         .collect()
 }

@@ -20,7 +20,7 @@ macro_rules! complete {
 fn suggest_subcommand_subset() {
     let mut cmd = Command::new("exhaustive")
         .subcommand(Command::new("hello-world"))
-        .subcommand(Command::new("hello-moon"))
+        .subcommand(Command::new("hello-moon").hide(true))
         .subcommand(Command::new("goodbye-world"));
 
     assert_data_eq!(
@@ -30,6 +30,15 @@ fn suggest_subcommand_subset() {
 hello-world
 help\tPrint this message or the help of the given subcommand(s)"
         ],
+    );
+
+    snapbox::assert_eq(
+        "--help\tPrint help
+-h\tPrint help
+goodbye-world
+hello-world
+help\tPrint this message or the help of the given subcommand(s)",
+        complete!(cmd, " "),
     );
 }
 
@@ -44,7 +53,8 @@ fn suggest_long_flag_subset() {
         .arg(
             clap::Arg::new("hello-moon")
                 .long("hello-moon")
-                .action(clap::ArgAction::Count),
+                .action(clap::ArgAction::Count)
+                .hide(true),
         )
         .arg(
             clap::Arg::new("goodbye-world")
@@ -60,6 +70,14 @@ fn suggest_long_flag_subset() {
 --help\tPrint help"
         ],
     );
+
+    snapbox::assert_eq(
+        "--hello-world
+--goodbye-world
+--help\tPrint help
+-h\tPrint help",
+        complete!(cmd, " "),
+    );
 }
 
 #[test]
@@ -67,7 +85,7 @@ fn suggest_possible_value_subset() {
     let name = "exhaustive";
     let mut cmd = Command::new(name).arg(clap::Arg::new("hello-world").value_parser([
         PossibleValue::new("hello-world").help("Say hello to the world"),
-        "hello-moon".into(),
+        PossibleValue::new("hello-moon").hide(true),
         "goodbye-world".into(),
     ]));
 
@@ -77,6 +95,14 @@ fn suggest_possible_value_subset() {
             "hello-world\tSay hello to the world
 hello-moon"
         ],
+    );
+
+    snapbox::assert_eq(
+        "--help\tPrint help (see more with '--help')
+-h\tPrint help (see more with '--help')
+hello-world\tSay hello to the world
+goodbye-world",
+        complete!(cmd, " "),
     );
 }
 
