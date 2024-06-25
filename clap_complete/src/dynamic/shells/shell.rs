@@ -12,6 +12,8 @@ pub enum Shell {
     Bash,
     /// Friendly Interactive `SHell` (fish)
     Fish,
+    /// Z shell (zsh)
+    Zsh,
 }
 
 impl Display for Shell {
@@ -39,13 +41,14 @@ impl FromStr for Shell {
 // Hand-rolled so it can work even when `derive` feature is disabled
 impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
-        &[Shell::Bash, Shell::Fish]
+        &[Shell::Bash, Shell::Fish, Shell::Zsh]
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
             Shell::Bash => PossibleValue::new("bash"),
             Shell::Fish => PossibleValue::new("fish"),
+            Shell::Zsh => PossibleValue::new("zsh"),
         })
     }
 }
@@ -55,6 +58,7 @@ impl Shell {
         match self {
             Self::Bash => &super::Bash,
             Self::Fish => &super::Fish,
+            Self::Zsh => &super::Zsh,
         }
     }
 }
