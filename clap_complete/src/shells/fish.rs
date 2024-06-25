@@ -178,7 +178,7 @@ fn value_completion(option: &Arg) -> String {
                     // The help text after \t is wrapped in '' to make sure that the it is taken literally
                     // and there is no command substitution or variable expansion resulting in unexpected errors
                     Some(format!(
-                        "{}\t'{}'",
+                        "{}\\t'{}'",
                         escape_string(value.get_name(), true).as_str(),
                         escape_help(value.get_help().unwrap_or_default())
                     ))
