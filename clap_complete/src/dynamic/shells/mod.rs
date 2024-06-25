@@ -1,11 +1,13 @@
 //! Shell support
 
 mod bash;
+mod elvish;
 mod fish;
 mod shell;
 mod zsh;
 
 pub use bash::*;
+pub use elvish::*;
 pub use fish::*;
 pub use shell::*;
 pub use zsh::*;

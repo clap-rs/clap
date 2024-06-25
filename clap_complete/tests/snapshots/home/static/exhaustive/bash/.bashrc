@@ -245,7 +245,7 @@ _exhaustive() {
             fi
             case "${prev}" in
                 --shell)
-                    COMPREPLY=($(compgen -W "bash fish zsh" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "bash fish zsh elvish" -- "${cur}"))
                     return 0
                     ;;
                 --register)
