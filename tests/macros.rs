@@ -277,9 +277,11 @@ mod arg {
     }
 
     #[test]
-    #[cfg(all(feature = "help", featiure = "usage"))]
+    #[cfg(all(feature = "help", feature = "usage"))]
     fn optional_value() {
-        let mut cmd = clap::Command::new("test").arg(clap::arg!(port: -p [NUM]));
+        let mut cmd = clap::Command::new("test")
+            .args_override_self(true)
+            .arg(clap::arg!(port: -p [NUM]));
 
         let r = cmd.try_get_matches_from_mut(["test", "-p42"]);
         assert!(r.is_ok(), "{}", r.unwrap_err());
@@ -299,17 +301,17 @@ mod arg {
         assert!(m.contains_id("port"));
         assert_eq!(m.get_one::<String>("port").unwrap(), "42");
 
-        let mut help = Vec::new();
-        cmd.write_help(&mut help).unwrap();
-        snapbox::assert_eq(
-            snapbox::str![["\
+        let help = cmd.render_help().to_string();
+        snapbox::assert_data_eq!(
+            help,
+            snapbox::str![[r#"
 Usage: test [OPTIONS]
 
 Options:
   -p [<NUM>]      
-  -h, --help      Print help information
-"]],
-            help,
+  -h, --help      Print help
+
+"#]]
         );
     }
 }
