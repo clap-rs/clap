@@ -1,5 +1,3 @@
-#![cfg(not(tarpaulin))]
-
 #[test]
 #[cfg(feature = "help")]
 #[cfg(feature = "error-context")]

@@ -1,5 +1,3 @@
-#![cfg(not(tarpaulin))]
-
 #[test]
 fn example_tests() {
     let t = trycmd::TestCases::new();
