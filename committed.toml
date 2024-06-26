@@ -1,3 +1,4 @@
 style="conventional"
 ignore_author_re="(dependabot|renovate)"
 merge_commit = false
+subject_length = 72
