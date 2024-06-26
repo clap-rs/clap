@@ -71,6 +71,9 @@ jobs:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
+    - name: Install shells
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y elvish fish zsh
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
