@@ -67,16 +67,20 @@ fn gen_fish_inner(
             basic_template.push_str(" -n \"__fish_use_subcommand\"");
         }
     } else {
-        let mut out = String::new();
+        let mut out = String::from("__fish_seen_subcommand_from");
         for &command in parent_commands {
-            out.push_str("__fish_seen_subcommand_from ");
+            out.push(' ');
             out.push_str(command);
         }
-        for name in cmd
+        let subcommands: Vec<&str> = cmd
             .get_subcommands()
             .flat_map(Command::get_name_and_visible_aliases)
-        {
-            out.push_str("; and not __fish_seen_subcommand_from ");
+            .collect();
+        if !subcommands.is_empty() {
+            out.push_str("; and not __fish_seen_subcommand_from");
+        }
+        for name in subcommands {
+            out.push(' ');
             out.push_str(name);
         }
         basic_template.push_str(format!(" -n \"{out}\"").as_str());
