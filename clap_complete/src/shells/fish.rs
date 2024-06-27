@@ -67,22 +67,23 @@ fn gen_fish_inner(
             basic_template.push_str(" -n \"__fish_use_subcommand\"");
         }
     } else {
-        basic_template.push_str(
-            format!(
-                " -n \"{}\"",
-                parent_commands
-                    .iter()
-                    .map(|command| format!("__fish_seen_subcommand_from {command}"))
-                    .chain(
-                        cmd.get_subcommands()
-                            .flat_map(Command::get_name_and_visible_aliases)
-                            .map(|name| format!("not __fish_seen_subcommand_from {name}"))
-                    )
-                    .collect::<Vec<_>>()
-                    .join("; and ")
-            )
-            .as_str(),
-        );
+        let mut out = String::from("__fish_seen_subcommand_from");
+        for &command in parent_commands {
+            out.push(' ');
+            out.push_str(command);
+        }
+        let subcommands: Vec<&str> = cmd
+            .get_subcommands()
+            .flat_map(Command::get_name_and_visible_aliases)
+            .collect();
+        if !subcommands.is_empty() {
+            out.push_str("; and not __fish_seen_subcommand_from");
+        }
+        for name in subcommands {
+            out.push(' ');
+            out.push_str(name);
+        }
+        basic_template.push_str(format!(" -n \"{out}\"").as_str());
     }
 
     debug!("gen_fish_inner: parent_commands={parent_commands:?}");
