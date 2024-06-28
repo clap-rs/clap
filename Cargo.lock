@@ -411,10 +411,10 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.7"
+version = "4.5.8"
 dependencies = [
  "automod",
- "clap_builder 4.5.7",
+ "clap_builder 4.5.8",
  "clap_derive",
  "humantime",
  "rustversion",
@@ -428,7 +428,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.5.7",
+ "clap 4.5.8",
  "divan",
  "lazy_static",
 ]
@@ -448,7 +448,7 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.7"
+version = "4.5.8"
 dependencies = [
  "anstream",
  "anstyle",
@@ -465,10 +465,10 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.6"
+version = "4.5.7"
 dependencies = [
  "automod",
- "clap 4.5.7",
+ "clap 4.5.8",
  "clap_lex 0.7.1",
  "completest",
  "completest-pty",
@@ -484,7 +484,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.5.1"
 dependencies = [
- "clap 4.5.7",
+ "clap 4.5.8",
  "clap_complete",
  "snapbox",
 ]
@@ -493,7 +493,7 @@ dependencies = [
 name = "clap_complete_nushell"
 version = "4.5.2"
 dependencies = [
- "clap 4.5.7",
+ "clap 4.5.8",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -502,7 +502,7 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.5"
+version = "4.5.8"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -525,10 +525,10 @@ checksum = "4b82cf0babdbd58558212896d1a4272303a57bdb245c2bf1147185fb45640e70"
 
 [[package]]
 name = "clap_mangen"
-version = "0.2.21"
+version = "0.2.22"
 dependencies = [
  "automod",
- "clap 4.5.7",
+ "clap 4.5.8",
  "roff",
  "snapbox",
 ]
