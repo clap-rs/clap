@@ -136,11 +136,14 @@ fn gen_fish_inner(
         buffer.push('\n');
     }
 
+    let has_positionals = cmd.get_positionals().next().is_some();
+    if !has_positionals {
+        basic_template.push_str(" -f");
+    }
     for subcommand in cmd.get_subcommands() {
         for subcommand_name in subcommand.get_name_and_visible_aliases() {
             let mut template = basic_template.clone();
 
-            template.push_str(" -f");
             template.push_str(format!(" -a \"{}\"", subcommand_name).as_str());
 
             if let Some(data) = subcommand.get_about() {
