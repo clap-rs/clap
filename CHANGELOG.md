@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Reduce extra flushes
+
 ## [4.5.7] - 2024-06-10
 
 ### Fixes
