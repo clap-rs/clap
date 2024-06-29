@@ -76,11 +76,92 @@ pub fn complete(
         } else if arg.is_escape() {
             is_escaped = true;
             state = ParseState::ValueDone;
-        } else if let Some(_long) = arg.to_long() {
-        } else if let Some(_short) = arg.to_short() {
+        } else if let Some((flag, value)) = arg.to_long() {
+            if let Ok(flag) = flag {
+                let opt = current_cmd.get_arguments().find(|a| {
+                    let longs = a.get_long_and_visible_aliases();
+                    let is_find = longs.map(|v| {
+                        let mut iter = v.into_iter();
+                        let s = iter.find(|s| *s == flag);
+                        s.is_some()
+                    });
+                    is_find.unwrap_or(false)
+                });
+                state = match opt.map(|o| o.get_action()) {
+                    Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
+                        if value.is_some() {
+                            ParseState::ValueDone
+                        } else {
+                            ParseState::Opt(opt.unwrap().clone())
+                        }
+                    }
+                    Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
+                        ParseState::ValueDone
+                    }
+                    Some(clap::ArgAction::Count) => ParseState::ValueDone,
+                    Some(clap::ArgAction::Version) => ParseState::ValueDone,
+                    Some(clap::ArgAction::Help)
+                    | Some(clap::ArgAction::HelpLong)
+                    | Some(clap::ArgAction::HelpShort) => ParseState::ValueDone,
+                    Some(_) => ParseState::ValueDone,
+                    None => ParseState::ValueDone,
+                };
+            } else {
+                state = ParseState::ValueDone;
+            }
+        } else if let Some(mut short) = arg.to_short() {
+            let mut takes_value = false;
+            loop {
+                if let Some(Ok(opt)) = short.next_flag() {
+                    let opt = current_cmd.get_arguments().find(|a| {
+                        let shorts = a.get_short_and_visible_aliases();
+                        let is_find = shorts.map(|v| {
+                            let mut iter = v.into_iter();
+                            let c = iter.find(|c| *c == opt);
+                            c.is_some()
+                        });
+                        is_find.unwrap_or(false)
+                    });
+
+                    state = match opt.map(|o| o.get_action()) {
+                        Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
+                            takes_value = true;
+                            if short.next_value_os().is_some() {
+                                ParseState::ValueDone
+                            } else {
+                                ParseState::Opt(opt.unwrap().clone())
+                            }
+                        }
+                        Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
+                            ParseState::ValueDone
+                        }
+                        Some(clap::ArgAction::Count) => ParseState::ValueDone,
+                        Some(clap::ArgAction::Version) => ParseState::ValueDone,
+                        Some(clap::ArgAction::Help)
+                        | Some(clap::ArgAction::HelpShort)
+                        | Some(clap::ArgAction::HelpLong) => ParseState::ValueDone,
+                        Some(_) => ParseState::ValueDone,
+                        None => ParseState::ValueDone,
+                    };
+
+                    if takes_value {
+                        break;
+                    }
+                } else {
+                    state = ParseState::ValueDone;
+                    break;
+                }
+            }
         } else {
-            pos_index += 1;
-            state = ParseState::ValueDone;
+            match state {
+                ParseState::ValueDone | ParseState::Pos(_) => {
+                    pos_index += 1;
+                    state = ParseState::ValueDone;
+                }
+                ParseState::Opt(_) => {
+                    state = ParseState::ValueDone;
+                }
+            }
         }
     }
 
@@ -97,6 +178,9 @@ enum ParseState {
 
     /// Parsing a positional argument after `--`
     Pos(usize),
+
+    /// Parsing a optional flag argument
+    Opt(clap::Arg),
 }
 
 fn complete_arg(
@@ -199,6 +283,9 @@ fn complete_arg(
             {
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
             }
+        }
+        ParseState::Opt(opt) => {
+            completions.extend(complete_arg_value(arg.to_value(), &opt, current_dir));
         }
     }
     if completions.iter().any(|a| a.is_visible()) {

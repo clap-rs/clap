@@ -324,103 +324,65 @@ fn suggest_argument_value() {
     assert_data_eq!(
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![
-            "--input
---format
---count
---help	Print help
--i
--F
--c
--h	Print help
-pos_a
-pos_b
-pos_c"
+            "a_file
+b_file
+c_dir/
+d_dir/"
         ],
     );
 
     assert_data_eq!(
         complete!(cmd, "-i [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![
-            "--input
---format
---count
---help	Print help
--i
--F
--c
--h	Print help
-pos_a
-pos_b
-pos_c"
+            "a_file
+b_file
+c_dir/
+d_dir/"
         ],
     );
 
     assert_data_eq!(
         complete!(cmd, "--input a[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""],
+        snapbox::str!["a_file"],
     );
 
     assert_data_eq!(
         complete!(cmd, "-i b[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""],
+        snapbox::str!["b_file"],
     );
 
     assert_data_eq!(
         complete!(cmd, "--format [TAB]"),
         snapbox::str![
-            "--input
---format
---count
---help	Print help
--i
--F
--c
--h	Print help
-pos_a
-pos_b
-pos_c"
+            "json
+yaml
+toml"
         ],
     );
 
     assert_data_eq!(
         complete!(cmd, "-F [TAB]"),
         snapbox::str![
-            "--input
---format
---count
---help	Print help
--i
--F
--c
--h	Print help
-pos_a
-pos_b
-pos_c"
+            "json
+yaml
+toml"
         ],
     );
 
-    assert_data_eq!(complete!(cmd, "--format j[TAB]"), snapbox::str![""],);
+    assert_data_eq!(complete!(cmd, "--format j[TAB]"), snapbox::str!["json"],);
 
-    assert_data_eq!(complete!(cmd, "-F j[TAB]"), snapbox::str![""],);
+    assert_data_eq!(complete!(cmd, "-F j[TAB]"), snapbox::str!["json"],);
 
-    assert_data_eq!(complete!(cmd, "--format t[TAB]"), snapbox::str![""],);
+    assert_data_eq!(complete!(cmd, "--format t[TAB]"), snapbox::str!["toml"],);
 
-    assert_data_eq!(complete!(cmd, "-F t[TAB]"), snapbox::str![""],);
+    assert_data_eq!(complete!(cmd, "-F t[TAB]"), snapbox::str!["toml"],);
 
     assert_data_eq!(
         complete!(cmd, "-cccF [TAB]"),
         snapbox::str![
-            "--input
---format
---count
---help\tPrint help
--i
--F
--c
--h\tPrint help
-pos_a
-pos_b
-pos_c"
+            "json
+yaml
+toml"
         ]
     );
 
@@ -434,7 +396,10 @@ pos_c"
 -i
 -F
 -c
--h\tPrint help"
+-h\tPrint help
+pos_a
+pos_b
+pos_c"
         ]
     );
 }
