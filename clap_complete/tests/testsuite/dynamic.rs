@@ -34,6 +34,34 @@ help\tPrint this message or the help of the given subcommand(s)"
 }
 
 #[test]
+fn suggest_subcommand_aliases() {
+    let mut cmd = Command::new("exhaustive")
+        .subcommand(
+            Command::new("hello-world")
+                .visible_alias("hello-world-foo")
+                .alias("hidden-world"),
+        )
+        .subcommand(
+            Command::new("hello-moon")
+                .visible_alias("hello-moon-foo")
+                .alias("hidden-moon"),
+        )
+        .subcommand(
+            Command::new("goodbye-world")
+                .visible_alias("goodbye-world-foo")
+                .alias("hidden-goodbye"),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "hello"),
+        snapbox::str![
+            "hello-moon
+hello-world"
+        ],
+    );
+}
+
+#[test]
 fn suggest_long_flag_subset() {
     let mut cmd = Command::new("exhaustive")
         .arg(
