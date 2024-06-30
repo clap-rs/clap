@@ -34,6 +34,37 @@ help\tPrint this message or the help of the given subcommand(s)"
 }
 
 #[test]
+fn suggest_subcommand_aliases() {
+    let mut cmd = Command::new("exhaustive")
+        .subcommand(
+            Command::new("hello-world")
+                .visible_alias("hello-world-foo")
+                .alias("hidden-world"),
+        )
+        .subcommand(
+            Command::new("hello-moon")
+                .visible_alias("hello-moon-foo")
+                .alias("hidden-moon"),
+        )
+        .subcommand(
+            Command::new("goodbye-world")
+                .visible_alias("goodbye-world-foo")
+                .alias("hidden-goodbye"),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "he"),
+        snapbox::str![
+            "hello-moon
+hello-moon-foo
+hello-world
+hello-world-foo
+help\tPrint this message or the help of the given subcommand(s)"
+        ],
+    );
+}
+
+#[test]
 fn suggest_long_flag_subset() {
     let mut cmd = Command::new("exhaustive")
         .arg(
@@ -156,9 +187,9 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
     clap_complete::dynamic::complete(cmd, args, arg_index, current_dir)
         .unwrap()
         .into_iter()
-        .map(|(compl, help)| {
-            let compl = compl.to_str().unwrap();
-            if let Some(help) = help {
+        .map(|candidate| {
+            let compl = candidate.content.to_str().unwrap();
+            if let Some(help) = candidate.help {
                 format!("{compl}\t{help}")
             } else {
                 compl.to_owned()

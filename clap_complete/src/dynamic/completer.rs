@@ -1,5 +1,6 @@
 use std::ffi::OsStr;
 use std::ffi::OsString;
+use std::fmt::Display;
 
 use clap::builder::StyledStr;
 use clap_lex::OsStrExt as _;
@@ -32,7 +33,7 @@ pub fn complete(
     args: Vec<OsString>,
     arg_index: usize,
     current_dir: Option<&std::path::Path>,
-) -> Result<Vec<(OsString, Option<StyledStr>)>, std::io::Error> {
+) -> Result<Vec<CompletionCandidate>, std::io::Error> {
     cmd.build();
 
     let raw_args = clap_lex::RawArgs::new(args);
@@ -91,7 +92,7 @@ fn complete_arg(
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
     is_escaped: bool,
-) -> Result<Vec<(OsString, Option<StyledStr>)>, std::io::Error> {
+) -> Result<Vec<CompletionCandidate>, std::io::Error> {
     debug!(
         "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
         arg,
@@ -100,7 +101,7 @@ fn complete_arg(
         pos_index,
         is_escaped
     );
-    let mut completions = Vec::new();
+    let mut completions = Vec::<CompletionCandidate>::new();
 
     if !is_escaped {
         if let Some((flag, value)) = arg.to_long() {
@@ -110,15 +111,26 @@ fn complete_arg(
                         completions.extend(
                             complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                                 .into_iter()
-                                .map(|(os, help)| {
+                                .map(|condidate| {
                                     // HACK: Need better `OsStr` manipulation
-                                    (format!("--{}={}", flag, os.to_string_lossy()).into(), help)
+                                    (
+                                        OsString::from(format!(
+                                            "--{}={}",
+                                            flag,
+                                            condidate.content.to_string_lossy()
+                                        )),
+                                        condidate.help,
+                                    )
+                                        .into()
                                 }),
                         );
                     }
                 } else {
                     completions.extend(longs_and_visible_aliases(cmd).into_iter().filter_map(
-                        |(f, help)| f.starts_with(flag).then(|| (format!("--{f}").into(), help)),
+                        |(f, help)| {
+                            f.starts_with(flag)
+                                .then(|| (OsString::from(format!("--{f}")), help).into())
+                        },
                     ));
                 }
             }
@@ -127,7 +139,7 @@ fn complete_arg(
             completions.extend(
                 longs_and_visible_aliases(cmd)
                     .into_iter()
-                    .map(|(f, help)| (format!("--{f}").into(), help)),
+                    .map(|(f, help)| (OsString::from(format!("--{f}")), help).into()),
             );
         }
 
@@ -142,7 +154,9 @@ fn complete_arg(
                 shorts_and_visible_aliases(cmd)
                     .into_iter()
                     // HACK: Need better `OsStr` manipulation
-                    .map(|(f, help)| (format!("{}{}", dash_or_arg, f).into(), help)),
+                    .map(|(f, help)| {
+                        (OsString::from(format!("{}{}", dash_or_arg, f)), help).into()
+                    }),
             );
         }
     }
@@ -165,8 +179,8 @@ fn complete_arg_value(
     value: Result<&str, &OsStr>,
     arg: &clap::Arg,
     current_dir: Option<&std::path::Path>,
-) -> Vec<(OsString, Option<StyledStr>)> {
-    let mut values = Vec::new();
+) -> Vec<CompletionCandidate> {
+    let mut values = Vec::<CompletionCandidate>::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
     if let Some(possible_values) = possible_values(arg) {
@@ -174,7 +188,7 @@ fn complete_arg_value(
             values.extend(possible_values.into_iter().filter_map(|p| {
                 let name = p.get_name();
                 name.starts_with(value)
-                    .then(|| (name.into(), p.get_help().cloned()))
+                    .then(|| (OsString::from(name), p.get_help().cloned()).into())
             }));
         }
     } else {
@@ -223,8 +237,8 @@ fn complete_path(
     value_os: &OsStr,
     current_dir: Option<&std::path::Path>,
     is_wanted: impl Fn(&std::path::Path) -> bool,
-) -> Vec<(OsString, Option<StyledStr>)> {
-    let mut completions = Vec::new();
+) -> Vec<CompletionCandidate> {
+    let mut completions = Vec::<CompletionCandidate>::new();
 
     let current_dir = match current_dir {
         Some(current_dir) => current_dir,
@@ -255,12 +269,12 @@ fn complete_path(
             let path = entry.path();
             let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
             suggestion.push(""); // Ensure trailing `/`
-            completions.push((suggestion.as_os_str().to_owned(), None));
+            completions.push((suggestion.as_os_str().to_owned(), None).into());
         } else {
             let path = entry.path();
             if is_wanted(&path) {
                 let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
-                completions.push((suggestion.as_os_str().to_owned(), None));
+                completions.push((suggestion.as_os_str().to_owned(), None).into());
             }
         }
     }
@@ -268,7 +282,7 @@ fn complete_path(
     completions
 }
 
-fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Option<StyledStr>)> {
+fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandidate> {
     debug!(
         "complete_subcommand: cmd={:?}, value={:?}",
         cmd.get_name(),
@@ -277,8 +291,8 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<(OsString, Optio
 
     let mut scs = subcommands(cmd)
         .into_iter()
-        .filter(|x| x.0.starts_with(value))
-        .map(|x| (OsString::from(&x.0), x.1))
+        .filter(|x| x.content.starts_with(value))
+        .map(|x| (OsString::from(&x.content), x.help).into())
         .collect::<Vec<_>>();
     scs.sort();
     scs.dedup();
@@ -331,11 +345,78 @@ fn possible_values(a: &clap::Arg) -> Option<Vec<clap::builder::PossibleValue>> {
 ///
 /// Subcommand `rustup toolchain install` would be converted to
 /// `("install", "rustup toolchain install")`.
-fn subcommands(p: &clap::Command) -> Vec<(String, Option<StyledStr>)> {
+fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
     debug!("subcommands: name={}", p.get_name());
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
     p.get_subcommands()
-        .map(|sc| (sc.get_name().to_string(), sc.get_about().cloned()))
+        .map(|sc| {
+            sc.get_name_and_visible_aliases()
+                .into_iter()
+                .map(|s| (s.to_string(), sc.get_about().cloned()).into())
+        })
+        .flatten()
         .collect()
+}
+
+/// A completion candidate defination
+///
+/// This makes it easier to add more fields to completion candidate,
+/// rather than using `(OsString, Option<StyledStr>)` or `(String, Option<StyledStr>)` to represent a completion candidate
+pub struct CompletionCandidate {
+    /// Main completion candidate content
+    pub content: OsString,
+
+    /// Help message with a completion candidate
+    pub help: Option<StyledStr>,
+}
+
+impl From<(OsString, Option<StyledStr>)> for CompletionCandidate {
+    fn from(value: (OsString, Option<StyledStr>)) -> Self {
+        Self {
+            content: value.0,
+            help: value.1,
+        }
+    }
+}
+
+impl From<(String, Option<StyledStr>)> for CompletionCandidate {
+    fn from(value: (String, Option<StyledStr>)) -> Self {
+        Self {
+            content: OsString::from(value.0),
+            help: value.1,
+        }
+    }
+}
+
+impl Into<(OsString, Option<StyledStr>)> for CompletionCandidate {
+    fn into(self) -> (OsString, Option<StyledStr>) {
+        (self.content, self.help.clone())
+    }
+}
+
+impl PartialEq for CompletionCandidate {
+    fn eq(&self, other: &Self) -> bool {
+        self.content == other.content
+    }
+}
+
+impl Eq for CompletionCandidate {}
+
+impl PartialOrd for CompletionCandidate {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.content.cmp(&other.content))
+    }
+}
+
+impl Ord for CompletionCandidate {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.content.cmp(&other.content)
+    }
+}
+
+impl Display for CompletionCandidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.content.to_string_lossy())
+    }
 }
