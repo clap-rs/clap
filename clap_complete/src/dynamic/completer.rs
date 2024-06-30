@@ -242,7 +242,7 @@ fn complete_arg(
                 completions.extend(hidden_longs_aliases(cmd));
             }
 
-            if arg.is_empty() || arg.is_stdio() || arg.is_short() {
+            if arg.is_empty() || arg.is_stdio() {
                 let dash_or_arg = if arg.is_empty() {
                     "-".into()
                 } else {
@@ -263,6 +263,86 @@ fn complete_arg(
                             .visible(true)
                         }),
                 );
+            } else if let Some(mut short) = arg.to_short() {
+                if !short.is_negative_number() {
+                    let takes_value_opt;
+                    let mut leading_flags = OsString::new();
+                    // Find the first takes_value option.
+                    loop {
+                        match short.next_flag() {
+                            Some(Ok(opt)) => {
+                                leading_flags.push(opt.to_string());
+                                let opt = cmd.get_arguments().find(|a| {
+                                    let shorts = a.get_short_and_visible_aliases();
+                                    let is_find = shorts.map(|v| {
+                                        let mut iter = v.into_iter();
+                                        let c = iter.find(|c| *c == opt);
+                                        c.is_some()
+                                    });
+                                    is_find.unwrap_or(false)
+                                });
+                                match opt.map(|o| o.get_action()) {
+                                    Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
+                                        takes_value_opt = opt;
+                                        break;
+                                    }
+                                    Some(clap::ArgAction::SetTrue)
+                                    | Some(clap::ArgAction::SetFalse)
+                                    | Some(clap::ArgAction::Count)
+                                    | Some(clap::ArgAction::Version)
+                                    | Some(clap::ArgAction::Help)
+                                    | Some(clap::ArgAction::HelpShort)
+                                    | Some(clap::ArgAction::HelpLong) => (),
+                                    Some(_) => (),
+                                    None => (),
+                                }
+                            }
+                            Some(Err(_)) | None => {
+                                takes_value_opt = None;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
+                    if let Some(opt) = takes_value_opt {
+                        let mut peek_short = short.clone();
+                        let has_equal = if let Some(Ok('=')) = peek_short.next_flag() {
+                            short.next_flag();
+                            true
+                        } else {
+                            false
+                        };
+
+                        let value = short.next_value_os().unwrap_or(OsStr::new(""));
+                        completions.extend(
+                            complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
+                                .into_iter()
+                                .map(|comp| {
+                                    CompletionCandidate::new(format!(
+                                        "-{}{}{}",
+                                        leading_flags.to_string_lossy(),
+                                        if has_equal { "=" } else { "" },
+                                        comp.get_content().to_string_lossy()
+                                    ))
+                                    .help(comp.get_help().cloned())
+                                    .visible(comp.is_visible())
+                                }),
+                        );
+                    } else {
+                        completions.extend(shorts_and_visible_aliases(cmd).into_iter().map(
+                            |comp| {
+                                CompletionCandidate::new(format!(
+                                    "-{}{}",
+                                    leading_flags.to_string_lossy(),
+                                    comp.get_content().to_string_lossy()
+                                ))
+                                .help(comp.get_help().cloned())
+                                .visible(comp.is_visible())
+                            },
+                        ));
+                    }
+                }
             }
 
             if let Some(positional) = cmd

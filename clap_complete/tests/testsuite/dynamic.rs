@@ -406,51 +406,36 @@ pos_c"
     assert_data_eq!(
         complete!(cmd, "-ci[TAB]", current_dir = Some(testdir_path)),
         snapbox::str![
-            "-cii
--ciF
--cic
--cih	Print help"
+            "-cia_file
+-cib_file
+-cic_dir/
+-cid_dir/"
         ]
     );
 
     assert_data_eq!(
         complete!(cmd, "-ci=[TAB]", current_dir = Some(testdir_path)),
         snapbox::str![
-            "-ci=i
--ci=F
--ci=c
--ci=h	Print help"
+            "-ci=a_file
+-ci=b_file
+-ci=c_dir/
+-ci=d_dir/"
         ]
     );
 
     assert_data_eq!(
         complete!(cmd, "-ci=a[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![
-            "-ci=ai
--ci=aF
--ci=ac
--ci=ah	Print help"
-        ]
+        snapbox::str!["-ci=a_file"]
     );
 
     assert_data_eq!(
         complete!(cmd, "-ciF[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![
-            "-ciFi
--ciFF
--ciFc
--ciFh\tPrint help"
-        ]
+        snapbox::str![""]
     );
 
     assert_data_eq!(
         complete!(cmd, "-ciF=[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![
-            "-ciF=i
--ciF=F
--ciF=c
--ciF=h\tPrint help"
-        ]
+        snapbox::str![""]
     )
 }
 
