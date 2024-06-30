@@ -236,6 +236,45 @@ fn complete_arg(
                     .map(|(f, help)| (format!("{}{}", dash_or_arg, f).into(), help)),
             );
         }
+
+        if let Some(mut short) = arg.to_short() {
+            if !short.is_negative_number() {
+                if let Some(s) = short.next_value_os() {
+                    let (flag, has_equal, value) = match s.split_once("=") {
+                        Some((flag, value)) => (flag, true, value),
+                        None => (s, false, OsStr::new("")),
+                    };
+                    if let Some(last_c) = flag.to_string_lossy().chars().last() {
+                        if let Some(arg) = cmd.get_arguments().find(|a| {
+                            let shorts = a.get_short_and_visible_aliases();
+                            let is_find = shorts.map(|v| {
+                                let mut iter = v.into_iter();
+                                let c = iter.find(|c| *c == last_c);
+                                c.is_some()
+                            });
+                            is_find.unwrap_or(false)
+                        }) {
+                            completions.extend(
+                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                                    .into_iter()
+                                    .map(|(os, help)| {
+                                        (
+                                            format!(
+                                                "-{}{}{}",
+                                                flag.to_string_lossy(),
+                                                if has_equal { "=" } else { "" },
+                                                os.to_string_lossy()
+                                            )
+                                            .into(),
+                                            help,
+                                        )
+                                    }),
+                            );
+                        }
+                    }
+                }
+            }
+        }
     } else if let ParseState::Opt(opt) = &state {
         completions.extend(complete_arg_value(arg.to_value(), opt, current_dir));
     }
