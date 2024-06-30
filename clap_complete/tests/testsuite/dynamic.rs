@@ -56,7 +56,9 @@ fn suggest_subcommand_aliases() {
         complete!(cmd, "hello"),
         snapbox::str![
             "hello-moon
-hello-world"
+hello-moon-foo
+hello-world
+hello-world-foo"
         ],
     );
 }
