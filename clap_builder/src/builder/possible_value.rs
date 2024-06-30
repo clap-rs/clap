@@ -1,3 +1,5 @@
+use anstyle::Style;
+
 use crate::builder::IntoResettable;
 use crate::builder::Str;
 use crate::builder::StyledStr;
@@ -37,6 +39,7 @@ pub struct PossibleValue {
     name: Str,
     help: Option<StyledStr>,
     aliases: Vec<Str>, // (name, visible)
+    visible_aliases: Vec<Str>,
     hide: bool,
 }
 
@@ -130,6 +133,20 @@ impl PossibleValue {
         self
     }
 
+    /// Add a _visible_ alias to this [PossibleValue].
+    ///
+    /// Unlike [PossibleValue::alias], these aliases will show in help output.
+    #[must_use]
+    pub fn visible_alias(mut self, name: impl IntoResettable<Str>) -> Self {
+        if let Some(name) = name.into_resettable().into_option() {
+            self.visible_aliases.push(name);
+        } else {
+            self.visible_aliases.clear();
+        }
+
+        self
+    }
+
     /// Sets multiple *hidden* aliases for this argument value.
     ///
     /// # Examples
@@ -146,6 +163,16 @@ impl PossibleValue {
         self.aliases.extend(names.into_iter().map(|a| a.into()));
         self
     }
+
+    /// Add multiple _visible_ aliases to this [PossibleValue].
+    ///
+    /// Unlike [PossibleValue::aliases], these aliases will show in help output.
+    #[must_use]
+    pub fn visible_aliases(mut self, names: impl IntoIterator<Item = impl Into<Str>>) -> Self {
+        self.visible_aliases
+            .extend(names.into_iter().map(|a| a.into()));
+        self
+    }
 }
 
 /// Reflection
@@ -154,6 +181,38 @@ impl PossibleValue {
     #[inline]
     pub fn get_name(&self) -> &str {
         self.name.as_str()
+    }
+
+    /// Get the visible aliases for this argument
+    pub fn get_visible_aliases(&self) -> &Vec<Str> {
+        &self.visible_aliases
+    }
+
+    /// Render help text for this [PossibleValue] with all of its visible aliases included.
+    ///
+    /// If there are no visible aliases, this will simply emit the formatted name, if there are visible aliases, these
+    /// will be appended like this: `name [aliases: a, b, c]`.
+    pub fn render_help_prefix_long(&self, literal: &Style) -> String {
+        let name = self.get_name();
+        let aliases = if self.get_visible_aliases().is_empty() {
+            "".to_string()
+        } else {
+            // [aliases: a, b, c]
+            format!(
+                "[aliases: {}]",
+                self.get_visible_aliases()
+                    .iter()
+                    .map(|s| { format!("{}{s}{}", literal.render(), literal.render_reset()) })
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        };
+
+        format!(
+            "{}{name}{}{aliases}",
+            literal.render(),
+            literal.render_reset()
+        )
     }
 
     /// Get the help specified for this argument, if any
@@ -173,26 +232,13 @@ impl PossibleValue {
         !self.hide && self.help.is_some()
     }
 
-    /// Get the name if argument value is not hidden, `None` otherwise,
-    /// but wrapped in quotes if it contains whitespace
-    #[cfg(feature = "help")]
-    pub(crate) fn get_visible_quoted_name(&self) -> Option<std::borrow::Cow<'_, str>> {
-        if !self.hide {
-            Some(if self.name.contains(char::is_whitespace) {
-                format!("{:?}", self.name).into()
-            } else {
-                self.name.as_str().into()
-            })
-        } else {
-            None
-        }
-    }
-
     /// Returns all valid values of the argument value.
     ///
     /// Namely the name and all aliases.
     pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> + '_ {
-        std::iter::once(self.get_name()).chain(self.aliases.iter().map(|s| s.as_str()))
+        std::iter::once(self.get_name())
+            .chain(self.aliases.iter().map(|s| s.as_str()))
+            .chain(self.visible_aliases.iter().map(|s| s.as_str()))
     }
 
     /// Tests if the value is valid for this argument value
