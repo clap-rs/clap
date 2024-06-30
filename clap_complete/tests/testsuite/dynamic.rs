@@ -259,6 +259,45 @@ toml"
 -c
 -h	Print help"
         ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ci[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![
+            "-cii
+-ciF
+-cic
+-cih	Print help
+-cia_file
+-cib_file
+-cic_dir/
+-cid_dir/"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ci=[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![
+            "-ci=i
+-ci=F
+-ci=c
+-ci=h	Print help
+-ci=a_file
+-ci=b_file
+-ci=c_dir/
+-ci=d_dir/"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ci=a[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![
+            "-ci=ai
+-ci=aF
+-ci=ac
+-ci=ah	Print help
+-ci=a_file"
+        ]
     )
 }
 
