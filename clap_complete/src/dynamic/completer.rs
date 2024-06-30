@@ -110,40 +110,47 @@ pub fn complete(
             }
         } else if let Some(short) = arg.to_short() {
             let mut short = short.clone();
-            let opt = short.next_flag();
 
-            if let Some(Ok(opt)) = opt {
-                let opt = current_cmd.get_arguments().find(|a| {
-                    let shorts = a.get_short_and_visible_aliases();
-                    let is_find = shorts.map(|v| {
-                        let mut iter = v.into_iter();
-                        let c = iter.find(|c| *c == opt);
-                        c.is_some()
+            loop {
+                if let Some(Ok(opt)) = short.next_flag() {
+                    let opt = current_cmd.get_arguments().find(|a| {
+                        let shorts = a.get_short_and_visible_aliases();
+                        let is_find = shorts.map(|v| {
+                            let mut iter = v.into_iter();
+                            let c = iter.find(|c| *c == opt);
+                            c.is_some()
+                        });
+                        is_find.unwrap_or(false)
                     });
-                    is_find.unwrap_or(false)
-                });
-                state = opt
-                    .map(|o| match o.get_action() {
-                        clap::ArgAction::Set | clap::ArgAction::Append => {
-                            if short.next_value_os().is_some() {
-                                ParseState::ValueDone
-                            } else {
-                                ParseState::Opt(o.clone())
+                    let mut flag = false;
+                    state = opt
+                        .map(|o| match o.get_action() {
+                            clap::ArgAction::Set | clap::ArgAction::Append => {
+                                flag = true;
+                                if short.next_value_os().is_some() {
+                                    ParseState::ValueDone
+                                } else {
+                                    ParseState::Opt(o.clone())
+                                }
                             }
-                        }
-                        clap::ArgAction::SetTrue | clap::ArgAction::SetFalse => {
-                            ParseState::ValueDone
-                        }
-                        clap::ArgAction::Count => ParseState::ValueDone,
-                        clap::ArgAction::Version => ParseState::ValueDone,
-                        clap::ArgAction::Help
-                        | clap::ArgAction::HelpShort
-                        | clap::ArgAction::HelpLong => ParseState::ValueDone,
-                        _ => ParseState::ValueDone,
-                    })
-                    .unwrap_or(ParseState::ValueDone)
-            } else {
-                state = ParseState::ValueDone
+                            clap::ArgAction::SetTrue | clap::ArgAction::SetFalse => {
+                                ParseState::ValueDone
+                            }
+                            clap::ArgAction::Count => ParseState::ValueDone,
+                            clap::ArgAction::Version => ParseState::ValueDone,
+                            clap::ArgAction::Help
+                            | clap::ArgAction::HelpShort
+                            | clap::ArgAction::HelpLong => ParseState::ValueDone,
+                            _ => ParseState::ValueDone,
+                        })
+                        .unwrap_or(ParseState::ValueDone);
+                    if flag {
+                        break;
+                    }
+                } else {
+                    state = ParseState::ValueDone;
+                    break;
+                }
             }
         } else {
             pos_index += 1;

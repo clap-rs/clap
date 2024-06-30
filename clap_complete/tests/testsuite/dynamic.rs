@@ -148,6 +148,12 @@ fn suggest_argument_value() {
                 .short('F')
                 .value_parser(["json", "yaml", "toml"]),
         )
+        .arg(
+            clap::Arg::new("count")
+                .long("count")
+                .short('c')
+                .action(clap::ArgAction::Count),
+        )
         .args_conflicts_with_subcommands(true);
 
     let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
@@ -213,6 +219,47 @@ toml"
     assert_data_eq!(complete!(cmd, "--format t[TAB]"), snapbox::str!["toml"],);
 
     assert_data_eq!(complete!(cmd, "-F t[TAB]"), snapbox::str!["toml"],);
+
+    assert_data_eq!(
+        complete!(cmd, "-chi [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![
+            "a_file
+b_file
+c_dir/
+d_dir/"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-chi a[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["a_file"],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-chF [TAB]"),
+        snapbox::str![
+            "json
+yaml
+toml"
+        ]
+    );
+
+    assert_data_eq!(complete!(cmd, "-chF j[TAB]"), snapbox::str!["json"]);
+
+    // NOTE: Treat `F` as a value of `-i`, so pressing [TAB] will complete other arguments and subcommands.
+    assert_data_eq!(
+        complete!(cmd, "-ciF [TAB]"),
+        snapbox::str![
+            "--input
+--format
+--count
+--help	Print help
+-i
+-F
+-c
+-h	Print help"
+        ]
+    )
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
