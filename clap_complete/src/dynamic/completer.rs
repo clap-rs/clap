@@ -53,9 +53,10 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
+    let mut state = ParseState::ValueDone;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
-            return complete_arg(&arg, current_cmd, current_dir, pos_index, is_escaped);
+            return complete_arg(&arg, current_cmd, current_dir, pos_index, state);
         }
 
         debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
@@ -64,18 +65,96 @@ pub fn complete(
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                 current_cmd = next_cmd;
                 pos_index = 1;
+                state = ParseState::ValueDone;
                 continue;
             }
         }
 
         if is_escaped {
             pos_index += 1;
+            state = ParseState::Pos(pos_index);
         } else if arg.is_escape() {
             is_escaped = true;
-        } else if let Some(_long) = arg.to_long() {
-        } else if let Some(_short) = arg.to_short() {
+            state = ParseState::ValueDone;
+        } else if let Some((flag, value)) = arg.to_long() {
+            if let Ok(flag) = flag {
+                let opt = current_cmd.get_arguments().find(|a| {
+                    let longs = a.get_long_and_visible_aliases();
+                    let is_find = longs.map(|v| {
+                        let mut iter = v.into_iter();
+                        let s = iter.find(|s| *s == flag);
+                        s.is_some()
+                    });
+                    is_find.unwrap_or(false)
+                });
+                state = opt
+                    .map(|o| match o.get_action() {
+                        clap::ArgAction::Set | clap::ArgAction::Append => {
+                            if value.is_some() {
+                                ParseState::ValueDone
+                            } else {
+                                ParseState::Opt(o.clone())
+                            }
+                        }
+                        clap::ArgAction::SetTrue | clap::ArgAction::SetFalse => {
+                            ParseState::ValueDone
+                        }
+                        clap::ArgAction::Count => ParseState::ValueDone,
+                        clap::ArgAction::Version => ParseState::ValueDone,
+                        clap::ArgAction::Help
+                        | clap::ArgAction::HelpLong
+                        | clap::ArgAction::HelpShort => ParseState::ValueDone,
+                        _ => ParseState::ValueDone,
+                    })
+                    .unwrap_or(ParseState::ValueDone);
+            }
+        } else if let Some(short) = arg.to_short() {
+            let mut short = short.clone();
+
+            loop {
+                if let Some(Ok(opt)) = short.next_flag() {
+                    let opt = current_cmd.get_arguments().find(|a| {
+                        let shorts = a.get_short_and_visible_aliases();
+                        let is_find = shorts.map(|v| {
+                            let mut iter = v.into_iter();
+                            let c = iter.find(|c| *c == opt);
+                            c.is_some()
+                        });
+                        is_find.unwrap_or(false)
+                    });
+                    let mut flag = false;
+                    state = opt
+                        .map(|o| match o.get_action() {
+                            clap::ArgAction::Set | clap::ArgAction::Append => {
+                                flag = true;
+                                if short.next_value_os().is_some() {
+                                    ParseState::ValueDone
+                                } else {
+                                    ParseState::Opt(o.clone())
+                                }
+                            }
+                            clap::ArgAction::SetTrue | clap::ArgAction::SetFalse => {
+                                ParseState::ValueDone
+                            }
+                            clap::ArgAction::Count => ParseState::ValueDone,
+                            clap::ArgAction::Version => ParseState::ValueDone,
+                            clap::ArgAction::Help
+                            | clap::ArgAction::HelpShort
+                            | clap::ArgAction::HelpLong => ParseState::ValueDone,
+                            _ => ParseState::ValueDone,
+                        })
+                        .unwrap_or(ParseState::ValueDone);
+                    if flag {
+                        break;
+                    }
+                } else {
+                    state = ParseState::ValueDone;
+                    break;
+                }
+            }
         } else {
             pos_index += 1;
+            state = ParseState::ValueDone;
         }
     }
 
@@ -85,24 +164,36 @@ pub fn complete(
     ))
 }
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+enum ParseState {
+    /// Parsing a value done, there is no state to record.
+    ValueDone,
+
+    /// Parsing a positional argument after `--`
+    Pos(usize),
+
+    /// Parsing a optional flag argument
+    Opt(clap::Arg),
+}
+
 fn complete_arg(
     arg: &clap_lex::ParsedArg<'_>,
     cmd: &clap::Command,
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
-    is_escaped: bool,
+    state: ParseState,
 ) -> Result<Vec<(OsString, Option<StyledStr>)>, std::io::Error> {
     debug!(
-        "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={}, is_escaped={}",
+        "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={:?}, state={:?}",
         arg,
         cmd.get_name(),
         current_dir,
         pos_index,
-        is_escaped
+        state
     );
     let mut completions = Vec::new();
 
-    if !is_escaped {
+    if let ParseState::ValueDone = state {
         if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
                 if let Some(value) = value {
@@ -145,6 +236,47 @@ fn complete_arg(
                     .map(|(f, help)| (format!("{}{}", dash_or_arg, f).into(), help)),
             );
         }
+
+        if let Some(mut short) = arg.to_short() {
+            if !short.is_negative_number() {
+                if let Some(s) = short.next_value_os() {
+                    let (flag, has_equal, value) = match s.split_once("=") {
+                        Some((flag, value)) => (flag, true, value),
+                        None => (s, false, OsStr::new("")),
+                    };
+                    if let Some(last_c) = flag.to_string_lossy().chars().last() {
+                        if let Some(arg) = cmd.get_arguments().find(|a| {
+                            let shorts = a.get_short_and_visible_aliases();
+                            let is_find = shorts.map(|v| {
+                                let mut iter = v.into_iter();
+                                let c = iter.find(|c| *c == last_c);
+                                c.is_some()
+                            });
+                            is_find.unwrap_or(false)
+                        }) {
+                            completions.extend(
+                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                                    .into_iter()
+                                    .map(|(os, help)| {
+                                        (
+                                            format!(
+                                                "-{}{}{}",
+                                                flag.to_string_lossy(),
+                                                if has_equal { "=" } else { "" },
+                                                os.to_string_lossy()
+                                            )
+                                            .into(),
+                                            help,
+                                        )
+                                    }),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    } else if let ParseState::Opt(opt) = &state {
+        completions.extend(complete_arg_value(arg.to_value(), opt, current_dir));
     }
 
     if let Some(positional) = cmd
