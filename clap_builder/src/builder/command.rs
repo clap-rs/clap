@@ -3125,7 +3125,7 @@ impl Command {
         }
     }
 
-    /// Multiple-personality program dispatched on the binary name (`argv[0]`)
+    /// Sets this program as a "multicall" executable, dispatched on the binary name (`argv[0]`)
     ///
     /// A "multicall" executable is a single executable
     /// that contains a variety of applets,
