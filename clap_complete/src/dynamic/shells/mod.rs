@@ -3,12 +3,14 @@
 mod bash;
 mod elvish;
 mod fish;
+mod powershell;
 mod shell;
 mod zsh;
 
 pub use bash::*;
 pub use elvish::*;
 pub use fish::*;
+pub use powershell::*;
 pub use shell::*;
 pub use zsh::*;
 
