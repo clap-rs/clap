@@ -35,14 +35,14 @@ As a heads up, we'll be running your PR through the following gauntlet:
 - `rustfmt`
 - `clippy`
 - `rustdoc`
-- [`committed`](https://github.com/crate-ci/committed) as we use [Conventional](https://www.conventionalcommits.org) commit styl
+- [`committed`](https://github.com/crate-ci/committed) as we use [Conventional](https://www.conventionalcommits.org) commit style
 - [`typos`](https://github.com/crate-ci/typos) to check spelling
 
 Not everything can be checked automatically though.
 
-We request that the commit history get cleaned up.
+We request that the commit history gets cleaned up.
 We ask that commits are atomic, meaning they are complete and have a single responsibility.
-PRs shoukd tell a cohesive story, with test and refactor commits that keep the
+PRs should tell a cohesive story, with test and refactor commits that keep the
 fix or feature commits simple and clear.
 
 Specifically, we would encouage
