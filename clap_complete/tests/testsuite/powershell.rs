@@ -132,3 +132,31 @@ fn subcommand_last() {
         name,
     );
 }
+
+#[test]
+#[cfg(unix)]
+fn register_completion() {
+    common::register_example::<completest_pty::PowershellRuntimeBuilder>("static", "exhaustive");
+}
+
+#[test]
+#[cfg(unix)]
+fn complete() {
+    if !common::has_command("pwsh") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::PowershellRuntimeBuilder>("static", "exhaustive");
+
+    let input = "exhaustive \t";
+    let expected = snapbox::str![
+        r#"% exhaustive 
+action    complete  global    help      last      quote     value     
+alias     generate  h         hint      pacman    V         version   "#
+    ];
+    let actual = runtime.complete(input, &term).unwrap();
+    println!("shanmu actual: {:?}", actual);
+    snapbox::assert_eq(expected, actual);
+}
