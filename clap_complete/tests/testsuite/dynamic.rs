@@ -171,9 +171,9 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
     clap_complete::dynamic::complete(cmd, args, arg_index, current_dir)
         .unwrap()
         .into_iter()
-        .map(|(compl, help)| {
-            let compl = compl.to_str().unwrap();
-            if let Some(help) = help {
+        .map(|candidate| {
+            let compl = candidate.get_content().to_str().unwrap();
+            if let Some(help) = candidate.get_help() {
                 format!("{compl}\t{help}")
             } else {
                 compl.to_owned()

@@ -54,11 +54,11 @@ compdef _clap_dynamic_completer BIN"#
         }
         let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
 
-        for (i, (completion, _)) in completions.iter().enumerate() {
+        for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
-            write!(buf, "{}", completion.to_string_lossy())?;
+            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
         }
         Ok(())
     }
