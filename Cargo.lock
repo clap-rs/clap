@@ -577,9 +577,9 @@ checksum = "e6cda99a94266124c2cce3d239973ef8ce3160c83a3f426a314285d9bf6422d1"
 
 [[package]]
 name = "completest-nu"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9432569c7de3f7aed70f775c455b3d49328449edc0d3655920189cc269f7f93b"
+checksum = "c3006deac8ed40135bcdb5da3d190f7da17a5b897e0da6ea17179059aec6db60"
 dependencies = [
  "completest",
  "dunce",
@@ -1445,9 +1445,9 @@ dependencies = [
 
 [[package]]
 name = "lazy_static"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "lazycell"
@@ -3052,9 +3052,9 @@ checksum = "f67ad224767faa3c7d8b6d91985b78e70a1324408abcb1cfcc2be4c06bc06043"
 
 [[package]]
 name = "snapbox"
-version = "0.6.7"
+version = "0.6.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94204b12a4d3550420babdb4148c6639692e4e3e61060866929c5107f208aeb6"
+checksum = "40e14d10e4c2b4331ac24c33baa5a03e1fbca81c045b285b53b2a612d28569fb"
 dependencies = [
  "anstream",
  "anstyle",
