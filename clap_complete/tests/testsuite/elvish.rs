@@ -152,8 +152,8 @@ fn complete() {
         common::load_runtime::<completest_pty::ElvishRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t";
-    let expected = snapbox::str![
-        r#"% exhaustive --generate
+    let expected = snapbox::str![[r#"
+% exhaustive --generate
  COMPLETING argument  
 --generate     generate                                                 
 --global       everywhere                                               
@@ -169,8 +169,8 @@ hint           hint
 last           last                                                     
 pacman         pacman                                                   
 quote          quote                                                    
-value          value                                                    "#
-    ];
+value          value                                                    
+"#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }

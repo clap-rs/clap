@@ -23,14 +23,11 @@ fn suggest_subcommand_subset() {
         .subcommand(Command::new("hello-moon"))
         .subcommand(Command::new("goodbye-world"));
 
-    assert_data_eq!(
-        complete!(cmd, "he"),
-        snapbox::str![
-            "hello-moon
+    assert_data_eq!(complete!(cmd, "he"), snapbox::str![[r#"
+hello-moon
 hello-world
-help\tPrint this message or the help of the given subcommand(s)"
-        ],
-    );
+help	Print this message or the help of the given subcommand(s)
+"#]],);
 }
 
 #[test]
@@ -52,14 +49,11 @@ fn suggest_long_flag_subset() {
                 .action(clap::ArgAction::Count),
         );
 
-    assert_data_eq!(
-        complete!(cmd, "--he"),
-        snapbox::str![
-            "--hello-world
+    assert_data_eq!(complete!(cmd, "--he"), snapbox::str![[r#"
+--hello-world
 --hello-moon
---help\tPrint help"
-        ],
-    );
+--help	Print help
+"#]],);
 }
 
 #[test]
@@ -71,13 +65,10 @@ fn suggest_possible_value_subset() {
         "goodbye-world".into(),
     ]));
 
-    assert_data_eq!(
-        complete!(cmd, "hello"),
-        snapbox::str![
-            "hello-world\tSay hello to the world
-hello-moon"
-        ],
-    );
+    assert_data_eq!(complete!(cmd, "hello"), snapbox::str![[r#"
+hello-world	Say hello to the world
+hello-moon
+"#]],);
 }
 
 #[test]
@@ -99,15 +90,12 @@ fn suggest_additional_short_flags() {
                 .action(clap::ArgAction::Count),
         );
 
-    assert_data_eq!(
-        complete!(cmd, "-a"),
-        snapbox::str![
-            "-aa
+    assert_data_eq!(complete!(cmd, "-a"), snapbox::str![[r#"
+-aa
 -ab
 -ac
--ah\tPrint help"
-        ],
-    );
+-ah	Print help
+"#]],);
 }
 
 #[test]
@@ -120,16 +108,13 @@ fn suggest_subcommand_positional() {
         ]),
     ));
 
-    assert_data_eq!(
-        complete!(cmd, "hello-world [TAB]"),
-        snapbox::str![
-            "--help\tPrint help (see more with '--help')
--h\tPrint help (see more with '--help')
-hello-world\tSay hello to the world
+    assert_data_eq!(complete!(cmd, "hello-world [TAB]"), snapbox::str![[r#"
+--help	Print help (see more with '--help')
+-h	Print help (see more with '--help')
+hello-world	Say hello to the world
 hello-moon
-goodbye-world"
-        ],
-    );
+goodbye-world
+"#]],);
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {

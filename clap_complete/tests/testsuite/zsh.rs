@@ -153,12 +153,12 @@ fn complete() {
         common::load_runtime::<completest_pty::ZshRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t";
-    let expected = snapbox::str![
-        r#"% exhaustive
+    let expected = snapbox::str![[r#"
+% exhaustive
 complete                                           -- Register shell completions for this program                     
 help                                               -- Print this message or the help of the given subcommand(s)       
-pacman    action  alias  value  quote  hint  last  --                                                                 "#
-    ];
+pacman    action  alias  value  quote  hint  last  --                                                                 
+"#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
