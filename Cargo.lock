@@ -571,9 +571,9 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "completest"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8229e041ca8f8130ad7f0ce1afb9cfdb3033de7fd548e6422dbb2f4f12184f41"
+checksum = "e6cda99a94266124c2cce3d239973ef8ce3160c83a3f426a314285d9bf6422d1"
 
 [[package]]
 name = "completest-nu"
@@ -594,9 +594,9 @@ dependencies = [
 
 [[package]]
 name = "completest-pty"
-version = "0.5.0"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a6d1272e27f608f97616be67a2aed03ed8d73910b5df9a7f4a50c4ffd59d185"
+checksum = "ee700748da7d34de4bbe0296d3153e8ef5217233d814d23fb68106c110dd9bc5"
 dependencies = [
  "completest",
  "ptyprocess",
