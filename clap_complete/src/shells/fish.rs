@@ -16,22 +16,15 @@ impl Generator for Fish {
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        use clap::ArgAction::{Help, HelpLong, HelpShort, Version};
         let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        let has_global_flags = {
-            let n_args = cmd.get_arguments().filter(|a| !a.is_positional()).count();
-            // `-h` and `-v` behaves as command, not regular flags/options that modifies subcommand behaviors.
-            match (
-                cmd.is_disable_help_flag_set(),
-                cmd.is_disable_version_flag_set(),
-            ) {
-                (false, false) => n_args > 2,
-                (true, true) => n_args > 0,
-                _ => n_args > 1,
-            }
-        };
+        // `-h` and `-v` behaves as command, not regular flags/options that modifies subcommand behaviors.
+        let has_global_flags = cmd.get_arguments().any(|a| {
+            !a.is_positional() && !matches!(a.get_action(), Help | HelpShort | HelpLong | Version)
+        });
 
         let name = escape_name(bin_name);
         let mut needs_fn_name = &format!("__fish_{name}_needs_command")[..];
