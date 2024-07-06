@@ -231,7 +231,12 @@ fn gen_subcommand_helpers(
             }
             optspecs.push_str(&escape_string(long, false));
         }
-        if option.is_required_set() {
+
+        let is_an_option = option
+            .get_num_args()
+            .map(|r| r.takes_values())
+            .unwrap_or(true);
+        if is_an_option {
             optspecs.push('=');
         }
     }

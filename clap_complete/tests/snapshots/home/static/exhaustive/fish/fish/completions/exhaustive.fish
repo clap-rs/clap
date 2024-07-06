@@ -1,6 +1,6 @@
 # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.
 function __fish_exhaustive_global_optspecs
-	string join \n global generate h/help V/version
+	string join \n global generate= h/help V/version
 end
 
 function __fish_exhaustive_needs_command
