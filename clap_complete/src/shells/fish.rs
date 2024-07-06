@@ -121,15 +121,9 @@ fn gen_fish_inner(
             [command, subcommand] => out.push_str(&format!(
                 " {command}; and __fish_seen_subcommand_from {subcommand}"
             )),
-            [command, "help", _subcommand] => {
-                out.push_str(&format!(" {command}; and __fish_seen_subcommand_from help"));
-            }
-            ["help", command, _subcommand] => {
-                out.push_str(&format!(" help; and __fish_seen_subcommand_from {command}"));
-            }
-            _ => unimplemented!(
-                "subcommand should be nested less than 3 levels: {parent_commands:?}"
-            ),
+            // Subcommand should be nested less than 3 levels to be practical
+            // `rustup toolchain help install` cannot receive any flags to it.
+            _ => return,
         }
         basic_template.push_str(format!(" -n \"{out}\"").as_str());
     }
