@@ -29,7 +29,7 @@ impl Generator for Fish {
         let name = escape_name(bin_name);
         let mut needs_fn_name = &format!("__fish_{name}_needs_command")[..];
         let mut using_fn_name = &format!("__fish_{name}_using_subcommand")[..];
-        if has_global_flags {
+        if has_global_flags && cmd.has_subcommands() {
             gen_subcommand_helpers(&name, cmd, buf, needs_fn_name, using_fn_name);
         } else {
             needs_fn_name = "__fish_use_subcommand";
@@ -215,9 +215,6 @@ fn gen_subcommand_helpers(
     needs_fn_name: &str,
     using_fn_name: &str,
 ) {
-    if !cmd.has_subcommands() {
-        return;
-    }
     let mut optspecs = String::new();
     let cmd_opts = cmd.get_arguments().filter(|a| !a.is_positional());
     for option in cmd_opts {
