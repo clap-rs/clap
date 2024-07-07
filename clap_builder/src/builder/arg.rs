@@ -2035,9 +2035,23 @@ impl Arg {
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
-    pub fn env(mut self, name: impl IntoResettable<OsStr>) -> Self {
+    pub fn env(self, name: impl IntoResettable<OsStr>) -> Self {
+        self.env_with_source(name, |var| env::var_os(var))
+    }
+
+    /// Read from `name` environment variable when argument is not present, using `env_source` function instead of `std::env::var_os` to access the environment.
+    ///
+    /// This is intended to be used instead of `.env` for tests which you may want to isolate from the actual environment, or for wasm build targets and such.
+    #[cfg(feature = "env")]
+    #[inline]
+    #[must_use]
+    pub fn env_with_source(
+        mut self,
+        name: impl IntoResettable<OsStr>,
+        env_source: impl FnOnce(&std::ffi::OsStr) -> Option<OsString>,
+    ) -> Self {
         if let Some(name) = name.into_resettable().into_option() {
-            let value = env::var_os(&name);
+            let value = env_source(&name);
             self.env = Some((name, value));
         } else {
             self.env = None;
