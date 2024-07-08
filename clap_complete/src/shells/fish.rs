@@ -114,8 +114,10 @@ fn gen_fish_inner(
             [command, subcommand] => out.push_str(&format!(
                 " {command}; and __fish_seen_subcommand_from {subcommand}"
             )),
-            // Subcommand should be nested less than 3 levels to be practical
-            // `rustup toolchain help install` cannot receive any flags to it.
+            // HACK: Assuming subcommands are only nested less than 3 levels as more than that is
+            // unwieldy and takes more effort to support.
+            // For example, `rustup toolchain help install` is the longest valid command line of `rustup`
+            // that uses nested subcommands, and it cannot receive any flags to it.
             _ => return,
         }
         basic_template.push_str(format!(" -n \"{out}\"").as_str());
