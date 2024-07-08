@@ -373,6 +373,8 @@ fn try_help_custom_flag() {
 error: unexpected argument 'bar' found
 
 Usage: ctest
+
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("ctest")
@@ -394,6 +396,8 @@ fn try_help_custom_flag_short() {
 error: unexpected argument 'bar' found
 
 Usage: ctest
+
+For more information, try '-h'.
 ";
 
     let cmd = Command::new("ctest")
@@ -410,6 +414,8 @@ fn try_help_custom_flag_long() {
 error: unexpected argument 'bar' found
 
 Usage: ctest
+
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("ctest")
@@ -461,7 +467,7 @@ error: unrecognized subcommand 'bar'
 
 Usage: ctest [COMMAND]
 
-For more information, try 'help'.
+For more information, try '--help'.
 ";
 
     let cmd = Command::new("ctest")
