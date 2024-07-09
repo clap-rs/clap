@@ -21,7 +21,10 @@ impl Generator for Fish {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        // `-h` and `-v` behaves as command, not regular flags/options that modifies subcommand behaviors.
+        // If there is any regular flags, we may have complicated cases, e.g. `git --git-dir somedir status`. Using normal
+        // `__fish_seen_subcommand_from` won't help us find out the real subcommand is `status`, and not `somedir`.
+        // However, we prefer to fallback to the old behavior when there are no regular flags. `-h` and `-v` is not
+        // a regular flag and it behaves like a command. E.g., `rustup --version toolchain` is not a valid command line.
         let has_global_flags = cmd.get_arguments().any(|a| {
             !a.is_positional() && !matches!(a.get_action(), Help | HelpShort | HelpLong | Version)
         });
