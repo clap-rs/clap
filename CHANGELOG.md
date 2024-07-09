@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* When defining a custom help flag, be sure to suggest it like we do the built-in one
+
 ## [4.5.8] - 2024-06-28
 
 ### Fixes
