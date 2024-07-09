@@ -81,7 +81,9 @@ fn help_multi_subcommand_error() {
         .try_get_matches_from(["ctest", "help", "subcmd", "multi", "foo"])
         .unwrap_err();
 
-    assert_data_eq!(err.to_string(), str![[r#"
+    assert_data_eq!(
+        err.to_string(),
+        str![[r#"
 error: unrecognized subcommand 'foo'
 
 Usage: ctest subcmd multi [OPTIONS]
@@ -349,6 +351,158 @@ Options:
 
     let cmd = Command::new("ctest").version("1.0").term_width(0);
     utils::assert_output(cmd, "ctest --help", DEFAULT_HELP, false);
+}
+
+#[test]
+fn try_help_default() {
+    static DEFAULT_HELP: &str = "\
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("ctest").version("1.0").term_width(0);
+    utils::assert_output(cmd, "ctest bar", DEFAULT_HELP, true);
+}
+
+#[test]
+fn try_help_custom_flag() {
+    static EXPECTED_HELP: &str = "\
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        .arg(
+            Arg::new("help")
+                .long("help")
+                .short('h')
+                .action(ArgAction::Help),
+        )
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+}
+
+#[test]
+fn try_help_custom_flag_short() {
+    static EXPECTED_HELP: &str = "\
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+For more information, try '-h'.
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        .arg(Arg::new("help").short('h').action(ArgAction::HelpShort))
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+}
+
+#[test]
+fn try_help_custom_flag_long() {
+    static EXPECTED_HELP: &str = "\
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        .arg(Arg::new("help").long("help").action(ArgAction::HelpShort))
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+}
+
+#[test]
+fn try_help_custom_flag_no_action() {
+    static EXPECTED_HELP: &str = "\
+error: unexpected argument 'bar' found
+
+Usage: ctest
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        // Note `ArgAction::Help` is excluded
+        .arg(Arg::new("help").long("help").global(true))
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+}
+
+#[test]
+fn try_help_subcommand_default() {
+    static DEFAULT_HELP: &str = "\
+error: unrecognized subcommand 'bar'
+
+Usage: ctest [COMMAND]
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .subcommand(Command::new("foo"))
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", DEFAULT_HELP, true);
+}
+
+#[test]
+fn try_help_subcommand_custom_flag() {
+    static EXPECTED_HELP: &str = "\
+error: unrecognized subcommand 'bar'
+
+Usage: ctest [COMMAND]
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        .arg(
+            Arg::new("help")
+                .long("help")
+                .short('h')
+                .action(ArgAction::Help)
+                .global(true),
+        )
+        .subcommand(Command::new("foo"))
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+}
+
+#[test]
+fn try_help_subcommand_custom_flag_no_action() {
+    static EXPECTED_HELP: &str = "\
+error: unrecognized subcommand 'bar'
+
+Usage: ctest [COMMAND]
+
+For more information, try 'help'.
+";
+
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        // Note `ArgAction::Help` is excluded
+        .arg(Arg::new("help").long("help").global(true))
+        .subcommand(Command::new("foo"))
+        .term_width(0);
+    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
 }
 
 #[test]
