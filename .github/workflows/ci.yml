@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: none
     name: CI
-    needs: [test, msrv, lockfile, docs, rustfmt, clippy]
+    needs: [test, msrv, lockfile, docs, rustfmt, clippy, minimal-versions]
     runs-on: ubuntu-latest
     if: "always()"
     steps:
@@ -65,6 +65,24 @@ jobs:
     - uses: taiki-e/install-action@cargo-hack
     - name: Default features
       run: cargo hack check --feature-powerset --locked --rust-version --ignore-private --workspace --all-targets
+  minimal-versions:
+    name: Minimal versions
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install stable Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - name: Install nightly Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: nightly
+    - name: Downgrade dependencies to minimal versions
+      run: cargo +nightly generate-lockfile -Z minimal-versions
+    - name: Compile with minimal versions
+      run: cargo +stable check --workspace --all-features --locked
   lockfile:
     runs-on: ubuntu-latest
     steps:
