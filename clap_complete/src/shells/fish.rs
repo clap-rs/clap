@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use clap::{builder, Arg, Command, ValueHint};
+use clap::{builder, Arg, ArgAction, Command, ValueHint};
 
 use crate::generator::{utils, Generator};
 
@@ -16,7 +16,6 @@ impl Generator for Fish {
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
-        use clap::ArgAction::{Help, HelpLong, HelpShort, Version};
         let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -26,7 +25,14 @@ impl Generator for Fish {
         // However, we prefer to fallback to the old behavior when there are no regular flags. `-h` and `-v` is not
         // a regular flag and it behaves like a command. E.g., `rustup --version toolchain` is not a valid command line.
         let has_global_flags = cmd.get_arguments().any(|a| {
-            !a.is_positional() && !matches!(a.get_action(), Help | HelpShort | HelpLong | Version)
+            !a.is_positional()
+                && !matches!(
+                    a.get_action(),
+                    ArgAction::Help
+                        | ArgAction::HelpShort
+                        | ArgAction::HelpLong
+                        | ArgAction::Version
+                )
         });
 
         let name = escape_name(bin_name);
