@@ -110,15 +110,14 @@ fn complete_arg(
                         completions.extend(
                             complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                                 .into_iter()
-                                .map(|(os, help)| {
-                                    // HACK: Need better `OsStr` manipulation
+                                .map(|comp| {
                                     CompletionCandidate::new(format!(
                                         "--{}={}",
                                         flag,
-                                        os.to_string_lossy()
+                                        comp.get_content().to_string_lossy()
                                     ))
-                                    .help(help)
-                                    .visible(true)
+                                    .help(comp.get_help().cloned())
+                                    .visible(comp.is_visible())
                                 }),
                         );
                     }
@@ -169,11 +168,7 @@ fn complete_arg(
         .get_positionals()
         .find(|p| p.get_index() == Some(pos_index))
     {
-        completions.extend(
-            complete_arg_value(arg.to_value(), positional, current_dir)
-                .into_iter()
-                .map(|(os, help)| CompletionCandidate::new(os).help(help).visible(true)),
-        );
+        completions.extend(complete_arg_value(arg.to_value(), positional, current_dir).into_iter());
     }
 
     if let Ok(value) = arg.to_value() {
@@ -191,7 +186,7 @@ fn complete_arg_value(
     value: Result<&str, &OsStr>,
     arg: &clap::Arg,
     current_dir: Option<&std::path::Path>,
-) -> Vec<(OsString, Option<StyledStr>)> {
+) -> Vec<CompletionCandidate> {
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
@@ -199,8 +194,11 @@ fn complete_arg_value(
         if let Ok(value) = value {
             values.extend(possible_values.into_iter().filter_map(|p| {
                 let name = p.get_name();
-                name.starts_with(value)
-                    .then(|| (OsString::from(name), p.get_help().cloned()))
+                name.starts_with(value).then(|| {
+                    CompletionCandidate::new(OsString::from(name))
+                        .help(p.get_help().cloned())
+                        .visible(!p.is_hide_set())
+                })
             }));
         }
     } else {
@@ -249,7 +247,7 @@ fn complete_path(
     value_os: &OsStr,
     current_dir: Option<&std::path::Path>,
     is_wanted: impl Fn(&std::path::Path) -> bool,
-) -> Vec<(OsString, Option<StyledStr>)> {
+) -> Vec<CompletionCandidate> {
     let mut completions = Vec::new();
 
     let current_dir = match current_dir {
@@ -281,12 +279,20 @@ fn complete_path(
             let path = entry.path();
             let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
             suggestion.push(""); // Ensure trailing `/`
-            completions.push((suggestion.as_os_str().to_owned(), None));
+            completions.push(
+                CompletionCandidate::new(suggestion.as_os_str().to_owned())
+                    .help(None)
+                    .visible(true),
+            );
         } else {
             let path = entry.path();
             if is_wanted(&path) {
                 let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
-                completions.push((suggestion.as_os_str().to_owned(), None));
+                completions.push(
+                    CompletionCandidate::new(suggestion.as_os_str().to_owned())
+                        .help(None)
+                        .visible(true),
+                );
             }
         }
     }
