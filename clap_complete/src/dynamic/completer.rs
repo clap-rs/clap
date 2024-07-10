@@ -118,6 +118,7 @@ fn complete_arg(
                                         os.to_string_lossy()
                                     ))
                                     .help(help)
+                                    .visible(true)
                                 }),
                         );
                     }
@@ -126,11 +127,18 @@ fn complete_arg(
                         comp.get_content()
                             .starts_with(format!("--{}", flag).as_str())
                     }));
+
+                    completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
+                        comp.get_content()
+                            .starts_with(format!("--{}", flag).as_str())
+                    }))
                 }
             }
         } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
             // HACK: Assuming knowledge of is_escape / is_stdio
             completions.extend(longs_and_visible_aliases(cmd));
+
+            completions.extend(hidden_longs_aliases(cmd));
         }
 
         if arg.is_empty() || arg.is_stdio() || arg.is_short() {
@@ -151,6 +159,7 @@ fn complete_arg(
                             comp.get_content().to_string_lossy()
                         ))
                         .help(comp.get_help().cloned())
+                        .visible(true)
                     }),
             );
         }
@@ -163,12 +172,16 @@ fn complete_arg(
         completions.extend(
             complete_arg_value(arg.to_value(), positional, current_dir)
                 .into_iter()
-                .map(|(os, help)| CompletionCandidate::new(os).help(help)),
+                .map(|(os, help)| CompletionCandidate::new(os).help(help).visible(true)),
         );
     }
 
     if let Ok(value) = arg.to_value() {
         completions.extend(complete_subcommand(value, cmd));
+    }
+
+    if completions.iter().any(|a| a.is_visible()) {
+        completions.retain(|a| a.is_visible())
     }
 
     Ok(completions)
@@ -297,7 +310,7 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
     scs
 }
 
-/// Gets all the long options, their visible aliases and flags of a [`clap::Command`].
+/// Gets all the long options, their visible aliases and flags of a [`clap::Command`] with formatted `--` prefix.
 /// Includes `help` and `version` depending on the [`clap::Command`] settings.
 fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
     debug!("longs: name={}", p.get_name());
@@ -306,7 +319,27 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    CompletionCandidate::new(format!("--{}", s)).help(a.get_help().cloned())
+                    CompletionCandidate::new(format!("--{}", s.to_string()))
+                        .help(a.get_help().cloned())
+                        .visible(!a.is_hide_set())
+                })
+            })
+        })
+        .flatten()
+        .collect()
+}
+
+/// Gets all the long hidden aliases and flags of a [`clap::Command`].
+fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
+    debug!("longs: name={}", p.get_name());
+
+    p.get_arguments()
+        .filter_map(|a| {
+            a.get_aliases().map(|longs| {
+                longs.into_iter().map(|s| {
+                    CompletionCandidate::new(format!("--{}", s.to_string()))
+                        .help(a.get_help().cloned())
+                        .visible(false)
                 })
             })
         })
@@ -322,9 +355,11 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
     p.get_arguments()
         .filter_map(|a| {
             a.get_short_and_visible_aliases().map(|shorts| {
-                shorts
-                    .into_iter()
-                    .map(|s| CompletionCandidate::new(s.to_string()).help(a.get_help().cloned()))
+                shorts.into_iter().map(|s| {
+                    CompletionCandidate::new(s.to_string())
+                        .help(a.get_help().cloned())
+                        .visible(!a.is_hide_set())
+                })
             })
         })
         .flatten()
@@ -351,14 +386,16 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
     p.get_subcommands()
         .flat_map(|sc| {
-            sc.get_name_and_visible_aliases()
-                .into_iter()
-                .map(|s| CompletionCandidate::new(s.to_string()).help(sc.get_about().cloned()))
+            sc.get_name_and_visible_aliases().into_iter().map(|s| {
+                CompletionCandidate::new(s.to_string())
+                    .help(sc.get_about().cloned())
+                    .visible(true)
+            })
         })
         .collect()
 }
 
-/// A completion candidate defination
+/// A completion candidate definition
 ///
 /// This makes it easier to add more fields to completion candidate,
 /// rather than using `(OsString, Option<StyledStr>)` or `(String, Option<StyledStr>)` to represent a completion candidate
@@ -369,6 +406,9 @@ pub struct CompletionCandidate {
 
     /// Help message with a completion candidate
     help: Option<StyledStr>,
+
+    /// Whether the completion candidate is visible
+    visible: bool,
 }
 
 impl CompletionCandidate {
@@ -387,6 +427,12 @@ impl CompletionCandidate {
         self
     }
 
+    /// Set the visibility of the completion candidate
+    pub fn visible(mut self, visible: bool) -> Self {
+        self.visible = visible;
+        self
+    }
+
     /// Get the content of the completion candidate
     pub fn get_content(&self) -> &OsStr {
         &self.content
@@ -395,5 +441,10 @@ impl CompletionCandidate {
     /// Get the help message of the completion candidate
     pub fn get_help(&self) -> Option<&StyledStr> {
         self.help.as_ref()
+    }
+
+    /// Get the visibility of the completion candidate
+    pub fn is_visible(&self) -> bool {
+        self.visible
     }
 }

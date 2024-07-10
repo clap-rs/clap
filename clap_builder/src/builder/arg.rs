@@ -3952,6 +3952,21 @@ impl Arg {
         Some(longs)
     }
 
+    /// Get hidden aliases for this argument, if any
+    #[inline]
+    pub fn get_aliases(&self) -> Option<Vec<&str>> {
+        if self.aliases.is_empty() {
+            None
+        } else {
+            Some(
+                self.aliases
+                    .iter()
+                    .filter_map(|(s, v)| if !*v { Some(s.as_str()) } else { None })
+                    .collect(),
+            )
+        }
+    }
+
     /// Get the names of possible values for this argument. Only useful for user
     /// facing applications, such as building help messages or man files
     pub fn get_possible_values(&self) -> Vec<PossibleValue> {

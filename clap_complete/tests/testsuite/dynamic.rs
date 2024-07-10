@@ -45,10 +45,7 @@ fn suggest_hidden_long_flags() {
 
     assert_data_eq!(
         complete!(cmd, "--hello-world"),
-        snapbox::str![
-            "--hello-world-visible
---hello-world-hidden"
-        ]
+        snapbox::str!["--hello-world-visible"]
     );
 
     assert_data_eq!(
@@ -108,9 +105,7 @@ fn suggest_hidden_long_flag_aliases() {
         complete!(cmd, "--test"),
         snapbox::str![
             "--test_visible
---test_visible-alias_visible
---test_hidden
---test_hidden-alias_visible"
+--test_visible-alias_visible"
         ]
     );
 
@@ -118,13 +113,20 @@ fn suggest_hidden_long_flag_aliases() {
         complete!(cmd, "--test_h"),
         snapbox::str![
             "--test_hidden
---test_hidden-alias_visible"
+--test_hidden-alias_visible
+--test_hidden-alias_hidden"
         ]
     );
 
-    assert_data_eq!(complete!(cmd, "--test_visible-alias_h"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "--test_visible-alias_h"),
+        snapbox::str!["--test_visible-alias_hidden"]
+    );
 
-    assert_data_eq!(complete!(cmd, "--test_hidden-alias_h"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "--test_hidden-alias_h"),
+        snapbox::str!["--test_hidden-alias_hidden"]
+    );
 }
 
 #[test]
