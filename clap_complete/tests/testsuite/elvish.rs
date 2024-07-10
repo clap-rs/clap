@@ -196,8 +196,8 @@ fn complete_dynamic() {
     let expected = snapbox::str![
         r#"% exhaustive --generate
  COMPLETING argument  
---generate  --help     -V  action  complete  hint  pacman  value
---global    --version  -h  alias   help      last  quote "#
+--generate  --help     -V  action  help  last    quote
+--global    --version  -h  alias   hint  pacman  value"#
     ];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

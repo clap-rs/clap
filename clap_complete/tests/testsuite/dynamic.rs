@@ -72,9 +72,7 @@ fn suggest_hidden_subcommand_and_aliases() {
     assert_data_eq!(
         complete!(cmd, "test"),
         snapbox::str![
-            "test_hidden
-test_hidden-alias_visible
-test_visible
+            "test_visible
 test_visible-alias_visible"
         ]
     );
@@ -83,11 +81,15 @@ test_visible-alias_visible"
         complete!(cmd, "test_h"),
         snapbox::str![
             "test_hidden
+test_hidden-alias_hidden
 test_hidden-alias_visible"
         ]
     );
 
-    assert_data_eq!(complete!(cmd, "test_hidden-alias_h"), snapbox::str![""])
+    assert_data_eq!(
+        complete!(cmd, "test_hidden-alias_h"),
+        snapbox::str!["test_hidden-alias_hidden"]
+    )
 }
 
 #[test]

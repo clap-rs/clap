@@ -163,7 +163,6 @@ pacman    action  alias  value  quote  hint  last  --
     assert_data_eq!(actual, expected);
 }
 
-
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 #[test]
 fn register_dynamic() {
@@ -184,8 +183,8 @@ fn complete_dynamic() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![
         r#"% exhaustive
---generate  --help      -V          action      complete    hint        pacman      value       
---global    --version   -h          alias       help        last        quote       "#
+--generate  --help      -V          action      help        last        quote       
+--global    --version   -h          alias       hint        pacman      value       "#
     ];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
