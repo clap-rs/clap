@@ -23,11 +23,38 @@ fn suggest_subcommand_subset() {
         .subcommand(Command::new("hello-moon"))
         .subcommand(Command::new("goodbye-world"));
 
-    assert_data_eq!(complete!(cmd, "he"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "he"),
+        snapbox::str![[r#"
 hello-moon
 hello-world
 help	Print this message or the help of the given subcommand(s)
-"#]],);
+"#]],
+    );
+}
+
+#[test]
+fn suggest_hidden_long_flags() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(clap::Arg::new("hello-world-visible").long("hello-world-visible"))
+        .arg(
+            clap::Arg::new("hello-world-hidden")
+                .long("hello-world-hidden")
+                .hide(true),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "--hello-world"),
+        snapbox::str![
+            "--hello-world-visible
+--hello-world-hidden"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--hello-world-h"),
+        snapbox::str!["--hello-world-hidden"]
+    )
 }
 
 #[test]
@@ -61,6 +88,46 @@ hello-world-foo"
 }
 
 #[test]
+fn suggest_hidden_long_flag_aliases() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("test_visible")
+                .long("test_visible")
+                .visible_alias("test_visible-alias_visible")
+                .alias("test_visible-alias_hidden"),
+        )
+        .arg(
+            clap::Arg::new("test_hidden")
+                .long("test_hidden")
+                .visible_alias("test_hidden-alias_visible")
+                .alias("test_hidden-alias_hidden")
+                .hide(true),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "--test"),
+        snapbox::str![
+            "--test_visible
+--test_visible-alias_visible
+--test_hidden
+--test_hidden-alias_visible"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--test_h"),
+        snapbox::str![
+            "--test_hidden
+--test_hidden-alias_visible"
+        ]
+    );
+
+    assert_data_eq!(complete!(cmd, "--test_visible-alias_h"), snapbox::str![""]);
+
+    assert_data_eq!(complete!(cmd, "--test_hidden-alias_h"), snapbox::str![""]);
+}
+
+#[test]
 fn suggest_long_flag_subset() {
     let mut cmd = Command::new("exhaustive")
         .arg(
@@ -79,11 +146,14 @@ fn suggest_long_flag_subset() {
                 .action(clap::ArgAction::Count),
         );
 
-    assert_data_eq!(complete!(cmd, "--he"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--he"),
+        snapbox::str![[r#"
 --hello-world
 --hello-moon
 --help	Print help
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -95,10 +165,13 @@ fn suggest_possible_value_subset() {
         "goodbye-world".into(),
     ]));
 
-    assert_data_eq!(complete!(cmd, "hello"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "hello"),
+        snapbox::str![[r#"
 hello-world	Say hello to the world
 hello-moon
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -120,12 +193,15 @@ fn suggest_additional_short_flags() {
                 .action(clap::ArgAction::Count),
         );
 
-    assert_data_eq!(complete!(cmd, "-a"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-a"),
+        snapbox::str![[r#"
 -aa
 -ab
 -ac
 -ah	Print help
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -138,13 +214,16 @@ fn suggest_subcommand_positional() {
         ]),
     ));
 
-    assert_data_eq!(complete!(cmd, "hello-world [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "hello-world [TAB]"),
+        snapbox::str![[r#"
 --help	Print help (see more with '--help')
 -h	Print help (see more with '--help')
 hello-world	Say hello to the world
 hello-moon
 goodbye-world
-"#]],);
+"#]],
+    );
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
