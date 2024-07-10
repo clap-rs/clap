@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use clap::{builder, Arg, ArgAction, Command, ValueHint};
+use clap::{builder, Arg, Command, ValueHint};
 
 use crate::generator::{utils, Generator};
 
@@ -20,25 +20,13 @@ impl Generator for Fish {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        // If there is any regular flags, we may have complicated cases, e.g. `git --git-dir somedir status`. Using normal
-        // `__fish_seen_subcommand_from` won't help us find out the real subcommand is `status`, and not `somedir`.
-        // However, we prefer to fallback to the old behavior when there are no regular flags. `-h` and `-v` is not
-        // a regular flag and it behaves like a command. E.g., `rustup --version toolchain` is not a valid command line.
-        let has_global_flags = cmd.get_arguments().any(|a| {
-            !a.is_positional()
-                && !matches!(
-                    a.get_action(),
-                    ArgAction::Help
-                        | ArgAction::HelpShort
-                        | ArgAction::HelpLong
-                        | ArgAction::Version
-                )
-        });
-
         let name = escape_name(bin_name);
         let mut needs_fn_name = &format!("__fish_{name}_needs_command")[..];
         let mut using_fn_name = &format!("__fish_{name}_using_subcommand")[..];
-        if has_global_flags && cmd.has_subcommands() {
+        // Given `git --git-dir somedir status`, using `__fish_seen_subcommand_from` won't help us
+        // find out `status` is the real subcommand, and not `somedir`. However, when there are no subcommands,
+        // there is no need to use our custom stubs.
+        if cmd.has_subcommands() {
             gen_subcommand_helpers(&name, cmd, buf, needs_fn_name, using_fn_name);
         } else {
             needs_fn_name = "__fish_use_subcommand";
