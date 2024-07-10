@@ -55,6 +55,42 @@ fn suggest_hidden_long_flags() {
 }
 
 #[test]
+fn suggest_hidden_subcommand_and_aliases() {
+    let mut cmd = Command::new("exhaustive")
+        .subcommand(
+            Command::new("test_visible")
+                .visible_alias("test_visible-alias_visible")
+                .alias("test_visible-alias_hidden"),
+        )
+        .subcommand(
+            Command::new("test_hidden")
+                .visible_alias("test_hidden-alias_visible")
+                .alias("test_hidden-alias_hidden")
+                .hide(true),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "test"),
+        snapbox::str![
+            "test_hidden
+test_hidden-alias_visible
+test_visible
+test_visible-alias_visible"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "test_h"),
+        snapbox::str![
+            "test_hidden
+test_hidden-alias_visible"
+        ]
+    );
+
+    assert_data_eq!(complete!(cmd, "test_hidden-alias_h"), snapbox::str![""])
+}
+
+#[test]
 fn suggest_subcommand_aliases() {
     let mut cmd = Command::new("exhaustive")
         .subcommand(
