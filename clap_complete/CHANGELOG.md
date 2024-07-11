@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(fish)* Nested subcommand completions
+
 ## [4.5.7] - 2024-06-28
 
 ### Fixes
