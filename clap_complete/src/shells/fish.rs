@@ -20,8 +20,28 @@ impl Generator for Fish {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
+        let name = escape_name(bin_name);
+        let mut needs_fn_name = &format!("__fish_{name}_needs_command")[..];
+        let mut using_fn_name = &format!("__fish_{name}_using_subcommand")[..];
+        // Given `git --git-dir somedir status`, using `__fish_seen_subcommand_from` won't help us
+        // find out `status` is the real subcommand, and not `somedir`. However, when there are no subcommands,
+        // there is no need to use our custom stubs.
+        if cmd.has_subcommands() {
+            gen_subcommand_helpers(&name, cmd, buf, needs_fn_name, using_fn_name);
+        } else {
+            needs_fn_name = "__fish_use_subcommand";
+            using_fn_name = "__fish_seen_subcommand_from";
+        }
+
         let mut buffer = String::new();
-        gen_fish_inner(bin_name, &[], cmd, &mut buffer);
+        gen_fish_inner(
+            bin_name,
+            &[],
+            cmd,
+            &mut buffer,
+            needs_fn_name,
+            using_fn_name,
+        );
         w!(buf, buffer.as_bytes());
     }
 }
@@ -40,11 +60,17 @@ fn escape_help(help: &builder::StyledStr) -> String {
     escape_string(&help.to_string().replace('\n', " "), false)
 }
 
+fn escape_name(name: &str) -> String {
+    name.replace('-', "_")
+}
+
 fn gen_fish_inner(
     root_command: &str,
     parent_commands: &[&str],
     cmd: &Command,
     buffer: &mut String,
+    needs_fn_name: &str,
+    using_fn_name: &str,
 ) {
     debug!("gen_fish_inner");
     // example :
@@ -57,31 +83,39 @@ fn gen_fish_inner(
     //      -a "{possible_arguments}"
     //      -r # if require parameter
     //      -f # don't use file completion
-    //      -n "__fish_use_subcommand"               # complete for command "myprog"
-    //      -n "__fish_seen_subcommand_from subcmd1" # complete for command "myprog subcmd1"
+    //      -n "{needs_fn_name}"            # complete for command "myprog"
+    //      -n "{using_fn_name} subcmd1"    # complete for command "myprog subcmd1"
 
     let mut basic_template = format!("complete -c {root_command}");
 
     if parent_commands.is_empty() {
         if cmd.has_subcommands() {
-            basic_template.push_str(" -n \"__fish_use_subcommand\"");
+            basic_template.push_str(&format!(" -n \"{needs_fn_name}\""));
         }
     } else {
-        let mut out = String::from("__fish_seen_subcommand_from");
-        for &command in parent_commands {
-            out.push(' ');
-            out.push_str(command);
-        }
-        let subcommands: Vec<&str> = cmd
-            .get_subcommands()
-            .flat_map(Command::get_name_and_visible_aliases)
-            .collect();
-        if !subcommands.is_empty() {
-            out.push_str("; and not __fish_seen_subcommand_from");
-        }
-        for name in subcommands {
-            out.push(' ');
-            out.push_str(name);
+        let mut out = String::from(using_fn_name);
+        match parent_commands {
+            [] => unreachable!(),
+            [command] => {
+                out.push_str(&format!(" {command}"));
+                if cmd.has_subcommands() {
+                    out.push_str("; and not __fish_seen_subcommand_from");
+                }
+                let subcommands = cmd
+                    .get_subcommands()
+                    .flat_map(Command::get_name_and_visible_aliases);
+                for name in subcommands {
+                    out.push_str(&format!(" {name}"));
+                }
+            }
+            [command, subcommand] => out.push_str(&format!(
+                " {command}; and __fish_seen_subcommand_from {subcommand}"
+            )),
+            // HACK: Assuming subcommands are only nested less than 3 levels as more than that is
+            // unwieldy and takes more effort to support.
+            // For example, `rustup toolchain help install` is the longest valid command line of `rustup`
+            // that uses nested subcommands, and it cannot receive any flags to it.
+            _ => return,
         }
         basic_template.push_str(format!(" -n \"{out}\"").as_str());
     }
@@ -160,9 +194,78 @@ fn gen_fish_inner(
         for subcommand_name in subcommand.get_name_and_visible_aliases() {
             let mut parent_commands: Vec<_> = parent_commands.into();
             parent_commands.push(subcommand_name);
-            gen_fish_inner(root_command, &parent_commands, subcommand, buffer);
+            gen_fish_inner(
+                root_command,
+                &parent_commands,
+                subcommand,
+                buffer,
+                needs_fn_name,
+                using_fn_name,
+            );
         }
     }
+}
+
+/// Print fish's helpers for easy handling subcommands.
+fn gen_subcommand_helpers(
+    bin_name: &str,
+    cmd: &Command,
+    buf: &mut dyn Write,
+    needs_fn_name: &str,
+    using_fn_name: &str,
+) {
+    let mut optspecs = String::new();
+    let cmd_opts = cmd.get_arguments().filter(|a| !a.is_positional());
+    for option in cmd_opts {
+        optspecs.push(' ');
+        let mut has_short = false;
+        if let Some(short) = option.get_short() {
+            has_short = true;
+            optspecs.push(short);
+        }
+
+        if let Some(long) = option.get_long() {
+            if has_short {
+                optspecs.push('/');
+            }
+            optspecs.push_str(&escape_string(long, false));
+        }
+
+        let is_an_option = option
+            .get_num_args()
+            .map(|r| r.takes_values())
+            .unwrap_or(true);
+        if is_an_option {
+            optspecs.push('=');
+        }
+    }
+    let optspecs_fn_name = format!("__fish_{bin_name}_global_optspecs");
+    let template = format!("\
+        # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.\n\
+        function {optspecs_fn_name}\n\
+        \tstring join \\n{optspecs}\n\
+        end\n\n\
+        function {needs_fn_name}\n\
+        \t# Figure out if the current invocation already has a command.\n\
+        \tset -l cmd (commandline -opc)\n\
+        \tset -e cmd[1]\n\
+        \targparse -s ({optspecs_fn_name}) -- $cmd 2>/dev/null\n\
+        \tor return\n\
+        \tif set -q argv[1]\n\
+        \t\t# Also print the command, so this can be used to figure out what it is.\n\
+        \t\techo $argv[1]\n\
+        \t\treturn 1\n\
+        \tend\n\
+        \treturn 0\n\
+        end\n\n\
+        function {using_fn_name}\n\
+        \tset -l cmd ({needs_fn_name})\n\
+        \ttest -z \"$cmd\"\n\
+        \tand return 1\n\
+        \tcontains -- $cmd[1] $argv\n\
+        end\n\n\
+    ");
+    w!(buf, template.as_bytes());
 }
 
 fn value_completion(option: &Arg) -> String {
