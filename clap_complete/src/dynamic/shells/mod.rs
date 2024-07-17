@@ -3,10 +3,12 @@
 mod bash;
 mod fish;
 mod shell;
+mod zsh;
 
 pub use bash::*;
 pub use fish::*;
 pub use shell::*;
+pub use zsh::*;
 
 use std::ffi::OsString;
 use std::io::Write as _;

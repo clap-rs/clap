@@ -162,3 +162,42 @@ pacman    action  alias  value  quote  hint  last  --
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[test]
+fn register_dynamic() {
+    common::register_example::<completest_pty::ZshRuntimeBuilder>("dynamic", "exhaustive");
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic() {
+    if !common::has_command("zsh") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("dynamic", "exhaustive");
+
+    let input = "exhaustive \t\t";
+    let expected = snapbox::str![
+        r#"% exhaustive
+--generate  --help      -V          action      complete    hint        pacman      value       
+--global    --version   -h          alias       help        last        quote       "#
+    ];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote \t\t";
+    let expected = snapbox::str![
+        r#"% exhaustive quote
+--backslash        --double-quotes    --single-quotes    cmd-backslash      cmd-expansions     
+--backticks        --expansions       --version          cmd-backticks      cmd-single-quotes  
+--brackets         --global           -V                 cmd-brackets       escape-help        
+--choice           --help             -h                 cmd-double-quotes  help               "#
+    ];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
