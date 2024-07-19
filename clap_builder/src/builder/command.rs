@@ -3553,6 +3553,15 @@ impl Command {
         self.long_flag_aliases.iter().map(|a| a.0.as_str())
     }
 
+    /// Iterate through the *hidden* aliases for this subcommand.
+    #[inline]
+    pub fn get_aliases(&self) -> impl Iterator<Item = &str> + '_ {
+        self.aliases
+            .iter()
+            .filter(|(_, vis)| !*vis)
+            .map(|a| a.0.as_str())
+    }
+
     #[inline]
     pub(crate) fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)

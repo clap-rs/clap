@@ -386,11 +386,18 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
     debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
     p.get_subcommands()
         .flat_map(|sc| {
-            sc.get_name_and_visible_aliases().into_iter().map(|s| {
-                CompletionCandidate::new(s.to_string())
-                    .help(sc.get_about().cloned())
-                    .visible(true)
-            })
+            sc.get_name_and_visible_aliases()
+                .into_iter()
+                .map(|s| {
+                    CompletionCandidate::new(s.to_string())
+                        .help(sc.get_about().cloned())
+                        .visible(!sc.is_hide_set())
+                })
+                .chain(sc.get_aliases().into_iter().map(|s| {
+                    CompletionCandidate::new(s.to_string())
+                        .help(sc.get_about().cloned())
+                        .visible(false)
+                }))
         })
         .collect()
 }
