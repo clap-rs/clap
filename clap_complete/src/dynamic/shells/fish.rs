@@ -30,9 +30,9 @@ impl crate::dynamic::Completer for Fish {
         let index = args.len() - 1;
         let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
 
-        for (completion, help) in completions {
-            write!(buf, "{}", completion.to_string_lossy())?;
-            if let Some(help) = help {
+        for candidate in completions {
+            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
+            if let Some(help) = candidate.get_help() {
                 write!(
                     buf,
                     "\t{}",

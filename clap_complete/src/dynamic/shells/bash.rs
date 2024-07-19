@@ -73,11 +73,11 @@ complete -o nospace -o bashdefault -F _clap_complete_NAME BIN
         let ifs: Option<String> = std::env::var("IFS").ok().and_then(|i| i.parse().ok());
         let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
 
-        for (i, (completion, _)) in completions.iter().enumerate() {
+        for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
-            write!(buf, "{}", completion.to_string_lossy())?;
+            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
         }
         Ok(())
     }
