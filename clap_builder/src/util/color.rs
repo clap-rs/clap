@@ -8,10 +8,6 @@ pub enum ColorChoice {
     ///
     /// **NOTE:** This is the default behavior of `clap`.
     ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms).
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -27,10 +23,6 @@ pub enum ColorChoice {
 
     /// Enables colored output regardless of whether or not the output is going to a terminal/TTY.
     ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms).
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -45,10 +37,6 @@ pub enum ColorChoice {
     Always,
 
     /// Disables colored output no matter if the output is going to a terminal/TTY, or not.
-    ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and macOS (i.e. non-Windows platforms)
     ///
     /// # Examples
     ///
