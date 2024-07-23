@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Support for zsh, elvis, powershell
+- *(dynamic)* Complete `--option val[TAB]`
+- *(dynamic)* Complete subcommand aliases
+- *(dynamic)* Hide hidden flags, subcommands, values, and aliases, only completeing them if no visible variant is available
+
 ## [4.5.8] - 2024-07-11
 
 ### Fixes
