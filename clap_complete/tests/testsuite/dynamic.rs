@@ -590,6 +590,96 @@ val3
     );
 }
 
+#[test]
+fn suggest_multi_positional() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("positional")
+                .value_parser(["pos_1, pos_2, pos_3"])
+                .index(1),
+        )
+        .arg(
+            clap::Arg::new("positional-2")
+                .value_parser(["pos_a", "pos_b", "pos_c"])
+                .index(2)
+                .num_args(3),
+        )
+        .arg(
+            clap::Arg::new("--format")
+                .long("format")
+                .short('F')
+                .value_parser(["json", "yaml", "toml"]),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "pos_1 pos_a [TAB]"),
+        snapbox::str![
+            "--format
+--help\tPrint help
+-F
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "pos_1 pos_a pos_b [TAB]"),
+        snapbox::str![
+            "--format
+--help\tPrint help
+-F
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format json pos_1 [TAB]"),
+        snapbox::str![
+            "--format
+--help\tPrint help
+-F
+-h\tPrint help
+pos_a
+pos_b
+pos_c"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format json pos_1 pos_a [TAB]"),
+        snapbox::str![
+            "--format
+--help\tPrint help
+-F
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format json pos_1 pos_a pos_b pos_c [TAB]"),
+        snapbox::str![
+            "--format
+--help\tPrint help
+-F
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format json -- pos_1 pos_a [TAB]"),
+        snapbox::str![""]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format json -- pos_1 pos_a pos_b [TAB]"),
+        snapbox::str![""]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format json -- pos_1 pos_a pos_b pos_c [TAB]"),
+        snapbox::str![""]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
