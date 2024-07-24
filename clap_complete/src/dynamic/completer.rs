@@ -92,7 +92,7 @@ pub fn complete(
                         if value.is_some() {
                             ParseState::ValueDone
                         } else {
-                            ParseState::Opt(opt.unwrap())
+                            ParseState::Opt((opt.unwrap(), 1))
                         }
                     }
                     Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
@@ -115,7 +115,7 @@ pub fn complete(
                 Some(opt) => {
                     state = match short.next_value_os() {
                         Some(_) => ParseState::ValueDone,
-                        None => ParseState::Opt(opt),
+                        None => ParseState::Opt((opt, 1)),
                     };
                 }
                 None => {
@@ -128,9 +128,19 @@ pub fn complete(
                     pos_index += 1;
                     state = ParseState::ValueDone;
                 }
-                ParseState::Opt(_) => {
-                    state = ParseState::ValueDone;
-                }
+                ParseState::Opt((ref opt, count)) => match opt.get_num_args() {
+                    Some(range) => {
+                        let max = range.max_values();
+                        if count < max {
+                            state = ParseState::Opt((opt.clone(), count + 1));
+                        } else {
+                            state = ParseState::ValueDone;
+                        }
+                    }
+                    None => {
+                        state = ParseState::ValueDone;
+                    }
+                },
             }
         }
     }
@@ -150,7 +160,7 @@ enum ParseState<'a> {
     Pos(usize),
 
     /// Parsing a optional flag argument
-    Opt(&'a clap::Arg),
+    Opt((&'a clap::Arg, usize)),
 }
 
 fn complete_arg(
@@ -298,8 +308,19 @@ fn complete_arg(
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
             }
         }
-        ParseState::Opt(opt) => {
+        ParseState::Opt((opt, count)) => {
             completions.extend(complete_arg_value(arg.to_value(), opt, current_dir));
+            let min = opt.get_num_args().map(|r| r.min_values()).unwrap_or(0);
+            if count > min {
+                // Also complete this raw_arg as a positional argument, flags, options and subcommand.
+                completions.extend(complete_arg(
+                    arg,
+                    cmd,
+                    current_dir,
+                    pos_index,
+                    ParseState::ValueDone,
+                )?);
+            }
         }
     }
     if completions.iter().any(|a| a.is_visible()) {

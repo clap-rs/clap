@@ -469,12 +469,9 @@ val3"
     assert_data_eq!(
         complete!(cmd, "--certain-num val1 [TAB]"),
         snapbox::str![
-            "--certain-num
---uncertain-num
---help\tPrint help
--Y
--N
--h\tPrint help"
+            "val1
+val2
+val3"
         ]
     );
 
@@ -502,7 +499,10 @@ val3"
     assert_data_eq!(
         complete!(cmd, "--uncertain-num val1 [TAB]"),
         snapbox::str![
-            "--certain-num
+            "val1
+val2
+val3
+--certain-num
 --uncertain-num
 --help\tPrint help
 -Y
@@ -535,12 +535,9 @@ val3"
     assert_data_eq!(
         complete!(cmd, "-Y val1 [TAB]"),
         snapbox::str![
-            "--certain-num
---uncertain-num
---help\tPrint help
--Y
--N
--h\tPrint help"
+            "val1
+val2
+val3"
         ]
     );
 
@@ -568,7 +565,10 @@ val3"
     assert_data_eq!(
         complete!(cmd, "-N val1 [TAB]"),
         snapbox::str![
-            "--certain-num
+            "val1
+val2
+val3
+--certain-num
 --uncertain-num
 --help\tPrint help
 -Y
