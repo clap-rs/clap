@@ -439,6 +439,157 @@ pos_c"
     );
 }
 
+#[test]
+fn suggest_argument_multi_values() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("certain-num")
+                .long("certain-num")
+                .short('Y')
+                .value_parser(["val1", "val2", "val3"])
+                .num_args(3),
+        )
+        .arg(
+            clap::Arg::new("uncertain-num")
+                .long("uncertain-num")
+                .short('N')
+                .value_parser(["val1", "val2", "val3"])
+                .num_args(1..=3),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "--certain-num [TAB]"),
+        snapbox::str![
+            "val1
+val2
+val3"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--certain-num val1 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--certain-num val1 val2 val3 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--uncertain-num [TAB]"),
+        snapbox::str![
+            "val1
+val2
+val3"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--uncertain-num val1 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--uncertain-num val1 val2 val3 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-Y [TAB]"),
+        snapbox::str![
+            "val1
+val2
+val3"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-Y val1 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-Y val1 val2 val3 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-N [TAB]"),
+        snapbox::str![
+            "val1
+val2
+val3"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-N val1 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-N val1 val2 val3 [TAB]"),
+        snapbox::str![
+            "--certain-num
+--uncertain-num
+--help\tPrint help
+-Y
+-N
+-h\tPrint help"
+        ]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
