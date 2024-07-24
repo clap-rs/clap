@@ -291,15 +291,17 @@
 //!
 //! `clap` assumes some intent based on the type used:
 //!
-//! | Type                | Effect                               | Implies                                                     |
-//! |---------------------|--------------------------------------|-------------------------------------------------------------|
-//! | `()`                | user-defined                         | `.action(ArgAction::Set).required(false)`                   |
-//! | `bool`              | flag                                 | `.action(ArgAction::SetTrue)`                               |
-//! | `Option<T>`         | optional argument                    | `.action(ArgAction::Set).required(false)`                   |
-//! | `Option<Option<T>>` | optional value for optional argument | `.action(ArgAction::Set).required(false).num_args(0..=1)`   |
-//! | `T`                 | required argument                    | `.action(ArgAction::Set).required(!has_default)`            |
-//! | `Vec<T>`            | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false)`  |
-//! | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.action(ArgAction::Append).required(false)`  |
+//! | Type                  | Effect                                               | Implies                                                     | Notes |
+//! |-----------------------|------------------------------------------------------|-------------------------------------------------------------|-------|
+//! | `()`                  | user-defined                                         | `.action(ArgAction::Set).required(false)`                   |       |
+//! | `bool`                | flag                                                 | `.action(ArgAction::SetTrue)`                               |       |
+//! | `Option<T>`           | optional argument                                    | `.action(ArgAction::Set).required(false)`                   |       |
+//! | `Option<Option<T>>`   | optional value for optional argument                 | `.action(ArgAction::Set).required(false).num_args(0..=1)`   |       |
+//! | `T`                   | required argument                                    | `.action(ArgAction::Set).required(!has_default)`            |       |
+//! | `Vec<T>`              | `0..` occurrences of argument                        | `.action(ArgAction::Append).required(false)`  |       |
+//! | `Option<Vec<T>>`      | `0..` occurrences of argument                        | `.action(ArgAction::Append).required(false)`  |       |
+//! | `Vec<Vec<T>>`         | `0..` occurrences of argument, grouped by occurrence | `.action(ArgAction::Append).required(false)`  | requires `unstable-v5` |
+//! | `Option<Vec<Vec<T>>>` | `0..` occurrences of argument, grouped by occurrence | `.action(ArgAction::Append).required(false)`  | requires `unstable-v5` |
 //!
 //! In addition, [`.value_parser(value_parser!(T))`][crate::value_parser!] is called for each
 //! field.
@@ -309,8 +311,9 @@
 //!   - To force any inferred type (like `Vec<T>`) to be treated as `T`, you can refer to the type
 //!     by another means, like using `std::vec::Vec` instead of `Vec`.  For improving this, see
 //!     [#4626](https://github.com/clap-rs/clap/issues/4626).
-//! - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
+//! - `Option<Vec<T>>` and `Option<Vec<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
 //!   - This gives the user some flexibility in designing their argument, like with `num_args(0..)`
+//! - `Vec<Vec<T>>` will need [`Arg::num_args`][crate::Arg::num_args] set to be meaningful
 //!
 //! ## Doc Comments
 //!
