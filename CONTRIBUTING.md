@@ -99,20 +99,42 @@ $ cargo test --test <test_name> --features debug
 
 ### Preparing the PR
 
-1. `git rebase` into concise commits and remove `--fixup`s or `wip` commits (`git rebase -i HEAD~NUM` where `NUM` is number of commits back to start the rebase)
-2. Push your changes back to your fork (`git push origin $your-branch`)
-3. Create a pull request against `master`! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
+As a heads up, we'll be running your PR through the following gauntlet:
+- warnings turned to compile errors
+- `cargo test`
+- `rustfmt`
+- `clippy`
+- `rustdoc`
+- [`committed`](https://github.com/crate-ci/committed) as we use [Conventional](https://www.conventionalcommits.org) commit style
+- [`typos`](https://github.com/crate-ci/typos) to check spelling
 
-PR expectations:
-- Changes are tested and, if needed, documented
-- PRs remain small and focused
- - If needed, we can put changes behind feature flags as they evolve
-- Commits are atomic (i.e. do a single thing)
-- Commits are in [Conventional Commit](https://www.conventionalcommits.org/) style
+Not everything can be checked automatically though.
 
-We recognize that these are ideals and we don't want lack of comfort with git
-to get in the way of contributing.  If you didn't do these, bring it up with
-the maintainers and we can help work around this.
+We request that the commit history gets cleaned up.
+We ask that commits are atomic, meaning they are complete and have a single responsibility.
+PRs should tell a cohesive story, with test and refactor commits that keep the
+fix or feature commits simple and clear.
+
+Specifically, we would encouage
+- File renames be isolated into their own commit
+- Add tests in a commit before their feature or fix, showing the current behavior.
+  The diff for the feature/fix commit will then show how the behavior changed,
+  making it clearer to reviewrs and the community and showing people that the
+  test is verifying the expected state.
+  - e.g. [clap#5520](https://github.com/clap-rs/clap/pull/5520)
+
+Note that we are talking about ideals.
+We understand having a clean history requires more advanced git skills;
+feel free to ask us for help!
+We might even suggest where it would work to be lax.
+We also understand that editing some early commits may cause a lot of churn
+with merge conflicts which can make it not worth editing all of the history.
+
+For code organization, we recommend
+- Grouping `impl` blocks next to their type (or trait)
+- Grouping private items after the `pub` item that uses them.
+  - The intent is to help people quickly find the "relevant" details, allowing them to "dig deeper" as needed.  Or put another way, the `pub` items serve as a table-of-contents.
+  - The exact order is fuzzy; do what makes sense
 
 ## Conditions for fulfilling a bounty:
 
