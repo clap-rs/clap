@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+#### Features
+
+- *(dynamic)* Add support for `-fbar` and `-f=bar` completions
+
 ## [4.5.10] - 2024-07-25
 
 ## [4.5.9] - 2024-07-23
