@@ -402,6 +402,41 @@ pos_b
 pos_c"
         ]
     );
+
+    assert_data_eq!(
+        complete!(cmd, "-ci[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![
+            "-cia_file
+-cib_file
+-cic_dir/
+-cid_dir/"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ci=[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![
+            "-ci=a_file
+-ci=b_file
+-ci=c_dir/
+-ci=d_dir/"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ci=a[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["-ci=a_file"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ciF[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![""]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-ciF=[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![""]
+    )
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
