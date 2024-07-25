@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete_nushell"
-version = "4.5.2"
+version = "4.5.3"
 description = "A generator library used with clap for Nushell completion scripts"
 categories = ["command-line-interface"]
 keywords = [

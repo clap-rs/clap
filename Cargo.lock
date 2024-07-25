@@ -410,10 +410,10 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.10"
+version = "4.5.11"
 dependencies = [
  "automod",
- "clap_builder 4.5.10",
+ "clap_builder 4.5.11",
  "clap_derive",
  "humantime",
  "rustversion",
@@ -427,7 +427,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.5.10",
+ "clap 4.5.11",
  "divan",
  "lazy_static",
 ]
@@ -440,19 +440,19 @@ checksum = "6fb8393d67ba2e7bfaf28a23458e4e2b543cc73a99595511eb207fdb8aede942"
 dependencies = [
  "anstream",
  "anstyle",
- "clap_lex 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap_lex 0.7.1",
  "strsim",
  "terminal_size 0.3.0",
 ]
 
 [[package]]
 name = "clap_builder"
-version = "4.5.10"
+version = "4.5.11"
 dependencies = [
  "anstream",
  "anstyle",
  "backtrace",
- "clap_lex 0.7.1",
+ "clap_lex 0.7.2",
  "color-print",
  "static_assertions",
  "strsim",
@@ -464,11 +464,11 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.9"
+version = "4.5.10"
 dependencies = [
  "automod",
- "clap 4.5.10",
- "clap_lex 0.7.1",
+ "clap 4.5.11",
+ "clap_lex 0.7.2",
  "completest",
  "completest-pty",
  "is_executable",
@@ -481,18 +481,18 @@ dependencies = [
 
 [[package]]
 name = "clap_complete_fig"
-version = "4.5.1"
+version = "4.5.2"
 dependencies = [
- "clap 4.5.10",
+ "clap 4.5.11",
  "clap_complete",
  "snapbox",
 ]
 
 [[package]]
 name = "clap_complete_nushell"
-version = "4.5.2"
+version = "4.5.3"
 dependencies = [
- "clap 4.5.10",
+ "clap 4.5.11",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -501,7 +501,7 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.8"
+version = "4.5.11"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -512,22 +512,22 @@ dependencies = [
 [[package]]
 name = "clap_lex"
 version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b82cf0babdbd58558212896d1a4272303a57bdb245c2bf1147185fb45640e70"
+
+[[package]]
+name = "clap_lex"
+version = "0.7.2"
 dependencies = [
  "automod",
 ]
 
 [[package]]
-name = "clap_lex"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b82cf0babdbd58558212896d1a4272303a57bdb245c2bf1147185fb45640e70"
-
-[[package]]
 name = "clap_mangen"
-version = "0.2.22"
+version = "0.2.23"
 dependencies = [
  "automod",
- "clap 4.5.10",
+ "clap 4.5.11",
  "roff",
  "snapbox",
 ]
