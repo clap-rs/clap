@@ -23,7 +23,8 @@ impl crate::dynamic::Completer for Bash {
         let mut upper_name = escaped_name.clone();
         upper_name.make_ascii_uppercase();
 
-        let completer = shlex::quote(completer);
+        let completer =
+            shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
 
         let script = r#"
 _clap_complete_NAME() {
