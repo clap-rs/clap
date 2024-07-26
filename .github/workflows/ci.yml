@@ -181,7 +181,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.79"  # STABLE
+        toolchain: "1.80"  # STABLE
     - uses: Swatinem/rust-cache@v2
     - name: Check documentation
       env:
@@ -196,7 +196,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.79"  # STABLE
+        toolchain: "1.80"  # STABLE
         components: rustfmt
     - uses: Swatinem/rust-cache@v2
     - name: Check formatting
@@ -210,7 +210,7 @@ jobs:
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: "1.79"  # STABLE
+        toolchain: "1.80"  # STABLE
         components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Lint (ultra-minimal)
