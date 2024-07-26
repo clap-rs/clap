@@ -614,20 +614,18 @@ fn suggest_multi_positional() {
     assert_data_eq!(
         complete!(cmd, "pos_1 pos_a [TAB]"),
         snapbox::str![
-            "--format
---help\tPrint help
--F
--h\tPrint help"
+            "pos_a
+pos_b
+pos_c"
         ]
     );
 
     assert_data_eq!(
         complete!(cmd, "pos_1 pos_a pos_b [TAB]"),
         snapbox::str![
-            "--format
---help\tPrint help
--F
--h\tPrint help"
+            "pos_a
+pos_b
+pos_c"
         ]
     );
 
@@ -647,10 +645,9 @@ pos_c"
     assert_data_eq!(
         complete!(cmd, "--format json pos_1 pos_a [TAB]"),
         snapbox::str![
-            "--format
---help\tPrint help
--F
--h\tPrint help"
+            "pos_a
+pos_b
+pos_c"
         ]
     );
 
@@ -666,12 +663,20 @@ pos_c"
 
     assert_data_eq!(
         complete!(cmd, "--format json -- pos_1 pos_a [TAB]"),
-        snapbox::str![""]
+        snapbox::str![
+            "pos_a
+pos_b
+pos_c"
+        ]
     );
 
     assert_data_eq!(
         complete!(cmd, "--format json -- pos_1 pos_a pos_b [TAB]"),
-        snapbox::str![""]
+        snapbox::str![
+            "pos_a
+pos_b
+pos_c"
+        ]
     );
 
     assert_data_eq!(
