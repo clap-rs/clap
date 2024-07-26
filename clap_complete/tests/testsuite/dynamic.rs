@@ -52,7 +52,7 @@ fn suggest_hidden_long_flags() {
     assert_data_eq!(
         complete!(cmd, "--hello-world-h"),
         snapbox::str!["--hello-world-hidden"]
-    )
+    );
 }
 
 #[test]
@@ -90,7 +90,7 @@ test_hidden-alias_visible"
     assert_data_eq!(
         complete!(cmd, "test_hidden-alias_h"),
         snapbox::str!["test_hidden-alias_hidden"]
-    )
+    );
 }
 
 #[test]
@@ -142,7 +142,7 @@ fn suggest_hidden_possible_value() {
     assert_data_eq!(
         complete!(cmd, "--test=test-h"),
         snapbox::str!["--test=test-hidden\tSay hello to the moon"]
-    )
+    );
 }
 
 #[test]
@@ -436,7 +436,7 @@ pos_c"
     assert_data_eq!(
         complete!(cmd, "-ciF=[TAB]", current_dir = Some(testdir_path)),
         snapbox::str![""]
-    )
+    );
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {

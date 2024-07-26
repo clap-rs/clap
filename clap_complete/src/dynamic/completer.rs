@@ -92,7 +92,7 @@ pub fn complete(
                         if value.is_some() {
                             ParseState::ValueDone
                         } else {
-                            ParseState::Opt(opt.unwrap().clone())
+                            ParseState::Opt(opt.unwrap())
                         }
                     }
                     Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
@@ -115,7 +115,7 @@ pub fn complete(
                 Some(opt) => {
                     state = match short.next_value_os() {
                         Some(_) => ParseState::ValueDone,
-                        None => ParseState::Opt(opt.clone()),
+                        None => ParseState::Opt(opt),
                     };
                 }
                 None => {
@@ -142,7 +142,7 @@ pub fn complete(
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-enum ParseState {
+enum ParseState<'a> {
     /// Parsing a value done, there is no state to record.
     ValueDone,
 
@@ -150,7 +150,7 @@ enum ParseState {
     Pos(usize),
 
     /// Parsing a optional flag argument
-    Opt(clap::Arg),
+    Opt(&'a clap::Arg),
 }
 
 fn complete_arg(
@@ -158,7 +158,7 @@ fn complete_arg(
     cmd: &clap::Command,
     current_dir: Option<&std::path::Path>,
     pos_index: usize,
-    state: ParseState,
+    state: ParseState<'_>,
 ) -> Result<Vec<CompletionCandidate>, std::io::Error> {
     debug!(
         "complete_arg: arg={:?}, cmd={:?}, current_dir={:?}, pos_index={:?}, state={:?}",
@@ -202,7 +202,7 @@ fn complete_arg(
                         completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
                             comp.get_content()
                                 .starts_with(format!("--{}", flag).as_str())
-                        }))
+                        }));
                     }
                 }
             } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
@@ -236,7 +236,7 @@ fn complete_arg(
             } else if let Some(short) = arg.to_short() {
                 if !short.is_negative_number() {
                     // Find the first takes_value option.
-                    let (leading_flags, takes_value_opt, mut short) = parse_shortflags(&cmd, short);
+                    let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
 
                     // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
                     if let Some(opt) = takes_value_opt {
@@ -250,7 +250,7 @@ fn complete_arg(
 
                         let value = short.next_value_os().unwrap_or(OsStr::new(""));
                         completions.extend(
-                            complete_arg_value(value.to_str().ok_or(value), &opt, current_dir)
+                            complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
                                 .into_iter()
                                 .map(|comp| {
                                     CompletionCandidate::new(format!(
@@ -299,11 +299,11 @@ fn complete_arg(
             }
         }
         ParseState::Opt(opt) => {
-            completions.extend(complete_arg_value(arg.to_value(), &opt, current_dir));
+            completions.extend(complete_arg_value(arg.to_value(), opt, current_dir));
         }
     }
     if completions.iter().any(|a| a.is_visible()) {
-        completions.retain(|a| a.is_visible())
+        completions.retain(|a| a.is_visible());
     }
 
     Ok(completions)
@@ -452,7 +452,7 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    CompletionCandidate::new(format!("--{}", s.to_string()))
+                    CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
                         .visible(!a.is_hide_set())
                 })
@@ -470,7 +470,7 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    CompletionCandidate::new(format!("--{}", s.to_string()))
+                    CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
                         .visible(false)
                 })
@@ -526,7 +526,7 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
                         .help(sc.get_about().cloned())
                         .visible(!sc.is_hide_set())
                 })
-                .chain(sc.get_aliases().into_iter().map(|s| {
+                .chain(sc.get_aliases().map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
                         .visible(false)
@@ -535,11 +535,11 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
         .collect()
 }
 
-/// Parse the short flags and find the first takes_value option.
-fn parse_shortflags<'s>(
-    cmd: &clap::Command,
+/// Parse the short flags and find the first `takes_value` option.
+fn parse_shortflags<'c, 's>(
+    cmd: &'c clap::Command,
     mut short: clap_lex::ShortFlags<'s>,
-) -> (OsString, Option<clap::Arg>, clap_lex::ShortFlags<'s>) {
+) -> (OsString, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
     let takes_value_opt;
     let mut leading_flags = OsString::new();
     // Find the first takes_value option.
@@ -579,7 +579,7 @@ fn parse_shortflags<'s>(
         }
     }
 
-    (leading_flags, takes_value_opt.cloned(), short)
+    (leading_flags, takes_value_opt, short)
 }
 
 /// A completion candidate definition

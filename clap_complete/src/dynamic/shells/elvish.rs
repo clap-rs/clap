@@ -8,7 +8,7 @@ impl crate::dynamic::Completer for Elvish {
     }
     fn write_registration(
         &self,
-        name: &str,
+        _name: &str,
         bin: &str,
         completer: &str,
         buf: &mut dyn std::io::Write,
