@@ -8,13 +8,14 @@ impl crate::dynamic::Completer for Elvish {
     }
     fn write_registration(
         &self,
-        name: &str,
+        _name: &str,
         bin: &str,
         completer: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
-        let bin = shlex::quote(bin);
-        let completer = shlex::quote(completer);
+        let bin = shlex::try_quote(bin).unwrap_or(std::borrow::Cow::Borrowed(bin));
+        let completer =
+            shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
 
         let script = r#"
 set edit:completion:arg-completer[BIN] = { |@words|

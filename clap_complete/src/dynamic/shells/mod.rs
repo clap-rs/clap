@@ -39,8 +39,8 @@ use crate::dynamic::Completer as _;
 /// #[derive(Parser, Debug)]
 /// #[clap(name = "dynamic", about = "A dynamic command line tool")]
 /// struct Cli {
-/// 	/// The subcommand to run complete
-/// 	#[command(subcommand)]
+///     /// The subcommand to run complete
+///     #[command(subcommand)]
 ///     complete: Option<CompleteCommand>,
 ///     /// Input file path
 ///     #[clap(short, long, value_hint = clap::ValueHint::FilePath)]
@@ -54,9 +54,9 @@ use crate::dynamic::Completer as _;
 ///     let cli = Cli::parse();
 ///     if let Some(completions) = cli.complete {
 ///         completions.complete(&mut Cli::command());
-///		}
+///        }
 ///
-/// 	// normal logic continues...
+///     // normal logic continues...
 /// }
 ///```
 ///
@@ -68,29 +68,29 @@ use crate::dynamic::Completer as _;
 /// please remember to modify the redirection output file in the following command.
 ///
 /// - Bash
-/// 	```bash
-/// 	echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
-/// 	```
+///     ```bash
+///     echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
+///     ```
 ///
 /// - Fish
-/// 	```fish
-/// 	echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
-/// 	```
+///     ```fish
+///     echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
+///     ```
 ///
 /// - Zsh
-/// 	```zsh
-/// 	echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
-/// 	```
+///     ```zsh
+///     echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
+///     ```
 ///
 /// - Elvish
-/// 	```elvish
-/// 	echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
-/// 	```
+///     ```elvish
+///     echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
+///     ```
 ///
 /// - Powershell
-/// 	```powershell
-/// 	echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
-/// 	```
+///     ```powershell
+///     echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
+///     ```
 ///
 #[derive(clap::Subcommand)]
 #[allow(missing_docs)]

@@ -13,8 +13,10 @@ impl crate::dynamic::Completer for Zsh {
         completer: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
-        let bin = shlex::quote(bin);
-        let completer = shlex::quote(completer);
+        let bin = shlex::try_quote(bin).unwrap_or(std::borrow::Cow::Borrowed(bin));
+        let completer =
+            shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
+
         let script = r#"#compdef BIN
 function _clap_dynamic_completer() {
     export _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)

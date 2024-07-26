@@ -631,7 +631,7 @@ impl Command {
     /// [`env::args_os`]: std::env::args_os()
     /// [`Command::get_matches`]: Command::get_matches()
     pub fn get_matches_mut(&mut self) -> ArgMatches {
-        self.try_get_matches_from_mut(&mut env::args_os())
+        self.try_get_matches_from_mut(env::args_os())
             .unwrap_or_else(|e| e.exit())
     }
 
