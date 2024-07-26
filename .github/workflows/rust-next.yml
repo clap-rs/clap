@@ -36,7 +36,7 @@ jobs:
           rust: "beta"
           features: "full"
         - build: mac
-          os: macos-14
+          os: macos-latest
           rust: "beta"
           features: "full"
         - build: nightly
@@ -102,7 +102,7 @@ jobs:
     - name: Install shells
       if: runner.os == 'Linux'
       run: sudo apt-get install -y elvish fish zsh
-    - name: Update dependencues
+    - name: Update dependencies
       run: cargo update
     - name: Build
       run: make build-${{matrix.features}}

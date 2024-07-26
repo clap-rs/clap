@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: none
     name: CI
-    needs: [test, check, lockfile, docs, rustfmt, clippy, cffconvert]
+    needs: [test, check, lockfile, docs, rustfmt, clippy, minimal-versions, cffconvert]
     runs-on: ubuntu-latest
     if: "always()"
     steps:
@@ -45,7 +45,7 @@ jobs:
           rust: "stable"
           features: "full"
         - build: mac
-          os: macos-14
+          os: macos-latest
           rust: "stable"
           features: "full"
         - build: minimal
@@ -142,6 +142,24 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
+  minimal-versions:
+    name: Minimal versions
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install stable Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - name: Install nightly Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: nightly
+    - name: Downgrade dependencies to minimal versions
+      run: cargo +nightly generate-lockfile -Z minimal-versions
+    - name: Compile with minimal versions
+      run: cargo +stable check --workspace --all-features --locked --exclude clap_complete_nushell --exclude clap_bench
   lockfile:
     runs-on: ubuntu-latest
     steps:
