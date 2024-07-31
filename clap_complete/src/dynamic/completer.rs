@@ -1,3 +1,4 @@
+use core::num;
 use std::ffi::OsStr;
 use std::ffi::OsString;
 
@@ -71,8 +72,7 @@ pub fn complete(
         }
 
         if is_escaped {
-            pos_index += 1;
-            state = ParseState::Pos(pos_index);
+            (state, pos_index) = parse_positional(current_cmd, pos_index, is_escaped, state);
         } else if arg.is_escape() {
             is_escaped = true;
             state = ParseState::ValueDone;
@@ -92,7 +92,7 @@ pub fn complete(
                         if value.is_some() {
                             ParseState::ValueDone
                         } else {
-                            ParseState::Opt(opt.unwrap())
+                            ParseState::Opt((opt.unwrap(), 1))
                         }
                     }
                     Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
@@ -115,7 +115,7 @@ pub fn complete(
                 Some(opt) => {
                     state = match short.next_value_os() {
                         Some(_) => ParseState::ValueDone,
-                        None => ParseState::Opt(opt),
+                        None => ParseState::Opt((opt, 1)),
                     };
                 }
                 None => {
@@ -124,13 +124,24 @@ pub fn complete(
             }
         } else {
             match state {
-                ParseState::ValueDone | ParseState::Pos(_) => {
-                    pos_index += 1;
-                    state = ParseState::ValueDone;
+                ParseState::ValueDone | ParseState::Pos(..) => {
+                    (state, pos_index) =
+                        parse_positional(current_cmd, pos_index, is_escaped, state);
                 }
-                ParseState::Opt(_) => {
-                    state = ParseState::ValueDone;
-                }
+
+                ParseState::Opt((ref opt, count)) => match opt.get_num_args() {
+                    Some(range) => {
+                        let max = range.max_values();
+                        if count < max {
+                            state = ParseState::Opt((opt.clone(), count + 1));
+                        } else {
+                            state = ParseState::ValueDone;
+                        }
+                    }
+                    None => {
+                        state = ParseState::ValueDone;
+                    }
+                },
             }
         }
     }
@@ -146,11 +157,11 @@ enum ParseState<'a> {
     /// Parsing a value done, there is no state to record.
     ValueDone,
 
-    /// Parsing a positional argument after `--`
-    Pos(usize),
+    /// Parsing a positional argument after `--`. Pos(pos_index, takes_num_args)
+    Pos((usize, usize)),
 
     /// Parsing a optional flag argument
-    Opt(&'a clap::Arg),
+    Opt((&'a clap::Arg, usize)),
 }
 
 fn complete_arg(
@@ -290,7 +301,7 @@ fn complete_arg(
                 completions.extend(complete_subcommand(value, cmd));
             }
         }
-        ParseState::Pos(_) => {
+        ParseState::Pos(..) => {
             if let Some(positional) = cmd
                 .get_positionals()
                 .find(|p| p.get_index() == Some(pos_index))
@@ -298,8 +309,19 @@ fn complete_arg(
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
             }
         }
-        ParseState::Opt(opt) => {
+        ParseState::Opt((opt, count)) => {
             completions.extend(complete_arg_value(arg.to_value(), opt, current_dir));
+            let min = opt.get_num_args().map(|r| r.min_values()).unwrap_or(0);
+            if count > min {
+                // Also complete this raw_arg as a positional argument, flags, options and subcommand.
+                completions.extend(complete_arg(
+                    arg,
+                    cmd,
+                    current_dir,
+                    pos_index,
+                    ParseState::ValueDone,
+                )?);
+            }
         }
     }
     if completions.iter().any(|a| a.is_visible()) {
@@ -580,6 +602,57 @@ fn parse_shortflags<'c, 's>(
     }
 
     (leading_flags, takes_value_opt, short)
+}
+
+/// Parse the positional arguments. Return the new state and the new positional index.
+fn parse_positional<'a>(
+    cmd: &clap::Command,
+    pos_index: usize,
+    is_escaped: bool,
+    state: ParseState<'a>,
+) -> (ParseState<'a>, usize) {
+    let pos_arg = cmd
+        .get_positionals()
+        .find(|p| p.get_index() == Some(pos_index));
+    let num_args = pos_arg
+        .and_then(|a| a.get_num_args().and_then(|r| Some(r.max_values())))
+        .unwrap_or(1);
+
+    let update_state_with_new_positional = |pos_index| -> (ParseState<'a>, usize) {
+        if num_args > 1 {
+            (ParseState::Pos((pos_index, 1)), pos_index)
+        } else {
+            if is_escaped {
+                (ParseState::Pos((pos_index, 1)), pos_index + 1)
+            } else {
+                (ParseState::ValueDone, pos_index + 1)
+            }
+        }
+    };
+    match state {
+        ParseState::ValueDone => {
+            update_state_with_new_positional(pos_index)
+        },
+        ParseState::Pos((prev_pos_index, num_arg)) => {
+            if prev_pos_index == pos_index {
+                if num_arg + 1 < num_args {
+                    (ParseState::Pos((pos_index, num_arg + 1)), pos_index)
+                } else {
+                    if is_escaped {
+                        (ParseState::Pos((pos_index, 1)), pos_index + 1)
+                    } else {
+                        (ParseState::ValueDone, pos_index + 1)
+                    }
+                }
+            } else {
+                update_state_with_new_positional(pos_index)
+            }
+        }
+        ParseState::Opt(..) => unreachable!(
+            "This branch won't be hit, 
+            because ParseState::Opt should not be seen as a positional argument and passed to this function."
+        ),
+    }
 }
 
 /// A completion candidate definition
