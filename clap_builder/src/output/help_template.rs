@@ -650,7 +650,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
 
         let spaces = if next_line_help {
             TAB.len() + NEXT_LINE_INDENT.len()
-        } else if let Some(true) = arg.map(|a| a.is_positional()) {
+        } else if arg.map(|a| a.is_positional()).unwrap_or(true) {
             longest + TAB_WIDTH * 2
         } else {
             longest + TAB_WIDTH * 2 + 4 // See `fn short` for the 4
