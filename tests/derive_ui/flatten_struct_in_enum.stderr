@@ -5,5 +5,5 @@ error[E0277]: the trait bound `SubCmd: Subcommand` is not satisfied
   |         ^^^^^^ the trait `Subcommand` is not implemented for `SubCmd`
   |
   = help: the following other types implement trait `Subcommand`:
-            Opt
             Box<T>
+            Opt
