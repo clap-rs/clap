@@ -228,8 +228,16 @@ pub(crate) fn gen_augment(
 
                 let next_help_heading = item.next_help_heading();
                 let next_display_order = item.next_display_order();
+                let flatten_group_assert = if matches!(**ty, Ty::Option) {
+                    quote_spanned! { kind.span()=>
+                        <#inner_type as clap::Args>::group_id().expect("cannot `#[flatten]` an `Option<Args>` with `#[group(skip)]");
+                    }
+                } else {
+                    quote! {}
+                };
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
+                        #flatten_group_assert
                         let #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
@@ -237,6 +245,7 @@ pub(crate) fn gen_augment(
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
+                        #flatten_group_assert
                         let #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
@@ -499,7 +508,7 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
                         quote_spanned! { kind.span()=>
                             #field_name: {
                                 let group_id = <#inner_type as clap::Args>::group_id()
-                                    .expect("`#[arg(flatten)]`ed field type implements `Args::group_id`");
+                                    .expect("asserted during `Arg` creation");
                                 if #arg_matches.contains_id(group_id.as_str()) {
                                     Some(
                                         <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?

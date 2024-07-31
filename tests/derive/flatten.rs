@@ -257,7 +257,7 @@ fn docstrings_ordering_with_multiple_clap_partial() {
 }
 
 #[test]
-#[should_panic = "#[arg(flatten)]`ed field type implements `Args::group_id"]
+#[should_panic = "cannot `#[flatten]` an `Option<Args>` with `#[group(skip)]"]
 fn flatten_skipped_group() {
     #[derive(clap::Parser, Debug)]
     struct Cli {
