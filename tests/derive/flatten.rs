@@ -255,3 +255,22 @@ fn docstrings_ordering_with_multiple_clap_partial() {
 
     assert!(short_help.contains("This is the docstring for Flattened"));
 }
+
+#[test]
+#[should_panic = "#[arg(flatten)]`ed field type implements `Args::group_id"]
+fn flatten_skipped_group() {
+    #[derive(clap::Parser, Debug)]
+    struct Cli {
+        #[clap(flatten)]
+        args: Option<Args>,
+    }
+
+    #[derive(clap::Args, Debug)]
+    #[group(skip)]
+    struct Args {
+        #[clap(short)]
+        param: bool,
+    }
+
+    Cli::try_parse_from(["test"]).unwrap();
+}
