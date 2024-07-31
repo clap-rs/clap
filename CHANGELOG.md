@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Improve error message when `#[flatten]`ing an optional `#[group(skip)]`
+- *(help)* Properly wrap long subcommand descriptions in help
+
 ## [4.5.12] - 2024-07-31
 
 ## [4.5.11] - 2024-07-25
