@@ -99,7 +99,7 @@ blocks_in_conditions = "allow"
 
 [package]
 name = "clap"
-version = "4.5.12"
+version = "4.5.13"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 categories = ["command-line-interface"]
 keywords = [
@@ -174,8 +174,8 @@ unstable-styles = ["clap_builder/unstable-styles"]
 bench = false
 
 [dependencies]
-clap_builder = { path = "./clap_builder", version = "=4.5.12", default-features = false }
-clap_derive = { path = "./clap_derive", version = "=4.5.11", optional = true }
+clap_builder = { path = "./clap_builder", version = "=4.5.13", default-features = false }
+clap_derive = { path = "./clap_derive", version = "=4.5.13", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.91"

@@ -4,7 +4,7 @@ message: Please cite this crate using these information.
 
 # Version information.
 date-released: 2024-07-31
-version: 4.5.12
+version: 4.5.13
 
 # Project information.
 abstract: A full featured, fast Command Line Argument Parser for Rust
