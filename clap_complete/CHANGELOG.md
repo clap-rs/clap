@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.12] - 2024-07-31
+
 #### Features
 
 - *(dynamic)* Support completing with `num_args`
@@ -287,7 +289,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.11...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.12...HEAD
+[4.5.12]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.11...clap_complete-v4.5.12
 [4.5.11]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.10...clap_complete-v4.5.11
 [4.5.10]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.9...clap_complete-v4.5.10
 [4.5.9]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.8...clap_complete-v4.5.9
