@@ -90,23 +90,12 @@ Usage: ctest subcmd multi [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]]
+    );
 }
 
 #[test]
 fn req_last_arg_usage() {
-    static LAST_ARG_REQ_MULT: &str = "\
-Usage: example <FIRST>... -- <SECOND>...
-
-Arguments:
-  <FIRST>...   First
-  <SECOND>...  Second
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-";
-
     let cmd = Command::new("example")
         .version("1.0")
         .arg(Arg::new("FIRST").help("First").num_args(1..).required(true))
@@ -117,26 +106,23 @@ Options:
                 .required(true)
                 .last(true),
         );
-    utils::assert_output(cmd, "example --help", LAST_ARG_REQ_MULT, false);
+    let expected = str![[r#"
+Usage: example <FIRST>... -- <SECOND>...
+
+Arguments:
+  <FIRST>...   First
+  <SECOND>...  Second
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "example --help", expected, false);
 }
 
 #[test]
 fn args_with_last_usage() {
-    static LAST_ARG_USAGE: &str = "\
-Usage: flamegraph [OPTIONS] [BINFILE] [-- <ARGS>...]
-
-Arguments:
-  [BINFILE]  The path of the binary to be profiled. for a binary.
-  [ARGS]...  Any arguments you wish to pass to the being profiled.
-
-Options:
-  -v, --verbose            Prints out more stuff.
-  -t, --timeout <SECONDS>  Timeout in seconds.
-  -f, --frequency <HERTZ>  The sampling frequency.
-  -h, --help               Print help
-  -V, --version            Print version
-";
-
     let cmd = Command::new("flamegraph")
         .version("0.1")
         .arg(
@@ -173,7 +159,22 @@ Options:
                 .last(true)
                 .value_name("ARGS"),
         );
-    utils::assert_output(cmd, "flamegraph --help", LAST_ARG_USAGE, false);
+    let expected = str![[r#"
+Usage: flamegraph [OPTIONS] [BINFILE] [-- <ARGS>...]
+
+Arguments:
+  [BINFILE]  The path of the binary to be profiled. for a binary.
+  [ARGS]...  Any arguments you wish to pass to the being profiled.
+
+Options:
+  -v, --verbose            Prints out more stuff.
+  -t, --timeout <SECONDS>  Timeout in seconds.
+  -f, --frequency <HERTZ>  The sampling frequency.
+  -h, --help               Print help
+  -V, --version            Print version
+
+"#]];
+    utils::assert_output(cmd, "flamegraph --help", expected, false);
 }
 
 #[test]
@@ -202,7 +203,7 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    static HELP: &str = "\
+    let expected = str![[r#"
 clap-test v1.4.8
 Kevin K. <kbknapp@gmail.com>
 tests clap library
@@ -232,14 +233,21 @@ Options:
       --optvalnoeq [<optval>]            Tests optional value
   -h, --help                             Print help
   -V, --version                          Print version
-";
 
-    utils::assert_output(utils::complex_app(), "clap-test --help", HELP, false);
+"#]];
+    utils::assert_output(utils::complex_app(), "clap-test --help", expected, false);
 }
 
 #[test]
 fn after_and_before_help_output() {
-    static AFTER_HELP: &str = "some text that comes before the help
+    let cmd = Command::new("clap-test")
+        .version("v1.4.8")
+        .about("tests clap library")
+        .before_help("some text that comes before the help")
+        .after_help("some text that comes after the help");
+
+    let expected = str![[r#"
+some text that comes before the help
 
 tests clap library
 
@@ -250,33 +258,39 @@ Options:
   -V, --version  Print version
 
 some text that comes after the help
-";
 
-    let cmd = Command::new("clap-test")
-        .version("v1.4.8")
-        .about("tests clap library")
-        .before_help("some text that comes before the help")
-        .after_help("some text that comes after the help");
-    utils::assert_output(cmd.clone(), "clap-test -h", AFTER_HELP, false);
-    utils::assert_output(cmd, "clap-test --help", AFTER_HELP, false);
-}
+"#]];
+    utils::assert_output(cmd.clone(), "clap-test -h", expected, false);
 
-#[test]
-fn after_and_before_long_help_output() {
-    static AFTER_HELP: &str = "some text that comes before the help
+    let expected = str![[r#"
+some text that comes before the help
 
 tests clap library
 
 Usage: clap-test
 
 Options:
-  -h, --help     Print help (see more with '--help')
+  -h, --help     Print help
   -V, --version  Print version
 
 some text that comes after the help
-";
 
-    static AFTER_LONG_HELP: &str = "some longer text that comes before the help
+"#]];
+    utils::assert_output(cmd, "clap-test --help", expected, false);
+}
+
+#[test]
+fn after_and_before_long_help_output() {
+    let cmd = Command::new("clap-test")
+        .version("v1.4.8")
+        .about("tests clap library")
+        .before_help("some text that comes before the help")
+        .after_help("some text that comes after the help")
+        .before_long_help("some longer text that comes before the help")
+        .after_long_help("some longer text that comes after the help");
+
+    let expected = str![[r#"
+some longer text that comes before the help
 
 tests clap library
 
@@ -290,30 +304,26 @@ Options:
           Print version
 
 some longer text that comes after the help
-";
 
-    let cmd = Command::new("clap-test")
-        .version("v1.4.8")
-        .about("tests clap library")
-        .before_help("some text that comes before the help")
-        .after_help("some text that comes after the help")
-        .before_long_help("some longer text that comes before the help")
-        .after_long_help("some longer text that comes after the help");
-    utils::assert_output(cmd.clone(), "clap-test --help", AFTER_LONG_HELP, false);
-    utils::assert_output(cmd, "clap-test -h", AFTER_HELP, false);
-}
+"#]];
+    utils::assert_output(cmd.clone(), "clap-test --help", expected, false);
 
-static MULTI_SC_HELP: &str = "\
-tests subcommands
+    let expected = str![[r#"
+some text that comes before the help
 
-Usage: ctest subcmd multi [OPTIONS]
+tests clap library
+
+Usage: clap-test
 
 Options:
-  -f, --flag                  tests flags
-  -o, --option <scoption>...  tests options
-  -h, --help                  Print help
-  -V, --version               Print version
-";
+  -h, --help     Print help (see more with '--help')
+  -V, --version  Print version
+
+some text that comes after the help
+
+"#]];
+    utils::assert_output(cmd, "clap-test -h", expected, false);
+}
 
 #[test]
 fn multi_level_sc_help() {
@@ -336,47 +346,54 @@ fn multi_level_sc_help() {
                 ),
         ),
     );
-    utils::assert_output(cmd, "ctest help subcmd multi", MULTI_SC_HELP, false);
+
+    let expected = str![[r#"
+tests subcommands
+
+Usage: ctest subcmd multi [OPTIONS]
+
+Options:
+  -f, --flag                  tests flags
+  -o, --option <scoption>...  tests options
+  -h, --help                  Print help
+  -V, --version               Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest help subcmd multi", expected, false);
 }
 
 #[test]
 fn no_wrap_default_help() {
-    static DEFAULT_HELP: &str = "\
+    let cmd = Command::new("ctest").version("1.0").term_width(0);
+
+    let expected = str![[r#"
 Usage: ctest
 
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
-    let cmd = Command::new("ctest").version("1.0").term_width(0);
-    utils::assert_output(cmd, "ctest --help", DEFAULT_HELP, false);
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
 fn try_help_default() {
-    static DEFAULT_HELP: &str = "\
+    let cmd = Command::new("ctest").version("1.0").term_width(0);
+
+    let expected = str![[r#"
 error: unexpected argument 'bar' found
 
 Usage: ctest
 
 For more information, try '--help'.
-";
 
-    let cmd = Command::new("ctest").version("1.0").term_width(0);
-    utils::assert_output(cmd, "ctest bar", DEFAULT_HELP, true);
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
 }
 
 #[test]
 fn try_help_custom_flag() {
-    static EXPECTED_HELP: &str = "\
-error: unexpected argument 'bar' found
-
-Usage: ctest
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("ctest")
         .version("1.0")
         .disable_help_flag(true)
@@ -387,89 +404,94 @@ For more information, try '--help'.
                 .action(ArgAction::Help),
         )
         .term_width(0);
-    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
-}
 
-#[test]
-fn try_help_custom_flag_short() {
-    static EXPECTED_HELP: &str = "\
-error: unexpected argument 'bar' found
-
-Usage: ctest
-
-For more information, try '-h'.
-";
-
-    let cmd = Command::new("ctest")
-        .version("1.0")
-        .disable_help_flag(true)
-        .arg(Arg::new("help").short('h').action(ArgAction::HelpShort))
-        .term_width(0);
-    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
-}
-
-#[test]
-fn try_help_custom_flag_long() {
-    static EXPECTED_HELP: &str = "\
+    let expected = str![[r#"
 error: unexpected argument 'bar' found
 
 Usage: ctest
 
 For more information, try '--help'.
-";
 
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
+}
+
+#[test]
+fn try_help_custom_flag_short() {
+    let cmd = Command::new("ctest")
+        .version("1.0")
+        .disable_help_flag(true)
+        .arg(Arg::new("help").short('h').action(ArgAction::HelpShort))
+        .term_width(0);
+
+    let expected = str![[r#"
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+For more information, try '-h'.
+
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
+}
+
+#[test]
+fn try_help_custom_flag_long() {
     let cmd = Command::new("ctest")
         .version("1.0")
         .disable_help_flag(true)
         .arg(Arg::new("help").long("help").action(ArgAction::HelpShort))
         .term_width(0);
-    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+
+    let expected = str![[r#"
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+For more information, try '--help'.
+
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
 }
 
 #[test]
 fn try_help_custom_flag_no_action() {
-    static EXPECTED_HELP: &str = "\
-error: unexpected argument 'bar' found
-
-Usage: ctest
-";
-
     let cmd = Command::new("ctest")
         .version("1.0")
         .disable_help_flag(true)
         // Note `ArgAction::Help` is excluded
         .arg(Arg::new("help").long("help").global(true))
         .term_width(0);
-    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+
+    let expected = str![[r#"
+error: unexpected argument 'bar' found
+
+Usage: ctest
+
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
 }
 
 #[test]
 fn try_help_subcommand_default() {
-    static DEFAULT_HELP: &str = "\
-error: unrecognized subcommand 'bar'
-
-Usage: ctest [COMMAND]
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("ctest")
         .version("1.0")
         .subcommand(Command::new("foo"))
         .term_width(0);
-    utils::assert_output(cmd, "ctest bar", DEFAULT_HELP, true);
-}
 
-#[test]
-fn try_help_subcommand_custom_flag() {
-    static EXPECTED_HELP: &str = "\
+    let expected = str![[r#"
 error: unrecognized subcommand 'bar'
 
 Usage: ctest [COMMAND]
 
 For more information, try '--help'.
-";
 
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
+}
+
+#[test]
+fn try_help_subcommand_custom_flag() {
     let cmd = Command::new("ctest")
         .version("1.0")
         .disable_help_flag(true)
@@ -482,19 +504,20 @@ For more information, try '--help'.
         )
         .subcommand(Command::new("foo"))
         .term_width(0);
-    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
-}
 
-#[test]
-fn try_help_subcommand_custom_flag_no_action() {
-    static EXPECTED_HELP: &str = "\
+    let expected = str![[r#"
 error: unrecognized subcommand 'bar'
 
 Usage: ctest [COMMAND]
 
-For more information, try 'help'.
-";
+For more information, try '--help'.
 
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
+}
+
+#[test]
+fn try_help_subcommand_custom_flag_no_action() {
     let cmd = Command::new("ctest")
         .version("1.0")
         .disable_help_flag(true)
@@ -502,25 +525,21 @@ For more information, try 'help'.
         .arg(Arg::new("help").long("help").global(true))
         .subcommand(Command::new("foo"))
         .term_width(0);
-    utils::assert_output(cmd, "ctest bar", EXPECTED_HELP, true);
+
+    let expected = str![[r#"
+error: unrecognized subcommand 'bar'
+
+Usage: ctest [COMMAND]
+
+For more information, try 'help'.
+
+"#]];
+    utils::assert_output(cmd, "ctest bar", expected, true);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn wrapped_help() {
-    static WRAPPED_HELP: &str = "\
-Usage: test [OPTIONS]
-
-Options:
-  -a, --all            Also do versioning for private crates (will
-                       not be published)
-      --exact          Specify inter dependency version numbers
-                       exactly with `=`
-      --no-git-commit  Do not commit version changes
-      --no-git-push    Do not push generated commit and tags to git
-                       remote
-  -h, --help           Print help
-";
     let cmd = Command::new("test")
         .term_width(67)
         .arg(
@@ -548,13 +567,8 @@ Options:
                 .action(ArgAction::SetTrue)
                 .help("Do not push generated commit and tags to git remote"),
         );
-    utils::assert_output(cmd, "test --help", WRAPPED_HELP, false);
-}
 
-#[test]
-#[cfg(feature = "wrap_help")]
-fn unwrapped_help() {
-    static UNWRAPPED_HELP: &str = "\
+    let expected = str![[r#"
 Usage: test [OPTIONS]
 
 Options:
@@ -566,7 +580,14 @@ Options:
       --no-git-push    Do not push generated commit and tags to git
                        remote
   -h, --help           Print help
-";
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn unwrapped_help() {
     let cmd = Command::new("test")
         .term_width(68)
         .arg(
@@ -594,37 +615,27 @@ Options:
                 .action(ArgAction::SetTrue)
                 .help("Do not push generated commit and tags to git remote"),
         );
-    utils::assert_output(cmd, "test --help", UNWRAPPED_HELP, false);
+
+    let expected = str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+  -a, --all            Also do versioning for private crates (will
+                       not be published)
+      --exact          Specify inter dependency version numbers
+                       exactly with `=`
+      --no-git-commit  Do not commit version changes
+      --no-git-push    Do not push generated commit and tags to git
+                       remote
+  -h, --help           Print help
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn possible_value_wrapped_help() {
-    static WRAPPED_HELP: &str = "\
-Usage: test [OPTIONS]
-
-Options:
-      --possible-values <possible_values>
-          Possible values:
-          - short_name: Long enough help message, barely warrant
-            wrapping
-          - second:     Short help gets handled the same
-
-      --possible-values-with-new-line <possible_values_with_new_line>
-          Possible values:
-          - long enough name to trigger new line: Really long
-            enough help message to clearly warrant wrapping believe
-            me
-          - second
-
-      --possible-values-without-new-line <possible_values_without_new_line>
-          Possible values:
-          - name:   Short enough help message with no wrapping
-          - second: short help
-
-  -h, --help
-          Print help (see a summary with '-h')
-";
     let cmd = Command::new("test")
         .term_width(67)
         .arg(
@@ -657,12 +668,42 @@ Options:
                     PossibleValue::new("second").help("short help"),
                 ]),
         );
-    utils::assert_output(cmd, "test --help", WRAPPED_HELP, false);
+
+    let expected = str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+      --possible-values <possible_values>
+          Possible values:
+          - short_name: Long enough help message, barely warrant
+            wrapping
+          - second:     Short help gets handled the same
+
+      --possible-values-with-new-line <possible_values_with_new_line>
+          Possible values:
+          - long enough name to trigger new line: Really long
+            enough help message to clearly warrant wrapping believe
+            me
+          - second
+
+      --possible-values-without-new-line <possible_values_without_new_line>
+          Possible values:
+          - name:   Short enough help message with no wrapping
+          - second: short help
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
 fn complex_subcommand_help_output() {
-    static SC_HELP: &str = "clap-test-subcmd 0.1
+    let a = utils::complex_app();
+
+    let expected = str![[r#"
+clap-test-subcmd 0.1
 Kevin K. <kbknapp@gmail.com>
 tests subcommands
 
@@ -677,31 +718,14 @@ Options:
   -s, --subcmdarg <subcmdarg>  tests other args
   -h, --help                   Print help
   -V, --version                Print version
-";
 
-    let a = utils::complex_app();
-    utils::assert_output(a, "clap-test subcmd --help", SC_HELP, false);
+"#]];
+    utils::assert_output(a, "clap-test subcmd --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn issue_626_unicode_cutoff() {
-    static ISSUE_626_CUTOFF: &str = "\
-Usage: ctest [OPTIONS]
-
-Options:
-  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café is an
-                     establishment which primarily serves hot coffee,
-                     related coffee beverages (e.g., café latte,
-                     cappuccino, espresso), tea, and other hot
-                     beverages. Some coffeehouses also serve cold
-                     beverages such as iced coffee and iced tea. Many
-                     cafés also serve some type of food, such as light
-                     snacks, muffins, or pastries.
-  -h, --help         Print help
-  -V, --version      Print version
-";
-
     let cmd = Command::new("ctest").version("0.1").term_width(70).arg(
         Arg::new("cafe")
             .short('c')
@@ -717,18 +741,25 @@ Options:
             )
             .action(ArgAction::Set),
     );
-    utils::assert_output(cmd, "ctest --help", ISSUE_626_CUTOFF, false);
-}
 
-static HIDE_POS_VALS: &str = "\
+    let expected = str![[r#"
 Usage: ctest [OPTIONS]
 
 Options:
-  -p, --pos <VAL>    Some vals [possible values: fast, slow]
-  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café.
+  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café is an
+                     establishment which primarily serves hot coffee,
+                     related coffee beverages (e.g., café latte,
+                     cappuccino, espresso), tea, and other hot
+                     beverages. Some coffeehouses also serve cold
+                     beverages such as iced coffee and iced tea. Many
+                     cafés also serve some type of food, such as light
+                     snacks, muffins, or pastries.
   -h, --help         Print help
   -V, --version      Print version
-";
+
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
+}
 
 #[test]
 fn hide_possible_vals() {
@@ -753,7 +784,18 @@ fn hide_possible_vals() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .action(ArgAction::Set),
         );
-    utils::assert_output(cmd, "ctest --help", HIDE_POS_VALS, false);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS]
+
+Options:
+  -p, --pos <VAL>    Some vals [possible values: fast, slow]
+  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café.
+  -h, --help         Print help
+  -V, --version      Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
@@ -781,31 +823,22 @@ fn hide_single_possible_val() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .action(ArgAction::Set),
         );
-    utils::assert_output(cmd, "ctest --help", HIDE_POS_VALS, false);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS]
+
+Options:
+  -p, --pos <VAL>    Some vals [possible values: fast, slow]
+  -c, --cafe <FILE>  A coffeehouse, coffee shop, or café.
+  -h, --help         Print help
+  -V, --version      Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
 fn possible_vals_with_help() {
-    static POS_VALS_HELP: &str = "\
-Usage: ctest [OPTIONS]
-
-Options:
-  -p, --pos <VAL>
-          Some vals
-
-          Possible values:
-          - fast
-          - slow: not as fast
-
-  -c, --cafe <FILE>
-          A coffeehouse, coffee shop, or café.
-
-  -h, --help
-          Print help (see a summary with '-h')
-
-  -V, --version
-          Print version
-";
     let app = Command::new("ctest")
         .version("0.1")
         .arg(
@@ -829,20 +862,33 @@ Options:
                 .help("A coffeehouse, coffee shop, or café.")
                 .action(ArgAction::Set),
         );
-    utils::assert_output(app, "ctest --help", POS_VALS_HELP, false);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS]
+
+Options:
+  -p, --pos <VAL>
+          Some vals
+
+          Possible values:
+          - fast
+          - slow: not as fast
+
+  -c, --cafe <FILE>
+          A coffeehouse, coffee shop, or café.
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+
+"#]];
+    utils::assert_output(app, "ctest --help", expected, false);
 }
 
 #[test]
 fn hidden_possible_vals() {
-    static POS_VALS_HELP: &str = "\
-Usage: ctest [pos]
-
-Arguments:
-  [pos]  
-
-Options:
-  -h, --help  Print help
-";
     let app = Command::new("ctest").arg(
         Arg::new("pos")
             .hide_possible_values(true)
@@ -852,30 +898,23 @@ Options:
             ])
             .action(ArgAction::Set),
     );
-    utils::assert_output(app, "ctest --help", POS_VALS_HELP, false);
+
+    let expected = str![[r#"
+Usage: ctest [pos]
+
+Arguments:
+  [pos]  
+
+Options:
+  -h, --help  Print help
+
+"#]];
+    utils::assert_output(app, "ctest --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn issue_626_panic() {
-    static ISSUE_626_PANIC: &str = "\
-Usage: ctest [OPTIONS]
-
-Options:
-  -c, --cafe <FILE>
-          La culture du café est très développée
-          dans de nombreux pays à climat chaud
-          d\'Amérique, d\'Afrique et d\'Asie, dans des
-          plantations qui sont cultivées pour les
-          marchés d\'exportation. Le café est souvent
-          une contribution majeure aux exportations
-          des régions productrices.
-  -h, --help
-          Print help
-  -V, --version
-          Print version
-";
-
     let cmd = Command::new("ctest")
         .version("0.1")
         .term_width(52)
@@ -887,7 +926,26 @@ Options:
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .action(ArgAction::Set));
-    utils::assert_output(cmd, "ctest --help", ISSUE_626_PANIC, false);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS]
+
+Options:
+  -c, --cafe <FILE>
+          La culture du café est très développée
+          dans de nombreux pays à climat chaud
+          d'Amérique, d'Afrique et d'Asie, dans des
+          plantations qui sont cultivées pour les
+          marchés d'exportation. Le café est souvent
+          une contribution majeure aux exportations
+          des régions productrices.
+  -h, --help
+          Print help
+  -V, --version
+          Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
@@ -912,7 +970,9 @@ fn issue_626_variable_panic() {
 #[test]
 #[cfg(feature = "wrap_help")]
 fn final_word_wrapping() {
-    static FINAL_WORD_WRAPPING: &str = "\
+    let cmd = Command::new("ctest").version("0.1").term_width(24);
+
+    let expected = str![[r#"
 Usage: ctest
 
 Options:
@@ -920,16 +980,24 @@ Options:
           Print help
   -V, --version
           Print version
-";
 
-    let cmd = Command::new("ctest").version("0.1").term_width(24);
-    utils::assert_output(cmd, "ctest --help", FINAL_WORD_WRAPPING, false);
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn wrapping_newline_chars() {
-    static WRAPPING_NEWLINE_CHARS: &str = "\
+    let cmd = Command::new("ctest")
+        .version("0.1")
+        .term_width(60)
+        .arg(Arg::new("mode").help(
+            "x, max, maximum   20 characters, contains symbols.\n\
+             l, long           Copy-friendly, 14 characters, contains symbols.\n\
+             m, med, medium    Copy-friendly, 8 characters, contains symbols.\n",
+        ));
+
+    let expected = str![[r#"
 Usage: ctest [mode]
 
 Arguments:
@@ -942,23 +1010,24 @@ Arguments:
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
-    let cmd = Command::new("ctest")
-        .version("0.1")
-        .term_width(60)
-        .arg(Arg::new("mode").help(
-            "x, max, maximum   20 characters, contains symbols.\n\
-             l, long           Copy-friendly, 14 characters, contains symbols.\n\
-             m, med, medium    Copy-friendly, 8 characters, contains symbols.\n",
-        ));
-    utils::assert_output(cmd, "ctest --help", WRAPPING_NEWLINE_CHARS, false);
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn wrapped_indentation() {
-    static HELP: &str = "\
+    let cmd = Command::new("ctest")
+        .version("0.1")
+        .term_width(60)
+        .arg(Arg::new("mode").help(
+            "Some values:
+  - l, long           Copy-friendly, 14 characters, contains symbols.
+  - m, med, medium    Copy-friendly, 8 characters, contains symbols.",
+        ));
+
+    let expected = str![[r#"
 Usage: ctest [mode]
 
 Arguments:
@@ -971,23 +1040,24 @@ Arguments:
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
-    let cmd = Command::new("ctest")
-        .version("0.1")
-        .term_width(60)
-        .arg(Arg::new("mode").help(
-            "Some values:
-  - l, long           Copy-friendly, 14 characters, contains symbols.
-  - m, med, medium    Copy-friendly, 8 characters, contains symbols.",
-        ));
-    utils::assert_output(cmd, "ctest --help", HELP, false);
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn wrapping_newline_variables() {
-    static WRAPPING_NEWLINE_CHARS: &str = "\
+    let cmd = Command::new("ctest")
+        .version("0.1")
+        .term_width(60)
+        .arg(Arg::new("mode").help(
+            "x, max, maximum   20 characters, contains symbols.{n}\
+             l, long           Copy-friendly, 14 characters, contains symbols.{n}\
+             m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
+        ));
+
+    let expected = str![[r#"
 Usage: ctest [mode]
 
 Arguments:
@@ -1000,17 +1070,9 @@ Arguments:
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
-    let cmd = Command::new("ctest")
-        .version("0.1")
-        .term_width(60)
-        .arg(Arg::new("mode").help(
-            "x, max, maximum   20 characters, contains symbols.{n}\
-             l, long           Copy-friendly, 14 characters, contains symbols.{n}\
-             m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
-        ));
-    utils::assert_output(cmd, "ctest --help", WRAPPING_NEWLINE_CHARS, false);
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
@@ -1025,7 +1087,7 @@ fn dont_wrap_urls() {
                 .action(ArgAction::SetTrue))
     );
 
-    const EXPECTED: &str = "\
+    let expected = str![[r#"
 Usage: Example update [OPTIONS]
 
 Options:
@@ -1036,19 +1098,10 @@ Options:
           https://github.com/rust-lang/rustup/wiki/Non-host-toolchains
   -h, --help
           Print help
-";
-    utils::assert_output(cmd, "Example update --help", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "Example update --help", expected, false);
 }
-
-static OLD_NEWLINE_CHARS: &str = "\
-Usage: ctest [OPTIONS]
-
-Options:
-  -m             Some help with some wrapping
-                 (Defaults to something)
-  -h, --help     Print help
-  -V, --version  Print version
-";
 
 #[test]
 fn old_newline_chars() {
@@ -1058,7 +1111,18 @@ fn old_newline_chars() {
             .action(ArgAction::SetTrue)
             .help("Some help with some wrapping\n(Defaults to something)"),
     );
-    utils::assert_output(cmd, "ctest --help", OLD_NEWLINE_CHARS, false);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS]
+
+Options:
+  -m             Some help with some wrapping
+                 (Defaults to something)
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
@@ -1069,14 +1133,25 @@ fn old_newline_variables() {
             .action(ArgAction::SetTrue)
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
-    utils::assert_output(cmd, "ctest --help", OLD_NEWLINE_CHARS, false);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS]
+
+Options:
+  -m             Some help with some wrapping
+                 (Defaults to something)
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn issue_688_hide_pos_vals() {
     #[cfg(not(feature = "unstable-v5"))]
-    static ISSUE_688: &str = "\
+    let expected = str![[r#"
 Usage: ctest [OPTIONS]
 
 Options:
@@ -1085,10 +1160,11 @@ Options:
                          Lanczos3]
   -h, --help             Print help
   -V, --version          Print version
-";
+
+"#]];
 
     #[cfg(feature = "unstable-v5")]
-    static ISSUE_688: &str = "\
+    let expected = str![[r#"
 Usage: ctest [OPTIONS]
 
 Options:
@@ -1097,7 +1173,8 @@ Options:
                          Nearest, Linear, Cubic, Gaussian, Lanczos3]
   -h, --help             Print help
   -V, --version          Print version
-";
+
+"#]];
 
     let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
 
@@ -1111,7 +1188,8 @@ Options:
 				.long("filter")
 				.value_parser(filter_values)
 				.action(ArgAction::Set));
-    utils::assert_output(app1, "ctest --help", ISSUE_688, false);
+
+    utils::assert_output(app1, "ctest --help", expected.clone(), false);
 
     let app2 = Command::new("ctest")
         .version("0.1")
@@ -1122,7 +1200,8 @@ Options:
 				.long("filter")
 				.value_parser(filter_values)
 				.action(ArgAction::Set));
-    utils::assert_output(app2, "ctest --help", ISSUE_688, false);
+
+    utils::assert_output(app2, "ctest --help", expected.clone(), false);
 
     let app3 = Command::new("ctest")
         .version("0.1")
@@ -1132,28 +1211,12 @@ Options:
             images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.action(ArgAction::Set));
-    utils::assert_output(app3, "ctest --help", ISSUE_688, false);
+
+    utils::assert_output(app3, "ctest --help", expected.clone(), false);
 }
 
 #[test]
 fn issue_702_multiple_values() {
-    static ISSUE_702: &str = "\
-bar
-
-Usage: myapp [OPTIONS] [arg1] [arg2]...
-
-Arguments:
-  [arg1]     some option
-  [arg2]...  some option
-
-Options:
-  -s, --some <some>       some option
-  -o, --other <other>     some other option
-  -l, --label <label>...  a label
-  -h, --help              Print help
-  -V, --version           Print version
-";
-
     let cmd = Command::new("myapp")
         .version("1.0")
         .author("foo")
@@ -1187,12 +1250,39 @@ Options:
                 .num_args(1..)
                 .action(ArgAction::Set),
         );
-    utils::assert_output(cmd, "myapp --help", ISSUE_702, false);
+
+    let expected = str![[r#"
+bar
+
+Usage: myapp [OPTIONS] [arg1] [arg2]...
+
+Arguments:
+  [arg1]     some option
+  [arg2]...  some option
+
+Options:
+  -s, --some <some>       some option
+  -o, --other <other>     some other option
+  -l, --label <label>...  a label
+  -h, --help              Print help
+  -V, --version           Print version
+
+"#]];
+    utils::assert_output(cmd, "myapp --help", expected, false);
 }
 
 #[test]
 fn long_about() {
-    static LONG_ABOUT: &str = "\
+    let cmd = Command::new("myapp")
+        .version("1.0")
+        .author("foo")
+        .about("bar")
+        .long_about(
+            "something really really long, with\nmultiple lines of text\nthat should be displayed",
+        )
+        .arg(Arg::new("arg1").help("some option"));
+
+    let expected = str![[r#"
 something really really long, with
 multiple lines of text
 that should be displayed
@@ -1209,22 +1299,31 @@ Options:
 
   -V, --version
           Print version
-";
 
+"#]];
+    utils::assert_output(cmd, "myapp --help", expected, false);
+}
+
+#[test]
+fn explicit_short_long_help() {
     let cmd = Command::new("myapp")
+        .disable_help_flag(true)
         .version("1.0")
         .author("foo")
         .about("bar")
         .long_about(
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
         )
-        .arg(Arg::new("arg1").help("some option"));
-    utils::assert_output(cmd, "myapp --help", LONG_ABOUT, false);
-}
+        .arg(Arg::new("arg1").help("some option"))
+        .arg(Arg::new("short").short('?').action(ArgAction::HelpShort))
+        .arg(
+            Arg::new("long")
+                .short('h')
+                .long("help")
+                .action(ArgAction::HelpLong),
+        );
 
-#[test]
-fn explicit_short_long_help() {
-    static SHORT_ABOUT: &str = "\
+    let expected = str![[r#"
 bar
 
 Usage: myapp [arg1]
@@ -1236,9 +1335,11 @@ Options:
   -?             
   -h, --help     
   -V, --version  Print version
-";
 
-    static LONG_ABOUT: &str = "\
+"#]];
+    utils::assert_output(cmd.clone(), "myapp -?", expected, false);
+
+    let expected = str![[r#"
 something really really long, with
 multiple lines of text
 that should be displayed
@@ -1258,42 +1359,37 @@ Options:
 
   -V, --version
           Print version
-";
 
-    let cmd = Command::new("myapp")
-        .disable_help_flag(true)
-        .version("1.0")
-        .author("foo")
-        .about("bar")
-        .long_about(
-            "something really really long, with\nmultiple lines of text\nthat should be displayed",
-        )
-        .arg(Arg::new("arg1").help("some option"))
-        .arg(Arg::new("short").short('?').action(ArgAction::HelpShort))
-        .arg(
-            Arg::new("long")
-                .short('h')
-                .long("help")
-                .action(ArgAction::HelpLong),
-        );
-    utils::assert_output(cmd.clone(), "myapp -?", SHORT_ABOUT, false);
-    utils::assert_output(cmd.clone(), "myapp -h", LONG_ABOUT, false);
-    utils::assert_output(cmd, "myapp --help", LONG_ABOUT, false);
+"#]];
+    utils::assert_output(cmd.clone(), "myapp -h", expected, false);
+
+    let expected = str![[r#"
+something really really long, with
+multiple lines of text
+that should be displayed
+
+Usage: myapp [arg1]
+
+Arguments:
+  [arg1]
+          some option
+
+Options:
+  -?
+          
+
+  -h, --help
+          
+
+  -V, --version
+          Print version
+
+"#]];
+    utils::assert_output(cmd, "myapp --help", expected, false);
 }
 
 #[test]
 fn ripgrep_usage() {
-    static RIPGREP_USAGE: &str = "\
-Usage: rg [OPTIONS] <pattern> [<path> ...]
-       rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
-       rg [OPTIONS] --files [<path> ...]
-       rg [OPTIONS] --type-list
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-";
-
     let cmd = Command::new("ripgrep").version("0.5").override_usage(
         "rg [OPTIONS] <pattern> [<path> ...]
        rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
@@ -1301,14 +1397,7 @@ Options:
        rg [OPTIONS] --type-list",
     );
 
-    utils::assert_output(cmd, "rg --help", RIPGREP_USAGE, false);
-}
-
-#[test]
-fn ripgrep_usage_using_templates() {
-    static RIPGREP_USAGE: &str = "\
-ripgrep 0.5
-
+    let expected = str![[r#"
 Usage: rg [OPTIONS] <pattern> [<path> ...]
        rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
        rg [OPTIONS] --files [<path> ...]
@@ -1317,8 +1406,13 @@ Usage: rg [OPTIONS] <pattern> [<path> ...]
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
+"#]];
+    utils::assert_output(cmd, "rg --help", expected, false);
+}
+
+#[test]
+fn ripgrep_usage_using_templates() {
     #[cfg(not(feature = "unstable-v5"))]
     let cmd = Command::new("ripgrep")
         .version("0.5")
@@ -1359,12 +1453,32 @@ Options:
 {options}",
         );
 
-    utils::assert_output(cmd, "rg --help", RIPGREP_USAGE, false);
+    let expected = str![[r#"
+ripgrep 0.5
+
+Usage: rg [OPTIONS] <pattern> [<path> ...]
+       rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
+       rg [OPTIONS] --files [<path> ...]
+       rg [OPTIONS] --type-list
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "rg --help", expected, false);
 }
 
 #[test]
 fn sc_negates_reqs() {
-    static SC_NEGATES_REQS: &str = "\
+    let cmd = Command::new("prog")
+        .version("1.0")
+        .subcommand_negates_reqs(true)
+        .arg(arg!(-o --opt <FILE> "tests options").required(true))
+        .arg(Arg::new("PATH").help("help"))
+        .subcommand(Command::new("test"));
+
+    let expected = str![[r#"
 Usage: prog --opt <FILE> [PATH]
        prog [PATH] <COMMAND>
 
@@ -1379,20 +1493,20 @@ Options:
   -o, --opt <FILE>  tests options
   -h, --help        Print help
   -V, --version     Print version
-";
 
-    let cmd = Command::new("prog")
-        .version("1.0")
-        .subcommand_negates_reqs(true)
-        .arg(arg!(-o --opt <FILE> "tests options").required(true))
-        .arg(Arg::new("PATH").help("help"))
-        .subcommand(Command::new("test"));
-    utils::assert_output(cmd, "prog --help", SC_NEGATES_REQS, false);
+"#]];
+    utils::assert_output(cmd, "prog --help", expected, false);
 }
 
 #[test]
 fn hide_args() {
-    static HIDDEN_ARGS: &str = "\
+    let cmd = Command::new("prog")
+        .version("1.0")
+        .arg(arg!(-f --flag "testing flags"))
+        .arg(arg!(-o --opt <FILE> "tests options"))
+        .arg(Arg::new("pos").hide(true));
+
+    let expected = str![[r#"
 Usage: prog [OPTIONS]
 
 Options:
@@ -1400,19 +1514,22 @@ Options:
   -o, --opt <FILE>  tests options
   -h, --help        Print help
   -V, --version     Print version
-";
 
-    let cmd = Command::new("prog")
-        .version("1.0")
-        .arg(arg!(-f --flag "testing flags"))
-        .arg(arg!(-o --opt <FILE> "tests options"))
-        .arg(Arg::new("pos").hide(true));
-    utils::assert_output(cmd, "prog --help", HIDDEN_ARGS, false);
+"#]];
+    utils::assert_output(cmd, "prog --help", expected, false);
 }
 
 #[test]
 fn args_negate_sc() {
-    static ARGS_NEGATE_SC: &str = "\
+    let cmd = Command::new("prog")
+        .version("1.0")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(-f --flag "testing flags"))
+        .arg(arg!(-o --opt <FILE> "tests options"))
+        .arg(Arg::new("PATH").help("help"))
+        .subcommand(Command::new("test"));
+
+    let expected = str![[r#"
 Usage: prog [OPTIONS] [PATH]
        prog <COMMAND>
 
@@ -1428,21 +1545,21 @@ Options:
   -o, --opt <FILE>  tests options
   -h, --help        Print help
   -V, --version     Print version
-";
 
-    let cmd = Command::new("prog")
-        .version("1.0")
-        .args_conflicts_with_subcommands(true)
-        .arg(arg!(-f --flag "testing flags"))
-        .arg(arg!(-o --opt <FILE> "tests options"))
-        .arg(Arg::new("PATH").help("help"))
-        .subcommand(Command::new("test"));
-    utils::assert_output(cmd, "prog --help", ARGS_NEGATE_SC, false);
+"#]];
+    utils::assert_output(cmd, "prog --help", expected, false);
 }
 
 #[test]
 fn issue_1046_hide_scs() {
-    static ISSUE_1046_HIDDEN_SCS: &str = "\
+    let cmd = Command::new("prog")
+        .version("1.0")
+        .arg(arg!(-f --flag "testing flags"))
+        .arg(arg!(-o --opt <FILE> "tests options"))
+        .arg(Arg::new("PATH").help("some"))
+        .subcommand(Command::new("test").hide(true));
+
+    let expected = str![[r#"
 Usage: prog [OPTIONS] [PATH]
 
 Arguments:
@@ -1453,21 +1570,23 @@ Options:
   -o, --opt <FILE>  tests options
   -h, --help        Print help
   -V, --version     Print version
-";
 
-    let cmd = Command::new("prog")
-        .version("1.0")
-        .arg(arg!(-f --flag "testing flags"))
-        .arg(arg!(-o --opt <FILE> "tests options"))
-        .arg(Arg::new("PATH").help("some"))
-        .subcommand(Command::new("test").hide(true));
-    utils::assert_output(cmd, "prog --help", ISSUE_1046_HIDDEN_SCS, false);
+"#]];
+    utils::assert_output(cmd, "prog --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn issue_777_wrap_all_things() {
-    static ISSUE_777: &str = "A cmd with a crazy very long long
+    let cmd = Command::new("A cmd with a crazy very long long long name hahaha")
+        .version("1.0")
+        .author("Some Very Long Name and crazy long email <email@server.com>")
+        .about("Show how the about text is not wrapped")
+        .help_template(utils::FULL_TEMPLATE)
+        .term_width(35);
+
+    let expected = str![[r#"
+A cmd with a crazy very long long
 long name hahaha 1.0
 Some Very Long Name and crazy long
 email <email@server.com>
@@ -1479,15 +1598,9 @@ Usage: ctest
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
-    let cmd = Command::new("A cmd with a crazy very long long long name hahaha")
-        .version("1.0")
-        .author("Some Very Long Name and crazy long email <email@server.com>")
-        .about("Show how the about text is not wrapped")
-        .help_template(utils::FULL_TEMPLATE)
-        .term_width(35);
-    utils::assert_output(cmd, "ctest --help", ISSUE_777, false);
+"#]];
+    utils::assert_output(cmd, "ctest --help", expected, false);
 }
 
 #[test]
@@ -1499,21 +1612,16 @@ fn dont_strip_padding_issue_5083() {
             Command::new("two"),
             Command::new("three"),
         ]);
-    static EXPECTED: &str = "  one    
+
+    let expected = str![[r#"
+  one    
   two    
   three  
   help   Print this message or the help of the given subcommand(s)
-";
-    utils::assert_output(cmd, "test --help", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
-
-static OVERRIDE_HELP_SHORT: &str = "\
-Usage: test
-
-Options:
-  -H, --help     Print help
-  -V, --version  Print version
-";
 
 #[test]
 fn override_help_short() {
@@ -1522,17 +1630,26 @@ fn override_help_short() {
         .arg(arg!(-H --help "Print help").action(ArgAction::Help))
         .disable_help_flag(true);
 
-    utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_SHORT, false);
-    utils::assert_output(cmd, "test -H", OVERRIDE_HELP_SHORT, false);
-}
-
-static OVERRIDE_HELP_LONG: &str = "\
+    let expected = str![[r#"
 Usage: test
 
 Options:
-  -h, --hell     Print help
+  -H, --help     Print help
   -V, --version  Print version
-";
+
+"#]];
+    utils::assert_output(cmd.clone(), "test --help", expected, false);
+
+    let expected = str![[r#"
+Usage: test
+
+Options:
+  -H, --help     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "test -H", expected, false);
+}
 
 #[test]
 fn override_help_long() {
@@ -1541,17 +1658,26 @@ fn override_help_long() {
         .arg(arg!(-h --hell "Print help").action(ArgAction::Help))
         .disable_help_flag(true);
 
-    utils::assert_output(cmd.clone(), "test --hell", OVERRIDE_HELP_LONG, false);
-    utils::assert_output(cmd, "test -h", OVERRIDE_HELP_LONG, false);
-}
-
-static OVERRIDE_HELP_ABOUT: &str = "\
+    let expected = str![[r#"
 Usage: test
 
 Options:
-  -h, --help     Print custom help information
+  -h, --hell     Print help
   -V, --version  Print version
-";
+
+"#]];
+    utils::assert_output(cmd.clone(), "test --hell", expected, false);
+
+    let expected = str![[r#"
+Usage: test
+
+Options:
+  -h, --hell     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "test -h", expected, false);
+}
 
 #[test]
 fn override_help_about() {
@@ -1560,8 +1686,25 @@ fn override_help_about() {
         .arg(arg!(-h --help "Print custom help information").action(ArgAction::Help))
         .disable_help_flag(true);
 
-    utils::assert_output(cmd.clone(), "test --help", OVERRIDE_HELP_ABOUT, false);
-    utils::assert_output(cmd, "test -h", OVERRIDE_HELP_ABOUT, false);
+    let expected = str![[r#"
+Usage: test
+
+Options:
+  -h, --help     Print custom help information
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd.clone(), "test --help", expected, false);
+
+    let expected = str![[r#"
+Usage: test
+
+Options:
+  -h, --help     Print custom help information
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "test -h", expected, false);
 }
 
 #[test]
@@ -1597,19 +1740,6 @@ fn arg_long_conflict_with_help() {
 
 #[test]
 fn last_arg_mult_usage() {
-    static LAST_ARG: &str = "\
-Usage: last <TARGET> [CORPUS] [-- <ARGS>...]
-
-Arguments:
-  <TARGET>   some
-  [CORPUS]   some
-  [ARGS]...  some
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-";
-
     let cmd = Command::new("last")
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).help("some"))
@@ -1621,24 +1751,25 @@ Options:
                 .last(true)
                 .help("some"),
         );
-    utils::assert_output(cmd, "last --help", LAST_ARG, false);
-}
 
-#[test]
-fn last_arg_mult_usage_req() {
-    static LAST_ARG_REQ: &str = "\
-Usage: last <TARGET> [CORPUS] -- <ARGS>...
+    let expected = str![[r#"
+Usage: last <TARGET> [CORPUS] [-- <ARGS>...]
 
 Arguments:
   <TARGET>   some
   [CORPUS]   some
-  <ARGS>...  some
+  [ARGS]...  some
 
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
+"#]];
+    utils::assert_output(cmd, "last --help", expected, false);
+}
+
+#[test]
+fn last_arg_mult_usage_req() {
     let cmd = Command::new("last")
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).help("some"))
@@ -1651,12 +1782,41 @@ Options:
                 .required(true)
                 .help("some"),
         );
-    utils::assert_output(cmd, "last --help", LAST_ARG_REQ, false);
+
+    let expected = str![[r#"
+Usage: last <TARGET> [CORPUS] -- <ARGS>...
+
+Arguments:
+  <TARGET>   some
+  [CORPUS]   some
+  <ARGS>...  some
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "last --help", expected, false);
 }
 
 #[test]
 fn last_arg_mult_usage_req_with_sc() {
-    static LAST_ARG_REQ_SC: &str = "\
+    let cmd = Command::new("last")
+        .version("0.1")
+        .subcommand_negates_reqs(true)
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
+        .arg(
+            Arg::new("ARGS")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .last(true)
+                .required(true)
+                .help("some"),
+        )
+        .subcommand(Command::new("test").about("some"));
+
+    let expected = str![[r#"
 Usage: last <TARGET> [CORPUS] -- <ARGS>...
        last [TARGET] [CORPUS] <COMMAND>
 
@@ -1672,11 +1832,16 @@ Arguments:
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
+"#]];
+    utils::assert_output(cmd, "last --help", expected, false);
+}
+
+#[test]
+fn last_arg_mult_usage_with_sc() {
     let cmd = Command::new("last")
         .version("0.1")
-        .subcommand_negates_reqs(true)
+        .args_conflicts_with_subcommands(true)
         .arg(Arg::new("TARGET").required(true).help("some"))
         .arg(Arg::new("CORPUS").help("some"))
         .arg(
@@ -1684,16 +1849,11 @@ Options:
                 .action(ArgAction::Set)
                 .num_args(1..)
                 .last(true)
-                .required(true)
                 .help("some"),
         )
         .subcommand(Command::new("test").about("some"));
-    utils::assert_output(cmd, "last --help", LAST_ARG_REQ_SC, false);
-}
 
-#[test]
-fn last_arg_mult_usage_with_sc() {
-    static LAST_ARG_SC: &str = "\
+    let expected = str![[r#"
 Usage: last <TARGET> [CORPUS] [-- <ARGS>...]
        last <COMMAND>
 
@@ -1709,32 +1869,10 @@ Arguments:
 Options:
   -h, --help     Print help
   -V, --version  Print version
-";
 
-    let cmd = Command::new("last")
-        .version("0.1")
-        .args_conflicts_with_subcommands(true)
-        .arg(Arg::new("TARGET").required(true).help("some"))
-        .arg(Arg::new("CORPUS").help("some"))
-        .arg(
-            Arg::new("ARGS")
-                .action(ArgAction::Set)
-                .num_args(1..)
-                .last(true)
-                .help("some"),
-        )
-        .subcommand(Command::new("test").about("some"));
-    utils::assert_output(cmd, "last --help", LAST_ARG_SC, false);
+"#]];
+    utils::assert_output(cmd, "last --help", expected, false);
 }
-
-static HIDE_DEFAULT_VAL: &str = "\
-Usage: default [OPTIONS]
-
-Options:
-      --arg <argument>  Pass an argument to the program. [default: default-argument]
-  -h, --help            Print help
-  -V, --version         Print version
-";
 
 #[test]
 fn hide_default_val() {
@@ -1745,7 +1883,17 @@ fn hide_default_val() {
             .default_value("default-argument")
             .hide_default_value(true),
     );
-    utils::assert_output(app1, "default --help", HIDE_DEFAULT_VAL, false);
+
+    let expected = str![[r#"
+Usage: default [OPTIONS]
+
+Options:
+      --arg <argument>  Pass an argument to the program. [default: default-argument]
+  -h, --help            Print help
+  -V, --version         Print version
+
+"#]];
+    utils::assert_output(app1, "default --help", expected, false);
 
     let app2 = Command::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
@@ -1753,34 +1901,22 @@ fn hide_default_val() {
             .long("arg")
             .default_value("default-argument"),
     );
-    utils::assert_output(app2, "default --help", HIDE_DEFAULT_VAL, false);
+
+    let expected = str![[r#"
+Usage: default [OPTIONS]
+
+Options:
+      --arg <argument>  Pass an argument to the program. [default: default-argument]
+  -h, --help            Print help
+  -V, --version         Print version
+
+"#]];
+    utils::assert_output(app2, "default --help", expected, false);
 }
 
 #[test]
 #[cfg(feature = "wrap_help")]
 fn escaped_whitespace_values() {
-    #[cfg(not(feature = "unstable-v5"))]
-    static ESCAPED_DEFAULT_VAL: &str = "\
-Usage: default [OPTIONS]
-
-Options:
-      --arg <argument>  Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \" \", \"\\n\", \"\\t\",
-                        other]
-  -h, --help            Print help
-  -V, --version         Print version
-";
-
-    #[cfg(feature = "unstable-v5")]
-    static ESCAPED_DEFAULT_VAL: &str = "\
-Usage: default [OPTIONS]
-
-Options:
-      --arg <argument>  Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \"
-                        \", \"\\n\", \"\\t\", other]
-  -h, --help            Print help
-  -V, --version         Print version
-";
-
     let app1 = Command::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .help("Pass an argument to the program.")
@@ -1788,7 +1924,32 @@ Options:
             .default_value("\n")
             .value_parser(["normal", " ", "\n", "\t", "other"]),
     );
-    utils::assert_output(app1, "default --help", ESCAPED_DEFAULT_VAL, false);
+
+    #[cfg(not(feature = "unstable-v5"))]
+    let expected = str![[r#"
+Usage: default [OPTIONS]
+
+Options:
+      --arg <argument>  Pass an argument to the program. [default: "\n"] [possible values: normal, " ", "\n", "\t",
+                        other]
+  -h, --help            Print help
+  -V, --version         Print version
+
+"#]];
+
+    #[cfg(feature = "unstable-v5")]
+    let expected = str![[r#"
+Usage: default [OPTIONS]
+
+Options:
+      --arg <argument>  Pass an argument to the program. [default: "\n"] [possible values: normal, "
+                        ", "\n", "\t", other]
+  -h, --help            Print help
+  -V, --version         Print version
+
+"#]];
+
+    utils::assert_output(app1, "default --help", expected, false);
 }
 
 fn issue_1112_setup() -> Command {
@@ -1859,17 +2020,6 @@ fn prefer_user_subcmd_help_short_1112() {
 
 #[test]
 fn issue_1052_require_delim_help() {
-    static REQUIRE_DELIM_HELP: &str = "\
-tests stuff
-
-Usage: test --fake <some> <val>
-
-Options:
-  -f, --fake <some> <val>  some help
-  -h, --help               Print help
-  -V, --version            Print version
-";
-
     let cmd = Command::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -1882,26 +2032,22 @@ Options:
                 .value_delimiter(':'),
         );
 
-    utils::assert_output(cmd, "test --help", REQUIRE_DELIM_HELP, false);
-}
+    let expected = str![[r#"
+tests stuff
 
-#[test]
-fn custom_headers_headers() {
-    static CUSTOM_HELP_SECTION: &str = "\
-does stuff
-
-Usage: test [OPTIONS] --fake <some> <val>
+Usage: test --fake <some> <val>
 
 Options:
   -f, --fake <some> <val>  some help
   -h, --help               Print help
   -V, --version            Print version
 
-NETWORKING:
-  -n, --no-proxy  Do not use system proxy settings
-      --port
-";
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
 
+#[test]
+fn custom_headers_headers() {
     let cmd = Command::new("blorp")
         .author("Will M.")
         .about("does stuff")
@@ -1923,31 +2069,23 @@ NETWORKING:
         )
         .args([Arg::new("port").long("port").action(ArgAction::SetTrue)]);
 
-    utils::assert_output(cmd, "test --help", CUSTOM_HELP_SECTION, false);
-}
-
-static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "\
+    let expected = str![[r#"
 does stuff
 
-Usage: test [OPTIONS] --fake <some> <val> --birthday-song <song> --birthday-song-volume <volume>
+Usage: test [OPTIONS] --fake <some> <val>
 
 Options:
   -f, --fake <some> <val>  some help
-      --style <style>      Choose musical style to play the song
-  -s, --speed <SPEED>      How fast? [possible values: fast, slow]
   -h, --help               Print help
   -V, --version            Print version
 
 NETWORKING:
-  -n, --no-proxy     Do not use system proxy settings
-  -a, --server-addr  Set server address
+  -n, --no-proxy  Do not use system proxy settings
+      --port
 
-OVERRIDE SPECIAL:
-  -b, --birthday-song <song>  Change which song is played for birthdays
-
-SPECIAL:
-  -v, --birthday-song-volume <volume>  Change the volume of the birthday song
-";
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
 
 #[test]
 fn multiple_custom_help_headers() {
@@ -2002,24 +2140,31 @@ fn multiple_custom_help_headers() {
                 .action(ArgAction::Set),
         );
 
-    utils::assert_output(cmd, "test --help", MULTIPLE_CUSTOM_HELP_SECTIONS, false);
-}
-
-static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "\
+    let expected = str![[r#"
 does stuff
 
-Usage: test [OPTIONS] --song <song> --song-volume <volume>
+Usage: test [OPTIONS] --fake <some> <val> --birthday-song <song> --birthday-song-volume <volume>
 
 Options:
-  -h, --help     Print help (see more with '--help')
-  -V, --version  Print version
+  -f, --fake <some> <val>  some help
+      --style <style>      Choose musical style to play the song
+  -s, --speed <SPEED>      How fast? [possible values: fast, slow]
+  -h, --help               Print help
+  -V, --version            Print version
+
+NETWORKING:
+  -n, --no-proxy     Do not use system proxy settings
+  -a, --server-addr  Set server address
 
 OVERRIDE SPECIAL:
-  -b, --song <song>  Change which song is played for birthdays
+  -b, --birthday-song <song>  Change which song is played for birthdays
 
 SPECIAL:
-  -v, --song-volume <volume>  Change the volume of the birthday song
-";
+  -v, --birthday-song-volume <volume>  Change the volume of the birthday song
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
 
 #[test]
 fn custom_help_headers_hide_args() {
@@ -2057,10 +2202,35 @@ fn custom_help_headers_hide_args() {
                 .hide_short_help(true),
         );
 
-    utils::assert_output(cmd, "test -h", CUSTOM_HELP_SECTION_HIDDEN_ARGS, false);
+    let expected = str![[r#"
+does stuff
+
+Usage: test [OPTIONS] --song <song> --song-volume <volume>
+
+Options:
+  -h, --help     Print help (see more with '--help')
+  -V, --version  Print version
+
+OVERRIDE SPECIAL:
+  -b, --song <song>  Change which song is played for birthdays
+
+SPECIAL:
+  -v, --song-volume <volume>  Change the volume of the birthday song
+
+"#]];
+    utils::assert_output(cmd, "test -h", expected, false);
 }
 
-static ISSUE_897: &str = "\
+#[test]
+fn show_long_about_issue_897() {
+    let cmd = Command::new("ctest").version("0.1").subcommand(
+        Command::new("foo")
+            .version("0.1")
+            .about("About foo")
+            .long_about("Long about foo"),
+    );
+
+    let expected = str![[r#"
 Long about foo
 
 Usage: ctest foo
@@ -2071,28 +2241,10 @@ Options:
 
   -V, --version
           Print version
-";
 
-#[test]
-fn show_long_about_issue_897() {
-    let cmd = Command::new("ctest").version("0.1").subcommand(
-        Command::new("foo")
-            .version("0.1")
-            .about("About foo")
-            .long_about("Long about foo"),
-    );
-    utils::assert_output(cmd, "ctest foo --help", ISSUE_897, false);
+"#]];
+    utils::assert_output(cmd, "ctest foo --help", expected, false);
 }
-
-static ISSUE_897_SHORT: &str = "\
-About foo
-
-Usage: ctest foo
-
-Options:
-  -h, --help     Print help (see more with '--help')
-  -V, --version  Print version
-";
 
 #[test]
 fn show_short_about_issue_897() {
@@ -2102,22 +2254,22 @@ fn show_short_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"),
     );
-    utils::assert_output(cmd, "ctest foo -h", ISSUE_897_SHORT, false);
+
+    let expected = str![[r#"
+About foo
+
+Usage: ctest foo
+
+Options:
+  -h, --help     Print help (see more with '--help')
+  -V, --version  Print version
+
+"#]];
+    utils::assert_output(cmd, "ctest foo -h", expected, false);
 }
 
 #[test]
 fn issue_1364_no_short_options() {
-    static ISSUE_1364: &str = "\
-Usage: demo [OPTIONS] [FILES]...
-
-Arguments:
-  [FILES]...  
-
-Options:
-  -f          
-  -h, --help  Print help (see more with '--help')
-";
-
     let cmd = Command::new("demo")
         .arg(Arg::new("foo").short('f').action(ArgAction::SetTrue))
         .arg(
@@ -2133,13 +2285,32 @@ Options:
                 .num_args(1..),
         );
 
-    utils::assert_output(cmd, "demo -h", ISSUE_1364, false);
+    let expected = str![[r#"
+Usage: demo [OPTIONS] [FILES]...
+
+Arguments:
+  [FILES]...  
+
+Options:
+  -f          
+  -h, --help  Print help (see more with '--help')
+
+"#]];
+    utils::assert_output(cmd, "demo -h", expected, false);
 }
 
-#[rustfmt::skip]
 #[test]
 fn issue_1487() {
-static ISSUE_1487: &str = "\
+    let cmd = Command::new("test")
+        .arg(Arg::new("arg1").group("group1"))
+        .arg(Arg::new("arg2").group("group1"))
+        .group(
+            ArgGroup::new("group1")
+                .args(["arg1", "arg2"])
+                .required(true),
+        );
+
+    let expected = str![[r#"
 Usage: ctest <arg1|arg2>
 
 Arguments:
@@ -2148,17 +2319,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-";
 
-    let cmd = Command::new("test")
-    .arg(Arg::new("arg1")
-        .group("group1"))
-    .arg(Arg::new("arg2")
-        .group("group1"))
-    .group(ArgGroup::new("group1")
-        .args(["arg1", "arg2"])
-        .required(true));
-    utils::assert_output(cmd, "ctest -h", ISSUE_1487, false);
+"#]];
+    utils::assert_output(cmd, "ctest -h", expected, false);
 }
 
 #[cfg(debug_assertions)]
@@ -2259,20 +2422,6 @@ fn help_required_and_no_args() {
 
 #[test]
 fn issue_1642_long_help_spacing() {
-    static ISSUE_1642: &str = "\
-Usage: prog [OPTIONS]
-
-Options:
-      --config
-          The config file used by the myprog must be in JSON format
-          with only valid keys and may not contain other nonsense
-          that cannot be read by this program. Obviously I'm going on
-          and on, so I'll stop now.
-
-  -h, --help
-          Print help (see a summary with '-h')
-";
-
     let cmd = Command::new("prog").arg(
         Arg::new("cfg")
             .long("config")
@@ -2284,7 +2433,22 @@ that cannot be read by this program. Obviously I'm going on
 and on, so I'll stop now.",
             ),
     );
-    utils::assert_output(cmd, "prog --help", ISSUE_1642, false);
+
+    let expected = str![[r#"
+Usage: prog [OPTIONS]
+
+Options:
+      --config
+          The config file used by the myprog must be in JSON format
+          with only valid keys and may not contain other nonsense
+          that cannot be read by this program. Obviously I'm going on
+          and on, so I'll stop now.
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "prog --help", expected, false);
 }
 
 const AFTER_HELP_NO_ARGS: &str = "\
@@ -2308,57 +2472,40 @@ fn after_help_no_args() {
 
 #[test]
 fn help_subcmd_help() {
-    static HELP_SUBCMD_HELP: &str = "\
+    let cmd = Command::new("myapp")
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    let expected = str![[r#"
 Print this message or the help of the given subcommand(s)
 
 Usage: myapp help [COMMAND]...
 
 Arguments:
   [COMMAND]...  Print help for the subcommand(s)
-";
 
-    let cmd = Command::new("myapp")
-        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
-
-    utils::assert_output(cmd.clone(), "myapp help help", HELP_SUBCMD_HELP, false);
+"#]];
+    utils::assert_output(cmd.clone(), "myapp help help", expected, false);
 }
 
 #[test]
 fn subcmd_help_subcmd_help() {
-    static SUBCMD_HELP_SUBCMD_HELP: &str = "\
+    let cmd = Command::new("myapp")
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    let expected = str![[r#"
 Print this message or the help of the given subcommand(s)
 
 Usage: myapp subcmd help [COMMAND]...
 
 Arguments:
   [COMMAND]...  Print help for the subcommand(s)
-";
 
-    let cmd = Command::new("myapp")
-        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
-
-    utils::assert_output(
-        cmd.clone(),
-        "myapp subcmd help help",
-        SUBCMD_HELP_SUBCMD_HELP,
-        false,
-    );
+"#]];
+    utils::assert_output(cmd.clone(), "myapp subcmd help help", expected, false);
 }
 
 #[test]
 fn global_args_should_show_on_toplevel_help_message() {
-    static HELP: &str = "\
-Usage: myapp [OPTIONS] [COMMAND]
-
-Commands:
-  subcmd\x20\x20
-  help    Print this message or the help of the given subcommand(s)
-
-Options:
-  -g, --some-global <someglobal>\x20\x20
-  -h, --help                      Print help
-";
-
     let cmd = Command::new("myapp")
         .arg(
             Arg::new("someglobal")
@@ -2368,46 +2515,46 @@ Options:
         )
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
-    utils::assert_output(cmd, "myapp help", HELP, false);
+    let expected = str![[r#"
+Usage: myapp [OPTIONS] [COMMAND]
+
+Commands:
+  subcmd  
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -g, --some-global <someglobal>  
+  -h, --help                      Print help
+
+"#]];
+    utils::assert_output(cmd, "myapp help", expected, false);
 }
 
 #[test]
 fn global_args_should_not_show_on_help_message_for_help_help() {
-    static HELP_HELP: &str = "\
+    let cmd = Command::new("myapp")
+        .arg(
+            Arg::new("someglobal")
+                .short('g')
+                .long("some-global")
+                .global(true),
+        )
+        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
+
+    let expected = str![[r#"
 Print this message or the help of the given subcommand(s)
 
 Usage: myapp help [COMMAND]...
 
 Arguments:
   [COMMAND]...  Print help for the subcommand(s)
-";
 
-    let cmd = Command::new("myapp")
-        .arg(
-            Arg::new("someglobal")
-                .short('g')
-                .long("some-global")
-                .global(true),
-        )
-        .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
-
-    utils::assert_output(cmd, "myapp help help", HELP_HELP, false);
+"#]];
+    utils::assert_output(cmd, "myapp help help", expected, false);
 }
 
 #[test]
 fn global_args_should_show_on_help_message_for_subcommand() {
-    static HELP_SUBCMD: &str = "\
-Usage: myapp subcmd [OPTIONS] [COMMAND]
-
-Commands:
-  multi\x20\x20
-  help   Print this message or the help of the given subcommand(s)
-
-Options:
-  -g, --some-global <someglobal>\x20\x20
-  -h, --help                      Print help
-";
-
     let cmd = Command::new("myapp")
         .arg(
             Arg::new("someglobal")
@@ -2417,20 +2564,23 @@ Options:
         )
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
-    utils::assert_output(cmd, "myapp help subcmd", HELP_SUBCMD, false);
+    let expected = str![[r#"
+Usage: myapp subcmd [OPTIONS] [COMMAND]
+
+Commands:
+  multi  
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -g, --some-global <someglobal>  
+  -h, --help                      Print help
+
+"#]];
+    utils::assert_output(cmd, "myapp help subcmd", expected, false);
 }
 
 #[test]
 fn global_args_should_show_on_help_message_for_nested_subcommand() {
-    static HELP_SUB_SUBCMD: &str = "\
-Usage: myapp subcmd multi [OPTIONS]
-
-Options:
-  -g, --some-global <someglobal>\x20\x20
-  -h, --help                      Print help
-  -V, --version                   Print version
-";
-
     let cmd = Command::new("myapp")
         .arg(
             Arg::new("someglobal")
@@ -2440,25 +2590,20 @@ Options:
         )
         .subcommand(Command::new("subcmd").subcommand(Command::new("multi").version("1.0")));
 
-    utils::assert_output(cmd, "myapp help subcmd multi", HELP_SUB_SUBCMD, false);
+    let expected = str![[r#"
+Usage: myapp subcmd multi [OPTIONS]
+
+Options:
+  -g, --some-global <someglobal>  
+  -h, --help                      Print help
+  -V, --version                   Print version
+
+"#]];
+    utils::assert_output(cmd, "myapp help subcmd multi", expected, false);
 }
 
 #[test]
 fn option_usage_order() {
-    static OPTION_USAGE_ORDER: &str = "\
-Usage: order [OPTIONS]
-
-Options:
-  -a                   
-  -B                   
-  -b                   
-  -s                   
-      --select_file    
-      --select_folder  
-  -x                   
-  -h, --help           Print help
-";
-
     let cmd = Command::new("order").args([
         Arg::new("a").short('a').action(ArgAction::SetTrue),
         Arg::new("B").short('B').action(ArgAction::SetTrue),
@@ -2473,12 +2618,32 @@ Options:
         Arg::new("x").short('x').action(ArgAction::SetTrue),
     ]);
 
-    utils::assert_output(cmd, "order --help", OPTION_USAGE_ORDER, false);
+    let expected = str![[r#"
+Usage: order [OPTIONS]
+
+Options:
+  -a                   
+  -B                   
+  -b                   
+  -s                   
+      --select_file    
+      --select_folder  
+  -x                   
+  -h, --help           Print help
+
+"#]];
+    utils::assert_output(cmd, "order --help", expected, false);
 }
 
 #[test]
 fn prefer_about_over_long_about_in_subcommands_list() {
-    static ABOUT_IN_COMMANDS_LIST: &str = "\
+    let cmd = Command::new("about-in-subcommands-list").subcommand(
+        Command::new("sub")
+            .long_about("long about sub")
+            .about("short about sub"),
+    );
+
+    let expected = str![[r#"
 Usage: about-in-subcommands-list [COMMAND]
 
 Commands:
@@ -2487,36 +2652,13 @@ Commands:
 
 Options:
   -h, --help  Print help
-";
 
-    let cmd = Command::new("about-in-subcommands-list").subcommand(
-        Command::new("sub")
-            .long_about("long about sub")
-            .about("short about sub"),
-    );
-
-    utils::assert_output(
-        cmd,
-        "about-in-subcommands-list --help",
-        ABOUT_IN_COMMANDS_LIST,
-        false,
-    );
+"#]];
+    utils::assert_output(cmd, "about-in-subcommands-list --help", expected, false);
 }
 
 #[test]
 fn issue_1794_usage() {
-    static USAGE_WITH_GROUP: &str = "\
-Usage: deno <pos1|--option1> [pos2]
-
-Arguments:
-  [pos1]  
-  [pos2]  
-
-Options:
-      --option1  
-  -h, --help     Print help
-";
-
     let cmd = Command::new("hello")
         .bin_name("deno")
         .arg(
@@ -2532,10 +2674,30 @@ Options:
         )
         .arg(Arg::new("pos2").action(ArgAction::Set));
 
-    utils::assert_output(cmd, "deno --help", USAGE_WITH_GROUP, false);
+    let expected = str![[r#"
+Usage: deno <pos1|--option1> [pos2]
+
+Arguments:
+  [pos1]  
+  [pos2]  
+
+Options:
+      --option1  
+  -h, --help     Print help
+
+"#]];
+    utils::assert_output(cmd, "deno --help", expected, false);
 }
 
-static CUSTOM_HEADING_POS: &str = "\
+#[test]
+fn custom_heading_pos() {
+    let cmd = Command::new("test")
+        .version("1.4")
+        .arg(Arg::new("gear").help("Which gear"))
+        .next_help_heading(Some("NETWORKING"))
+        .arg(Arg::new("speed").help("How fast"));
+
+    let expected = str![[r#"
 Usage: test [gear] [speed]
 
 Arguments:
@@ -2547,25 +2709,10 @@ Options:
 
 NETWORKING:
   [speed]  How fast
-";
 
-#[test]
-fn custom_heading_pos() {
-    let cmd = Command::new("test")
-        .version("1.4")
-        .arg(Arg::new("gear").help("Which gear"))
-        .next_help_heading(Some("NETWORKING"))
-        .arg(Arg::new("speed").help("How fast"));
-
-    utils::assert_output(cmd, "test --help", CUSTOM_HEADING_POS, false);
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
-
-static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "\
-Usage: test [OPTIONS]
-
-NETWORKING:
-  -s, --speed <SPEED>  How fast
-";
 
 #[test]
 fn only_custom_heading_opts_no_args() {
@@ -2577,15 +2724,15 @@ fn only_custom_heading_opts_no_args() {
         .next_help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast"));
 
-    utils::assert_output(cmd, "test --help", ONLY_CUSTOM_HEADING_OPTS_NO_ARGS, false);
-}
-
-static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "\
-Usage: test [speed]
+    let expected = str![[r#"
+Usage: test [OPTIONS]
 
 NETWORKING:
-  [speed]  How fast
-";
+  -s, --speed <SPEED>  How fast
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
 
 #[test]
 fn only_custom_heading_pos_no_args() {
@@ -2597,7 +2744,14 @@ fn only_custom_heading_pos_no_args() {
         .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
-    utils::assert_output(cmd, "test --help", ONLY_CUSTOM_HEADING_POS_NO_ARGS, false);
+    let expected = str![[r#"
+Usage: test [speed]
+
+NETWORKING:
+  [speed]  How fast
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
@@ -2610,19 +2764,17 @@ fn issue_2508_number_of_values_with_single_value_name() {
                 .num_args(2)
                 .value_name("ARG"),
         );
-    utils::assert_output(
-        cmd,
-        "my_app --help",
-        "\
+
+    let expected = str![[r#"
 Usage: my_app [OPTIONS]
 
 Options:
       --some_arg <some_arg> <some_arg>  
       --some_arg_issue <ARG> <ARG>      
   -h, --help                            Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "my_app --help", expected, false);
 }
 
 #[test]
@@ -2631,10 +2783,8 @@ fn missing_positional_final_required() {
         .allow_missing_positional(true)
         .arg(Arg::new("arg1"))
         .arg(Arg::new("arg2").required(true));
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test [arg1] <arg2>
 
 Arguments:
@@ -2643,9 +2793,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
@@ -2655,10 +2805,8 @@ fn missing_positional_final_multiple() {
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar"))
         .arg(Arg::new("baz").action(ArgAction::Set).num_args(1..));
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test [foo] [bar] [baz]...
 
 Arguments:
@@ -2668,9 +2816,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
@@ -2681,10 +2829,8 @@ fn positional_multiple_values_is_dotted() {
             .action(ArgAction::Set)
             .num_args(1..),
     );
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test <foo>...
 
 Arguments:
@@ -2692,9 +2838,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 
     let cmd = Command::new("test").arg(
         Arg::new("foo")
@@ -2703,10 +2849,8 @@ Options:
             .value_name("BAR")
             .num_args(1..),
     );
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test <BAR>...
 
 Arguments:
@@ -2714,9 +2858,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
@@ -2728,10 +2872,8 @@ fn positional_multiple_occurrences_is_dotted() {
             .num_args(1..)
             .action(ArgAction::Append),
     );
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test <foo>...
 
 Arguments:
@@ -2739,9 +2881,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 
     let cmd = Command::new("test").arg(
         Arg::new("foo")
@@ -2751,10 +2893,8 @@ Options:
             .num_args(1..)
             .action(ArgAction::Append),
     );
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test <BAR>...
 
 Arguments:
@@ -2762,9 +2902,9 @@ Arguments:
 
 Options:
   -h, --help  Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
@@ -2777,18 +2917,16 @@ fn too_few_value_names_is_dotted() {
             .num_args(3)
             .value_names(["one", "two"]),
     );
-    utils::assert_output(
-        cmd,
-        "test --help",
-        "\
+
+    let expected = str![[r#"
 Usage: test --foo <one> <two>...
 
 Options:
       --foo <one> <two>...  
   -h, --help                Print help
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
 }
 
 #[test]
@@ -2877,19 +3015,16 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
     // currently ignores the `--help` flag, the output shouldn't have it.
     let cmd = Command::new("example").subcommand(Command::new("test").about("Subcommand"));
 
-    utils::assert_output(
-        cmd,
-        "example help help",
-        "\
+    let expected = str![[r#"
 Print this message or the help of the given subcommand(s)
 
 Usage: example help [COMMAND]...
 
 Arguments:
   [COMMAND]...  Print help for the subcommand(s)
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd, "example help help", expected, false);
 }
 
 #[test]
@@ -2918,19 +3053,16 @@ fn dont_propagate_version_to_help_subcommand() {
         .propagate_version(true)
         .subcommand(Command::new("subcommand"));
 
-    utils::assert_output(
-        cmd.clone(),
-        "example help help",
-        "\
+    let expected = str![[r#"
 Print this message or the help of the given subcommand(s)
 
 Usage: example help [COMMAND]...
 
 Arguments:
   [COMMAND]...  Print help for the subcommand(s)
-",
-        false,
-    );
+
+"#]];
+    utils::assert_output(cmd.clone(), "example help help", expected, false);
 
     cmd.debug_assert();
 }
@@ -2955,14 +3087,6 @@ fn help_without_short() {
 
 #[test]
 fn parent_cmd_req_in_usage_with_help_flag() {
-    static EXPECTED: &str = "\
-some
-
-Usage: parent <TARGET> <ARGS> test
-
-Options:
-  -h, --help  Print help
-";
     let cmd = Command::new("parent")
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).help("some"))
@@ -2973,19 +3097,21 @@ Options:
                 .help("some"),
         )
         .subcommand(Command::new("test").about("some"));
-    utils::assert_output(cmd, "parent test --help", EXPECTED, false);
+
+    let expected = str![[r#"
+some
+
+Usage: parent <TARGET> <ARGS> test
+
+Options:
+  -h, --help  Print help
+
+"#]];
+    utils::assert_output(cmd, "parent test --help", expected, false);
 }
 
 #[test]
 fn parent_cmd_req_in_usage_with_help_subcommand() {
-    static EXPECTED: &str = "\
-some
-
-Usage: parent <TARGET> <ARGS> test
-
-Options:
-  -h, --help  Print help
-";
     let cmd = Command::new("parent")
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).help("some"))
@@ -2996,7 +3122,17 @@ Options:
                 .help("some"),
         )
         .subcommand(Command::new("test").about("some"));
-    utils::assert_output(cmd, "parent help test", EXPECTED, false);
+
+    let expected = str![[r#"
+some
+
+Usage: parent <TARGET> <ARGS> test
+
+Options:
+  -h, --help  Print help
+
+"#]];
+    utils::assert_output(cmd, "parent help test", expected, false);
 }
 
 #[test]
@@ -3015,7 +3151,9 @@ fn parent_cmd_req_in_usage_with_render_help() {
     let subcmd = cmd.find_subcommand_mut("test").unwrap();
 
     let help = subcmd.render_help().to_string();
-    assert_data_eq!(help, str![[r#"
+    assert_data_eq!(
+        help,
+        str![[r#"
 some
 
 Usage: parent <TARGET> <ARGS> test
@@ -3023,46 +3161,61 @@ Usage: parent <TARGET> <ARGS> test
 Options:
   -h, --help  Print help
 
-"#]]);
+"#]]
+    );
 }
 
 #[test]
 fn parent_cmd_req_ignored_when_negates_reqs() {
-    static MULTI_SC_HELP: &str = "\
-Usage: ctest subcmd
-
-Options:
-  -h, --help  Print help
-";
-
     let cmd = Command::new("ctest")
         .arg(arg!(<input>))
         .subcommand_negates_reqs(true)
         .subcommand(Command::new("subcmd"));
-    utils::assert_output(cmd, "ctest subcmd --help", MULTI_SC_HELP, false);
-}
 
-#[test]
-fn parent_cmd_req_ignored_when_conflicts() {
-    static MULTI_SC_HELP: &str = "\
+    let expected = str![[r#"
 Usage: ctest subcmd
 
 Options:
   -h, --help  Print help
-";
 
+"#]];
+    utils::assert_output(cmd, "ctest subcmd --help", expected, false);
+}
+
+#[test]
+fn parent_cmd_req_ignored_when_conflicts() {
     let cmd = Command::new("ctest")
         .arg(arg!(<input>))
         .args_conflicts_with_subcommands(true)
         .subcommand(Command::new("subcmd"));
-    utils::assert_output(cmd, "ctest subcmd --help", MULTI_SC_HELP, false);
+
+    let expected = str![[r#"
+Usage: ctest subcmd
+
+Options:
+  -h, --help  Print help
+
+"#]];
+    utils::assert_output(cmd, "ctest subcmd --help", expected, false);
 }
 
 #[test]
 fn no_wrap_help() {
+    static MULTI_SC_HELP: &str = "\
+tests subcommands
+
+Usage: ctest subcmd multi [OPTIONS]
+
+Options:
+  -f, --flag                  tests flags
+  -o, --option <scoption>...  tests options
+  -h, --help                  Print help
+  -V, --version               Print version
+";
     let cmd = Command::new("ctest")
         .term_width(0)
         .override_help(MULTI_SC_HELP);
+
     utils::assert_output(cmd, "ctest --help", MULTI_SC_HELP, false);
 }
 
@@ -3108,7 +3261,17 @@ fn display_name_subcommand_explicit() {
 
 #[test]
 fn flatten_basic() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .arg(Arg::new("child").long("child")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3127,22 +3290,30 @@ test command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(Arg::new("parent").long("parent"))
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .arg(Arg::new("child").long("child")),
-        );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_short_help() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(
+            Arg::new("parent")
+                .long("parent")
+                .help("foo")
+                .long_help("bar"),
+        )
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .long_about("long some")
+                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3161,28 +3332,30 @@ test command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(
-            Arg::new("parent")
-                .long("parent")
-                .help("foo")
-                .long_help("bar"),
-        )
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .long_about("long some")
-                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
-        );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_long_help() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(
+            Arg::new("parent")
+                .long("parent")
+                .help("foo")
+                .long_help("bar"),
+        )
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .long_about("long some")
+                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3208,28 +3381,30 @@ parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...
           Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(
-            Arg::new("parent")
-                .long("parent")
-                .help("foo")
-                .long_help("bar"),
-        )
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .long_about("long some")
-                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
-        );
-    utils::assert_output(cmd, "parent --help", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent --help", expected, false);
 }
 
 #[test]
 fn flatten_help_cmd() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(
+            Arg::new("parent")
+                .long("parent")
+                .help("foo")
+                .long_help("bar"),
+        )
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .long_about("long some")
+                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3255,28 +3430,24 @@ parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...
           Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(
-            Arg::new("parent")
-                .long("parent")
-                .help("foo")
-                .long_help("bar"),
-        )
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .long_about("long some")
-                .arg(Arg::new("child").long("child").help("foo").long_help("bar")),
-        );
-    utils::assert_output(cmd, "parent help", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent help", expected, false);
 }
 
 #[test]
 fn flatten_with_global() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(Arg::new("parent").long("parent").global(true))
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .arg(Arg::new("child").long("child")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3295,22 +3466,24 @@ test command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(Arg::new("parent").long("parent").global(true))
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .arg(Arg::new("child").long("child")),
-        );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_arg_required() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(Arg::new("parent").long("parent").required(true))
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .arg(Arg::new("child").long("child").required(true)),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent --parent <parent>
@@ -3329,22 +3502,25 @@ test command
 parent --parent <parent> help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(Arg::new("parent").long("parent").required(true))
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .arg(Arg::new("child").long("child").required(true)),
-        );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_with_external_subcommand() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .allow_external_subcommands(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .arg(Arg::new("child").long("child")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3363,23 +3539,19 @@ test command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .allow_external_subcommands(true)
-        .arg(Arg::new("parent").long("parent"))
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .arg(Arg::new("child").long("child")),
-        );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_without_subcommands() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .arg(Arg::new("parent").long("parent"));
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3387,17 +3559,25 @@ Usage: parent [OPTIONS]
 Options:
       --parent <parent>  
   -h, --help             Print help
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .arg(Arg::new("parent").long("parent"));
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_with_subcommand_required() {
-    static EXPECTED: &str = "\
+    let cmd = Command::new("parent")
+        .flatten_help(true)
+        .about("parent command")
+        .subcommand_required(true)
+        .arg(Arg::new("parent").long("parent"))
+        .subcommand(
+            Command::new("test")
+                .about("test command")
+                .arg(Arg::new("child").long("child")),
+        );
+
+    let expected = str![[r#"
 parent command
 
 Usage: parent test [OPTIONS]
@@ -3415,23 +3595,26 @@ test command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
+}
+
+#[test]
+fn flatten_with_args_conflicts_with_subcommands() {
     let cmd = Command::new("parent")
         .flatten_help(true)
         .about("parent command")
         .subcommand_required(true)
+        .args_conflicts_with_subcommands(true)
         .arg(Arg::new("parent").long("parent"))
         .subcommand(
             Command::new("test")
                 .about("test command")
                 .arg(Arg::new("child").long("child")),
         );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
-}
 
-#[test]
-fn flatten_with_args_conflicts_with_subcommands() {
-    static EXPECTED: &str = "\
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
@@ -3450,32 +3633,13 @@ test command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
-    let cmd = Command::new("parent")
-        .flatten_help(true)
-        .about("parent command")
-        .subcommand_required(true)
-        .args_conflicts_with_subcommands(true)
-        .arg(Arg::new("parent").long("parent"))
-        .subcommand(
-            Command::new("test")
-                .about("test command")
-                .arg(Arg::new("child").long("child")),
-        );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
 
 #[test]
 fn flatten_single_hidden_command() {
-    static EXPECTED: &str = "\
-parent command
-
-Usage: parent [OPTIONS]
-
-Options:
-      --parent <parent>  
-  -h, --help             Print help
-";
     let cmd = Command::new("parent")
         .flatten_help(true)
         .about("parent command")
@@ -3486,37 +3650,22 @@ Options:
                 .about("child1 command")
                 .arg(Arg::new("child").long("child1")),
         );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
-}
 
-#[test]
-fn flatten_hidden_command() {
-    static EXPECTED: &str = "\
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
-       parent child1 [OPTIONS]
-       parent child2 [OPTIONS]
-       parent help [COMMAND]...
 
 Options:
       --parent <parent>  
   -h, --help             Print help
 
-parent child1:
-child1 command
-      --child1 <child>  
-  -h, --help            Print help
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
+}
 
-parent child2:
-child2 command
-      --child2 <child>  
-  -h, --help            Print help
-
-parent help:
-Print this message or the help of the given subcommand(s)
-  [COMMAND]...  Print help for the subcommand(s)
-";
+#[test]
+fn flatten_hidden_command() {
     let cmd = Command::new("parent")
         .flatten_help(true)
         .about("parent command")
@@ -3537,24 +3686,12 @@ Print this message or the help of the given subcommand(s)
                 .about("child3 command")
                 .arg(Arg::new("child").long("child3")),
         );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
-}
 
-#[test]
-fn flatten_recursive() {
-    static EXPECTED: &str = "\
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
        parent child1 [OPTIONS]
-       parent child1 grandchild1 [OPTIONS]
-       parent child1 grandchild1 greatgrandchild1 [OPTIONS]
-       parent child1 grandchild1 greatgrandchild2 [OPTIONS]
-       parent child1 grandchild1 greatgrandchild3 [OPTIONS]
-       parent child1 grandchild1 help [COMMAND]
-       parent child1 grandchild2 [OPTIONS]
-       parent child1 grandchild3 [OPTIONS]
-       parent child1 help [COMMAND]
        parent child2 [OPTIONS]
        parent help [COMMAND]...
 
@@ -3567,44 +3704,6 @@ child1 command
       --child1 <child>  
   -h, --help            Print help
 
-parent child1 grandchild1:
-grandchild1 command
-      --grandchild1 <grandchild>  
-  -h, --help                      Print help
-
-parent child1 grandchild1 greatgrandchild1:
-greatgrandchild1 command
-      --greatgrandchild1 <greatgrandchild>  
-  -h, --help                                Print help
-
-parent child1 grandchild1 greatgrandchild2:
-greatgrandchild2 command
-      --greatgrandchild2 <greatgrandchild>  
-  -h, --help                                Print help
-
-parent child1 grandchild1 greatgrandchild3:
-greatgrandchild3 command
-      --greatgrandchild3 <greatgrandchild>  
-  -h, --help                                Print help
-
-parent child1 grandchild1 help:
-Print this message or the help of the given subcommand(s)
-
-
-parent child1 grandchild2:
-grandchild2 command
-      --grandchild2 <grandchild>  
-  -h, --help                      Print help
-
-parent child1 grandchild3:
-grandchild3 command
-      --grandchild3 <grandchild>  
-  -h, --help                      Print help
-
-parent child1 help:
-Print this message or the help of the given subcommand(s)
-
-
 parent child2:
 child2 command
       --child2 <child>  
@@ -3613,7 +3712,13 @@ child2 command
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
+}
+
+#[test]
+fn flatten_recursive() {
     let cmd = Command::new("parent")
         .flatten_help(true)
         .about("parent command")
@@ -3697,18 +3802,21 @@ Print this message or the help of the given subcommand(s)
                         .arg(Arg::new("grandchild").long("grandchild3")),
                 ),
         );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
-}
 
-#[test]
-fn flatten_not_recursive() {
-    static EXPECTED: &str = "\
+    let expected = str![[r#"
 parent command
 
 Usage: parent [OPTIONS]
-       parent child1 [OPTIONS] [COMMAND]
+       parent child1 [OPTIONS]
+       parent child1 grandchild1 [OPTIONS]
+       parent child1 grandchild1 greatgrandchild1 [OPTIONS]
+       parent child1 grandchild1 greatgrandchild2 [OPTIONS]
+       parent child1 grandchild1 greatgrandchild3 [OPTIONS]
+       parent child1 grandchild1 help [COMMAND]
+       parent child1 grandchild2 [OPTIONS]
+       parent child1 grandchild3 [OPTIONS]
+       parent child1 help [COMMAND]
        parent child2 [OPTIONS]
-       parent child3 [OPTIONS]
        parent help [COMMAND]...
 
 Options:
@@ -3720,20 +3828,59 @@ child1 command
       --child1 <child>  
   -h, --help            Print help
 
+parent child1 grandchild1:
+grandchild1 command
+      --grandchild1 <grandchild>  
+  -h, --help                      Print help
+
+parent child1 grandchild1 greatgrandchild1:
+greatgrandchild1 command
+      --greatgrandchild1 <greatgrandchild>  
+  -h, --help                                Print help
+
+parent child1 grandchild1 greatgrandchild2:
+greatgrandchild2 command
+      --greatgrandchild2 <greatgrandchild>  
+  -h, --help                                Print help
+
+parent child1 grandchild1 greatgrandchild3:
+greatgrandchild3 command
+      --greatgrandchild3 <greatgrandchild>  
+  -h, --help                                Print help
+
+parent child1 grandchild1 help:
+Print this message or the help of the given subcommand(s)
+
+
+parent child1 grandchild2:
+grandchild2 command
+      --grandchild2 <grandchild>  
+  -h, --help                      Print help
+
+parent child1 grandchild3:
+grandchild3 command
+      --grandchild3 <grandchild>  
+  -h, --help                      Print help
+
+parent child1 help:
+Print this message or the help of the given subcommand(s)
+
+
 parent child2:
 child2 command
       --child2 <child>  
   -h, --help            Print help
 
-parent child3:
-child3 command
-      --child3 <child>  
-  -h, --help            Print help
-
 parent help:
 Print this message or the help of the given subcommand(s)
   [COMMAND]...  Print help for the subcommand(s)
-";
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
+}
+
+#[test]
+fn flatten_not_recursive() {
     let cmd = Command::new("parent")
         .flatten_help(true)
         .about("parent command")
@@ -3768,5 +3915,39 @@ Print this message or the help of the given subcommand(s)
                 .about("child3 command")
                 .arg(Arg::new("child").long("child3")),
         );
-    utils::assert_output(cmd, "parent -h", EXPECTED, false);
+
+    let expected = str![[r#"
+parent command
+
+Usage: parent [OPTIONS]
+       parent child1 [OPTIONS] [COMMAND]
+       parent child2 [OPTIONS]
+       parent child3 [OPTIONS]
+       parent help [COMMAND]...
+
+Options:
+      --parent <parent>  
+  -h, --help             Print help
+
+parent child1:
+child1 command
+      --child1 <child>  
+  -h, --help            Print help
+
+parent child2:
+child2 command
+      --child2 <child>  
+  -h, --help            Print help
+
+parent child3:
+child3 command
+      --child3 <child>  
+  -h, --help            Print help
+
+parent help:
+Print this message or the help of the given subcommand(s)
+  [COMMAND]...  Print help for the subcommand(s)
+
+"#]];
+    utils::assert_output(cmd, "parent -h", expected, false);
 }
