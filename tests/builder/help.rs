@@ -566,10 +566,20 @@ fn wrapped_help() {
                 .long("no-git-push")
                 .action(ArgAction::SetTrue)
                 .help("Do not push generated commit and tags to git remote"),
+        )
+        .subcommand(
+            Command::new("sub1")
+                .about("One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen")
         );
 
     let expected = str![[r#"
-Usage: test [OPTIONS]
+Usage: test [OPTIONS] [COMMAND]
+
+Commands:
+  sub1  One two three four five six seven eight nine ten eleven
+            twelve thirteen fourteen fifteen
+  help  Print this message or the help of the given
+            subcommand(s)
 
 Options:
   -a, --all            Also do versioning for private crates (will
@@ -614,10 +624,20 @@ fn unwrapped_help() {
                 .long("no-git-push")
                 .action(ArgAction::SetTrue)
                 .help("Do not push generated commit and tags to git remote"),
+        )
+        .subcommand(
+            Command::new("sub1")
+                .about("One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen")
         );
 
     let expected = str![[r#"
-Usage: test [OPTIONS]
+Usage: test [OPTIONS] [COMMAND]
+
+Commands:
+  sub1  One two three four five six seven eight nine ten eleven
+            twelve thirteen fourteen fifteen
+  help  Print this message or the help of the given
+            subcommand(s)
 
 Options:
   -a, --all            Also do versioning for private crates (will
