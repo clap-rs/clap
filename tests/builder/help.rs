@@ -577,9 +577,8 @@ Usage: test [OPTIONS] [COMMAND]
 
 Commands:
   sub1  One two three four five six seven eight nine ten eleven
-            twelve thirteen fourteen fifteen
-  help  Print this message or the help of the given
-            subcommand(s)
+        twelve thirteen fourteen fifteen
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
   -a, --all            Also do versioning for private crates (will
@@ -635,9 +634,8 @@ Usage: test [OPTIONS] [COMMAND]
 
 Commands:
   sub1  One two three four five six seven eight nine ten eleven
-            twelve thirteen fourteen fifteen
-  help  Print this message or the help of the given
-            subcommand(s)
+        twelve thirteen fourteen fifteen
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
   -a, --all            Also do versioning for private crates (will
