@@ -5,5 +5,5 @@ error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
   |          ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
   |
   = help: the following other types implement trait `clap::Args`:
-            Opt
             Box<T>
+            Opt

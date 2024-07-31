@@ -10,7 +10,7 @@ ifneq (${TOOLCHAIN_TARGET},)
   ARGS+=--target ${TOOLCHAIN_TARGET}
 endif
 
-MSRV?=1.74
+STABLE?=1.80
 
 _FEATURES = minimal default wasm full debug release
 _FEATURES_minimal = --no-default-features --features "std"
@@ -37,7 +37,7 @@ clippy-%:
 	cargo clippy ${_FEATURES_${@:clippy-%=%}} ${ARGS} --all-targets -- -D warnings -A deprecated
 
 test-ui-%:
-	cargo +${MSRV} test --test derive_ui --features derive ${_FEATURES_${@:test-ui-%=%}}
+	cargo +${STABLE} test --test derive_ui --features derive ${_FEATURES_${@:test-ui-%=%}}
 
 doc:
 	cargo doc --workspace --all-features --no-deps --document-private-items

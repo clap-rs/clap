@@ -2,4 +2,9 @@ error[E0599]: no method named `name` found for struct `ArgGroup` in the current 
   --> tests/derive_ui/group_name_attribute.rs:11:26
    |
 11 | #[group(required = true, name = "src")]
-   |                          ^^^^ method not found in `ArgGroup`
+   |                          ^^^^
+   |
+help: there is a method `ne` with a similar name
+   |
+11 | #[group(required = true, ne = "src")]
+   |                          ~~
