@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+#### Features
+
+- *(dynamic)* Support completing with `num_args`
+
 ## [4.5.11] - 2024-07-25
 
 #### Features
