@@ -5,7 +5,8 @@
 //! #### Default Features
 //!
 //! * `std`: _Not Currently Used._ Placeholder for supporting `no_std` environments in a backwards compatible manner.
-//! * `color`: Turns on colored error messages.
+//! * `color`: Turns on terminal styling of help and error messages.  See
+//!   [`Command::styles`][crate::Command::styles] to customize this.
 //! * `help`: Auto-generate help output
 //! * `usage`: Auto-generate usage
 //! * `error-context`: Include contextual information for errors (which arg failed, etc)
