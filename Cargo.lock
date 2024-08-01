@@ -570,15 +570,15 @@ checksum = "0b6a852b24ab71dffc585bcb46eaf7959d175cb865a7152e35b348d1b2960422"
 
 [[package]]
 name = "completest"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6cda99a94266124c2cce3d239973ef8ce3160c83a3f426a314285d9bf6422d1"
+checksum = "410de1ffe61368aa040f599747584e9e3d19235cf4045be6159edb167ef45ddb"
 
 [[package]]
 name = "completest-nu"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3006deac8ed40135bcdb5da3d190f7da17a5b897e0da6ea17179059aec6db60"
+checksum = "ffcc1bf2b48cda5a61ca565fa1f01344de38280e7acea8bcd3b48b5451c06c23"
 dependencies = [
  "completest",
  "dunce",
@@ -593,9 +593,9 @@ dependencies = [
 
 [[package]]
 name = "completest-pty"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee700748da7d34de4bbe0296d3153e8ef5217233d814d23fb68106c110dd9bc5"
+checksum = "3635aa91b48c47ea30fe12fe7c04efbbf17dade642d4dbaa1e9cfbf3593eed4a"
 dependencies = [
  "completest",
  "ptyprocess",
@@ -3293,9 +3293,9 @@ dependencies = [
 
 [[package]]
 name = "trybuild"
-version = "1.0.97"
+version = "1.0.99"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b1e5645f2ee8025c2f1d75e1138f2dd034d74e6ba54620f3c569ba2a2a1ea06"
+checksum = "207aa50d36c4be8d8c6ea829478be44a372c6a77669937bb39c698e52f1491e8"
 dependencies = [
  "glob",
  "serde",
@@ -3307,9 +3307,9 @@ dependencies = [
 
 [[package]]
 name = "trycmd"
-version = "0.15.4"
+version = "0.15.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59709bd8eccada6a3fded26d22a7f2dcee406c18d3bd7ad2605ca3eeb8f6f6ec"
+checksum = "3e8673f1dc45acdff8e25a06cc62f8e529563e8acd84237ce83d5a28e2befa12"
 dependencies = [
  "automod",
  "glob",
