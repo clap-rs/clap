@@ -52,7 +52,8 @@ string = []  # Allow runtime generated strings
 
 # In-work features
 unstable-v5 = ["deprecated"]
-unstable-styles = ["color"]
+unstable-ext = []
+unstable-styles = ["color"]  # deprecated
 
 [lib]
 bench = false
