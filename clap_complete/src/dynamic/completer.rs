@@ -1,7 +1,9 @@
-use core::num;
+use std::any::type_name;
 use std::ffi::OsStr;
 use std::ffi::OsString;
+use std::sync::Arc;
 
+use clap::builder::ArgExt;
 use clap::builder::StyledStr;
 use clap_lex::OsStrExt as _;
 
@@ -349,6 +351,12 @@ fn complete_arg_value(
                 })
             }));
         }
+    } else if let Some(completer) = arg.get::<ArgValueCompleter>() {
+        let value_os = match value {
+            Ok(value) => OsStr::new(value),
+            Err(value_os) => value_os,
+        };
+        values.extend(complete_custom_arg_value(value_os, completer));
     } else {
         let value_os = match value {
             Ok(value) => OsStr::new(value),
@@ -385,6 +393,7 @@ fn complete_arg_value(
                 values.extend(complete_path(value_os, current_dir, |_| true));
             }
         }
+
         values.sort();
     }
 
@@ -440,6 +449,21 @@ fn complete_path(
     }
 
     completions
+}
+
+fn complete_custom_arg_value(
+    value: &OsStr,
+    completer: &ArgValueCompleter,
+) -> Vec<CompletionCandidate> {
+    debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
+
+    let mut values = Vec::new();
+    let custom_arg_values = completer.0.completions();
+    values.extend(custom_arg_values);
+
+    values.retain(|comp| comp.get_content().starts_with(&value.to_string_lossy()));
+
+    values
 }
 
 fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandidate> {
@@ -701,3 +725,61 @@ impl CompletionCandidate {
         self.hidden
     }
 }
+
+/// User-provided completion candidates for an argument.
+///
+/// This is useful when predefined value hints are not enough.
+pub trait CustomCompleter: Send + Sync {
+    /// All potential candidates for an argument.
+    ///
+    /// See [`CompletionCandidate`] for more information.
+    fn completions(&self) -> Vec<CompletionCandidate>;
+}
+
+impl<F> CustomCompleter for F
+where
+    F: Fn() -> Vec<CompletionCandidate> + Send + Sync,
+{
+    fn completions(&self) -> Vec<CompletionCandidate> {
+        self()
+    }
+}
+
+/// A wrapper for custom completer
+///
+/// # Example
+///
+/// ```rust
+/// use clap::Parser;
+/// use clap_complete::dynamic::{ArgValueCompleter, CompletionCandidate};
+///
+/// #[derive(Debug, Parser)]
+/// struct Cli {
+///     #[arg(long, add = ArgValueCompleter::new(|| { vec![
+///         CompletionCandidate::new("foo"),
+///         CompletionCandidate::new("bar"),
+///         CompletionCandidate::new("baz")] }))]
+///     custom: Option<String>,
+/// }
+///    
+/// ```
+#[derive(Clone)]
+pub struct ArgValueCompleter(Arc<dyn CustomCompleter>);
+
+impl ArgValueCompleter {
+    /// Create a new `ArgValueCompleter` with a custom completer
+    pub fn new<C: CustomCompleter>(completer: C) -> Self
+    where
+        C: 'static + CustomCompleter,
+    {
+        Self(Arc::new(completer))
+    }
+}
+
+impl std::fmt::Debug for ArgValueCompleter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(type_name::<Self>())
+    }
+}
+
+impl ArgExt for ArgValueCompleter {}
