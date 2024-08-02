@@ -28,6 +28,8 @@ pub mod styling;
 pub use self::str::Str;
 pub use action::ArgAction;
 pub use arg::Arg;
+#[cfg(feature = "unstable-ext")]
+pub use arg::ArgExt;
 pub use arg_group::ArgGroup;
 pub use arg_predicate::ArgPredicate;
 pub use command::Command;

@@ -11,6 +11,10 @@ use std::{
 
 // Internal
 use super::{ArgFlags, ArgSettings};
+#[cfg(feature = "unstable-ext")]
+use crate::builder::ext::Extension;
+#[cfg(feature = "unstable-ext")]
+use crate::builder::ext::Extensions;
 use crate::builder::ArgPredicate;
 use crate::builder::IntoResettable;
 use crate::builder::OsStr;
@@ -86,6 +90,8 @@ pub struct Arg {
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<Str>>,
     pub(crate) value_hint: Option<ValueHint>,
+    #[cfg(feature = "unstable-ext")]
+    pub(crate) ext: Extensions,
 }
 
 /// # Basic API
@@ -868,6 +874,18 @@ impl Arg {
     pub(crate) fn unset_setting(mut self, setting: ArgSettings) -> Self {
         self.settings.unset(setting);
         self
+    }
+
+    /// Extend [`Arg`] with [`ArgExt`] data
+    #[cfg(feature = "unstable-ext")]
+    pub fn add<T: ArgExt + Extension>(&mut self, tagged: T) -> bool {
+        self.ext.set(tagged)
+    }
+
+    /// Remove an [`ArgExt`]
+    #[cfg(feature = "unstable-ext")]
+    pub fn remove<T: ArgExt + Extension>(&mut self) -> Option<T> {
+        self.ext.remove::<T>()
     }
 }
 
@@ -4210,6 +4228,12 @@ impl Arg {
     pub fn is_ignore_case_set(&self) -> bool {
         self.is_set(ArgSettings::IgnoreCase)
     }
+
+    /// Access an [`ArgExt`]
+    #[cfg(feature = "unstable-ext")]
+    pub fn get<T: ArgExt + Extension>(&self) -> Option<&T> {
+        self.ext.get::<T>()
+    }
 }
 
 /// # Internally used only
@@ -4492,9 +4516,18 @@ impl fmt::Debug for Arg {
             ds = ds.field("env", &self.env);
         }
 
+        #[cfg(feature = "unstable-ext")]
+        {
+            ds = ds.field("ext", &self.ext);
+        }
+
         ds.finish()
     }
 }
+
+/// User-provided data that can be attached to an [`Arg`]
+#[cfg(feature = "unstable-ext")]
+pub trait ArgExt: Extension {}
 
 // Flags
 #[cfg(test)]
