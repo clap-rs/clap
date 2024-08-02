@@ -68,6 +68,7 @@ mod macros;
 pub mod generator;
 pub mod shells;
 
+pub use clap::ValueHint;
 pub use generator::generate;
 pub use generator::generate_to;
 pub use generator::Generator;
