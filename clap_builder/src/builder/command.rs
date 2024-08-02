@@ -1157,6 +1157,8 @@ impl Command {
 
     /// Sets when to color output.
     ///
+    /// To customize how the output is styled, see [`Command::styles`].
+    ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
     /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
