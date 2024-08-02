@@ -67,6 +67,9 @@ pub enum ValueHint {
     EmailAddress,
 }
 
+#[cfg(feature = "unstable-ext")]
+impl crate::builder::ArgExt for ValueHint {}
+
 impl FromStr for ValueHint {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {

@@ -13,7 +13,6 @@ use std::{
 use super::{ArgFlags, ArgSettings};
 #[cfg(feature = "unstable-ext")]
 use crate::builder::ext::Extension;
-#[cfg(feature = "unstable-ext")]
 use crate::builder::ext::Extensions;
 use crate::builder::ArgPredicate;
 use crate::builder::IntoResettable;
@@ -89,8 +88,6 @@ pub struct Arg {
     pub(crate) terminator: Option<Str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<Str>>,
-    pub(crate) value_hint: Option<ValueHint>,
-    #[cfg(feature = "unstable-ext")]
     pub(crate) ext: Extensions,
 }
 
@@ -1309,7 +1306,15 @@ impl Arg {
     /// ```
     #[must_use]
     pub fn value_hint(mut self, value_hint: impl IntoResettable<ValueHint>) -> Self {
-        self.value_hint = value_hint.into_resettable().into_option();
+        // HACK: we should use `Self::add` and `Self::remove` to type-check that `ArgExt` is used
+        match value_hint.into_resettable().into_option() {
+            Some(value_hint) => {
+                self.ext.set(value_hint);
+            }
+            None => {
+                self.ext.remove::<ValueHint>();
+            }
+        }
         self
     }
 
@@ -4040,7 +4045,8 @@ impl Arg {
 
     /// Get the value hint of this argument
     pub fn get_value_hint(&self) -> ValueHint {
-        self.value_hint.unwrap_or_else(|| {
+        // HACK: we should use `Self::add` and `Self::remove` to type-check that `ArgExt` is used
+        self.ext.get::<ValueHint>().copied().unwrap_or_else(|| {
             if self.is_takes_value_set() {
                 let type_id = self.get_value_parser().type_id();
                 if type_id == AnyValueId::of::<std::path::PathBuf>() {
@@ -4508,17 +4514,12 @@ impl fmt::Debug for Arg {
             .field("terminator", &self.terminator)
             .field("index", &self.index)
             .field("help_heading", &self.help_heading)
-            .field("value_hint", &self.value_hint)
-            .field("default_missing_vals", &self.default_missing_vals);
+            .field("default_missing_vals", &self.default_missing_vals)
+            .field("ext", &self.ext);
 
         #[cfg(feature = "env")]
         {
             ds = ds.field("env", &self.env);
-        }
-
-        #[cfg(feature = "unstable-ext")]
-        {
-            ds = ds.field("ext", &self.ext);
         }
 
         ds.finish()
