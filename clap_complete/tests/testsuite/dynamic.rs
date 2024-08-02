@@ -591,6 +591,13 @@ val3
 }
 
 #[test]
+fn suggest_custom_arg_value() {
+    let mut cmd = Command::new("dynamic").arg(clap::Arg::new("custom").long("custom"));
+
+    assert_data_eq!(complete!(cmd, "--custom [TAB]"), snapbox::str![""],);
+}
+
+#[test]
 fn suggest_multi_positional() {
     let mut cmd = Command::new("dynamic")
         .arg(
