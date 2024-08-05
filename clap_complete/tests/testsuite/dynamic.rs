@@ -661,18 +661,35 @@ tab"
         snapbox::str!["--delimiter=comma"]
     );
 
-    assert_data_eq!(complete!(cmd, "--delimiter comma,[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "--delimiter comma,[TAB]"),
+        snapbox::str![
+            "comma,comma
+comma,space
+comma,tab"
+        ]
+    );
 
-    assert_data_eq!(complete!(cmd, "--delimiter=comma,[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=comma,[TAB]"),
+        snapbox::str![
+            "--delimiter=comma,comma
+--delimiter=comma,space
+--delimiter=comma,tab
+--delimiter=comma,a_pos
+--delimiter=comma,b_pos
+--delimiter=comma,c_pos"
+        ]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--delimiter comma,s[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["comma,space"]
     );
 
     assert_data_eq!(
         complete!(cmd, "--delimiter=comma,s[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["--delimiter=comma,space"]
     );
 
     assert_data_eq!(
@@ -697,13 +714,36 @@ tab"
 
     assert_data_eq!(complete!(cmd, "-D=c[TAB]"), snapbox::str!["-D=comma"]);
 
-    assert_data_eq!(complete!(cmd, "-D comma,[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-D comma,[TAB]"),
+        snapbox::str![
+            "comma,comma
+comma,space
+comma,tab"
+        ]
+    );
 
-    assert_data_eq!(complete!(cmd, "-D=comma,[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-D=comma,[TAB]"),
+        snapbox::str![
+            "-D=comma,comma
+-D=comma,space
+-D=comma,tab
+-D=comma,a_pos
+-D=comma,b_pos
+-D=comma,c_pos"
+        ]
+    );
 
-    assert_data_eq!(complete!(cmd, "-D comma,s[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-D comma,s[TAB]"),
+        snapbox::str!["comma,space"]
+    );
 
-    assert_data_eq!(complete!(cmd, "-D=comma,s[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-D=comma,s[TAB]"),
+        snapbox::str!["-D=comma,space"]
+    );
 
     assert_data_eq!(
         complete!(cmd, "-- [TAB]"),
@@ -718,9 +758,19 @@ c_pos"
         ]
     );
 
-    assert_data_eq!(complete!(cmd, " -- a_pos,[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, " -- a_pos,[TAB]"),
+        snapbox::str![
+            "a_pos,a_pos
+a_pos,b_pos
+a_pos,c_pos"
+        ]
+    );
 
-    assert_data_eq!(complete!(cmd, "-- a_pos,b[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-- a_pos,b[TAB]"),
+        snapbox::str!["a_pos,b_pos"]
+    );
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {

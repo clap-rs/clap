@@ -262,6 +262,9 @@ fn complete_arg_value(
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
+    let (prefix, value) =
+        rsplit_delimiter(value, arg.get_value_delimiter()).unwrap_or((None, value));
+
     let value_os = match value {
         Ok(value) => OsStr::new(value),
         Err(value_os) => value_os,
@@ -316,7 +319,26 @@ fn complete_arg_value(
         values.sort();
     }
 
+    if let Some(prefix) = prefix {
+        values = values
+            .into_iter()
+            .map(|comp| comp.add_prefix(prefix))
+            .collect();
+    }
     values
+}
+
+fn rsplit_delimiter<'s, 'o>(
+    value: Result<&'s str, &'o OsStr>,
+    delimiter: Option<char>,
+) -> Option<(Option<&'s str>, Result<&'s str, &'o OsStr>)> {
+    let delimiter = delimiter?;
+    let value = value.ok()?;
+    let pos = value.rfind(delimiter)?;
+    let (prefix, value) = value
+        .split_at_checked(pos + delimiter.len_utf8())
+        .expect("since delimiter was found, it is within bounds");
+    Some((Some(prefix), Ok(value)))
 }
 
 fn complete_path(
