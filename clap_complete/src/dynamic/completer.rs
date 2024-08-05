@@ -311,6 +311,23 @@ fn complete_arg_value(
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
+    let (prefix, value) = match arg.get_value_delimiter() {
+        Some(delimiter) => match value {
+            Ok(value_os) => match value_os.rfind(delimiter) {
+                Some(pos) => {
+                    // SAFETY: `pos + delimiter.len_utf8()` is guaranteed to be within the bounds of `value_os`
+                    // `pos` is the first byte index of the last match of delimiter
+                    // `delimiter.len_utf8()` is the length of the delimiter in bytes
+                    let (prefix, value) = value_os.split_at(pos + delimiter.len_utf8());
+                    (Some(prefix), Ok(value))
+                }
+                None => (None, Ok(value_os)),
+            },
+            Err(value_os) => (None, Err(value_os)),
+        },
+        None => (None, value),
+    };
+
     if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
             values.extend(possible_values.into_iter().filter_map(|p| {
@@ -361,6 +378,12 @@ fn complete_arg_value(
         values.sort();
     }
 
+    if let Some(prefix) = prefix {
+        values = values
+            .into_iter()
+            .map(|comp| comp.add_prefix(prefix))
+            .collect();
+    }
     values
 }
 
